@@ -26,7 +26,7 @@
     "viewAll": "ดูทั้งหมด",
     "seeOriginal": "ดูต้นฉบับ",
     "seeTranslation": "ดูคำแปล",
-    "translatedFrom": "แปลจาก {{language}}",
+    "translatedFrom": "แปลจาก XPHB0XPHX",
     "details": "รายละเอียด",
     "status": "สถานะ",
     "active": "สินทรัพย์",
@@ -75,7 +75,7 @@
     "memberSince": "เป็นสมาชิกตั้งแต่",
     "featuredProducts": "สินค้าแนะนำ",
     "sendMessage": "ส่งข้อความ",
-    "coverImage": "ภาพหน้าปก",
+    "coverImage": "ภาพปก",
     "logo": "โลโก้",
     "gross": "ขรุขระ",
     "net": "สุทธิ",
@@ -149,7 +149,8 @@
     "organic": "ออร์แกนิก",
     "seafood": "อาหารทะเล",
     "superfoods": "สุดยอด",
-    "viewAllResults": "ดูผลลัพธ์ทั้งหมด"
+    "viewAllResults": "ดูผลลัพธ์ทั้งหมด",
+    "socialCommerceAlimentarioParaDescubr": "การค้าขายอาหารแบบโซเชียลเพื่อค้นหาผู้ผลิตที่ซื่อสัตย์ ซื้อสินค้าอย่างโปร่งใส และมีส่วนร่วมกับชุมชน"
   },
   "header": {
     "products": "สินค้า",
@@ -239,13 +240,13 @@
     "nichePlaceholder": "ตัวอย่าง: อาหารเพื่อสุขภาพ การออกกำลังกาย วิถีชีวิต...",
     "followers": "จำนวนผู้ติดตาม",
     "followersHelp": "ต้องมีผู้ติดตามอย่างน้อย 1,000 คน",
-    "instagram": "Instagram",
-    "tiktok": "TikTok",
-    "youtube": "YouTube",
-    "twitter": "Twitterตอร์/เอ็กซ์",
+    "instagram": "อินสตาแกรม",
+    "tiktok": "ติ๊กต็อก",
+    "youtube": "ยูทูบ",
+    "twitter": "ทวิตเตอร์/เอ็กซ์",
     "createAccount": "สร้างบัญชี",
     "creating": "กำลังสร้างบัญชี...",
-    "producerPendingNote": "บัญชีผู้ผลิตต้องได้รับการอนุมัติจากผู้ดูแลระบบก่อนจึงจะเริ่มขายได้ บัญชีของคุณจะถูกสร้างขึ้นโดยมีสถานะรอการอนุมัติ",
+    "producerPendingNote": "บัญชีผู้ผลิตต้องได้รับการอนุมัติจากผู้ดูแลระบบก่อนจึงจะเริ่มขายได้ บัญชีของคุณจะถูกสร้างขึ้นในสถานะรอการอนุมัติ",
     "influencerPendingNote": "บัญชีอินฟลูเอนเซอร์ต้องได้รับการอนุมัติจากผู้ดูแลระบบ เมื่อได้รับอนุมัติแล้ว คุณสามารถสร้างรหัสส่วนลดเฉพาะของคุณเองและเริ่มรับค่าคอมมิชชั่นได้",
     "commissionPerSale": "ค่าคอมมิชชั่นต่อระดับ (ระยะเวลาติดตามผล 18 เดือน)",
     "discountForFollowers": "ส่วนลดสำหรับผู้ติดตามของคุณ",
@@ -255,7 +256,29 @@
     "isInfluencer": "คุณคืออินฟลูเอนเซอร์",
     "joinProgram": "เข้าร่วมโครงการ",
     "justBuy": "คุณแค่อยากซื้อ",
-    "createBuyerAccount": "สร้างบัญชีผู้ซื้อ"
+    "createBuyerAccount": "สร้างบัญชีผู้ซื้อ",
+    "errorAlConectarConGoogle": "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Google",
+    "mariaGarcia": "มาเรีย การ์เซีย",
+    "minimo8Caracteres": "อย่างน้อย 8 ตัวอักษร",
+    "arabiaSaudi": "ซาอุดีอาระเบีย",
+    "elNombreEsObligatorio": "ต้องระบุชื่อ",
+    "emailNoValido": "อีเมลไม่ถูกต้อง",
+    "minimo3Caracteres": "อย่างน้อย 3 ตัวอักษร",
+    "esteUsuarioYaEstaEnUso": "บัญชีผู้ใช้นี้ถูกใช้งานอยู่แล้ว",
+    "laFechaDeNacimientoEsObligatoria": "ต้องระบุวันเดือนปีเกิด",
+    "debesAceptarLosTerminos": "คุณต้องยอมรับข้อกำหนด",
+    "elNombreDeEmpresaEsObligatorio": "ต้องระบุชื่อบริษัท",
+    "introduceAlMenosUnaRedSocial": "ป้อนอย่างน้อยหนึ่งเครือข่ายสังคมออนไลน์",
+    "laContrasenaDebeTenerAlMenos8Cara": "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร",
+    "elEmailNoEsValido": "ที่อยู่อีเมลไม่ถูกต้อง",
+    "elNombreDeUsuarioNoEsValido": "ชื่อผู้ใช้ไม่ถูกต้อง",
+    "errorDeValidacion": "ข้อผิดพลาดในการตรวจสอบความถูกต้อง",
+    "errorAlCrearLaCuenta": "เกิดข้อผิดพลาดในการสร้างบัญชี",
+    "debesTenerAlMenos16Anos": "คุณต้องมีอายุอย่างน้อย 16 ปี",
+    "letrasNumerosPuntosYGuionesBajos": "ตัวอักษร ตัวเลข จุด และขีดล่าง (ไม่เกิน 20 ตัวอักษร)",
+    "seleccionarPais": "เลือกประเทศ",
+    "terminosYCondiciones": "ข้อกำหนดและเงื่อนไข",
+    "politicaDePrivacidad": "นโยบายความเป็นส่วนตัว"
   },
   "products": {
     "title": "สินค้าทั้งหมด",
@@ -267,7 +290,7 @@
     "soldOut": "เหนื่อย",
     "onlyLeft": "เหลือเพียง {0} เท่านั้น",
     "lowStock": "เหลือเพียง {{count}} เท่านั้น",
-    "byProducer": "โดย {{producer}}",
+    "byProducer": "โดย XPHBX0XPHX",
     "origin": "ต้นทาง",
     "price": "ราคา",
     "category": "หมวดหมู่",
@@ -314,7 +337,15 @@
     "applyFilters": "ใช้ตัวกรอง",
     "notAvailableCountry": "สินค้าชิ้นนี้ไม่สามารถจัดส่งในประเทศของคุณได้",
     "notAvailable": "ไม่พร้อมใช้งาน",
-    "notAvailableRegion": "ไม่สามารถใช้งานได้ในภูมิภาคของคุณ"
+    "notAvailableRegion": "ไม่สามารถใช้งานได้ในภูมิภาคของคุณ",
+    "vistaCuadricula": "มุมมองแบบตาราง",
+    "precioMinimo": "ราคาขั้นต่ำ",
+    "precioMaximo": "ราคาสูงสุด",
+    "quitarFiltroDeCategoria": "ลบตัวกรองหมวดหมู่",
+    "quitarFiltroDeEnvioGratis": "ลบตัวกรองการจัดส่งฟรีออก",
+    "quitarFiltroDePais": "ลบตัวกรองประเทศออก",
+    "america": "อเมริกา",
+    "compruebaTuConexionEIntentaloDeNue": "ตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง"
   },
   "certifications": {
     "halal": "ฮาลาล",
@@ -322,7 +353,19 @@
     "vegan": "มังสวิรัติ",
     "gluten-free": "ปราศจากกลูเตน",
     "sugar-free": "ปราศจากน้ำตาล",
-    "organic": "ออร์แกนิก"
+    "organic": "ออร์แกนิก",
+    "certificacionOficialDeProduccionEcol": "ใบรับรองอย่างเป็นทางการด้านการผลิตสินค้าเกษตรอินทรีย์จากสหภาพยุโรป",
+    "garantizaQueElProductoSeProduceTr": "เป็นการรับประกันว่าผลิตภัณฑ์นั้นได้รับการผลิต แปรรูป และผลิตในพื้นที่ทางภูมิศาสตร์ที่กำหนดไว้",
+    "alMenosUnaEtapaDeProduccionSeReal": "อย่างน้อยหนึ่งขั้นตอนของการผลิตเกิดขึ้นในพื้นที่ทางภูมิศาสตร์ดังกล่าว",
+    "vinculoConElTerritorio": "ลิงก์ไปยังดินแดน",
+    "supervisionPorOrganismoDeControl": "การกำกับดูแลโดยหน่วยงานควบคุม",
+    "certificacionDeQueElProductoCumple": "ใบรับรองว่าผลิตภัณฑ์เป็นไปตามมาตรฐานอาหารอิสลาม",
+    "procesoDeSacrificioConformeALaLey": "ขั้นตอนการเชือดสัตว์ตามกฎหมายอิสลาม",
+    "sinContaminacionCruzadaConProductos": "ไม่มีการปนเปื้อนข้ามกับผลิตภัณฑ์ที่ไม่ใช่ฮาลาล",
+    "productoAptoParaPersonasConEnfermed": "ผลิตภัณฑ์นี้เหมาะสำหรับผู้ที่เป็นโรคแพ้กลูเตนหรือแพ้กลูเตน",
+    "produccionEnLineasLibresDeContamina": "การผลิตบนสายการผลิตปลอดมลพิษ",
+    "noContieneIngredientesDeOrigenAnima": "ผลิตภัณฑ์นี้ไม่มีส่วนผสมที่มาจากสัตว์และไม่ได้ผ่านการทดสอบกับสัตว์",
+    "sinPruebasEnAnimales": "ไม่มีการทดลองกับสัตว์"
   },
   "productDetail": {
     "loading": "กำลังโหลดสินค้า...",
@@ -396,7 +439,7 @@
     "familyBusiness": "คุ้นเคย",
     "ourStory": "ประวัติของเรา",
     "founder": "ผู้ก่อตั้ง",
-    "gallery": "แกลเลอรี",
+    "gallery": "แกลเลอรี่",
     "locationShipping": "สถานที่ตั้งและการจัดส่ง",
     "location": "ที่ตั้ง",
     "shippingArea": "พื้นที่ขนส่งสินค้า",
@@ -419,7 +462,14 @@
     "hours": "กำหนดการ",
     "stats": "สถิติ",
     "rating": "การประเมิน",
-    "product": "ผลิตภัณฑ์"
+    "product": "ผลิตภัณฑ์",
+    "iniciaSesionParaEnviarUnMensaje": "เข้าสู่ระบบเพื่อส่งข้อความ",
+    "seccionesDeLaTienda": "ส่วนต่างๆ ของร้านค้า",
+    "noSePudoCargarLaTiendaCompruebaT": "ไม่สามารถโหลดร้านค้าได้ โปรดตรวจสอบการเชื่อมต่อของคุณ",
+    "sinResenas": "ไม่มีรีวิว",
+    "estaTiendaNoTieneProductosAun": "ร้านค้านี้ยังไม่มีสินค้า",
+    "estaTiendaNoHaCompartidoRecetasAun": "ร้านค้านี้ยังไม่ได้แชร์สูตรอาหาร",
+    "anonimo": "นิรนาม"
   },
   "cart": {
     "title": "ตะกร้าสินค้า",
@@ -436,7 +486,21 @@
     "checkout": "ดำเนินการชำระเงิน",
     "itemsInCart": "มีสินค้าเพิ่มเติมในตะกร้าของคุณ",
     "viewCart": "ดูตะกร้าสินค้า",
-    "more": "ไกลออกไป..."
+    "more": "ไกลออกไป...",
+    "aplicarCodigoDeDescuento": "ใช้รหัสส่วนลด",
+    "direccionRequerida": "ต้องระบุที่อยู่",
+    "codigoPostalNoValido": "รหัสไปรษณีย์ไม่ถูกต้อง",
+    "paisRequerido": "ประเทศที่ต้องการ",
+    "noSePudoActualizarLaCantidad": "ไม่สามารถอัปเดตจำนวนเงินได้",
+    "noSePudoEliminarElProducto": "ไม่สามารถนำผลิตภัณฑ์ออกได้",
+    "descubreProductosIncreiblesDeProduct": "ค้นพบผลิตภัณฑ์ที่น่าทึ่งจากผู้ผลิตในท้องถิ่น",
+    "laReservaDeAlgunProductoExpiroCom": "การจองสินค้าชิ้นนี้หมดอายุแล้ว โปรดตรวจสอบสินค้าคงเหลืออีกครั้ง",
+    "calculandoEnvio": "กำลังคำนวณค่าจัดส่ง...",
+    "maximoAlcanzado": "ถึงระดับสูงสุดแล้ว",
+    "envioPorTienda": "การจัดส่งสินค้า",
+    "iniciaSesionParaVerElCosteDeEnvio": "เข้าสู่ระบบเพื่อดูค่าจัดส่ง",
+    "ivaIncluido·EnvioSeCalculaAlInici": "ราคารวมภาษีมูลค่าเพิ่มแล้ว · ค่าจัดส่งจะคำนวณเมื่อเข้าสู่ระบบ",
+    "iniciarSesionParaComprar": "เข้าสู่ระบบเพื่อทำการสั่งซื้อ"
   },
   "checkout": {
     "title": "จ่าย",
@@ -452,8 +516,8 @@
     "state": "จังหวัด",
     "zip": "รหัสไปรษณีย์",
     "country": "ประเทศ",
-    "chargeCurrency": "คุณจะถูกเรียกเก็บเงินใน {{currency}}",
-    "displayCurrency": "ราคาที่แสดงบน {{currency}}",
+    "chargeCurrency": "คุณจะถูกเรียกเก็บเงินใน XPHB0XPHX",
+    "displayCurrency": "ราคาที่แสดงบน XPHBX0XPHX",
     "exchangeRate": "อัตราแลกเปลี่ยน",
     "fullName": "ชื่อเต็ม",
     "useShippingAddress": "ใช้ที่อยู่จัดส่งสินค้าสำหรับการเรียกเก็บเงิน",
@@ -499,7 +563,19 @@
     "proceedToCheckout": "ดำเนินการชำระเงิน",
     "secureCheckout": "ชำระเงินอย่างปลอดภัยด้วย Stripe",
     "emailVerified": "อีเมลได้รับการยืนยันแล้ว",
-    "emailVerifiedSuccess": "อีเมลได้รับการยืนยันเรียบร้อยแล้ว!"
+    "emailVerifiedSuccess": "อีเมลได้รับการยืนยันเรียบร้อยแล้ว!",
+    "direccionGuardada": "บันทึกที่อยู่เรียบร้อยแล้ว",
+    "seleccionaUnaDireccion": "เลือกที่อยู่",
+    "noSePudoIniciarElPagoIntentaloDe": "ไม่สามารถดำเนินการชำระเงินได้ โปรดลองใหม่อีกครั้ง",
+    "errorAlGuardarLaDireccion": "เกิดข้อผิดพลาดในการบันทึกที่อยู่",
+    "codigoNoValido": "รหัสไม่ถูกต้อง",
+    "errorAlProcesarElPago": "ข้อผิดพลาดในการประมวลผลการชำระเงิน",
+    "necesitasVerificarTuEmailParaComple": "คุณต้องยืนยันอีเมลของคุณเพื่อทำการซื้อให้เสร็จสมบูรณ์",
+    "direccionCalleYNumero": "ที่อยู่ (ถนนและเลขที่)",
+    "codigoPostal": "รหัสไปรษณีย์",
+    "segunDireccion": "ตามที่อยู่",
+    "metodoDePago": "วิธีการชำระเงิน",
+    "envioA": "การจัดส่งไปยัง"
   },
   "orders": {
     "title": "คำสั่งซื้อของฉัน",
@@ -576,7 +652,8 @@
       "processing": "กำลังประมวลผล...",
       "success": "สินค้าถูกจัดส่งเรียบร้อยแล้ว! ลูกค้าได้รับการแจ้งเตือนทางอีเมลแล้ว",
       "other": "อื่น"
-    }
+    },
+    "noPudimosCargarTusPedidos": "เราไม่สามารถดำเนินการจัดส่งสินค้าให้คุณได้"
   },
   "producer": {
     "overview": "สรุป",
@@ -598,13 +675,13 @@
     "earnings": "รายได้",
     "payouts": "การชำระเงิน",
     "connectStripe": "เชื่อมต่อ Stripe",
-    "stripeConnected": "Stripe คอนเน็กต์",
+    "stripeConnected": "สไตรป์ คอนเน็กต์",
     "welcome": "ยินดีต้อนรับ",
     "manageProductsAndSales": "จัดการผลิตภัณฑ์ของคุณและติดตามยอดขายของคุณ",
     "accountPending": "บัญชีอยู่ระหว่างรอการอนุมัติ",
     "accountPendingDesc": "บัญชีผู้ผลิตของคุณอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ คุณสามารถสร้างผลิตภัณฑ์และใบรับรองได้ แต่ลูกค้าจะไม่สามารถมองเห็นได้จนกว่าบัญชีของคุณจะได้รับการอนุมัติ",
     "totalProducts": "ผลิตภัณฑ์ทั้งหมด",
-    "approvedProducts": "{{count}} ได้รับการอนุมัติ",
+    "approvedProducts": "XPHB0XPHX ได้รับการอนุมัติ",
     "followers": "ผู้ติดตาม",
     "ofYourStore": "จากร้านค้าของคุณ",
     "totalSold": "ยอดขายทั้งหมด",
@@ -615,7 +692,7 @@
     "viewOrders": "ดูคำสั่งซื้อ",
     "stripeConnect": {
       "title": "การชำระเงินด้วย Stripe",
-      "notConnected": "เชื่อมต่อบัญชี Stripe ของคุณเพื่อรับชำระเงินจากการขาย",
+      "notConnected": "เชื่อมต่อบัญชี Stripe ของคุณเพื่อรับชำระเงินจากการขายของคุณ",
       "connected": "บัญชีเชื่อมต่อแล้ว",
       "ready": "พร้อมรับชำระเงิน",
       "pendingVerification": "กำลังรอการตรวจสอบ",
@@ -664,7 +741,7 @@
     "priceRequired": "ราคาบังคับในสกุลเงินของประเทศ",
     "addMarket": "เพิ่มตลาด...",
     "noMarkets": "ยังไม่ได้ตั้งค่าตลาดใดๆ เพิ่มประเทศเพื่อเริ่มต้นใช้งาน",
-    "coverImage": "ภาพหน้าปก",
+    "coverImage": "ภาพปก",
     "logo": "โลโก้",
     "gross": "ขรุขระ",
     "net": "สุทธิ",
@@ -694,7 +771,7 @@
     "myOrders": "คำสั่งซื้อของฉัน",
     "followedStores": "ร้านค้าที่ตามมา",
     "profile": "ประวัติโดยย่อ",
-    "aiPreferences": "David AI",
+    "aiPreferences": "เดวิด AI",
     "continueShopping": "เลือกซื้อสินค้าต่อ",
     "recentOrders": "คำสั่งซื้อล่าสุด",
     "noOrders": "คุณไม่มีคำสั่งซื้อใดๆ",
@@ -745,12 +822,29 @@
       "DE": "เยอรมนี",
       "IT": "อิตาลี",
       "PT": "โปรตุเกส",
-      "UK": "สหราชอาณาจักร",
+      "GB": "สหราชอาณาจักร",
       "US": "สหรัฐอเมริกา",
+      "CA": "แคนาดา",
       "MX": "เม็กซิโก",
+      "BR": "บราซิล",
       "AR": "อาร์เจนตินา",
       "CL": "พริก",
-      "CO": "โคลอมเบีย"
+      "CO": "โคลอมเบีย",
+      "PE": "เปรู",
+      "JP": "ญี่ปุ่น",
+      "KR": "เกาหลีใต้",
+      "CN": "จีน",
+      "IN": "อินเดีย",
+      "AU": "ออสเตรเลีย",
+      "AE": "สหรัฐอาหรับเอมิเรตส์",
+      "SA": "ซาอุดีอาระเบีย",
+      "TR": "ตุรกี",
+      "ZA": "แอฟริกาใต้",
+      "NG": "ไนจีเรีย",
+      "KE": "เคนยา",
+      "EG": "อียิปต์",
+      "MA": "โมร็อกโก",
+      "RU": "รัสเซีย"
     },
     "percentageOff": "เปอร์เซ็นต์ส่วนลด",
     "fixedAmountOff": "ส่วนลดคงที่",
@@ -886,7 +980,7 @@
       "deleteFailed": "เกิดข้อผิดพลาดในการลบ"
     },
     "deleteModal": {
-      "titleProduct": "ลบผลิตภัณฑ์",
+      "titleProduct": "ลบสินค้า",
       "titleCertificate": "ลบใบรับรอง",
       "message": "คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้ออก?",
       "warning": "การกระทำนี้ไม่สามารถย้อนกลับได้",
@@ -935,7 +1029,7 @@
       },
       "countries": {
         "selectCountry": "เลือกประเทศ",
-        "countryAnalysis": "การวิเคราะห์ {{country}} XPHD0",
+        "countryAnalysis": "การวิเคราะห์ XPHD0XPHX",
         "totalUsers": "ผู้ใช้ทั้งหมด",
         "ordersThisMonth": "ยอดสั่งซื้อในเดือนนี้",
         "averageSpend": "ค่าใช้จ่ายเฉลี่ย",
@@ -1010,7 +1104,7 @@
     "commissionRate": "คณะกรรมการ",
     "paymentSetup": "การตั้งค่าการชำระเงิน",
     "connectStripe": "เชื่อมต่อกับ Stripe",
-    "stripeConnected": "Stripe คอนเน็กต์",
+    "stripeConnected": "สไตรป์ คอนเน็กต์",
     "recentCommissions": "ผลงานที่ได้รับมอบหมายล่าสุด",
     "noCommissions": "ยังไม่มีค่าคอมมิชชั่น",
     "shareCode": "แชร์โค้ดนี้กับผู้ติดตามของคุณ",
@@ -1058,7 +1152,7 @@
     "availableSoon": "เร็วๆ นี้",
     "inNext7Days": "ในอีก 7 วันข้างหน้า",
     "nextPaymentDate": "การชำระเงินครั้งต่อไปพร้อมให้บริการ",
-    "daysLeft": "เหลือเวลา {{days}} วัน",
+    "daysLeft": "เหลือเวลา XPHB0XPHX วัน",
     "noPendingPayments": "ไม่มีการชำระเงินค้างชำระ",
     "paymentPolicy": "นโยบายการชำระเงิน",
     "paymentPolicyDesc": "ค่าคอมมิชชั่นที่ได้รับจะถูกเรียกเก็บ 15 วันหลังจากการขายแต่ละครั้ง เพื่อรับประกันการจัดส่งสินค้า",
@@ -1074,10 +1168,10 @@
     "stripeError": "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Stripe"
   },
   "ai": {
-    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
+    "greeting": "สวัสดี! ผมเดวิด AI ผู้ช่วยส่วนตัวของคุณในการเลือกซื้อสินค้า วันนี้คุณกำลังมองหาอะไรอยู่ครับ?",
     "placeholder": "สอบถามเกี่ยวกับผลิตภัณฑ์ของเราได้เลย...",
     "send": "ส่ง",
-    "typing": "David AI is typing...",
+    "typing": "เดวิด ไออี กำลังเขียน...",
     "error": "ขออภัย ฉันไม่สามารถประมวลผลได้ โปรดลองใหม่อีกครั้ง",
     "noProducts": "ฉันไม่พบสินค้าใดที่ตรงกับคำค้นหาของคุณ",
     "recommendations": "นี่คือคำแนะนำของฉัน",
@@ -1135,7 +1229,11 @@
     "status": "สถานะ",
     "verifiedStatus": "ตรวจสอบแล้ว",
     "madeIn": "ผลิตด้วยความภาคภูมิใจในประเทศ",
-    "notFoundDesc": "ไม่พบใบรับรองนี้"
+    "notFoundDesc": "ไม่พบใบรับรองนี้",
+    "espanol": "ภาษาสเปน",
+    "certificatNumerique": "ใบรับรองตัวเลข",
+    "alergenios": "สารก่อภูมิแพ้",
+    "noHemosEncontradoLaFichaDeConfianz": "เราไม่พบข้อมูลการจัดอันดับความน่าเชื่อถือสำหรับผลิตภัณฑ์นี้"
   },
   "errors": {
     "generic": "เกิดข้อผิดพลาด โปรดลองใหม่อีกครั้ง",
@@ -1314,7 +1412,9 @@
     "newsletter": "จดหมายข่าว",
     "newsletterDesc": "สมัครรับข่าวสารและข้อเสนอสุดพิเศษ",
     "subscribe": "สมัครสมาชิก",
-    "emailPlaceholder": "tu@email.com"
+    "emailPlaceholder": "your@email.com",
+    "unimosProductoresImportadoresCreado": "เรารวมผู้ผลิต ผู้นำเข้า ผู้สร้างสรรค์ และผู้บริโภคเข้าด้วยกัน เพื่อประสบการณ์ที่ชัดเจนและมีประโยชน์ยิ่งขึ้น",
+    "unaPlataformaParaDescubrirProductos": "แพลตฟอร์มที่จะช่วยให้คุณค้นพบผลิตภัณฑ์ที่น่าเชื่อถือ ติดตามผู้ผลิตตัวจริง และซื้อสินค้าโดยคำนึงถึงบริบทมากขึ้น"
   },
   "breadcrumbs": {
     "home": "เริ่ม",
@@ -1591,7 +1691,7 @@
     "commissionFeature1": "รวมถึงระบบชำระเงินที่ปลอดภัย (Stripe)",
     "commissionFeature2": "ใบรับรองผลิตภัณฑ์ที่ตรวจสอบได้",
     "commissionFeature3": "การสนับสนุนทางเทคนิคและบริการลูกค้า",
-    "commissionFeature4": "การเข้าถึง AI David AI David สำหรับผู้ผลิต",
+    "commissionFeature4": "การเข้าถึง AI ของ David สำหรับผู้ผลิต",
     "howItWorksTitle": "วิธีเริ่มต้นการขาย",
     "step1Title": "ลงทะเบียน",
     "step1Desc": "สร้างบัญชีผู้ผลิตของคุณด้วยรายละเอียดบริษัทหรือข้อมูลผู้ประกอบอาชีพอิสระของคุณ",
@@ -1764,7 +1864,7 @@
     },
     "messages": {
       "loadError": "เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ผลิต",
-      "statusUpdated": "ผู้ขาย {{status}}"
+      "statusUpdated": "ผู้ขาย XPHBX0XPHX"
     }
   },
   "adminProducts": {
@@ -1836,7 +1936,7 @@
       "total": "ทั้งหมด",
       "status": "สถานะ",
       "date": "วันที่",
-      "itemsCount": "บทความ {{count}}"
+      "itemsCount": "บทความ XPHB0XPHX"
     },
     "paymentsTable": {
       "transactionId": "รหัสธุรกรรม",
@@ -1905,7 +2005,7 @@
   "floatingIsland": {
     "messages": "ข้อความ",
     "directChat": "แชทโดยตรง",
-    "hispaloAI": "David AI",
+    "hispaloAI": "เดวิด AI",
     "aiAssistant": "ผู้ช่วย AI"
   },
   "discover": {
@@ -1923,13 +2023,22 @@
     "local": "ท้องถิ่น",
     "bio": "ชีวภาพ",
     "followers": "ผู้ติดตาม",
-    "posts": "โพสต์"
+    "posts": "โพสต์",
+    "seleccionDelDia": "ตัวเลือกประจำวัน",
+    "descubreProductosArtesanalesTiendas": "ค้นพบผลิตภัณฑ์งานฝีมือ ร้านค้าที่ได้รับการรับรอง และสูตรอาหารจากชุมชน",
+    "seleccionesDeProductosConHistoria": "สินค้าคัดสรรที่มีประวัติความเป็นมา"
   },
   "notifications": {
     "title": "การแจ้งเตือน",
     "markRead": "ทำเครื่องหมายว่าอ่านแล้ว",
     "empty": "ไม่มีการแจ้งเตือน",
-    "newNotification": "การแจ้งเตือนใหม่"
+    "newNotification": "การแจ้งเตือนใหม่",
+    "eliminarNotificacion": "ลบการแจ้งเตือน",
+    "noSePudieronEliminarLasNotificacion": "ไม่สามารถลบการแจ้งเตือนได้",
+    "marcarTodoComoLeido": "ทำเครื่องหมายว่าอ่านแล้วทั้งหมด",
+    "todoAlDia": "ทุกอย่างอัปเดตล่าสุดแล้ว",
+    "aquiVerasLikesComentariosActualiza": "ที่นี่คุณจะเห็นจำนวนไลค์ ความคิดเห็น การอัปเดตสถานะคำสั่งซื้อ และอื่นๆ อีกมากมาย",
+    "leido": "อ่าน"
   },
   "actions": {
     "newProduct": "ผลิตภัณฑ์ใหม่",
@@ -1958,7 +2067,7 @@
     "uploadStory": "อัปโหลดเรื่องราว",
     "storyCaption": "เพิ่มข้อความ...",
     "uploading": "กำลังขึ้นไป...",
-    "published": "เรื่องราวได้รับการเผยแพร่แล้ว!",
+    "published": "ประวัติศาสตร์ได้รับการตีพิมพ์แล้ว!",
     "deleted": "เรื่องราวที่ถูกลบ",
     "expires": "หมดอายุใน",
     "hours": "ชั่วโมง",
@@ -1968,7 +2077,7 @@
     "addText": "ข้อความ",
     "tagProduct": "ผลิตภัณฑ์",
     "textOverlay": "เพิ่มข้อความซ้อนทับ...",
-    "searchProduct": "กำลังมองหาผลิตภัณฑ์ที่จะติดฉลาก..."
+    "searchProduct": "ค้นหาสินค้าเพื่อติดฉลาก..."
   },
   "darkMode": {
     "toggle": "โหมดมืด"
@@ -2250,10 +2359,10 @@
     "gmvNote": "มูลค่ารวมสุทธิ (NET GMV) = ยอดขายทั้งหมด - ค่าจัดส่ง - ภาษี",
     "tierSystem": "ระบบระดับ",
     "whatsIncluded": "ซึ่งรวมถึง",
-    "benefit1": "รหัสส่วนลดพิเศษสำหรับผู้ชมของคุณ",
+    "benefit1": "รหัสส่วนลดพิเศษสำหรับกลุ่มเป้าหมายของคุณ",
     "benefit2": "แดชบอร์ดแสดงอัตราการแปลงแบบเรียลไทม์",
     "benefit3": "จ่ายเงินอัตโนมัติทุก 15 วัน (ขั้นต่ำ 50 ดอลลาร์)",
-    "benefit4": "การติดตามผลหลัง 18 เดือนสำหรับลูกค้าแต่ละรายที่ได้รับการแนะนำ",
+    "benefit4": "การติดตามผลภายใน 18 เดือนสำหรับลูกค้าแต่ละรายที่ได้รับการแนะนำ",
     "benefit5": "ระบบจับคู่กับผู้ผลิตในกลุ่มเป้าหมายของคุณโดยอัตโนมัติ",
     "benefit6": "เครื่องมือสร้างเนื้อหาที่ขับเคลื่อนด้วย AI",
     "faq": "คำถามที่พบบ่อย",
@@ -2318,7 +2427,21 @@
     "blocked": "ผู้ใช้รายนี้ยังไม่ตอบกลับ โปรดรอการตอบกลับจากเขา/เธอ",
     "startChat": "เริ่มบทสนทนา",
     "online": "ออนไลน์",
-    "offline": "ออฟไลน์"
+    "offline": "ออฟไลน์",
+    "eliminarConversacion": "ลบการสนทนา",
+    "buscarEnLaConversacion": "ค้นหาในบทสนทนา...",
+    "respondioATuStory": "เขาตอบกลับเรื่องราวของคุณ",
+    "hola": "สวัสดี!",
+    "holaMeGustariaColaborar": "สวัสดีครับ ผมสนใจที่จะร่วมงานด้วย...",
+    "iniciaLaConversacion": "เริ่มการสนทนา",
+    "tuNavegadorNoSoportaGrabacionDeAud": "เบราว์เซอร์ของคุณไม่รองรับการบันทึกเสียง โปรดใช้ HTTPS หรือเบราว์เซอร์ที่รองรับ",
+    "noSePudoAccederAlMicrofonoComprue": "ไม่สามารถเข้าถึงไมโครโฟนได้ โปรดตรวจสอบสิทธิ์การเข้าถึงของเบราว์เซอร์ของคุณ",
+    "enviarCorazon": "ส่งหัวใจ",
+    "maximo10Mb": "ขนาดสูงสุด 10 MB",
+    "errorAlEnviarElDocumento": "เกิดข้อผิดพลาดในการส่งเอกสาร",
+    "noSePudoEnviarElAudio": "ไม่สามารถส่งไฟล์เสียงได้",
+    "pruebaOtroTerminoDeBusqueda": "ลองใช้คำค้นหาอื่นดู",
+    "seleccionaUnaConversacionParaEmpezar": "เลือกหัวข้อสนทนาเพื่อเริ่มแชท"
   },
   "freshSave": {
     "lastDay": "วันสุดท้าย ลด 50%",
@@ -2328,7 +2451,7 @@
   },
   "recipes": {
     "title": "ครัวฮิสปาโล",
-    "subtitle": "ค้นหาสูตรอาหารและซื้อส่วนผสมได้ง่ายๆ เพียงคลิกเดียว",
+    "subtitle": "ค้นหาสูตรอาหารและซื้อวัตถุดิบได้ง่ายๆ เพียงคลิกเดียว",
     "searchPlaceholder": "ค้นหาสูตรอาหาร...",
     "empty": "ยังไม่มีสูตรอาหารค่ะ",
     "buyAll": "ซื้อทุกอย่าง",
@@ -2357,11 +2480,15 @@
     "publish": "เผยแพร่สูตรอาหาร",
     "published": "สูตรอาหารที่เผยแพร่",
     "addToCart": "ซื้อส่วนผสม",
-    "addedToCart": "เพิ่มส่วนประกอบ {{count}} ลงในตะกร้าแล้ว",
+    "addedToCart": "เพิ่มส่วนประกอบ XPHB0XPHX ลงในตะกร้าแล้ว",
     "by": "โดย",
     "min": "นาที",
     "portions": "ส่วนต่างๆ",
-    "notFound": "ไม่พบสูตรอาหาร"
+    "notFound": "ไม่พบสูตรอาหาร",
+    "borrarBusqueda": "ล้างการค้นหา",
+    "descubreRecetasSaludablesConProducto": "ค้นพบสูตรอาหารเพื่อสุขภาพที่ใช้วัตถุดิบจากช่างฝีมือท้องถิ่น กรองตามระดับความยาก เวลา และประเภทอาหาร",
+    "noHayRecetasConEstosFiltros": "ไม่มีสูตรอาหารใดที่ใช้ตัวกรองเหล่านี้",
+    "seElPrimeroEnCompartirUnaRecetaCo": "ร่วมแบ่งปันสูตรอาหารกับชุมชนเป็นคนแรก"
   },
   "customerDashboard": {
     "greeting": "สวัสดี",
@@ -2432,8 +2559,8 @@
     "commentDeleted": "ความคิดเห็นถูกลบ",
     "edited": "แก้ไขแล้ว",
     "likes": "ฉันชอบ",
-    "viewComments": "ดูความคิดเห็น {{count}}",
-    "viewCommentsPlural": "ดูความคิดเห็นของ {{count}}",
+    "viewComments": "ดูความคิดเห็น XPHBX0XPHX",
+    "viewCommentsPlural": "ดูความคิดเห็นของ XPHBX0XPHX",
     "loginToLike": "เข้าสู่ระบบเพื่อกดไลค์",
     "loginToSave": "เข้าสู่ระบบเพื่อบันทึก",
     "loginToFollow": "เข้าสู่ระบบเพื่อติดตามผู้ใช้",
@@ -2448,7 +2575,7 @@
     "unfollowed": "คุณได้เลิกติดตามผู้ใช้รายนี้แล้ว",
     "nowFollowing": "ขณะนี้คุณกำลังติดตามผู้ใช้รายนี้",
     "profileUpdated": "รูปโปรไฟล์ที่อัปเดตแล้ว",
-    "memberSince": "เป็นสมาชิกตั้งแต่ {{date}}",
+    "memberSince": "เป็นสมาชิกตั้งแต่ XPHBX0XPHX",
     "verifiedSeller": "ผู้ขายที่ได้รับการยืนยัน",
     "viewStore": "ดูร้านค้า",
     "sendMessage": "ส่งข้อความ",
@@ -2479,7 +2606,7 @@
     "products": "สินค้า"
   },
   "plans": {
-    "requiredPlan": "ต้องมีแผนการ",
+    "requiredPlan": "จำเป็นต้องมีแผน",
     "upgradeToUnlock": "อัปเกรดแพ็กเกจของคุณเพื่อปลดล็อกฟีเจอร์นี้",
     "upgrade": "ปรับปรุงแผน",
     "featureLocked": "ฟังก์ชันถูกบล็อก"
@@ -2492,7 +2619,7 @@
   },
   "aiPrefs": {
     "title": "การตั้งค่าของ David AI",
-    "subtitle": "David AI uses these preferences to personalize your shopping experience.",
+    "subtitle": "ระบบ AI ของ David ใช้ข้อมูลการตั้งค่าเหล่านี้เพื่อปรับแต่งประสบการณ์การช้อปปิ้งของคุณให้เหมาะสมกับคุณ",
     "communicationStyle": "รูปแบบการสื่อสาร",
     "toneLabel": "คุณต้องการให้ฉันตอบคุณอย่างไร?",
     "toneShort": "กระชับและตรงประเด็น",
@@ -2574,7 +2701,16 @@
     "placeholder": "ค้นหาผู้ใช้ ผลิตภัณฑ์ คำสั่งซื้อ...",
     "noResults": "ไม่พบผลลัพธ์สำหรับ",
     "toSearch": "เพื่อค้นหา",
-    "toClose": "เพื่อปิด"
+    "toClose": "เพื่อปิด",
+    "elPrecioMinimoNoPuedeSerMayorQue": "ราคาขั้นต่ำต้องไม่สูงกว่าราคาขั้นสูงสุด",
+    "errorAlBuscarIntentaloDeNuevo": "การค้นหาล้มเหลว โปรดลองอีกครั้ง",
+    "limpiarBusqueda": "ล้างการค้นหา",
+    "masReciente": "ล่าสุด",
+    "ecologico": "นิเวศวิทยา",
+    "buscaProductosArtesanalesRecetasTi": "มองหาผลิตภัณฑ์ทำมือ สูตรอาหาร ร้านค้า และผู้ผลิตอาหารเพื่อสุขภาพในท้องถิ่น",
+    "pruebaConOtrosTerminosORevisaLaOr": "ลองใช้คำอื่นหรือตรวจสอบการสะกดคำดู",
+    "jamonIberico": "แฮมไอบีเรีย",
+    "busquedasPopulares": "การค้นหายอดนิยม"
   },
   "influencerAI": {
     "inputPlaceholder": "อธิบายเนื้อหาที่คุณต้องการ..."
@@ -2620,5 +2756,1808 @@
     "firstReviewDesc": "คุณได้เขียนรีวิวแรกของคุณแล้ว",
     "explorer": "นักสำรวจ",
     "explorerDesc": "คุณติดตาม 5 ร้านค้า"
+  },
+  "product_detail": {
+    "resenaEnviada": "ส่งรีวิวแล้ว",
+    "chatNoDisponibleParaEsteProducto": "ไม่สามารถใช้งานแชทสำหรับผลิตภัณฑ์นี้ได้",
+    "noSePudoAbrirElChat": "ไม่สามารถเปิดแชทได้",
+    "puntuacion": "เครื่องหมายวรรคตอน",
+    "comentarioDeLaResena": "บทวิจารณ์",
+    "noHemosPodidoEnviarLaResena": "เราไม่สามารถส่งรีวิวได้",
+    "anadirAFavoritos": "เพิ่มในรายการโปรด",
+    "politicaDeDevolucion": "นโยบายการคืนสินค้า",
+    "tienes14DiasDesdeLaRecepcionParaD": "คุณมีเวลา 14 วันนับจากวันที่ได้รับสินค้าในการส่งคืนสินค้า ผลิตภัณฑ์อาหารที่เน่าเสียง่ายไม่สามารถคืนได้",
+    "anadeEsteProductoAlCatalogoB2bPara": "เพิ่มผลิตภัณฑ์นี้ลงในแคตตาล็อก B2B เพื่อรับคำสั่งซื้อในราคาส่ง",
+    "anadirAlCatalogoB2b": "เพิ่มลงในแคตตาล็อก B2B"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
+    "errorAlAnadir": "เกิดข้อผิดพลาดในการเพิ่ม",
+    "noSePudoCopiarElEnlace": "ไม่สามารถคัดลink ได้",
+    "anadidoALaLista": "เพิ่มลงในรายการแล้ว",
+    "noSePudoGuardarEnLaLista": "ไม่สามารถบันทึกรายการลงในลิสต์ได้",
+    "seleccionaUnaValoracion": "เลือกการให้คะแนน",
+    "valoracionPublicada": "คะแนนที่เผยแพร่",
+    "masPorciones": "ส่วนเพิ่มเติม",
+    "errorAlPublicarLaValoracion": "เกิดข้อผิดพลาดในการโพสต์การให้คะแนน",
+    "preparacion": "การตระเตรียม",
+    "informacionNutricional": "ข้อมูลโภชนาการ",
+    "porRacion": "ต่อหนึ่งหน่วยบริโภค",
+    "proteina": "โปรตีน",
+    "azucar": "น้ำตาล",
+    "aunNoHayResenasSeElPrimero": "ยังไม่มีรีวิวใดๆ เป็นคนแรกที่รีวิวได้เลย!",
+    "tuResena": "รีวิวของคุณ",
+    "enviarResena": "ส่งรีวิว"
+  },
+  "community": {
+    "configuracion": "การกำหนดค่า",
+    "errorAlActualizarMembresia": "ข้อผิดพลาดในการอัปเดตข้อมูลสมาชิก",
+    "escribeAlgoOAnadeUnaImagen": "เขียนข้อความหรือเพิ่มรูปภาพ",
+    "queQuieresCompartirPuedesUsarHas": "คุณอยากแบ่งปันอะไร? คุณสามารถใช้แฮชแท็ก (#) ได้",
+    "anadirImagen": "เพิ่มรูปภาพ",
+    "errorAlCargarLaComunidad": "เกิดข้อผิดพลาดในการโหลดชุมชน",
+    "salirDeLaComunidad": "การออกจากชุมชน",
+    "comparteAlgoConLaComunidad": "แบ่งปันสิ่งดีๆ กับชุมชน...",
+    "aunNoHayPosts": "ยังไม่มีโพสต์ใดๆ",
+    "seElPrimeroEnPublicarAlgo": "เป็นคนแรกที่โพสต์เลย!",
+    "verMasPosts": "ดูโพสต์เพิ่มเติม",
+    "verMasComentarios": "ดูความคิดเห็นเพิ่มเติม",
+    "sinMiembrosTodavia": "ยังไม่มีสมาชิก",
+    "verMasMiembros": "ดูสมาชิกเพิ่มเติม",
+    "normasDeLaComunidad": "แนวทางปฏิบัติของชุมชน",
+    "contenidoRelacionadoConAlimentacionY": "เนื้อหาที่เกี่ยวข้องกับอาหารและศาสตร์การทำอาหาร",
+    "sinSpamNiPublicidadNoAutorizada": "ห้ามส่งสแปมหรือโฆษณาที่ไม่ได้รับอนุญาต",
+    "sinBebidasAlcoholicas": "ห้ามนำเครื่องดื่มแอลกอฮอล์เข้า",
+    "elAdminPuedeEliminarPostsQueNoCum": "ผู้ดูแลระบบสามารถลบโพสต์ที่ไม่เป็นไปตามกฎได้"
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "เกิดข้อผิดพลาดในการโหลดเรื่องราวของคุณ",
+    "errorAlSubirLaFoto": "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ",
+    "noSePudoAbrirLaConversacion": "ไม่สามารถเริ่มการสนทนาได้",
+    "errorAlCrearConversacion": "เกิดข้อผิดพลาดในการสร้างการสนทนา",
+    "atras": "กลับ"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "เกิดข้อผิดพลาดในการเลิกติดตาม",
+    "cargarMasUsuarios": "โหลดผู้ใช้เพิ่มเติม",
+    "pruebaConOtroTermino": "ลองใช้คำอื่นดู",
+    "cargarMas": "โหลดเพิ่มเติม",
+    "sinSeguidoresAun": "ยังไม่มีผู้ติดตาม",
+    "noSigueANadieAun": "เธอยังไม่ได้ติดตามใครเลย"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "เกิดข้อผิดพลาดในการสร้างคอลเลกชัน",
+    "nombreDeLaColeccion": "ชื่อคอลเลกชัน",
+    "guardaContenidoTocandoElIconoDeMar": "บันทึกเนื้อหาโดยแตะที่ไอคอนบุ๊กมาร์ก",
+    "nuevaColeccion": "คอลเล็กชั่นใหม่"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google",
+    "tuContrasena": "รหัสผ่านของคุณ",
+    "elEmailEsObligatorio": "ต้องระบุอีเมล",
+    "laContrasenaEsObligatoria": "จำเป็นต้องใส่รหัสผ่าน",
+    "emailOContrasenaIncorrectos": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    "tuCuentaEstaRestringidaPorEdad": "บัญชีของคุณถูกจำกัดอายุไว้",
+    "noHemosPodidoIniciarTuSesion": "เราไม่สามารถล็อกอินให้คุณได้",
+    "entraEnTuCuenta": "เข้าสู่ระบบบัญชีของคุณ",
+    "tuSesionHaExpiradoIniciaSesionDe": "เซッションของคุณหมดอายุแล้ว โปรดเข้าสู่ระบบอีกครั้ง",
+    "ocultarContrasena": "ซ่อนรหัสผ่าน",
+    "oContinuaConEmail": "หรือดำเนินการต่อทางอีเมล"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "ส่งอีเมลกู้คืนอีกครั้ง",
+    "enviarEnlaceDeRecuperacion": "ส่งลิงก์กู้คืน",
+    "recuperarContrasena": "กู้คืนรหัสผ่าน",
+    "teEnviaremosUnEnlaceParaRestablecer": "เราจะส่งลิงก์สำหรับรีเซ็ตรหัสผ่านให้คุณ"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "ไฟล์ภาพต้องมีขนาดไม่เกิน 5 MB",
+    "noSePudoSubirLaFotoDePerfilPero": "ไม่สามารถอัปโหลดรูปโปรไฟล์ได้ แต่บัญชีของคุณจะยังคงถูกสร้างขึ้น",
+    "panaderia": "เบเกอรี่",
+    "reposteria": "ขนมหวาน",
+    "descubreProductosArtesanalesUnicosDe": "ค้นพบผลิตภัณฑ์ทำมือสุดพิเศษจากผู้ผลิตในท้องถิ่น",
+    "tuTiendaEstaListaEmpiezaAVenderT": "ร้านค้าของคุณพร้อมแล้ว เริ่มขายสินค้าทำมือของคุณได้เลย",
+    "exploraElMarketplaceB2bYEncuentraL": "สำรวจตลาด B2B และค้นหาผู้ผลิตที่ดีที่สุด",
+    "errorAlGuardarTuPerfilIntentaloDe": "เกิดข้อผิดพลาดในการบันทึกโปรไฟล์ของคุณ โปรดลองอีกครั้ง",
+    "estoEsLoQueVeranOtrosUsuarios": "นี่คือสิ่งที่ผู้ใช้คนอื่นๆ จะเห็น",
+    "ubicacionOpcional": "สถานที่ตั้ง (ไม่บังคับ)",
+    "validacionDeMercadoYPrimerasVentas": "การตรวจสอบความถูกต้องของตลาดและยอดขายเบื้องต้น",
+    "iaComercialAvanzadaYGeneracionDeCo": "ปัญญาประดิษฐ์ขั้นสูงทางธุรกิจและการสร้างสัญญา",
+    "stripeNoEstaDisponible": "Stripe ไม่สามารถใช้งานได้",
+    "stripeNoEstaConfiguradoTodavia": "Stripe ยังไม่ได้ตั้งค่าใช้งาน",
+    "noPudimosPrepararElPago": "เราไม่สามารถดำเนินการชำระเงินได้",
+    "introduceUnEmailValido": "กรุณาป้อนที่อยู่อีเมลที่ถูกต้อง",
+    "creaUnaContrasenaDeAlMenos6Caract": "ตั้งรหัสผ่านที่มีความยาวอย่างน้อย 6 ตัวอักษร",
+    "necesitamosUnTelefonoOperativo": "เราต้องการโทรศัพท์ที่ใช้งานได้",
+    "seleccionaElPaisDondeVasAOperar": "เลือกประเทศที่คุณจะดำเนินธุรกิจ",
+    "seleccionaTuPuntoDePartida": "เลือกจุดเริ่มต้นของคุณ",
+    "eligeAlMenosUnTipoDeProducto": "เลือกผลิตภัณฑ์อย่างน้อยหนึ่งประเภท",
+    "necesitamosUnaDireccionFiscalValida": "เราต้องการที่อยู่สำหรับยื่นภาษีที่ถูกต้อง",
+    "necesitamosVatCifONifParaDarteDe": "เราต้องการหมายเลข VAT, CIF หรือ NIF ของคุณเพื่อลงทะเบียนให้คุณ",
+    "completaLosDatosDeLaTarjetaParaCo": "กรุณากรอกรายละเอียดบัตรเพื่อดำเนินการต่อ",
+    "stripeNoEstaListoTodavia": "Stripe ยังไม่พร้อมใช้งาน",
+    "noSePudoValidarLaTarjeta": "ไม่สามารถตรวจสอบความถูกต้องของบัตรได้",
+    "tuBancoRechazoLaOperacion": "ธนาคารของคุณปฏิเสธการทำธุรกรรม",
+    "haOcurridoUnErrorConElPagoPorFa": "เกิดข้อผิดพลาดในการชำระเงินของคุณ โปรดลองใหม่อีกครั้ง",
+    "elMetodoDePagoFueRechazadoPorFav": "วิธีการชำระเงินของคุณถูกปฏิเสธ โปรดใช้บัตรอื่น",
+    "revisaLosDatosAntesDeContinuar": "โปรดตรวจสอบข้อมูลก่อนดำเนินการต่อ",
+    "noPudimosCompletarElAlta": "เราไม่สามารถดำเนินการปล่อยตัวผู้ป่วยออกจากโรงพยาบาลได้สำเร็จ",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "บัญชีของคุณถูกสร้างขึ้นเรียบร้อยแล้ว คุณเพียงแค่ต้องเปิดใช้งานแพ็กเกจหรือยกเลิกการสมัครสมาชิก",
+    "completaLosCamposObligatoriosParaAv": "กรุณากรอกข้อมูลในช่องที่จำเป็นเพื่อดำเนินการต่อ",
+    "numeroSinEspacios": "ตัวเลขที่ไม่มีช่องว่าง",
+    "paisDondeOperaras": "ประเทศที่คุณจะดำเนินงาน",
+    "seleccionaTuPaisPrincipal": "เลือกประเทศหลักของคุณ",
+    "loUsamosParaFacturacionYAprobacion": "เราใช้มันสำหรับการออกใบแจ้งหนี้และการอนุมัติทางการค้า",
+    "direccionFiscal": "ที่อยู่สำหรับเสียภาษี",
+    "direccionCompletaParaFacturacion": "ที่อยู่สำหรับเรียกเก็บเงินแบบเต็ม",
+    "empezamosSinCuotaFijaSiElMercado": "เราเริ่มต้นโดยไม่มีค่าธรรมเนียมคงที่ หากตลาดตอบรับดี คุณก็สามารถตัดสินใจได้ว่าจะอัปเกรดเป็นเวอร์ชัน PRO หรือ ELITE",
+    "pagoSeguroCancelaCuandoQuierasNo": "ชำระเงินอย่างปลอดภัย ยกเลิกได้ทุกเมื่อ เราจะไม่รบกวนการใช้งานของคุณ",
+    "bienvenidoALaRevolucion": "ยินดีต้อนรับสู่การปฏิวัติ",
+    "revisaTuEmailParaVerificarTuCuenta": "ตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี คุณมีโครงสร้างพื้นฐานอยู่แล้ว ซึ่งจะช่วยประหยัดเงินและเวลาให้ฉันได้",
+    "verCatalogoDeProductoresDisponibles": "ดูรายชื่อผู้ผลิตที่มีอยู่",
+    "sinAlertsAgresivosYConGuardadoLoca": "โดยไม่มีการแจ้งเตือนที่รุนแรง และมีการบันทึกความคืบหน้าไว้ในเครื่อง",
+    "tuContrasenaNoSePersisteEnLocalsto": "รหัสผ่านของคุณจะไม่ถูกบันทึกไว้ใน localStorage",
+    "proYEliteUsanStripeInlineFreeCre": "แพ็กเกจ PRO และ ELITE ใช้ Stripe โดยตรง ส่วนแพ็กเกจ FREE สร้างบัญชีได้ทันที"
+  },
+  "post_detail": {
+    "publicacionEditada": "สิ่งพิมพ์ที่ได้รับการแก้ไข",
+    "editarDescripcion": "แก้ไขคำอธิบาย",
+    "publicacion": "สิ่งพิมพ์",
+    "editarPublicacion": "แก้ไขโพสต์",
+    "laImagenNoSePuedeCambiarTrasPubli": "รูปภาพไม่สามารถเปลี่ยนแปลงได้หลังจากโพสต์แล้ว",
+    "seEliminaraPermanentementeJuntoConS": "ข้อความนี้จะถูกลบอย่างถาวรพร้อมกับความคิดเห็นและการกดไลค์ของคุณ การกระทำนี้ไม่สามารถย้อนกลับได้",
+    "seElPrimeroEnComentar": "เป็นคนแรกที่แสดงความคิดเห็น",
+    "masPopulares": "ยอดนิยมที่สุด",
+    "cargarMasComentarios": "โหลดความคิดเห็นเพิ่มเติม",
+    "compartirPublicacion": "แชร์โพสต์นี้"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "เราไม่สามารถโหลดรูปภาพได้",
+    "noHemosPodidoCargarLaImagenDelPas": "เราไม่สามารถโหลดภาพขบวนแห่ได้",
+    "numeroDeRaciones": "จำนวนเสิร์ฟ",
+    "anadirIngrediente": "เพิ่มส่วนผสม",
+    "cuentaQueHaceEspecialEstaReceta": "บอกเราหน่อยว่าอะไรที่ทำให้สูตรอาหารนี้พิเศษ...",
+    "descripcionDeLaReceta": "คำอธิบายสูตรอาหาร",
+    "anadirEtiqueta": "เพิ่มแท็ก...",
+    "ensaladaRapida": "สลัดด่วน",
+    "postreFacil": "ของหวานทำง่าย",
+    "noHemosPodidoPublicarLaReceta": "เราไม่สามารถเผยแพร่สูตรอาหารได้",
+    "recetaPublicada": "สูตรอาหารได้รับการเผยแพร่แล้ว!",
+    "tienesUnBorradorDeReceta": "คุณมีสูตรอาหารฉบับร่างอยู่",
+    "momentoDelDia": "ช่วงเวลาของวัน",
+    "unaIntroduccionParaTuReceta": "บทนำเกี่ยวกับสูตรอาหารของคุณ"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "เกิดข้อผิดพลาดในการโหลดรีลเพิ่มเติม",
+    "aunNoHayReels": "ยังไม่มีม้วนฟิล์ม",
+    "seElPrimeroEnPublicar": "เป็นคนแรกที่โพสต์",
+    "noHayMasReels": "ไม่มีม้วนฟิล์มเหลือแล้ว"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "ลองเลือกหมวดหมู่Hอื่นหรือปรับตัวกรองดู",
+    "verMasProductos": "ดูสินค้าเพิ่มเติม",
+    "caracteristicas": "ลักษณะเฉพาะ"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "สำรวจร้านค้าที่จำหน่ายอาหารท้องถิ่น อาหารทำมือ และอาหารเพื่อสุขภาพ กรองตามภูมิภาคและประเทศ"
+  },
+  "communities_explore": {
+    "alimentacion": "การให้อาหาร",
+    "iniciaSesionParaVerTusComunidades": "เข้าสู่ระบบเพื่อดูชุมชนของคุณ",
+    "noHayComunidadesEnEstaCategoria": "ไม่มีชุมชนใดอยู่ในหมวดหมู่นี้",
+    "sinResultadosParaTuBusqueda": "ไม่พบผลลัพธ์สำหรับการค้นหาของคุณ",
+    "aunNoHayComunidades": "ยังไม่มีชุมชนใดๆ ในขณะนี้",
+    "creaLaPrimeraComunidadDeEstaCatego": "สร้างชุมชนแรกในหมวดหมู่นี้",
+    "pruebaConOtrosTerminos": "ลองใช้คำอื่นๆ ดู",
+    "seElPrimeroEnCrearUnaYConectarCo": "สร้างชุมชนเป็นคนแรกและเชื่อมต่อกับชุมชนได้เลย",
+    "consigue100SeguidoresOVerificaTuCu": "มีผู้ติดตามครบ 100 คน หรือยืนยันบัญชีผู้ขายของคุณ"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "การจัดส่งสินค้าดำเนินการโดยผู้ผลิต",
+    "productosConInformacionVerificableY": "ผลิตภัณฑ์ที่มีข้อมูลที่ตรวจสอบได้และใบรับรองดิจิทัล",
+    "operacionInternacional": "การดำเนินงานระหว่างประเทศ",
+    "feedPostsYReelsConectadosConConve": "ฟีด โพสต์ และรีลที่เชื่อมโยงกับการแปลงที่แท้จริง",
+    "checkoutSeguroComisionesYConciliaci": "ระบบชำระเงินที่ปลอดภัย ค่าคอมมิชชั่น และการกระทบยอดต่อธุรกรรม",
+    "contenidoUtil": "เนื้อหาที่เป็นประโยชน์",
+    "clientesProductoresImportadoresEIn": "ลูกค้า ผู้ผลิต ผู้นำเข้า และผู้มีอิทธิพล รวมอยู่ในช่องทางเดียว",
+    "gestionarPedidosYOperacionDiaria": "จัดการคำสั่งซื้อและการดำเนินงานประจำวัน",
+    "configurarEnvioYCatalogoInternaciona": "ตั้งค่าการจัดส่งระหว่างประเทศและแคตตาล็อก",
+    "trackingDeConversionYRendimiento": "การติดตามการแปลงและประสิทธิภาพ",
+    "monetizacionEnPostsYReels": "การสร้างรายได้จากโพสต์และวิดีโอสั้น",
+    "altaDeProductosYCatalogoPropio": "การจดทะเบียนผลิตภัณฑ์และแคตตาล็อกของตนเอง",
+    "panelDePedidosPagosYOperacion": "แผงควบคุมการสั่งซื้อ การชำระเงิน และการดำเนินงาน",
+    "catalogoLimpio": "แคตตาล็อกที่สะอาด",
+    "contenidoUtilEnlazadoAProductosReal": "เนื้อหาที่เป็นประโยชน์ซึ่งเชื่อมโยงกับผลิตภัณฑ์จริง",
+    "queEsHispaloshop": "Hispaloshop คืออะไร?",
+    "unimosCompraVentaInfluenciaYTraza": "เราผสานรวมการซื้อ การขาย อิทธิพล และการตรวจสอบย้อนกลับไว้ในแพลตฟอร์มการดำเนินงานเดียว",
+    "loQueYaEstaActivo": "สิ่งที่เปิดใช้งานอยู่แล้ว",
+    "funcionalidadRealDeProductoEnEstaV": "ฟังก์ชันการทำงานจริงของผลิตภัณฑ์ในเวอร์ชันนี้",
+    "porQueLaPlataformaFunciona": "เหตุผลที่แพลตฟอร์มนี้ได้ผล",
+    "paraQuienEstaHecho": "เหมาะสำหรับใคร?",
+    "porQueExisteHispaloshop": "Hispaloshop มีอยู่เพื่ออะไร?",
+    "laHistoriaRealDetrasDelProyecto": "เรื่องราวเบื้องหลังโครงการนี้อย่างแท้จริง",
+    "aLos25Perdi15000€EnUnContainerD": "ตอนอายุ 25 ฉันเสียเงิน 15,000 ยูโรไปกับกล่องป๊อปคอร์นที่เน่าเสียในอินชอน ฉันร้องไห้ในสวนสาธารณะแห่งหนึ่งในโซล ตอนอายุ 26 ฉันย้ายกลับไปอยู่ห้องเดียวกับพ่อแม่ที่เมืองรอยส์ ตอนนี้ตี 6 แล้ว และฉันนอนไม่เกิน 5 ชั่วโมงต่อคืนมาสองเดือนแล้ว เพราะมัวแต่สร้างสิ่งนี้อยู่",
+    "loHiceParaQueNingunProductorHonest": "ฉันทำเช่นนี้เพื่อให้ไม่มีโปรดิวเซอร์ที่ซื่อสัตย์คนไหนรู้สึกเหมือนถูกมองข้ามอีกต่อไป และเพื่อให้ไม่มีอินฟลูเอนเซอร์คนไหนต้องเลือกระหว่างความซื่อสัตย์กับอาชีพการงานของตนอีกต่อไป",
+    "exploraCatalogoTiendasYContenido": "สำรวจแคตตาล็อก ร้านค้า และเนื้อหาต่างๆ",
+    "checkoutCentralizadoEnUnSoloFlujo": "ระบบชำระเงินแบบรวมศูนย์ในขั้นตอนเดียว"
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "เพิ่มรูปภาพอย่างน้อยหนึ่งภาพลงในโพสต์",
+    "laDescripcionEsDemasiadoLarga": "คำอธิบายยาวเกินไป",
+    "publicacionCreada": "สิ่งพิมพ์ที่สร้างขึ้น",
+    "verEnElFeed": "ดูในฟีด",
+    "errorAlPublicarCompruebaTuConexion": "เกิดข้อผิดพลาดในการโพสต์ โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง",
+    "nuevaPublicacion": "สิ่งพิมพ์ใหม่",
+    "seleccionaImagenes": "เลือกรูปภาพ",
+    "capturaDirectamenteDesdeTuCamara": "ถ่ายภาพโดยตรงจากกล้องของคุณ",
+    "abrirCamaraParaTomarFoto": "เปิดกล้องเพื่อถ่ายรูป",
+    "abrirCamara": "เปิดกล้อง",
+    "saturacion": "ความอิ่มตัว",
+    "vineteado": "ภาพประกอบ",
+    "tamano": "ขนาด",
+    "descripcionDeLaPublicacion": "คำอธิบายสิ่งพิมพ์",
+    "escribeTuPieDeFotoUsaParaHas": "เขียนคำบรรยายของคุณ... ใช้ # สำหรับแฮชแท็ก และ @ สำหรับการแท็ก",
+    "sugerenciaAnadida": "เพิ่มคำแนะนำ",
+    "noSePudoGenerarUnaSugerencia": "ไม่สามารถสร้างคำแนะนำได้",
+    "errorAlConectarConDavidAi": "เกิดข้อผิดพลาดในการเชื่อมต่อกับ David AI",
+    "anadirUbicacionEjGaliciaCosta": "เพิ่มสถานที่... (เช่น กาลิเซีย คอสตาบราวา)",
+    "cerrarBusqueda": "ปิดการค้นหา",
+    "publicado": "ที่ตีพิมพ์!",
+    "reintentarPublicacion": "โพสต์ซ้ำ"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "ไฟล์วิดีโอมีขนาดใหญ่เกินไป (สูงสุด 100 MB)",
+    "elVideoNoPuedeSuperarLos60Segundo": "วิดีโอต้องมีความยาวไม่เกิน 60 วินาที กรุณาตัดต่อก่อนอัปโหลด",
+    "noHayVideoSeleccionado": "ไม่ได้เลือกวิดีโอ",
+    "elPuntoDeInicioDelRecorteNoPuede": "จุดเริ่มต้นของการตัดต้องไม่มากกว่าหรือเท่ากับจุดสิ้นสุด",
+    "verEnElFeed": "ดูในฟีด",
+    "errorAlPublicarElReelCompruebaTu": "เกิดข้อผิดพลาดในการโพสต์วิดีโอ โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง",
+    "seleccionaUnVideo": "เลือกวิดีโอ",
+    "maximo60Segundos·Mp4OMov": "ความยาวสูงสุด 60 วินาที · ไฟล์ MP4 หรือ MOV",
+    "elegirVideoDeLaGaleria": "เลือกวิดีโอจากแกลเลอรี",
+    "elegirDeLaGaleria": "เลือกจากแกลเลอรี",
+    "pausarVideo": "หยุดวิดีโอ",
+    "controlaElVolumenDelAudioOriginalD": "ควบคุมระดับเสียงของเสียงต้นฉบับในวิดีโอ",
+    "anadirTextoAlVideo": "เพิ่มข้อความลงในวิดีโอ",
+    "escribeAqui": "เขียนตรงนี้...",
+    "textoParaElOverlay": "ข้อความสำหรับซ้อนทับ",
+    "tamanoDeTexto": "ขนาดตัวอักษร",
+    "tienesUnBorradorDeReel": "คุณมีรอกแบบร่าง",
+    "descripcionDelReel": "คำอธิบายม้วนฟิล์ม",
+    "portadaDesdeGaleria": "ภาพปกจากแกลเลอรี",
+    "anadirUbicacion": "เพิ่มตำแหน่งที่ตั้ง...",
+    "reelPublicado": "เผยแพร่ผลงานแล้ว!"
+  },
+  "create_story": {
+    "ecologicoEu": "สหภาพยุโรปเชิงนิเวศ",
+    "anadeContenidoATuHistoria": "เพิ่มเนื้อหาลงในเรื่องราวของคุณ",
+    "errorAlExportarLaHistoria": "เกิดข้อผิดพลาดในการส่งออกประวัติ",
+    "errorAlPublicarLaHistoria": "เกิดข้อผิดพลาดในการเผยแพร่เรื่องราว",
+    "historiaPublicada": "เรื่องราวได้รับการเผยแพร่แล้ว!",
+    "tienesUnBorradorDeStory": "คุณมีร่างเรื่องราวอยู่",
+    "arrastraAquiParaEliminar": "ลากตรงนี้เพื่อลบ",
+    "escribeAqui": "เขียนตรงนี้...",
+    "textoParaLaHistoria": "ข้อความสำหรับประวัติศาสตร์",
+    "quePrefieres": "คุณชอบแบบไหนมากกว่า?",
+    "opcion1": "ตัวเลือกที่ 1",
+    "opcion2": "ตัวเลือกที่ 2",
+    "anadirEncuesta": "เพิ่มแบบสำรวจ",
+    "anadirMencion": "เพิ่มการกล่าวถึง",
+    "anadirEnlace": "เพิ่มลิงก์",
+    "sevillaEspana": "เซบียา ประเทศสเปน",
+    "anadirUbicacion": "เพิ่มตำแหน่งที่ตั้ง",
+    "anadirPregunta": "เพิ่มคำถาม",
+    "buscarProductoParaEtiquetarEnLaHis": "ค้นหาสินค้าเพื่อติดแท็กในประวัติการค้นหา",
+    "buscaUnProductoDeTuCatalogoParaAn": "ค้นหาสินค้าในแคตตาล็อกของคุณเพื่อเพิ่มเป็นสติกเกอร์แบบโต้ตอบได้"
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "น้ำมันมะกอกออร์แกนิก",
+    "prediccion": "การทำนาย",
+    "accedeATuRepresentanteDeVentasInte": "ติดต่อตัวแทนฝ่ายขายต่างประเทศของคุณเพื่อขอรับข้อมูลวิเคราะห์ตลาด",
+    "errorAlContactarAlAgenteComercial": "เกิดข้อผิดพลาดในการติดต่อตัวแทนฝ่ายขาย โปรดลองใหม่อีกครั้ง",
+    "tuRepresentanteDeVentasInternacional": "ตัวแทนฝ่ายขายระหว่างประเทศของคุณที่ขับเคลื่อนด้วย AI",
+    "chatConElAgente": "แชทกับตัวแทน"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "ยังไม่มีข้อมูล",
+    "errorAlCargarAnaliticas": "เกิดข้อผิดพลาดในการโหลดข้อมูลวิเคราะห์",
+    "compruebaTuConexionEIntentaloDeNue": "ตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง",
+    "analitica": "การวิเคราะห์",
+    "productosMasVendidos": "สินค้าขายดี",
+    "deDondeVienenTusVentas": "ยอดขายของคุณมาจากไหน?",
+    "seguidoresDeLaTienda": "ผู้ติดตามร้านค้า",
+    "tasaDeConversion": "อัตราการแปลง",
+    "anadidosAlCarrito": "เพิ่มลงในตะกร้าแล้ว"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "ป้อนหมายเลขติดตาม",
+    "urlDeTrackingNoValidaDebeEmpezar": "URL สำหรับติดตามไม่ถูกต้อง ต้องขึ้นต้นด้วย http:// หรือ https://",
+    "envioRegistrado": "การจัดส่งแบบลงทะเบียน",
+    "errorAlRegistrarElEnvio": "เกิดข้อผิดพลาดในการลงทะเบียนการจัดส่ง",
+    "numeroDeTracking": "หมายเลขติดตาม",
+    "introduceUnPrecioValidoPorUnidad": "ป้อนราคาต่อหน่วยที่ถูกต้อง",
+    "plazoDias": "กำหนดส่ง (วัน)",
+    "ejStockDisponibleMinimo100kgPorP": "ตัวอย่าง: สินค้ามีพร้อมส่ง สั่งซื้อขั้นต่ำ 100 กิโลกรัมต่อครั้ง",
+    "ofertaEnviadaEsperandoAprobacionYP": "ส่งข้อเสนอไปแล้ว กำลังรอการอนุมัติและการชำระเงินจากผู้นำเข้า",
+    "gestionaLasSolicitudesB2bDeImportad": "จัดการคำขอ B2B จากผู้นำเข้า",
+    "activaElModoB2bEnTusProductosPara": "เปิดใช้งานโหมด B2B บนผลิตภัณฑ์ของคุณเพื่อรับคำขอ"
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "อยู่ระหว่างการตรวจสอบ",
+    "pdfJpgPngMax5mb": "ไฟล์ PDF, JPG, PNG (ขนาดสูงสุด 5MB)",
+    "100OrganicoSinPesticidasCosechaM": "ออร์แกนิค 100% ปลอดสารพิษ เก็บเกี่ยวด้วยมือ...",
+    "aceitunasEspanaJaen10salPortug": "มะกอก: สเปน (Jaén) • เกลือ: โปรตุเกส • ..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "ไม่สามารถเริ่มกระบวนการเริ่มต้นใช้งานได้",
+    "configuraTuCuentaParaRecibirTransfe": "ตั้งค่าบัญชีของคุณเพื่อรับการโอนเงินอัตโนมัติ",
+    "tuCuentaEstaListaParaRecibirPagos": "บัญชีของคุณพร้อมรับชำระเงินแล้ว",
+    "completaLosDatosEnStripeParaActiva": "กรอกข้อมูลใน Stripe ให้ครบถ้วนเพื่อเปิดใช้งานการชำระเงินและการรับเงิน"
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "การค้นหาและการแปลงแคตตาล็อกของคุณ",
+    "conversionDesdeContenido": "การแปลงจากเนื้อหา",
+    "sinDatosParaEstePeriodo": "ไม่มีข้อมูลสำหรับช่วงเวลานี้",
+    "todaviaNoHayRecetasConTusProductos": "ยังไม่มีสูตรอาหารใดที่ใช้ผลิตภัณฑ์ของคุณ",
+    "cuandoCreadoresCompartanRecetasUsand": "เมื่อครีเอเตอร์แชร์สูตรอาหารที่ใช้ส่วนผสมของคุณ สูตรเหล่านั้นจะปรากฏที่นี่"
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "คุณต้องกรอกข้อมูลที่ขาดหายไปใน Stripe ให้ครบถ้วน",
+    "recibirasTuPorcentajeDeCadaVentaAu": "คุณจะได้รับส่วนแบ่งจากยอดขายแต่ละครั้งโดยอัตโนมัติ ตามแผนที่คุณเลือกไว้",
+    "completaLaVerificacionEnStripePara": "ดำเนินการยืนยันตัวตนให้เสร็จสมบูรณ์บน Stripe เพื่อเปิดใช้งานการชำระเงินอัตโนมัติ",
+    "completarVerificacion": "การตรวจสอบเสร็จสมบูรณ์",
+    "noHayDatosSuficientesTodavia": "ขณะนี้ยังไม่มีข้อมูลเพียงพอ",
+    "noSePudieronCargarLasMetricasDelC": "ไม่สามารถโหลดข้อมูลแคตตาล็อกและข้อมูลสถิติของร้านค้าได้",
+    "noSePudoCargarElResumenDePagos": "ไม่สามารถโหลดสรุปการชำระเงินได้",
+    "noSePudieronCargarLosDatosPrincipa": "ไม่สามารถโหลดข้อมูลในแผงหลักได้ โปรดรีเฟรชหน้าเว็บ",
+    "errorAlCargarDatosPorFavorRefres": "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดรีเฟรชหน้าเว็บ",
+    "anadirNuevoProducto": "เพิ่มสินค้าใหม่",
+    "verAnaliticas": "ดูข้อมูลวิเคราะห์",
+    "metricasYPagos": "ตัวชี้วัดและการชำระเงิน",
+    "requierenTuAtencion": "สิ่งเหล่านี้ต้องการความสนใจของคุณ",
+    "noPuedesPublicarProductosHastaCompl": "คุณไม่สามารถเผยแพร่ผลิตภัณฑ์ได้จนกว่าจะดำเนินการตรวจสอบยืนยันเสร็จสิ้น",
+    "certificadoProximoACaducar": "ใบรับรองกำลังจะหมดอายุ",
+    "renuevaloParaNoInterrumpirTusVentas": "ต่ออายุใบอนุญาตเพื่อไม่ให้กระทบต่อยอดขายของคุณ",
+    "senalesDeDemanda": "สัญญาณความต้องการ",
+    "ingredientesProductosYPiezasDeCont": "ส่วนผสม ผลิตภัณฑ์ และเนื้อหาที่มีความตั้งใจซื้อสูงที่สุด",
+    "sinDatosTodavia": "ยังไม่มีข้อมูล",
+    "productosMasEtiquetados": "ผลิตภัณฑ์ที่มีฉลากเพิ่มเติม",
+    "aunNoHayConversionesAtribuidas": "ยังไม่มีการแปลงใดๆ ที่ระบุแหล่งที่มา",
+    "conversion": "การแปลง",
+    "cuentaYConfiguracion": "บัญชีและการตั้งค่า",
+    "cambiarContrasena": "เปลี่ยนรหัสผ่าน"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "ยังไม่มีข้อมูลยอดขาย",
+    "metodoDePagoActualizado": "วิธีการชำระเงินได้รับการอัปเดตแล้ว",
+    "losPagosViaStripeSeProcesanAutomat": "การชำระเงินผ่าน Stripe จะดำเนินการโดยอัตโนมัติทุก 15 วัน",
+    "metodoDeCobro": "วิธีการชำระเงิน",
+    "cobroAutomaticoCada15DiasDirectoA": "โอนเงินเข้าบัญชีธนาคารของคุณโดยอัตโนมัติทุก 15 วัน",
+    "solicitasElPagoYElEquipoLoTransfi": "คุณแจ้งความประสงค์ขอรับเงิน และทีมงานจะโอนเงินเข้าบัญชีของคุณ",
+    "guardarMetodo": "วิธีการบันทึก",
+    "errorAlCargarDatosDePagos": "เกิดข้อผิดพลาดในการโหลดข้อมูลการชำระเงิน",
+    "noSePudoObtenerElEnlaceDeStripe": "ไม่สามารถดึงลิงก์ Stripe ได้",
+    "errorAlAbrirElDashboardDeStripe": "เกิดข้อผิดพลาดในการเปิดแดชบอร์ด Stripe",
+    "retencionFiscalAplicada": "มีการหักภาษี ณ ที่จ่าย",
+    "tusGananciasSeAcumulanPeroNecesita": "รายได้ของคุณจะสะสมเพิ่มขึ้น แต่คุณต้องใช้ Stripe Connect เพื่อรับการโอนเงินอัตโนมัติ",
+    "comoFuncionanLosPagos": "วิธีการชำระเงิน:",
+    "sobreTusGananciasNetasSegunTuConfi": "คำนวณจากรายได้สุทธิของคุณตามการตั้งค่าภาษีของคุณ"
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "แผงควบคุมพื้นฐาน",
+    "optimizacionDePreciosConIa": "การเพิ่มประสิทธิภาพราคาด้วย AI",
+    "comisionMasBaja": "ค่าคอมมิชชั่นที่ต่ำกว่า",
+    "suscripcionMarcadaParaCancelar": "การสมัครสมาชิกถูกทำเครื่องหมายว่าถูกยกเลิก",
+    "suscripcionReactivada": "การสมัครสมาชิกถูกเปิดใช้งานอีกครั้ง",
+    "eligeElPlanQueMejorSeAdapteATuN": "เลือกแผนที่เหมาะสมกับธุรกิจของคุณมากที่สุด",
+    "periodoDePruebaActivo": "ระยะเวลาทดลองใช้งานจริง",
+    "actualizaTuMetodoDePagoParaMantene": "อัปเดตวิธีการชำระเงินของคุณเพื่อรักษาสิทธิ์การใช้งานแพ็กเกจของคุณ",
+    "cancelacionProgramada": "การยกเลิกตามกำหนดการ",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "แผนของคุณจะถูกยกเลิกเมื่อสิ้นสุดระยะเวลาปัจจุบัน",
+    "detallesDeSuscripcion": "รายละเอียดการสมัครสมาชิก",
+    "cancelarSuscripcion": "ยกเลิกการสมัครสมาชิก",
+    "todosLosPreciosSonEnEurEIncluyen": "ราคาทั้งหมดเป็นสกุลเงินยูโรและรวมภาษีมูลค่าเพิ่มแล้ว การเปลี่ยนแปลงแพ็กเกจจะมีผลทันที",
+    "alCancelarMantienesElAccesoHastaE": "เมื่อยกเลิกแล้ว คุณจะยังคงเข้าใช้งานได้จนกว่าจะสิ้นสุดรอบบิล"
+  },
+  "producer_products": {
+    "composicion": "องค์ประกอบ",
+    "elNombreDelProductoEsObligatorio": "จำเป็นต้องระบุชื่อผลิตภัณฑ์",
+    "seleccionaUnaCategoria": "เลือกหมวดหมู่",
+    "seleccionaElPaisDeOrigen": "เลือกประเทศต้นกำเนิด",
+    "crustaceos": "สัตว์จำพวกกุ้งปู",
+    "frutosDeCascara": "ถั่ว",
+    "anadeAlMenosUnaImagen": "เพิ่มรูปภาพอย่างน้อยหนึ่งภาพ",
+    "subeHasta5FotosDeTuProductoLaPr": "อัปโหลดรูปภาพสินค้าของคุณได้สูงสุด 5 ภาพ โดยภาพแรกจะเป็นภาพหน้าปก",
+    "pedidoMinimoUds": "สั่งซื้อขั้นต่ำ (หน่วย)",
+    "especificaOtrosAlergenos": "ระบุสารก่อภูมิแพ้อื่นๆ..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "ไม่สามารถโหลดนโยบายการจัดส่งได้",
+    "politicaDeEnvioGuardada": "นโยบายการจัดส่งถูกบันทึกไว้แล้ว",
+    "politicaDeEnvio": "นโยบายการจัดส่งสินค้า",
+    "configuraCostesDeEnvioPorPedidoPar": "กำหนดค่าค่าจัดส่งต่อคำสั่งซื้อสำหรับสินค้าของคุณ",
+    "habilitarGastosDeEnvio": "เปิดใช้งานค่าใช้จ่ายในการจัดส่ง",
+    "0SinEnvioGratis": "0 = ไม่มีบริการจัดส่งฟรี",
+    "pedidosQueSuperenEsteImporteTendran": "หากยอดสั่งซื้อเกินจำนวนนี้ จะได้รับบริการจัดส่งฟรี เว้นว่างไว้หรือตั้งค่าเป็น 0 เพื่อปิดใช้งานบริการนี้",
+    "losClientesPuedenRecogerEnTuObrado": "ลูกค้าสามารถมารับสินค้าได้ที่ศูนย์บริการของคุณ (มีค่าจัดส่งเพิ่มเติม)"
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "เพิ่มรูปภาพลงในแกลเลอรีแล้ว",
+    "anadirFotoALaGaleria": "เพิ่มรูปภาพลงในแกลเลอรี",
+    "fotosDelObradorEquipoProcesoDeEl": "ภาพถ่ายของโรงงาน อุปกรณ์ และกระบวนการผลิต",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "URL ของร้านค้านี้ถูกใช้งานอยู่แล้ว โปรดเลือก URL อื่น",
+    "errorAlCargarElPerfilDeTienda": "เกิดข้อผิดพลาดในการโหลดข้อมูลโปรไฟล์ร้านค้า",
+    "compruebaTuConexionEIntentaloDeNue": "ตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง",
+    "personalizaLaPaginaPublicaDeTuTien": "ปรับแต่งหน้าเพจสาธารณะของร้านค้าของคุณ",
+    "urlDeTuTienda": "URL ร้านค้าของคุณ:",
+    "informacionBasica": "ข้อมูลพื้นฐาน",
+    "nombreDeLaTienda": "ชื่อร้านค้า",
+    "aceitesEcologicosDesde1985": "น้ำมันออร์แกนิกตั้งแต่ปี 1985",
+    "historiaDeLaMarca": "ประวัติแบรนด์",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "เล่าเรื่องราวของแบรนด์ของคุณ ว่าคุณเริ่มต้นอย่างไร และปรัชญาของคุณคืออะไร...",
+    "carlosMartinez": "คาร์ลอส มาร์ติเนซ",
+    "laCalidadNoEsUnAccidente": "คุณภาพไม่ได้เกิดขึ้นโดยบังเอิญ...",
+    "tusCertificadosVerificadosAparecenAu": "ใบรับรองที่ได้รับการตรวจสอบแล้วจะปรากฏในร้านค้าของคุณโดยอัตโนมัติ",
+    "ubicacionCiudadRegion": "สถานที่ตั้ง (เมือง, ภูมิภาค)",
+    "jaenAndaluciaEspana": "เมืองฮาเอน แคว้นอันดาลูเซีย ประเทศสเปน",
+    "direccionCompleta": "ที่อยู่เต็ม",
+    "ctraDeLosOlivaresKm1223001Jaen": "ซีตร้า de los Olivares, km 12, 23001 Jaén",
+    "todaEspanaPeninsular": "แผ่นดินใหญ่ของสเปนทั้งหมด",
+    "horarioDeAtencion": "เวลาทำการ",
+    "lun-vie900-180010sab900-1400": "จันทร์-ศุกร์: 9:00-18:00 น. และวันเสาร์: 9:00-14:00 น."
+  },
+  "producer_verification": {
+    "instalacion": "สิ่งอำนวยความสะดวก",
+    "errorAlSubirElDocumentoCifnif": "เกิดข้อผิดพลาดในการอัปโหลดเอกสาร CIF/NIF",
+    "errorAlSubirLaFotoDeInstalaciones": "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพของสถานที่",
+    "errorAlSubirElCertificado": "เกิดข้อผิดพลาดในการอัปโหลดใบรับรอง",
+    "verificacionDeCuenta": "การตรวจสอบบัญชี",
+    "subeTuCifEmpresarialONifPersonal": "โปรดอัปโหลดหมายเลข CIF ของธุรกิจ หรือหมายเลข NIF ส่วนบุคคลของคุณ เอกสารดังกล่าวต้องเป็นเอกสารทางการจาก AEAT (สำนักงานสรรพากรแห่งสเปน)",
+    "pdfJpgPng·Max5mb": "PDF, JPG, PNG · ขนาดสูงสุด 5MB",
+    "enRevisionManual": "อยู่ระหว่างการตรวจสอบด้วยตนเอง",
+    "nuestroEquipoRevisaraTuDocumentoEn": "ทีมงานของเราจะตรวจสอบเอกสารของคุณภายใน 48-72 ชั่วโมงทำการ",
+    "fotoDeInstalacion": "ภาพถ่ายการติดตั้ง",
+    "subeUnaFotoDeTuLocalObradorFinc": "อัปโหลดรูปภาพสถานที่ตั้งของคุณ ไม่ว่าจะเป็นโรงงาน โรงนา โกดัง หรือสถานที่ทำงาน",
+    "laIaVerificaraQueEsUnaInstalacion": "ระบบ AI จะตรวจสอบว่าเป็นโรงงานจริงที่เกี่ยวข้องกับการผลิตอาหารหรือไม่",
+    "jpgPngHeic·Max10mb": "JPG, PNG, HEIC · ขนาดสูงสุด 10MB",
+    "instalacionVerificada": "การติดตั้งได้รับการตรวจสอบแล้ว",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "ทีมงานของเราจะตรวจสอบรูปถ่ายของคุณภายใน 48-72 ชั่วโมงทำการ",
+    "alMenos1CertificadoValido": "อย่างน้อยต้องมีใบรับรองที่ยังไม่หมดอายุ 1 ใบ",
+    "enRevision": "อยู่ระหว่างการตรวจสอบ",
+    "nuestroEquipoRevisaraTuDocumentacion": "ทีมงานของเราจะตรวจสอบเอกสารของคุณภายใน 48-72 ชั่วโมงทำการ เราจะแจ้งให้คุณทราบทางอีเมล",
+    "completaLaVerificacion": "ดำเนินการยืนยันให้เสร็จสมบูรณ์"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "กฎการเปิดใช้งานตามแต่ละตลาด:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "กรอกข้อมูลในทุกช่องของแบบฟอร์มด้วยค่าที่ถูกต้อง"
+  },
+  "affiliate_links": {
+    "copiado": "คัดลอกแล้ว!",
+    "configuracionFiscalRequerida": "การกำหนดค่าภาษีที่จำเป็น",
+    "generaUnLinkParaCualquierProducto": "สร้างลิงก์สำหรับสินค้าใดก็ได้ เมื่อมีคนซื้อผ่านลิงก์ของคุณ คุณจะได้รับค่าคอมมิชชั่น",
+    "masIngresos": "รายได้เพิ่มขึ้น",
+    "masClics": "คลิกเพิ่มเติม",
+    "buscaUnProductoArribaParaGenerarTu": "ค้นหาสินค้าด้านบนเพื่อสร้างลิงก์แรกของคุณ"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "โดยไม่เก็บรักษาไว้",
+    "seleccionaUnPaisDeResidenciaFiscal": "เลือกประเทศที่เสียภาษีเป็นอันดับแรก",
+    "elArchivoNoPuedeSuperar5mb": "ไฟล์ต้องมีขนาดไม่เกิน 5MB",
+    "certificadoEnRevisionManual": "ใบรับรองอยู่ระหว่างการตรวจสอบด้วยตนเอง",
+    "certificadoNoValido": "ใบรับรองไม่ถูกต้อง",
+    "formatoDeIbanNoValidoDebeEmpezar": "รูปแบบ IBAN ไม่ถูกต้อง ต้องขึ้นต้นด้วยรหัสประเทศ (เช่น ES12...)",
+    "errorAlConfigurarMetodoDeCobro": "เกิดข้อผิดพลาดในการกำหนดค่าวิธีการชำระเงิน",
+    "configuracionFiscal": "การกำหนดค่าทางการเงิน",
+    "paisFiscal": "ประเทศที่เสียภาษี",
+    "buscarPais": "ค้นหาประเทศ...",
+    "pdfJpgOPng·Max5mb": "ไฟล์ PDF, JPG หรือ PNG · ขนาดสูงสุด 5MB",
+    "nuestroEquipoRevisaraTuCertificadoE": "ทีมงานของเราจะตรวจสอบใบรับรองของคุณภายใน 48-72 ชั่วโมงทำการ",
+    "recibeEnMinutosEnTuCuentaStripe": "คุณจะได้รับเงินในบัญชี Stripe ของคุณภายในไม่กี่นาที",
+    "fee025€PorTransferenciaStripeSe": "ค่าธรรมเนียม: 0.25 ยูโรต่อการโอนเงินผ่าน Stripe (หักจากค่าคอมมิชชั่นของคุณ)",
+    "sinComisionAdicional·ProcesadoEn1-": "ไม่มีค่าธรรมเนียมเพิ่มเติม · ดำเนินการภายใน 1-3 วันทำการ",
+    "titularDeLaCuenta": "ผู้ถือบัญชี",
+    "verificacionCompletada": "การตรวจสอบเสร็จสมบูรณ์",
+    "tuConfiguracionFiscalEstaVerificada": "การตั้งค่าภาษีของคุณได้รับการตรวจสอบและเปิดใช้งานแล้ว",
+    "verificacionCompletadaAfiliadosActiv": "การตรวจสอบเสร็จสมบูรณ์แล้ว พันธมิตรได้รับการเปิดใช้งานแล้ว",
+    "errorAlCompletarLaVerificacion": "เกิดข้อผิดพลาดในการตรวจสอบความถูกต้อง",
+    "completaLosPasosAnterioresParaAcced": "ทำตามขั้นตอนด้านบนเพื่อเข้าถึงการตรวจสอบยืนยัน",
+    "configuracionFiscalGuardadaAfiliados": "บันทึกการตั้งค่าภาษีแล้ว เปิดใช้งานโปรแกรมพันธมิตรแล้ว",
+    "errorAlGuardarLaConfiguracionFiscal": "เกิดข้อผิดพลาดในการบันทึกการตั้งค่าภาษี",
+    "completaTodosLosCamposParaContinuar": "กรอกข้อมูลทุกช่องเพื่อดำเนินการต่อ"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "เกิดข้อผิดพลาดในการประมวลผลการถอนเงิน",
+    "introduceElCodigoDe6Digitos": "ป้อนรหัส 6 หลัก",
+    "emailVerificado": "อีเมลได้รับการยืนยันแล้ว!",
+    "codigoInvalido": "รหัสไม่ถูกต้อง",
+    "codigoEnviadoATuEmail": "รหัสถูกส่งไปที่อีเมลของคุณแล้ว",
+    "errorAlEnviarCodigo": "เกิดข้อผิดพลาดในการส่งรหัส",
+    "elCodigoDebeTenerAlMenos3Caracter": "รหัสต้องมีความยาวอย่างน้อย 3 ตัวอักษร",
+    "codigoCreado": "สร้างโค้ด",
+    "errorAlCrearCodigo": "เกิดข้อผิดพลาดในการสร้างโค้ด",
+    "codigosDeDescuento": "รหัสส่วนลด",
+    "eligeUnCodigoPersonalizadoYElPorce": "เลือกใช้รหัสส่วนลดและเปอร์เซ็นต์ส่วนลดที่กำหนดเองสำหรับชุมชนของคุณ",
+    "codigoCopiado": "โค้ดที่คัดลอก",
+    "misCodigosDeDescuento": "รหัสส่วนลดของฉัน",
+    "creaTuPrimerCodigoDeDescuento": "สร้างรหัสส่วนลดแรกของคุณ",
+    "pendiente15Dias": "รอดำเนินการ 15 วัน",
+    "enTransito": "อยู่ระหว่างการขนส่ง",
+    "productosQueMejorFuncionanEnTuCont": "ผลิตภัณฑ์ที่เหมาะสมที่สุดสำหรับเนื้อหาของคุณ",
+    "publicaContenidoConProductosVinculad": "เผยแพร่เนื้อหาพร้อมลิงก์ไปยังผลิตภัณฑ์ที่เกี่ยวข้องเพื่อเริ่มเห็นผลลัพธ์",
+    "pendienteDeAprobacion": "รอการอนุมัติ",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "ทีมงาน Hispaloshop กำลังตรวจสอบโค้ดของคุณอยู่ เราจะอนุมัติภายใน 24 ชั่วโมง",
+    "miCodigoHispaloshop": "รหัส Hispaloshop ของฉัน",
+    "comisionTotal": "ค่าคอมมิชชั่นทั้งหมด",
+    "tasaDeComision": "อัตราค่าคอมมิชชั่น",
+    "aunNoHasRealizadoNingunCobro": "คุณยังไม่ได้รับเงินใดๆ เลย",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL จะหักค่าคอมมิชชั่นของคุณ 15% และชำระให้กับกรมสรรพากรในนามของคุณทุกไตรมาส (แบบฟอร์ม 111)",
+    "cuandoHagasTuDeclaracionDeLaRenta": "เมื่อคุณยื่นแบบแสดงรายการภาษีเงินได้ (IRPF) เงินหัก ณ ที่จ่ายเหล่านั้นจะถูกชำระไปแล้ว และคุณสามารถนำมาหักลดหย่อนได้",
+    "recibirasElCertificadoDeRetenciones": "คุณจะได้รับใบรับรองการหักภาษี ณ ที่จ่ายในเดือนมกราคมของทุกปี",
+    "evolucionDeTusComisiones": "การเปลี่ยนแปลงค่าคอมมิชชั่นของคุณ",
+    "comparteloEnTusRedesSociales": "แชร์ลงในโซเชียลมีเดียของคุณ",
+    "tuLinkDeAfiliado": "ลิงก์พันธมิตรของคุณ",
+    "aunNoTienesVentasComparteTuLink": "คุณยังไม่มีการขายใดๆ เลย แชร์ลิงก์ของคุณสิ!",
+    "configuracionFiscal": "การกำหนดค่าภาษี"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "ข้อมูลไม่เพียงพอสำหรับการแสดงกราฟ",
+    "impactoComercialDeTuContenido": "ผลกระทบเชิงพาณิชย์ของเนื้อหาของคุณ",
+    "productosMasImpulsadosPorTuContenid": "ผลิตภัณฑ์ที่ขับเคลื่อนด้วยเนื้อหาของคุณมากที่สุด",
+    "errorDeConexion": "ข้อผิดพลาดในการเชื่อมต่อ",
+    "noPudimosCargarTusDatosCompruebaT": "ไม่สามารถโหลดข้อมูลของคุณได้ โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองใหม่อีกครั้ง",
+    "aunNoTienesDatos": "คุณยังไม่มีข้อมูลใดๆ",
+    "cuandoTuContenidoImpulseClicsOComp": "เมื่อเนื้อหาของคุณกระตุ้นให้เกิดการคลิกหรือการซื้อ เนื้อหานั้นจะปรากฏที่นี่",
+    "losDatosMuestranInteraccionesAtribui": "ข้อมูลแสดงปฏิสัมพันธ์ที่เกิดขึ้นกับโปรไฟล์ครีเอเตอร์ของคุณ ได้แก่ การคลิกดูสินค้าจากคอนเทนต์ของคุณ การเพิ่มสินค้าลงตะกร้า และการซื้อที่เสร็จสมบูรณ์ โดยข้อมูลจะอัปเดตแบบเรียลไทม์"
+  },
+  "payouts": {
+    "introduceUnImporteValido": "ป้อนจำนวนเงินที่ถูกต้อง",
+    "elImporteSuperaTuSaldoDisponible": "จำนวนเงินดังกล่าวเกินยอดเงินคงเหลือของคุณ",
+    "errorAlSolicitarLaRetirada": "เกิดข้อผิดพลาดในการขอถอนเงิน",
+    "lasComisionesDeTransferenciaDeStrip": "ค่าธรรมเนียมการโอนของ Stripe (ประมาณ 1-2%) จะถูกหักโดยอัตโนมัติ",
+    "aunNoTienesPagosComparteTuCodigo": "คุณยังไม่ได้รับเงินใดๆ แชร์รหัสของคุณและเริ่มรับเงินได้เลย",
+    "noHayPagosConEsteEstado": "ไม่มีการชำระเงินใดๆ ในสถานะนี้"
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "การกำหนดค่าภาษีที่รอดำเนินการ",
+    "completaTuConfiguracionFiscalAntesD": "ตั้งค่าภาษีของคุณให้เรียบร้อยก่อนถอนเงิน",
+    "errorAlProcesarElCobroIntentaloDe": "เกิดข้อผิดพลาดในการประมวลผลการชำระเงิน โปรดลองอีกครั้ง",
+    "cobroEnCamino": "กำลังดำเนินการชำระเงิน!",
+    "tiempoEstimado1-3DiasHabiles": "ระยะเวลาโดยประมาณ: 1-3 วันทำการ",
+    "retencionIrpf": "การหักภาษีเงินได้",
+    "metodo": "วิธี",
+    "comisionBruta": "ค่าคอมมิชชั่นขั้นต้น",
+    "laComisionRealPuedeVariarSegunTuM": "ค่าคอมมิชชั่นจริงอาจแตกต่างกันไปขึ้นอยู่กับวิธีการชำระเงินของคุณ",
+    "esteCobroSeraDeclaradoPorHispalosho": "บริษัท Hispaloshop SL จะแจ้งการชำระเงินนี้เป็นรายได้จากกิจกรรมทางเศรษฐกิจ",
+    "recibirasUnCertificadoDeRetenciones": "คุณจะได้รับใบรับรองการหักภาษี ณ ที่จ่ายในเดือนมกราคม เพื่อใช้ในการยื่นภาษี"
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "ทุกหมวดหมู่",
+    "carnicos": "ผลิตภัณฑ์เนื้อสัตว์",
+    "errorAlEnviarLaSolicitud": "เกิดข้อผิดพลาดในการส่งคำขอ",
+    "precioEstimado·ElProductorConfirmar": "ราคาโดยประมาณ · ผู้ผลิตจะยืนยันราคาสุดท้ายอีกครั้ง",
+    "notasParaElProductorOpcional": "หมายเหตุสำหรับผู้ผลิต (ไม่บังคับ)",
+    "elProductorTiene48hParaConfirmarDi": "ผู้ผลิตมีเวลา 48 ชั่วโมงในการยืนยันความพร้อมและเงื่อนไขต่างๆ",
+    "soloSeProcesaElPagoTrasSuConfirma": "การชำระเงินจะดำเนินการหลังจากได้รับการยืนยันแล้วเท่านั้น",
+    "catalogoMayorista": "แคตตาล็อกขายส่ง",
+    "errorAlCargarElCatalogo": "เกิดข้อผิดพลาดในการโหลดแคตตาล็อก"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "เลือกผู้ให้บริการเพื่อดูใบรับรองของพวกเขา",
+    "errorAlCargarLosCertificados": "เกิดข้อผิดพลาดในการโหลดใบรับรอง",
+    "losCertificadosDeTusProveedoresApar": "ใบรับรองจากซัพพลายเออร์ของคุณจะปรากฏที่นี่"
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "สัญญา B2B ที่สร้างขึ้นโดยอัตโนมัติ",
+    "errorAlCargarElPanel": "เกิดข้อผิดพลาดในการโหลดแผงควบคุม",
+    "aunNoTienesProductosPublicados": "คุณยังไม่ได้ลงรายการสินค้าใดๆ",
+    "requierenTuAccion": "พวกเขาต้องการให้คุณลงมือทำ",
+    "catalogoB2b": "แคตตาล็อก B2B",
+    "aunNoTienesProveedores": "คุณยังไม่มีซัพพลายเออร์เลย",
+    "expandeTuCatalogo": "ขยายแคตตาล็อกของคุณ",
+    "verAnalisis": "ดูการวิเคราะห์",
+    "anadirProducto": "เพิ่มสินค้า",
+    "analisis": "การวิเคราะห์",
+    "evolucionDeVentas": "วิวัฒนาการของการขาย"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "รหัสธุรกรรมไม่พร้อมใช้งาน",
+    "recepcionConfirmada": "ยืนยันการรับแล้ว",
+    "errorAlConfirmarRecepcion": "เกิดข้อผิดพลาดในการยืนยันการรับสินค้า",
+    "idDePedidoNoDisponible": "ไม่พบหมายเลขคำสั่งซื้อ",
+    "rastrearEnvio": "ติดตามสถานะการจัดส่ง",
+    "confirmarRecepcion": "ยืนยันการรับสินค้า"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "เกิดข้อผิดพลาดในการโหลดรหัสส่วนลด",
+    "errorAlAprobarElCodigo": "เกิดข้อผิดพลาดในการอนุมัติรหัส",
+    "errorAlRechazarElCodigo": "ข้อผิดพลาดในการปฏิเสธรหัส",
+    "codigoDeDescuentoActualizado": "รหัสส่วนลดได้รับการอัปเดตแล้ว",
+    "codigoDeDescuentoCreado": "สร้างรหัสส่วนลดแล้ว",
+    "errorAlGuardarCodigoDeDescuento": "เกิดข้อผิดพลาดในการบันทึกรหัสส่วนลด",
+    "codigoDeDescuentoEliminado": "รหัสส่วนลดถูกลบออกแล้ว",
+    "errorAlEliminarCodigoDeDescuento": "เกิดข้อผิดพลาดในการลบรหัสส่วนลด",
+    "errorAlCambiarEstadoDelCodigo": "เกิดข้อผิดพลาดในการเปลี่ยนสถานะรหัส",
+    "cargandoCodigosDeDescuento": "กำลังโหลดรหัสส่วนลด",
+    "gestionaCodigosPromocionalesEInfluen": "จัดการรหัสโปรโมชั่นและผู้มีอิทธิพล",
+    "nuevoCodigo": "รหัสใหม่",
+    "editarCodigoDeDescuento": "แก้ไขรหัสส่วนลด",
+    "importeMinimoDelCarrito": "ยอดสั่งซื้อขั้นต่ำ",
+    "limiteDeUso": "ขีดจำกัดการใช้งาน",
+    "actualizarCodigo": "อัปเดตโค้ด",
+    "buscarCodigosDeDescuento": "ค้นหารหัสส่วนลด...",
+    "codigo": "รหัส",
+    "noSeEncontraronCodigos": "ไม่พบรหัสใดๆ",
+    "codigosActivos": "รหัสที่ใช้งานอยู่",
+    "totalDeCodigos": "รหัสทั้งหมด"
+  },
+  "admin_fiscal": {
+    "revisionManual": "การตรวจสอบด้วยตนเอง",
+    "errorAlProcesarLaRevision": "การตรวจสอบการประมวลผลข้อผิดพลาด",
+    "gestionFiscal": "การจัดการทางการเงิน",
+    "pendientesRevision": "อยู่ระหว่างการตรวจสอบ",
+    "revisionManualPendiente": "กำลังรอการตรวจสอบด้วยตนเอง"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "ไม่สามารถโหลดข้อมูลการเติบโตได้",
+    "errorAlCargarLosDatos": "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+    "analisisDeConversionYDescubrimiento": "การวิเคราะห์และการค้นพบการแปลง",
+    "conversionDirecta": "การแปลงโดยตรง",
+    "contenidoConMayorConversion": "เนื้อหาที่มีอัตราการแปลงสูงกว่า",
+    "titulo": "คุณสมบัติ",
+    "productosMasClicadosDesdeContenido": "ผลิตภัณฑ์ที่มีการคลิกมากที่สุดจากเนื้อหา",
+    "sobreLosDatosDeCrecimiento": "เกี่ยวกับข้อมูลการเติบโต"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "เกิดข้อผิดพลาดในการโหลดรายละเอียดของอินฟลูเอนเซอร์",
+    "anadirInfluencer": "เพิ่มอินฟลูเอนเซอร์"
+  },
+  "admin_management": {
+    "paisAsignado": "ประเทศที่ได้รับมอบหมาย",
+    "elAdminSoloVeraAnalyticsDeEstePai": "ผู้ดูแลระบบจะเห็นข้อมูลวิเคราะห์เฉพาะของประเทศนี้เท่านั้น หากต้องการเข้าถึงข้อมูลทั่วโลก ให้เว้นว่างไว้"
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "ข้อมูลด้านสุขภาพที่ผิดพลาด",
+    "claimsMedicos": "การเรียกร้องค่าสินไหมทดแทนทางการแพทย์",
+    "razonIa": "เหตุผล AI",
+    "contenidoConfirmadoComoInfraccion": "เนื้อหาดังกล่าวได้รับการยืนยันว่าเป็นการละเมิดลิขสิทธิ์",
+    "errorAlConfirmarLaModeracion": "ข้อผิดพลาดในการยืนยันการกลั่นกรอง",
+    "errorAlRestaurarElContenido": "เกิดข้อผิดพลาดในการกู้คืนเนื้อหา",
+    "errorAlEscalarElContenido": "ข้อผิดพลาดในการปรับขนาดเนื้อหา",
+    "revisaElContenidoModeradoPorIa": "ตรวจสอบเนื้อหาที่ผ่านการคัดกรองโดย AI"
+  },
+  "admin_orders": {
+    "articulos": "บทความ"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "กำลังโหลดแผงควบคุมผู้ดูแลระบบ",
+    "noSePudieronCargarLasEstadisticas": "ไม่สามารถโหลดสถิติได้",
+    "panelDeAdministracion": "คณะกรรมการบริหาร",
+    "gestionDeTuMercadoEnUnaVista": "บริหารจัดการตลาดของคุณได้ในมุมมองเดียว",
+    "colaDeRevision": "คิวตรวจสอบ",
+    "moderacionDeContenido": "การกลั่นกรองเนื้อหา",
+    "certificadosQueExpiranEn30Dias": "ใบรับรองที่หมดอายุภายใน 30 วัน",
+    "noHayCertificadosProximosAExpirar": "ไม่มีใบรับรองใดที่จะหมดอายุในเร็วๆ นี้",
+    "certificadosPendientesDeRevision": "ใบรับรองอยู่ระหว่างการตรวจสอบ"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "หมายเลขธุรกรรมธนาคาร"
+  },
+  "admin_products": {
+    "precioNoValido": "ราคาไม่ถูกต้อง",
+    "checklistDeAprobacion": "รายการตรวจสอบการอนุมัติ",
+    "alMenos1FotoDelProducto": "ต้องมีรูปภาพสินค้าอย่างน้อย 1 รูป",
+    "descripcionCompletaMin20Caracteres": "คำอธิบายโดยละเอียด (อย่างน้อย 20 ตัวอักษร)",
+    "paisDeOrigenIndicado": "ระบุประเทศต้นกำเนิด",
+    "alergenosRevisadosCampoPresente": "ตรวจสอบสารก่อภูมิแพ้แล้ว (มีอยู่จริง)",
+    "marcaTodosLosItemsParaPoderAprobar": "ตรวจสอบทุกรายการเพื่ออนุมัติ"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "รหัสคำสั่งซื้อไม่ถูกต้อง",
+    "errorAlProcesarElReembolso": "เกิดข้อผิดพลาดในการประมวลผลการคืนเงิน",
+    "accionIrreversible": "การกระทำที่ไม่สามารถย้อนกลับได้",
+    "seProcesaraElReembolsoEnStripeYSe": "การคืนเงินจะดำเนินการผ่าน Stripe และค่าธรรมเนียมจะถูกปรับโดยอัตโนมัติ",
+    "gestionDeReembolsos": "การจัดการการคืนเงิน"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "เกิดข้อผิดพลาดในการโหลดรีวิว",
+    "resenaOculta": "รีวิวที่ซ่อนอยู่",
+    "resenaEliminada": "รีวิวถูกลบออก",
+    "errorAlEliminarResena": "เกิดข้อผิดพลาดในการลบรีวิว",
+    "moderarResenasDeClientes": "รีวิวจากลูกค้าปานกลาง",
+    "totalDeResenas": "จำนวนรีวิวทั้งหมด",
+    "calificacionPromedio": "คะแนนเฉลี่ย",
+    "buscarResenas": "ค้นหาบทวิจารณ์...",
+    "calificacion": "คุณสมบัติ",
+    "noSeEncontraronResenas": "ไม่พบรีวิว"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "ไม่สามารถโหลดเคสสนับสนุนได้",
+    "noHayCasosDeSoporteConLosFiltros": "ไม่มีกรณีการสนับสนุนใดๆ ที่เกี่ยวข้องกับตัวกรองที่เลือกไว้"
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "ขอเปลี่ยนสินค้า",
+    "resolucionManual": "การกำหนดค่าด้วยตนเอง",
+    "noSePudoCargarElCaso": "ไม่สามารถโหลดเคสได้",
+    "noSePudoActualizarElEstado": "ไม่สามารถอัปเดตสถานะได้",
+    "noSePudoActualizarLaPrioridad": "ไม่สามารถอัปเดตลำดับความสำคัญได้",
+    "noSePudoEnviarElMensaje": "ไม่สามารถส่งข้อความได้",
+    "accionAplicada": "การดำเนินการ",
+    "noSePudoAplicarLaAccion": "ไม่สามารถดำเนินการดังกล่าวได้",
+    "conversacion": "การสนทนา",
+    "sinMensajesAun": "ยังไม่มีข้อความใดๆ",
+    "tuAdmin": "คุณ (ผู้ดูแลระบบ)",
+    "unAgenteHumanoSeHaUnidoALaConver": "ตัวแทนที่เป็นมนุษย์ได้เข้าร่วมการสนทนาแล้ว",
+    "esteCasoEstaCerradoNoSePuedenAna": "คดีนี้ปิดแล้ว ไม่สามารถเพิ่มข้อความเพิ่มเติมได้อีก",
+    "ultimaActualizacion": "อัปเดตล่าสุด"
+  },
+  "admin_trust_safety": {
+    "enganoso": "ทำให้เข้าใจผิด",
+    "resena": "ทบทวน",
+    "noSePudoCargarLaColaDeModeracion": "ไม่สามารถโหลดคิวการตรวจสอบได้",
+    "accionAplicada": "การดำเนินการ",
+    "noSePudoAplicarLaAccion": "ไม่สามารถดำเนินการดังกล่าวได้",
+    "colaVacia": "คิวว่าง",
+    "noHayContenidoPendienteDeRevision": "ไม่มีเนื้อหาใดอยู่ระหว่างการตรวจสอบ",
+    "senales": "สัญญาณ",
+    "noSePudieronCargarLosReportes": "ไม่สามารถโหลดรายงานได้",
+    "noHayReportesConLosFiltrosSeleccio": "ไม่มีรายงานใดที่ตรงกับตัวกรองที่เลือกไว้",
+    "marcadosAutomaticamente": "ทำเครื่องหมายโดยอัตโนมัติ",
+    "politicasDeLaPlataforma": "นโยบายแพลตฟอร์ม",
+    "productosProhibidosArmasDrogasCon": "สินค้าต้องห้าม: อาวุธ ยาเสพติด เนื้อหาผิดกฎหมาย สินค้าปลอมแปลง",
+    "resenasDebenSerAutenticasVerificad": "รีวิว: ต้องเป็นรีวิวที่แท้จริง ได้รับการตรวจสอบ และอิงจากการซื้อจริง",
+    "vendedoresResponsablesDeLaVeracidad": "ผู้ขาย: รับผิดชอบต่อความถูกต้องของรายละเอียดสินค้าและความปลอดภัยของอาหาร",
+    "contenidoGeneradoPorUsuariosSujeto": "เนื้อหาที่ผู้ใช้สร้างขึ้น: จะได้รับการตรวจสอบทั้งโดยอัตโนมัติและโดยมนุษย์",
+    "colaDeModeracion": "คิวการกลั่นกรอง",
+    "moderacionReportesEIntegridadDeLa": "การกลั่นกรอง การรายงาน และความน่าเชื่อถือของแพลตฟอร์ม"
+  },
+  "admin_verification": {
+    "revision": "การแก้ไข",
+    "revisionManual": "การตรวจสอบด้วยตนเอง",
+    "numero": "ตัวเลข",
+    "descripcionIa": "คำอธิบาย AI",
+    "rechazarVerificacion": "ปฏิเสธการตรวจสอบ",
+    "documentosProblematicos": "เอกสารที่มีปัญหา:",
+    "fotoDeInstalacionNoValida": "รูปภาพการติดตั้งไม่ถูกต้อง",
+    "solicitarDocumentacion": "ขอเอกสารประกอบ",
+    "verificacionRechazada": "การตรวจสอบถูกปฏิเสธ",
+    "revisionManualDeProductores": "การตรวจสอบคู่มือผู้ผลิต"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "ชื่อหมวดหมู่",
+    "descripcionOpcional": "คำอธิบาย (ไม่บังคับ)",
+    "errorAlCargarLasCategorias": "เกิดข้อผิดพลาดในการโหลดหมวดหมู่",
+    "categoriaCreada": "สร้างหมวดหมู่",
+    "errorAlCrearLaCategoria": "เกิดข้อผิดพลาดในการสร้างหมวดหมู่",
+    "categoriaActualizada": "หมวดหมู่ที่อัปเดตแล้ว",
+    "errorAlActualizarLaCategoria": "เกิดข้อผิดพลาดในการอัปเดตหมวดหมู่",
+    "categoriaEliminada": "หมวดหมู่ถูกลบออก",
+    "errorAlEliminarLaCategoria": "เกิดข้อผิดพลาดในการลบหมวดหมู่",
+    "nuevaCategoria": "หมวดหมู่ใหม่",
+    "buscarCategorias": "หมวดหมู่การค้นหา...",
+    "noSeEncontraronCategorias": "ไม่พบหมวดหมู่",
+    "sinDescripcion": "ไม่มีคำอธิบาย"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "ไม่สามารถโหลดข้อความได้",
+    "canalDeEscalacionAbiertoUnSuperadm": "ช่องทางการแจ้งปัญหาเปิดอยู่ ผู้ดูแลระบบสูงสุดจะได้รับข้อความของคุณ",
+    "errorAlAbrirEscalacion": "เกิดข้อผิดพลาดในการเปิดการแจ้งเตือนระดับสูง",
+    "canalDeEscalacionPrivado": "ช่องปีนเขาส่วนตัว",
+    "seleccionaUnaEscalacionParaVerLosM": "เลือกการแจ้งเตือนระดับสูงเพื่อดูข้อความ",
+    "usaEsteCanalParaReportarProblemasC": "โปรดใช้ช่องทางนี้เพื่อรายงานปัญหาสำคัญ ข้อพิพาทที่ยังไม่ได้รับการแก้ไข หรือสถานการณ์ที่ต้องการการแทรกแซงจากระดับสูงกว่า",
+    "elMensajeEstaCifradoDeExtremoAExt": "ข้อความนี้ได้รับการเข้ารหัสแบบ end-to-end ในฐานข้อมูล",
+    "describeElProblemaOSituacionAEscal": "อธิบายปัญหาหรือสถานการณ์ที่จะต้องส่งต่อให้ผู้ที่เกี่ยวข้อง...",
+    "abrirCanalDeEscalacion": "เปิดช่องทางการแจ้งเหตุฉุกเฉิน",
+    "sinMensajesTodavia": "ยังไม่มีข้อความใดๆ"
+  },
+  "content_management": {
+    "sinExpiracion": "ไม่มีวันหมดอายุ"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "เกิดข้อผิดพลาดในการประมวลผลคำขอ GDPR",
+    "solicitudesDeDerechosDeUsuariosBajo": "คำขอสิทธิ์ของผู้ใช้ภายใต้ GDPR ระยะเวลาตอบกลับสูงสุด: 30 วัน"
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "การจัดเก็บรูปภาพ",
+    "estadoDeServiciosYConfiguracionDel": "สถานะการให้บริการและการกำหนดค่าสภาพแวดล้อม",
+    "informacionDelSistema": "ข้อมูลระบบ"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "ไม่สามารถโหลดข้อมูลจากแผงข้อมูลเชิงลึกได้",
+    "minimoDeUsuariosRequeridosParaMostr": "จำนวนผู้ใช้ขั้นต่ำที่จำเป็นในการแสดงข้อมูลที่ละเอียดอ่อนแบบรวม",
+    "detectarObjetivosDieteticosYDeSalud": "กำหนดเป้าหมายด้านโภชนาการและสุขภาพ",
+    "noHayDatosDePaisesParaMostrar": "ไม่มีข้อมูลประเทศให้แสดง",
+    "noHayMetricasDeIaDisponibles": "ไม่มีตัวชี้วัด AI ใดๆ ให้บริการ",
+    "noHayDatosDeComplianceDisponibles": "ไม่มีข้อมูลการปฏิบัติตามข้อกำหนด"
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "เปิดใช้งานประเทศเพื่อให้ผู้ขายในท้องถิ่นสามารถลงทะเบียนได้"
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "ป้อนรหัสผ่านผู้ดูแลระบบสูงสุดของคุณเพื่อใช้การเปลี่ยนแปลงนี้ในระบบการผลิต",
+    "contrasenaSuperadmin": "รหัสผ่านผู้ดูแลระบบสูงสุด",
+    "introduceTuContrasena": "ป้อนรหัสผ่านของคุณ",
+    "configuracionActualizadaYGuardada": "การตั้งค่าที่อัปเดตและบันทึกไว้",
+    "configuracionDePlanes": "การตั้งค่าแผน",
+    "losCambiosSeAplicanAutomaticamenteE": "การเปลี่ยนแปลงจะถูกนำไปใช้ใน Stripe โดยอัตโนมัติ ต้องป้อนรหัสผ่านผู้ดูแลระบบสูงสุดเพื่อยืนยัน",
+    "comisionSobreElTotalDeVentaDespue": "ค่าคอมมิชชั่นจากยอดขายทั้งหมด (หลังหักค่าจัดส่งและภาษีมูลค่าเพิ่ม) จะถูกหักจากส่วนต่างกำไรของแพลตฟอร์ม"
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "ไม่สามารถโหลดภาพรวมได้",
+    "revisaLaConexionConElBackend": "ตรวจสอบการเชื่อมต่อกับระบบแบ็กเอนด์",
+    "sinDatosDeTendencia": "ไม่มีข้อมูลแนวโน้ม",
+    "distribucionDePlanes": "การกระจายแผน"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "เกิดข้อผิดพลาดในการโหลดแคตตาล็อก B2B",
+    "noSePudoCambiarElEstado": "ไม่สามารถเปลี่ยนแปลงสถานการณ์ได้",
+    "noTienesAccesoAEstaSeccion": "คุณไม่สามารถเข้าถึงส่วนนี้ได้",
+    "necesitasUnPerfilDeProductorOImpor": "คุณต้องมีโปรไฟล์ผู้ผลิตหรือผู้นำเข้าเพื่อเข้าถึงแคตตาล็อก B2B",
+    "gestionaQueProductosOfrecesAlPorMa": "จัดการว่าคุณนำเสนอผลิตภัณฑ์ใดบ้างในราคาขายส่ง และภายใต้เงื่อนไขใดบ้าง",
+    "noTienesProductosEnElCatalogoB2b": "คุณไม่มีสินค้าในแคตตาล็อก B2B",
+    "empiezaAnadiendoTuPrimerProductoMay": "เริ่มต้นด้วยการเพิ่มสินค้าขายส่งรายการแรกของคุณ",
+    "anadirPrimerProducto": "เพิ่มผลิตภัณฑ์แรก",
+    "anadirProductoAlCatalogoB2b": "เพิ่มสินค้าลงในแคตตาล็อก B2B"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "เริ่มต้นการสนทนาโดยการส่งข้อความ",
+    "noTienesAccesoAEstaSeccion": "คุณไม่สามารถเข้าถึงส่วนนี้ได้",
+    "necesitasUnPerfilDeProductorOImpor": "คุณต้องมีโปรไฟล์ผู้ผลิตหรือผู้นำเข้าเพื่อเข้าใช้งานแชท B2B"
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "ไม่สามารถโหลดการดำเนินการได้",
+    "noTienesAccesoAEstaSeccion": "คุณไม่สามารถเข้าถึงส่วนนี้ได้",
+    "necesitasUnPerfilDeProductorOImpor": "คุณต้องมีโปรไฟล์ผู้ผลิตหรือผู้นำเข้าเพื่อเข้าถึงสัญญา B2B",
+    "operacionNoEncontrada": "ไม่พบการดำเนินการ",
+    "laOperacionSolicitadaNoExisteONoT": "การดำเนินการที่ร้องขอไม่มีอยู่จริง หรือคุณไม่มีสิทธิ์เข้าถึง",
+    "laIaEstaGenerandoElContrato": "AI กำลังสร้างสัญญา...",
+    "elContratoEstaTardandoMasDeLoEspe": "การทำสัญญาใช้เวลานานกว่าที่คาดไว้",
+    "recibirasUnaNotificacionCuandoEsteL": "คุณจะได้รับการแจ้งเตือนเมื่อพร้อมใช้งานแล้ว",
+    "cartaDeCreditoPagoDividido": "หนังสือรับรองเครดิต (การชำระเงินแบบแบ่งจ่าย)",
+    "pagoA30Dias": "ชำระเงินภายใน 30 วัน",
+    "pagoA60Dias": "ชำระเงินภายใน 60 วัน",
+    "alFirmarConfirmasQueHasLeidoYAcep": "การลงนามนี้แสดงว่าคุณได้อ่านและยอมรับข้อกำหนดทั้งหมดในสัญญาแล้ว",
+    "laFirmaQuedaRegistradaConFechaHor": "ลายเซ็นจะถูกบันทึกพร้อมวันที่ เวลา และที่อยู่ IP",
+    "necesitasSubirTuFirmaDigitalAntesD": "คุณต้องอัปโหลดลายเซ็นดิจิทัลของคุณก่อนจึงจะสามารถลงนามในสัญญาได้"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "เอกสารไม่ถูกต้อง",
+    "maximo5Archivos": "ไฟล์สูงสุด 5 ไฟล์",
+    "errorAlAbrirLaDisputa": "เกิดข้อผิดพลาดในการเปิดข้อพิพาท",
+    "antesDeAbrirUnaDisputaTeRecomenda": "ก่อนที่จะเปิดข้อพิพาท เราขอแนะนำให้พูดคุยกับอีกฝ่ายในแชทก่อน",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "หากคุณไม่สามารถบรรลุข้อตกลงได้ ผู้ดูแลระบบ Hispaloshop จะตรวจสอบกรณีดังกล่าวภายใน 72 ชั่วโมง",
+    "describeDetalladamenteElProblemaMin": "อธิบายปัญหาโดยละเอียด (อย่างน้อย 50 ตัวอักษร)...",
+    "max5Archivos10mbCadaUno": "สูงสุด 5 ไฟล์ ไฟล์ละ 10MB",
+    "estaAccionNotificaraAlAdminDeHispa": "การกระทำนี้จะแจ้งให้ผู้ดูแลระบบ Hispaloshop ทราบ และอาจส่งผลกระทบต่อชื่อเสียงของอีกฝ่ายได้"
+  },
+  "b2_b_marketplace": {
+    "catalogo": "แคตตาล็อก",
+    "precioMasBajo": "ราคาต่ำสุด",
+    "masProductos": "สินค้าเพิ่มเติม",
+    "sinAccesoAlCatalogoB2b": "ไม่สามารถเข้าถึงแคตตาล็อก B2B ได้",
+    "completaTuPerfilDeImportadorParaAc": "กรอกข้อมูลโปรไฟล์ผู้นำเข้าของคุณให้ครบถ้วนเพื่อเข้าใช้งาน",
+    "sinAccesoAlDirectorioDeProductores": "หากไม่มีสิทธิ์เข้าถึงรายชื่อผู้ผลิต",
+    "indicaElProductorLosProductosYLa": "โปรดระบุผู้ผลิต ผลิตภัณฑ์ และจำนวน ผู้ผลิตจะได้รับคำขอของคุณและสามารถตอบกลับด้วยข้อเสนอราคาที่เหมาะสมได้"
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "หนังสือรับรองเครดิต",
+    "elCompradorAsumeTodosLosCostesDesd": "ผู้ซื้อเป็นผู้รับผิดชอบค่าใช้จ่ายทั้งหมดจากโรงงาน",
+    "vendedorEntregaEnDestinoSinDescarga": "ผู้ขายจัดส่งสินค้าไปยังปลายทางโดยไม่ขนถ่ายสินค้า",
+    "indicaElPlazoMinimoDeEntrega": "ระบุระยะเวลาจัดส่งขั้นต่ำ",
+    "validezDias": "ระยะเวลาใช้งาน (วัน)",
+    "errorAlEnviarLaOferta": "เกิดข้อผิดพลาดในการส่งข้อเสนอ"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "อยู่ระหว่างการเจรจา",
+    "noTienesAccesoAEstaSeccion": "คุณไม่สามารถเข้าถึงส่วนนี้ได้",
+    "necesitasUnPerfilDeProductorOImpor": "คุณต้องมีโปรไฟล์ผู้ผลิตหรือผู้นำเข้าเพื่อเข้าถึงการดำเนินงานแบบ B2B",
+    "errorAlCargarLasOperaciones": "เกิดข้อผิดพลาดในการโหลดข้อมูล"
+  },
+  "b2_b_payment": {
+    "net30Dias": "ชำระภายใน 30 วัน",
+    "net60Dias": "สุทธิ 60 วัน",
+    "cartaDeCredito": "หนังสือรับรองเครดิต",
+    "errorAlCargarLosDatosDePago": "เกิดข้อผิดพลาดในการโหลดรายละเอียดการชำระเงิน",
+    "noSePudoInicializarElPago": "ไม่สามารถดำเนินการชำระเงินได้",
+    "noTienesAccesoAEstaSeccion": "คุณไม่สามารถเข้าถึงส่วนนี้ได้",
+    "necesitasUnPerfilDeProductorOImpor": "คุณต้องมีโปรไฟล์ผู้ผลิตหรือผู้นำเข้าเพื่อเข้าถึงการชำระเงินแบบ B2B",
+    "esperandoElPagoDelComprador": "กำลังรอการชำระเงินจากผู้ซื้อ...",
+    "recibirasUnaNotificacionCuandoElPag": "คุณจะได้รับการแจ้งเตือนเมื่อการชำระเงินได้รับการดำเนินการเรียบร้อยแล้ว",
+    "losFondosEstanRetenidosHastaQueSub": "เงินจะถูกระงับไว้จนกว่าคุณจะอัปโหลดเอกสารการจัดส่งสินค้า",
+    "comisionHispaloshop3": "ค่าคอมมิชชั่นของ Hispaloshop (3%)"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "คำขอเสนอราคา (RFQ) จากผู้นำเข้าที่สนใจผลิตภัณฑ์ของคุณ",
+    "historialDeTusSolicitudesDeCotizaci": "ประวัติการขอใบเสนอราคาขายส่งของคุณ",
+    "noSePudieronCargarLasSolicitudes": "ไม่สามารถโหลดคำขอได้",
+    "soloDisponibleParaCuentasDeProducto": "ใช้ได้เฉพาะบัญชีผู้ผลิตเท่านั้น",
+    "soloDisponibleParaCuentasDeImportad": "ใช้ได้เฉพาะบัญชีผู้นำเข้าเท่านั้น",
+    "noHasEnviadoSolicitudesAun": "คุณยังไม่ได้ส่งใบสมัครใดๆ เลย",
+    "usaElMarketplaceB2bParaContactarPr": "ใช้แพลตฟอร์ม B2B Marketplace เพื่อติดต่อผู้ผลิต"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+    "envioConfirmado": "ยืนยันการจัดส่งแล้ว",
+    "noSePudoConfirmarElEnvio": "ไม่สามารถยืนยันการจัดส่งได้",
+    "operacionNoEncontrada": "ไม่พบการดำเนินการ",
+    "noSePudoCargarLaOperacionSolicitad": "ไม่สามารถโหลดการดำเนินการที่ร้องขอได้",
+    "abrirChatDeLaOperacion": "เปิดแชทเพื่อเริ่มการผ่าตัด",
+    "confirmarEnvio": "ยืนยันการจัดส่ง",
+    "esperandoConfirmacionDeEnvioDelProd": "กำลังรอการยืนยันการจัดส่งจากผู้ผลิต",
+    "documentacion": "เอกสารประกอบ",
+    "documentosNecesariosParaEstaOperacio": "เอกสารที่จำเป็นสำหรับการดำเนินการนี้",
+    "revisaLaDocumentacionPendienteAntes": "โปรดตรวจสอบเอกสารที่ยังขาดอยู่ทั้งหมดก่อนส่ง",
+    "proximamente": "เร็วๆ นี้",
+    "elCompradorRealizaraElPagoFinalTra": "ผู้ซื้อจะชำระเงินงวดสุดท้ายหลังจากได้รับสินค้าแล้ว"
+  },
+  "customer_orders": {
+    "masAntiguos": "ผู้สูงอายุ",
+    "errorAlCargarLosPedidos": "เกิดข้อผิดพลาดในการโหลดคำสั่งซื้อ",
+    "errorAlActualizarLosPedidos": "เกิดข้อผิดพลาดในการอัปเดตคำสั่งซื้อ",
+    "noHayPedidosEnEstaCategoria": "ไม่มีคำสั่งซื้อในหมวดหมู่นี้",
+    "productosAnadidosAlCarrito": "สินค้าถูกเพิ่มลงในตะกร้าแล้ว",
+    "noSePudoRepetirElPedido": "ไม่สามารถทำซ้ำคำสั่งนั้นได้",
+    "cargarMasPedidos": "โหลดคำสั่งซื้อเพิ่มเติม"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "ไม่สามารถโหลดข้อมูลบางส่วนได้ โปรดเลื่อนลงเพื่อลองอีกครั้ง"
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "เกิดข้อผิดพลาดในการโหลดโปรไฟล์",
+    "errorAlCargarLasDirecciones": "เกิดข้อผิดพลาดในการโหลดที่อยู่",
+    "generaUnCodigoDeDescuentoPersonaliz": "สร้างรหัสส่วนลดแบบกำหนดเอง",
+    "tusSeguidoresObtienen10DeDescuento": "ผู้ติดตามของคุณจะได้รับส่วนลด 10%",
+    "tuGanasEntre3Y7DeCadaVenta": "คุณจะได้รับค่าคอมมิชชั่นระหว่าง 3% ถึง 7% จากยอดขายแต่ละครั้ง",
+    "programaDeAfiliadosActivado": "โปรแกรมพันธมิตรเปิดใช้งานแล้ว!",
+    "errorAlActivarElPrograma": "เกิดข้อผิดพลาดในการเปิดใช้งานโปรแกรม"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "ยังไม่มีข้อความใดๆ คุณจะได้รับการตอบกลับในไม่ช้า",
+    "esteCasoEstaCerrado": "คดีนี้ปิดลงแล้ว",
+    "noSePudoCargarTuHistorialDeSoport": "ไม่สามารถโหลดประวัติการสนับสนุนของคุณได้",
+    "noSePudoAbrirElCaso": "ไม่สามารถเปิดคดีได้",
+    "historialDeTusCasosDeSoporteConHi": "ประวัติการขอรับการสนับสนุนจาก Hispaloshop",
+    "noTienesNingunCasoDeSoporteAbierto": "คุณไม่มีเคสขอความช่วยเหลือที่เปิดอยู่ หากต้องการความช่วยเหลือ โปรดติดต่อ HI"
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "สินค้าถูกเพิ่มลงในตะกร้าแล้ว",
+    "errorAlAnadirAlCarrito": "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "เกิดข้อผิดพลาดในการโหลดลำดับ",
+    "resenaPublicada": "บทวิจารณ์ที่ตีพิมพ์",
+    "errorAlPublicarLaResena": "เกิดข้อผิดพลาดในการโพสต์รีวิว",
+    "esteDocumentoNoEsUnaFacturaFiscal": "เอกสารนี้ไม่ใช่ใบกำกับภาษี",
+    "noSePudoDescargarLaFactura": "ไม่สามารถดาวน์โหลดใบแจ้งหนี้ได้",
+    "elImporteSeReflejaraEnTuCuentaEn": "ยอดเงินจะปรากฏในบัญชีของคุณภายใน 5-10 วันทำการ",
+    "seHaReembolsadoParteDelImporteATu": "ยอดเงินบางส่วนได้ถูกคืนเข้าบัญชีของคุณแล้ว",
+    "elPagoNoSePudoProcesarIntentaloD": "ไม่สามารถดำเนินการชำระเงินของคุณได้ โปรดลองอีกครั้งหรือติดต่อฝ่ายสนับสนุน",
+    "dejaUnaResena": "เขียนรีวิว...",
+    "publicarResena": "เผยแพร่บทวิจารณ์",
+    "resenaEnviadaGracias": "ส่งรีวิวเรียบร้อยแล้ว ขอบคุณค่ะ!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "รหัสผ่านได้รับการอัปเดตแล้ว",
+    "contrasenaActualIncorrecta": "รหัสผ่านปัจจุบันไม่ถูกต้อง",
+    "errorAlCambiarContrasena": "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน",
+    "tuCuentaUsaGoogleParaIniciarSesion": "บัญชีของคุณใช้ Google ในการเข้าสู่ระบบ คุณยังไม่ได้ตั้งรหัสผ่าน",
+    "puedesAnadirUnaAContinuacion": "คุณสามารถเพิ่มข้อมูลได้ด้านล่าง",
+    "contrasenaActual": "รหัสผ่านปัจจุบัน",
+    "nuevaContrasena": "รหัสผ่านใหม่",
+    "repetirNuevaContrasena": "ยืนยันรหัสผ่านใหม่อีกครั้ง",
+    "lasContrasenasNoCoinciden": "รหัสผ่านไม่ตรงกัน",
+    "anadirContrasena": "เพิ่มรหัสผ่าน"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "ชื่อผู้ใช้ไม่พร้อมใช้งาน",
+    "urlNoValida": "URL ไม่ถูกต้อง",
+    "esteNombreDeUsuarioNoEstaDisponibl": "ชื่อผู้ใช้นี้ไม่สามารถใช้งานได้",
+    "elUsuarioDebeTenerAlMenos3Caracte": "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร",
+    "biografia": "ชีวประวัติ",
+    "cuentanosSobreTi": "บอกเล่าเกี่ยวกับตัวคุณให้เราฟังหน่อย...",
+    "madridEspana": "มาดริด ประเทศสเปน",
+    "informacionDeContacto": "ข้อมูลการติดต่อ",
+    "elEmailNoSePuedeCambiarDesdeAqui": "ไม่สามารถเปลี่ยนแปลงที่อยู่อีเมลได้จากตรงนี้",
+    "nombreDeLaEmpresa": "ชื่อบริษัท",
+    "descripcionDeLaTienda": "คำอธิบายร้านค้า",
+    "describeTuTiendaTusProductosTuHi": "อธิบายร้านค้าของคุณ สินค้าของคุณ และเรื่องราวของคุณ...",
+    "maximo5Mb": "ขนาดสูงสุด 5 MB",
+    "eseNombreDeUsuarioYaEstaEnUso": "ชื่อผู้ใช้ดังกล่าวถูกใช้งานอยู่แล้ว",
+    "elNombreDeUsuarioDebeTenerAlMenos": "ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร",
+    "noSePudoGuardarIntentaloDeNuevo": "ไม่สามารถบันทึกได้ โปรดลองอีกครั้ง",
+    "min3Caracteres": "อย่างน้อย 3 ตัวอักษร",
+    "cuentanosAlgoSobreTi…": "ช่วยเล่าเรื่องเกี่ยวกับตัวคุณให้เราฟังหน่อย...",
+    "descripcionDeTienda": "คำอธิบายร้านค้า"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "เกิดข้อผิดพลาดในการประมวลผลคำขอ",
+    "cuandoAlguienQuieraSeguirteAparecer": "เมื่อมีคนต้องการติดตามคุณ พวกเขาจะปรากฏขึ้นที่นี่"
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "การยืนยันคำสั่งซื้อ",
+    "actualizacionesDeEnvio": "อัปเดตการจัดส่ง",
+    "solicitudesDeResena": "คำขอตรวจสอบ"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "รูปแบบ IBAN ไม่ถูกต้อง",
+    "sinComision-2-3DiasLaborables": "ไม่มีค่าคอมมิชชั่น - 2-3 วันทำการ",
+    "tuCuentaDeStripeConnectEstaActiva": "บัญชี Stripe Connect ของคุณเปิดใช้งานแล้ว การชำระเงินจะดำเนินการโดยอัตโนมัติ",
+    "conectaTuCuentaDeStripeParaRecibir": "เชื่อมต่อบัญชี Stripe ของคุณเพื่อรับชำระเงินโดยตรง คุณจะถูกนำไปยังขั้นตอนการตรวจสอบยืนยันของ Stripe",
+    "losPagosPorVentasDeProductosSePro": "การชำระเงินสำหรับการขายสินค้าจะดำเนินการโดยอัตโนมัติผ่าน Stripe Connect",
+    "configuraTuCuentaDeStripeParaEmpez": "ตั้งค่าบัญชี Stripe ของคุณเพื่อเริ่มรับชำระเงิน"
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "ข้อมูลร้านค้าพื้นฐาน",
+    "analiticasBasicas": "การวิเคราะห์ข้อมูลพื้นฐาน",
+    "analiticasAvanzadas": "การวิเคราะห์ขั้นสูง",
+    "generacionDeContratos": "การสร้างสัญญา",
+    "errorAlAbrirFacturacion": "เกิดข้อผิดพลาดในการเปิดใบแจ้งหนี้",
+    "errorAlCambiarDePlan": "เกิดข้อผิดพลาดในการเปลี่ยนแผน",
+    "perderasLasFuncionalidadesPremiumAl": "คุณจะเสียสิทธิ์การใช้งานฟีเจอร์ระดับพรีเมียมเมื่อสิ้นสุดรอบบิล"
+  },
+  "settings": {
+    "cuentaPublicaActivada": "บัญชีสาธารณะถูกเปิดใช้งานแล้ว",
+    "errorAlCambiarLaPrivacidad": "เกิดข้อผิดพลาดในการเปลี่ยนการตั้งค่าความเป็นส่วนตัว",
+    "sesionCerradaCambiadoAOtraCuenta": "เซสชั่นปิดลงแล้ว สลับไปใช้บัญชีอื่นแล้ว",
+    "errorAlEliminarLaCuenta": "เกิดข้อผิดพลาดในการลบบัญชี",
+    "paisEIdioma": "ประเทศและภาษา",
+    "lasCuentasDeProductorSonSiemprePub": "บัญชีของผู้ผลิตจะเป็นสาธารณะเสมอ",
+    "planDeSuscripcion": "แผนการสมัครสมาชิก",
+    "confirmarCierreDeSesion": "ยืนยันการปิดเซสชัน",
+    "tendrasQueVolverAIniciarSesionPara": "คุณจะต้องเข้าสู่ระบบอีกครั้งเพื่อเข้าถึงบัญชีของคุณ",
+    "confirmarEliminacionDeCuenta": "ยืนยันการลบบัญชี",
+    "estaAccionEsIrreversibleSeEliminar": "การดำเนินการนี้ไม่สามารถย้อนกลับได้ ข้อมูล คำสั่งซื้อ และเนื้อหาทั้งหมดของคุณจะถูกลบ",
+    "escribeTuEmailParaConfirmar": "กรุณาป้อนอีเมลของคุณเพื่อยืนยัน",
+    "confirmaTuEmailParaEliminarLaCuent": "ยืนยันอีเมลของคุณเพื่อลบบัญชี"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "ลงลายเซ็นของคุณก่อนบันทึก",
+    "subeUnaImagenDeTuFirma": "อัปโหลดรูปภาพลายเซ็นของคุณ",
+    "configuraTuFirmaAntesDeGuardar": "ตั้งค่าลายเซ็นของคุณก่อนบันทึก",
+    "errorAlProcesarLaFirmaExistente": "เกิดข้อผิดพลาดในการประมวลผลลายเซ็นที่มีอยู่",
+    "errorAlGuardarLaFirma": "เกิดข้อผิดพลาดในการบันทึกลายเซ็น",
+    "necesitasConfigurarTuFirmaParaPoder": "คุณต้องตั้งค่าลายเซ็นของคุณเพื่อให้สามารถลงนามในสัญญา B2B ได้",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "ลายเซ็นดิจิทัลของคุณจะถูกนำไปใช้กับสัญญา B2B โดยอัตโนมัติ",
+    "laFirmaQuedaRegistradaConTimestamp": "ลายเซ็นจะถูกบันทึกพร้อมประทับเวลาและค่าแฮช SHA-256 สำหรับ",
+    "seSuperpondraSobreLaFirmaEnLosCon": "มันจะถูกซ้อนทับลงบนลายเซ็นในสัญญา"
+  },
+  "role_onboarding": {
+    "omnivoro": "มังสวิรัติ",
+    "paraRecomendarteLosMejoresProductos": "เพื่อแนะนำผลิตภัณฑ์ที่ดีที่สุดให้กับคุณ คุณสามารถเลือกได้จากหลายตัวเลือก",
+    "tuFeedSePersonalizaraConSusProduct": "ฟีดของคุณจะได้รับการปรับแต่งให้เหมาะสมกับผลิตภัณฑ์และเนื้อหาของคุณ",
+    "escribeElNombreDeTuTienda": "เขียนชื่อร้านของคุณ",
+    "errorConectandoConStripeHazloDesde": "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Stripe โปรดเชื่อมต่อจากแดชบอร์ดของคุณ",
+    "estoEsLoPrimeroQueVeranTusCliente": "นี่คือสิ่งแรกที่ลูกค้าของคุณจะเห็น",
+    "anadirLogo": "เพิ่มโลโก้",
+    "jpgPngOWebp·Maximo5mb": "ไฟล์ JPG, PNG หรือ WebP · ขนาดสูงสุด 5MB",
+    "nombreDeTuTienda": "ชื่อร้านของคุณ",
+    "puedesAnadirMasDesdeTuPanelEsteP": "คุณสามารถเพิ่มข้อมูลเพิ่มเติมได้จากแดชบอร์ดของคุณ ขั้นตอนนี้เป็นทางเลือก",
+    "necesitamosVerificarTuIdentidadPara": "เราจำเป็นต้องตรวจสอบตัวตนของคุณเพื่อโอนเงินค่าสินค้าให้คุณอย่างปลอดภัย",
+    "tusDatosBancariosNuncaPasanPorHisp": "ข้อมูลบัญชีธนาคารของคุณจะไม่ถูกส่งผ่าน Hispaloshop",
+    "recibirasTusPagosAutomaticamente": "คุณจะได้รับการชำระเงินโดยอัตโนมัติ",
+    "puedesHacerloMasTardeDesdeTuPanel": "คุณสามารถดำเนินการได้ในภายหลังผ่านทางแดชบอร์ดของคุณ",
+    "loHareMasTarde": "ฉันจะทำทีหลัง",
+    "noSePudoObtenerTuCodigo": "ไม่สามารถดึงรหัสของคุณได้",
+    "apareceranEnTuPerfilCuandoAlguien": "สินค้าเหล่านั้นจะปรากฏบนโปรไฟล์ของคุณ เมื่อมีคนซื้อสินค้า คุณจะได้รับค่าคอมมิชชั่น",
+    "tusSeguidoresObtienenUn10DeDescue": "ผู้ติดตามของคุณจะได้รับส่วนลด 10% สำหรับการซื้อครั้งแรก คุณจะได้รับค่าคอมมิชชั่นตลอดชีพ",
+    "comoGanasDinero": "คุณสร้างรายได้ได้อย่างไร:",
+    "cadaCompraQueHaganTeGeneraComision": "ทุกครั้งที่พวกเขาซื้อสินค้า คุณจะได้รับค่าคอมมิชชั่น",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "เงินจะถูกโอนเข้าบัญชีธนาคารของคุณโดยอัตโนมัติ",
+    "todoListo": "ทุกอย่างพร้อมแล้ว!",
+    "empiezaCompartiendoTuCodigoConTusS": "เริ่มต้นด้วยการแชร์โค้ดของคุณกับผู้ติดตามของคุณ",
+    "veTusComisionesEnTiempoReal": "ดูค่าคอมมิชชั่นของคุณได้แบบเรียลไทม์",
+    "minimo20€TransferenciaAutomatica": "ขั้นต่ำ 20 ยูโร โอนเงินอัตโนมัติ"
+  },
+  "chats": {
+    "colaboracion": "การทำงานร่วมกัน",
+    "aunNoTienesMensajes": "คุณยังไม่มีข้อความใดๆ",
+    "empiezaUnaConversacionConProductores": "เริ่มต้นการสนทนากับโปรดิวเซอร์ อินฟลูเอนเซอร์ และอีกมากมาย",
+    "enviaMensajesPrivadosATiendasProdu": "ส่งข้อความส่วนตัวไปยังร้านค้า ผู้ผลิต และผู้มีอิทธิพลในชุมชน HispaloShop"
+  },
+  "consumer_register": {
+    "datosBasicos": "ข้อมูลพื้นฐาน",
+    "errorAlCrearLaCuentaIntentaloDeN": "เกิดข้อผิดพลาดในการสร้างบัญชี โปรดลองใหม่อีกครั้ง",
+    "completaTuRegistroEnPocosPasosYDe": "ลงทะเบียนให้เสร็จสิ้นในไม่กี่ขั้นตอน และเตรียมการตั้งค่าเบื้องต้นให้พร้อมใช้งานเมื่อคุณลงทะเบียนเสร็จแล้ว"
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "กลับสู่หน้าเลือกบทบาท",
+    "esteFlujoYaEstaConectadoDePrincipi": "กระบวนการนี้เชื่อมต่อกันตั้งแต่ต้นจนจบเรียบร้อยแล้ว การเข้าถึงผ่านโทรศัพท์และโซเชียลมีเดียจะเพิ่มเข้ามาในภายหลัง",
+    "crearasTuCuentaYDespuesCompletaremo": "คุณจะต้องสร้างบัญชีของคุณก่อน จากนั้นเราจะดำเนินการตั้งค่าต่างๆ ให้คุณเสร็จสมบูรณ์",
+    "googleAppleYTelefonoVolveranCuando": "Google, Apple และโทรศัพท์จะกลับมาใช้งานได้อีกครั้งเมื่อเชื่อมต่อได้อย่างเสถียรในระดับเดียวกับกระบวนการนี้"
+  },
+  "step2_basic": {
+    "datosBasicos": "ข้อมูลพื้นฐาน",
+    "empezamosConTuInformacionEsencialPa": "เราจะเริ่มต้นด้วยข้อมูลสำคัญของคุณเพื่อสร้างบัญชี",
+    "maria": "มาเรีย",
+    "garciaLopez": "การ์เซีย โลเปซ",
+    "creaUnaContrasenaSegura": "สร้างรหัสผ่านที่ปลอดภัย",
+    "debesTenerAlMenos16Anos": "คุณต้องมีอายุอย่างน้อย 16 ปี",
+    "terminos": "เงื่อนไข",
+    "politicaDePrivacidad": "นโยบายความเป็นส่วนตัว"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "ปรับความสนใจของคุณเพื่อให้แคตตาล็อกและคำแนะนำเริ่มต้นด้วยความรอบคอบมากขึ้น",
+    "nosAyudaAMostrarProductoresYEnvios": "สิ่งนี้ช่วยให้เราสามารถนำเสนอผู้ผลิตและการจัดส่งที่เกี่ยวข้องมากที่สุด"
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "คำแนะนำที่ปรับให้เหมาะสมกับความสนใจและกิจกรรมของคุณ",
+    "loMasPopular": "ยอดนิยมที่สุด",
+    "losProductosQueMasEstanComprandoOt": "สินค้าที่ผู้ใช้งานรายอื่นซื้อมากที่สุด",
+    "ordenaPrimeroPorResenasYConfianza": "จัดเรียงตามจำนวนรีวิวและความน่าเชื่อถือก่อน",
+    "defineComoQuieresEmpezarAVerProduc": "ระบุว่าคุณต้องการเริ่มดูสินค้าอย่างไร และโดยปกติคุณซื้อสินค้าบ่อยแค่ไหน"
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "ขั้นตอนต่อไปคือการดำเนินการขั้นตอนการเริ่มต้นใช้งานให้เสร็จสมบูรณ์ เพื่อให้ฟีด แคตตาล็อก และคำแนะนำต่างๆ เริ่มต้นใช้งานได้อย่างมีประสิทธิภาพมากขึ้น",
+    "cuandoTerminesElOnboardingTeEnsenar": "เมื่อคุณทำขั้นตอนการเริ่มต้นใช้งานเสร็จสิ้นแล้ว เราจะแสดงผู้ผลิต หมวดหมู่ และบัญชีที่เหมาะสมกับคุณที่สุดให้คุณดูก่อน"
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "หยุดเสียส่วนต่างกำไรของคุณให้กับพ่อค้าคนกลาง",
+    "conectaConProductoresRealesSinInte": "ติดต่อผู้ผลิตตัวจริงโดยตรง ไม่มีคนกลาง ไม่มีเรื่องโกหก"
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop คือตลาดที่ซึ่งอาหารมีประวัติศาสตร์ยาวนาน",
+    "unaPlataformaDondeCadaProductoTiene": "แพลตฟอร์มที่ทุกผลิตภัณฑ์มีเอกลักษณ์และเรื่องราว ตั้งแต่แหล่งผลิตจนถึงโต๊ะอาหารของคุณ โดยไม่มีใครกลาง",
+    "entreElProductorYTuPlatoHayUnaCa": "ระหว่างผู้ผลิตกับจานอาหารของคุณ มีพ่อค้าคนกลางหลายขั้นตอนที่ทำให้ราคาสูงขึ้น คุณภาพลดลง และประวัติความเป็นมาของสิ่งที่คุณกินก็หายไป",
+    "conectamosAlQueProduceConElQueCom": "เราเชื่อมโยงผู้ผลิตกับผู้บริโภค",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop เป็นแพลตฟอร์มการค้าทางสังคมที่เปิดโอกาสให้ผู้ผลิตงานฝีมือเปิดร้านค้าของตนเอง บอกเล่าเรื่องราว และขายสินค้าโดยตรงให้กับผู้บริโภค"
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "เกิดข้อผิดพลาดในการส่ง โปรดลองอีกครั้ง",
+    "paraDudasSobreLaPlataformaColabora": "สำหรับคำถามเกี่ยวกับแพลตฟอร์ม ความร่วมมือ หรือข้อซักถามจากสื่อมวลชน",
+    "respondemosEnMenosDe24Horas": "เราจะตอบกลับภายใน 24 ชั่วโมง",
+    "losProductoresGestionanElEnvioDirec": "ผู้ผลิตเป็นผู้จัดการเรื่องการจัดส่งโดยตรง ระยะเวลาการจัดส่งขึ้นอยู่กับผู้ผลิตแต่ละรายและปลายทาง",
+    "siHispaloshopSoportaMultiplesIdioma": "ใช่แล้ว HispaloShop รองรับหลายภาษาและหลายสกุลเงินสำหรับการขายสินค้าระหว่างประเทศ",
+    "paraCompradoresEsGratisProductores": "ผู้ซื้อสามารถใช้บริการได้ฟรี ผู้ผลิตมีแพ็คเกจเริ่มต้นที่ 0 ยูโร ส่วนอินฟลูเอนเซอร์จะได้รับค่าคอมมิชชั่น"
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "นำเข้า จำหน่าย และเติบโต เข้าถึงผู้บริโภค ผู้มีอิทธิพล และผู้ผลิตทั่วโลกโดยตรง ค้นพบข้อดีทั้งหมดสำหรับผู้นำเข้าได้ที่ HispaloShop",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "ร้านค้า B2C และ B2B ของคุณรวมไว้ในที่เดียว",
+    "accedeAConsumidoresFinalesConectaC": "เข้าถึงผู้บริโภคโดยตรง เชื่อมต่อกับผู้มีอิทธิพลในท้องถิ่น และซื้อสินค้าโดยตรงจากผู้ผลิตในทุกประเทศ ทั้งหมดนี้ทำได้จากแพลตฟอร์มเดียว โดยไม่ต้องผ่านตัวกลาง",
+    "vendeTusProductosImportadosDirectame": "ขายสินค้าที่นำเข้าของคุณโดยตรงให้กับผู้บริโภคในประเทศปลายทาง โดยไม่ต้องผ่านตัวกลาง",
+    "conectaYColaboraConInfluencersLocal": "เชื่อมต่อและร่วมมือกับอินฟลูเอนเซอร์ในท้องถิ่นเพื่อโปรโมตผลิตภัณฑ์ของคุณ (ระดับโปรและระดับอีลิต)",
+    "compraDirectamenteAProductoresDeCua": "ซื้อสินค้าโดยตรงจากผู้ผลิตในทุกประเทศ ติดต่อโดยตรงและไม่ผ่านตัวกลาง",
+    "panelDeGestionUnificado": "แผงควบคุมการจัดการแบบรวมศูนย์",
+    "gestionaPedidosPagosLogisticaCert": "จัดการคำสั่งซื้อ การชำระเงิน การขนส่ง ใบรับรอง และการสื่อสารทั้งหมดได้จากแดชบอร์ดเดียว",
+    "soportePorChatInternoConAdminLocal": "ทุกแพ็กเกจมีบริการแชทภายในกับผู้ดูแลระบบในพื้นที่ และบริการสนับสนุนทางอีเมล",
+    "todasLasFuncionesBasicasVenderB2c": "ฟังก์ชันพื้นฐานครบครัน, การขายแบบ B2C, การเผยแพร่ผลิตภัณฑ์, ใบรับรอง QR, การสนับสนุนมาตรฐาน",
+    "matchingConInfluencersDashboardAvan": "การจับคู่ผู้มีอิทธิพล, แดชบอร์ดขั้นสูง, การวิเคราะห์การขาย, การสนับสนุนระดับพรีเมียม",
+    "todoLoAnteriorIaComercialAvanzada": "ทั้งหมดที่กล่าวมาข้างต้น บวกกับ AI ทางธุรกิจขั้นสูง การวิเคราะห์ตลาดต่างประเทศ การสร้างสัญญาอัตโนมัติ และค่าคอมมิชชั่นที่ต่ำกว่า",
+    "colaboracionConInfluencersLocalesPr": "ร่วมมือกับอินฟลูเอนเซอร์ท้องถิ่น (ระดับโปรและระดับอีลิต)",
+    "panelDeGestionPagosYLogisticaUnif": "แผงควบคุมการจัดการ การชำระเงิน และโลจิสติกส์แบบครบวงจร",
+    "iaComercialAvanzadaYGeneracionDeCo": "ระบบ AI เชิงพาณิชย์ขั้นสูงและการสร้างสัญญา (ระดับ Elite)",
+    "importarYVenderNuncaFueTanFacil": "การนำเข้าและจำหน่ายสินค้าไม่เคยง่ายขนาดนี้มาก่อน",
+    "creaTuCuentaDeImportador": "สร้างบัญชีผู้นำเข้าของคุณ",
+    "accedeAHerramientasDeIaYAnalitica": "เข้าถึงเครื่องมือ AI และการวิเคราะห์ขั้นสูง (ระดับ Pro และ Elite)",
+    "gestionaPagosLogisticaYCertificados": "จัดการการชำระเงิน โลจิสติกส์ และใบรับรองต่างๆ ได้จากแดชบอร์ดเดียว",
+    "soloCrearTuCuentaYSubirTusProduct": "เพียงสร้างบัญชีและอัปโหลดสินค้าของคุณ",
+    "siPuedesVenderAlConsumidorFinalY": "ใช่ คุณสามารถขายสินค้าให้กับผู้บริโภคโดยตรงและเข้าถึงโอกาสทางธุรกิจแบบ B2B ได้เช่นกัน",
+    "siemprePorChatInternoYEmailConPr": "การติดต่อสื่อสารจะดำเนินการผ่านการแชทภายในและอีเมลเสมอ โดยให้ความสำคัญกับผู้ใช้ระดับ Pro และ Elite เป็นลำดับแรก",
+    "daElSaltoAlCanalDigitalYAccedeA": "ก้าวสู่ช่องทางดิจิทัลและเข้าถึงผู้บริโภค ผู้มีอิทธิพล และผู้ผลิตทั่วโลก"
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "สร้างชุมชน สนับสนุนผู้ผลิตที่ซื่อสัตย์ และสร้างรายได้จากความพยายามของคุณอย่างแท้จริง รับค่าคอมมิชชั่นต่อเนื่อง อิสระในการสร้างสรรค์ และการสนับสนุนโดยตรง",
+    "estoNoVaDeVenderPorVenderVaDeD": "นี่ไม่ใช่การขายเพื่อขายอย่างเดียว แต่เป็นการให้ความสำคัญกับผู้ผลิตที่ซื่อสัตย์ นำเสนออาหารที่ดีต่อสุขภาพแก่ผู้ติดตามของคุณ และสร้างรายได้จากความพยายามของคุณอย่างต่อเนื่อง ที่นี่คุณมีอิสระ มีชุมชน และได้รับการสนับสนุนโดยตรง ผมคือ บิล ชานฟู และผมสร้างสิ่งนี้ขึ้นมาเพื่อคุณ",
+    "ganaMasDejaHuella": "สร้างรายได้มากขึ้น สร้างชื่อเสียงให้เป็นที่รู้จัก",
+    "hercules": "เฮอร์คิวลีส",
+    "laMayoriaLlegaAqui": "ส่วนใหญ่มาถึงที่นี่",
+    "comisionRecurrenteDurante18MesesPor": "ค่าคอมมิชชั่นต่อเนื่อง 18 เดือนสำหรับผู้ใช้แต่ละรายที่แนะนำมา",
+    "creaComunidadApoyaProductoresHonest1": "สร้างชุมชน สนับสนุนผู้ผลิตที่ซื่อสัตย์ และสร้างรายได้จากความพยายามของคุณอย่างแท้จริง ที่นี่คุณมีอิสระและการสนับสนุนโดยตรง หากคุณต้องการอะไร โปรดติดต่อผม ผมคือ บิล ชานฟู"
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "เชื่อมโยงการผลิตของคุณกับผู้นำเข้าและลูกค้าทั่วโลก ขยายขอบเขตการเข้าถึงของคุณ แปลงแคตตาล็อกของคุณให้เป็นดิจิทัล และเข้าถึงโอกาสทางธุรกิจใหม่ๆ",
+    "uneteALaPlataformaQueConectaProduc": "เข้าร่วมแพลตฟอร์มที่เชื่อมต่อผู้ผลิต ผู้นำเข้า และลูกค้าทั่วโลก เปลี่ยนแคตตาล็อกของคุณให้เป็นดิจิทัลและเข้าถึงโอกาสทางธุรกิจใหม่ๆ",
+    "registrateGratis": "ลงทะเบียนฟรี",
+    "publicaTuCatalogo": "เผยแพร่แคตตาล็อกของคุณ",
+    "accesoInmediatoAUnaRedGlobalDeImp": "เข้าถึงเครือข่ายผู้นำเข้าที่ได้รับการตรวจสอบแล้วทั่วโลกได้ทันที",
+    "herramientasParaDestacarTuMarcaYPr": "เครื่องมือที่จะช่วยเน้นย้ำแบรนด์และผลิตภัณฑ์ของคุณ",
+    "opcionesDePromocionPremiumSegunTuP": "ตัวเลือกโปรโมชั่นพิเศษ ขึ้นอยู่กับแพ็กเกจที่คุณเลือก",
+    "gestionEficienteDeContactosYOportun": "การบริหารจัดการเครือข่ายติดต่อและโอกาสอย่างมีประสิทธิภาพ",
+    "paraProductoresEnCrecimiento": "สำหรับผู้ผลิตที่กำลังเติบโต",
+    "maximaVisibilidadYVentajas": "ทัศนวิสัยและข้อได้เปรียบสูงสุด",
+    "sinTarjetaDeCreditoParaEmpezar": "ไม่ต้องใช้บัตรเครดิตในการเริ่มต้น",
+    "elRegistroEsGratuitoPuedesAcceder": "ลงทะเบียนฟรี คุณสามารถเข้าถึงฟีเจอร์ขั้นสูงได้ด้วยแพ็กเกจพรีเมียม",
+    "puedesPublicarCualquierProductoQueC": "คุณสามารถลงรายการสินค้าใดก็ได้ที่ตรงตามนโยบายและมาตรฐานคุณภาพของเรา",
+    "unaVezRegistradoPodrasContactarImp": "เมื่อลงทะเบียนแล้ว คุณจะสามารถติดต่อผู้นำเข้าได้โดยตรงจากแพลตฟอร์ม",
+    "mayorVisibilidadAccesoPrioritarioA": "เพิ่มโอกาสในการมองเห็น เข้าถึงโอกาสพิเศษ และเครื่องมือสุดพิเศษที่จะช่วยส่งเสริมธุรกิจของคุณ",
+    "siPuedesVenderTantoAConsumidoresF": "ใช่ คุณสามารถขายได้ทั้งให้กับผู้บริโภคทั่วไป ผู้นำเข้า และธุรกิจต่างๆ",
+    "soportePersonalizadoRecursosEducativ": "การสนับสนุนส่วนบุคคล แหล่งข้อมูลทางการศึกษา และคำแนะนำเกี่ยวกับการค้าระหว่างประเทศ",
+    "uneteACientosDeProductoresQueYaEs": "เข้าร่วมกับผู้ผลิตหลายร้อยรายที่กำลังเติบโตไปพร้อมกับ Hispaloshop แล้ว"
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop ไม่รับผิดชอบต่อคุณภาพของสินค้าที่จำหน่ายโดยบุคคลที่สาม แม้ว่าเราจะพยายามตรวจสอบผู้ผลิตทุกรายบนแพลตฟอร์มอย่างแข็งขันก็ตาม"
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "ค้นพบผลิตภัณฑ์งานฝีมือจากพื้นที่ของคุณ",
+    "basadoEnTusCompras": "ขึ้นอยู่กับการซื้อของคุณ",
+    "descubreRecetasMediterraneasConTusP": "ค้นพบสูตรอาหารเมดิเตอร์เรเนียนด้วยผลิตภัณฑ์ของคุณ",
+    "aquiEstaTuResumenDeHoy": "นี่คือสรุปข่าวประจำวันนี้"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "ขณะนี้ยังไม่สามารถดูข้อมูลสถิติขั้นสูงได้",
+    "noSePudoCargarElStockDeProductos": "ไม่สามารถโหลดข้อมูลสินค้าคงคลังสำหรับการแจ้งเตือนได้",
+    "enPreparacion": "กำลังเตรียมการ",
+    "anadeMasProductosParaAumentarTuVis": "เพิ่มสินค้าให้มากขึ้นเพื่อเพิ่มการมองเห็นของคุณ",
+    "anadirProducto": "เพิ่มสินค้า",
+    "colaboraConInfluencersParaPromociona": "ร่วมมือกับอินฟลูเอนเซอร์เพื่อโปรโมตผลิตภัณฑ์ของคุณ",
+    "analisis": "การวิเคราะห์",
+    "resumenDeTuNegocio": "สรุปข้อมูลธุรกิจของคุณ",
+    "evolucionDeVentas": "วิวัฒนาการของการขาย"
+  },
+  "signed_documents": {
+    "documentoIntegro": "เอกสารฉบับเต็ม",
+    "elContratoNoHaSidoModificadoDesde": "สัญญาฉบับนี้ไม่มีการแก้ไขใดๆ นับตั้งแต่ลงนาม",
+    "elHashDelDocumentoNoCoincideConEl": "รหัสแฮชของเอกสารไม่ตรงกับรหัสที่บันทึกไว้ในขณะลงนาม โปรดติดต่อฝ่ายสนับสนุน",
+    "noTienesContratosFirmadosTodavia": "คุณยังไม่มีสัญญาที่ลงนามแล้วเลย",
+    "lasFacturasEstaranDisponiblesProxima": "ใบแจ้งหนี้จะพร้อมให้ตรวจสอบได้ในเร็วๆ นี้"
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "ความร่วมมือใหม่",
+    "elCosteCorreACargoDelProductor": "ต้นทุนตกเป็นภาระของผู้ผลิต",
+    "holaViTuContenidoYCreoQueEncajar": "สวัสดี! ฉันเห็นเนื้อหาของคุณแล้ว และฉันคิดว่าคุณเหมาะสมกับผลิตภัณฑ์ของเรามาก...",
+    "previewDeLaPropuesta": "ตัวอย่างข้อเสนอ",
+    "propuestaDeColaboracion": "ข้อเสนอความร่วมมือ",
+    "comisionEspecial": "คณะกรรมการพิเศษ",
+    "duracion": "ระยะเวลา"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "กรุณาเข้าสู่ระบบเพื่อใช้งานผู้ช่วยในการเลือกซื้อสินค้า",
+    "loSientoHaOcurridoUnErrorPorFav": "ขออภัย เกิดข้อผิดพลาด โปรดลองใหม่อีกครั้ง",
+    "iniciaSesionParaUnaExperienciaPerso": "เข้าสู่ระบบเพื่อรับประสบการณ์การใช้งานที่ปรับแต่งเฉพาะคุณ",
+    "busquedasRapidas": "การค้นหาอย่างรวดเร็ว",
+    "recomendacionesBasadasEnCertificados": "คำแนะนำอ้างอิงจากใบรับรองผลิตภัณฑ์"
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "เราได้แก้ไขปัญหาหน้าจอว่างเปล่าแล้ว คุณสามารถกลับไปยังหน้าจอหลักหรือโหลดแอปพลิเคชันใหม่ได้"
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "น้ำมันและน้ำสลัดที่มีแหล่งที่มาชัดเจน",
+    "exploraElCatalogoDesdeCategoriasCla": "สำรวจแค็ตตาล็อกโดยใช้หมวดหมู่ที่ชัดเจน ไม่รกตา",
+    "productoLocalEImportadoYaDisponible": "สินค้าทั้งในประเทศและนำเข้ามีวางจำหน่ายในสเปนแล้ว โดยไม่มีการแต่งเติมเรื่องราวหรือหมวดหมู่ที่ไม่จำเป็น"
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "เราไม่พบสินค้าในหมวดหมู่นี้ โปรดลองค้นหาใหม่",
+    "anadeAlgunosProductosArtesanalesPara": "เพิ่มสินค้าทำมือบางรายการเพื่อเริ่มต้นการซื้อของคุณ",
+    "tusPedidosApareceranAquiCuandoReali": "รายการสั่งซื้อของคุณจะปรากฏที่นี่เมื่อคุณทำการสั่งซื้อครั้งแรก",
+    "sigueAMasProductoresEInfluencersPa": "ติดตามโปรดิวเซอร์และอินฟลูเอนเซอร์เพิ่มเติมเพื่อชมคอนเทนต์ของพวกเขาได้ที่นี่",
+    "intentaConOtrosTerminosDeBusqueda": "ลองใช้คำค้นหาอื่นๆ ดู",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "ลองใหม่อีกครั้งในภายหลัง หรือเปลี่ยนตัวกรองการค้นหาของคุณ"
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "เกิดข้อผิดพลาดที่ไม่คาดคิด โปรดลองรีเฟรชหน้าเว็บ"
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "สิ่งดีๆ อยู่ใกล้กว่าที่คุณคิด",
+    "descubrirCercaDeMi": "ค้นหาสถานที่ใกล้ฉัน",
+    "usaTuUbicacionActualOEscribeTuCod": "ใช้ตำแหน่งที่ตั้งปัจจุบันของคุณหรือป้อนรหัสไปรษณีย์เพื่อจัดลำดับความสำคัญของสิ่งที่อยู่ใกล้คุณที่สุด",
+    "buscandoTuUbicacion": "กำลังค้นหาตำแหน่งของคุณ..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "ไม่มีข้อมูลการวิเคราะห์ให้ใช้งาน",
+    "analyticsDeTuCodigo": "การวิเคราะห์โค้ดของคุณ",
+    "tuEnlaceDeReferido": "ลิงก์แนะนำของคุณ",
+    "comparteEsteEnlaceEnTusRedesCada": "แชร์ลิงก์นี้บนเครือข่ายสังคมออนไลน์ของคุณ ทุกการเข้าชมจะถูกติดตามโดยอัตโนมัติ",
+    "usosDelCodigo": "การใช้งานโค้ด",
+    "codigoAplicado": "รหัสที่ใช้",
+    "usosCodigo": "การใช้งานโค้ด",
+    "comoFuncionanTusComisiones": "วิธีคำนวณค่าคอมมิชชั่นของคุณ",
+    "calculoDeTuComision": "การคำนวณค่าคอมมิชชั่นของคุณ:",
+    "tipsParaMejorarTusConversiones": "เคล็ดลับเพื่อเพิ่มอัตราการแปลงของคุณ"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "รูปภาพที่แชร์ในแชท",
+    "noSePudoCargarLaImagen": "ไม่สามารถโหลดรูปภาพได้",
+    "pegaUnEnlaceDeProductoOSuId": "วางลิงก์สินค้าหรือรหัสสินค้าลงในช่องนี้",
+    "pegaUnEnlaceDeRecetaOSuId": "วางลิงก์สูตรอาหารหรือรหัสประจำตัวของคุณลงไป",
+    "pegaUnEnlaceDePostOReelDeHispalo": "วางลิงก์ไปยังโพสต์หรือวิดีโอจาก Hispaloshop ที่นี่",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "วางลิงก์ Hispaloshop ที่ถูกต้องเพื่อสร้างบัตรขนาดกะทัดรัด",
+    "miembroDeLaComunidad": "สมาชิกของชุมชน",
+    "pruebaConOtroNombreOCambiaElFiltr": "ลองใช้ชื่ออื่นหรือเปลี่ยนตัวกรองดู",
+    "noSePudoEliminarElMensaje": "ไม่สามารถลบข้อความได้",
+    "conversacionEliminada": "บทสนทนาถูกลบ",
+    "errorAlEliminarLaConversacion": "เกิดข้อผิดพลาดในการลบการสนทนา",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "โปรดวางลิงก์หรือรหัสผู้ใช้ Hispaloshop ที่ถูกต้องลงในช่องนี้",
+    "noPudimosGenerarLaVistaPrevia": "เราไม่สามารถสร้างตัวอย่างได้",
+    "noSePudoEnviarElMensaje": "ไม่สามารถส่งข้อความได้",
+    "laImagenNoPuedeSuperar5Mb": "ไฟล์ภาพต้องมีขนาดไม่เกิน 5 MB",
+    "elArchivoNoPuedeSuperar10Mb": "ไฟล์ต้องมีขนาดไม่เกิน 10 MB",
+    "errorAlSubirElDocumento": "เกิดข้อผิดพลาดในการอัปโหลดเอกสาร",
+    "buscarConversacion": "กำลังมองหาคนคุยด้วย",
+    "empiezaUnChatNuevoDesdeElBotonSup": "เริ่มการสนทนาใหม่จากปุ่มด้านบน แล้วกล่องข้อความของคุณจะสะอาดเรียบร้อยมากขึ้น",
+    "seleccionaUnaConversacionDelPanelIz": "เลือกบทสนทนาจากแผงด้านซ้าย หรือเริ่มบทสนทนาใหม่",
+    "llamadaDeVozProximamente": "การโทรด้วยเสียง (เร็วๆ นี้)",
+    "videollamadaProximamente": "การโทรผ่านวิดีโอ (เร็วๆ นี้)",
+    "mensajesDeLaConversacion": "ข้อความสนทนา",
+    "empiezaLaConversacion": "เริ่มการสนทนา",
+    "escribeElPrimerMensajeYMantenLaCo": "เขียนข้อความแรกและรักษาบทสนทนาให้อยู่ในบริบทที่ชัดเจน",
+    "vistaPreviaDeLaImagenAdjunta": "ตัวอย่างภาพที่แนบมา"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "เกิดข้อผิดพลาดบางอย่างขึ้น",
+    "noSePudoCargarEsteContenidoIntent": "ไม่สามารถโหลดเนื้อหานี้ได้ โปรดลองอีกครั้ง"
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "แพ็คเกจพื้นฐาน อัปเกรดเพื่อลดค่าคอมมิชชั่นและเข้าถึงเครื่องมือเพิ่มเติม"
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "ยังไม่สามารถแก้ไขโพสต์ได้ในขณะนี้"
+  },
+  "product": {
+    "anadirAlCarrito": "เพิ่มลงในตะกร้า"
+  },
+  "review": {
+    "valoracionEnviada": "คะแนนที่ส่งมา",
+    "errorAlEnviarValoracion": "เกิดข้อผิดพลาดในการส่งการให้คะแนน",
+    "cuentanosTuExperiencia": "เล่าประสบการณ์ของคุณให้เราฟังหน่อย...",
+    "enviarValoracion": "ส่งข้อเสนอแนะ"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "ปิดการแจ้งเตือน"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "ขอสูตรอาหารแบบง่ายๆ หน่อยครับ/ค่ะ",
+    "ayudameConMiDieta": "ช่วยแนะนำเรื่องการควบคุมอาหารให้ฉันหน่อยค่ะ",
+    "tuCompaneroDeCompras": "คู่หูในการช้อปปิ้งของคุณ",
+    "estoyAquiParaAyudarteAEncontrarLo": "ฉันมาที่นี่เพื่อช่วยคุณหาของที่คุณต้องการ",
+    "preguntaleADavid": "ถามเดวิดดูสิ...",
+    "microfono": "ไมโครโฟน"
+  },
+  "auth_diagnostic": {
+    "testConexion": "ทดสอบการเชื่อมต่อ",
+    "elBackendRespondePeroElEndpointNo": "ระบบแบ็กเอนด์ตอบสนอง แต่เอนด์พอยต์นั้นไม่มีอยู่จริง",
+    "laConexionFuncionaRevisaLosDetalle": "การเชื่อมต่อใช้งานได้แล้ว โปรดตรวจสอบรายละเอียดด้านบน"
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "กำลังเริ่มการทดสอบการตรวจสอบสิทธิ์...",
+    "sesionActiva": "เซสชันที่ใช้งานอยู่:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "รหัสไม่ถูกต้องหรือหมดอายุ",
+    "codigoIncorrecto": "รหัสไม่ถูกต้อง",
+    "codigoReenviadoATuEmail": "รหัสถูกส่งไปที่อีเมลของคุณแล้ว",
+    "noSePudoReenviarElCodigo": "ไม่สามารถส่งรหัสซ้ำได้",
+    "maximoDeReenviosAlcanzadoRevisaTu": "จำนวนการส่งต่อสูงสุดถึงแล้ว โปรดตรวจสอบโฟลเดอร์สแปมของคุณ",
+    "reenviarCodigoDeVerificacion": "ส่งรหัสยืนยันอีกครั้ง"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "สินค้าถูกลบออกจากแคตตาล็อก B2B แล้ว",
+    "cantidadMinimaDePedidoMoq": "ปริมาณการสั่งซื้อขั้นต่ำ (MOQ)",
+    "descripcionMayorista": "คำอธิบายการขายส่ง",
+    "maximoDeMuestrasPorSolicitud": "จำนวนตัวอย่างสูงสุดต่อคำขอ",
+    "publicarEnCatalogoB2b": "เผยแพร่ในแค็ตตาล็อก B2B",
+    "quitarDelCatalogoB2b": "ลบออกจากแคตตาล็อก B2B"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "ประเทศต้นกำเนิด (สเปน)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "ขั้นต่ำ 1 หน่วย",
+    "codigoDePaisDebeTener2Letras": "รหัสประเทศต้องมี 2 ตัวอักษร",
+    "elMensajeDebeTenerAlMenos10Caract": "ข้อความต้องมีความยาวอย่างน้อย 10 ตัวอักษร",
+    "anadeAlMenosUnProducto": "เพิ่มสินค้าอย่างน้อยหนึ่งรายการ",
+    "noSePudoEnviarLaRfq": "ไม่สามารถส่งคำขอเสนอราคาได้",
+    "nuevaSolicitudDeCotizacionRfq": "คำขอเสนอราคา (RFQ) ใหม่",
+    "describeVolumenFormatosCertificacio": "อธิบายปริมาณ รูปแบบ การรับรอง หรือข้อกำหนดด้านโลจิสติกส์"
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "อัปโหลดใบอนุญาตนำเข้า ใบเสียภาษี และเอกสารประกันภัยรถจดทะเบียน"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
+    "anadirAlCarrito": "เพิ่มลงในตะกร้า",
+    "productoAnadido": "เพิ่มผลิตภัณฑ์",
+    "anadido": "เพิ่มแล้ว!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "ข้อความทั้งหมดจากการสนทนานี้จะถูกลบออก"
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "คำขอ B2B อยู่ระหว่างการเจรจา"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "สวัสดีตอนเช้า",
+    "tuCompaneroDeComprasYAlimentacion": "พันธมิตรด้านการช้อปปิ้งและอาหารของคุณ",
+    "tuAsesorDeNegocioParaProductores": "ที่ปรึกษาทางธุรกิจของคุณสำหรับผู้ผลิต",
+    "estrategiaDeExportacion": "กลยุทธ์การส่งออก",
+    "asistenteCreativoParaContenidoYCamp": "ผู้ช่วยฝ่ายสร้างสรรค์ด้านเนื้อหาและแคมเปญ",
+    "disenarUnaCampana": "ออกแบบแคมเปญ",
+    "analisisDeMercadoInternacionalParaI": "การวิเคราะห์ตลาดระหว่างประเทศสำหรับผู้นำเข้า",
+    "analisisDeMargenes": "การวิเคราะห์อัตรากำไร",
+    "noTienesAccesoAEsteModoActualiza": "คุณไม่สามารถใช้งานโหมดนี้ได้ โปรดอัปเกรดแพ็กเกจของคุณ",
+    "elAsistenteNoEstaDisponibleAhoraI": "ขณะนี้ผู้ช่วยไม่พร้อมให้บริการ โปรดลองใหม่อีกครั้ง"
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "ล็อกอินเพื่อเข้าถึงบัญชีของคุณ"
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "รหัสของฉัน"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "บัญชีของคุณอยู่ระหว่างการตรวจสอบ"
+  },
+  "dashboard_header": {
+    "buenosDias": "สวัสดีตอนเช้า"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "ติดตามผู้ผลิต ผู้นำเข้า และผู้มีอิทธิพลเพื่อรับชมเนื้อหาของพวกเขาได้ที่นี่",
+    "estasAlDia": "คุณได้รับข้อมูลล่าสุดแล้ว"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "สัปดาห์ของคุณที่ HispaloShop",
+    "descubrirMas": "ค้นพบเพิ่มเติม",
+    "sigueProductoresParaVerSuContenido": "ติดตามโปรดิวเซอร์เพื่อรับชมเนื้อหาของพวกเขาได้ที่นี่"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "เข้าถึงได้อย่างรวดเร็ว"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 ไลค์!",
+    "alguienTeGuardo": "มีคนช่วยคุณไว้!",
+    "50MeGusta": "50 ไลค์!",
+    "7DiasSeguidos": "7 วันติดต่อกัน!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "ไม่สามารถติดตามผู้ใช้ได้",
+    "seEliminaraPermanentementeJuntoConS": "ข้อความดังกล่าวจะถูกลบอย่างถาวร พร้อมกับความคิดเห็นและไลค์ของคุณ",
+    "noSePudoDejarDeSeguir": "มันเป็นไปไม่ได้ที่จะหยุดดู",
+    "uneteALaConversacion": "ร่วมพูดคุยกัน...",
+    "progresoDelVideo": "ความคืบหน้าของวิดีโอ"
+  },
+  "stories_bar": {
+    "recetaDelDia": "สูตรอาหารประจำวัน"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "เนื้อเรื่อง",
+    "sinDatosDeVistasDisponibles": "ไม่มีข้อมูลการดู",
+    "buscarConversacion": "กำลังมองหาคนคุยด้วย..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "ไม่สามารถติดตามผู้ใช้ได้ โปรดลองใหม่อีกครั้ง"
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "ลากไฟล์มาที่นี่ หรือคลิกเพื่อเลือก"
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "ปลดล็อกความสำเร็จแล้ว!"
+  },
+  "application": {
+    "quienEres": "คุณเป็นใคร",
+    "confirmacion": "การยืนยัน",
+    "recomendadoParaLaMayoria": "เหมาะสำหรับคนส่วนใหญ่",
+    "pideRevisionManualPrioritaria": "ขอให้มีการตรวจสอบด้วยตนเองอย่างเร่งด่วน",
+    "paraPerfilesConUnaComunidadMuyActi": "สำหรับโปรไฟล์ที่มีชุมชนที่คึกคักมาก",
+    "necesitamosSaberComoTeConocen": "เราจำเป็นต้องรู้ว่ามีคนรู้จักคุณได้อย่างไร",
+    "tuEmailProfesionalEsObligatorio": "จำเป็นต้องระบุที่อยู่อีเมลสำหรับติดต่อทางธุรกิจของคุณ",
+    "eseEmailNoPareceValido": "ดูเหมือนว่าที่อยู่อีเมลนั้นจะไม่ถูกต้อง",
+    "tuInstagramPrincipalEsObligatorio": "จำเป็นต้องใช้บัญชี Instagram หลักของคุณ",
+    "necesitamosUnaViaRealParaContactart": "เราต้องการช่องทางการติดต่อคุณที่ใช้งานได้จริง",
+    "seleccionaTuPais": "เลือกประเทศของคุณ",
+    "eligeAlMenosUnNicho": "เลือกกลุ่มเป้าหมายเฉพาะอย่างน้อยหนึ่งกลุ่ม",
+    "seleccionaTuRangoDeSeguidores": "เลือกช่วงผู้ติดตามของคุณ",
+    "seleccionaElPaisPrincipalDeTuAudie": "เลือกประเทศหลักของกลุ่มเป้าหมายของคุณ",
+    "cuentanosPorQueQuieresEntrar": "บอกเหตุผลที่คุณต้องการเข้าร่วม",
+    "necesitamosAlMenos140CaracteresPara": "เราต้องการอย่างน้อย 140 ตัวอักษรเพื่อกรองควันออก",
+    "eseEnlaceNoPareceValido": "ลิงก์นั้นดูเหมือนจะใช้การไม่ได้",
+    "debesAceptarEstaCondicion": "คุณต้องยอมรับเงื่อนไขนี้",
+    "yaExisteUnaSolicitudOCuentaConEst": "มีคำขอหรือบัญชีที่ใช้ที่อยู่อีเมลนี้อยู่แล้ว",
+    "noPudimosEnviarLaSolicitudIntental": "เราไม่สามารถส่งคำขอได้ โปรดลองใหม่อีกครั้ง",
+    "solicitarRevision": "ขอให้รีวิว",
+    "aplicacionInfluencerHispaloshop": "แอปอินฟลูเอนเซอร์ Hispaloshop",
+    "formularioDeTresPasosParaAplicarAl": "แบบฟอร์มสามขั้นตอนสำหรับการสมัครเข้าร่วมโปรแกรมอินฟลูเอนเซอร์ของ Hispaloshop",
+    "aplicacionReal": "การประยุกต์ใช้ในโลกแห่งความเป็นจริง",
+    "noEsUnFormularioCorporativoEsTuP": "นี่ไม่ใช่แบบฟอร์มของบริษัท นี่คือแบบฟอร์มการลาออกของคุณ",
+    "tresPasosSinPagoSinHumoSiElige": "สามขั้นตอน ไม่ต้องจ่ายเงิน ไม่ยุ่งยาก หากคุณเลือก Hercules เราจะเริ่มการเปิดใช้งานอย่างรวดเร็ว หากคุณตั้งเป้าหมายไว้ที่...",
+    "ateneaOZeusHacemosRevisionHumanaE": "ไม่ว่าจะเป็นอะธีนาหรือซุส เราจะทำการตรวจสอบโดยมนุษย์ภายใน 24-48 ชั่วโมง",
+    "siTuVozEncajaConComidaWellnessL": "หากคุณมีสไตล์การพูดที่ตรงกับเรื่องอาหาร สุขภาพ ไลฟ์สไตล์ หรือความยั่งยืน",
+    "siQuieresRecomendarCosasQueDeVerda": "หากคุณต้องการแนะนำสิ่งที่คุณสามารถนำไปใช้ได้จริง",
+    "cadaCompraQueConectesSeQuedaAtribu": "ทุกการซื้อที่คุณเชื่อมโยงจะถูกนับรวมเป็นของคุณเป็นเวลา 18 เดือน คุณไม่จำเป็นต้องตกเป็นทาสของระบบ",
+    "siQuieresComprobarQueSoyRealAhiM": "ถ้าคุณอยากพิสูจน์ว่าฉันมีตัวตนจริง ก็ดูนี่สิ ฉันอยู่ตรงนี้แล้ว",
+    "bienvenidoALaResistenciaRevisaTuE": "ยินดีต้อนรับสู่ขบวนการต่อต้าน ตรวจสอบอีเมลของคุณเพื่อเข้าถึงแดชบอร์ดอินฟลูเอนเซอร์ของคุณ",
+    "herculesEntraPorViaRapidaHemosMar": "โครงการเฮอร์คิวลิสกำลังดำเนินการอย่างเร่งด่วน เราได้ทำเครื่องหมายโปรไฟล์ของคุณเพื่อเปิดใช้งานทันทีและดำเนินการขั้นตอนต่อไป",
+    "tuPerfilPasaARevisionHumanaSiApl": "ขณะนี้โปรไฟล์ของคุณจะได้รับการตรวจสอบโดยเจ้าหน้าที่ หากคุณสมัครเข้าร่วมโครงการ Athena หรือ Zeus เราจะตอบกลับภายใน 24-48 ชั่วโมง พร้อมการตัดสินใจที่แท้จริง ไม่ใช่การตัดสินใจโดยอัตโนมัติ",
+    "verCatalogoParaPromocionar": "ดูแคตตาล็อกเพื่อวัตถุประสงค์ในการประชาสัมพันธ์",
+    "tuTarjetaDePresentacionSinTrajesN": "นามบัตรของคุณ โดยไม่ต้องมีชุดสูทหรือคำพูดที่ไร้ความหมาย",
+    "reusSeulCiudadDeMexico": "รอยส์, โซล, เม็กซิโกซิตี้...",
+    "seleccionaPais": "เลือกประเทศ",
+    "queremosSaberQueTipoDeComunidadHas": "เราอยากทราบว่าคุณสร้างชุมชนแบบไหน และทำไมพวกเขาถึงติดตามคุณไปในทิศทางนั้น",
+    "paisPrincipalDeTuAudiencia": "ประเทศหลักของกลุ่มเป้าหมายของคุณ",
+    "cuentanosLaVerdadQueTipoDeEstabil": "บอกความจริงกับเราเถอะ: คุณมองหาความมั่นคงแบบไหน ทำไมคุณถึงผิดหวังกับแบรนด์บางแบรนด์ และคุณจะปฏิบัติต่อชุมชนของคุณอย่างไร?",
+    "laComisionEsTransparenteHercules3": "ค่าคอมมิชชั่นมีความโปร่งใส: เฮอร์คิวลิส 3%, อธีนา 5%, ซุส 7% โดยมีการติดตามผลเป็นเวลา 18 เดือน",
+    "entiendoQueLaComisionSePagaSobreE": "ฉันเข้าใจว่าค่าคอมมิชชั่นจะคำนวณจากมูลค่าสินค้าหลังการจัดส่งและภาษีแล้ว",
+    "entiendoQueElTrackingDe18MesesEs": "ฉันเข้าใจว่าระยะเวลาติดตาม 18 เดือนจะเริ่มนับจากวันที่ผู้ใช้ซื้อสินค้าครั้งแรก",
+    "aceptoPromoverSoloProductosQueRealm": "ฉันยินดีโปรโมตเฉพาะสินค้าที่ฉันอยากลองใช้จริง ๆ หรือจะลองใช้ในอนาคตเท่านั้น",
+    "heLeidoYAceptoLosTerminosDelProgr": "ฉันได้อ่านและยอมรับข้อกำหนดของโครงการอินฟลูเอนเซอร์แล้ว",
+    "solicitudGratuitaNingunPasoDePago": "สมัครฟรี ไม่ต้องเสียค่าใช้จ่ายใดๆ"
+  },
+  "shared": {
+    "queEs": "อะไรคือ"
+  },
+  "footer_landing": {
+    "terminos": "เงื่อนไข",
+    "unaFormaMasClaraDeDescubrirEntend": "วิธีที่ชัดเจนยิ่งขึ้นในการค้นหา ทำความเข้าใจ และเลือกซื้ออาหารโดยคำนึงถึงบริบท"
+  },
+  "navbar_landing": {
+    "iniciarSesion": "เข้าสู่ระบบ",
+    "cerrarMenu": "ปิดเมนู"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "เมื่อเราได้รับเสียงที่แท้จริงจากชุมชน เสียงเหล่านั้นจะปรากฏขึ้นที่นี่"
+  },
+  "auth_layout": {
+    "terminos": "เงื่อนไข"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "สอบถามเกี่ยวกับสินค้าหรือผู้ผลิตรายใดก็ได้",
+    "terminos": "เงื่อนไข"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "ปิดเมนู",
+    "queEsHispaloshop": "HispaloShop คืออะไร?"
+  },
+  "info_header": {
+    "queEs": "อะไรคือ",
+    "cerrarMenu": "ปิดเมนู",
+    "iniciarSesion": "เข้าสู่ระบบ"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต"
+  },
+  "report_button": {
+    "informacionEnganosa": "ข้อมูลที่ทำให้เข้าใจผิด",
+    "violacionDeDerechosDeAutor": "การละเมิดลิขสิทธิ์",
+    "noSePudoEnviarElReporte": "ไม่สามารถส่งรายงานได้",
+    "anadeUnDetalleOpcional": "เพิ่มรายละเอียด (ไม่บังคับ)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "ปิดการแจ้งเตือน"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "ปิดการแจ้งเตือนข้อความ"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "ติดตามอย่างน้อย 3 บัญชีเพื่อดำเนินการขั้นตอนการเริ่มต้นใช้งานให้เสร็จสมบูรณ์",
+    "noHemosPodidoGuardarLasCuentasSegu": "เรายังไม่สามารถบันทึกบัญชีต่อเนื่องได้",
+    "eligeAlMenos3ProductoresOCreadores": "เลือกผู้ผลิตหรือผู้สร้างคอนเทนต์อย่างน้อย 3 ราย เพื่อให้ฟีดเริ่มต้นของคุณมีสัญญาณที่น่าเชื่อถือ",
+    "puedesFinalizarYEmpezarADescubrirC": "คุณสามารถทำขั้นตอนนี้ให้เสร็จและเริ่มค้นหาบัญชีต่างๆ ในภายหลังได้"
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "เลือกอย่างน้อย 3 หมวดหมู่เพื่อดำเนินการต่อ",
+    "noHemosPodidoGuardarTusInteresesTo": "เรายังไม่สามารถบันทึกข้อมูลที่คุณสนใจได้",
+    "eligeAlMenos3CategoriasParaQueEl": "เลือกอย่างน้อย 3 หมวดหมู่ เพื่อให้แคตตาล็อกและฟีดเริ่มต้นด้วยพื้นฐานที่มีประโยชน์"
+  },
+  "location": {
+    "seleccionaUnPais": "เลือกประเทศ",
+    "introduceTuCodigoPostal": "กรุณาป้อนรหัสไปรษณีย์ของคุณ",
+    "noHemosPodidoGuardarTuUbicacionTod": "เรายังไม่สามารถบันทึกตำแหน่งที่ตั้งของคุณได้",
+    "usamosTuZonaParaMostrarCatalogoDis": "เราใช้พื้นที่ของคุณเพื่อแสดงแคตตาล็อกที่มีจำหน่าย คำแนะนำสถานที่ใกล้เคียง และตัวเลือกการจัดส่งที่ดีกว่า"
+  },
+  "step_follow": {
+    "cordoba": "คอร์โดวา",
+    "queseriaLaAntigua": "โรงงานผลิตชีสลาอันติกัว",
+    "panaderiaMaria": "ร้านเบเกอรี่ของมาเรีย",
+    "descubreAQuienSeguir": "ค้นหาว่าควรติดตามใคร",
+    "sigueAlMenos3ProductoresParaEmpeza": "เริ่มจากการติดตามโปรดิวเซอร์อย่างน้อย 3 คน"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "เลือกอย่างน้อย 3 หมวดหมู่เพื่อปรับแต่งฟีดของคุณ"
+  },
+  "step_location": {
+    "cordoba": "คอร์โดวา",
+    "malaga": "มาลากา",
+    "estoTeMostraraProductoresCercaDeTi": "วิธีนี้จะแสดงรายชื่อผู้ผลิตที่อยู่ใกล้คุณ",
+    "usarMiUbicacionActual": "ใช้ตำแหน่งปัจจุบันของฉัน",
+    "oIntroduceCodigoPostal": "หรือป้อนรหัสไปรษณีย์"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "เพิ่มข้อมูลเพิ่มเติมเกี่ยวกับตัวคุณ",
+    "tuFeedPersonalizadoEstaPreparado": "ฟีดส่วนตัวของคุณพร้อมแล้ว",
+    "puedesCambiarTusPreferenciasEnCualq": "คุณสามารถเปลี่ยนแปลงการตั้งค่าได้ตลอดเวลาจากโปรไฟล์ของคุณ"
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "โปรไฟล์ของคุณได้รับการตั้งค่าเรียบร้อยแล้ว ตอนนี้คุณสามารถสำรวจผลิตภัณฑ์ในท้องถิ่นได้แล้ว"
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "คุณจะไม่ต้องจ่ายอะไรเลยจนกว่าจะขายสินค้าได้",
+    "paraProductoresQueQuierenEmpezarAV": "สำหรับผู้ผลิตที่ต้องการเริ่มต้นขายสินค้าโดยไม่มีความเสี่ยง",
+    "tiendaVirtualPersonalizadaConTuHist": "ร้านค้าออนไลน์ส่วนตัวที่บอกเล่าเรื่องราวและที่มาของคุณ",
+    "hasta30ProductosEnCatalogo": "มีสินค้าในแค็ตตาล็อกมากถึง 30 รายการ",
+    "visibilidadNacionalEnEspana": "การปรากฏตัวในระดับชาติในสเปน",
+    "paraProductoresSeriosQueQuierenEsca": "สำหรับโปรดิวเซอร์มืออาชีพที่ต้องการขยายธุรกิจโดยไม่เสี่ยงมากเกินไป",
+    "herramientasDeIaParaMarketing": "เครื่องมือ AI สำหรับการตลาด",
+    "recomendacionesDinamicasDePrecioPor": "ระบบแนะนำราคาแบบไดนามิกตามพื้นที่ทางภูมิศาสตร์",
+    "analiticaAvanzadaDeVentas": "การวิเคราะห์การขายขั้นสูง",
+    "matchingAutomaticoConHasta5Influenc": "จับคู่โดยอัตโนมัติกับอินฟลูเอนเซอร์ท้องถิ่นสูงสุด 5 ราย",
+    "paraCooperativasYProductoresConAmbi": "สำหรับสหกรณ์และผู้ผลิตที่มีวิสัยทัศน์ระดับโลก",
+    "prediccionDeDemandaPorPaisYTempora": "การคาดการณ์ความต้องการแยกตามประเทศและฤดูกาล",
+    "analisisDeMercadosInternacionalesPr": "การวิเคราะห์ตลาดระหว่างประเทศ (ราคา การแข่งขัน โอกาส)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "การตรวจจับความเสี่ยงการขาดแคลนอุปทานเชิงป้องกัน",
+    "matchingDirectoConImportadoresVerifi": "จับคู่โดยตรงกับผู้นำเข้าที่ได้รับการตรวจสอบแล้วจากประเทศอื่นๆ",
+    "generacionAutomaticaDeContratosB2bE": "การสร้างสัญญา B2B โดยอัตโนมัติในรูปแบบ PDF",
+    "analisisDeRegulacionesYArancelesPor": "การวิเคราะห์กฎระเบียบและอัตราภาษีตามตลาดปลายทาง",
+    "creacionDeDossieresDeExportacion": "การจัดทำเอกสารส่งออก",
+    "prioridadAbsolutaDeVisibilidadEnLa": "การมองเห็นบนแพลตฟอร์มเป็นสิ่งสำคัญสูงสุด",
+    "soporteTelefonicoDirecto": "บริการให้ความช่วยเหลือทางโทรศัพท์โดยตรง",
+    "soloVendoEnEspana": "ฉันขายสินค้าเฉพาะในสเปนเท่านั้น",
+    "yaExportoAAlgunPais": "ฉันส่งออกสินค้าไปยังบางประเทศอยู่แล้ว",
+    "masDe20": "มากกว่า 20",
+    "andalucia": "อันดาลูเซีย",
+    "aragon": "อารากอน",
+    "castillaYLeon": "กัสตีลยาและเลออน",
+    "cataluna": "แคว้นคาตาโลเนีย",
+    "paisVasco": "แคว้นบาสก์",
+    "stripeNoEstaDisponible": "ไม่สามารถใช้งาน Stripe ได้",
+    "quienEres": "คุณเป็นใคร",
+    "stripeNoEstaConfiguradoTodavia": "Stripe ยังไม่ได้ตั้งค่าใช้งาน",
+    "noPudimosPrepararElPagoSeguro": "เราไม่สามารถดำเนินการชำระเงินที่ปลอดภัยได้",
+    "necesitamosTuNombreParaDarteDeAlta": "เราต้องการชื่อของคุณเพื่อลงทะเบียนคุณ",
+    "introduceUnEmailValido": "กรุณาป้อนที่อยู่อีเมลที่ถูกต้อง",
+    "necesitamosUnTelefonoOperativo": "เราต้องการโทรศัพท์ที่ใช้งานได้",
+    "tuContrasenaDebeTenerAlMenos6Cara": "รหัสผ่านของคุณต้องมีความยาวอย่างน้อย 6 ตัวอักษร",
+    "debesAceptarLaPoliticaDePrivacidad": "คุณต้องยอมรับนโยบายความเป็นส่วนตัวและข้อกำหนดต่างๆ",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "โปรดแจ้งชื่อแบรนด์หรือสหกรณ์ของคุณ",
+    "seleccionaAlMenosUnTipoDeProducto": "เลือกประเภทสินค้าอย่างน้อยหนึ่งประเภท",
+    "indicanosSiYaExportasOQuieresEmpez": "โปรดแจ้งให้เราทราบหากคุณส่งออกอยู่แล้วหรือต้องการเริ่มต้นส่งออก",
+    "seleccionaTuRegionDeProduccion": "เลือกภูมิภาคการผลิตของคุณ",
+    "necesitamosUnRangoAproximadoDeRefer": "เราต้องการช่วงอ้างอิงโดยประมาณ",
+    "completaLosDatosDeLaTarjetaParaCo": "กรุณากรอกรายละเอียดบัตรเพื่อดำเนินการต่อ",
+    "stripeNoEstaListoTodavia": "Stripe ยังไม่พร้อมใช้งาน",
+    "noPudimosValidarLaTarjeta": "เราไม่สามารถตรวจสอบความถูกต้องของบัตรได้",
+    "tuBancoRechazoLaOperacion": "ธนาคารของคุณปฏิเสธการทำธุรกรรม",
+    "haOcurridoUnErrorConElPagoPorFa": "เกิดข้อผิดพลาดในการชำระเงินของคุณ โปรดลองใหม่อีกครั้ง",
+    "elMetodoDePagoFueRechazadoPorFav": "วิธีการชำระเงินของคุณถูกปฏิเสธ โปรดใช้บัตรอื่น",
+    "revisaLosDatosAntesDeContinuar": "โปรดตรวจสอบข้อมูลก่อนดำเนินการต่อ",
+    "noPudimosCompletarElAltaDelProduct": "เราไม่สามารถดำเนินการลงทะเบียนผู้ผลิตให้เสร็จสมบูรณ์ได้",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "บัญชีของคุณมีอยู่แล้ว หากสร้างไว้แล้ว คุณเพียงแค่ต้องดำเนินการตามแผนให้เสร็จสมบูรณ์ หรือตรวจสอบสิทธิ์การเข้าถึงของคุณ",
+    "completaLosCamposObligatoriosParaAv": "กรุณากรอกข้อมูลในช่องที่จำเป็นเพื่อดำเนินการต่อ",
+    "aceptoLaPoliticaDePrivacidadYLosT": "ฉันยอมรับนโยบายความเป็นส่วนตัวและข้อกำหนด",
+    "nombreDeTuObradorMarcaOCooperativ": "ชื่อของเวิร์คช็อป แบรนด์ หรือสหกรณ์ของคุณ",
+    "exportacionActual": "การส่งออกปัจจุบัน",
+    "regionDeProduccion": "ภูมิภาคการผลิต",
+    "seleccionaTuRegion": "เลือกภูมิภาคของคุณ",
+    "numeroDeReferencias": "จำนวนอ้างอิง",
+    "cargoOComision": "ตำแหน่งหรือค่าคอมมิชชั่น",
+    "entiendoQueHispaloshopRetieneUn20": "ฉันเข้าใจว่า Hispaloshop หักค่าคอมมิชชั่น 20% จากยอดขาย",
+    "noPagarasNadaHastaQueVendasCuando": "คุณจะไม่ต้องจ่ายอะไรเลยจนกว่าจะขายได้ เมื่อขายได้แล้ว คุณจะได้รับ 80%",
+    "pagoSeguroPorStripeCancelaCuandoQ": "ชำระเงินอย่างปลอดภัยผ่าน Stripe สามารถยกเลิกได้ทุกเมื่อจากแดชบอร์ดของคุณ",
+    "pagoSeguroPorStripeSiTuBancoPide": "ชำระเงินอย่างปลอดภัยผ่าน Stripe หากธนาคารของคุณต้องการการยืนยันเพิ่มเติม เราจะดำเนินการให้คุณที่นี่โดยไม่ต้องออกจากหน้าเว็บ",
+    "bienvenidoALaRevolucionDeLosProduc": "ยินดีต้อนรับสู่การปฏิวัติของผู้ผลิตที่ซื่อสัตย์",
+    "revisaTuEmailParaVerificarTuCuenta": "โปรดตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี และเข้าสู่แดชบอร์ดเพื่อกรอกข้อมูลโปรไฟล์ให้ครบถ้วน",
+    "siTuAltaQuedaPendienteDeRevision": "หากใบสมัครของคุณอยู่ระหว่างการตรวจสอบ คุณจะเห็นสถานะการอนุมัติก่อน จากนั้นคุณสามารถดำเนินการต่อได้โดยไม่พลาดขั้นตอนใดๆ",
+    "verGuiaRapidaParaSubirMiPrimerPro": "ดูคู่มือฉบับย่อสำหรับการอัปโหลดผลิตภัณฑ์ชิ้นแรกของฉัน",
+    "tuCuentaYaExisteYElSiguientePaso": "บัญชีของคุณมีอยู่แล้ว ขั้นตอนต่อไปคือการยืนยันอีเมลของคุณและเตรียมโปรไฟล์ให้เสร็จสมบูรณ์",
+    "laContrasenaNoSeGuardaEnLocalstora": "รหัสผ่านจะไม่ถูกบันทึกไว้ใน localStorage จึงช่วยป้องกันไม่ให้ข้อมูลลับถูกเปิดเผย",
+    "freeCreaLaCuentaAlInstanteProYE": "แพ็กเกจ FREE สร้างบัญชีได้ทันที แพ็กเกจ PRO และ ELITE เปิดใช้งาน Stripe ได้โดยตรงโดยไม่ต้องออกจากขั้นตอนการใช้งาน",
+    "empezamosPorLoMinimoParaNoPonerte": "เราจะเริ่มจากสิ่งที่จำเป็นขั้นต่ำที่สุด เพื่อไม่ให้เป็นอุปสรรคเพิ่มเติมสำหรับคุณ",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "เราเหลืออีกเพียงขั้นตอนเดียวก็จะเปิดร้านของคุณและเตรียมโครงสร้างพื้นฐานให้พร้อมใช้งานแล้ว",
+    "completarSuscripcionYAbrirMiTienda": "สมัครสมาชิกให้เสร็จสมบูรณ์และเปิดร้านค้าของฉันได้เลย"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "ไม่สามารถปิดบัญชีได้ โปรดลองอีกครั้ง",
+    "noSePudieronCargarLasHistorias": "ไม่สามารถโหลดเรื่องราวได้",
+    "errorAlCrearElDestacado": "เกิดข้อผิดพลาดในการสร้างไฮไลต์",
+    "seCerraraLaSesionDeEstaCuentaYTe": "เซสชั่นบัญชีของคุณจะถูกปิด และคุณจะต้องเข้าสู่ระบบอีกครั้ง",
+    "soloSeEliminaDelSelectorDeCuentas": "บัญชีดังกล่าวจะถูกลบออกจากตัวเลือกบัญชีบนอุปกรณ์นี้เท่านั้น",
+    "codigoCopiado": "คัดลอกโค้ดแล้ว:",
+    "noHayHistoriasEnEsteDestacado": "ไม่มีเรื่องราวใดๆ ในบทความแนะนำนี้",
+    "lasHistoriasDelDestacadoNoSeElimin": "เรื่องเด่นจะไม่ถูกลบออก มีเพียงคอลเลกชันทั้งหมดเท่านั้นที่จะถูกลบ",
+    "noHayHistoriasEnTuArchivo": "ไม่มีเรื่องราวใดๆ ในไฟล์ของคุณ",
+    "publicaUnaHistoriaPrimeroParaPoder": "เผยแพร่เรื่องราวก่อนเพื่อสร้างบทความเด่น",
+    "lasHistoriasNoSePerderanSoloLaCo": "เรื่องราวต่างๆ จะไม่สูญหายไป มีเพียงหนังสือรวมเรื่องเท่านั้นที่จะถูกรื้อถอน"
+  },
+  "profile_tabs": {
+    "crearPublicacion": "สร้างโพสต์",
+    "sinPublicacionesTodavia": "ยังไม่มีโพสต์",
+    "sinReelsTodavia": "ยังไม่มีม้วนฟิล์ม",
+    "sinRecetasTodavia": "ยังไม่มีสูตรอาหาร",
+    "nadaGuardadoTodavia": "ยังไม่มีการบันทึกอะไรเลย",
+    "publicacionGuardada": "บันทึกโพสต์"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "ทำด้วยมือหรือเชื่อมต่อกับผลิตภัณฑ์บนแพลตฟอร์ม"
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "เสิร์ฟเพิ่ม",
+    "anadirTodoAlCarrito": "เพิ่มสินค้าทั้งหมดลงในตะกร้า"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "เพิ่มลงในตะกร้า",
+    "iniciaSesionParaAnadirProductos": "เข้าสู่ระบบเพื่อเพิ่มสินค้า",
+    "noHemosPodidoCompletarLaAccion": "เราไม่สามารถดำเนินการให้เสร็จสิ้นได้",
+    "esteProductoAunNoTieneCertificados": "ผลิตภัณฑ์นี้ยังไม่มีใบรับรองที่ได้รับการตรวจสอบแล้ว",
+    "seElPrimeroEnOpinarSobreEsteProdu": "เป็นคนแรกที่รีวิวสินค้าชิ้นนี้"
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "ไม่สามารถโหลดกิจกรรมได้",
+    "tuActividadApareceraAqui": "กิจกรรมของคุณจะปรากฏที่นี่"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "กำลังดำเนินการเข้าสู่ระบบ..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "สำรวจผลิตภัณฑ์พร้อมเอกสารประกอบที่มองเห็นได้ชัดเจน จัดเรียงตามลำดับตัวอักษรเพื่อให้อ่านง่ายและรวดเร็ว",
+    "filtrarPorCertificacion": "กรองตามใบรับรอง",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "ปรับการค้นหาหรือลบตัวกรองเพื่อดูผลิตภัณฑ์ที่ได้รับการรับรองอื่นๆ",
+    "ordenAlfabeticoActivo": "เรียงตามลำดับตัวอักษรที่ใช้งานอยู่"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "การชำระเงินของคุณได้รับการดำเนินการเรียบร้อยแล้ว คุณจะได้รับอีเมลยืนยันพร้อมรายละเอียดการสั่งซื้อภายในไม่กี่นาทีข้างหน้า",
+    "haOcurridoUnErrorAlVerificarTuPag": "เกิดข้อผิดพลาดขณะตรวจสอบการชำระเงินของคุณ หากการชำระเงินเสร็จสิ้นแล้ว โปรดติดต่อฝ่ายสนับสนุน",
+    "hemosRecibidoTuPedidoRecibirasUnE": "เราได้รับคำสั่งซื้อของคุณแล้ว คุณจะได้รับอีเมลพร้อมรายละเอียดเพิ่มเติม"
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขชุมชนได้",
+    "anadirFotoDePortada": "เพิ่มรูปภาพปก",
+    "etiquetasMax5": "ป้ายกำกับ (สูงสุด 5 ป้าย)",
+    "eliminarLaComunidadBorraraTodosLos": "การลบชุมชนจะลบโพสต์และสมาชิกทั้งหมดอย่างถาวร"
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "ชื่อชุมชน",
+    "sinDescripcionTodavia": "ยังไม่มีคำอธิบาย",
+    "necesitasMasSeguidores": "คุณต้องการผู้ติดตามเพิ่มขึ้น",
+    "paraCrearUnaComunidadNecesitasAlMe": "ในการสร้างชุมชน คุณต้องมีผู้ติดตามอย่างน้อย 100 คน หรือเป็นผู้ขายที่ได้รับการยืนยันตัวตนแล้ว",
+    "elNombreDebeTenerAlMenos3Caracter": "ชื่อต้องมีความยาวอย่างน้อย 3 ตัวอักษร",
+    "laUrlEsObligatoria": "จำเป็นต้องระบุ URL",
+    "laUrlDebeTenerAlMenos3Caracteres": "URL ต้องมีความยาวอย่างน้อย 3 ตัวอักษร",
+    "laUrlDebeEmpezarConUnaLetraONume": "URL ต้องขึ้นต้นด้วยตัวอักษรหรือตัวเลข",
+    "comunidadCreada": "สร้างสรรค์โดยชุมชน!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "URL นั้นถูกใช้งานอยู่แล้ว โปรดลองใช้ URL อื่น",
+    "errorAlCrearLaComunidad": "เกิดข้อผิดพลาดในการสร้างชุมชน",
+    "anadirFotoDePortada": "เพิ่มรูปภาพปก",
+    "nombreDeLaComunidad1": "ชื่อชุมชน *",
+    "ejAceitesDeEspana": "ตัวอย่าง: น้ำมันจากสเปน",
+    "urlDeLaComunidad": "URL ของชุมชน *",
+    "deQueTrataTuComunidad": "ชุมชนของคุณเกี่ยวกับอะไร?",
+    "iconoDeLaComunidad": "ไอคอนชุมชน",
+    "etiquetasMax5": "ป้ายกำกับ (สูงสุด 5 ป้าย)",
+    "asiVeranTuComunidadLosDemas": "นี่คือวิธีที่คนอื่นจะมองชุมชนของคุณ"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "น้ำมันมะกอกที่ดีที่สุด",
+    "seleccionDeProductoresAndaluces": "คัดสรรผู้ผลิตจากแคว้นอันดาลูเซีย",
+    "empiezaElDiaConEnergiaReal": "เริ่มต้นวันใหม่ด้วยพลังงานที่เต็มเปี่ยม",
+    "despensaBasicaPremium": "ของชำพื้นฐานระดับพรีเมียม",
+    "losEsencialesQueMarcanLaDiferencia": "สิ่งสำคัญที่สร้างความแตกต่าง",
+    "certificadoEcologico": "การรับรองเกษตรอินทรีย์",
+    "seleccionesEditorialesDeProductosArt": "บทความคัดสรรผลิตภัณฑ์เพื่อสุขภาพคุณภาพสูงที่มาพร้อมเรื่องราวเบื้องหลัง",
+    "coleccion": "ของสะสม"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "ไม่พบหมวดหมู่",
+    "noSePudieronCargarLosProductos": "ไม่สามารถโหลดสินค้าได้",
+    "noHayProductosEnEstaCategoriaTodav": "ยังไม่มีสินค้าในหมวดหมู่นี้"
+  },
+  "locale_settings": {
+    "idiomaYRegion": "ภาษาและภูมิภาค"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "ไม่พบหน้าเว็บ",
+    "estaPaginaNoExiste": "หน้านี้ไม่มีอยู่จริง",
+    "pareceQueTeHasPerdidoVuelveAlIni": "ดูเหมือนคุณจะหลงทาง กลับไปที่จุดเริ่มต้นแล้วสำรวจต่อ"
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "บัญชีของคุณมีอยู่แล้ว แต่ฟีเจอร์บางอย่างจะยังใช้งานได้จำกัดจนกว่าทีมงานจะตรวจสอบการลงทะเบียนเสร็จสมบูรณ์",
+    "recibirasAccesoCompletoCuandoElEqui": "คุณจะได้รับสิทธิ์การเข้าถึงอย่างเต็มรูปแบบเมื่อทีมงานตรวจสอบการลงทะเบียนของคุณเรียบร้อยแล้ว",
+    "mientrasTantoAlgunasFuncionesComerc": "ในขณะเดียวกัน ฟังก์ชันเชิงพาณิชย์บางอย่างจะยังคงถูกจำกัดอยู่",
+    "subirDocumentosDeVerificacion": "อัปโหลดเอกสารยืนยัน",
+    "completarConfiguracionFiscal": "การกำหนดค่าภาษีให้เสร็จสมบูรณ์"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "ลิงก์กู้คืนไม่ถูกต้อง",
+    "restablecerContrasena": "รีเซ็ตรหัสผ่าน"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "ไม่มีการระบุรหัสยืนยัน",
+    "emailVerificadoCorrectamente": "อีเมลได้รับการยืนยันเรียบร้อยแล้ว!",
+    "emailVerificadoYaPuedesIniciarSesi": "ยืนยันอีเมลเรียบร้อยแล้ว คุณสามารถเข้าสู่ระบบได้",
+    "elCodigoNoEsValidoOHaExpirado": "รหัสไม่ถูกต้องหรือหมดอายุแล้ว",
+    "errorEnLaVerificacion": "ข้อผิดพลาดในการตรวจสอบ",
+    "verificacionFallida": "การตรวจสอบล้มเหลว",
+    "porFavorEsperaMientrasVerificamosTu": "โปรดรอสักครู่ในระหว่างที่เราตรวจสอบที่อยู่อีเมลของคุณ"
+  },
+  "b2_b_action": {
+    "video": "วิดีโอ"
+  },
+  "collab_action": {
+    "video": "วิดีโอ"
   }
 }

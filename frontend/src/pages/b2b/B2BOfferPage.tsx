@@ -32,15 +32,15 @@ const PAYMENT_TERMS = [
   { label: 'Prepago', value: 'prepaid' },
   { label: 'Net 30', value: 'net_30' },
   { label: 'Net 60', value: 'net_60' },
-  { label: t('b2_b_offer.cartaDeCredito', 'Carta de crédito'), value: 'letter_of_credit' },
+  { label: 'Carta de crédito', value: 'letter_of_credit' },
 ];
 
 const INCOTERMS = [
-  { code: 'EXW', name: 'Ex Works', desc: t('b2_b_offer.elCompradorAsumeTodosLosCostesDesd', 'El comprador asume todos los costes desde fábrica') },
+  { code: 'EXW', name: 'Ex Works', desc: 'El comprador asume todos los costes desde fábrica' },
   { code: 'FCA', name: 'Free Carrier', desc: 'Vendedor entrega en punto acordado' },
   { code: 'CPT', name: 'Carriage Paid To', desc: 'Vendedor paga transporte hasta destino' },
   { code: 'CIP', name: 'Carriage Insurance Paid', desc: 'Como CPT + seguro incluido' },
-  { code: 'DAP', name: 'Delivered at Place', desc: t('b2_b_offer.vendedorEntregaEnDestinoSinDescarga', 'Vendedor entrega en destino sin descargar') },
+  { code: 'DAP', name: 'Delivered at Place', desc: 'Vendedor entrega en destino sin descargar' },
   { code: 'DPU', name: 'Delivered at Place Unloaded', desc: 'Vendedor entrega y descarga' },
   { code: 'DDP', name: 'Delivered Duty Paid', desc: 'Vendedor asume todos los costes hasta destino' },
   { code: 'FOB', name: 'Free on Board', desc: 'Vendedor entrega a bordo del buque' },

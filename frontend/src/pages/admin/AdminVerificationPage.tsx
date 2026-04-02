@@ -18,7 +18,7 @@ const isSafeUrl = (url) => {
 const STATUS_LABELS = {
   verified: { label: 'Verificado', bg: 'bg-stone-100', color: 'text-stone-950' },
   rejected: { label: 'Rechazado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
-  manual_review: { label: t('admin_verification.revision', 'Revisión'), bg: 'bg-stone-50', color: 'text-stone-500' },
+  manual_review: { label: 'Revisión', bg: 'bg-stone-50', color: 'text-stone-500' },
   pending: { label: 'Pendiente', bg: 'bg-stone-200', color: 'text-stone-500' },
   expired: { label: 'Caducado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
 };
@@ -96,7 +96,7 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
         />
         <DocThumb
           url={facility.url}
-          label=t('producer_verification.instalacion', 'Instalación')
+          label="Instalación"
           status={facility.status}
           onClick={() => onViewDoc(item, 'facility_photo', facility)}
         />
@@ -185,12 +185,12 @@ function DocumentModal({ doc, docType, item, onClose }) {
         <div className="space-y-2 mb-4">
           {docType === 'cif_nif' && (
             <>
-              {doc.number && <InfoRow label=t('admin_verification.numero', 'Número') value={doc.number} />}
+              {doc.number && <InfoRow label="Número" value={doc.number} />}
               {doc.entity_name && <InfoRow label="Entidad" value={doc.entity_name} />}
             </>
           )}
           {docType === 'facility_photo' && doc.ai_assessment && (
-            <InfoRow label=t('admin_verification.descripcionIa', 'Descripción IA') value={doc.ai_assessment} />
+            <InfoRow label="Descripción IA" value={doc.ai_assessment} />
           )}
           {docType === 'certificate' && (
             <>

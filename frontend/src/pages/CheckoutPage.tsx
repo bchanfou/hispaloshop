@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 /* ── Stepper ── */
 function Stepper({ current, onStepClick }) {
-  const steps = [t('common.address', 'Dirección'), 'Pago'];
+  const steps = [t('common.address', 'Dirección'), t('checkout.payment', 'Pago')];
   return (
     <nav aria-label="Progreso del checkout" className="flex items-center justify-center gap-2 px-6 py-4 border-b border-stone-200 bg-white mb-0">
       {steps.map((label, i) => {
@@ -300,7 +300,7 @@ export default function CheckoutPage() {
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25 }}>
             <h2 className="text-xl font-semibold text-stone-950 mb-5">
-              ¿Dónde enviamos tu pedido?
+              {t('checkout.whereToShip', '¿Dónde enviamos tu pedido?')}
             </h2>
 
             {/* Saved addresses */}
@@ -347,7 +347,7 @@ export default function CheckoutPage() {
                     onClick={() => setShowNewForm(true)}
                     className="w-full p-3.5 flex items-center gap-2 bg-white border-[1.5px] border-dashed border-stone-200 rounded-2xl text-sm font-semibold text-stone-950 cursor-pointer hover:border-stone-400 transition-colors"
                   >
-                    <Plus className="w-[18px] h-[18px]" /> Añadir nueva dirección
+                    <Plus className="w-[18px] h-[18px]" /> {t('checkout.addNewAddress', 'Añadir nueva dirección')}
                   </button>
                 )}
 
@@ -404,7 +404,7 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-stone-950 mb-1">País</label>
+                        <label className="block text-xs font-semibold text-stone-950 mb-1">{t('checkout.country', 'País')}</label>
                         <select
                           value={newAddress.country}
                           onChange={e => setNewAddress(p => ({ ...p, country: e.target.value }))}
@@ -423,7 +423,7 @@ export default function CheckoutPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-stone-950 mb-1">Teléfono <span className="text-stone-400">*</span></label>
+                        <label className="block text-xs font-semibold text-stone-950 mb-1">{t('checkout.phone', 'Teléfono')} <span className="text-stone-400">*</span></label>
                         <input
                           value={newAddress.phone}
                           onChange={e => {
@@ -447,7 +447,7 @@ export default function CheckoutPage() {
                         disabled={savingAddress}
                         className="h-12 bg-stone-950 text-white rounded-full text-sm font-semibold flex items-center justify-center gap-1.5 hover:bg-stone-800 transition-colors disabled:opacity-50"
                       >
-                        {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar dirección'}
+                        {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : t('checkout.saveAddress', 'Guardar dirección')}
                       </button>
                     </div>
                   </div>
@@ -482,18 +482,18 @@ export default function CheckoutPage() {
               onClick={() => setStep(1)}
               className="flex items-center gap-1 text-sm text-stone-500 mb-4 py-2.5 min-h-[44px] hover:text-stone-950 transition-colors"
             >
-              ← Cambiar dirección
+              ← {t('checkout.changeAddress', 'Cambiar dirección')}
             </button>
 
             <h2 className="text-xl font-semibold text-stone-950 mb-5">
-              Método de pago
+              {t('checkout.paymentMethod', 'Método de pago')}
             </h2>
 
             {/* Shipping summary */}
             {selectedAddress && (
               <div className="bg-white shadow-sm rounded-2xl p-3.5 mb-4">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
-                  Envío a
+                  {t('checkout.shippingTo', 'Envío a')}
                 </p>
                 <p className="text-sm text-stone-950">
                   {selectedAddress.full_name} — {selectedAddress.street}, {selectedAddress.city} {selectedAddress.postal_code}
@@ -504,7 +504,7 @@ export default function CheckoutPage() {
             {/* Discount code */}
             <div className="bg-white shadow-sm rounded-2xl p-3.5 mb-4">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                Código de descuento
+                {t('cart.discountCode', 'Código de descuento')}
               </p>
               {appliedDiscount ? (
                 <div className="flex items-center gap-2">

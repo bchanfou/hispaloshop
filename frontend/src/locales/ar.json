@@ -4322,5 +4322,99 @@
     "noHemosPodidoCompletarLaAccion": "لم نتمكن من إتمام العملية",
     "esteProductoAunNoTieneCertificados": "هذا المنتج لا يملك شهادات معتمدة حتى الآن.",
     "seElPrimeroEnOpinarSobreEsteProdu": "كن أول من يقيّم هذا المنتج."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "تعذر تحميل النشاط",
+    "tuActividadApareceraAqui": "سيظهر نشاطك هنا"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "جارٍ إكمال تسجيل الدخول..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "استكشف المنتجات ذات الوثائق المرئية، مرتبة أبجديًا لقراءة سريعة وواضحة.",
+    "filtrarPorCertificacion": "تصفية حسب الشهادة",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "عدّل بحثك أو أزل عوامل التصفية لمراجعة منتجات معتمدة أخرى.",
+    "ordenAlfabeticoActivo": "الترتيب الأبجدي النشط"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "تمت معالجة دفعتك بنجاح. ستتلقى رسالة تأكيد عبر البريد الإلكتروني تتضمن تفاصيل طلبك خلال الدقائق القليلة القادمة.",
+    "haOcurridoUnErrorAlVerificarTuPag": "حدث خطأ أثناء التحقق من عملية الدفع. إذا تمت معالجة الدفع بالفعل، يُرجى التواصل مع الدعم الفني.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "لقد استلمنا طلبك. ستتلقى رسالة بريد إلكتروني تحتوي على التفاصيل."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "لا يُسمح بتعديل المنتدى إلا للمسؤولين.",
+    "anadirFotoDePortada": "أضف صورة الغلاف",
+    "etiquetasMax5": "الملصقات (بحد أقصى 5)",
+    "eliminarLaComunidadBorraraTodosLos": "سيؤدي حذف المنتدى إلى مسح جميع المنشورات والأعضاء بشكل دائم."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "اسم المجتمع",
+    "sinDescripcionTodavia": "لا يوجد وصف بعد",
+    "necesitasMasSeguidores": "أنت بحاجة إلى المزيد من المتابعين",
+    "paraCrearUnaComunidadNecesitasAlMe": "لإنشاء مجتمع، تحتاج إلى 100 متابع على الأقل أو أن تكون بائعًا موثقًا.",
+    "elNombreDebeTenerAlMenos3Caracter": "يجب أن يتكون الاسم من 3 أحرف على الأقل",
+    "laUrlEsObligatoria": "عنوان URL مطلوب",
+    "laUrlDebeTenerAlMenos3Caracteres": "يجب أن يكون طول عنوان URL ثلاثة أحرف على الأقل",
+    "laUrlDebeEmpezarConUnaLetraONume": "يجب أن يبدأ عنوان الموقع الإلكتروني بحرف أو رقم.",
+    "comunidadCreada": "تم إنشاء مجتمع!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "هذا الرابط مستخدم بالفعل. يرجى تجربة رابط آخر.",
+    "errorAlCrearLaComunidad": "خطأ في إنشاء المجتمع",
+    "anadirFotoDePortada": "أضف صورة الغلاف",
+    "nombreDeLaComunidad1": "اسم المجتمع *",
+    "ejAceitesDeEspana": "مثال: زيوت من إسبانيا",
+    "urlDeLaComunidad": "رابط المجتمع *",
+    "deQueTrataTuComunidad": "ما هو موضوع مجتمعكم؟",
+    "iconoDeLaComunidad": "رمز المجتمع",
+    "etiquetasMax5": "الملصقات (بحد أقصى 5)",
+    "asiVeranTuComunidadLosDemas": "هكذا سيرى الآخرون مجتمعك"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "أفضل زيت زيتون",
+    "seleccionDeProductoresAndaluces": "مجموعة مختارة من المنتجين الأندلسيين",
+    "empiezaElDiaConEnergiaReal": "ابدأ يومك بنشاط حقيقي",
+    "despensaBasicaPremium": "مخزن أساسي فاخر",
+    "losEsencialesQueMarcanLaDiferencia": "الأساسيات التي تُحدث الفرق",
+    "certificadoEcologico": "شهادة المنتجات العضوية",
+    "seleccionesEditorialesDeProductosArt": "مختارات تحريرية من المنتجات الحرفية والصحية ذات القصص المميزة.",
+    "coleccion": "مجموعة"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "لم يتم العثور على الفئة",
+    "noSePudieronCargarLosProductos": "تعذر تحميل المنتجات.",
+    "noHayProductosEnEstaCategoriaTodav": "لا توجد منتجات في هذه الفئة حتى الآن."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "اللغة والمنطقة"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "الصفحة غير موجودة",
+    "estaPaginaNoExiste": "هذه الصفحة غير موجودة",
+    "pareceQueTeHasPerdidoVuelveAlIni": "يبدو أنك تائه. ارجع إلى البداية واستمر في الاستكشاف."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "حسابك موجود بالفعل، ولكن بعض الميزات ستظل محدودة حتى يقوم الفريق بالتحقق من صحة التسجيل.",
+    "recibirasAccesoCompletoCuandoElEqui": "ستحصل على حق الوصول الكامل بمجرد أن يقوم الفريق بالتحقق من تسجيلك.",
+    "mientrasTantoAlgunasFuncionesComerc": "وفي الوقت نفسه، ستظل بعض الوظائف التجارية مقيدة.",
+    "subirDocumentosDeVerificacion": "قم بتحميل مستندات التحقق",
+    "completarConfiguracionFiscal": "إعداد الضرائب الكامل"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "رابط استرداد غير صالح",
+    "restablecerContrasena": "إعادة تعيين كلمة المرور"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "لم يتم تقديم رمز التحقق",
+    "emailVerificadoCorrectamente": "تم التحقق من البريد الإلكتروني بنجاح!",
+    "emailVerificadoYaPuedesIniciarSesi": "تم التحقق من البريد الإلكتروني. يمكنك الآن تسجيل الدخول.",
+    "elCodigoNoEsValidoOHaExpirado": "الرمز غير صالح أو منتهي الصلاحية",
+    "errorEnLaVerificacion": "خطأ في التحقق",
+    "verificacionFallida": "فشلت عملية التحقق",
+    "porFavorEsperaMientrasVerificamosTu": "يرجى الانتظار ريثما نتحقق من عنوان بريدك الإلكتروني"
+  },
+  "b2_b_action": {
+    "video": "فيديو"
+  },
+  "collab_action": {
+    "video": "فيديو"
   }
 }

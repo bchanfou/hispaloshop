@@ -2627,5 +2627,1808 @@
     "firstReviewDesc": "Вы написали свой первый отзыв.",
     "explorer": "Исследователь",
     "explorerDesc": "Вы подписались на 5 магазинов"
+  },
+  "product_detail": {
+    "resenaEnviada": "Отзыв отправлен",
+    "chatNoDisponibleParaEsteProducto": "Для данного товара чат недоступен.",
+    "noSePudoAbrirElChat": "Чат не удалось открыть.",
+    "puntuacion": "Пунктуация",
+    "comentarioDeLaResena": "Комментарий к обзору",
+    "noHemosPodidoEnviarLaResena": "Нам не удалось отправить отзыв.",
+    "anadirAFavoritos": "Добавить в избранное",
+    "politicaDeDevolucion": "Политика возврата",
+    "tienes14DiasDesdeLaRecepcionParaD": "У вас есть 14 дней с момента получения заказа для его возврата. Скоропортящиеся продукты возврату не подлежат.",
+    "anadeEsteProductoAlCatalogoB2bPara": "Добавьте этот товар в каталог B2B, чтобы получать оптовые заказы.",
+    "anadirAlCatalogoB2b": "Добавить в каталог B2B"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "Ошибка при добавлении товаров в корзину.",
+    "errorAlAnadir": "Ошибка при добавлении",
+    "noSePudoCopiarElEnlace": "Ссылка не скопирована.",
+    "anadidoALaLista": "Добавлено в список",
+    "noSePudoGuardarEnLaLista": "Не удалось сохранить в список.",
+    "seleccionaUnaValoracion": "Выберите оценку",
+    "valoracionPublicada": "Опубликованный рейтинг",
+    "masPorciones": "Больше порций",
+    "errorAlPublicarLaValoracion": "Ошибка при публикации рейтинга",
+    "preparacion": "Подготовка",
+    "informacionNutricional": "Информация о пищевой ценности",
+    "porRacion": "На порцию",
+    "proteina": "Белок",
+    "azucar": "Сахар",
+    "aunNoHayResenasSeElPrimero": "Отзывов пока нет. Будьте первым!",
+    "tuResena": "Ваш отзыв",
+    "enviarResena": "Отправить отзыв"
+  },
+  "community": {
+    "configuracion": "Конфигурация",
+    "errorAlActualizarMembresia": "Ошибка обновления членства",
+    "escribeAlgoOAnadeUnaImagen": "Напишите что-нибудь или добавьте изображение.",
+    "queQuieresCompartirPuedesUsarHas": "Чем вы хотите поделиться? Можете использовать хэштеги.",
+    "anadirImagen": "Добавить изображение",
+    "errorAlCargarLaComunidad": "Ошибка загрузки сообщества",
+    "salirDeLaComunidad": "Покидание общины",
+    "comparteAlgoConLaComunidad": "Поделитесь чем-нибудь с сообществом...",
+    "aunNoHayPosts": "Пока нет сообщений.",
+    "seElPrimeroEnPublicarAlgo": "Будьте первым, кто что-нибудь опубликует!",
+    "verMasPosts": "Посмотреть другие публикации",
+    "verMasComentarios": "Посмотреть другие комментарии",
+    "sinMiembrosTodavia": "Пока нет участников.",
+    "verMasMiembros": "Посмотреть других участников",
+    "normasDeLaComunidad": "Правила сообщества",
+    "contenidoRelacionadoConAlimentacionY": "Контент, связанный с едой и гастрономией.",
+    "sinSpamNiPublicidadNoAutorizada": "Никакого спама или несанкционированной рекламы.",
+    "sinBebidasAlcoholicas": "Алкогольные напитки запрещены",
+    "elAdminPuedeEliminarPostsQueNoCum": "Администратор может удалять сообщения, не соответствующие правилам."
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "Ошибка загрузки ваших историй.",
+    "errorAlSubirLaFoto": "Ошибка при загрузке фотографии",
+    "noSePudoAbrirLaConversacion": "Разговор не удалось начать.",
+    "errorAlCrearConversacion": "Ошибка при создании беседы",
+    "atras": "Назад"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "Ошибка отписки",
+    "cargarMasUsuarios": "Загрузить больше пользователей",
+    "pruebaConOtroTermino": "Попробуйте другой термин",
+    "cargarMas": "Загрузить ещё",
+    "sinSeguidoresAun": "Подписчиков пока нет.",
+    "noSigueANadieAun": "Она пока ни на кого не подписана."
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "Ошибка при создании коллекции.",
+    "nombreDeLaColeccion": "Название коллекции",
+    "guardaContenidoTocandoElIconoDeMar": "Сохраняйте контент, нажав на значок закладки.",
+    "nuevaColeccion": "Новая коллекция"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Ошибка при входе через Google.",
+    "tuContrasena": "Ваш пароль",
+    "elEmailEsObligatorio": "Требуется указать адрес электронной почты.",
+    "laContrasenaEsObligatoria": "Требуется пароль.",
+    "emailOContrasenaIncorrectos": "Неверный адрес электронной почты или пароль",
+    "tuCuentaEstaRestringidaPorEdad": "Доступ к вашей учетной записи ограничен по возрасту.",
+    "noHemosPodidoIniciarTuSesion": "Нам не удалось выполнить вход в вашу систему.",
+    "entraEnTuCuenta": "Войдите в свой аккаунт",
+    "tuSesionHaExpiradoIniciaSesionDe": "Срок действия вашей сессии истек. Пожалуйста, войдите в систему снова.",
+    "ocultarContrasena": "Скрыть пароль",
+    "oContinuaConEmail": "или продолжить с помощью электронной почты"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "Повторно отправить письмо для восстановления",
+    "enviarEnlaceDeRecuperacion": "Отправить ссылку для восстановления",
+    "recuperarContrasena": "Восстановить пароль",
+    "teEnviaremosUnEnlaceParaRestablecer": "Мы вышлем вам ссылку для сброса пароля."
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "Размер изображения не должен превышать 5 МБ.",
+    "noSePudoSubirLaFotoDePerfilPero": "Не удалось загрузить фотографию профиля, но ваш аккаунт всё равно будет создан.",
+    "panaderia": "Пекарня",
+    "reposteria": "Кондитерские изделия",
+    "descubreProductosArtesanalesUnicosDe": "Откройте для себя уникальные изделия ручной работы от местных производителей.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "Ваш магазин готов. Начните продавать свои изделия ручной работы.",
+    "exploraElMarketplaceB2bYEncuentraL": "Изучите рынок B2B и найдите лучших производителей.",
+    "errorAlGuardarTuPerfilIntentaloDe": "Ошибка при сохранении вашего профиля. Пожалуйста, попробуйте еще раз.",
+    "estoEsLoQueVeranOtrosUsuarios": "Это увидят другие пользователи.",
+    "ubicacionOpcional": "Местоположение (необязательно)",
+    "validacionDeMercadoYPrimerasVentas": "Проверка рыночной востребованности и первоначальные продажи.",
+    "iaComercialAvanzadaYGeneracionDeCo": "Передовые технологии искусственного интеллекта для бизнеса и генерации контрактов.",
+    "stripeNoEstaDisponible": "Stripe недоступен",
+    "stripeNoEstaConfiguradoTodavia": "Stripe ещё не настроен.",
+    "noPudimosPrepararElPago": "Нам не удалось обработать платеж.",
+    "introduceUnEmailValido": "Введите действительный адрес электронной почты.",
+    "creaUnaContrasenaDeAlMenos6Caract": "Создайте пароль длиной не менее 6 символов.",
+    "necesitamosUnTelefonoOperativo": "Нам нужен работающий телефон.",
+    "seleccionaElPaisDondeVasAOperar": "Выберите страну, в которой вы будете работать.",
+    "seleccionaTuPuntoDePartida": "Выберите отправную точку.",
+    "eligeAlMenosUnTipoDeProducto": "Выберите хотя бы один вид продукции.",
+    "necesitamosUnaDireccionFiscalValida": "Нам необходим действующий налоговый адрес.",
+    "necesitamosVatCifONifParaDarteDe": "Для вашей регистрации нам необходим ваш номер НДС, CIF или NIF.",
+    "completaLosDatosDeLaTarjetaParaCo": "Введите данные карты, чтобы продолжить.",
+    "stripeNoEstaListoTodavia": "Stripe пока не готов.",
+    "noSePudoValidarLaTarjeta": "Карта не может быть подтверждена.",
+    "tuBancoRechazoLaOperacion": "Ваш банк отклонил транзакцию.",
+    "haOcurridoUnErrorConElPagoPorFa": "Произошла ошибка при оплате. Пожалуйста, попробуйте еще раз.",
+    "elMetodoDePagoFueRechazadoPorFav": "Ваш способ оплаты был отклонен. Пожалуйста, используйте другую карту.",
+    "revisaLosDatosAntesDeContinuar": "Перед продолжением ознакомьтесь с информацией.",
+    "noPudimosCompletarElAlta": "Нам не удалось завершить выписку.",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "Ваш аккаунт уже создан. Вам нужно лишь активировать тарифный план или отменить подписку.",
+    "completaLosCamposObligatoriosParaAv": "Для продолжения заполните необходимые поля.",
+    "numeroSinEspacios": "Число без пробелов",
+    "paisDondeOperaras": "Страна, в которой вы будете работать",
+    "seleccionaTuPaisPrincipal": "Выберите свою основную страну",
+    "loUsamosParaFacturacionYAprobacion": "Мы используем его для выставления счетов и утверждения коммерческих сделок.",
+    "direccionFiscal": "Налоговый адрес",
+    "direccionCompletaParaFacturacion": "Полный платежный адрес",
+    "empezamosSinCuotaFijaSiElMercado": "Мы начинаем без фиксированной платы. Если рынок отреагирует положительно, вы сами решите, перейти ли на тариф PRO или ELITE.",
+    "pagoSeguroCancelaCuandoQuierasNo": "Безопасная оплата. Отмена в любое время. Мы не будем прерывать ваш рабочий процесс.",
+    "bienvenidoALaRevolucion": "Добро пожаловать в революцию.",
+    "revisaTuEmailParaVerificarTuCuenta": "Проверьте свою электронную почту, чтобы подтвердить свою учетную запись. У вас уже есть инфраструктура, которая сэкономила бы мне деньги и время.",
+    "verCatalogoDeProductoresDisponibles": "Просмотреть каталог доступных производителей",
+    "sinAlertsAgresivosYConGuardadoLoca": "Без навязчивых оповещений и с локальным сохранением прогресса.",
+    "tuContrasenaNoSePersisteEnLocalsto": "Ваш пароль не сохраняется в localStorage.",
+    "proYEliteUsanStripeInlineFreeCre": "В версиях PRO и ELITE используется встроенная оплата через Stripe. В бесплатной версии учетная запись создается мгновенно."
+  },
+  "post_detail": {
+    "publicacionEditada": "Отредактированное издание",
+    "editarDescripcion": "Редактировать описание",
+    "publicacion": "Публикация",
+    "editarPublicacion": "Редактировать сообщение",
+    "laImagenNoSePuedeCambiarTrasPubli": "Изображение нельзя изменить после публикации.",
+    "seEliminaraPermanentementeJuntoConS": "Ваши данные будут безвозвратно удалены вместе с комментариями и лайками. Это действие необратимо.",
+    "seElPrimeroEnComentar": "Оставьте первый комментарий",
+    "masPopulares": "Самые популярные",
+    "cargarMasComentarios": "Загрузить больше комментариев",
+    "compartirPublicacion": "Поделитесь этим постом"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "Нам не удалось загрузить изображение.",
+    "noHemosPodidoCargarLaImagenDelPas": "Нам не удалось загрузить изображение процессии.",
+    "numeroDeRaciones": "Количество порций",
+    "anadirIngrediente": "Добавить ингредиент",
+    "cuentaQueHaceEspecialEstaReceta": "Расскажите, что делает этот рецепт особенным...",
+    "descripcionDeLaReceta": "Описание рецепта",
+    "anadirEtiqueta": "Добавить тег...",
+    "ensaladaRapida": "Быстрый салат",
+    "postreFacil": "Простой десерт",
+    "noHemosPodidoPublicarLaReceta": "Нам не удалось опубликовать рецепт.",
+    "recetaPublicada": "Рецепт опубликован!",
+    "tienesUnBorradorDeReceta": "У вас есть черновик рецепта.",
+    "momentoDelDia": "Время суток",
+    "unaIntroduccionParaTuReceta": "Вступление к вашему рецепту"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "Ошибка загрузки дополнительных роликов.",
+    "aunNoHayReels": "Катушек пока нет.",
+    "seElPrimeroEnPublicar": "Будьте первым, кто опубликует сообщение.",
+    "noHayMasReels": "Катушек больше нет."
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "Попробуйте другую категорию или измените фильтры.",
+    "verMasProductos": "Посмотреть другие товары",
+    "caracteristicas": "Характеристики"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "Найдите магазины, предлагающие продукцию местных, ремесленных производителей здоровой пищи. Используйте фильтры по региону и стране."
+  },
+  "communities_explore": {
+    "alimentacion": "Кормление",
+    "iniciaSesionParaVerTusComunidades": "Войдите в систему, чтобы увидеть свои сообщества.",
+    "noHayComunidadesEnEstaCategoria": "В этой категории нет населенных пунктов.",
+    "sinResultadosParaTuBusqueda": "Результаты по вашему запросу не найдены.",
+    "aunNoHayComunidades": "Населенных пунктов пока нет.",
+    "creaLaPrimeraComunidadDeEstaCatego": "Создайте первое сообщество в этой категории.",
+    "pruebaConOtrosTerminos": "Попробуйте другие термины",
+    "seElPrimeroEnCrearUnaYConectarCo": "Станьте первым, кто создаст свой профиль, и наладьте связь с сообществом.",
+    "consigue100SeguidoresOVerificaTuCu": "Наберите 100 подписчиков или подтвердите свой аккаунт продавца."
+  },
+  "about": {
+    "envioGestionadoPorProductor": "Судоходство осуществляется производителем.",
+    "productosConInformacionVerificableY": "Товары с проверяемой информацией и цифровым сертификатом.",
+    "operacionInternacional": "Международная операция",
+    "feedPostsYReelsConectadosConConve": "Ленты, посты и ролики, связанные с реальными конверсиями.",
+    "checkoutSeguroComisionesYConciliaci": "Безопасная оплата, расчет комиссий и сверка по каждой транзакции.",
+    "contenidoUtil": "Полезный контент",
+    "clientesProductoresImportadoresEIn": "Клиенты, производители, импортеры и влиятельные лица — единый поток.",
+    "gestionarPedidosYOperacionDiaria": "Управление заказами и повседневными операциями.",
+    "configurarEnvioYCatalogoInternaciona": "Настройка международной доставки и каталога.",
+    "trackingDeConversionYRendimiento": "Отслеживание конверсий и эффективности",
+    "monetizacionEnPostsYReels": "Монетизация в постах и роликах",
+    "altaDeProductosYCatalogoPropio": "Регистрация продукции и собственный каталог",
+    "panelDePedidosPagosYOperacion": "Панель заказов, платежей и операций",
+    "catalogoLimpio": "Чистый каталог",
+    "contenidoUtilEnlazadoAProductosReal": "Полезный контент, содержащий ссылки на реальные товары.",
+    "queEsHispaloshop": "Что такое Hispaloshop?",
+    "unimosCompraVentaInfluenciaYTraza": "Мы объединяем куплю-продажу, влияние и отслеживаемость на одной операционной платформе.",
+    "loQueYaEstaActivo": "Что уже активно",
+    "funcionalidadRealDeProductoEnEstaV": "Фактическая функциональность продукта в этой версии.",
+    "porQueLaPlataformaFunciona": "Почему эта платформа работает",
+    "paraQuienEstaHecho": "Для кого это предназначено?",
+    "porQueExisteHispaloshop": "Зачем существует Hispaloshop?",
+    "laHistoriaRealDetrasDelProyecto": "Реальная история создания проекта.",
+    "aLos25Perdi15000€EnUnContainerD": "В 25 лет я потерял 15 000 евро из-за сгнившего в Инчхоне контейнера для попкорна. Я плакал в парке в Сеуле. В 26 лет я вернулся в комнату родителей в Реусе. Сейчас 6 утра, и я не спал больше 5 часов в сутки уже два месяца, пока строил это.",
+    "loHiceParaQueNingunProductorHonest": "Я сделал это для того, чтобы ни один честный продюсер больше никогда не чувствовал себя незаметным. Чтобы ни одному инфлюенсеру никогда не приходилось выбирать между своей честностью и средствами к существованию.",
+    "exploraCatalogoTiendasYContenido": "Изучите каталог, магазины и контент.",
+    "checkoutCentralizadoEnUnSoloFlujo": "Централизованная процедура оформления заказа в едином потоке."
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "Добавьте хотя бы одно изображение к публикации.",
+    "laDescripcionEsDemasiadoLarga": "Описание слишком длинное.",
+    "publicacionCreada": "Создана публикация",
+    "verEnElFeed": "Просмотреть в ленте",
+    "errorAlPublicarCompruebaTuConexion": "Ошибка при отправке. Проверьте подключение и попробуйте снова.",
+    "nuevaPublicacion": "Новая публикация",
+    "seleccionaImagenes": "Выберите изображения",
+    "capturaDirectamenteDesdeTuCamara": "Снимайте прямо с камеры.",
+    "abrirCamaraParaTomarFoto": "Откройте камеру, чтобы сделать снимок.",
+    "abrirCamara": "Открыть камеру",
+    "saturacion": "Насыщенность",
+    "vineteado": "Виньетка",
+    "tamano": "Размер",
+    "descripcionDeLaPublicacion": "Описание публикации",
+    "escribeTuPieDeFotoUsaParaHas": "Напишите подпись... Используйте # для хэштегов и @ для упоминаний.",
+    "sugerenciaAnadida": "Добавлено предложение",
+    "noSePudoGenerarUnaSugerencia": "Предложение сгенерировать не удалось.",
+    "errorAlConectarConDavidAi": "Ошибка подключения к David AI",
+    "anadirUbicacionEjGaliciaCosta": "Добавить местоположение... (например, Галисия, Коста-Брава)",
+    "cerrarBusqueda": "Закрыть поиск",
+    "publicado": "Опубликовано!",
+    "reintentarPublicacion": "Перепост"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "Видеофайл слишком большой (максимум 100 МБ).",
+    "elVideoNoPuedeSuperarLos60Segundo": "Продолжительность видео не должна превышать 60 секунд. Перед загрузкой обрежьте его.",
+    "noHayVideoSeleccionado": "Видео не выбрано",
+    "elPuntoDeInicioDelRecorteNoPuede": "Начальная точка разреза не может быть больше или равна конечной точке.",
+    "verEnElFeed": "Просмотреть в ленте",
+    "errorAlPublicarElReelCompruebaTu": "Ошибка при загрузке ролика. Проверьте подключение и попробуйте снова.",
+    "seleccionaUnVideo": "Выберите видео",
+    "maximo60Segundos·Mp4OMov": "Максимальная продолжительность 60 секунд · MP4 или MOV",
+    "elegirVideoDeLaGaleria": "Выберите видео из галереи",
+    "elegirDeLaGaleria": "Выберите из галереи",
+    "pausarVideo": "Приостановить видео",
+    "controlaElVolumenDelAudioOriginalD": "Регулирует громкость исходного звука видео.",
+    "anadirTextoAlVideo": "Добавить текст к видео",
+    "escribeAqui": "Напишите здесь...",
+    "textoParaElOverlay": "Текст для наложения",
+    "tamanoDeTexto": "Размер текста",
+    "tienesUnBorradorDeReel": "У вас есть черновой вариант.",
+    "descripcionDelReel": "Описание ролика",
+    "portadaDesdeGaleria": "Обложка из галереи",
+    "anadirUbicacion": "Добавить местоположение...",
+    "reelPublicado": "Видеоролик опубликован!"
+  },
+  "create_story": {
+    "ecologicoEu": "Экологический ЕС",
+    "anadeContenidoATuHistoria": "Добавьте контент в свою историю.",
+    "errorAlExportarLaHistoria": "Ошибка при экспорте истории.",
+    "errorAlPublicarLaHistoria": "Ошибка при публикации статьи.",
+    "historiaPublicada": "Статья опубликована!",
+    "tienesUnBorradorDeStory": "У вас есть черновик рассказа.",
+    "arrastraAquiParaEliminar": "Перетащите сюда, чтобы удалить",
+    "escribeAqui": "Напишите здесь...",
+    "textoParaLaHistoria": "Текст для истории",
+    "quePrefieres": "Что вы предпочитаете?",
+    "opcion1": "Вариант 1",
+    "opcion2": "Вариант 2",
+    "anadirEncuesta": "Добавить опрос",
+    "anadirMencion": "Добавить упоминание",
+    "anadirEnlace": "Добавить ссылку",
+    "sevillaEspana": "Севилья, Испания",
+    "anadirUbicacion": "Добавить местоположение",
+    "anadirPregunta": "Добавить вопрос",
+    "buscarProductoParaEtiquetarEnLaHis": "Найдите товар для добавления тега в истории.",
+    "buscaUnProductoDeTuCatalogoParaAn": "Найдите товар в своем каталоге и добавьте его в качестве интерактивной наклейки."
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "Органическое оливковое масло",
+    "prediccion": "Прогноз",
+    "accedeATuRepresentanteDeVentasInte": "Получите доступ к своему международному торговому представителю и анализу рынка.",
+    "errorAlContactarAlAgenteComercial": "Ошибка при попытке связаться с торговым представителем. Пожалуйста, попробуйте еще раз.",
+    "tuRepresentanteDeVentasInternacional": "Ваш международный торговый представитель, использующий искусственный интеллект.",
+    "chatConElAgente": "Пообщайтесь с агентом"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "Данные пока отсутствуют.",
+    "errorAlCargarAnaliticas": "Ошибка загрузки аналитики.",
+    "compruebaTuConexionEIntentaloDeNue": "Проверьте подключение и попробуйте снова.",
+    "analitica": "Аналитика",
+    "productosMasVendidos": "Самые продаваемые товары",
+    "deDondeVienenTusVentas": "Откуда поступают ваши продажи?",
+    "seguidoresDeLaTienda": "Подписчики магазина",
+    "tasaDeConversion": "Коэффициент конверсии",
+    "anadidosAlCarrito": "Добавлено в корзину"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "Введите номер отслеживания.",
+    "urlDeTrackingNoValidaDebeEmpezar": "Неверный URL-адрес отслеживания. Должен начинаться с http:// или https://",
+    "envioRegistrado": "Зарегистрированная доставка",
+    "errorAlRegistrarElEnvio": "Ошибка при регистрации отправления.",
+    "numeroDeTracking": "Идентификационный номер",
+    "introduceUnPrecioValidoPorUnidad": "Введите допустимую цену за единицу.",
+    "plazoDias": "Крайний срок (дни)",
+    "ejStockDisponibleMinimo100kgPorP": "Пример: Товар в наличии. Минимальный заказ — 100 кг.",
+    "ofertaEnviadaEsperandoAprobacionYP": "Предложение отправлено. Ожидается одобрение и оплата от импортера.",
+    "gestionaLasSolicitudesB2bDeImportad": "Обработка B2B-запросов от импортеров.",
+    "activaElModoB2bEnTusProductosPara": "Активируйте режим B2B для вашей продукции, чтобы получать запросы."
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "Ожидается рассмотрение",
+    "pdfJpgPngMax5mb": "PDF, JPG, PNG (макс. 5 МБ)",
+    "100OrganicoSinPesticidasCosechaM": "100% органический продукт, без пестицидов, собран вручную...",
+    "aceitunasEspanaJaen10salPortug": "Оливки: Испания (Хаэн) 'Соль: Португалия '..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "Процесс адаптации не удалось начать.",
+    "configuraTuCuentaParaRecibirTransfe": "Настройте свой аккаунт для получения автоматических переводов.",
+    "tuCuentaEstaListaParaRecibirPagos": "Ваш аккаунт готов к приему платежей.",
+    "completaLosDatosEnStripeParaActiva": "Заполните информацию в Stripe, чтобы активировать платежи и выплаты."
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "Обнаружение и преобразование вашего каталога",
+    "conversionDesdeContenido": "Преобразование из контента",
+    "sinDatosParaEstePeriodo": "Данные за этот период отсутствуют.",
+    "todaviaNoHayRecetasConTusProductos": "Рецептов с использованием вашей продукции пока нет.",
+    "cuandoCreadoresCompartanRecetasUsand": "Когда авторы делятся рецептами с использованием ваших ингредиентов, они будут отображаться здесь."
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "Вам необходимо заполнить недостающую информацию в Stripe.",
+    "recibirasTuPorcentajeDeCadaVentaAu": "Вы будете автоматически получать свой процент от каждой продажи в соответствии с выбранным вами тарифным планом.",
+    "completaLaVerificacionEnStripePara": "Для активации автоматических платежей завершите процесс верификации в Stripe.",
+    "completarVerificacion": "Полная проверка",
+    "noHayDatosSuficientesTodavia": "Данных пока недостаточно.",
+    "noSePudieronCargarLasMetricasDelC": "Не удалось загрузить данные каталога и магазина.",
+    "noSePudoCargarElResumenDePagos": "Не удалось загрузить сводку платежей.",
+    "noSePudieronCargarLosDatosPrincipa": "Не удалось загрузить данные основной панели. Пожалуйста, обновите страницу.",
+    "errorAlCargarDatosPorFavorRefres": "Ошибка загрузки данных. Пожалуйста, обновите страницу.",
+    "anadirNuevoProducto": "Добавить новый товар",
+    "verAnaliticas": "Просмотреть аналитику",
+    "metricasYPagos": "Показатели и платежи",
+    "requierenTuAtencion": "Они требуют вашего внимания.",
+    "noPuedesPublicarProductosHastaCompl": "Вы не сможете публиковать товары, пока не пройдете процесс верификации.",
+    "certificadoProximoACaducar": "Срок действия сертификата скоро истечет.",
+    "renuevaloParaNoInterrumpirTusVentas": "Продлите его, чтобы не прерывать продажи.",
+    "senalesDeDemanda": "Сигналы спроса",
+    "ingredientesProductosYPiezasDeCont": "Ингредиенты, продукты и контент, обладающие наибольшим намерением совершить покупку.",
+    "sinDatosTodavia": "Данные пока отсутствуют.",
+    "productosMasEtiquetados": "Больше товаров с маркировкой",
+    "aunNoHayConversionesAtribuidas": "Пока нет данных о конверсиях.",
+    "conversion": "Конвертация",
+    "cuentaYConfiguracion": "Учетная запись и настройки",
+    "cambiarContrasena": "Изменить пароль"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "Данные о продажах пока отсутствуют.",
+    "metodoDePagoActualizado": "Способ оплаты обновлен.",
+    "losPagosViaStripeSeProcesanAutomat": "Платежи через Stripe обрабатываются автоматически каждые 15 дней.",
+    "metodoDeCobro": "Способ оплаты",
+    "cobroAutomaticoCada15DiasDirectoA": "Автоматическая оплата каждые 15 дней напрямую на ваш банковский счет.",
+    "solicitasElPagoYElEquipoLoTransfi": "Вы запрашиваете платеж, и команда переводит его на ваш счет.",
+    "guardarMetodo": "Метод сохранения",
+    "errorAlCargarDatosDePagos": "Ошибка при загрузке платежных данных.",
+    "noSePudoObtenerElEnlaceDeStripe": "Не удалось получить ссылку на Stripe.",
+    "errorAlAbrirElDashboardDeStripe": "Ошибка при открытии панели управления Stripe.",
+    "retencionFiscalAplicada": "Применено удержание налога",
+    "tusGananciasSeAcumulanPeroNecesita": "Ваши заработанные средства накапливаются, но для получения автоматических переводов вам необходим Stripe Connect.",
+    "comoFuncionanLosPagos": "Как работают платежи:",
+    "sobreTusGananciasNetasSegunTuConfi": "на ваш чистый доход в соответствии с вашей налоговой схемой."
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "Базовая панель управления",
+    "optimizacionDePreciosConIa": "Оптимизация цен с помощью ИИ",
+    "comisionMasBaja": "Более низкая комиссия",
+    "suscripcionMarcadaParaCancelar": "Подписка помечена для отмены.",
+    "suscripcionReactivada": "Подписка активирована.",
+    "eligeElPlanQueMejorSeAdapteATuN": "Выберите тарифный план, который лучше всего подходит для вашего бизнеса.",
+    "periodoDePruebaActivo": "Активный испытательный период",
+    "actualizaTuMetodoDePagoParaMantene": "Чтобы сохранить выбранный тарифный план, обновите способ оплаты.",
+    "cancelacionProgramada": "Отмена запланированного мероприятия",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "Ваш тарифный план будет аннулирован по истечении текущего периода.",
+    "detallesDeSuscripcion": "Информация о подписке",
+    "cancelarSuscripcion": "Отменить подписку",
+    "todosLosPreciosSonEnEurEIncluyen": "Все цены указаны в евро и включают НДС. Изменения в тарифном плане вступают в силу немедленно.",
+    "alCancelarMantienesElAccesoHastaE": "При отмене подписки вы сохраняете доступ до конца расчетного периода."
+  },
+  "producer_products": {
+    "composicion": "Композиция",
+    "elNombreDelProductoEsObligatorio": "Название продукта обязательно.",
+    "seleccionaUnaCategoria": "Выберите категорию",
+    "seleccionaElPaisDeOrigen": "Выберите страну происхождения",
+    "crustaceos": "Ракообразные",
+    "frutosDeCascara": "Орехи",
+    "anadeAlMenosUnaImagen": "Добавьте хотя бы одно изображение.",
+    "subeHasta5FotosDeTuProductoLaPr": "Загрузите до 5 фотографий вашего товара. Первая из них будет использоваться в качестве обложки.",
+    "pedidoMinimoUds": "Минимальный заказ (единицы)",
+    "especificaOtrosAlergenos": "Укажите другие аллергены..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "Не удалось загрузить политику доставки.",
+    "politicaDeEnvioGuardada": "Сохранена политика доставки",
+    "politicaDeEnvio": "Политика доставки",
+    "configuraCostesDeEnvioPorPedidoPar": "Настройте стоимость доставки для каждого заказа ваших товаров.",
+    "habilitarGastosDeEnvio": "Включить стоимость доставки",
+    "0SinEnvioGratis": "0 = бесплатная доставка отсутствует",
+    "pedidosQueSuperenEsteImporteTendran": "При заказе на сумму, превышающую указанную, доставка будет бесплатной. Оставьте поле пустым или установите значение 0, чтобы отключить бесплатную доставку.",
+    "losClientesPuedenRecogerEnTuObrado": "Клиенты могут забрать свой заказ в вашей мастерской (стоимость доставки оплачивается отдельно)."
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "Изображение добавлено в галерею",
+    "anadirFotoALaGaleria": "Добавить фото в галерею",
+    "fotosDelObradorEquipoProcesoDeEl": "Фотографии цеха, оборудования и производственного процесса.",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "Этот URL-адрес магазина уже используется. Пожалуйста, выберите другой.",
+    "errorAlCargarElPerfilDeTienda": "Ошибка при загрузке профиля магазина.",
+    "compruebaTuConexionEIntentaloDeNue": "Проверьте подключение и попробуйте снова.",
+    "personalizaLaPaginaPublicaDeTuTien": "Настройте публичную страницу вашего магазина",
+    "urlDeTuTienda": "URL вашего магазина:",
+    "informacionBasica": "Основная информация",
+    "nombreDeLaTienda": "Название магазина",
+    "aceitesEcologicosDesde1985": "Органические масла с 1985 года",
+    "historiaDeLaMarca": "История бренда",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "Расскажите историю своего бренда, как вы начинали, о своей философии...",
+    "carlosMartinez": "Карлос Мартинес",
+    "laCalidadNoEsUnAccidente": "Качество — это не случайность...",
+    "tusCertificadosVerificadosAparecenAu": "Ваши подтвержденные сертификаты автоматически отображаются в вашем магазине.",
+    "ubicacionCiudadRegion": "Местоположение (город, регион)",
+    "jaenAndaluciaEspana": "Хаэн, Андалусия, Испания",
+    "direccionCompleta": "Полный адрес",
+    "ctraDeLosOlivaresKm1223001Jaen": "Cтра. де лос Оливарес, км 12, 23001 Хаэн",
+    "todaEspanaPeninsular": "Вся материковая Испания",
+    "horarioDeAtencion": "Рабочее время",
+    "lun-vie900-180010sab900-1400": "Пн-Пт: 9:00-18:00&#10;Сб: 9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "Средство",
+    "errorAlSubirElDocumentoCifnif": "Ошибка при загрузке документа CIF/NIF.",
+    "errorAlSubirLaFotoDeInstalaciones": "Ошибка при загрузке фотографии объектов.",
+    "errorAlSubirElCertificado": "Ошибка при загрузке сертификата.",
+    "verificacionDeCuenta": "Подтверждение учетной записи",
+    "subeTuCifEmpresarialONifPersonal": "Загрузите свой идентификационный номер налогоплательщика (CIF) для бизнеса или личный идентификационный номер налогоплательщика (NIF). Это должен быть официальный документ от AEAT (Испанское налоговое агентство).",
+    "pdfJpgPng·Max5mb": "PDF, JPG, PNG · Максимальный размер 5 МБ",
+    "enRevisionManual": "Находится на стадии ручной проверки.",
+    "nuestroEquipoRevisaraTuDocumentoEn": "Наша команда рассмотрит ваш документ в течение 48-72 рабочих часов.",
+    "fotoDeInstalacion": "Фотография установки",
+    "subeUnaFotoDeTuLocalObradorFinc": "Загрузите фотографию вашего помещения, мастерской, фермы, склада или рабочего места.",
+    "laIaVerificaraQueEsUnaInstalacion": "Искусственный интеллект проверит, действительно ли это предприятие связано с производством продуктов питания.",
+    "jpgPngHeic·Max10mb": "JPG, PNG, HEIC · Максимальный размер 10 МБ",
+    "instalacionVerificada": "Установка проверена.",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "Наша команда рассмотрит вашу фотографию в течение 48-72 рабочих часов.",
+    "alMenos1CertificadoValido": "По крайней мере, 1 действующий сертификат",
+    "enRevision": "На рассмотрении",
+    "nuestroEquipoRevisaraTuDocumentacion": "Наша команда рассмотрит ваши документы в течение 48-72 рабочих часов. Мы уведомим вас по электронной почте.",
+    "completaLaVerificacion": "Завершите проверку"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "Правила активации в зависимости от рынка:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "Заполните все поля пакета допустимыми значениями."
+  },
+  "affiliate_links": {
+    "copiado": "Скопировано!",
+    "configuracionFiscalRequerida": "Необходимая конфигурация налогообложения",
+    "generaUnLinkParaCualquierProducto": "Сгенерируйте ссылку на любой товар. Когда кто-то совершит покупку по вашей ссылке, вы получите комиссию.",
+    "masIngresos": "Больше дохода",
+    "masClics": "Больше кликов",
+    "buscaUnProductoArribaParaGenerarTu": "Найдите товар выше, чтобы сгенерировать свою первую ссылку."
+  },
+  "fiscal_setup": {
+    "sinRetencion": "Без сохранения",
+    "seleccionaUnPaisDeResidenciaFiscal": "Сначала выберите страну налогового резидентства.",
+    "elArchivoNoPuedeSuperar5mb": "Размер файла не должен превышать 5 МБ.",
+    "certificadoEnRevisionManual": "Сертификат находится на стадии ручной проверки.",
+    "certificadoNoValido": "Недействительный сертификат",
+    "formatoDeIbanNoValidoDebeEmpezar": "Неверный формат IBAN. Должен начинаться с кода страны (например, ES12...).",
+    "errorAlConfigurarMetodoDeCobro": "Ошибка при настройке способа оплаты.",
+    "configuracionFiscal": "Фискальная конфигурация",
+    "paisFiscal": "Налоговая страна",
+    "buscarPais": "Поиск страны...",
+    "pdfJpgOPng·Max5mb": "PDF, JPG или PNG · Максимальный размер 5 МБ",
+    "nuestroEquipoRevisaraTuCertificadoE": "Наша команда рассмотрит ваш сертификат в течение 48-72 рабочих часов.",
+    "recibeEnMinutosEnTuCuentaStripe": "Получите деньги на свой счет Stripe в течение нескольких минут.",
+    "fee025€PorTransferenciaStripeSe": "Комиссия: 0,25 евро за каждый перевод через Stripe (вычитается из вашей комиссии).",
+    "sinComisionAdicional·ProcesadoEn1-": "Без дополнительных сборов · Обработка в течение 1-3 рабочих дней",
+    "titularDeLaCuenta": "Владелец счета",
+    "verificacionCompletada": "Проверка завершена.",
+    "tuConfiguracionFiscalEstaVerificada": "Ваши налоговые настройки проверены и активны.",
+    "verificacionCompletadaAfiliadosActiv": "Проверка завершена. Партнерская программа активирована.",
+    "errorAlCompletarLaVerificacion": "Ошибка при завершении проверки.",
+    "completaLosPasosAnterioresParaAcced": "Выполните описанные выше шаги, чтобы получить доступ к проверке.",
+    "configuracionFiscalGuardadaAfiliados": "Настройки налогообложения сохранены. Партнерская программа активирована.",
+    "errorAlGuardarLaConfiguracionFiscal": "Ошибка при сохранении налоговых настроек.",
+    "completaTodosLosCamposParaContinuar": "Заполните все поля, чтобы продолжить."
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "Ошибка при обработке запроса на вывод средств.",
+    "introduceElCodigoDe6Digitos": "Введите 6-значный код",
+    "emailVerificado": "Адрес электронной почты подтвержден!",
+    "codigoInvalido": "Неверный код",
+    "codigoEnviadoATuEmail": "Код будет отправлен на вашу электронную почту.",
+    "errorAlEnviarCodigo": "Ошибка при отправке кода",
+    "elCodigoDebeTenerAlMenos3Caracter": "Код должен состоять как минимум из 3 символов.",
+    "codigoCreado": "Создан код",
+    "errorAlCrearCodigo": "Ошибка при создании кода",
+    "codigosDeDescuento": "промокоды",
+    "eligeUnCodigoPersonalizadoYElPorce": "Выберите индивидуальный код и процент скидки для вашего сообщества.",
+    "codigoCopiado": "скопированный код",
+    "misCodigosDeDescuento": "Мои скидочные коды",
+    "creaTuPrimerCodigoDeDescuento": "Создайте свой первый промокод",
+    "pendiente15Dias": "Ожидание 15 дней",
+    "enTransito": "В пути",
+    "productosQueMejorFuncionanEnTuCont": "Продукты, которые лучше всего подходят для вашего контента",
+    "publicaContenidoConProductosVinculad": "Публикуйте контент со ссылками на товары, чтобы начать получать результаты.",
+    "pendienteDeAprobacion": "Ожидается одобрение",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "Ваш код находится на рассмотрении команды Hispaloshop. Мы одобрим его менее чем за 24 часа.",
+    "miCodigoHispaloshop": "Мой код Hispaloshop",
+    "comisionTotal": "Общая комиссия",
+    "tasaDeComision": "Комиссионная ставка",
+    "aunNoHasRealizadoNingunCobro": "Вы еще не получили никакой оплаты.",
+    "hispaloshopSlRetieneEl15DeTusCom": "Компания Hispaloshop SL удерживает 15% ваших комиссионных и ежеквартально перечисляет их в налоговую инспекцию от вашего имени (Модель 111).",
+    "cuandoHagasTuDeclaracionDeLaRenta": "При подаче налоговой декларации эти удержания уже будут уплачены, и вы сможете их вычесть.",
+    "recibirasElCertificadoDeRetenciones": "Свидетельство об удержании налога вы будете получать в январе каждого года.",
+    "evolucionDeTusComisiones": "Эволюция ваших комиссионных",
+    "comparteloEnTusRedesSociales": "Поделитесь этим в своих социальных сетях.",
+    "tuLinkDeAfiliado": "Ваша партнерская ссылка",
+    "aunNoTienesVentasComparteTuLink": "У вас пока нет продаж. Поделитесь своей ссылкой!",
+    "configuracionFiscal": "конфигурация налогов"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "Недостаточно данных для отображения графика.",
+    "impactoComercialDeTuContenido": "Коммерческий эффект вашего контента",
+    "productosMasImpulsadosPorTuContenid": "Продукты, успех которых в наибольшей степени зависит от вашего контента.",
+    "errorDeConexion": "Ошибка подключения",
+    "noPudimosCargarTusDatosCompruebaT": "Нам не удалось загрузить ваши данные. Проверьте подключение к интернету и попробуйте снова.",
+    "aunNoTienesDatos": "У вас пока нет данных.",
+    "cuandoTuContenidoImpulseClicsOComp": "Если ваш контент приводит к кликам или покупкам, он появится здесь.",
+    "losDatosMuestranInteraccionesAtribui": "Данные показывают взаимодействия, связанные с вашим профилем автора: клики по товарам из вашего контента, товары, добавленные в корзину, и завершенные покупки. Информация обновляется в режиме реального времени."
+  },
+  "payouts": {
+    "introduceUnImporteValido": "Введите допустимую сумму",
+    "elImporteSuperaTuSaldoDisponible": "Сумма превышает ваш доступный баланс.",
+    "errorAlSolicitarLaRetirada": "Ошибка при запросе на вывод средств.",
+    "lasComisionesDeTransferenciaDeStrip": "Комиссия Stripe за перевод (примерно 1-2%) автоматически списывается со счета.",
+    "aunNoTienesPagosComparteTuCodigo": "Вы еще не получили ни одного платежа. Поделитесь своим кодом и начните зарабатывать.",
+    "noHayPagosConEsteEstado": "Платежей с таким статусом не существует."
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "Ожидается настройка налогов.",
+    "completaTuConfiguracionFiscalAntesD": "Перед выводом средств завершите настройку налоговых параметров.",
+    "errorAlProcesarElCobroIntentaloDe": "Ошибка обработки платежа. Пожалуйста, попробуйте еще раз.",
+    "cobroEnCamino": "Оплата уже в пути!",
+    "tiempoEstimado1-3DiasHabiles": "Ориентировочное время выполнения: 1-3 рабочих дня",
+    "retencionIrpf": "Удержание подоходного налога",
+    "metodo": "Метод",
+    "comisionBruta": "Валовая комиссия",
+    "laComisionRealPuedeVariarSegunTuM": "Фактический размер комиссии может варьироваться в зависимости от способа оплаты.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Данная выплата будет задекларирована компанией Hispaloshop SL как доход от хозяйственной деятельности.",
+    "recibirasUnCertificadoDeRetenciones": "В январе вы получите справку об удержании налога для подачи налоговой декларации."
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "Все категории",
+    "carnicos": "Мясные продукты",
+    "errorAlEnviarLaSolicitud": "Ошибка при отправке запроса.",
+    "precioEstimado·ElProductorConfirmar": "Ориентировочная цена · Производитель подтвердит окончательную цену",
+    "notasParaElProductorOpcional": "Примечания для продюсера (необязательно)",
+    "elProductorTiene48hParaConfirmarDi": "У производителя есть 48 часов, чтобы подтвердить наличие товара и условия.",
+    "soloSeProcesaElPagoTrasSuConfirma": "Оплата обрабатывается только после подтверждения.",
+    "catalogoMayorista": "Оптовый каталог",
+    "errorAlCargarElCatalogo": "Ошибка загрузки каталога"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "Выберите поставщика, чтобы просмотреть его сертификаты.",
+    "errorAlCargarLosCertificados": "Ошибка загрузки сертификатов.",
+    "losCertificadosDeTusProveedoresApar": "Здесь отобразятся сертификаты ваших поставщиков."
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "Автоматически генерируемые B2B-контракты",
+    "errorAlCargarElPanel": "Ошибка загрузки панели",
+    "aunNoTienesProductosPublicados": "В вашем каталоге пока нет товаров.",
+    "requierenTuAccion": "Они требуют ваших действий.",
+    "catalogoB2b": "Каталог B2B",
+    "aunNoTienesProveedores": "У вас пока нет поставщиков.",
+    "expandeTuCatalogo": "Расширьте свой каталог",
+    "verAnalisis": "Просмотреть анализ",
+    "anadirProducto": "Добавить товар",
+    "analisis": "Анализ",
+    "evolucionDeVentas": "Эволюция продаж"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "Идентификатор транзакции недоступен",
+    "recepcionConfirmada": "Приём подтверждён.",
+    "errorAlConfirmarRecepcion": "Ошибка при подтверждении получения.",
+    "idDePedidoNoDisponible": "Идентификатор заказа недоступен",
+    "rastrearEnvio": "Отслеживание отправления",
+    "confirmarRecepcion": "Подтвердите получение"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "Ошибка загрузки скидочных кодов",
+    "errorAlAprobarElCodigo": "Ошибка при подтверждении кода.",
+    "errorAlRechazarElCodigo": "Ошибка при отклонении кода.",
+    "codigoDeDescuentoActualizado": "Код скидки обновлен.",
+    "codigoDeDescuentoCreado": "Создан промокод",
+    "errorAlGuardarCodigoDeDescuento": "Ошибка при сохранении кода скидки",
+    "codigoDeDescuentoEliminado": "Код скидки удален",
+    "errorAlEliminarCodigoDeDescuento": "Ошибка при удалении кода скидки.",
+    "errorAlCambiarEstadoDelCodigo": "Ошибка при изменении состояния кода.",
+    "cargandoCodigosDeDescuento": "Загрузка скидочных кодов",
+    "gestionaCodigosPromocionalesEInfluen": "Управление промокодами и инфлюенсерами.",
+    "nuevoCodigo": "Новый код",
+    "editarCodigoDeDescuento": "Изменить код скидки",
+    "importeMinimoDelCarrito": "Минимальное количество товаров в корзине",
+    "limiteDeUso": "Ограничение использования",
+    "actualizarCodigo": "Обновить код",
+    "buscarCodigosDeDescuento": "Ищите скидочные купоны...",
+    "codigo": "Код",
+    "noSeEncontraronCodigos": "Коды не найдены",
+    "codigosActivos": "Активные коды",
+    "totalDeCodigos": "Всего кодов"
+  },
+  "admin_fiscal": {
+    "revisionManual": "Ручная проверка",
+    "errorAlProcesarLaRevision": "Проверка обработки ошибок",
+    "gestionFiscal": "Фискальное управление",
+    "pendientesRevision": "Ожидается рассмотрение",
+    "revisionManualPendiente": "Ожидается проверка руководства."
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "Данные о росте не удалось загрузить.",
+    "errorAlCargarLosDatos": "Ошибка загрузки данных",
+    "analisisDeConversionYDescubrimiento": "Анализ и обнаружение конверсий",
+    "conversionDirecta": "Прямая конверсия",
+    "contenidoConMayorConversion": "Контент с более высокими показателями конверсии",
+    "titulo": "Квалификация",
+    "productosMasClicadosDesdeContenido": "Товары, на которые чаще всего кликают в контентной ленте.",
+    "sobreLosDatosDeCrecimiento": "Что касается данных о росте"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "Ошибка при загрузке данных об инфлюенсерах.",
+    "anadirInfluencer": "Добавить инфлюенсера"
+  },
+  "admin_management": {
+    "paisAsignado": "Назначенная страна",
+    "elAdminSoloVeraAnalyticsDeEstePai": "Администратор будет видеть аналитику только по этой стране. Оставьте поле пустым для глобального доступа."
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "дезинформация в сфере здравоохранения",
+    "claimsMedicos": "Медицинские претензии",
+    "razonIa": "Reason AI",
+    "contenidoConfirmadoComoInfraccion": "Подтверждено, что контент нарушает авторские права.",
+    "errorAlConfirmarLaModeracion": "Ошибка подтверждения модерации.",
+    "errorAlRestaurarElContenido": "Ошибка при восстановлении содержимого.",
+    "errorAlEscalarElContenido": "Ошибка масштабирования содержимого",
+    "revisaElContenidoModeradoPorIa": "Ознакомьтесь с контентом, модерируемым искусственным интеллектом."
+  },
+  "admin_orders": {
+    "articulos": "Статьи"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "Загрузка панели администратора",
+    "noSePudieronCargarLasEstadisticas": "Статистические данные не удалось загрузить.",
+    "panelDeAdministracion": "Административная панель",
+    "gestionDeTuMercadoEnUnaVista": "Управляйте своим рынком в одном окне.",
+    "colaDeRevision": "очередь просмотра",
+    "moderacionDeContenido": "Модерация контента",
+    "certificadosQueExpiranEn30Dias": "Сертификаты, срок действия которых истекает через 30 дней.",
+    "noHayCertificadosProximosAExpirar": "Нет ни одного сертификата, срок действия которого истекает.",
+    "certificadosPendientesDeRevision": "Сертификаты ожидают проверки"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "номер банковской транзакции"
+  },
+  "admin_products": {
+    "precioNoValido": "Цена недействительна",
+    "checklistDeAprobacion": "Контрольный список для утверждения",
+    "alMenos1FotoDelProducto": "Не менее 1 фотографии товара.",
+    "descripcionCompletaMin20Caracteres": "Полное описание (минимум 20 символов)",
+    "paisDeOrigenIndicado": "Указана страна происхождения",
+    "alergenosRevisadosCampoPresente": "Проверены аллергены (присутствуют на месте).",
+    "marcaTodosLosItemsParaPoderAprobar": "Проверьте все пункты для утверждения."
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "Неверный идентификатор заказа",
+    "errorAlProcesarElReembolso": "Ошибка при обработке возврата средств.",
+    "accionIrreversible": "Необратимое действие",
+    "seProcesaraElReembolsoEnStripeYSe": "Возврат средств будет обработан через Stripe, и комиссия будет скорректирована автоматически.",
+    "gestionDeReembolsos": "Управление возвратами"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "Ошибка загрузки отзывов",
+    "resenaOculta": "Скрытый отзыв",
+    "resenaEliminada": "Отзыв удален",
+    "errorAlEliminarResena": "Ошибка при удалении отзыва.",
+    "moderarResenasDeClientes": "Умеренные отзывы покупателей",
+    "totalDeResenas": "Всего отзывов",
+    "calificacionPromedio": "Средний рейтинг",
+    "buscarResenas": "Поиск отзывов...",
+    "calificacion": "Квалификация",
+    "noSeEncontraronResenas": "Отзывы не найдены."
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "Не удалось загрузить обращения в службу поддержки.",
+    "noHayCasosDeSoporteConLosFiltros": "В настоящее время нет обращений в службу поддержки по выбранным фильтрам."
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "Запросить замену",
+    "resolucionManual": "Ручное разрешение",
+    "noSePudoCargarElCaso": "Не удалось загрузить дело.",
+    "noSePudoActualizarElEstado": "Статус не удалось обновить.",
+    "noSePudoActualizarLaPrioridad": "Не удалось обновить приоритет.",
+    "noSePudoEnviarElMensaje": "Сообщение не удалось отправить.",
+    "accionAplicada": "Предпринятые действия",
+    "noSePudoAplicarLaAccion": "Данное действие не могло быть применено.",
+    "conversacion": "Беседа",
+    "sinMensajesAun": "Сообщений пока нет.",
+    "tuAdmin": "Вы (администратор)",
+    "unAgenteHumanoSeHaUnidoALaConver": "К разговору присоединился человек.",
+    "esteCasoEstaCerradoNoSePuedenAna": "Данное дело закрыто. Добавление новых сообщений невозможно.",
+    "ultimaActualizacion": "Последнее обновление"
+  },
+  "admin_trust_safety": {
+    "enganoso": "Вводящий в заблуждение",
+    "resena": "Обзор",
+    "noSePudoCargarLaColaDeModeracion": "Не удалось загрузить очередь модерации.",
+    "accionAplicada": "Предпринятые действия",
+    "noSePudoAplicarLaAccion": "Данное действие не могло быть применено.",
+    "colaVacia": "Пустая очередь",
+    "noHayContenidoPendienteDeRevision": "Контент, ожидающий проверки, отсутствует.",
+    "senales": "Сигналы",
+    "noSePudieronCargarLosReportes": "Отчеты не удалось загрузить.",
+    "noHayReportesConLosFiltrosSeleccio": "Отчеты с выбранными фильтрами отсутствуют.",
+    "marcadosAutomaticamente": "Автоматически отмечено",
+    "politicasDeLaPlataforma": "Политика платформы",
+    "productosProhibidosArmasDrogasCon": "Запрещенные товары: оружие, наркотики, незаконные товары, контрафактная продукция.",
+    "resenasDebenSerAutenticasVerificad": "Отзывы должны быть подлинными, проверенными и основанными на реальных покупках.",
+    "vendedoresResponsablesDeLaVeracidad": "Продавцы несут ответственность за точность описаний и безопасность пищевых продуктов.",
+    "contenidoGeneradoPorUsuariosSujeto": "Пользовательский контент: подлежит автоматической и ручной модерации.",
+    "colaDeModeracion": "Очередь модерации",
+    "moderacionReportesEIntegridadDeLa": "Модерация, отчетность и обеспечение целостности платформы."
+  },
+  "admin_verification": {
+    "revision": "Пересмотр",
+    "revisionManual": "Ручная проверка",
+    "numero": "Число",
+    "descripcionIa": "Описание ИИ",
+    "rechazarVerificacion": "Отклонить проверку",
+    "documentosProblematicos": "Проблемные документы:",
+    "fotoDeInstalacionNoValida": "Неверное фото установки",
+    "solicitarDocumentacion": "Запрос документации",
+    "verificacionRechazada": "Проверка отклонена",
+    "revisionManualDeProductores": "Ручная проверка производителей"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "Название категории",
+    "descripcionOpcional": "Описание (необязательно)",
+    "errorAlCargarLasCategorias": "Ошибка загрузки категорий",
+    "categoriaCreada": "Создана категория",
+    "errorAlCrearLaCategoria": "Ошибка при создании категории",
+    "categoriaActualizada": "Обновлена категория",
+    "errorAlActualizarLaCategoria": "Ошибка обновления категории",
+    "categoriaEliminada": "Категория удалена",
+    "errorAlEliminarLaCategoria": "Ошибка при удалении категории.",
+    "nuevaCategoria": "Новая категория",
+    "buscarCategorias": "Поиск по категориям...",
+    "noSeEncontraronCategorias": "Категории не найдены",
+    "sinDescripcion": "Нет описания"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "Сообщения не удалось загрузить.",
+    "canalDeEscalacionAbiertoUnSuperadm": "Открыт канал для эскалации. Ваше сообщение получит суперадминистратор.",
+    "errorAlAbrirEscalacion": "Ошибка при открытии эскалации",
+    "canalDeEscalacionPrivado": "Частный канал о скалолазании",
+    "seleccionaUnaEscalacionParaVerLosM": "Выберите уровень эскалации, чтобы просмотреть сообщения.",
+    "usaEsteCanalParaReportarProblemasC": "Используйте этот канал для сообщения о критических проблемах, неразрешенных спорах или ситуациях, требующих вмешательства более высокого уровня.",
+    "elMensajeEstaCifradoDeExtremoAExt": "Сообщение зашифровано сквозным шифрованием в базе данных.",
+    "describeElProblemaOSituacionAEscal": "Опишите проблему или ситуацию, требующую эскалации...",
+    "abrirCanalDeEscalacion": "Открыть канал эскалации",
+    "sinMensajesTodavia": "Сообщений пока нет."
+  },
+  "content_management": {
+    "sinExpiracion": "Срок действия не ограничен."
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "Ошибка при обработке запроса GDPR.",
+    "solicitudesDeDerechosDeUsuariosBajo": "Запросы на защиту прав пользователей в соответствии с GDPR. Максимальный срок ответа: 30 дней."
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "хранение изображений",
+    "estadoDeServiciosYConfiguracionDel": "Состояние сервиса и конфигурация среды",
+    "informacionDelSistema": "Системная информация"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "Не удалось загрузить данные из панели аналитики.",
+    "minimoDeUsuariosRequeridosParaMostr": "Минимальное количество пользователей, необходимое для отображения сводных конфиденциальных данных.",
+    "detectarObjetivosDieteticosYDeSalud": "Определите цели в области питания и здоровья.",
+    "noHayDatosDePaisesParaMostrar": "Данные по странам отсутствуют.",
+    "noHayMetricasDeIaDisponibles": "Метрики для ИИ отсутствуют.",
+    "noHayDatosDeComplianceDisponibles": "Данные о соответствии требованиям отсутствуют."
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "Активируйте страну, чтобы местные продавцы могли зарегистрироваться."
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "Введите пароль суперадминистратора, чтобы применить это изменение в рабочей среде.",
+    "contrasenaSuperadmin": "пароль суперадминистратора",
+    "introduceTuContrasena": "Введите свой пароль",
+    "configuracionActualizadaYGuardada": "Обновлены и сохранены настройки.",
+    "configuracionDePlanes": "Настройки плана",
+    "losCambiosSeAplicanAutomaticamenteE": "Изменения автоматически применяются в Stripe. Для подтверждения требуется пароль суперадминистратора.",
+    "comisionSobreElTotalDeVentaDespue": "Комиссия взимается с общей суммы продажи (после учета доставки и НДС). Она вычитается из маржи платформы."
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "Не удалось загрузить обзор.",
+    "revisaLaConexionConElBackend": "Проверьте соединение с бэкэндом.",
+    "sinDatosDeTendencia": "Нет данных о тенденциях",
+    "distribucionDePlanes": "План распределения"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "Ошибка загрузки каталога B2B",
+    "noSePudoCambiarElEstado": "Состояние изменить было невозможно.",
+    "noTienesAccesoAEstaSeccion": "У вас нет доступа к этому разделу.",
+    "necesitasUnPerfilDeProductorOImpor": "Для доступа к каталогу B2B вам необходим профиль производителя или импортера.",
+    "gestionaQueProductosOfrecesAlPorMa": "Управляйте тем, какие товары вы предлагаете оптом и на каких условиях.",
+    "noTienesProductosEnElCatalogoB2b": "В вашем каталоге B2B нет товаров.",
+    "empiezaAnadiendoTuPrimerProductoMay": "Начните с добавления вашего первого товара для оптовой продажи.",
+    "anadirPrimerProducto": "Добавить первый товар",
+    "anadirProductoAlCatalogoB2b": "Добавить товар в каталог B2B"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "Начните разговор, отправив сообщение.",
+    "noTienesAccesoAEstaSeccion": "У вас нет доступа к этому разделу.",
+    "necesitasUnPerfilDeProductorOImpor": "Для доступа к B2B-чату необходим профиль производителя или импортера."
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "Операция не может быть загружена.",
+    "noTienesAccesoAEstaSeccion": "У вас нет доступа к этому разделу.",
+    "necesitasUnPerfilDeProductorOImpor": "Для доступа к B2B-контрактам необходим профиль производителя или импортера.",
+    "operacionNoEncontrada": "Операция не найдена",
+    "laOperacionSolicitadaNoExisteONoT": "Запрашиваемая операция не существует или у вас нет к ней доступа.",
+    "laIaEstaGenerandoElContrato": "Искусственный интеллект генерирует контракт...",
+    "elContratoEstaTardandoMasDeLoEspe": "Заключение контракта затягивается дольше, чем ожидалось.",
+    "recibirasUnaNotificacionCuandoEsteL": "Вы получите уведомление, когда он будет готов.",
+    "cartaDeCreditoPagoDividido": "Аккредитив (раздельная оплата)",
+    "pagoA30Dias": "Оплата должна быть произведена в течение 30 дней.",
+    "pagoA60Dias": "Оплата должна быть произведена в течение 60 дней.",
+    "alFirmarConfirmasQueHasLeidoYAcep": "Подписывая этот документ, вы подтверждаете, что ознакомились со всеми условиями договора и согласны с ними.",
+    "laFirmaQuedaRegistradaConFechaHor": "Подпись записывается с указанием даты, времени и IP-адреса.",
+    "necesitasSubirTuFirmaDigitalAntesD": "Для подписания контрактов необходимо загрузить свою цифровую подпись."
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "Некорректная документация",
+    "maximo5Archivos": "Максимум 5 файлов",
+    "errorAlAbrirLaDisputa": "Ошибка при открытии спора",
+    "antesDeAbrirUnaDisputaTeRecomenda": "Прежде чем открывать спор, рекомендуем поговорить с другой стороной в чате.",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "Если вам не удастся достичь соглашения, администратор Hispaloshop рассмотрит дело в течение 72 часов.",
+    "describeDetalladamenteElProblemaMin": "Подробно опишите проблему (минимум 50 символов)...",
+    "max5Archivos10mbCadaUno": "Максимум 5 файлов, по 10 МБ каждый.",
+    "estaAccionNotificaraAlAdminDeHispa": "Это действие уведомит администратора Hispaloshop и может повлиять на репутацию другой стороны."
+  },
+  "b2_b_marketplace": {
+    "catalogo": "Каталог",
+    "precioMasBajo": "Самая низкая цена",
+    "masProductos": "Больше товаров",
+    "sinAccesoAlCatalogoB2b": "Нет доступа к каталогу B2B.",
+    "completaTuPerfilDeImportadorParaAc": "Заполните свой профиль импортера, чтобы получить доступ.",
+    "sinAccesoAlDirectorioDeProductores": "Без доступа к каталогу производителей",
+    "indicaElProductorLosProductosYLa": "Укажите производителя, виды продукции и количество. Производитель получит ваш запрос и сможет ответить индивидуальным предложением."
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "Аккредитив",
+    "elCompradorAsumeTodosLosCostesDesd": "Покупатель берет на себя все расходы, связанные с производством.",
+    "vendedorEntregaEnDestinoSinDescarga": "Продавец доставляет товар по назначению без разгрузки.",
+    "indicaElPlazoMinimoDeEntrega": "Укажите минимальный срок доставки.",
+    "validezDias": "Срок действия (дни)",
+    "errorAlEnviarLaOferta": "Ошибка при отправке предложения."
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "Ведутся переговоры",
+    "noTienesAccesoAEstaSeccion": "У вас нет доступа к этому разделу.",
+    "necesitasUnPerfilDeProductorOImpor": "Для доступа к операциям B2B вам необходим профиль производителя или импортера.",
+    "errorAlCargarLasOperaciones": "Ошибки при загрузке операций"
+  },
+  "b2_b_payment": {
+    "net30Dias": "Оплата в течение 30 дней",
+    "net60Dias": "Оплата в течение 60 дней.",
+    "cartaDeCredito": "Аккредитив",
+    "errorAlCargarLosDatosDePago": "Ошибка при загрузке платежных данных.",
+    "noSePudoInicializarElPago": "Платеж не удалось инициировать.",
+    "noTienesAccesoAEstaSeccion": "У вас нет доступа к этому разделу.",
+    "necesitasUnPerfilDeProductorOImpor": "Для доступа к платежам B2B вам необходим профиль производителя или импортера.",
+    "esperandoElPagoDelComprador": "Ожидаем оплаты от покупателя...",
+    "recibirasUnaNotificacionCuandoElPag": "Вы получите уведомление, когда платеж будет обработан.",
+    "losFondosEstanRetenidosHastaQueSub": "Средства будут зарезервированы до тех пор, пока вы не загрузите отгрузочную документацию.",
+    "comisionHispaloshop3": "Комиссия Hispaloshop (3%)"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "Запросы коммерческих предложений от импортеров, заинтересованных в вашей продукции.",
+    "historialDeTusSolicitudesDeCotizaci": "История ваших запросов на оптовые предложения",
+    "noSePudieronCargarLasSolicitudes": "Запросы не удалось загрузить.",
+    "soloDisponibleParaCuentasDeProducto": "Доступно только для аккаунтов производителей.",
+    "soloDisponibleParaCuentasDeImportad": "Доступно только для учетных записей импортеров.",
+    "noHasEnviadoSolicitudesAun": "Вы еще не отправили ни одной заявки.",
+    "usaElMarketplaceB2bParaContactarPr": "Используйте B2B-маркетплейс для связи с производителями."
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "Ошибка при загрузке.",
+    "envioConfirmado": "Отправка подтверждена",
+    "noSePudoConfirmarElEnvio": "Подтверждение отправки не удалось.",
+    "operacionNoEncontrada": "Операция не найдена",
+    "noSePudoCargarLaOperacionSolicitad": "Запрошенная операция не может быть загружена.",
+    "abrirChatDeLaOperacion": "Откройте чат для операции",
+    "confirmarEnvio": "Подтвердите отправку.",
+    "esperandoConfirmacionDeEnvioDelProd": "Ожидается подтверждение отгрузки от производителя.",
+    "documentacion": "Документация",
+    "documentosNecesariosParaEstaOperacio": "Документы, необходимые для этой операции",
+    "revisaLaDocumentacionPendienteAntes": "Перед отправкой, пожалуйста, проверьте все недостающие документы.",
+    "proximamente": "Скоро",
+    "elCompradorRealizaraElPagoFinalTra": "Окончательную оплату покупатель произведет после доставки."
+  },
+  "customer_orders": {
+    "masAntiguos": "Старше",
+    "errorAlCargarLosPedidos": "Ошибка при загрузке заказов",
+    "errorAlActualizarLosPedidos": "Ошибка при обновлении заказов.",
+    "noHayPedidosEnEstaCategoria": "В этой категории нет заказов.",
+    "productosAnadidosAlCarrito": "Товары добавлены в корзину",
+    "noSePudoRepetirElPedido": "Заказ не мог быть повторен.",
+    "cargarMasPedidos": "Загрузить больше заказов"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "Некоторые данные не удалось загрузить. Проведите пальцем вниз, чтобы повторить попытку."
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "Ошибка загрузки профиля",
+    "errorAlCargarLasDirecciones": "Ошибка загрузки адресов",
+    "generaUnCodigoDeDescuentoPersonaliz": "Сгенерируйте собственный код скидки.",
+    "tusSeguidoresObtienen10DeDescuento": "Ваши подписчики получат скидку 10%.",
+    "tuGanasEntre3Y7DeCadaVenta": "Вы получаете от 3% до 7% с каждой продажи.",
+    "programaDeAfiliadosActivado": "Партнерская программа активирована!",
+    "errorAlActivarElPrograma": "Ошибка при активации программы."
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "Сообщений пока нет. Вы получите ответ в ближайшее время.",
+    "esteCasoEstaCerrado": "Дело закрыто.",
+    "noSePudoCargarTuHistorialDeSoport": "Не удалось загрузить историю обращений в службу поддержки.",
+    "noSePudoAbrirElCaso": "Дело не удалось открыть.",
+    "historialDeTusCasosDeSoporteConHi": "История ваших обращений в службу поддержки Hispaloshop.",
+    "noTienesNingunCasoDeSoporteAbierto": "У вас нет открытых обращений в службу поддержки. Если вам нужна помощь, свяжитесь с HI."
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "Товар добавлен в корзину",
+    "errorAlAnadirAlCarrito": "Ошибка при добавлении в корзину."
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "Ошибка в порядке загрузки",
+    "resenaPublicada": "Опубликованный обзор",
+    "errorAlPublicarLaResena": "Ошибка при публикации отзыва",
+    "esteDocumentoNoEsUnaFacturaFiscal": "Этот документ НЕ является налоговой накладной.",
+    "noSePudoDescargarLaFactura": "Счет-фактура не удалось загрузить.",
+    "elImporteSeReflejaraEnTuCuentaEn": "Сумма будет зачислена на ваш счет в течение 5-10 рабочих дней.",
+    "seHaReembolsadoParteDelImporteATu": "Часть суммы была возвращена на ваш счет.",
+    "elPagoNoSePudoProcesarIntentaloD": "Ваш платеж не удалось обработать. Пожалуйста, попробуйте еще раз или обратитесь в службу поддержки.",
+    "dejaUnaResena": "Оставьте отзыв...",
+    "publicarResena": "Опубликовать отзыв",
+    "resenaEnviadaGracias": "Отзыв отправлен. Спасибо!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "Пароль обновлен",
+    "contrasenaActualIncorrecta": "Неверный текущий пароль",
+    "errorAlCambiarContrasena": "Ошибка при смене пароля",
+    "tuCuentaUsaGoogleParaIniciarSesion": "Для входа в вашу учетную запись используется Google. У вас не установлен пароль.",
+    "puedesAnadirUnaAContinuacion": "Вы можете добавить один из вариантов ниже.",
+    "contrasenaActual": "Текущий пароль",
+    "nuevaContrasena": "Новый пароль",
+    "repetirNuevaContrasena": "Повторите новый пароль",
+    "lasContrasenasNoCoinciden": "Пароли не совпадают",
+    "anadirContrasena": "Добавить пароль"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "Имя пользователя недоступно",
+    "urlNoValida": "Неверный URL",
+    "esteNombreDeUsuarioNoEstaDisponibl": "Это имя пользователя недоступно.",
+    "elUsuarioDebeTenerAlMenos3Caracte": "Имя пользователя должно содержать не менее 3 символов.",
+    "biografia": "Биография",
+    "cuentanosSobreTi": "Расскажите о себе...",
+    "madridEspana": "Мадрид, Испания",
+    "informacionDeContacto": "Контактная информация",
+    "elEmailNoSePuedeCambiarDesdeAqui": "Изменить адрес электронной почты здесь невозможно.",
+    "nombreDeLaEmpresa": "Название компании",
+    "descripcionDeLaTienda": "Описание магазина",
+    "describeTuTiendaTusProductosTuHi": "Опишите свой магазин, свои товары, свою историю...",
+    "maximo5Mb": "Максимум 5 МБ",
+    "eseNombreDeUsuarioYaEstaEnUso": "Это имя пользователя уже используется.",
+    "elNombreDeUsuarioDebeTenerAlMenos": "Имя пользователя должно состоять как минимум из 3 символов.",
+    "noSePudoGuardarIntentaloDeNuevo": "Сохранение не удалось. Пожалуйста, попробуйте еще раз.",
+    "min3Caracteres": "Минимум 3 символа",
+    "cuentanosAlgoSobreTi…": "Расскажите что-нибудь о себе…",
+    "descripcionDeTienda": "Описание магазина"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "Ошибка обработки запроса",
+    "cuandoAlguienQuieraSeguirteAparecer": "Если кто-то захочет подписаться на вас, он появится здесь."
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "Подтверждение заказа",
+    "actualizacionesDeEnvio": "Обновления по доставке",
+    "solicitudesDeResena": "Запросы на рецензирование"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "Формат IBAN недействителен.",
+    "sinComision-2-3DiasLaborables": "Без комиссии - 2-3 рабочих дня",
+    "tuCuentaDeStripeConnectEstaActiva": "Ваш аккаунт Stripe Connect активен. Платежи обрабатываются автоматически.",
+    "conectaTuCuentaDeStripeParaRecibir": "Подключите свой аккаунт Stripe, чтобы получать платежи напрямую. Вы будете перенаправлены на страницу верификации Stripe.",
+    "losPagosPorVentasDeProductosSePro": "Платежи за продажу товаров обрабатываются автоматически через Stripe Connect.",
+    "configuraTuCuentaDeStripeParaEmpez": "Настройте свой аккаунт Stripe, чтобы начать получать платежи."
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "Основной профиль магазина",
+    "analiticasBasicas": "Базовая аналитика",
+    "analiticasAvanzadas": "Расширенная аналитика",
+    "generacionDeContratos": "Формирование контрактов",
+    "errorAlAbrirFacturacion": "Ошибка при открытии счета.",
+    "errorAlCambiarDePlan": "Ошибка при изменении плана.",
+    "perderasLasFuncionalidadesPremiumAl": "В конце расчетного периода вы потеряете доступ к премиум-функциям."
+  },
+  "settings": {
+    "cuentaPublicaActivada": "Активирован публичный аккаунт",
+    "errorAlCambiarLaPrivacidad": "Ошибка при изменении настроек конфиденциальности.",
+    "sesionCerradaCambiadoAOtraCuenta": "Сессия завершена. Переключен на другой аккаунт.",
+    "errorAlEliminarLaCuenta": "Ошибка при удалении учетной записи.",
+    "paisEIdioma": "Страна и язык",
+    "lasCuentasDeProductorSonSiemprePub": "Аккаунты продюсеров всегда общедоступны.",
+    "planDeSuscripcion": "План подписки",
+    "confirmarCierreDeSesion": "Подтвердите закрытие сессии",
+    "tendrasQueVolverAIniciarSesionPara": "Для доступа к своему аккаунту вам потребуется снова войти в систему.",
+    "confirmarEliminacionDeCuenta": "Подтвердите удаление учетной записи",
+    "estaAccionEsIrreversibleSeEliminar": "Это действие необратимо. Все ваши данные, заказы и контент будут удалены.",
+    "escribeTuEmailParaConfirmar": "Введите свой адрес электронной почты для подтверждения.",
+    "confirmaTuEmailParaEliminarLaCuent": "Подтвердите свой адрес электронной почты, чтобы удалить учетную запись."
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "Нарисуйте свою подпись перед сохранением.",
+    "subeUnaImagenDeTuFirma": "Загрузите изображение своей подписи.",
+    "configuraTuFirmaAntesDeGuardar": "Настройте свою подпись перед сохранением.",
+    "errorAlProcesarLaFirmaExistente": "Ошибка обработки существующей подписи.",
+    "errorAlGuardarLaFirma": "Ошибка при сохранении подписи.",
+    "necesitasConfigurarTuFirmaParaPoder": "Для подписания B2B-контрактов необходимо настроить свою подпись.",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "Ваша цифровая подпись автоматически применяется к B2B-контрактам, которые",
+    "laFirmaQuedaRegistradaConTimestamp": "Подпись записывается с меткой времени и хешем SHA-256.",
+    "seSuperpondraSobreLaFirmaEnLosCon": "Оно будет наложено поверх подписи на контрактах."
+  },
+  "role_onboarding": {
+    "omnivoro": "Всеядное",
+    "paraRecomendarteLosMejoresProductos": "Мы порекомендуем вам лучшие товары. Вы можете выбрать из нескольких вариантов.",
+    "tuFeedSePersonalizaraConSusProduct": "Ваша лента будет персонализирована с учетом ваших товаров и контента.",
+    "escribeElNombreDeTuTienda": "Напишите название вашего магазина.",
+    "errorConectandoConStripeHazloDesde": "Ошибка подключения к Stripe. Пожалуйста, подключитесь через свою панель управления.",
+    "estoEsLoPrimeroQueVeranTusCliente": "Это первое, что увидят ваши клиенты.",
+    "anadirLogo": "Добавить логотип",
+    "jpgPngOWebp·Maximo5mb": "JPG, PNG или WebP · Максимальный размер 5 МБ",
+    "nombreDeTuTienda": "Название вашего магазина",
+    "puedesAnadirMasDesdeTuPanelEsteP": "Вы можете добавить больше данных со своей панели управления. Этот шаг необязателен.",
+    "necesitamosVerificarTuIdentidadPara": "Нам необходимо подтвердить вашу личность, чтобы безопасно перевести вам деньги за ваши покупки.",
+    "tusDatosBancariosNuncaPasanPorHisp": "Ваши банковские реквизиты никогда не передаются через Hispaloshop.",
+    "recibirasTusPagosAutomaticamente": "Вы будете получать платежи автоматически.",
+    "puedesHacerloMasTardeDesdeTuPanel": "Вы сможете сделать это позже из своей панели управления.",
+    "loHareMasTarde": "Я сделаю это позже.",
+    "noSePudoObtenerTuCodigo": "Не удалось получить ваш код.",
+    "apareceranEnTuPerfilCuandoAlguien": "Они появятся в вашем профиле. Когда кто-то их купит, вы получите комиссию.",
+    "tusSeguidoresObtienenUn10DeDescue": "Ваши подписчики получают 10% скидку на первую покупку. Вы получаете пожизненную комиссию.",
+    "comoGanasDinero": "Как вы зарабатываете деньги:",
+    "cadaCompraQueHaganTeGeneraComision": "С каждой их покупкой вы получаете комиссию.",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "Вы автоматически получаете выплаты на свой банковский счет.",
+    "todoListo": "Всё готово!",
+    "empiezaCompartiendoTuCodigoConTusS": "Начните с того, что поделитесь своим кодом со своими подписчиками.",
+    "veTusComisionesEnTiempoReal": "Просматривайте свои комиссионные в режиме реального времени.",
+    "minimo20€TransferenciaAutomatica": "Минимальная сумма заказа 20 евро, автоматический перевод."
+  },
+  "chats": {
+    "colaboracion": "Сотрудничество",
+    "aunNoTienesMensajes": "У вас пока нет сообщений.",
+    "empiezaUnaConversacionConProductores": "Начните диалог с продюсерами, влиятельными лицами и другими.",
+    "enviaMensajesPrivadosATiendasProdu": "Отправляйте личные сообщения магазинам, производителям и влиятельным лицам в сообществе HispaloShop."
+  },
+  "consumer_register": {
+    "datosBasicos": "Основные данные",
+    "errorAlCrearLaCuentaIntentaloDeN": "Ошибка при создании учетной записи. Пожалуйста, попробуйте еще раз.",
+    "completaTuRegistroEnPocosPasosYDe": "Завершите регистрацию в несколько шагов, и первоначальные настройки будут готовы к использованию после завершения."
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "Вернуться к выбору роли",
+    "esteFlujoYaEstaConectadoDePrincipi": "Этот процесс уже полностью налажен. Доступ к телефону и социальным сетям будет добавлен позже.",
+    "crearasTuCuentaYDespuesCompletaremo": "Вы создадите свою учетную запись, после чего мы заполним ваши предпочтения.",
+    "googleAppleYTelefonoVolveranCuando": "Google, Apple и телефоны вернутся, когда их связь будет осуществляться с тем же уровнем надежности, что и этот поток данных."
+  },
+  "step2_basic": {
+    "datosBasicos": "Основные данные",
+    "empezamosConTuInformacionEsencialPa": "Начнём с предоставления необходимой информации для создания учётной записи.",
+    "maria": "Мария",
+    "garciaLopez": "Гарсия Лопес",
+    "creaUnaContrasenaSegura": "Создайте надежный пароль",
+    "debesTenerAlMenos16Anos": "Вам должно быть не менее 16 лет.",
+    "terminos": "условия",
+    "politicaDePrivacidad": "политика конфиденциальности"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "Скорректируйте свои интересы таким образом, чтобы каталог и рекомендации начинались с большей разборчивостью.",
+    "nosAyudaAMostrarProductoresYEnvios": "Это помогает нам представить наиболее подходящих производителей и поставки."
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "Предложения, подобранные с учетом ваших интересов и вида деятельности.",
+    "loMasPopular": "Самые популярные",
+    "losProductosQueMasEstanComprandoOt": "Товары, которые чаще всего покупают другие пользователи.",
+    "ordenaPrimeroPorResenasYConfianza": "Сначала отсортируйте по отзывам и уровню доверия.",
+    "defineComoQuieresEmpezarAVerProduc": "Укажите, как вы хотите начать просмотр товаров и как часто вы обычно совершаете покупки."
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "Следующий шаг — завершить процесс адаптации, чтобы лента новостей, каталог и рекомендации с самого начала выглядели более осмысленно.",
+    "cuandoTerminesElOnboardingTeEnsenar": "После завершения процесса регистрации мы сначала покажем вам производителей, категории и аккаунты, которые лучше вам подходят."
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "Прекратите отдавать свою прибыль посредникам.",
+    "conectaConProductoresRealesSinInte": "Налаживайте связь с реальными производителями. Никаких посредников. Никакой лжи."
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop — это рынок, где еда имеет свою историю.",
+    "unaPlataformaDondeCadaProductoTiene": "Платформа, где у каждого продукта есть лицо и история. От поля до вашего стола, без посредников.",
+    "entreElProductorYTuPlatoHayUnaCa": "Между производителем и вашей тарелкой существует цепочка посредников, которая повышает цену, снижает качество и стирает историю того, что вы едите.",
+    "conectamosAlQueProduceConElQueCom": "Мы связываем производителя с потребителем.",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop — это платформа социальной коммерции, где производители-ремесленники открывают собственные магазины, рассказывают свою историю и продают свою продукцию напрямую конечному потребителю."
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "Ошибка отправки. Пожалуйста, попробуйте еще раз.",
+    "paraDudasSobreLaPlataformaColabora": "По вопросам, касающимся платформы, сотрудничества или запросов от прессы.",
+    "respondemosEnMenosDe24Horas": "Мы отвечаем менее чем за 24 часа.",
+    "losProductoresGestionanElEnvioDirec": "Производители напрямую занимаются доставкой. Сроки доставки зависят от каждого производителя и места назначения.",
+    "siHispaloshopSoportaMultiplesIdioma": "Да. HispaloShop поддерживает несколько языков и валют для международных продаж.",
+    "paraCompradoresEsGratisProductores": "Для покупателей это бесплатно. У продюсеров есть тарифные планы, начинающиеся с 0 евро. Инфлюенсеры получают комиссионные."
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "Импортируйте, продавайте и развивайте свой бизнес. Прямой доступ к глобальным потребителям, влиятельным лицам и производителям. Откройте для себя все преимущества для импортеров на HispaloShop.",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "Ваш B2C и B2B магазин в одном месте.",
+    "accedeAConsumidoresFinalesConectaC": "Охватывайте конечных потребителей, устанавливайте связи с местными влиятельными лицами и покупайте напрямую у производителей в любой стране. Все это на одной платформе, без посредников.",
+    "vendeTusProductosImportadosDirectame": "Продавайте импортные товары напрямую потребителю в стране назначения, без посредников.",
+    "conectaYColaboraConInfluencersLocal": "Налаживайте связи и сотрудничайте с местными влиятельными лицами для продвижения вашей продукции (Pro и Elite).",
+    "compraDirectamenteAProductoresDeCua": "Покупайте напрямую у производителей в любой стране, напрямую контактируя с ними и без посредников.",
+    "panelDeGestionUnificado": "Единая панель управления",
+    "gestionaPedidosPagosLogisticaCert": "Управляйте заказами, платежами, логистикой, сертификатами и коммуникациями с помощью единой панели управления.",
+    "soportePorChatInternoConAdminLocal": "Внутренняя поддержка в чате с локальным администратором и поддержка по электронной почте доступны во всех тарифных планах.",
+    "todasLasFuncionesBasicasVenderB2c": "Все основные функции, продажи B2C, публикация продукции, QR-сертификаты, стандартная поддержка.",
+    "matchingConInfluencersDashboardAvan": "Подбор влиятельных лиц, расширенная панель управления, аналитика продаж, приоритетная поддержка.",
+    "todoLoAnteriorIaComercialAvanzada": "Все вышеперечисленное плюс передовые технологии бизнес-ИИ, анализ международных рынков, автоматическое создание контрактов, снижение комиссионных.",
+    "colaboracionConInfluencersLocalesPr": "Сотрудничество с местными влиятельными лицами (профессионалами и элитой).",
+    "panelDeGestionPagosYLogisticaUnif": "Единая панель управления, платежей и логистики",
+    "iaComercialAvanzadaYGeneracionDeCo": "Передовые коммерческие технологии искусственного интеллекта и генерации контрактов (Elite)",
+    "importarYVenderNuncaFueTanFacil": "Импорт и продажа стали проще, чем когда-либо.",
+    "creaTuCuentaDeImportador": "Создайте свою учетную запись импортера.",
+    "accedeAHerramientasDeIaYAnalitica": "Получите доступ к инструментам искусственного интеллекта и расширенной аналитике (версии Pro и Elite).",
+    "gestionaPagosLogisticaYCertificados": "Управляйте платежами, логистикой и сертификатами с помощью единой панели управления.",
+    "soloCrearTuCuentaYSubirTusProduct": "Просто создайте учетную запись и загрузите свои товары.",
+    "siPuedesVenderAlConsumidorFinalY": "Да, вы можете продавать товары конечному потребителю, а также получать доступ к возможностям B2B-сектора.",
+    "siemprePorChatInternoYEmailConPr": "Всегда через внутренний чат и электронную почту, при этом приоритет отдается версиям Pro и Elite.",
+    "daElSaltoAlCanalDigitalYAccedeA": "Переходите на цифровые каналы и получите доступ к глобальным потребителям, влиятельным лицам и производителям."
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "Создайте сообщество, поддержите честных производителей и действительно монетизируйте свои усилия. Регулярные комиссионные, творческая свобода и прямая поддержка.",
+    "estoNoVaDeVenderPorVenderVaDeD": "Речь идёт не о продажах ради самих продаж. Речь идёт о том, чтобы дать возможность честным производителям получить доступ к своей продукции, предлагать своим подписчикам здоровую пищу и монетизировать свои усилия на регулярной основе. Здесь вы получаете свободу, сообщество и прямую поддержку. Меня зовут Бил Чанфу, и я создал это для вас.",
+    "ganaMasDejaHuella": "Зарабатывайте больше, оставляйте свой след.",
+    "hercules": "Геркулес",
+    "laMayoriaLlegaAqui": "Большинство из них прибывают сюда.",
+    "comisionRecurrenteDurante18MesesPor": "Регулярные комиссионные выплаты в течение 18 месяцев за каждого привлеченного пользователя.",
+    "creaComunidadApoyaProductoresHonest1": "Создайте сообщество, поддержите честных производителей и действительно монетизируйте свои усилия. Здесь у вас есть свобода и прямая поддержка. Если вам что-то понадобится, обращайтесь. Меня зовут Бил Чанфу."
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "Наладьте связь между вашей продукцией и импортерами и клиентами по всему миру. Расширьте охват аудитории, оцифруйте свой каталог и откройте для себя новые возможности для бизнеса.",
+    "uneteALaPlataformaQueConectaProduc": "Присоединяйтесь к платформе, которая связывает производителей с импортерами и покупателями по всему миру. Оцифруйте свой каталог и откройте для себя новые возможности для бизнеса.",
+    "registrateGratis": "Зарегистрируйтесь бесплатно",
+    "publicaTuCatalogo": "Опубликуйте свой каталог",
+    "accesoInmediatoAUnaRedGlobalDeImp": "Мгновенный доступ к глобальной сети проверенных импортеров.",
+    "herramientasParaDestacarTuMarcaYPr": "Инструменты для продвижения вашего бренда и продукции.",
+    "opcionesDePromocionPremiumSegunTuP": "Варианты премиальных акций зависят от выбранного вами тарифного плана.",
+    "gestionEficienteDeContactosYOportun": "Эффективное управление контактами и возможностями.",
+    "paraProductoresEnCrecimiento": "Для растущих производителей",
+    "maximaVisibilidadYVentajas": "Максимальная видимость и преимущества",
+    "sinTarjetaDeCreditoParaEmpezar": "Для начала работы кредитная карта не требуется.",
+    "elRegistroEsGratuitoPuedesAcceder": "Регистрация бесплатна. Расширенные функции доступны в рамках премиум-планов.",
+    "puedesPublicarCualquierProductoQueC": "Вы можете разместить в каталоге любой товар, соответствующий нашим правилам и стандартам качества.",
+    "unaVezRegistradoPodrasContactarImp": "После регистрации вы сможете напрямую связываться с импортерами через платформу.",
+    "mayorVisibilidadAccesoPrioritarioA": "Повышенная прозрачность, приоритетный доступ к возможностям и эксклюзивные инструменты для развития вашего бизнеса.",
+    "siPuedesVenderTantoAConsumidoresF": "Да, вы можете продавать как конечным потребителям, так и импортерам и предприятиям.",
+    "soportePersonalizadoRecursosEducativ": "Персонализированная поддержка, образовательные ресурсы и консультации по вопросам международной торговли.",
+    "uneteACientosDeProductoresQueYaEs": "Присоединяйтесь к сотням производителей, которые уже развиваются вместе с Hispaloshop."
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop не несет ответственности за качество товаров, продаваемых третьими лицами, хотя мы активно работаем над проверкой всех производителей на платформе."
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "Откройте для себя изделия ручной работы из вашего региона.",
+    "basadoEnTusCompras": "На основании ваших покупок",
+    "descubreRecetasMediterraneasConTusP": "Откройте для себя средиземноморские рецепты с вашей продукцией.",
+    "aquiEstaTuResumenDeHoy": "Вот краткий обзор событий на сегодня."
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "Расширенные метрики в данный момент недоступны.",
+    "noSePudoCargarElStockDeProductos": "Не удалось загрузить данные о товарах, подлежащих оповещению.",
+    "enPreparacion": "В процессе подготовки",
+    "anadeMasProductosParaAumentarTuVis": "Добавьте больше товаров, чтобы повысить свою видимость.",
+    "anadirProducto": "Добавить товар",
+    "colaboraConInfluencersParaPromociona": "Сотрудничайте с влиятельными лицами для продвижения вашей продукции.",
+    "analisis": "Анализ",
+    "resumenDeTuNegocio": "Краткое описание вашей компании",
+    "evolucionDeVentas": "Эволюция продаж"
+  },
+  "signed_documents": {
+    "documentoIntegro": "Полный документ",
+    "elContratoNoHaSidoModificadoDesde": "Договор не претерпел никаких изменений с момента его подписания.",
+    "elHashDelDocumentoNoCoincideConEl": "Хэш документа не совпадает с хэшем, зарегистрированным во время подписания. Обратитесь в службу поддержки.",
+    "noTienesContratosFirmadosTodavia": "У вас пока нет подписанных контрактов.",
+    "lasFacturasEstaranDisponiblesProxima": "Счета-фактуры будут доступны в ближайшее время."
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "Новое сотрудничество",
+    "elCosteCorreACargoDelProductor": "Расходы несет производитель.",
+    "holaViTuContenidoYCreoQueEncajar": "Привет! Я ознакомился с вашим контентом и думаю, что вы идеально подошли бы для нашей продукции...",
+    "previewDeLaPropuesta": "Предварительный просмотр предложения",
+    "propuestaDeColaboracion": "Предложение о сотрудничестве",
+    "comisionEspecial": "Специальная комиссия",
+    "duracion": "Продолжительность"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "Для использования помощника по покупкам, пожалуйста, войдите в систему.",
+    "loSientoHaOcurridoUnErrorPorFav": "Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.",
+    "iniciaSesionParaUnaExperienciaPerso": "Войдите в систему для получения персонализированного обслуживания.",
+    "busquedasRapidas": "Быстрый поиск",
+    "recomendacionesBasadasEnCertificados": "Рекомендации основаны на сертификатах продукции."
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "Мы предотвратили появление пустого экрана. Вы можете вернуться на главный экран или перезагрузить приложение."
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "Масла и мази с ясным происхождением.",
+    "exploraElCatalogoDesdeCategoriasCla": "Изучите каталог, используя понятные категории без визуального беспорядка.",
+    "productoLocalEImportadoYaDisponible": "В Испании теперь доступны как местные, так и импортные товары, без преувеличенных описаний и лишних категорий."
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "В этой категории товаров не найдено. Пожалуйста, попробуйте другой поиск.",
+    "anadeAlgunosProductosArtesanalesPara": "Добавьте в корзину несколько изделий ручной работы, чтобы начать покупку.",
+    "tusPedidosApareceranAquiCuandoReali": "Ваши заказы отобразятся здесь после совершения первой покупки.",
+    "sigueAMasProductoresEInfluencersPa": "Подписывайтесь на других продюсеров и инфлюенсеров, чтобы увидеть их контент здесь.",
+    "intentaConOtrosTerminosDeBusqueda": "Попробуйте другие поисковые запросы.",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "Попробуйте позже или измените фильтры поиска."
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "Произошла непредвиденная ошибка. Пожалуйста, попробуйте обновить страницу."
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "Самое интересное находится ближе, чем вы думаете.",
+    "descubrirCercaDeMi": "Найти рядом со мной",
+    "usaTuUbicacionActualOEscribeTuCod": "Используйте свое текущее местоположение или введите почтовый индекс, чтобы выбрать наиболее близкий к вам вариант.",
+    "buscandoTuUbicacion": "Поиск вашего местоположения..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "Аналитические данные отсутствуют.",
+    "analyticsDeTuCodigo": "Анализ вашего кода",
+    "tuEnlaceDeReferido": "Ваша реферальная ссылка",
+    "comparteEsteEnlaceEnTusRedesCada": "Поделитесь этой ссылкой в своих социальных сетях. Каждое посещение отслеживается автоматически.",
+    "usosDelCodigo": "Применение кода",
+    "codigoAplicado": "Примененный код",
+    "usosCodigo": "Использование кода",
+    "comoFuncionanTusComisiones": "Как рассчитываются ваши комиссионные",
+    "calculoDeTuComision": "Расчет вашей комиссии:",
+    "tipsParaMejorarTusConversiones": "Советы по повышению конверсии"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "Изображение было опубликовано в чате",
+    "noSePudoCargarLaImagen": "Изображение не удалось загрузить.",
+    "pegaUnEnlaceDeProductoOSuId": "Вставьте ссылку на товар или его идентификатор.",
+    "pegaUnEnlaceDeRecetaOSuId": "Вставьте ссылку на рецепт или свой ID.",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Вставьте ссылку на пост или видеоролик из Hispaloshop.",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "Вставьте действительную ссылку на Hispaloshop, чтобы сгенерировать компактную карту.",
+    "miembroDeLaComunidad": "Член сообщества",
+    "pruebaConOtroNombreOCambiaElFiltr": "Попробуйте другое имя или измените фильтр.",
+    "noSePudoEliminarElMensaje": "Сообщение не удалось удалить.",
+    "conversacionEliminada": "Разговор удален",
+    "errorAlEliminarLaConversacion": "Ошибка при удалении переписки.",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "Вставьте действительную ссылку или идентификатор Hispaloshop.",
+    "noPudimosGenerarLaVistaPrevia": "Нам не удалось сгенерировать предварительный просмотр.",
+    "noSePudoEnviarElMensaje": "Сообщение не удалось отправить.",
+    "laImagenNoPuedeSuperar5Mb": "Размер изображения не должен превышать 5 МБ.",
+    "elArchivoNoPuedeSuperar10Mb": "Размер файла не должен превышать 10 МБ.",
+    "errorAlSubirElDocumento": "Ошибка при загрузке документа.",
+    "buscarConversacion": "Ищу собеседника.",
+    "empiezaUnChatNuevoDesdeElBotonSup": "Начать новый чат можно с помощью кнопки вверху, и ваш почтовый ящик станет намного чище.",
+    "seleccionaUnaConversacionDelPanelIz": "Выберите интересующую вас беседу на левой панели или начните новую.",
+    "llamadaDeVozProximamente": "Голосовой звонок (скоро будет доступен)",
+    "videollamadaProximamente": "Видеозвонок (скоро будет доступен)",
+    "mensajesDeLaConversacion": "Сообщения в чате",
+    "empiezaLaConversacion": "Начните разговор",
+    "escribeElPrimerMensajeYMantenLaCo": "Напишите первое сообщение, сохраняя при этом четкий контекст разговора.",
+    "vistaPreviaDeLaImagenAdjunta": "Предварительный просмотр прикрепленного изображения"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "Что-то пошло не так.",
+    "noSePudoCargarEsteContenidoIntent": "Не удалось загрузить этот контент. Пожалуйста, попробуйте еще раз."
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "Базовый тариф. Переход на более дорогой тариф позволит снизить комиссию и получить доступ к дополнительным инструментам."
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "Функция редактирования постов пока недоступна."
+  },
+  "product": {
+    "anadirAlCarrito": "Добавить в корзину"
+  },
+  "review": {
+    "valoracionEnviada": "Оценка отправлена",
+    "errorAlEnviarValoracion": "Ошибка при отправке оценки",
+    "cuentanosTuExperiencia": "Расскажите о своем опыте...",
+    "enviarValoracion": "Оставьте отзыв"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "Закрыть уведомление"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "Дайте мне быстрый рецепт.",
+    "ayudameConMiDieta": "Помогите мне с диетой.",
+    "tuCompaneroDeCompras": "Ваш партнёр по покупкам",
+    "estoyAquiParaAyudarteAEncontrarLo": "Я здесь, чтобы помочь вам найти то, что вам нужно.",
+    "preguntaleADavid": "Спросите Дэвида...",
+    "microfono": "Микрофон"
+  },
+  "auth_diagnostic": {
+    "testConexion": "Проверить соединение",
+    "elBackendRespondePeroElEndpointNo": "Сервер отвечает, но конечная точка не существует.",
+    "laConexionFuncionaRevisaLosDetalle": "Соединение работает. Проверьте информацию выше."
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "Начало проверки аутентификации...",
+    "sesionActiva": "Активная сессия:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "Неверный или просроченный код",
+    "codigoIncorrecto": "Неверный код",
+    "codigoReenviadoATuEmail": "Код будет отправлен на вашу электронную почту.",
+    "noSePudoReenviarElCodigo": "Код не удалось отправить повторно.",
+    "maximoDeReenviosAlcanzadoRevisaTu": "Достигнуто максимальное количество пересылок. Проверьте папку «Спам».",
+    "reenviarCodigoDeVerificacion": "Повторно отправить код подтверждения"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "Товар удален из каталога B2B.",
+    "cantidadMinimaDePedidoMoq": "Минимальный объем заказа (МОК)",
+    "descripcionMayorista": "Описание оптовой продажи",
+    "maximoDeMuestrasPorSolicitud": "Максимальное количество образцов на один запрос",
+    "publicarEnCatalogoB2b": "Разместить в каталоге B2B",
+    "quitarDelCatalogoB2b": "Удалить из каталога B2B"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "Страна происхождения (ЕС)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "Минимум 1 единица",
+    "codigoDePaisDebeTener2Letras": "Код страны должен состоять из 2 букв.",
+    "elMensajeDebeTenerAlMenos10Caract": "Сообщение должно содержать не менее 10 символов.",
+    "anadeAlMenosUnProducto": "Добавьте хотя бы один товар",
+    "noSePudoEnviarLaRfq": "Запрос предложений не удалось отправить.",
+    "nuevaSolicitudDeCotizacionRfq": "Новый запрос на коммерческое предложение (RFQ)",
+    "describeVolumenFormatosCertificacio": "Опишите объем, форматы, сертификаты или логистические требования."
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "Загрузите документы: разрешение на ввоз, свидетельство о регистрации транспортного средства и страховой полис."
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "Ошибка при добавлении товара в корзину.",
+    "anadirAlCarrito": "Добавить в корзину",
+    "productoAnadido": "Товар добавлен",
+    "anadido": "Добавлен!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "Все сообщения из этой сессии будут удалены."
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "Запрос B2B находится на стадии переговоров."
+  },
+  "use_h_i_chat": {
+    "buenosDias": "Доброе утро",
+    "tuCompaneroDeComprasYAlimentacion": "Ваш партнер по покупкам и питанию",
+    "tuAsesorDeNegocioParaProductores": "Ваш бизнес-консультант для производителей",
+    "estrategiaDeExportacion": "Экспортная стратегия",
+    "asistenteCreativoParaContenidoYCamp": "Креативный ассистент по контенту и рекламным кампаниям.",
+    "disenarUnaCampana": "Разработайте рекламную кампанию",
+    "analisisDeMercadoInternacionalParaI": "Анализ международного рынка для импортеров",
+    "analisisDeMargenes": "Анализ маржи",
+    "noTienesAccesoAEsteModoActualiza": "У вас нет доступа к этому режиму. Обновите свой тарифный план.",
+    "elAsistenteNoEstaDisponibleAhoraI": "В данный момент помощник недоступен. Пожалуйста, попробуйте позже."
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "Войдите в систему, чтобы получить доступ к своему аккаунту."
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "Мой код"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "Ваш аккаунт находится на проверке."
+  },
+  "dashboard_header": {
+    "buenosDias": "Доброе утро"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "Следите за производителями, импортерами и влиятельными лицами, чтобы увидеть их контент здесь.",
+    "estasAlDia": "Вы в курсе последних новостей."
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "Ваша неделя в HispaloShop",
+    "descubrirMas": "Узнайте больше",
+    "sigueProductoresParaVerSuContenido": "Следите за авторами, чтобы увидеть их контент здесь."
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "Быстрый доступ"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 лайков!",
+    "alguienTeGuardo": "Вас кто-то спас!",
+    "50MeGusta": "50 лайков!",
+    "7DiasSeguidos": "7 дней подряд!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "Отслеживать пользователя не удалось.",
+    "seEliminaraPermanentementeJuntoConS": "Оно будет безвозвратно удалено вместе с вашими комментариями и лайками.",
+    "noSePudoDejarDeSeguir": "Было невозможно оторваться от просмотра.",
+    "uneteALaConversacion": "Присоединяйтесь к обсуждению...",
+    "progresoDelVideo": "Прогресс в видеосъемке"
+  },
+  "stories_bar": {
+    "recetaDelDia": "Рецепт дня"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "Содержание статьи",
+    "sinDatosDeVistasDisponibles": "Данные для просмотра отсутствуют.",
+    "buscarConversacion": "Ищу собеседника..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "Не удалось отследить пользователя. Пожалуйста, попробуйте еще раз."
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "Перетащите файлы сюда или выберите их щелчком мыши."
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "Достижение разблокировано!"
+  },
+  "application": {
+    "quienEres": "Кто ты",
+    "confirmacion": "Подтверждение",
+    "recomendadoParaLaMayoria": "Рекомендуется большинству людей.",
+    "pideRevisionManualPrioritaria": "Запросить приоритетную проверку руководства.",
+    "paraPerfilesConUnaComunidadMuyActi": "Для профилей с очень активным сообществом.",
+    "necesitamosSaberComoTeConocen": "Нам нужно знать, как люди вас знают.",
+    "tuEmailProfesionalEsObligatorio": "Необходимо указать ваш профессиональный адрес электронной почты.",
+    "eseEmailNoPareceValido": "Этот адрес электронной почты, похоже, недействителен.",
+    "tuInstagramPrincipalEsObligatorio": "Необходимо указать свой основной аккаунт в Instagram.",
+    "necesitamosUnaViaRealParaContactart": "Нам нужен реальный способ связаться с вами.",
+    "seleccionaTuPais": "Выберите свою страну.",
+    "eligeAlMenosUnNicho": "Выберите хотя бы одну нишу.",
+    "seleccionaTuRangoDeSeguidores": "Выберите диапазон ваших подписчиков.",
+    "seleccionaElPaisPrincipalDeTuAudie": "Выберите основную страну вашей целевой аудитории.",
+    "cuentanosPorQueQuieresEntrar": "Расскажите, почему вы хотите присоединиться.",
+    "necesitamosAlMenos140CaracteresPara": "Нам нужно как минимум 140 символов, чтобы отфильтровать дым.",
+    "eseEnlaceNoPareceValido": "Эта ссылка, похоже, недействительна.",
+    "debesAceptarEstaCondicion": "Вы должны принять это условие.",
+    "yaExisteUnaSolicitudOCuentaConEst": "Запрос или учетная запись с этим адресом электронной почты уже существуют.",
+    "noPudimosEnviarLaSolicitudIntental": "Нам не удалось отправить запрос. Пожалуйста, попробуйте еще раз.",
+    "solicitarRevision": "Запросить отзыв",
+    "aplicacionInfluencerHispaloshop": "Приложение Hispaloshop для инфлюенсеров",
+    "formularioDeTresPasosParaAplicarAl": "Форма заявки на участие в программе для инфлюенсеров Hispaloshop, состоящая из трех шагов.",
+    "aplicacionReal": "Применение в реальных условиях",
+    "noEsUnFormularioCorporativoEsTuP": "Это не организационно-правовая форма компании. Это ваш выход из бизнеса.",
+    "tresPasosSinPagoSinHumoSiElige": "Три шага. Без оплаты. Без лишних хлопот. Если вы выберете «Геркулес», мы запустим быструю активацию. Если вы стремитесь к",
+    "ateneaOZeusHacemosRevisionHumanaE": "Афина или Зевс, мы проводим проверку человеком в течение 24-48 часов.",
+    "siTuVozEncajaConComidaWellnessL": "Если ваш стиль общения соответствует темам питания, здоровья, образа жизни или устойчивого развития.",
+    "siQuieresRecomendarCosasQueDeVerda": "Если вы хотите порекомендовать что-то, что действительно могло бы пригодиться.",
+    "cadaCompraQueConectesSeQuedaAtribu": "Каждая покупка, которую вы привязываете, регистрируется за вами в течение 18 месяцев. Вам не нужно быть рабом системы.",
+    "siQuieresComprobarQueSoyRealAhiM": "Если хотите доказать, что я настоящий, вот я.",
+    "bienvenidoALaResistenciaRevisaTuE": "Добро пожаловать в движение сопротивления. Проверьте свою электронную почту, чтобы получить доступ к панели управления для инфлюенсеров.",
+    "herculesEntraPorViaRapidaHemosMar": "Процесс регистрации в Hercules ускорен. Мы отметили ваш профиль для немедленной активации и дальнейших шагов.",
+    "tuPerfilPasaARevisionHumanaSiApl": "Ваш профиль будет проверен человеком. Если вы подавали заявку в Athena или Zeus, мы ответим в течение 24-48 часов, предоставив реальное, а не автоматизированное решение.",
+    "verCatalogoParaPromocionar": "Просмотрите каталог в рекламных целях.",
+    "tuTarjetaDePresentacionSinTrajesN": "Ваша визитная карточка, без костюмов и пустых слов.",
+    "reusSeulCiudadDeMexico": "Реус, Сеул, Мехико...",
+    "seleccionaPais": "Выберите страну",
+    "queremosSaberQueTipoDeComunidadHas": "Мы хотим узнать, какое сообщество вы создали и почему его участники следуют за вами в том или ином проекте.",
+    "paisPrincipalDeTuAudiencia": "основная страна вашей аудитории",
+    "cuentanosLaVerdadQueTipoDeEstabil": "Скажите нам правду: какую стабильность вы ищете, почему вы разочаровались в определенных брендах и как бы вы относились к своему сообществу?",
+    "laComisionEsTransparenteHercules3": "Комиссия прозрачна: Геркулес 3%, Афина 5%, Зевс 7%, с отслеживанием результатов в течение 18 месяцев.",
+    "entiendoQueLaComisionSePagaSobreE": "Я понимаю, что комиссия выплачивается исходя из стоимости товара после отправки и уплаты налогов.",
+    "entiendoQueElTrackingDe18MesesEs": "Я понимаю, что 18-месячный период отслеживания начинается с момента первой покупки пользователя.",
+    "aceptoPromoverSoloProductosQueRealm": "Я соглашаюсь рекламировать только те продукты, которые я бы действительно попробовал или попробую.",
+    "heLeidoYAceptoLosTerminosDelProgr": "Я ознакомился с условиями программы для инфлюенсеров и согласен с ними.",
+    "solicitudGratuitaNingunPasoDePago": "Бесплатное приложение. Никаких платежей."
+  },
+  "shared": {
+    "queEs": "Что такое"
+  },
+  "footer_landing": {
+    "terminos": "Условия",
+    "unaFormaMasClaraDeDescubrirEntend": "Более понятный способ находить, понимать и покупать продукты питания, учитывая контекст."
+  },
+  "navbar_landing": {
+    "iniciarSesion": "Авторизоваться",
+    "cerrarMenu": "Закрыть меню"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "Когда у нас появятся реальные голоса от сообщества, они появятся здесь."
+  },
+  "auth_layout": {
+    "terminos": "Условия"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "Спрашивайте меня о любом товаре или производителе.",
+    "terminos": "Условия"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "Закрыть меню",
+    "queEsHispaloshop": "Что такое HispaloShop?"
+  },
+  "info_header": {
+    "queEs": "Что такое",
+    "cerrarMenu": "Закрыть меню",
+    "iniciarSesion": "Авторизоваться"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "Нет подключения к интернету"
+  },
+  "report_button": {
+    "informacionEnganosa": "Вводящая в заблуждение информация",
+    "violacionDeDerechosDeAutor": "Нарушение авторских прав",
+    "noSePudoEnviarElReporte": "Отчет не удалось отправить.",
+    "anadeUnDetalleOpcional": "Добавить деталь (по желанию)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "Закрыть уведомление"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "Закрыть уведомление"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "Для завершения процесса регистрации подпишитесь как минимум на 3 аккаунта.",
+    "noHemosPodidoGuardarLasCuentasSegu": "Нам пока не удалось сохранить последовательные учетные записи.",
+    "eligeAlMenos3ProductoresOCreadores": "Выберите как минимум 3 продюсеров или создателей контента, чтобы ваша первоначальная лента содержала реальные сигналы.",
+    "puedesFinalizarYEmpezarADescubrirC": "Вы можете завершить и начать поиск учетных записей позже."
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "Выберите как минимум 3 категории, чтобы продолжить.",
+    "noHemosPodidoGuardarTusInteresesTo": "Нам пока не удалось защитить ваши интересы.",
+    "eligeAlMenos3CategoriasParaQueEl": "Выберите как минимум 3 категории, чтобы каталог и лента новостей имели полезную основу для начала работы."
+  },
+  "location": {
+    "seleccionaUnPais": "Выберите страну.",
+    "introduceTuCodigoPostal": "Введите свой почтовый индекс.",
+    "noHemosPodidoGuardarTuUbicacionTod": "Нам пока не удалось сохранить ваше местоположение.",
+    "usamosTuZonaParaMostrarCatalogoDis": "Мы используем ваш регион для отображения доступного каталога, предложений по ближайшим районам и более выгодных вариантов доставки."
+  },
+  "step_follow": {
+    "cordoba": "Кордова",
+    "queseriaLaAntigua": "Сырная фабрика Ла Антигуа",
+    "panaderiaMaria": "Пекарня Марии",
+    "descubreAQuienSeguir": "Узнайте, за кем следить.",
+    "sigueAlMenos3ProductoresParaEmpeza": "Для начала подпишитесь как минимум на 3 производителей."
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "Выберите как минимум 3 категории, чтобы персонализировать свою ленту."
+  },
+  "step_location": {
+    "cordoba": "Кордова",
+    "malaga": "Малага",
+    "estoTeMostraraProductoresCercaDeTi": "Это покажет вам производителей, расположенных рядом с вами.",
+    "usarMiUbicacionActual": "Укажите моё текущее местоположение",
+    "oIntroduceCodigoPostal": "Или введите почтовый индекс"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "Добавьте больше информации о себе.",
+    "tuFeedPersonalizadoEstaPreparado": "Ваша персонализированная лента готова.",
+    "puedesCambiarTusPreferenciasEnCualq": "Вы можете изменить свои предпочтения в любое время в своем профиле."
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "Ваш профиль создан. Теперь вы можете ознакомиться с местными товарами."
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "Вы ничего не будете платить, пока не продадите.",
+    "paraProductoresQueQuierenEmpezarAV": "Для производителей, которые хотят начать продажи без риска.",
+    "tiendaVirtualPersonalizadaConTuHist": "Персонализированный интернет-магазин, отражающий вашу историю и происхождение.",
+    "hasta30ProductosEnCatalogo": "В каталоге до 30 товаров.",
+    "visibilidadNacionalEnEspana": "Национальная известность в Испании",
+    "paraProductoresSeriosQueQuierenEsca": "Для серьёзных продюсеров, которые хотят масштабироваться, не сходя с ума.",
+    "herramientasDeIaParaMarketing": "Инструменты искусственного интеллекта для маркетинга",
+    "recomendacionesDinamicasDePrecioPor": "Динамические рекомендации цен по географическим регионам",
+    "analiticaAvanzadaDeVentas": "Расширенная аналитика продаж",
+    "matchingAutomaticoConHasta5Influenc": "Автоматический подбор до 5 местных инфлюенсеров.",
+    "paraCooperativasYProductoresConAmbi": "Для кооперативов и производителей, стремящихся к глобальному развитию.",
+    "prediccionDeDemandaPorPaisYTempora": "Прогноз спроса по странам и сезонам.",
+    "analisisDeMercadosInternacionalesPr": "Анализ международного рынка (цена, конкуренция, возможности)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "Превентивное выявление риска дефицита поставок",
+    "matchingDirectoConImportadoresVerifi": "Прямое сопоставление с проверенными импортерами из других стран.",
+    "generacionAutomaticaDeContratosB2bE": "Автоматическое создание B2B-контрактов в формате PDF.",
+    "analisisDeRegulacionesYArancelesPor": "Анализ правил и тарифов по целевым рынкам",
+    "creacionDeDossieresDeExportacion": "Создание экспортных досье",
+    "prioridadAbsolutaDeVisibilidadEnLa": "Абсолютный приоритет видимости на платформе.",
+    "soporteTelefonicoDirecto": "Прямая телефонная поддержка",
+    "soloVendoEnEspana": "Я продаю товары только в Испании.",
+    "yaExportoAAlgunPais": "Я уже экспортирую товары в некоторые страны.",
+    "masDe20": "Более 20",
+    "andalucia": "Андалусия",
+    "aragon": "Арагон",
+    "castillaYLeon": "Кастилия и Леон",
+    "cataluna": "Каталония",
+    "paisVasco": "Страна Басков",
+    "stripeNoEstaDisponible": "Stripe недоступен.",
+    "quienEres": "Кто ты",
+    "stripeNoEstaConfiguradoTodavia": "Stripe ещё не настроен.",
+    "noPudimosPrepararElPagoSeguro": "Мы не смогли подготовить безопасный способ оплаты.",
+    "necesitamosTuNombreParaDarteDeAlta": "Нам необходимо ваше имя для вашей регистрации.",
+    "introduceUnEmailValido": "Введите действительный адрес электронной почты.",
+    "necesitamosUnTelefonoOperativo": "Нам нужен работающий телефон.",
+    "tuContrasenaDebeTenerAlMenos6Cara": "Ваш пароль должен состоять как минимум из 6 символов.",
+    "debesAceptarLaPoliticaDePrivacidad": "Вы должны принять политику конфиденциальности и условия использования.",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "Укажите название вашей торговой марки или кооператива.",
+    "seleccionaAlMenosUnTipoDeProducto": "Выберите хотя бы один тип товара.",
+    "indicanosSiYaExportasOQuieresEmpez": "Сообщите нам, если вы уже занимаетесь экспортом или хотите начать.",
+    "seleccionaTuRegionDeProduccion": "Выберите регион производства.",
+    "necesitamosUnRangoAproximadoDeRefer": "Нам необходим приблизительный диапазон ссылок.",
+    "completaLosDatosDeLaTarjetaParaCo": "Введите данные карты, чтобы продолжить.",
+    "stripeNoEstaListoTodavia": "Stripe пока не готов.",
+    "noPudimosValidarLaTarjeta": "Нам не удалось подтвердить действие карты.",
+    "tuBancoRechazoLaOperacion": "Ваш банк отклонил транзакцию.",
+    "haOcurridoUnErrorConElPagoPorFa": "Произошла ошибка при оплате. Пожалуйста, попробуйте еще раз.",
+    "elMetodoDePagoFueRechazadoPorFav": "Ваш способ оплаты был отклонен. Пожалуйста, используйте другую карту.",
+    "revisaLosDatosAntesDeContinuar": "Перед продолжением ознакомьтесь с информацией.",
+    "noPudimosCompletarElAltaDelProduct": "Нам не удалось завершить регистрацию производителя.",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "Ваша учетная запись уже существует. Если она уже создана, вам просто нужно завершить оформление плана или проверить доступ.",
+    "completaLosCamposObligatoriosParaAv": "Для продолжения заполните необходимые поля.",
+    "aceptoLaPoliticaDePrivacidadYLosT": "Я принимаю политику конфиденциальности и условия использования.",
+    "nombreDeTuObradorMarcaOCooperativ": "Название вашей мастерской, бренда или кооператива",
+    "exportacionActual": "Текущий экспорт",
+    "regionDeProduccion": "Производственный регион",
+    "seleccionaTuRegion": "Выберите свой регион",
+    "numeroDeReferencias": "Количество ссылок",
+    "cargoOComision": "Должность или поручение",
+    "entiendoQueHispaloshopRetieneUn20": "Я понимаю, что Hispaloshop удерживает 20% комиссионных с продаж.",
+    "noPagarasNadaHastaQueVendasCuando": "Вы ничего не будете платить, пока не продадите. После продажи вы получите 80%.",
+    "pagoSeguroPorStripeCancelaCuandoQ": "Безопасная оплата через Stripe. Отмена в любое время через личный кабинет.",
+    "pagoSeguroPorStripeSiTuBancoPide": "Безопасная оплата через Stripe. Если ваш банк потребует дополнительного подтверждения, мы обработаем его прямо здесь, не перенаправляя вас на другую страницу.",
+    "bienvenidoALaRevolucionDeLosProduc": "Добро пожаловать в революцию честных производителей.",
+    "revisaTuEmailParaVerificarTuCuenta": "Проверьте свою электронную почту, чтобы подтвердить свою учетную запись и получить доступ к панели управления для завершения заполнения профиля.",
+    "siTuAltaQuedaPendienteDeRevision": "Если ваша заявка находится на рассмотрении, вы сначала увидите статус одобрения. После этого вы можете продолжить процесс, ничего не пропустив.",
+    "verGuiaRapidaParaSubirMiPrimerPro": "Ознакомьтесь с кратким руководством по загрузке моего первого продукта.",
+    "tuCuentaYaExisteYElSiguientePaso": "Ваш аккаунт уже существует, следующий шаг — подтвердить адрес электронной почты и завершить подготовку профиля.",
+    "laContrasenaNoSeGuardaEnLocalstora": "Пароль не сохраняется в localStorage, что позволяет избежать раскрытия секретной информации.",
+    "freeCreaLaCuentaAlInstanteProYE": "Бесплатная версия создает учетную запись мгновенно. Версии PRO и ELITE активируют Stripe непосредственно в процессе работы, без прерывания процесса.",
+    "empezamosPorLoMinimoParaNoPonerte": "Начнём с самого минимума, чтобы не создавать вам дополнительных препятствий.",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "Мы всего в одном шаге от открытия вашего магазина и подготовки необходимой инфраструктуры.",
+    "completarSuscripcionYAbrirMiTienda": "Завершите подписку и откройте мой магазин."
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "Не удалось закрыть аккаунт. Пожалуйста, попробуйте снова.",
+    "noSePudieronCargarLasHistorias": "Не удалось загрузить эти истории.",
+    "errorAlCrearElDestacado": "Ошибка при создании выделения",
+    "seCerraraLaSesionDeEstaCuentaYTe": "Эта сессия учетной записи будет закрыта, и вам потребуется войти снова.",
+    "soloSeEliminaDelSelectorDeCuentas": "Он удаляется только из списка выбранных учетных записей на этом устройстве.",
+    "codigoCopiado": "Код скопирован:",
+    "noHayHistoriasEnEsteDestacado": "В этой подборке нет статей.",
+    "lasHistoriasDelDestacadoNoSeElimin": "Выбранные статьи удаляться не будут, будет удалена только подборка.",
+    "noHayHistoriasEnTuArchivo": "В вашем файле нет историй.",
+    "publicaUnaHistoriaPrimeroParaPoder": "Чтобы статья стала главной, сначала опубликуйте свой материал.",
+    "lasHistoriasNoSePerderanSoloLaCo": "Истории не будут потеряны, будет потеряна только коллекция."
+  },
+  "profile_tabs": {
+    "crearPublicacion": "Создать пост",
+    "sinPublicacionesTodavia": "Пока нет сообщений.",
+    "sinReelsTodavia": "Катушек пока нет.",
+    "sinRecetasTodavia": "Рецептов пока нет.",
+    "nadaGuardadoTodavia": "Пока ничего не сохранено",
+    "publicacionGuardada": "Сохраненная запись"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "Ручной или связанный с платформенными продуктами."
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "Больше порций",
+    "anadirTodoAlCarrito": "Добавить все товары в корзину"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "Добавить в корзину",
+    "iniciaSesionParaAnadirProductos": "Войдите в систему, чтобы добавить товары.",
+    "noHemosPodidoCompletarLaAccion": "Нам не удалось завершить операцию.",
+    "esteProductoAunNoTieneCertificados": "Данный продукт пока не имеет подтвержденных сертификатов.",
+    "seElPrimeroEnOpinarSobreEsteProdu": "Будьте первым, кто оставит отзыв об этом товаре."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "Не удалось загрузить это сообщение.",
+    "tuActividadApareceraAqui": "Здесь отобразится ваша активность."
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Вход в систему завершен..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Ознакомьтесь с товарами, используя наглядную документацию, расположенную в алфавитном порядке для быстрого и понятного чтения.",
+    "filtrarPorCertificacion": "Фильтр по сертификации",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Измените параметры поиска или удалите фильтры, чтобы просмотреть другие сертифицированные продукты.",
+    "ordenAlfabeticoActivo": "активный алфавитный порядок"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Ваш платеж успешно обработан. В течение нескольких минут вы получите электронное письмо с подтверждением и подробной информацией о вашем заказе.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Произошла ошибка при проверке вашего платежа. Если платеж уже обработан, пожалуйста, свяжитесь со службой поддержки.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Мы получили ваш заказ. Вы получите электронное письмо с подробной информацией."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Редактировать контент сообщества могут только администраторы.",
+    "anadirFotoDePortada": "Добавить обложку",
+    "etiquetasMax5": "Этикетки (макс. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Удаление сообщества приведет к безвозвратному удалению всех сообщений и участников."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Название сообщества",
+    "sinDescripcionTodavia": "Описание пока отсутствует.",
+    "necesitasMasSeguidores": "Вам нужно больше подписчиков.",
+    "paraCrearUnaComunidadNecesitasAlMe": "Для создания сообщества необходимо иметь не менее 100 подписчиков или быть подтвержденным продавцом.",
+    "elNombreDebeTenerAlMenos3Caracter": "Имя должно состоять как минимум из 3 символов.",
+    "laUrlEsObligatoria": "URL-адрес обязателен",
+    "laUrlDebeTenerAlMenos3Caracteres": "URL-адрес должен содержать не менее 3 символов.",
+    "laUrlDebeEmpezarConUnaLetraONume": "URL-адрес должен начинаться с буквы или цифры.",
+    "comunidadCreada": "Создано сообществом!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Этот URL-адрес уже используется. Пожалуйста, попробуйте другой.",
+    "errorAlCrearLaComunidad": "Ошибка при создании сообщества",
+    "anadirFotoDePortada": "Добавить обложку",
+    "nombreDeLaComunidad1": "Название сообщества *",
+    "ejAceitesDeEspana": "Пример: Масла из Испании",
+    "urlDeLaComunidad": "URL сообщества *",
+    "deQueTrataTuComunidad": "Чем занимается ваше сообщество?",
+    "iconoDeLaComunidad": "значок сообщества",
+    "etiquetasMax5": "Этикетки (макс. 5)",
+    "asiVeranTuComunidadLosDemas": "Именно так другие будут воспринимать ваше сообщество."
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "Лучшее оливковое масло",
+    "seleccionDeProductoresAndaluces": "Отбор андалузских производителей",
+    "empiezaElDiaConEnergiaReal": "Начните день с настоящей энергией",
+    "despensaBasicaPremium": "Базовый набор продуктов премиум-класса",
+    "losEsencialesQueMarcanLaDiferencia": "Основные факторы, определяющие разницу.",
+    "certificadoEcologico": "органическая сертификация",
+    "seleccionesEditorialesDeProductosArt": "Редакционная подборка ремесленных, полезных для здоровья продуктов с историей.",
+    "coleccion": "Коллекция"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Категория не найдена",
+    "noSePudieronCargarLosProductos": "Товары не удалось загрузить.",
+    "noHayProductosEnEstaCategoriaTodav": "В этой категории пока нет товаров."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Язык и регион"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Страница не найдена",
+    "estaPaginaNoExiste": "Эта страница не существует.",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Похоже, вы заблудились. Вернитесь к началу и продолжите исследование."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Ваша учетная запись уже существует, но некоторые функции будут доступны только после подтверждения регистрации командой разработчиков.",
+    "recibirasAccesoCompletoCuandoElEqui": "Вы получите полный доступ после подтверждения вашей регистрации командой.",
+    "mientrasTantoAlgunasFuncionesComerc": "Между тем, некоторые коммерческие функции останутся ограниченными.",
+    "subirDocumentosDeVerificacion": "Загрузите документы для подтверждения.",
+    "completarConfiguracionFiscal": "Полная настройка налогов"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Недействительная ссылка для восстановления",
+    "restablecerContrasena": "Сбросить пароль"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Код подтверждения не был предоставлен.",
+    "emailVerificadoCorrectamente": "Адрес электронной почты успешно подтвержден!",
+    "emailVerificadoYaPuedesIniciarSesi": "Адрес электронной почты подтвержден. Теперь вы можете войти в систему.",
+    "elCodigoNoEsValidoOHaExpirado": "Код недействителен или истек срок его действия.",
+    "errorEnLaVerificacion": "Ошибка проверки",
+    "verificacionFallida": "Проверка не удалась.",
+    "porFavorEsperaMientrasVerificamosTu": "Пожалуйста, подождите, пока мы проверим ваш адрес электронной почты."
+  },
+  "b2_b_action": {
+    "video": "Видео"
+  },
+  "collab_action": {
+    "video": "Видео"
   }
 }

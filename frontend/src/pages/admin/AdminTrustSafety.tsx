@@ -29,7 +29,7 @@ const RISK_COLORS = (score) => {
 
 const REASON_LABELS = {
   spam:       'Spam',
-  misleading: t('admin_trust_safety.enganoso', 'Engañoso'),
+  misleading: 'Engañoso',
   offensive:  'Ofensivo',
   fraud:      'Fraude',
   copyright:  'Copyright',
@@ -37,11 +37,11 @@ const REASON_LABELS = {
 };
 
 const CONTENT_TYPE_LABELS = {
-  post:     t('post_detail.publicacion', 'Publicación'),
+  post:     'Publicación',
   reel:     'Reel',
   story:    'Historia',
   product:  'Producto',
-  review:   t('admin_trust_safety.resena', 'Reseña'),
+  review:   'Reseña',
   recipe:   'Receta',
   user_bio: 'Perfil',
   profile:  'Perfil',
@@ -445,9 +445,9 @@ function StatsTab({ stats, loading }) {
 // ── Main component ────────────────────────────────────────────────────
 
 const TABS = [
-  { key: 'queue',   label: t('admin_trust_safety.colaDeModeracion', 'Cola de moderación') },
+  { key: 'queue',   label: 'Cola de moderación' },
   { key: 'reports', label: 'Reportes' },
-  { key: 'stats',   label: t('store.stats', 'Estadísticas') },
+  { key: 'stats',   label: 'Estadísticas' },
 ];
 
 export default function AdminTrustSafety() {

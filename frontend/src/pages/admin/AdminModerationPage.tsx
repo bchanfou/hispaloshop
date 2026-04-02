@@ -20,12 +20,12 @@ const VIOLATION_LABELS = {
   nudity: 'Desnudos',
   violence: 'Violencia',
   spam: 'Spam',
-  health_misinformation: t('admin_moderation.desinformacionSalud', 'Desinformación salud'),
+  health_misinformation: 'Desinformación salud',
   minor_safety: 'Seguridad menores',
   off_topic: 'Fuera de tema',
   alcohol: 'Alcohol',
   non_food_product: 'No alimentario',
-  medical_claims: t('admin_moderation.claimsMedicos', 'Claims médicos'),
+  medical_claims: 'Claims médicos',
 };
 
 const CONTENT_TYPE_LABELS = {

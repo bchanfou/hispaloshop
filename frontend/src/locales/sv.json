@@ -26,7 +26,7 @@
     "viewAll": "Visa alla",
     "seeOriginal": "Visa original",
     "seeTranslation": "Se översättning",
-    "translatedFrom": "Översatt från {{language}}",
+    "translatedFrom": "Översatt från XPHB0XPHX",
     "details": "Detaljer",
     "status": "Ange",
     "active": "Tillgång",
@@ -113,7 +113,7 @@
     "forInfluencers": "För influencers",
     "forInfluencersDesc": "Tjäna pengar genom att dela riktiga produkter. Nivåprovisioner (3–7 %) med 18-månaders attribution.",
     "commission": "Plattformsavgift: 18 %",
-    "influencerCommission": "Influencerprovision: beroende på aktiv nivå (3%-7%)",
+    "influencerCommission": "Influencerprovision: beroende på tillgångsnivå (3–7 %)",
     "searchPlaceholder": "Vad letar du efter idag?",
     "categories": "Kategorier",
     "oils": "Oljor",
@@ -149,7 +149,8 @@
     "organic": "Organisk",
     "seafood": "Skaldjur",
     "superfoods": "Super",
-    "viewAllResults": "Visa alla resultat"
+    "viewAllResults": "Visa alla resultat",
+    "socialCommerceAlimentarioParaDescubr": "Social mathandel för att upptäcka ärliga producenter, köpa med transparens och engagera sig i samhället."
   },
   "header": {
     "products": "Produkter",
@@ -255,7 +256,29 @@
     "isInfluencer": "Du är en influencer",
     "joinProgram": "Gå med i programmet",
     "justBuy": "Du vill bara köpa",
-    "createBuyerAccount": "Skapa köparkonto"
+    "createBuyerAccount": "Skapa köparkonto",
+    "errorAlConectarConGoogle": "Fel vid anslutning till Google.",
+    "mariaGarcia": "María García",
+    "minimo8Caracteres": "Minst 8 tecken",
+    "arabiaSaudi": "saudi-arabien",
+    "elNombreEsObligatorio": "Namn krävs",
+    "emailNoValido": "Ogiltig e-postadress",
+    "minimo3Caracteres": "Minst 3 tecken",
+    "esteUsuarioYaEstaEnUso": "Detta användarkonto används redan.",
+    "laFechaDeNacimientoEsObligatoria": "Födelsedatum krävs",
+    "debesAceptarLosTerminos": "Du måste acceptera villkoren",
+    "elNombreDeEmpresaEsObligatorio": "Företagsnamn krävs",
+    "introduceAlMenosUnaRedSocial": "Ange minst ett socialt nätverk",
+    "laContrasenaDebeTenerAlMenos8Cara": "Lösenordet måste vara minst 8 tecken långt",
+    "elEmailNoEsValido": "E-postadressen är ogiltig.",
+    "elNombreDeUsuarioNoEsValido": "Användarnamnet är ogiltigt",
+    "errorDeValidacion": "Valideringsfel",
+    "errorAlCrearLaCuenta": "Fel vid skapande av konto.",
+    "debesTenerAlMenos16Anos": "Du måste vara minst 16 år gammal",
+    "letrasNumerosPuntosYGuionesBajos": "Bokstäver, siffror, punkter och understreck (max 20 tecken)",
+    "seleccionarPais": "Välj land",
+    "terminosYCondiciones": "Villkor",
+    "politicaDePrivacidad": "Integritetspolicy"
   },
   "products": {
     "title": "Alla produkter",
@@ -267,7 +290,7 @@
     "soldOut": "Utmattad",
     "onlyLeft": "Endast {0} återstår",
     "lowStock": "Endast {{count}} återstår",
-    "byProducer": "av {{producer}}",
+    "byProducer": "av XPHBX0XPHX",
     "origin": "Ursprung",
     "price": "Pris",
     "category": "Kategori",
@@ -314,7 +337,15 @@
     "applyFilters": "Använd filter",
     "notAvailableCountry": "Denna produkt är inte tillgänglig för leverans i ditt land",
     "notAvailable": "Inte tillgänglig",
-    "notAvailableRegion": "Inte tillgängligt i din region"
+    "notAvailableRegion": "Inte tillgängligt i din region",
+    "vistaCuadricula": "Rutnätsvy",
+    "precioMinimo": "Minimipris",
+    "precioMaximo": "Maximalt pris",
+    "quitarFiltroDeCategoria": "Ta bort kategorifilter",
+    "quitarFiltroDeEnvioGratis": "Ta bort filtret för fri frakt",
+    "quitarFiltroDePais": "Ta bort landsfilter",
+    "america": "Amerika",
+    "compruebaTuConexionEIntentaloDeNue": "Kontrollera din anslutning och försök igen"
   },
   "certifications": {
     "halal": "Halal",
@@ -322,7 +353,19 @@
     "vegan": "Vegansk",
     "gluten-free": "Glutenfri",
     "sugar-free": "Sockerfri",
-    "organic": "Organisk"
+    "organic": "Organisk",
+    "certificacionOficialDeProduccionEcol": "Officiell certifiering av ekologisk produktion från Europeiska unionen",
+    "garantizaQueElProductoSeProduceTr": "Det garanterar att produkten produceras, bearbetas och omvandlas i ett specifikt geografiskt område.",
+    "alMenosUnaEtapaDeProduccionSeReal": "Minst ett produktionsled äger rum i det geografiska området",
+    "vinculoConElTerritorio": "Länk till territoriet",
+    "supervisionPorOrganismoDeControl": "Tillsyn av ett kontrollorgan",
+    "certificacionDeQueElProductoCumple": "Certifiering om att produkten uppfyller islamiska livsmedelsstandarder",
+    "procesoDeSacrificioConformeALaLey": "Slaktprocessen enligt islamisk lag",
+    "sinContaminacionCruzadaConProductos": "Ingen korskontaminering med icke-halalprodukter",
+    "productoAptoParaPersonasConEnfermed": "Produkt lämplig för personer med celiaki eller glutenkänslighet",
+    "produccionEnLineasLibresDeContamina": "Produktion på föroreningsfria linjer",
+    "noContieneIngredientesDeOrigenAnima": "Den innehåller inga ingredienser av animaliskt ursprung och har inte testats på djur.",
+    "sinPruebasEnAnimales": "Inga djurförsök"
   },
   "productDetail": {
     "loading": "Laddar produkt...",
@@ -419,7 +462,14 @@
     "hours": "Schema",
     "stats": "Statistik",
     "rating": "Värdering",
-    "product": "Produkt"
+    "product": "Produkt",
+    "iniciaSesionParaEnviarUnMensaje": "Logga in för att skicka ett meddelande",
+    "seccionesDeLaTienda": "Butikssektioner",
+    "noSePudoCargarLaTiendaCompruebaT": "Det gick inte att ladda butiken. Kontrollera din anslutning.",
+    "sinResenas": "Inga recensioner",
+    "estaTiendaNoTieneProductosAun": "Den här butiken har inga produkter ännu.",
+    "estaTiendaNoHaCompartidoRecetasAun": "Den här butiken har inte delat recept än.",
+    "anonimo": "Anonym"
   },
   "cart": {
     "title": "Kundvagn",
@@ -436,7 +486,21 @@
     "checkout": "Gå vidare till betalning",
     "itemsInCart": "Fler varor i din varukorg",
     "viewCart": "Visa varukorg",
-    "more": "ytterligare..."
+    "more": "ytterligare...",
+    "aplicarCodigoDeDescuento": "Använd rabattkod",
+    "direccionRequerida": "Adress krävs",
+    "codigoPostalNoValido": "Ogiltigt postnummer",
+    "paisRequerido": "Obligatoriskt land",
+    "noSePudoActualizarLaCantidad": "Beloppet kunde inte uppdateras",
+    "noSePudoEliminarElProducto": "Produkten kunde inte tas bort",
+    "descubreProductosIncreiblesDeProduct": "Upptäck fantastiska produkter från lokala producenter",
+    "laReservaDeAlgunProductoExpiroCom": "Reservationen för denna produkt har löpt ut. Kontrollera tillgängligheten.",
+    "calculandoEnvio": "Beräknar frakt...",
+    "maximoAlcanzado": "Maximalt uppnått",
+    "envioPorTienda": "Butiksfrakt",
+    "iniciaSesionParaVerElCosteDeEnvio": "Logga in för att se fraktkostnader",
+    "ivaIncluido·EnvioSeCalculaAlInici": "Moms ingår · Frakt beräknas vid inloggning",
+    "iniciarSesionParaComprar": "Logga in för att köpa"
   },
   "checkout": {
     "title": "Betala",
@@ -452,8 +516,8 @@
     "state": "Provins",
     "zip": "Postnummer",
     "country": "Land",
-    "chargeCurrency": "Du kommer att debiteras i {{currency}}",
-    "displayCurrency": "Priser som visas på {{currency}}",
+    "chargeCurrency": "Du kommer att debiteras i XPHB0XPHX",
+    "displayCurrency": "Priser som visas på XPHBX0XPHX",
     "exchangeRate": "Växelkurs",
     "fullName": "Fullständigt namn",
     "useShippingAddress": "Använd leveransadress för fakturering",
@@ -499,7 +563,19 @@
     "proceedToCheckout": "Gå vidare till betalning",
     "secureCheckout": "Säker betalning med Stripe",
     "emailVerified": "E-postadress verifierad",
-    "emailVerifiedSuccess": "E-postadressen har verifierats!"
+    "emailVerifiedSuccess": "E-postadressen har verifierats!",
+    "direccionGuardada": "Adressen sparad",
+    "seleccionaUnaDireccion": "Välj en adress",
+    "noSePudoIniciarElPagoIntentaloDe": "Betalningen kunde inte initieras. Försök igen.",
+    "errorAlGuardarLaDireccion": "Fel vid sparning av adressen",
+    "codigoNoValido": "Ogiltig kod",
+    "errorAlProcesarElPago": "Fel vid betalningsbehandling",
+    "necesitasVerificarTuEmailParaComple": "Du måste verifiera din e-postadress för att slutföra köpet",
+    "direccionCalleYNumero": "Adress (gata och nummer)",
+    "codigoPostal": "Postnummer",
+    "segunDireccion": "Enligt adress",
+    "metodoDePago": "Betalningsmetod",
+    "envioA": "Leverans till"
   },
   "orders": {
     "title": "Mina beställningar",
@@ -513,7 +589,7 @@
     "viewOrder": "Visa beställning",
     "cancelOrder": "Avbryt beställning",
     "noOrders": "Du har inga beställningar än.",
-    "noOrdersDescription": "Dina beställningar visas här när kunder köper dina produkter.",
+    "noOrdersDescription": "Dina beställningar kommer att visas här när kunder köper dina produkter.",
     "trackOrder": "Spåra order",
     "reorder": "Begär igen",
     "customer": "Kund",
@@ -574,9 +650,10 @@
       "cancel": "Avboka",
       "confirm": "Bekräfta leverans",
       "processing": "Bearbetar...",
-      "success": "Beställningen är markerad som skickad! Kunden har blivit meddelad via e-post.",
+      "success": "Beställningen är markerad som levererad! Kunden har blivit meddelad via e-post.",
       "other": "Andra"
-    }
+    },
+    "noPudimosCargarTusPedidos": "Vi kunde inte ladda dina beställningar"
   },
   "producer": {
     "overview": "Sammanfattning",
@@ -597,14 +674,14 @@
     "packs": "Paket",
     "earnings": "Förtjänst",
     "payouts": "Betalningar",
-    "connectStripe": "Connect Stripe",
+    "connectStripe": "Anslut rand",
     "stripeConnected": "Stripe Connected",
     "welcome": "Välkomna",
     "manageProductsAndSales": "Hantera dina produkter och spåra din försäljning.",
     "accountPending": "Konto väntar på godkännande",
     "accountPendingDesc": "Ditt producentkonto väntar på godkännande från administratör. Du kan skapa produkter och certifikat, men de kommer inte att vara synliga för kunder förrän ditt konto har godkänts.",
     "totalProducts": "Totalt antal produkter",
-    "approvedProducts": "{{count}}-godkänd",
+    "approvedProducts": "XPHB0XPHX-godkänd",
     "followers": "Följare",
     "ofYourStore": "från din butik",
     "totalSold": "Totalt sålt",
@@ -745,12 +822,29 @@
       "DE": "Tyskland",
       "IT": "Italien",
       "PT": "Portugal",
-      "UK": "Storbritannien",
+      "GB": "Storbritannien",
       "US": "USA",
+      "CA": "Kanada",
       "MX": "Mexiko",
+      "BR": "Brasilien",
       "AR": "Argentina",
       "CL": "Chili",
-      "CO": "Colombia"
+      "CO": "Colombia",
+      "PE": "Peru",
+      "JP": "Japan",
+      "KR": "Sydkorea",
+      "CN": "Kina",
+      "IN": "Indien",
+      "AU": "Australien",
+      "AE": "Förenade Arabemiraten",
+      "SA": "saudi-arabien",
+      "TR": "Turkiet",
+      "ZA": "Sydafrika",
+      "NG": "Nigeria",
+      "KE": "Kenya",
+      "EG": "Egypten",
+      "MA": "Marocko",
+      "RU": "Ryssland"
     },
     "percentageOff": "Rabattprocent",
     "fixedAmountOff": "Fast rabattbelopp",
@@ -935,7 +1029,7 @@
       },
       "countries": {
         "selectCountry": "Välj ett land",
-        "countryAnalysis": "Analys av {{country}} XPHD0",
+        "countryAnalysis": "Analys av XPHD0XPHX",
         "totalUsers": "Totalt antal användare",
         "ordersThisMonth": "Beställningar denna månad",
         "averageSpend": "Genomsnittliga utgifter",
@@ -1058,7 +1152,7 @@
     "availableSoon": "Tillgänglig snart",
     "inNext7Days": "Under de kommande 7 dagarna",
     "nextPaymentDate": "Nästa betalning tillgänglig",
-    "daysLeft": "{{days}} dagar kvar",
+    "daysLeft": "XPHB0XPHX dagar kvar",
     "noPendingPayments": "Inga utestående betalningar",
     "paymentPolicy": "Betalningspolicy",
     "paymentPolicyDesc": "De genererade provisionerna kan samlas in 15 dagar efter varje försäljning för att garantera leverans av beställningen.",
@@ -1135,7 +1229,11 @@
     "status": "Ange",
     "verifiedStatus": "Verifierad",
     "madeIn": "Stolt tillverkad i",
-    "notFoundDesc": "Det gick inte att hitta det här certifikatet"
+    "notFoundDesc": "Det gick inte att hitta det här certifikatet",
+    "espanol": "Spanska",
+    "certificatNumerique": "Numeriskt certifikat",
+    "alergenios": "Allergener",
+    "noHemosEncontradoLaFichaDeConfianz": "Vi har inte hittat någon förtroendeklassificering för den här produkten."
   },
   "errors": {
     "generic": "Ett fel uppstod. Försök igen.",
@@ -1207,7 +1305,7 @@
       "title": "Snabb sammanfattning",
       "bullet1": "Vi använder AI för att anpassa din upplevelse och dina rekommendationer",
       "bullet2": "Vi lagrar INTE originalchattmeddelanden för analys",
-      "bullet3": "Inga känsliga uppgifter (hälsa, religion, läggning) behandlas",
+      "bullet3": "Inga känsliga uppgifter (hälsa, religion, sexuell läggning) behandlas",
       "bullet4": "Du kan när som helst återkalla ditt samtycke från din profil",
       "bullet5": "Vårt mål är att hjälpa dig, inte att manipulera ditt beteende."
     },
@@ -1314,7 +1412,9 @@
     "newsletter": "Nyhetsbrev",
     "newsletterDesc": "Prenumerera för att få nyheter och exklusiva erbjudanden",
     "subscribe": "Prenumerera",
-    "emailPlaceholder": "tu@email.com"
+    "emailPlaceholder": "din@e-post.com",
+    "unimosProductoresImportadoresCreado": "Vi förenar producenter, importörer, kreatörer och konsumenter i en tydligare och mer användbar upplevelse.",
+    "unaPlataformaParaDescubrirProductos": "En plattform för att upptäcka ärliga produkter, följa riktiga producenter och köpa med mer kontext."
   },
   "breadcrumbs": {
     "home": "Start",
@@ -1646,7 +1746,7 @@
     "imagesCount": "Produktbilder ({{current}}/{{max}})",
     "imagesSupported": "Format som stöds: JPEG, PNG, WebP, GIF (max 5 MB vardera)",
     "upload": "Öka",
-    "maxImagesError": "Maximalt {{max}} tillåtna -bilder",
+    "maxImagesError": "Maximalt tillåtna XPHX0XPX-bilder",
     "uploadSuccess": "Bilden har laddats upp",
     "notAnImage": "{{name}} är inte en bild",
     "fileTooLarge": "{{name}} är väldigt stor (max 5 MB)",
@@ -1764,7 +1864,7 @@
     },
     "messages": {
       "loadError": "Fel vid laddning av producenter",
-      "statusUpdated": "Säljare {{status}}"
+      "statusUpdated": "Säljare XPHBX0XPHX"
     }
   },
   "adminProducts": {
@@ -1836,7 +1936,7 @@
       "total": "Total",
       "status": "Ange",
       "date": "Datum",
-      "itemsCount": "{{count}}-artiklar"
+      "itemsCount": "XPHB0XPHX-artiklar"
     },
     "paymentsTable": {
       "transactionId": "Transaktions-ID",
@@ -1923,13 +2023,22 @@
     "local": "lokal",
     "bio": "bio",
     "followers": "följare",
-    "posts": "inlägg"
+    "posts": "inlägg",
+    "seleccionDelDia": "Dagens val",
+    "descubreProductosArtesanalesTiendas": "Upptäck hantverksmässiga produkter, verifierade butiker och lokala recept.",
+    "seleccionesDeProductosConHistoria": "Urval av produkter med historia"
   },
   "notifications": {
     "title": "Aviseringar",
     "markRead": "Markera som läst",
     "empty": "Inga aviseringar",
-    "newNotification": "Ny avisering"
+    "newNotification": "Ny avisering",
+    "eliminarNotificacion": "Ta bort avisering",
+    "noSePudieronEliminarLasNotificacion": "Aviseringarna kunde inte raderas",
+    "marcarTodoComoLeido": "Markera alla som lästa",
+    "todoAlDia": "Allt uppdaterat",
+    "aquiVerasLikesComentariosActualiza": "Här ser du gilla-markeringar, kommentarer, orderuppdateringar och mer.",
+    "leido": "Läsa"
   },
   "actions": {
     "newProduct": "Ny produkt",
@@ -1958,7 +2067,7 @@
     "uploadStory": "Ladda upp berättelse",
     "storyCaption": "Lägg till lite text...",
     "uploading": "Går upp...",
-    "published": "Berättelsen publicerad!",
+    "published": "Historiken publicerad!",
     "deleted": "Borttagen berättelse",
     "expires": "Utgår om",
     "hours": "timmar",
@@ -2076,7 +2185,7 @@
     "platformFee": "Plattformkommissionen",
     "pendingPayout": "Betalning förfaller",
     "stripeConnected": "Stripe ansluten",
-    "connectStripe": "Connect Stripe",
+    "connectStripe": "Anslut rand",
     "monthlySales": "Månadsförsäljning",
     "recentOrders": "Senaste beställningar",
     "monthlyBreakdown": "Månadsfördelning",
@@ -2112,7 +2221,7 @@
     "activeMarkets": "Aktiva marknader",
     "productMarkets": "Aktiva marknadsprodukter",
     "activeSellers": "Aktiva säljare",
-    "totalStock": "totalt globalt lager",
+    "totalStock": "total global aktie",
     "productsByMarket": "Aktiva produkter per marknad",
     "detailByCountry": "Detaljer per land",
     "country": "Land",
@@ -2276,7 +2385,7 @@
     "aiMatches": "AI-matchning",
     "tier1Reqs": "15+ kunder, $5 000+ GMV",
     "tier2Reqs": "40+ kunder, 12 000+ USD GMV",
-    "tier3Reqs": "80+ kunder, 25 000+ GMV"
+    "tier3Reqs": "80+ kunder, 25 000+ USD GMV"
   },
   "feed": {
     "emptyTitle": "Ditt flöde är tomt",
@@ -2318,17 +2427,31 @@
     "blocked": "Den här användaren har ännu inte svarat. Vänligen vänta på deras svar.",
     "startChat": "Starta konversation",
     "online": "Online",
-    "offline": "Off-line"
+    "offline": "Off-line",
+    "eliminarConversacion": "Ta bort konversation",
+    "buscarEnLaConversacion": "Sök i konversationen...",
+    "respondioATuStory": "Han svarade på din berättelse",
+    "hola": "Hej!",
+    "holaMeGustariaColaborar": "Hej, jag skulle vilja samarbeta...",
+    "iniciaLaConversacion": "Starta samtalet",
+    "tuNavegadorNoSoportaGrabacionDeAud": "Din webbläsare stöder inte ljudinspelning. Använd HTTPS eller en kompatibel webbläsare.",
+    "noSePudoAccederAlMicrofonoComprue": "Mikrofonen kunde inte nås. Kontrollera dina webbläsarbehörigheter.",
+    "enviarCorazon": "Skicka hjärta",
+    "maximo10Mb": "Maximalt 10 MB",
+    "errorAlEnviarElDocumento": "Fel vid sändning av dokument",
+    "noSePudoEnviarElAudio": "Ljudet kunde inte skickas.",
+    "pruebaOtroTerminoDeBusqueda": "Försök med en annan sökterm.",
+    "seleccionaUnaConversacionParaEmpezar": "Välj en konversation för att börja chatta."
   },
   "freshSave": {
     "lastDay": "SISTA DAGEN -50%",
     "fresh30": "FÄRSKT -30%",
     "fresh15": "FÄRSKT -15%",
-    "expiresIn": "Utgår om {0} dagar"
+    "expiresIn": "Upphör om {0} dagar"
   },
   "recipes": {
     "title": "Hispalo Kitchen",
-    "subtitle": "Upptäck recept och köp ingredienser med ett enda klick",
+    "subtitle": "Upptäck recept och köp ingredienser med ett klick",
     "searchPlaceholder": "Sök efter recept...",
     "empty": "Det finns inga recept än.",
     "buyAll": "Köp allt",
@@ -2357,11 +2480,15 @@
     "publish": "Publicera recept",
     "published": "Publicerat recept",
     "addToCart": "Köp ingredienser",
-    "addedToCart": "{{count}} ingredienser tillagda i varukorgen",
+    "addedToCart": "XPHB0XPHX ingredienser tillagda i varukorgen",
     "by": "Av",
     "min": "min",
     "portions": "portioner",
-    "notFound": "Receptet hittades inte"
+    "notFound": "Receptet hittades inte",
+    "borrarBusqueda": "Rensa sökningen",
+    "descubreRecetasSaludablesConProducto": "Upptäck hälsosamma recept med lokala hantverksprodukter. Filtrera efter svårighetsgrad, tid och kost.",
+    "noHayRecetasConEstosFiltros": "Det finns inga recept med dessa filter.",
+    "seElPrimeroEnCompartirUnaRecetaCo": "Var först med att dela ett recept med communityn"
   },
   "customerDashboard": {
     "greeting": "Hej",
@@ -2432,8 +2559,8 @@
     "commentDeleted": "Kommentar borttagen",
     "edited": "redigerad",
     "likes": "Jag gillar",
-    "viewComments": "Se -kommentaren {{count}}",
-    "viewCommentsPlural": "Se -kommentarer {{count}}",
+    "viewComments": "Se XPHBX0XPHX-kommentaren",
+    "viewCommentsPlural": "Se XPHBX0XPHX-kommentarer",
     "loginToLike": "Logga in för att gilla",
     "loginToSave": "Logga in för att spara",
     "loginToFollow": "Logga in för att följa användare",
@@ -2448,7 +2575,7 @@
     "unfollowed": "Du har slutat följa den här användaren",
     "nowFollowing": "Du följer nu den här användaren",
     "profileUpdated": "Uppdaterad profilbild",
-    "memberSince": "Medlem sedan {{date}}",
+    "memberSince": "Medlem sedan XPHBX0XPHX",
     "verifiedSeller": "Verifierad säljare",
     "viewStore": "Visa butik",
     "sendMessage": "Skicka meddelande",
@@ -2479,7 +2606,7 @@
     "products": "Produkter"
   },
   "plans": {
-    "requiredPlan": "Kräver en plan",
+    "requiredPlan": "Det kräver en plan",
     "upgradeToUnlock": "Uppgradera ditt abonnemang för att låsa upp den här funktionen",
     "upgrade": "Förbättra planen",
     "featureLocked": "Funktion blockerad"
@@ -2574,13 +2701,22 @@
     "placeholder": "Sök efter användare, produkter, beställningar...",
     "noResults": "Inga resultat för",
     "toSearch": "att söka",
-    "toClose": "att stänga"
+    "toClose": "att stänga",
+    "elPrecioMinimoNoPuedeSerMayorQue": "Minimipriset kan inte vara högre än maxpriset.",
+    "errorAlBuscarIntentaloDeNuevo": "Sökningen misslyckades. Försök igen.",
+    "limpiarBusqueda": "Rensa sökningen",
+    "masReciente": "Senast",
+    "ecologico": "Ekologisk",
+    "buscaProductosArtesanalesRecetasTi": "Leta efter hantverksmässiga produkter, recept, butiker och lokala kreatörer som producerar hälsosam mat.",
+    "pruebaConOtrosTerminosORevisaLaOr": "Försök med andra termer eller kontrollera stavningen",
+    "jamonIberico": "Iberisk skinka",
+    "busquedasPopulares": "Populära sökningar"
   },
   "influencerAI": {
     "inputPlaceholder": "Beskriv vilket innehåll du behöver..."
   },
   "predictions": {
-    "purchased": "Köpte {{count}}x"
+    "purchased": "Köpte XPHBX0XPHXx"
   },
   "wishlist": {
     "title": "Önskelista",
@@ -2620,5 +2756,1808 @@
     "firstReviewDesc": "Du skrev din första recension",
     "explorer": "Utforskare",
     "explorerDesc": "Du följde 5 butiker"
+  },
+  "product_detail": {
+    "resenaEnviada": "Recension inskickad",
+    "chatNoDisponibleParaEsteProducto": "Chatt är inte tillgänglig för den här produkten.",
+    "noSePudoAbrirElChat": "Chatten kunde inte öppnas",
+    "puntuacion": "Interpunktion",
+    "comentarioDeLaResena": "Recensionskommentar",
+    "noHemosPodidoEnviarLaResena": "Vi kunde inte skicka in recensionen.",
+    "anadirAFavoritos": "Lägg till i favoriter",
+    "politicaDeDevolucion": "Returpolicy",
+    "tienes14DiasDesdeLaRecepcionParaD": "Du har 14 dagar från mottagandet på dig att returnera din beställning. Färskvaror kan inte returneras.",
+    "anadeEsteProductoAlCatalogoB2bPara": "Lägg till den här produkten i B2B-katalogen för att ta emot grossistordrar.",
+    "anadirAlCatalogoB2b": "Lägg till i B2B-katalogen"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "Fel vid tillägg av produkter i varukorgen",
+    "errorAlAnadir": "Fel vid tillägg",
+    "noSePudoCopiarElEnlace": "Länken kunde inte kopieras",
+    "anadidoALaLista": "Tillagd i listan",
+    "noSePudoGuardarEnLaLista": "Det gick inte att spara den i listan",
+    "seleccionaUnaValoracion": "Välj ett betyg",
+    "valoracionPublicada": "Publicerat betyg",
+    "masPorciones": "Fler portioner",
+    "errorAlPublicarLaValoracion": "Fel vid uppläggning av betyg",
+    "preparacion": "Förberedelse",
+    "informacionNutricional": "Näringsinformation",
+    "porRacion": "Per portion",
+    "proteina": "Protein",
+    "azucar": "Socker",
+    "aunNoHayResenasSeElPrimero": "Det finns inga recensioner än. Bli först!",
+    "tuResena": "Din recension",
+    "enviarResena": "Skicka in recension"
+  },
+  "community": {
+    "configuracion": "Konfiguration",
+    "errorAlActualizarMembresia": "Fel vid medlemsuppdatering",
+    "escribeAlgoOAnadeUnaImagen": "Skriv något eller lägg till en bild",
+    "queQuieresCompartirPuedesUsarHas": "Vad vill du dela? Du kan använda #hashtaggar",
+    "anadirImagen": "Lägg till bild",
+    "errorAlCargarLaComunidad": "Fel vid laddning av gruppen",
+    "salirDeLaComunidad": "Att lämna samhället",
+    "comparteAlgoConLaComunidad": "Dela något med gemenskapen...",
+    "aunNoHayPosts": "Det finns inga inlägg ännu.",
+    "seElPrimeroEnPublicarAlgo": "Bli först med att posta något!",
+    "verMasPosts": "Se fler inlägg",
+    "verMasComentarios": "Se fler kommentarer",
+    "sinMiembrosTodavia": "Inga medlemmar ännu",
+    "verMasMiembros": "Se fler medlemmar",
+    "normasDeLaComunidad": "Riktlinjer för gemenskapen",
+    "contenidoRelacionadoConAlimentacionY": "Innehåll relaterat till mat och gastronomi",
+    "sinSpamNiPublicidadNoAutorizada": "Ingen spam eller obehörig reklam",
+    "sinBebidasAlcoholicas": "Inga alkoholhaltiga drycker",
+    "elAdminPuedeEliminarPostsQueNoCum": "Administratören kan ta bort inlägg som inte följer reglerna."
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "Fel vid inläsning av dina berättelser",
+    "errorAlSubirLaFoto": "Fel vid uppladdning av foto",
+    "noSePudoAbrirLaConversacion": "Konversationen kunde inte öppnas",
+    "errorAlCrearConversacion": "Fel vid skapandet av konversationen",
+    "atras": "Tillbaka"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "Fel vid avföljning",
+    "cargarMasUsuarios": "Ladda fler användare",
+    "pruebaConOtroTermino": "Försök med en annan term",
+    "cargarMas": "Ladda mer",
+    "sinSeguidoresAun": "Inga följare ännu",
+    "noSigueANadieAun": "Hon följer ingen än"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "Fel vid skapandet av samlingen",
+    "nombreDeLaColeccion": "Samlingsnamn",
+    "guardaContenidoTocandoElIconoDeMar": "Spara innehåll genom att trycka på bokmärkesikonen",
+    "nuevaColeccion": "Ny kollektion"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Fel vid inloggning med Google.",
+    "tuContrasena": "Ditt lösenord",
+    "elEmailEsObligatorio": "E-postadress krävs",
+    "laContrasenaEsObligatoria": "Ett lösenord krävs.",
+    "emailOContrasenaIncorrectos": "Felaktig e-postadress eller lösenord",
+    "tuCuentaEstaRestringidaPorEdad": "Ditt konto är åldersbegränsat.",
+    "noHemosPodidoIniciarTuSesion": "Vi kunde inte logga in dig.",
+    "entraEnTuCuenta": "Logga in på ditt konto",
+    "tuSesionHaExpiradoIniciaSesionDe": "Din session har löpt ut. Vänligen logga in igen.",
+    "ocultarContrasena": "Dölj lösenord",
+    "oContinuaConEmail": "eller fortsätt med e-post"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "Skicka återställningsmejlet igen",
+    "enviarEnlaceDeRecuperacion": "Skicka återställningslänk",
+    "recuperarContrasena": "Återställ lösenord",
+    "teEnviaremosUnEnlaceParaRestablecer": "Vi skickar dig en länk för att återställa ditt lösenord."
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "Bilden får inte överstiga 5 MB",
+    "noSePudoSubirLaFotoDePerfilPero": "Profilbilden kunde inte laddas upp, men ditt konto kommer fortfarande att skapas.",
+    "panaderia": "Bageri",
+    "reposteria": "Konfektyr",
+    "descubreProductosArtesanalesUnicosDe": "Upptäck unika hantverksprodukter från lokala producenter.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "Din butik är klar. Börja sälja dina handgjorda produkter.",
+    "exploraElMarketplaceB2bYEncuentraL": "Utforska B2B-marknaden och hitta de bästa producenterna.",
+    "errorAlGuardarTuPerfilIntentaloDe": "Fel uppstod när din profil sparades. Försök igen.",
+    "estoEsLoQueVeranOtrosUsuarios": "Detta är vad andra användare kommer att se",
+    "ubicacionOpcional": "Plats (valfritt)",
+    "validacionDeMercadoYPrimerasVentas": "Marknadsvalidering och initial försäljning.",
+    "iaComercialAvanzadaYGeneracionDeCo": "Avancerad affärs-AI och kontraktsgenerering.",
+    "stripeNoEstaDisponible": "Stripe är inte tillgängligt",
+    "stripeNoEstaConfiguradoTodavia": "Stripe är inte konfigurerat än.",
+    "noPudimosPrepararElPago": "Vi kunde inte behandla betalningen.",
+    "introduceUnEmailValido": "Ange en giltig e-postadress.",
+    "creaUnaContrasenaDeAlMenos6Caract": "Skapa ett lösenord på minst 6 tecken.",
+    "necesitamosUnTelefonoOperativo": "Vi behöver en fungerande telefon.",
+    "seleccionaElPaisDondeVasAOperar": "Välj det land där du ska verka.",
+    "seleccionaTuPuntoDePartida": "Välj din startpunkt.",
+    "eligeAlMenosUnTipoDeProducto": "Välj minst en typ av produkt.",
+    "necesitamosUnaDireccionFiscalValida": "Vi behöver en giltig skatteadress.",
+    "necesitamosVatCifONifParaDarteDe": "Vi behöver ditt moms-, CIF- eller NIF-nummer för att registrera dig.",
+    "completaLosDatosDeLaTarjetaParaCo": "Fyll i kortuppgifterna för att fortsätta.",
+    "stripeNoEstaListoTodavia": "Stripe är inte klar än.",
+    "noSePudoValidarLaTarjeta": "Kortet kunde inte valideras.",
+    "tuBancoRechazoLaOperacion": "Din bank avvisade transaktionen.",
+    "haOcurridoUnErrorConElPagoPorFa": "Det uppstod ett fel med din betalning. Försök igen.",
+    "elMetodoDePagoFueRechazadoPorFav": "Din betalningsmetod avvisades. Använd ett annat kort.",
+    "revisaLosDatosAntesDeContinuar": "Granska informationen innan du fortsätter.",
+    "noPudimosCompletarElAlta": "Vi kunde inte slutföra urladdningen.",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "Ditt konto har redan skapats. Du behöver bara aktivera abonnemanget eller avsluta prenumerationen.",
+    "completaLosCamposObligatoriosParaAv": "Fyll i de obligatoriska fälten för att fortsätta.",
+    "numeroSinEspacios": "Nummer utan mellanslag",
+    "paisDondeOperaras": "Land där du kommer att verka",
+    "seleccionaTuPaisPrincipal": "Välj ditt primära land",
+    "loUsamosParaFacturacionYAprobacion": "Vi använder det för fakturering och kommersiellt godkännande.",
+    "direccionFiscal": "Skatteadress",
+    "direccionCompletaParaFacturacion": "Fullständig faktureringsadress",
+    "empezamosSinCuotaFijaSiElMercado": "Vi börjar utan fast avgift. Om marknaden reagerar bestämmer du om du vill uppgradera till PRO eller ELITE.",
+    "pagoSeguroCancelaCuandoQuierasNo": "Säker betalning. Avsluta när som helst. Vi kommer inte att störa ditt flöde.",
+    "bienvenidoALaRevolucion": "Välkommen till revolutionen.",
+    "revisaTuEmailParaVerificarTuCuenta": "Kontrollera din e-post för att verifiera ditt konto. Du har redan den infrastruktur som skulle ha sparat mig pengar och tid.",
+    "verCatalogoDeProductoresDisponibles": "Visa katalog över tillgängliga producenter",
+    "sinAlertsAgresivosYConGuardadoLoca": "Utan aggressiva varningar och med lokal sparning av framsteg.",
+    "tuContrasenaNoSePersisteEnLocalsto": "Ditt lösenord sparas inte i localStorage.",
+    "proYEliteUsanStripeInlineFreeCre": "PRO och ELITE använder Stripe inline. FREE skapar kontot direkt."
+  },
+  "post_detail": {
+    "publicacionEditada": "Redigerad publikation",
+    "editarDescripcion": "Redigera beskrivning",
+    "publicacion": "Offentliggörande",
+    "editarPublicacion": "Redigera inlägg",
+    "laImagenNoSePuedeCambiarTrasPubli": "Bilden kan inte ändras efter att den publicerats.",
+    "seEliminaraPermanentementeJuntoConS": "Den kommer att raderas permanent tillsammans med dina kommentarer och gilla-markeringar. Åtgärden kan inte ångras.",
+    "seElPrimeroEnComentar": "Var först med att kommentera",
+    "masPopulares": "Mest populära",
+    "cargarMasComentarios": "Ladda fler kommentarer",
+    "compartirPublicacion": "Dela det här inlägget"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "Vi kunde inte ladda bilden.",
+    "noHemosPodidoCargarLaImagenDelPas": "Vi kunde inte ladda bilden av processionen.",
+    "numeroDeRaciones": "Antal portioner",
+    "anadirIngrediente": "Lägg till ingrediens",
+    "cuentaQueHaceEspecialEstaReceta": "Berätta vad som gör det här receptet speciellt...",
+    "descripcionDeLaReceta": "Receptbeskrivning",
+    "anadirEtiqueta": "Lägg till tagg...",
+    "ensaladaRapida": "Snabbsallad",
+    "postreFacil": "Enkel efterrätt",
+    "noHemosPodidoPublicarLaReceta": "Vi kunde inte publicera receptet",
+    "recetaPublicada": "Recept publicerat!",
+    "tienesUnBorradorDeReceta": "Du har ett receptutkast",
+    "momentoDelDia": "Tid på dagen",
+    "unaIntroduccionParaTuReceta": "En introduktion till ditt recept"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "Fel vid inläsning av fler rullar",
+    "aunNoHayReels": "Det finns inga rullar än",
+    "seElPrimeroEnPublicar": "Var först med att posta",
+    "noHayMasReels": "Det finns inga fler rullar"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "Prova en annan kategori eller justera filtren.",
+    "verMasProductos": "Visa fler produkter",
+    "caracteristicas": "Egenskaper"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "Utforska butiker med lokala, hantverksmässiga och hälsosamma matproducenter. Filtrera efter region och land."
+  },
+  "communities_explore": {
+    "alimentacion": "Matning",
+    "iniciaSesionParaVerTusComunidades": "Logga in för att se dina grupper",
+    "noHayComunidadesEnEstaCategoria": "Det finns inga samhällen i den här kategorin.",
+    "sinResultadosParaTuBusqueda": "Inga resultat hittades för din sökning",
+    "aunNoHayComunidades": "Det finns inga samhällen ännu.",
+    "creaLaPrimeraComunidadDeEstaCatego": "Skapa den första gruppen i den här kategorin",
+    "pruebaConOtrosTerminos": "Prova andra termer",
+    "seElPrimeroEnCrearUnaYConectarCo": "Var först med att skapa en och få kontakt med communityn",
+    "consigue100SeguidoresOVerificaTuCu": "Få 100 följare eller verifiera ditt säljarkonto"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "Frakt hanterad av producenten",
+    "productosConInformacionVerificableY": "Produkter med verifierbar information och digitalt certifikat.",
+    "operacionInternacional": "Internationell verksamhet",
+    "feedPostsYReelsConectadosConConve": "Flöden, inlägg och reels kopplade till verklig konvertering.",
+    "checkoutSeguroComisionesYConciliaci": "Säker utcheckning, provisioner och avstämning per transaktion.",
+    "contenidoUtil": "Användbart innehåll",
+    "clientesProductoresImportadoresEIn": "Kunder, producenter, importörer och influencers i ett enda flöde.",
+    "gestionarPedidosYOperacionDiaria": "Hantera ordrar och daglig verksamhet",
+    "configurarEnvioYCatalogoInternaciona": "Konfigurera internationell frakt och katalog",
+    "trackingDeConversionYRendimiento": "Konverterings- och prestationsspårning",
+    "monetizacionEnPostsYReels": "Monetisering i inlägg och reels",
+    "altaDeProductosYCatalogoPropio": "Produktregistrering och egen katalog",
+    "panelDePedidosPagosYOperacion": "Beställnings-, betalnings- och operationspanel",
+    "catalogoLimpio": "Ren katalog",
+    "contenidoUtilEnlazadoAProductosReal": "Användbart innehåll länkat till riktiga produkter.",
+    "queEsHispaloshop": "Vad är Hispaloshop?",
+    "unimosCompraVentaInfluenciaYTraza": "Vi förenar köp, försäljning, påverkan och spårbarhet i en enda operativ plattform.",
+    "loQueYaEstaActivo": "Det som redan är aktivt",
+    "funcionalidadRealDeProductoEnEstaV": "Faktisk produktfunktionalitet i den här versionen.",
+    "porQueLaPlataformaFunciona": "Varför plattformen fungerar",
+    "paraQuienEstaHecho": "Vem är den gjord för?",
+    "porQueExisteHispaloshop": "Varför finns Hispaloshop?",
+    "laHistoriaRealDetrasDelProyecto": "Den sanna historien bakom projektet.",
+    "aLos25Perdi15000€EnUnContainerD": "Vid 25 års ålder förlorade jag 15 000 euro på en popcornlåda som ruttnade i Incheon. Jag grät i en park i Seoul. Vid 26 flyttade jag tillbaka till mina föräldrars rum i Reus. Klockan är 6 på morgonen och jag har inte sovit mer än 5 timmar per natt på två månader medan jag byggt upp det här.",
+    "loHiceParaQueNingunProductorHonest": "Jag gjorde det så att ingen ärlig producent någonsin ska känna sig osynlig igen. Så att ingen influencer någonsin behöver välja mellan sin integritet och sitt levebröd.",
+    "exploraCatalogoTiendasYContenido": "Utforska katalog, butiker och innehåll.",
+    "checkoutCentralizadoEnUnSoloFlujo": "Centraliserad utcheckning i ett enda flöde."
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "Lägg till minst en bild i inlägget",
+    "laDescripcionEsDemasiadoLarga": "Beskrivningen är för lång",
+    "publicacionCreada": "Publikation skapad",
+    "verEnElFeed": "Visa i flödet",
+    "errorAlPublicarCompruebaTuConexion": "Fel vid publicering. Kontrollera din anslutning och försök igen.",
+    "nuevaPublicacion": "Ny publikation",
+    "seleccionaImagenes": "Välj bilder",
+    "capturaDirectamenteDesdeTuCamara": "Filma direkt från din kamera",
+    "abrirCamaraParaTomarFoto": "Öppna kameran för att ta ett foto",
+    "abrirCamara": "Öppna kameran",
+    "saturacion": "Mättnad",
+    "vineteado": "Vinjett",
+    "tamano": "Storlek",
+    "descripcionDeLaPublicacion": "Publikationsbeskrivning",
+    "escribeTuPieDeFotoUsaParaHas": "Skriv din bildtext... Använd # för hashtaggar och @ för omnämnanden",
+    "sugerenciaAnadida": "Tillagt förslag",
+    "noSePudoGenerarUnaSugerencia": "Det gick inte att generera ett förslag",
+    "errorAlConectarConDavidAi": "Fel vid anslutning till David AI",
+    "anadirUbicacionEjGaliciaCosta": "Lägg till plats... (t.ex. Galicien, Costa Brava)",
+    "cerrarBusqueda": "Stäng sökningen",
+    "publicado": "Publicerad!",
+    "reintentarPublicacion": "Återpublicera"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "Videon är för stor (max 100 MB)",
+    "elVideoNoPuedeSuperarLos60Segundo": "Videon får inte vara längre än 60 sekunder. Beskär den innan uppladdning.",
+    "noHayVideoSeleccionado": "Ingen video vald",
+    "elPuntoDeInicioDelRecorteNoPuede": "Startpunkten för snittet får inte vara större än eller lika med slutpunkten.",
+    "verEnElFeed": "Visa i flödet",
+    "errorAlPublicarElReelCompruebaTu": "Fel vid uppläggning av rulle. Kontrollera din anslutning och försök igen.",
+    "seleccionaUnVideo": "Välj en video",
+    "maximo60Segundos·Mp4OMov": "Maximalt 60 sekunder · MP4 eller MOV",
+    "elegirVideoDeLaGaleria": "Välj video från galleriet",
+    "elegirDeLaGaleria": "Välj från galleriet",
+    "pausarVideo": "Pausa videon",
+    "controlaElVolumenDelAudioOriginalD": "Styr volymen på videons ursprungliga ljud.",
+    "anadirTextoAlVideo": "Lägg till text till video",
+    "escribeAqui": "Skriv här...",
+    "textoParaElOverlay": "Text för överlägget",
+    "tamanoDeTexto": "Textstorlek",
+    "tienesUnBorradorDeReel": "Du har en utkastrulle",
+    "descripcionDelReel": "Beskrivning av rullen",
+    "portadaDesdeGaleria": "Omslag från galleriet",
+    "anadirUbicacion": "Lägg till plats...",
+    "reelPublicado": "Rull publicerad!"
+  },
+  "create_story": {
+    "ecologicoEu": "EU:s ekologiska",
+    "anadeContenidoATuHistoria": "Lägg till innehåll i din berättelse",
+    "errorAlExportarLaHistoria": "Fel vid export av historik",
+    "errorAlPublicarLaHistoria": "Fel vid publicering av artikeln",
+    "historiaPublicada": "Berättelsen publicerad!",
+    "tienesUnBorradorDeStory": "Du har ett utkast till berättelse",
+    "arrastraAquiParaEliminar": "Dra hit för att radera",
+    "escribeAqui": "Skriv här...",
+    "textoParaLaHistoria": "Text för historia",
+    "quePrefieres": "Vad föredrar du?",
+    "opcion1": "Alternativ 1",
+    "opcion2": "Alternativ 2",
+    "anadirEncuesta": "Lägg till undersökning",
+    "anadirMencion": "Lägg till omnämnande",
+    "anadirEnlace": "Lägg till länk",
+    "sevillaEspana": "Sevilla, Spanien",
+    "anadirUbicacion": "Lägg till plats",
+    "anadirPregunta": "Lägg till fråga",
+    "buscarProductoParaEtiquetarEnLaHis": "Sök efter produkt att tagga i historiken",
+    "buscaUnProductoDeTuCatalogoParaAn": "Hitta en produkt i din katalog för att lägga till den som ett interaktivt klistermärke."
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "Organisk olivolja",
+    "prediccion": "Förutsägelse",
+    "accedeATuRepresentanteDeVentasInte": "Få tillgång till din internationella säljrepresentant med marknadsanalys,",
+    "errorAlContactarAlAgenteComercial": "Fel uppstod när säljaren kontaktades. Försök igen.",
+    "tuRepresentanteDeVentasInternacional": "Din AI-drivna internationella säljrepresentant",
+    "chatConElAgente": "Chatta med agenten"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "Inga data ännu",
+    "errorAlCargarAnaliticas": "Fel vid inläsning av statistik",
+    "compruebaTuConexionEIntentaloDeNue": "Kontrollera din anslutning och försök igen.",
+    "analitica": "Analys",
+    "productosMasVendidos": "Bästsäljande produkter",
+    "deDondeVienenTusVentas": "Varifrån kommer din försäljning?",
+    "seguidoresDeLaTienda": "Butikens följare",
+    "tasaDeConversion": "Konverteringsfrekvens",
+    "anadidosAlCarrito": "Tillagd i varukorgen"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "Ange spårningsnumret",
+    "urlDeTrackingNoValidaDebeEmpezar": "Ogiltig spårnings-URL. Måste börja med http:// eller https://",
+    "envioRegistrado": "Registrerad frakt",
+    "errorAlRegistrarElEnvio": "Fel vid registrering av försändelsen",
+    "numeroDeTracking": "Spårningsnummer",
+    "introduceUnPrecioValidoPorUnidad": "Ange ett giltigt pris per enhet",
+    "plazoDias": "Deadline (dagar)",
+    "ejStockDisponibleMinimo100kgPorP": "Exempel: Finns i lager. Minst 100 kg per beställning.",
+    "ofertaEnviadaEsperandoAprobacionYP": "Erbjudande skickat. Väntar på godkännande och betalning från importören.",
+    "gestionaLasSolicitudesB2bDeImportad": "Hantera B2B-förfrågningar från importörer",
+    "activaElModoB2bEnTusProductosPara": "Aktivera B2B-läge på dina produkter för att ta emot förfrågningar."
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "Väntar på granskning",
+    "pdfJpgPngMax5mb": "PDF, JPG, PNG (max. 5 MB)",
+    "100OrganicoSinPesticidasCosechaM": "100 % ekologisk, bekämpningsmedelsfri, handplockad...",
+    "aceitunasEspanaJaen10salPortug": "Oliver: Spanien (Jaén) &#10;Salt: Portugal &#10;..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "Onboarding kunde inte startas",
+    "configuraTuCuentaParaRecibirTransfe": "Konfigurera ditt konto för att ta emot automatiska överföringar.",
+    "tuCuentaEstaListaParaRecibirPagos": "Ditt konto är redo att ta emot betalningar.",
+    "completaLosDatosEnStripeParaActiva": "Fyll i informationen i Stripe för att aktivera betalningar och utbetalningar."
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "Upptäckt och konvertering av din katalog",
+    "conversionDesdeContenido": "Konvertering från innehåll",
+    "sinDatosParaEstePeriodo": "Inga data tillgängliga för denna period",
+    "todaviaNoHayRecetasConTusProductos": "Det finns inga recept ännu som använder dina produkter.",
+    "cuandoCreadoresCompartanRecetasUsand": "När kreatörer delar recept med dina ingredienser visas de här."
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "Du måste fylla i den saknade informationen i Stripe.",
+    "recibirasTuPorcentajeDeCadaVentaAu": "Du får automatiskt din procentandel av varje försäljning enligt din plan.",
+    "completaLaVerificacionEnStripePara": "Slutför verifieringsprocessen på Stripe för att aktivera automatiska betalningar.",
+    "completarVerificacion": "Slutför verifiering",
+    "noHayDatosSuficientesTodavia": "Det finns inte tillräckligt med data ännu",
+    "noSePudieronCargarLasMetricasDelC": "Katalog- och butiksstatistiken kunde inte läsas in.",
+    "noSePudoCargarElResumenDePagos": "Betalningssammanfattningen kunde inte läsas in.",
+    "noSePudieronCargarLosDatosPrincipa": "Det gick inte att läsa in huvudpanelens data. Uppdatera sidan.",
+    "errorAlCargarDatosPorFavorRefres": "Fel vid laddning av data. Vänligen uppdatera sidan.",
+    "anadirNuevoProducto": "Lägg till ny produkt",
+    "verAnaliticas": "Visa analyser",
+    "metricasYPagos": "Mätvärden och betalningar",
+    "requierenTuAtencion": "De kräver din uppmärksamhet",
+    "noPuedesPublicarProductosHastaCompl": "Du kan inte publicera produkter förrän du har slutfört verifieringsprocessen.",
+    "certificadoProximoACaducar": "Certifikatet håller på att löpa ut",
+    "renuevaloParaNoInterrumpirTusVentas": "Förnya det så att det inte stör din försäljning.",
+    "senalesDeDemanda": "Efterfrågesignaler",
+    "ingredientesProductosYPiezasDeCont": "Ingredienser, produkter och innehållsdelar med högst köpintention.",
+    "sinDatosTodavia": "Inga uppgifter ännu.",
+    "productosMasEtiquetados": "Fler märkta produkter",
+    "aunNoHayConversionesAtribuidas": "Det finns inga tillskrivna konverteringar ännu.",
+    "conversion": "Omvandling",
+    "cuentaYConfiguracion": "Konto och inställningar",
+    "cambiarContrasena": "Ändra lösenord"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "Ingen försäljningsdata ännu",
+    "metodoDePagoActualizado": "Betalningsmetod uppdaterad",
+    "losPagosViaStripeSeProcesanAutomat": "Betalningar via Stripe behandlas automatiskt var 15:e dag",
+    "metodoDeCobro": "Betalningsmetod",
+    "cobroAutomaticoCada15DiasDirectoA": "Automatisk betalning var 15:e dag direkt till din bank.",
+    "solicitasElPagoYElEquipoLoTransfi": "Du begär betalningen och teamet överför den till ditt konto.",
+    "guardarMetodo": "Spara-metod",
+    "errorAlCargarDatosDePagos": "Fel vid inläsning av betalningsdata",
+    "noSePudoObtenerElEnlaceDeStripe": "Stripe-länken kunde inte erhållas",
+    "errorAlAbrirElDashboardDeStripe": "Fel vid öppning av Stripe-instrumentpanelen",
+    "retencionFiscalAplicada": "Skatteavdrag tillämpat",
+    "tusGananciasSeAcumulanPeroNecesita": "Dina intäkter ackumuleras, men du behöver Stripe Connect för att ta emot automatiska överföringar.",
+    "comoFuncionanLosPagos": "Så här fungerar betalningar:",
+    "sobreTusGananciasNetasSegunTuConfi": "på din nettoinkomst enligt din skattekonfiguration."
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "Grundläggande kontrollpanel",
+    "optimizacionDePreciosConIa": "Prisoptimering med AI",
+    "comisionMasBaja": "Lägre provision",
+    "suscripcionMarcadaParaCancelar": "Prenumeration markerad för uppsägning",
+    "suscripcionReactivada": "Prenumerationen återaktiverad",
+    "eligeElPlanQueMejorSeAdapteATuN": "Välj den plan som bäst passar ditt företag",
+    "periodoDePruebaActivo": "Aktiv provperiod",
+    "actualizaTuMetodoDePagoParaMantene": "Uppdatera din betalningsmetod för att behålla din plan.",
+    "cancelacionProgramada": "Planerad avbokning",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "Din plan kommer att sägas upp i slutet av den innevarande perioden.",
+    "detallesDeSuscripcion": "Prenumerationsinformation",
+    "cancelarSuscripcion": "Avsluta prenumerationen",
+    "todosLosPreciosSonEnEurEIncluyen": "Alla priser är i EUR och inkluderar moms. Planändringar träder i kraft omedelbart.",
+    "alCancelarMantienesElAccesoHastaE": "Genom att avsluta prenumerationen behåller du åtkomsten till slutet av faktureringsperioden."
+  },
+  "producer_products": {
+    "composicion": "Sammansättning",
+    "elNombreDelProductoEsObligatorio": "Produktnamnet är obligatoriskt",
+    "seleccionaUnaCategoria": "Välj en kategori",
+    "seleccionaElPaisDeOrigen": "Välj ursprungsland",
+    "crustaceos": "Kräftdjur",
+    "frutosDeCascara": "Nötter",
+    "anadeAlMenosUnaImagen": "Lägg till minst en bild",
+    "subeHasta5FotosDeTuProductoLaPr": "Ladda upp upp till 5 foton av din produkt. Det första blir omslagsfotot.",
+    "pedidoMinimoUds": "Minsta beställning (enheter)",
+    "especificaOtrosAlergenos": "Ange andra allergener..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "Leveranspolicyn kunde inte läsas in",
+    "politicaDeEnvioGuardada": "Leveranspolicy sparad",
+    "politicaDeEnvio": "Leveranspolicy",
+    "configuraCostesDeEnvioPorPedidoPar": "Konfigurera fraktkostnader per beställning för dina produkter.",
+    "habilitarGastosDeEnvio": "Aktivera fraktkostnader",
+    "0SinEnvioGratis": "0 = ingen fri frakt",
+    "pedidosQueSuperenEsteImporteTendran": "Beställningar som överstiger detta belopp har fri frakt. Lämna det tomt eller sätt till 0 för att inaktivera det.",
+    "losClientesPuedenRecogerEnTuObrado": "Kunder kan hämta sin beställning i er verkstad (fraktkostnader tillkommer)"
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "Bild tillagd i galleriet",
+    "anadirFotoALaGaleria": "Lägg till foto i galleriet",
+    "fotosDelObradorEquipoProcesoDeEl": "Bilder på verkstaden, utrustningen och produktionsprocessen",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "Denna butiks-URL används redan. Välj en annan.",
+    "errorAlCargarElPerfilDeTienda": "Fel vid laddning av butiksprofil",
+    "compruebaTuConexionEIntentaloDeNue": "Kontrollera din anslutning och försök igen.",
+    "personalizaLaPaginaPublicaDeTuTien": "Anpassa din butiks offentliga sida",
+    "urlDeTuTienda": "Din butiks-URL:",
+    "informacionBasica": "Grundläggande information",
+    "nombreDeLaTienda": "Butikens namn",
+    "aceitesEcologicosDesde1985": "Ekologiska oljor sedan 1985",
+    "historiaDeLaMarca": "Varumärkeshistoria",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "Berätta historien om ditt varumärke, hur ni startade, er filosofi...",
+    "carlosMartinez": "Carlos Martínez",
+    "laCalidadNoEsUnAccidente": "Kvalitet är ingen slump...",
+    "tusCertificadosVerificadosAparecenAu": "Dina verifierade certifikat visas automatiskt i din butik.",
+    "ubicacionCiudadRegion": "Plats (stad, region)",
+    "jaenAndaluciaEspana": "Jaén, Andalusien, Spanien",
+    "direccionCompleta": "Fullständig adress",
+    "ctraDeLosOlivaresKm1223001Jaen": "Ctra. de los Olivares, km 12, 23001 Jaén",
+    "todaEspanaPeninsular": "Hela det spanska fastlandet",
+    "horarioDeAtencion": "Öppettider",
+    "lun-vie900-180010sab900-1400": "Mån-fre: 9:00-18:00&#10;Lör: 9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "Facilitet",
+    "errorAlSubirElDocumentoCifnif": "Fel vid uppladdning av CIF/NIF-dokumentet",
+    "errorAlSubirLaFotoDeInstalaciones": "Fel vid uppladdning av fotot på anläggningarna",
+    "errorAlSubirElCertificado": "Fel vid uppladdning av certifikat",
+    "verificacionDeCuenta": "Kontoverifiering",
+    "subeTuCifEmpresarialONifPersonal": "Ladda upp ditt företags CIF eller personliga NIF. Det måste vara ett officiellt dokument från AEAT (spanska skattemyndigheten).",
+    "pdfJpgPng·Max5mb": "PDF, JPG, PNG · Max 5 MB",
+    "enRevisionManual": "Under manuell granskning",
+    "nuestroEquipoRevisaraTuDocumentoEn": "Vårt team kommer att granska ditt dokument inom 48–72 arbetstimmar.",
+    "fotoDeInstalacion": "Installationsfoto",
+    "subeUnaFotoDeTuLocalObradorFinc": "Ladda upp ett foto på din lokal, verkstad, gård, lager eller arbetsplats.",
+    "laIaVerificaraQueEsUnaInstalacion": "AI:n kommer att verifiera att det är en riktig anläggning relaterad till livsmedelsproduktion.",
+    "jpgPngHeic·Max10mb": "JPG, PNG, HEIC · Max 10 MB",
+    "instalacionVerificada": "Installationen verifierad",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "Vårt team kommer att granska ditt foto inom 48–72 arbetstimmar.",
+    "alMenos1CertificadoValido": "Minst ett giltigt certifikat",
+    "enRevision": "Under granskning",
+    "nuestroEquipoRevisaraTuDocumentacion": "Vårt team kommer att granska din dokumentation inom 48–72 arbetstimmar. Vi meddelar dig via e-post.",
+    "completaLaVerificacion": "Slutför verifieringen"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "Aktiveringsregler per marknad:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "Fyll i alla fält i paketet med giltiga värden"
+  },
+  "affiliate_links": {
+    "copiado": "Kopierad!",
+    "configuracionFiscalRequerida": "Obligatorisk skattekonfiguration",
+    "generaUnLinkParaCualquierProducto": "Generera en länk för valfri produkt. När någon köper via din länk tjänar du provision.",
+    "masIngresos": "Mer inkomst",
+    "masClics": "Fler klick",
+    "buscaUnProductoArribaParaGenerarTu": "Sök efter en produkt ovan för att generera din första länk"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "Utan kvarhållning",
+    "seleccionaUnPaisDeResidenciaFiscal": "Välj först ett land för skatterättslig hemvist",
+    "elArchivoNoPuedeSuperar5mb": "Filen får inte överstiga 5 MB",
+    "certificadoEnRevisionManual": "Certifikat granskas manuellt",
+    "certificadoNoValido": "Ogiltigt certifikat",
+    "formatoDeIbanNoValidoDebeEmpezar": "Ogiltigt IBAN-format. Måste börja med landskod (t.ex. ES12...)",
+    "errorAlConfigurarMetodoDeCobro": "Fel vid konfigurering av betalningsmetod",
+    "configuracionFiscal": "Räkenskapskonfiguration",
+    "paisFiscal": "Skatteland",
+    "buscarPais": "Sök land...",
+    "pdfJpgOPng·Max5mb": "PDF, JPG eller PNG · Max 5 MB",
+    "nuestroEquipoRevisaraTuCertificadoE": "Vårt team kommer att granska ditt certifikat inom 48–72 arbetstimmar.",
+    "recibeEnMinutosEnTuCuentaStripe": "Få det på ditt Stripe-konto inom några minuter.",
+    "fee025€PorTransferenciaStripeSe": "Avgift: 0,25 € per Stripe-överföring (dras av från din provision)",
+    "sinComisionAdicional·ProcesadoEn1-": "Inga extra avgifter · Behandlas inom 1–3 arbetsdagar",
+    "titularDeLaCuenta": "Kontoinnehavare",
+    "verificacionCompletada": "Verifiering slutförd",
+    "tuConfiguracionFiscalEstaVerificada": "Dina skatteinställningar är verifierade och aktiva.",
+    "verificacionCompletadaAfiliadosActiv": "Verifiering slutförd. Partners aktiverade.",
+    "errorAlCompletarLaVerificacion": "Fel vid slutförande av verifiering.",
+    "completaLosPasosAnterioresParaAcced": "Slutför stegen ovan för att få åtkomst till verifieringen.",
+    "configuracionFiscalGuardadaAfiliados": "Skatteinställningar sparade. Partners aktiverade.",
+    "errorAlGuardarLaConfiguracionFiscal": "Fel vid sparning av skatteinställningar.",
+    "completaTodosLosCamposParaContinuar": "Fyll i alla fält för att fortsätta"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "Fel vid behandling av uttag",
+    "introduceElCodigoDe6Digitos": "Ange den 6-siffriga koden",
+    "emailVerificado": "E-postadressen är verifierad!",
+    "codigoInvalido": "Ogiltig kod",
+    "codigoEnviadoATuEmail": "Kod skickad till din e-postadress",
+    "errorAlEnviarCodigo": "Fel vid sändning av kod",
+    "elCodigoDebeTenerAlMenos3Caracter": "Koden måste vara minst 3 tecken lång",
+    "codigoCreado": "Kod skapad",
+    "errorAlCrearCodigo": "Fel vid skapandet av kod",
+    "codigosDeDescuento": "Rabattkoder",
+    "eligeUnCodigoPersonalizadoYElPorce": "Välj en anpassad kod och rabattprocent för din community.",
+    "codigoCopiado": "kopierad kod",
+    "misCodigosDeDescuento": "Mina rabattkoder",
+    "creaTuPrimerCodigoDeDescuento": "Skapa din första rabattkod",
+    "pendiente15Dias": "Väntar i 15 dagar",
+    "enTransito": "På väg",
+    "productosQueMejorFuncionanEnTuCont": "Produkter som fungerar bäst för ditt innehåll",
+    "publicaContenidoConProductosVinculad": "Publicera innehåll med länkade produkter för att börja se resultat.",
+    "pendienteDeAprobacion": "Väntar på godkännande",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "Din kod granskas av Hispaloshop-teamet. Vi godkänner den inom mindre än 24 timmar.",
+    "miCodigoHispaloshop": "Min Hispaloshop-kod",
+    "comisionTotal": "Total provision",
+    "tasaDeComision": "Provisionssats",
+    "aunNoHasRealizadoNingunCobro": "Du har inte fått någon betalning än.",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL drar av 15 % av dina provisioner och betalar dem till Skatteverket för din räkning kvartalsvis (modell 111).",
+    "cuandoHagasTuDeclaracionDeLaRenta": "När du lämnar in din inkomstdeklaration (IRPF) kommer dessa källskatter redan att vara betalda och du kan dra av dem.",
+    "recibirasElCertificadoDeRetenciones": "Du kommer att få källskatteintyget i januari varje år.",
+    "evolucionDeTusComisiones": "Utvecklingen av dina provisioner",
+    "comparteloEnTusRedesSociales": "Dela det på dina sociala medier",
+    "tuLinkDeAfiliado": "Din affiliate-länk",
+    "aunNoTienesVentasComparteTuLink": "Du har inga försäljningar än. Dela din länk!",
+    "configuracionFiscal": "skattekonfiguration"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "Otillräckliga data för att visa grafen",
+    "impactoComercialDeTuContenido": "Kommersiell påverkan av ditt innehåll",
+    "productosMasImpulsadosPorTuContenid": "Produkter som drivs mest av ditt innehåll",
+    "errorDeConexion": "Anslutningsfel",
+    "noPudimosCargarTusDatosCompruebaT": "Vi kunde inte ladda dina data. Kontrollera din anslutning och försök igen.",
+    "aunNoTienesDatos": "Du har inga uppgifter ännu.",
+    "cuandoTuContenidoImpulseClicsOComp": "När ditt innehåll genererar klick eller köp visas det här.",
+    "losDatosMuestranInteraccionesAtribui": "Data visar interaktioner som kan tillskrivas din skaparprofil: klick på produkter från ditt innehåll, varor som lagts till i varukorgen och slutförda köp. Den uppdateras i realtid."
+  },
+  "payouts": {
+    "introduceUnImporteValido": "Ange ett giltigt belopp",
+    "elImporteSuperaTuSaldoDisponible": "Beloppet överstiger ditt tillgängliga saldo.",
+    "errorAlSolicitarLaRetirada": "Fel vid begäran om uttag",
+    "lasComisionesDeTransferenciaDeStrip": "Stripes överföringsavgifter (ca 1-2%) dras av automatiskt.",
+    "aunNoTienesPagosComparteTuCodigo": "Du har inte mottagit några betalningar än. Dela din kod och börja tjäna pengar.",
+    "noHayPagosConEsteEstado": "Det finns inga betalningar med denna status."
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "Väntande skattekonfiguration",
+    "completaTuConfiguracionFiscalAntesD": "Slutför dina skatteinställningar innan du tar ut pengar",
+    "errorAlProcesarElCobroIntentaloDe": "Fel vid betalningsbehandling. Försök igen.",
+    "cobroEnCamino": "Betalning är på väg!",
+    "tiempoEstimado1-3DiasHabiles": "Beräknad tid: 1–3 arbetsdagar",
+    "retencionIrpf": "Inkomstskatteavdrag",
+    "metodo": "Metod",
+    "comisionBruta": "Bruttoprovision",
+    "laComisionRealPuedeVariarSegunTuM": "Den faktiska provisionen kan variera beroende på din betalningsmetod.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Denna betalning kommer att deklareras av Hispaloshop SL som inkomst från ekonomisk verksamhet.",
+    "recibirasUnCertificadoDeRetenciones": "Du kommer att få ett källskatteintyg i januari för din skattedeklaration."
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "Alla kategorier",
+    "carnicos": "Köttprodukter",
+    "errorAlEnviarLaSolicitud": "Fel vid sändning av begäran",
+    "precioEstimado·ElProductorConfirmar": "Uppskattat pris · Producenten kommer att bekräfta det slutliga priset",
+    "notasParaElProductorOpcional": "Anmärkningar för producenten (valfritt)",
+    "elProductorTiene48hParaConfirmarDi": "Producenten har 48 timmar på sig att bekräfta tillgänglighet och villkor.",
+    "soloSeProcesaElPagoTrasSuConfirma": "Betalning behandlas endast efter bekräftelse.",
+    "catalogoMayorista": "Grossistkatalog",
+    "errorAlCargarElCatalogo": "Fel vid läsning av katalogen"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "Välj en leverantör för att se deras certifikat",
+    "errorAlCargarLosCertificados": "Fel vid inläsning av certifikat",
+    "losCertificadosDeTusProveedoresApar": "Dina leverantörers certifikat kommer att visas här."
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "Automatiskt genererade B2B-kontrakt",
+    "errorAlCargarElPanel": "Fel vid laddning av panelen",
+    "aunNoTienesProductosPublicados": "Du har inga produkter listade ännu.",
+    "requierenTuAccion": "De kräver din åtgärd",
+    "catalogoB2b": "B2B-katalog",
+    "aunNoTienesProveedores": "Du har inga leverantörer ännu.",
+    "expandeTuCatalogo": "Utöka din katalog",
+    "verAnalisis": "Visa analys",
+    "anadirProducto": "Lägg till produkt",
+    "analisis": "Analys",
+    "evolucionDeVentas": "Försäljningsutveckling"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "Transaktions-ID inte tillgängligt",
+    "recepcionConfirmada": "Mottagning bekräftad",
+    "errorAlConfirmarRecepcion": "Fel vid bekräftelse av mottagande",
+    "idDePedidoNoDisponible": "Order-ID inte tillgängligt",
+    "rastrearEnvio": "Spåra försändelse",
+    "confirmarRecepcion": "Bekräfta mottagandet"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "Fel vid laddning av rabattkoder",
+    "errorAlAprobarElCodigo": "Fel vid godkännande av kod",
+    "errorAlRechazarElCodigo": "Fel vid avvisning av kod",
+    "codigoDeDescuentoActualizado": "Rabattkoden uppdaterad",
+    "codigoDeDescuentoCreado": "Rabattkod skapad",
+    "errorAlGuardarCodigoDeDescuento": "Fel vid sparning av rabattkoden",
+    "codigoDeDescuentoEliminado": "Rabattkoden har tagits bort",
+    "errorAlEliminarCodigoDeDescuento": "Fel vid borttagning av rabattkod",
+    "errorAlCambiarEstadoDelCodigo": "Fel vid ändring av kodstatus",
+    "cargandoCodigosDeDescuento": "Laddar rabattkoder",
+    "gestionaCodigosPromocionalesEInfluen": "Hantera kampanjkoder och influencers",
+    "nuevoCodigo": "Ny kod",
+    "editarCodigoDeDescuento": "Redigera rabattkod",
+    "importeMinimoDelCarrito": "Minsta varukorgsbelopp",
+    "limiteDeUso": "Användningsgräns",
+    "actualizarCodigo": "Uppdatera kod",
+    "buscarCodigosDeDescuento": "Sök efter rabattkoder...",
+    "codigo": "Koda",
+    "noSeEncontraronCodigos": "Inga koder hittades",
+    "codigosActivos": "Aktiva koder",
+    "totalDeCodigos": "Totalt antal koder"
+  },
+  "admin_fiscal": {
+    "revisionManual": "Manuell granskning",
+    "errorAlProcesarLaRevision": "Fel vid bearbetning av recensionen",
+    "gestionFiscal": "Finansiell förvaltning",
+    "pendientesRevision": "Väntar på granskning",
+    "revisionManualPendiente": "Manuell granskning väntar"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "Tillväxtdata kunde inte laddas",
+    "errorAlCargarLosDatos": "Fel vid inläsning av data",
+    "analisisDeConversionYDescubrimiento": "Konverteringsanalys och upptäckt",
+    "conversionDirecta": "Direkt konvertering",
+    "contenidoConMayorConversion": "Innehåll med högre konverteringsfrekvens",
+    "titulo": "Kompetens",
+    "productosMasClicadosDesdeContenido": "Mest klickade produkter från innehåll",
+    "sobreLosDatosDeCrecimiento": "Angående tillväxtdata"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "Fel vid laddning av influencerinformation",
+    "anadirInfluencer": "Lägg till influencer"
+  },
+  "admin_management": {
+    "paisAsignado": "Tilldelat land",
+    "elAdminSoloVeraAnalyticsDeEstePai": "Administratören kommer bara att se statistik för det här landet. Lämna det tomt för global åtkomst."
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "Felaktig hälsoinformation",
+    "claimsMedicos": "Medicinska påståenden",
+    "razonIa": "Anledning IA",
+    "contenidoConfirmadoComoInfraccion": "Innehåll bekräftat som ett intrång",
+    "errorAlConfirmarLaModeracion": "Fel vid bekräftelse av moderering",
+    "errorAlRestaurarElContenido": "Fel vid återställning av innehåll",
+    "errorAlEscalarElContenido": "Fel vid skalning av innehåll",
+    "revisaElContenidoModeradoPorIa": "Granska AI-modererat innehåll"
+  },
+  "admin_orders": {
+    "articulos": "Artiklar"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "Laddar administratörspanelen",
+    "noSePudieronCargarLasEstadisticas": "Statistiken kunde inte laddas",
+    "panelDeAdministracion": "Administrationspanel",
+    "gestionDeTuMercadoEnUnaVista": "Hantera din marknad i en enda vy",
+    "colaDeRevision": "Granskningskö",
+    "moderacionDeContenido": "Innehållsmoderering",
+    "certificadosQueExpiranEn30Dias": "Certifikat som upphör att gälla om 30 dagar",
+    "noHayCertificadosProximosAExpirar": "Det finns inga certifikat som snart löper ut.",
+    "certificadosPendientesDeRevision": "Certifikat väntar på granskning"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "Banktransaktionsnummer"
+  },
+  "admin_products": {
+    "precioNoValido": "Priset är inte giltigt",
+    "checklistDeAprobacion": "Checklista för godkännande",
+    "alMenos1FotoDelProducto": "Minst ett foto av produkten",
+    "descripcionCompletaMin20Caracteres": "Fullständig beskrivning (minst 20 tecken)",
+    "paisDeOrigenIndicado": "Angivet ursprungsland",
+    "alergenosRevisadosCampoPresente": "Granskade allergener (närvaro i fält)",
+    "marcaTodosLosItemsParaPoderAprobar": "Markera alla objekt för att godkänna"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "Ogiltigt order-ID",
+    "errorAlProcesarElReembolso": "Fel vid bearbetning av återbetalning",
+    "accionIrreversible": "Oåterkallelig handling",
+    "seProcesaraElReembolsoEnStripeYSe": "Återbetalningen kommer att behandlas via Stripe och avgifterna justeras automatiskt.",
+    "gestionDeReembolsos": "Återbetalningshantering"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "Fel vid laddning av recensioner",
+    "resenaOculta": "Dold recension",
+    "resenaEliminada": "Recension borttagen",
+    "errorAlEliminarResena": "Fel vid borttagning av recension",
+    "moderarResenasDeClientes": "Måttliga kundrecensioner",
+    "totalDeResenas": "Totalt antal recensioner",
+    "calificacionPromedio": "Genomsnittligt betyg",
+    "buscarResenas": "Sök efter recensioner...",
+    "calificacion": "Kompetens",
+    "noSeEncontraronResenas": "Inga recensioner hittades"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "Supportärendena kunde inte laddas",
+    "noHayCasosDeSoporteConLosFiltros": "Det finns inga supportärenden med de valda filtren."
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "Begär ersättning",
+    "resolucionManual": "Manuell upplösning",
+    "noSePudoCargarElCaso": "Det gick inte att ladda ärendet",
+    "noSePudoActualizarElEstado": "Statusen kunde inte uppdateras",
+    "noSePudoActualizarLaPrioridad": "Prioriteten kunde inte uppdateras",
+    "noSePudoEnviarElMensaje": "Meddelandet kunde inte skickas.",
+    "accionAplicada": "Åtgärder som vidtagits",
+    "noSePudoAplicarLaAccion": "Åtgärden kunde inte tillämpas",
+    "conversacion": "Konversation",
+    "sinMensajesAun": "Inga meddelanden än.",
+    "tuAdmin": "Du (administratör)",
+    "unAgenteHumanoSeHaUnidoALaConver": "En mänsklig agent har anslutit sig till samtalet.",
+    "esteCasoEstaCerradoNoSePuedenAna": "Detta ärende är avslutat. Inga ytterligare meddelanden kan läggas till.",
+    "ultimaActualizacion": "Senaste uppdatering"
+  },
+  "admin_trust_safety": {
+    "enganoso": "Vilseledande",
+    "resena": "Recension",
+    "noSePudoCargarLaColaDeModeracion": "Modereringskön kunde inte laddas",
+    "accionAplicada": "Åtgärder som vidtagits",
+    "noSePudoAplicarLaAccion": "Åtgärden kunde inte tillämpas",
+    "colaVacia": "Tom kö",
+    "noHayContenidoPendienteDeRevision": "Det finns inget innehåll som väntar på granskning.",
+    "senales": "Signaler",
+    "noSePudieronCargarLosReportes": "Rapporterna kunde inte laddas",
+    "noHayReportesConLosFiltrosSeleccio": "Det finns inga rapporter med de valda filtren.",
+    "marcadosAutomaticamente": "Automatiskt markerad",
+    "politicasDeLaPlataforma": "Plattformspolicyer",
+    "productosProhibidosArmasDrogasCon": "Förbjudna produkter: vapen, droger, olagligt innehåll, förfalskade varor.",
+    "resenasDebenSerAutenticasVerificad": "Recensioner: måste vara autentiska, verifierade och baserade på faktiska köp.",
+    "vendedoresResponsablesDeLaVeracidad": "Säljare: ansvarar för beskrivningarnas riktighet och livsmedelssäkerhet.",
+    "contenidoGeneradoPorUsuariosSujeto": "Användargenererat innehåll: föremål för automatisk och mänsklig moderering.",
+    "colaDeModeracion": "Modereringskö",
+    "moderacionReportesEIntegridadDeLa": "Moderering, rapportering och plattformsintegritet."
+  },
+  "admin_verification": {
+    "revision": "Revision",
+    "revisionManual": "Manuell granskning",
+    "numero": "Antal",
+    "descripcionIa": "AI-beskrivning",
+    "rechazarVerificacion": "Avvisa verifiering",
+    "documentosProblematicos": "Problematiska dokument:",
+    "fotoDeInstalacionNoValida": "Ogiltigt installationsfoto",
+    "solicitarDocumentacion": "Begär dokumentation",
+    "verificacionRechazada": "Verifiering avvisad",
+    "revisionManualDeProductores": "Granskning av producentmanualen"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "Kategorinamn",
+    "descripcionOpcional": "Beskrivning (valfritt)",
+    "errorAlCargarLasCategorias": "Fel vid inläsning av kategorier",
+    "categoriaCreada": "Kategori skapad",
+    "errorAlCrearLaCategoria": "Fel vid skapandet av kategorin",
+    "categoriaActualizada": "Uppdaterad kategori",
+    "errorAlActualizarLaCategoria": "Fel vid uppdatering av kategorin",
+    "categoriaEliminada": "Kategori borttagen",
+    "errorAlEliminarLaCategoria": "Fel vid borttagning av kategori",
+    "nuevaCategoria": "Ny kategori",
+    "buscarCategorias": "Sök i kategorier...",
+    "noSeEncontraronCategorias": "Inga kategorier hittades",
+    "sinDescripcion": "Ingen beskrivning"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "Meddelandena kunde inte läsas in.",
+    "canalDeEscalacionAbiertoUnSuperadm": "Eskaleringskanalen är öppen. En superadministratör kommer att ta emot ditt meddelande.",
+    "errorAlAbrirEscalacion": "Fel vid öppnande av eskalering",
+    "canalDeEscalacionPrivado": "Privat klätterkanal",
+    "seleccionaUnaEscalacionParaVerLosM": "Välj en eskalering för att visa meddelandena",
+    "usaEsteCanalParaReportarProblemasC": "Använd den här kanalen för att rapportera kritiska problem, olösta tvister eller situationer som kräver ingripande på högre nivå.",
+    "elMensajeEstaCifradoDeExtremoAExt": "Meddelandet är end-to-end-krypterat i databasen.",
+    "describeElProblemaOSituacionAEscal": "Beskriv problemet eller situationen som ska eskaleras...",
+    "abrirCanalDeEscalacion": "Öppna eskaleringskanalen",
+    "sinMensajesTodavia": "Inga meddelanden ännu"
+  },
+  "content_management": {
+    "sinExpiracion": "Ingen utgångsdatum"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "Fel vid behandling av GDPR-begäran",
+    "solicitudesDeDerechosDeUsuariosBajo": "Begäran om användarrättigheter enligt GDPR. Maximal svarstid: 30 dagar."
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "Bildlagring",
+    "estadoDeServiciosYConfiguracionDel": "Tjänststatus och miljökonfiguration",
+    "informacionDelSistema": "Systeminformation"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "Det gick inte att läsa in informationen i insiktspanelen.",
+    "minimoDeUsuariosRequeridosParaMostr": "Minsta antal användare som krävs för att visa aggregerad känslig data",
+    "detectarObjetivosDieteticosYDeSalud": "Identifiera kost- och hälsomål",
+    "noHayDatosDePaisesParaMostrar": "Det finns ingen landsdata att visa.",
+    "noHayMetricasDeIaDisponibles": "Inga AI-mätvärden finns tillgängliga.",
+    "noHayDatosDeComplianceDisponibles": "Inga efterlevnadsdata finns tillgängliga."
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "Aktivera ett land så att lokala säljare kan registrera sig."
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "Ange ditt superadministratörslösenord för att tillämpa den här ändringen i produktion.",
+    "contrasenaSuperadmin": "Superadmin-lösenord",
+    "introduceTuContrasena": "Ange ditt lösenord",
+    "configuracionActualizadaYGuardada": "Uppdaterade och sparade inställningar",
+    "configuracionDePlanes": "Planinställningar",
+    "losCambiosSeAplicanAutomaticamenteE": "Ändringarna tillämpas automatiskt i Stripe. Superadmin-lösenord krävs för att bekräfta.",
+    "comisionSobreElTotalDeVentaDespue": "Provision på den totala försäljningen (efter frakt och moms). Denna dras av från plattformens marginal."
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "Översikten kunde inte laddas",
+    "revisaLaConexionConElBackend": "Kontrollera anslutningen till backend-systemet.",
+    "sinDatosDeTendencia": "Inga trenddata",
+    "distribucionDePlanes": "Plandistribution"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "Fel vid laddning av B2B-katalog",
+    "noSePudoCambiarElEstado": "Tillståndet kunde inte ändras",
+    "noTienesAccesoAEstaSeccion": "Du har inte åtkomst till den här sektionen",
+    "necesitasUnPerfilDeProductorOImpor": "Du behöver en producent- eller importörsprofil för att få åtkomst till B2B-katalogen.",
+    "gestionaQueProductosOfrecesAlPorMa": "Hantera vilka produkter du erbjuder grossist och under vilka villkor.",
+    "noTienesProductosEnElCatalogoB2b": "Du har inga produkter i B2B-katalogen",
+    "empiezaAnadiendoTuPrimerProductoMay": "Börja med att lägga till din första grossistprodukt.",
+    "anadirPrimerProducto": "Lägg till första produkten",
+    "anadirProductoAlCatalogoB2b": "Lägg till produkt i B2B-katalogen"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "Börja samtalet genom att skicka ett meddelande",
+    "noTienesAccesoAEstaSeccion": "Du har inte åtkomst till den här sektionen",
+    "necesitasUnPerfilDeProductorOImpor": "Du behöver en producent- eller importörsprofil för att få åtkomst till B2B-chatten."
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "Det gick inte att ladda åtgärden",
+    "noTienesAccesoAEstaSeccion": "Du har inte åtkomst till den här sektionen",
+    "necesitasUnPerfilDeProductorOImpor": "Du behöver en producent- eller importörsprofil för att få tillgång till B2B-avtal.",
+    "operacionNoEncontrada": "Operationen hittades inte",
+    "laOperacionSolicitadaNoExisteONoT": "Den begärda åtgärden finns inte, eller så har du inte åtkomst.",
+    "laIaEstaGenerandoElContrato": "AI genererar kontraktet...",
+    "elContratoEstaTardandoMasDeLoEspe": "Kontraktet tar längre tid än väntat.",
+    "recibirasUnaNotificacionCuandoEsteL": "Du får ett meddelande när det är klart.",
+    "cartaDeCreditoPagoDividido": "Kreditbrev (delad betalning)",
+    "pagoA30Dias": "Betalning förfaller inom 30 dagar",
+    "pagoA60Dias": "Betalning förfaller inom 60 dagar",
+    "alFirmarConfirmasQueHasLeidoYAcep": "Genom att skriva under bekräftar du att du har läst och godkänner alla villkor i avtalet.",
+    "laFirmaQuedaRegistradaConFechaHor": "Signaturen registreras med datum, tid och IP-adress.",
+    "necesitasSubirTuFirmaDigitalAntesD": "Du måste ladda upp din digitala signatur innan du kan skriva under avtal"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "Felaktig dokumentation",
+    "maximo5Archivos": "Max 5 filer",
+    "errorAlAbrirLaDisputa": "Fel vid öppnande av tvist",
+    "antesDeAbrirUnaDisputaTeRecomenda": "Innan du öppnar en tvist rekommenderar vi att du pratar med den andra parten i chatten.",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "Om ni inte kan nå en överenskommelse kommer Hispaloshop-administratören att granska ärendet inom 72 timmar.",
+    "describeDetalladamenteElProblemaMin": "Beskriv problemet i detalj (minst 50 tecken)...",
+    "max5Archivos10mbCadaUno": "Max 5 filer, 10 MB vardera",
+    "estaAccionNotificaraAlAdminDeHispa": "Denna åtgärd kommer att meddela Hispaloshop-administratören och kan påverka den andra partens rykte."
+  },
+  "b2_b_marketplace": {
+    "catalogo": "Katalog",
+    "precioMasBajo": "Lägsta pris",
+    "masProductos": "Fler produkter",
+    "sinAccesoAlCatalogoB2b": "Ingen åtkomst till B2B-katalogen",
+    "completaTuPerfilDeImportadorParaAc": "Fyll i din importörprofil för att få åtkomst",
+    "sinAccesoAlDirectorioDeProductores": "Utan åtkomst till producentkatalogen",
+    "indicaElProductorLosProductosYLa": "Ange producent, produkter och kvantitet. Producenten kommer att ta emot din förfrågan och kan svara med ett personligt erbjudande."
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "Kreditiv",
+    "elCompradorAsumeTodosLosCostesDesd": "Köparen står för alla kostnader från fabriken.",
+    "vendedorEntregaEnDestinoSinDescarga": "Säljaren levererar till destinationen utan lossning",
+    "indicaElPlazoMinimoDeEntrega": "Ange minsta leveranstid",
+    "validezDias": "Giltighetstid (dagar)",
+    "errorAlEnviarLaOferta": "Fel vid sändning av erbjudande"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "Under förhandling",
+    "noTienesAccesoAEstaSeccion": "Du har inte åtkomst till den här sektionen",
+    "necesitasUnPerfilDeProductorOImpor": "Du behöver en producent- eller importörsprofil för att få åtkomst till B2B-verksamhet.",
+    "errorAlCargarLasOperaciones": "Fel vid inläsning av åtgärder"
+  },
+  "b2_b_payment": {
+    "net30Dias": "Netto 30 dagar",
+    "net60Dias": "Netto 60 dagar",
+    "cartaDeCredito": "Kreditiv",
+    "errorAlCargarLosDatosDePago": "Fel vid inläsning av betalningsuppgifter",
+    "noSePudoInicializarElPago": "Betalningen kunde inte initieras.",
+    "noTienesAccesoAEstaSeccion": "Du har inte åtkomst till den här sektionen",
+    "necesitasUnPerfilDeProductorOImpor": "Du behöver en producent- eller importörsprofil för att få tillgång till B2B-betalningar.",
+    "esperandoElPagoDelComprador": "Väntar på betalning från köparen...",
+    "recibirasUnaNotificacionCuandoElPag": "Du får ett meddelande när betalningen har behandlats.",
+    "losFondosEstanRetenidosHastaQueSub": "Pengarna sparas tills du laddar upp fraktdokumentationen.",
+    "comisionHispaloshop3": "Hispaloshop-kommissionen (3 %)"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "Anbudsförfrågningar från importörer som är intresserade av dina produkter",
+    "historialDeTusSolicitudesDeCotizaci": "Historik över dina offertförfrågningar för grossister",
+    "noSePudieronCargarLasSolicitudes": "Det gick inte att läsa in förfrågningarna.",
+    "soloDisponibleParaCuentasDeProducto": "Endast tillgängligt för producentkonton",
+    "soloDisponibleParaCuentasDeImportad": "Endast tillgängligt för importörskonton",
+    "noHasEnviadoSolicitudesAun": "Du har inte skickat in några ansökningar än.",
+    "usaElMarketplaceB2bParaContactarPr": "Använd B2B-marknaden för att kontakta producenter"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "Fel vid laddning av operationen",
+    "envioConfirmado": "Leverans bekräftad",
+    "noSePudoConfirmarElEnvio": "Leveransen kunde inte bekräftas",
+    "operacionNoEncontrada": "Operationen hittades inte",
+    "noSePudoCargarLaOperacionSolicitad": "Den begärda åtgärden kunde inte läsas in.",
+    "abrirChatDeLaOperacion": "Öppen chatt för operationen",
+    "confirmarEnvio": "Bekräfta leverans",
+    "esperandoConfirmacionDeEnvioDelProd": "Väntar på leveransbekräftelse från producenten",
+    "documentacion": "Dokumentation",
+    "documentosNecesariosParaEstaOperacio": "Dokument som krävs för denna operation",
+    "revisaLaDocumentacionPendienteAntes": "Vänligen granska all utestående dokumentation innan du skickar in den.",
+    "proximamente": "Snart",
+    "elCompradorRealizaraElPagoFinalTra": "Köparen kommer att göra slutbetalningen efter leverans."
+  },
+  "customer_orders": {
+    "masAntiguos": "Äldre",
+    "errorAlCargarLosPedidos": "Fel vid inläsning av beställningar",
+    "errorAlActualizarLosPedidos": "Fel vid uppdatering av beställningar",
+    "noHayPedidosEnEstaCategoria": "Det finns inga beställningar i den här kategorin.",
+    "productosAnadidosAlCarrito": "Produkter tillagda i varukorgen",
+    "noSePudoRepetirElPedido": "Ordern kunde inte upprepas",
+    "cargarMasPedidos": "Ladda fler beställningar"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "Det gick inte att läsa in vissa data. Svep nedåt för att försöka igen."
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "Fel vid laddning av profilen",
+    "errorAlCargarLasDirecciones": "Fel vid inläsning av adresser",
+    "generaUnCodigoDeDescuentoPersonaliz": "Generera en anpassad rabattkod.",
+    "tusSeguidoresObtienen10DeDescuento": "Dina följare får 10 % rabatt.",
+    "tuGanasEntre3Y7DeCadaVenta": "Du tjänar mellan 3 % och 7 % av varje försäljning.",
+    "programaDeAfiliadosActivado": "Affiliateprogram aktiverat!",
+    "errorAlActivarElPrograma": "Fel vid aktivering av programmet"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "Det finns inga meddelanden ännu. Du kommer att få svar inom kort.",
+    "esteCasoEstaCerrado": "Detta ärende är avslutat.",
+    "noSePudoCargarTuHistorialDeSoport": "Din supporthistorik kunde inte läsas in",
+    "noSePudoAbrirElCaso": "Fallet kunde inte öppnas",
+    "historialDeTusCasosDeSoporteConHi": "Historik över dina supportärenden med Hispaloshop.",
+    "noTienesNingunCasoDeSoporteAbierto": "Du har inga öppna supportärenden. Kontakta HI om du behöver hjälp."
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "Produkt tillagd i varukorgen",
+    "errorAlAnadirAlCarrito": "Fel vid tillägg i varukorgen"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "Fel vid laddning av beställning",
+    "resenaPublicada": "Publicerad recension",
+    "errorAlPublicarLaResena": "Fel vid uppläggning av recension",
+    "esteDocumentoNoEsUnaFacturaFiscal": "Detta dokument är INTE en skattefaktura.",
+    "noSePudoDescargarLaFactura": "Fakturan kunde inte laddas ner.",
+    "elImporteSeReflejaraEnTuCuentaEn": "Beloppet kommer att synas på ditt konto inom 5–10 arbetsdagar.",
+    "seHaReembolsadoParteDelImporteATu": "En del av beloppet har återbetalats till ditt konto.",
+    "elPagoNoSePudoProcesarIntentaloD": "Din betalning kunde inte behandlas. Försök igen eller kontakta supporten.",
+    "dejaUnaResena": "Lämna en recension...",
+    "publicarResena": "Publicera en recension",
+    "resenaEnviadaGracias": "Recension skickad. Tack!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "Lösenordet uppdaterades",
+    "contrasenaActualIncorrecta": "Felaktigt aktuellt lösenord",
+    "errorAlCambiarContrasena": "Fel vid ändring av lösenord",
+    "tuCuentaUsaGoogleParaIniciarSesion": "Ditt konto använder Google för inloggning. Du har inget lösenord konfigurerat.",
+    "puedesAnadirUnaAContinuacion": "Du kan lägga till en nedan.",
+    "contrasenaActual": "Nuvarande lösenord",
+    "nuevaContrasena": "Nytt lösenord",
+    "repetirNuevaContrasena": "Upprepa nytt lösenord",
+    "lasContrasenasNoCoinciden": "Lösenorden matchar inte",
+    "anadirContrasena": "Lägg till lösenord"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "Användarnamnet är inte tillgängligt",
+    "urlNoValida": "Ogiltig URL",
+    "esteNombreDeUsuarioNoEstaDisponibl": "Detta användarnamn är inte tillgängligt",
+    "elUsuarioDebeTenerAlMenos3Caracte": "Användarnamnet måste innehålla minst 3 tecken",
+    "biografia": "Biografi",
+    "cuentanosSobreTi": "Berätta om dig själv...",
+    "madridEspana": "Madrid, Spanien",
+    "informacionDeContacto": "Kontaktinformation",
+    "elEmailNoSePuedeCambiarDesdeAqui": "E-postadressen kan inte ändras härifrån.",
+    "nombreDeLaEmpresa": "Företagsnamn",
+    "descripcionDeLaTienda": "Butiksbeskrivning",
+    "describeTuTiendaTusProductosTuHi": "Beskriv din butik, dina produkter, din berättelse...",
+    "maximo5Mb": "Maximalt 5 MB",
+    "eseNombreDeUsuarioYaEstaEnUso": "Det användarnamnet används redan",
+    "elNombreDeUsuarioDebeTenerAlMenos": "Användarnamnet måste vara minst 3 tecken långt.",
+    "noSePudoGuardarIntentaloDeNuevo": "Det gick inte att spara. Försök igen.",
+    "min3Caracteres": "Minst 3 tecken",
+    "cuentanosAlgoSobreTi…": "Berätta något om dig själv…",
+    "descripcionDeTienda": "Butiksbeskrivning"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "Fel vid bearbetning av begäran",
+    "cuandoAlguienQuieraSeguirteAparecer": "När någon vill följa dig visas de här."
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "Orderbekräftelse",
+    "actualizacionesDeEnvio": "Leveransuppdateringar",
+    "solicitudesDeResena": "Granskningsförfrågningar"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "IBAN-formatet är inte giltigt",
+    "sinComision-2-3DiasLaborables": "Ingen provision - 2–3 arbetsdagar",
+    "tuCuentaDeStripeConnectEstaActiva": "Ditt Stripe Connect-konto är aktivt. Betalningar behandlas automatiskt.",
+    "conectaTuCuentaDeStripeParaRecibir": "Anslut ditt Stripe-konto för att ta emot betalningar direkt. Du kommer att omdirigeras till Stripe-verifieringsprocessen.",
+    "losPagosPorVentasDeProductosSePro": "Betalningar för produktförsäljning behandlas automatiskt via Stripe Connect.",
+    "configuraTuCuentaDeStripeParaEmpez": "Konfigurera ditt Stripe-konto för att börja ta emot betalningar."
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "Grundläggande butiksprofil",
+    "analiticasBasicas": "Grundläggande analyser",
+    "analiticasAvanzadas": "Avancerad analys",
+    "generacionDeContratos": "Kontraktsgenerering",
+    "errorAlAbrirFacturacion": "Fel vid öppnande av fakturering",
+    "errorAlCambiarDePlan": "Fel vid ändring av abonnemang",
+    "perderasLasFuncionalidadesPremiumAl": "Du kommer att förlora premiumfunktioner i slutet av faktureringsperioden."
+  },
+  "settings": {
+    "cuentaPublicaActivada": "Offentligt konto aktiverat",
+    "errorAlCambiarLaPrivacidad": "Fel vid ändring av sekretessinställningar",
+    "sesionCerradaCambiadoAOtraCuenta": "Sessionen avslutad. Bytte till ett annat konto.",
+    "errorAlEliminarLaCuenta": "Fel vid borttagning av konto",
+    "paisEIdioma": "Land och språk",
+    "lasCuentasDeProductorSonSiemprePub": "Producentkonton är alltid offentliga.",
+    "planDeSuscripcion": "Prenumerationsplan",
+    "confirmarCierreDeSesion": "Bekräfta stängning av sessionen",
+    "tendrasQueVolverAIniciarSesionPara": "Du måste logga in igen för att komma åt ditt konto.",
+    "confirmarEliminacionDeCuenta": "Bekräfta borttagning av konto",
+    "estaAccionEsIrreversibleSeEliminar": "Denna åtgärd kan inte ångras. Alla dina data, beställningar och allt ditt innehåll kommer att raderas.",
+    "escribeTuEmailParaConfirmar": "Ange din e-postadress för att bekräfta.",
+    "confirmaTuEmailParaEliminarLaCuent": "Bekräfta din e-postadress för att radera kontot"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "Rita din signatur innan du sparar",
+    "subeUnaImagenDeTuFirma": "Ladda upp en bild på din signatur",
+    "configuraTuFirmaAntesDeGuardar": "Konfigurera din signatur innan du sparar",
+    "errorAlProcesarLaFirmaExistente": "Fel vid bearbetning av befintlig signatur",
+    "errorAlGuardarLaFirma": "Fel vid sparning av signaturen",
+    "necesitasConfigurarTuFirmaParaPoder": "Du måste konfigurera din signatur för att kunna signera B2B-avtal.",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "Din digitala signatur tillämpas automatiskt på B2B-avtal som",
+    "laFirmaQuedaRegistradaConTimestamp": "Signaturen registreras med tidsstämpel och SHA-256-hash för",
+    "seSuperpondraSobreLaFirmaEnLosCon": "Det kommer att läggas ovanpå underskriften på kontrakten."
+  },
+  "role_onboarding": {
+    "omnivoro": "Allätare",
+    "paraRecomendarteLosMejoresProductos": "För att rekommendera de bästa produkterna till dig. Du kan välja mellan flera alternativ.",
+    "tuFeedSePersonalizaraConSusProduct": "Ditt flöde kommer att anpassas med dina produkter och ditt innehåll.",
+    "escribeElNombreDeTuTienda": "Skriv namnet på din butik",
+    "errorConectandoConStripeHazloDesde": "Fel vid anslutning till Stripe. Anslut från din instrumentpanel.",
+    "estoEsLoPrimeroQueVeranTusCliente": "Detta är det första dina kunder kommer att se.",
+    "anadirLogo": "Lägg till logotyp",
+    "jpgPngOWebp·Maximo5mb": "JPG, PNG eller WebP · Max 5 MB",
+    "nombreDeTuTienda": "Namn på din butik",
+    "puedesAnadirMasDesdeTuPanelEsteP": "Du kan lägga till fler från din instrumentpanel. Detta steg är valfritt.",
+    "necesitamosVerificarTuIdentidadPara": "Vi behöver verifiera din identitet för att säkert kunna överföra dina försäljningspengar till dig.",
+    "tusDatosBancariosNuncaPasanPorHisp": "Dina bankuppgifter skickas aldrig via Hispaloshop",
+    "recibirasTusPagosAutomaticamente": "Du kommer att få dina betalningar automatiskt.",
+    "puedesHacerloMasTardeDesdeTuPanel": "Du kan göra det senare från din instrumentpanel.",
+    "loHareMasTarde": "Jag gör det senare.",
+    "noSePudoObtenerTuCodigo": "Din kod kunde inte hämtas",
+    "apareceranEnTuPerfilCuandoAlguien": "De kommer att visas på din profil. När någon köper dem tjänar du provision.",
+    "tusSeguidoresObtienenUn10DeDescue": "Dina följare får 10 % rabatt på sitt första köp. Du tjänar livstidsprovision.",
+    "comoGanasDinero": "Hur du tjänar pengar:",
+    "cadaCompraQueHaganTeGeneraComision": "Varje köp de gör genererar en provision för dig.",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "Du får automatiskt utbetalningar till ditt bankkonto",
+    "todoListo": "Allt är klart!",
+    "empiezaCompartiendoTuCodigoConTusS": "Börja med att dela din kod med dina följare.",
+    "veTusComisionesEnTiempoReal": "Se dina provisioner i realtid",
+    "minimo20€TransferenciaAutomatica": "Minst 20 €, automatisk överföring"
+  },
+  "chats": {
+    "colaboracion": "Samarbete",
+    "aunNoTienesMensajes": "Du har inga meddelanden än.",
+    "empiezaUnaConversacionConProductores": "Starta en konversation med producenter, influencers och fler",
+    "enviaMensajesPrivadosATiendasProdu": "Skicka privata meddelanden till butiker, producenter och influencers i HispaloShop-communityn."
+  },
+  "consumer_register": {
+    "datosBasicos": "Grundläggande data",
+    "errorAlCrearLaCuentaIntentaloDeN": "Fel vid skapandet av kontot. Försök igen.",
+    "completaTuRegistroEnPocosPasosYDe": "Slutför din registrering i några få steg och ha den första anpassningen redo när du är klar."
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "Återgå till rollval",
+    "esteFlujoYaEstaConectadoDePrincipi": "Det här flödet är redan anslutet från början till slut. Åtkomst till telefon och sociala medier kommer att läggas till senare.",
+    "crearasTuCuentaYDespuesCompletaremo": "Du skapar ditt konto och sedan slutför vi dina inställningar.",
+    "googleAppleYTelefonoVolveranCuando": "Google, Apple och telefonen kommer tillbaka när de är anslutna med samma tillförlitlighetsnivå som det här flödet."
+  },
+  "step2_basic": {
+    "datosBasicos": "Grundläggande data",
+    "empezamosConTuInformacionEsencialPa": "Vi börjar med din viktiga information för att skapa kontot.",
+    "maria": "Maria",
+    "garciaLopez": "García López",
+    "creaUnaContrasenaSegura": "Skapa ett säkert lösenord",
+    "debesTenerAlMenos16Anos": "Du måste vara minst 16 år gammal.",
+    "terminos": "villkor",
+    "politicaDePrivacidad": "Integritetspolicy"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "Anpassa dina intressen så att katalogen och rekommendationerna börjar med större urskiljning.",
+    "nosAyudaAMostrarProductoresYEnvios": "Det hjälper oss att visa upp de mest relevanta producenterna och leveranserna."
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "Förslag anpassade efter dina intressen och aktivitet.",
+    "loMasPopular": "Mest populära",
+    "losProductosQueMasEstanComprandoOt": "De produkter som andra användare köper mest.",
+    "ordenaPrimeroPorResenasYConfianza": "Sortera först efter recensioner och förtroende.",
+    "defineComoQuieresEmpezarAVerProduc": "Definiera hur du vill börja se produkter och hur ofta du vanligtvis köper."
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "Nästa steg är att slutföra din onboarding så att flödet, katalogen och förslagen börjar med mer mening.",
+    "cuandoTerminesElOnboardingTeEnsenar": "När du är klar med onboardingen visar vi dig först producenter, kategorier och konton som passar dig bättre."
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "Sluta ge bort din marginal till mellanhänderna",
+    "conectaConProductoresRealesSinInte": "Få kontakt med riktiga producenter. Inga mellanhänder. Inga lögner."
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop är marknaden där mat har en historia.",
+    "unaPlataformaDondeCadaProductoTiene": "En plattform där varje produkt har ett ansikte och en berättelse. Från fältet till ditt bord, utan någon mittemellan.",
+    "entreElProductorYTuPlatoHayUnaCa": "Mellan producenten och din tallrik finns en kedja av mellanhänder som höjer priset, urvattnar kvaliteten och raderar historien om vad du äter.",
+    "conectamosAlQueProduceConElQueCom": "Vi kopplar samman producenten med konsumenten",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop är en social handelsplattform där hantverksproducenter öppnar sina egna butiker, berättar sin historia och säljer direkt till slutkonsumenten."
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "Fel vid sändning. Försök igen.",
+    "paraDudasSobreLaPlataformaColabora": "För frågor om plattformen, samarbeten eller pressförfrågningar.",
+    "respondemosEnMenosDe24Horas": "Vi svarar inom mindre än 24 timmar.",
+    "losProductoresGestionanElEnvioDirec": "Producenterna hanterar frakten direkt. Leveranstiderna beror på varje producent och destination.",
+    "siHispaloshopSoportaMultiplesIdioma": "Ja. HispaloShop stöder flera språk och valutor för internationell försäljning.",
+    "paraCompradoresEsGratisProductores": "Det är gratis för köpare. Producenter har abonnemang från 0 euro. Influencers tjänar provision."
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "Importera, sälj och odla. Direkt tillgång till globala konsumenter, influencers och producenter. Upptäck alla fördelar för importörer på HispaloShop.",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "Din B2C- och B2B-butik på ett ställe.",
+    "accedeAConsumidoresFinalesConectaC": "Nå slutkonsumenter, få kontakt med lokala influencers och köp direkt från producenter i vilket land som helst. Allt från en enda plattform, utan mellanhänder.",
+    "vendeTusProductosImportadosDirectame": "Sälj dina importerade produkter direkt till konsumenten i destinationslandet, utan mellanhänder.",
+    "conectaYColaboraConInfluencersLocal": "Få kontakt med och samarbeta med lokala influencers för att marknadsföra dina produkter (Pro och Elite).",
+    "compraDirectamenteAProductoresDeCua": "Köp direkt från producenter i vilket land som helst, med direktkontakt och utan mellanhänder.",
+    "panelDeGestionUnificado": "Enhetlig hanteringspanel",
+    "gestionaPedidosPagosLogisticaCert": "Hantera beställningar, betalningar, logistik, certifikat och kommunikation från en enda instrumentpanel.",
+    "soportePorChatInternoConAdminLocal": "Intern chattsupport med lokal administratör och e-postsupport finns tillgänglig för alla abonnemang.",
+    "todasLasFuncionesBasicasVenderB2c": "Alla grundläggande funktioner, B2C-försäljning, produktpublicering, QR-certifikat, standardsupport.",
+    "matchingConInfluencersDashboardAvan": "Influencermatchning, avancerad instrumentpanel, säljanalys, prioriterad support.",
+    "todoLoAnteriorIaComercialAvanzada": "Allt ovanstående + avancerad affärs-AI, internationell marknadsanalys, automatisk kontraktsgenerering, lägre provision.",
+    "colaboracionConInfluencersLocalesPr": "Samarbete med lokala influencers (Pro och Elite)",
+    "panelDeGestionPagosYLogisticaUnif": "Enhetlig panel för hantering, betalningar och logistik",
+    "iaComercialAvanzadaYGeneracionDeCo": "Avancerad kommersiell AI och kontraktsgenerering (Elite)",
+    "importarYVenderNuncaFueTanFacil": "Import och försäljning har aldrig varit enklare",
+    "creaTuCuentaDeImportador": "Skapa ditt importkonto",
+    "accedeAHerramientasDeIaYAnalitica": "Få tillgång till AI-verktyg och avancerad analys (Pro och Elite)",
+    "gestionaPagosLogisticaYCertificados": "Hantera betalningar, logistik och certifikat från en enda instrumentpanel",
+    "soloCrearTuCuentaYSubirTusProduct": "Skapa bara ditt konto och ladda upp dina produkter.",
+    "siPuedesVenderAlConsumidorFinalY": "Ja, du kan sälja till slutkonsument och även få tillgång till B2B-möjligheter.",
+    "siemprePorChatInternoYEmailConPr": "Alltid via intern chatt och e-post, med prioritet till Pro och Elite.",
+    "daElSaltoAlCanalDigitalYAccedeA": "Ta steget till den digitala kanalen och få tillgång till globala konsumenter, influencers och producenter."
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "Bygg en community, stöd ärliga producenter och tjäna pengar på dina ansträngningar. Återkommande provisioner, kreativ frihet och direkt stöd.",
+    "estoNoVaDeVenderPorVenderVaDeD": "Det här handlar inte om att sälja för säljandets skull. Det handlar om att ge synlighet till ärliga producenter, erbjuda hälsosam mat till dina följare och tjäna pengar på dina ansträngningar regelbundet. Här har du frihet, gemenskap och direkt stöd. Jag är Bil Chanfou, och jag byggde det här för dig.",
+    "ganaMasDejaHuella": "Tjäna mer, lämna ett avtryck",
+    "hercules": "Herkules",
+    "laMayoriaLlegaAqui": "De flesta av dem anländer hit",
+    "comisionRecurrenteDurante18MesesPor": "Återkommande provision i 18 månader för varje hänvisad användare.",
+    "creaComunidadApoyaProductoresHonest1": "Bygg en gemenskap, stöd ärliga producenter och tjäna pengar på dina ansträngningar. Här har du frihet och direkt stöd. Om du behöver något, kontakta mig. Jag är Bil Chanfou."
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "Koppla samman din produktion med importörer och kunder över hela världen. Utöka din räckvidd, digitalisera din katalog och få tillgång till nya affärsmöjligheter.",
+    "uneteALaPlataformaQueConectaProduc": "Gå med i plattformen som kopplar samman producenter med importörer och kunder över hela världen. Digitalisera din katalog och få tillgång till nya affärsmöjligheter.",
+    "registrateGratis": "Registrera dig gratis",
+    "publicaTuCatalogo": "Publicera din katalog",
+    "accesoInmediatoAUnaRedGlobalDeImp": "Omedelbar tillgång till ett globalt nätverk av verifierade importörer.",
+    "herramientasParaDestacarTuMarcaYPr": "Verktyg för att lyfta fram ditt varumärke och dina produkter.",
+    "opcionesDePromocionPremiumSegunTuP": "Premiumkampanjalternativ beroende på ditt abonnemang.",
+    "gestionEficienteDeContactosYOportun": "Effektiv hantering av kontakter och möjligheter.",
+    "paraProductoresEnCrecimiento": "För växande producenter",
+    "maximaVisibilidadYVentajas": "Maximal synlighet och fördelar",
+    "sinTarjetaDeCreditoParaEmpezar": "Inget kreditkort krävs för att starta",
+    "elRegistroEsGratuitoPuedesAcceder": "Registreringen är gratis. Du får tillgång till avancerade funktioner med premiumplaner.",
+    "puedesPublicarCualquierProductoQueC": "Du kan lista vilken produkt som helst som uppfyller våra policyer och kvalitetsstandarder.",
+    "unaVezRegistradoPodrasContactarImp": "När du är registrerad kan du kontakta importörer direkt från plattformen.",
+    "mayorVisibilidadAccesoPrioritarioA": "Större synlighet, prioriterad tillgång till möjligheter och exklusiva verktyg för att stärka din verksamhet.",
+    "siPuedesVenderTantoAConsumidoresF": "Ja, du kan sälja till både slutkonsumenter, importörer och företag.",
+    "soportePersonalizadoRecursosEducativ": "Personligt stöd, utbildningsresurser och rådgivning om internationell handel.",
+    "uneteACientosDeProductoresQueYaEs": "Gå med hundratals producenter som redan växer med Hispaloshop."
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop ansvarar inte för kvaliteten på produkter som säljs av tredje part, även om vi aktivt arbetar med att verifiera alla producenter på plattformen."
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "Upptäck hantverksmässiga produkter från ditt område",
+    "basadoEnTusCompras": "Baserat på dina köp",
+    "descubreRecetasMediterraneasConTusP": "Upptäck medelhavsrecept med dina produkter",
+    "aquiEstaTuResumenDeHoy": "Här är din sammanfattning för idag"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "Avancerade mätvärden är inte tillgängliga just nu.",
+    "noSePudoCargarElStockDeProductos": "Produktlagret för aviseringar kunde inte laddas.",
+    "enPreparacion": "Under förberedelse",
+    "anadeMasProductosParaAumentarTuVis": "Lägg till fler produkter för att öka din synlighet",
+    "anadirProducto": "Lägg till produkt",
+    "colaboraConInfluencersParaPromociona": "Samarbeta med influencers för att marknadsföra dina produkter",
+    "analisis": "Analys",
+    "resumenDeTuNegocio": "Sammanfattning av din verksamhet",
+    "evolucionDeVentas": "Försäljningsutveckling"
+  },
+  "signed_documents": {
+    "documentoIntegro": "Fullständigt dokument",
+    "elContratoNoHaSidoModificadoDesde": "Avtalet har inte ändrats sedan det undertecknades.",
+    "elHashDelDocumentoNoCoincideConEl": "Dokumentets hash-kod matchar inte den som registrerades vid signeringstillfället. Kontakta supporten.",
+    "noTienesContratosFirmadosTodavia": "Du har inga undertecknade kontrakt än.",
+    "lasFacturasEstaranDisponiblesProxima": "Fakturorna kommer att finnas tillgängliga snart."
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "Nytt samarbete",
+    "elCosteCorreACargoDelProductor": "Kostnaden bärs av producenten",
+    "holaViTuContenidoYCreoQueEncajar": "Hej! Jag såg ditt innehåll och jag tror att du skulle passa perfekt för våra produkter...",
+    "previewDeLaPropuesta": "Förhandsgranskning av förslag",
+    "propuestaDeColaboracion": "Samarbetsförslag",
+    "comisionEspecial": "Specialkommission",
+    "duracion": "Varaktighet"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "Vänligen logga in för att använda shoppingassistenten.",
+    "loSientoHaOcurridoUnErrorPorFav": "Tyvärr har ett fel uppstått. Försök igen.",
+    "iniciaSesionParaUnaExperienciaPerso": "Logga in för en personlig upplevelse.",
+    "busquedasRapidas": "Snabbsökningar",
+    "recomendacionesBasadasEnCertificados": "Rekommendationer baserade på produktcertifikat."
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "Vi har förhindrat en tom skärm. Du kan återgå till startskärmen eller ladda om appen."
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "Oljor och förband med tydligt ursprung.",
+    "exploraElCatalogoDesdeCategoriasCla": "Utforska katalogen med tydliga kategorier utan visuell röra.",
+    "productoLocalEImportadoYaDisponible": "Lokala och importerade produkter finns nu tillgängliga i Spanien, utan överdrivna historier eller utfyllnadskategorier."
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "Vi hittade inga produkter i den här kategorin. Försök med en ny sökning.",
+    "anadeAlgunosProductosArtesanalesPara": "Lägg till några handgjorda produkter för att påbörja ditt köp.",
+    "tusPedidosApareceranAquiCuandoReali": "Dina beställningar visas här när du gör ditt första köp.",
+    "sigueAMasProductoresEInfluencersPa": "Följ fler producenter och influencers för att se deras innehåll här.",
+    "intentaConOtrosTerminosDeBusqueda": "Prova andra söktermer.",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "Försök igen senare eller ändra dina sökfilter."
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "Ett oväntat fel har uppstått. Försök att uppdatera sidan."
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "Det goda finns närmare än du tror.",
+    "descubrirCercaDeMi": "Upptäck nära mig",
+    "usaTuUbicacionActualOEscribeTuCod": "Använd din nuvarande plats eller ange ditt postnummer för att prioritera det som ligger närmast dig.",
+    "buscandoTuUbicacion": "Söker efter din plats..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "Ingen analysdata tillgänglig",
+    "analyticsDeTuCodigo": "Analys av din kod",
+    "tuEnlaceDeReferido": "Din hänvisningslänk",
+    "comparteEsteEnlaceEnTusRedesCada": "Dela den här länken på dina sociala nätverk. Varje besök spåras automatiskt.",
+    "usosDelCodigo": "Användningsområden för koden",
+    "codigoAplicado": "Tillämpad kod",
+    "usosCodigo": "Kodanvändning",
+    "comoFuncionanTusComisiones": "Så här fungerar dina provisioner",
+    "calculoDeTuComision": "Beräkning av din provision:",
+    "tipsParaMejorarTusConversiones": "Tips för att förbättra dina konverteringar"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "Bild delad i chatten",
+    "noSePudoCargarLaImagen": "Bilden kunde inte laddas",
+    "pegaUnEnlaceDeProductoOSuId": "Klistra in en produktlänk eller dess ID.",
+    "pegaUnEnlaceDeRecetaOSuId": "Klistra in en receptlänk eller ditt ID.",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Klistra in en länk till ett inlägg eller en rulle från Hispaloshop.",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "Klistra in en giltig Hispaloshop-länk för att generera ett kompaktkort.",
+    "miembroDeLaComunidad": "Medlem i gemenskapen",
+    "pruebaConOtroNombreOCambiaElFiltr": "Försök med ett annat namn eller ändra filtret.",
+    "noSePudoEliminarElMensaje": "Meddelandet kunde inte raderas",
+    "conversacionEliminada": "Konversationen raderad",
+    "errorAlEliminarLaConversacion": "Fel vid borttagning av konversationen",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "Klistra in en giltig Hispaloshop-länk eller ett giltigt ID.",
+    "noPudimosGenerarLaVistaPrevia": "Vi kunde inte generera förhandsgranskningen.",
+    "noSePudoEnviarElMensaje": "Meddelandet kunde inte skickas.",
+    "laImagenNoPuedeSuperar5Mb": "Bilden får inte överstiga 5 MB.",
+    "elArchivoNoPuedeSuperar10Mb": "Filen får inte överstiga 10 MB.",
+    "errorAlSubirElDocumento": "Fel vid uppladdning av dokumentet.",
+    "buscarConversacion": "Letar efter konversation",
+    "empiezaUnChatNuevoDesdeElBotonSup": "Starta en ny chatt från den översta knappen så håller du din inkorg mycket renare.",
+    "seleccionaUnaConversacionDelPanelIz": "Välj en konversation från den vänstra panelen eller starta en ny.",
+    "llamadaDeVozProximamente": "Röstsamtal (kommer snart)",
+    "videollamadaProximamente": "Videosamtal (kommer snart)",
+    "mensajesDeLaConversacion": "Konversationsmeddelanden",
+    "empiezaLaConversacion": "Starta samtalet",
+    "escribeElPrimerMensajeYMantenLaCo": "Skriv det första meddelandet och håll konversationen inom ett tydligt sammanhang.",
+    "vistaPreviaDeLaImagenAdjunta": "Förhandsgranskning av den bifogade bilden"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "Något gick fel.",
+    "noSePudoCargarEsteContenidoIntent": "Det gick inte att ladda det här innehållet. Försök igen."
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "Grundplan. Uppgradera för att minska provisionen och få tillgång till verktyg."
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "Inläggsredigering är ännu inte tillgänglig"
+  },
+  "product": {
+    "anadirAlCarrito": "Lägg till i varukorgen"
+  },
+  "review": {
+    "valoracionEnviada": "Betyg skickat",
+    "errorAlEnviarValoracion": "Fel vid inskickning av betyg",
+    "cuentanosTuExperiencia": "Berätta om din erfarenhet...",
+    "enviarValoracion": "Skicka feedback"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "Stäng aviseringen"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "Ge mig ett snabbt recept",
+    "ayudameConMiDieta": "Hjälp mig med min kost",
+    "tuCompaneroDeCompras": "Din shoppingpartner",
+    "estoyAquiParaAyudarteAEncontrarLo": "Jag finns här för att hjälpa dig hitta det du behöver",
+    "preguntaleADavid": "Fråga David...",
+    "microfono": "Mikrofon"
+  },
+  "auth_diagnostic": {
+    "testConexion": "Testa anslutning",
+    "elBackendRespondePeroElEndpointNo": "Backend-systemet svarar men slutpunkten finns inte.",
+    "laConexionFuncionaRevisaLosDetalle": "Anslutningen fungerar. Kontrollera informationen ovan."
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "Startar autentiseringstester...",
+    "sesionActiva": "Aktiv session:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "Felaktig eller utgången kod",
+    "codigoIncorrecto": "Felaktig kod",
+    "codigoReenviadoATuEmail": "Koden vidarebefordrad till din e-postadress",
+    "noSePudoReenviarElCodigo": "Koden kunde inte skickas om",
+    "maximoDeReenviosAlcanzadoRevisaTu": "Maximalt antal vidarebefordran har uppnåtts. Kontrollera din skräppostmapp.",
+    "reenviarCodigoDeVerificacion": "Skicka verifieringskoden igen"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "Produkt borttagen från B2B-katalogen",
+    "cantidadMinimaDePedidoMoq": "Minsta orderkvantitet (MOQ)",
+    "descripcionMayorista": "Beskrivning av grossistledet",
+    "maximoDeMuestrasPorSolicitud": "Maximalt antal prover per begäran",
+    "publicarEnCatalogoB2b": "Publicera i B2B-katalogen",
+    "quitarDelCatalogoB2b": "Ta bort från B2B-katalogen"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "Ursprungsland (Spanien)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "Minst 1 enhet",
+    "codigoDePaisDebeTener2Letras": "Landskoden måste ha två bokstäver",
+    "elMensajeDebeTenerAlMenos10Caract": "Meddelandet måste vara minst 10 tecken långt",
+    "anadeAlMenosUnProducto": "Lägg till minst en produkt",
+    "noSePudoEnviarLaRfq": "Anbudsförfrågan kunde inte skickas.",
+    "nuevaSolicitudDeCotizacionRfq": "Ny offertförfrågan (RFQ)",
+    "describeVolumenFormatosCertificacio": "Beskriv volym, format, certifieringar eller logistiska krav."
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "Ladda upp importlicens, skatteregistrering och RC-försäkring"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "Fel när produkten lades till i varukorgen",
+    "anadirAlCarrito": "Lägg till i varukorgen",
+    "productoAnadido": "Produkt tillagd",
+    "anadido": "Tillagd!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "Alla meddelanden från den här sessionen kommer att raderas."
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "B2B-förfrågan under förhandling"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "God morgon",
+    "tuCompaneroDeComprasYAlimentacion": "Din partner för shopping och mat",
+    "tuAsesorDeNegocioParaProductores": "Din affärsrådgivare för producenter",
+    "estrategiaDeExportacion": "Exportstrategi",
+    "asistenteCreativoParaContenidoYCamp": "Kreativ assistent för innehåll och kampanjer",
+    "disenarUnaCampana": "Designa en kampanj",
+    "analisisDeMercadoInternacionalParaI": "Internationell marknadsanalys för importörer",
+    "analisisDeMargenes": "Marginalanalys",
+    "noTienesAccesoAEsteModoActualiza": "Du har inte åtkomst till det här läget. Uppgradera ditt abonnemang.",
+    "elAsistenteNoEstaDisponibleAhoraI": "Assistenten är inte tillgänglig just nu. Försök igen."
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "Logga in för att komma åt ditt konto."
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "Min kod"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "Ditt konto granskas."
+  },
+  "dashboard_header": {
+    "buenosDias": "God morgon"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "Följ producenter, importörer och influencers för att se deras innehåll här.",
+    "estasAlDia": "Du är uppdaterad"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "Din vecka på HispaloShop",
+    "descubrirMas": "Upptäck mer",
+    "sigueProductoresParaVerSuContenido": "Följ producenterna för att se deras innehåll här"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "Snabb åtkomst"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 gilla-markeringar!",
+    "alguienTeGuardo": "Någon räddade dig!",
+    "50MeGusta": "50 gilla-markeringar!",
+    "7DiasSeguidos": "7 dagar i rad!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "Användaren kunde inte följas",
+    "seEliminaraPermanentementeJuntoConS": "Den kommer att raderas permanent tillsammans med dina kommentarer och gilla-markeringar.",
+    "noSePudoDejarDeSeguir": "Det var omöjligt att sluta titta",
+    "uneteALaConversacion": "Delta i samtalet...",
+    "progresoDelVideo": "Videoförlopp"
+  },
+  "stories_bar": {
+    "recetaDelDia": "Dagens recept"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "Berättelsens innehåll",
+    "sinDatosDeVistasDisponibles": "Ingen visningsdata tillgänglig",
+    "buscarConversacion": "Letar efter konversation..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "Användaren kunde inte följas. Försök igen."
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "Dra filer hit eller klicka för att välja"
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "Prestation upplåst!"
+  },
+  "application": {
+    "quienEres": "Vem är du",
+    "confirmacion": "Bekräftelse",
+    "recomendadoParaLaMayoria": "Rekommenderas för de flesta.",
+    "pideRevisionManualPrioritaria": "Begär prioriterad manuell granskning.",
+    "paraPerfilesConUnaComunidadMuyActi": "För profiler med en mycket aktiv community.",
+    "necesitamosSaberComoTeConocen": "Vi behöver veta hur folk känner dig.",
+    "tuEmailProfesionalEsObligatorio": "Din professionella e-postadress krävs.",
+    "eseEmailNoPareceValido": "Den e-postadressen verkar inte vara giltig.",
+    "tuInstagramPrincipalEsObligatorio": "Ditt primära Instagram-konto krävs.",
+    "necesitamosUnaViaRealParaContactart": "Vi behöver ett riktigt sätt att kontakta dig.",
+    "seleccionaTuPais": "Välj ditt land.",
+    "eligeAlMenosUnNicho": "Välj minst en nisch.",
+    "seleccionaTuRangoDeSeguidores": "Välj ditt följarintervall.",
+    "seleccionaElPaisPrincipalDeTuAudie": "Välj din målgrupps huvudland.",
+    "cuentanosPorQueQuieresEntrar": "Berätta varför du vill vara med.",
+    "necesitamosAlMenos140CaracteresPara": "Vi behöver minst 140 tecken för att filtrera bort rök.",
+    "eseEnlaceNoPareceValido": "Den länken verkar inte giltig.",
+    "debesAceptarEstaCondicion": "Du måste acceptera detta villkor.",
+    "yaExisteUnaSolicitudOCuentaConEst": "Det finns redan en förfrågan eller ett konto med den här e-postadressen.",
+    "noPudimosEnviarLaSolicitudIntental": "Vi kunde inte skicka begäran. Försök igen.",
+    "solicitarRevision": "Begär en granskning",
+    "aplicacionInfluencerHispaloshop": "Hispaloshop influencer-app",
+    "formularioDeTresPasosParaAplicarAl": "Trestegsformulär för att ansöka till Hispaloshops influencerprogram.",
+    "aplicacionReal": "Verklig tillämpning",
+    "noEsUnFormularioCorporativoEsTuP": "Detta är inte en företagsform. Det är din utgång.",
+    "tresPasosSinPagoSinHumoSiElige": "Tre steg. Ingen betalning. Inget krångel. Om du väljer Hercules aktiverar vi snabbt. Om du siktar på",
+    "ateneaOZeusHacemosRevisionHumanaE": "Athena eller Zeus, vi gör mänsklig granskning inom 24–48 timmar.",
+    "siTuVozEncajaConComidaWellnessL": "Om din röst passar in i mat, välbefinnande, livsstil eller hållbarhet.",
+    "siQuieresRecomendarCosasQueDeVerda": "Om du vill rekommendera saker som du faktiskt skulle kunna använda.",
+    "cadaCompraQueConectesSeQuedaAtribu": "Varje köp du länkar tillskrivs dig i 18 månader. Du behöver inte vara slav under systemet.",
+    "siQuieresComprobarQueSoyRealAhiM": "Om du vill bevisa att jag är på riktigt, så är jag här.",
+    "bienvenidoALaResistenciaRevisaTuE": "Välkommen till motståndet. Kolla din e-post för att komma åt din influencer-dashboard.",
+    "herculesEntraPorViaRapidaHemosMar": "Hercules har snabbspår. Vi har markerat din profil för omedelbar aktivering och nästa steg.",
+    "tuPerfilPasaARevisionHumanaSiApl": "Din profil kommer nu att granskas av en mänsklig person. Om du har ansökt till Athena eller Zeus kommer vi att svara inom 24–48 timmar med ett riktigt, inte automatiserat, beslut.",
+    "verCatalogoParaPromocionar": "Se katalogen för reklamändamål",
+    "tuTarjetaDePresentacionSinTrajesN": "Ditt visitkort, utan kostymer eller tomma ord.",
+    "reusSeulCiudadDeMexico": "Reus, Seoul, Mexico City...",
+    "seleccionaPais": "Välj land",
+    "queremosSaberQueTipoDeComunidadHas": "Vi vill veta vilken typ av gemenskap du har byggt och varför de skulle följa dig till något.",
+    "paisPrincipalDeTuAudiencia": "Din målgrupps huvudland",
+    "cuentanosLaVerdadQueTipoDeEstabil": "Berätta sanningen: vilken typ av stabilitet letar du efter, varför blev du sårad av vissa varumärken och hur skulle du behandla din gemenskap?",
+    "laComisionEsTransparenteHercules3": "Provisionen är transparent: Hercules 3%, Athena 5%, Zeus 7%, med 18 månaders uppföljning.",
+    "entiendoQueLaComisionSePagaSobreE": "Jag förstår att provisionen betalas på värdet efter leverans plus moms.",
+    "entiendoQueElTrackingDe18MesesEs": "Jag förstår att spårningsperioden på 18 månader börjar från användarens första köp.",
+    "aceptoPromoverSoloProductosQueRealm": "Jag samtycker endast till att marknadsföra produkter som jag faktiskt skulle prova eller kommer att prova.",
+    "heLeidoYAceptoLosTerminosDelProgr": "Jag har läst och godkänner villkoren för influencerprogrammet.",
+    "solicitudGratuitaNingunPasoDePago": "Gratis applikation. Inga betalningssteg."
+  },
+  "shared": {
+    "queEs": "Vad är"
+  },
+  "footer_landing": {
+    "terminos": "Villkor",
+    "unaFormaMasClaraDeDescubrirEntend": "Ett tydligare sätt att upptäcka, förstå och köpa mat med sammanhang."
+  },
+  "navbar_landing": {
+    "iniciarSesion": "Inloggning",
+    "cerrarMenu": "Stäng menyn"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "När vi har riktiga röster från samhället kommer de att dyka upp här."
+  },
+  "auth_layout": {
+    "terminos": "Villkor"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "Fråga mig om valfri produkt eller producent",
+    "terminos": "Villkor"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "Stäng menyn",
+    "queEsHispaloshop": "Vad är HispaloShop?"
+  },
+  "info_header": {
+    "queEs": "Vad är",
+    "cerrarMenu": "Stäng menyn",
+    "iniciarSesion": "Inloggning"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "Ingen internetanslutning"
+  },
+  "report_button": {
+    "informacionEnganosa": "Vilseledande information",
+    "violacionDeDerechosDeAutor": "Upphovsrättsintrång",
+    "noSePudoEnviarElReporte": "Rapporten kunde inte skickas",
+    "anadeUnDetalleOpcional": "Lägg till en detalj (valfritt)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "Stäng aviseringen"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "Stäng meddelandeavisering"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "Följ minst 3 konton för att slutföra onboarding.",
+    "noHemosPodidoGuardarLasCuentasSegu": "Vi har inte kunnat spara de på varandra följande kontona ännu.",
+    "eligeAlMenos3ProductoresOCreadores": "Välj minst tre producenter eller kreatörer så att ditt första flöde börjar med riktiga signaler.",
+    "puedesFinalizarYEmpezarADescubrirC": "Du kan avsluta och börja upptäcka konton senare."
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "Välj minst 3 kategorier för att fortsätta.",
+    "noHemosPodidoGuardarTusInteresesTo": "Vi har inte kunnat spara dina intressen än.",
+    "eligeAlMenos3CategoriasParaQueEl": "Välj minst tre kategorier så att katalogen och flödet har en användbar grund."
+  },
+  "location": {
+    "seleccionaUnPais": "Välj ett land.",
+    "introduceTuCodigoPostal": "Ange ditt postnummer.",
+    "noHemosPodidoGuardarTuUbicacionTod": "Vi har inte kunnat spara din plats ännu.",
+    "usamosTuZonaParaMostrarCatalogoDis": "Vi använder ditt område för att visa tillgänglig katalog, förslag på närliggande varor och bättre leveransalternativ."
+  },
+  "step_follow": {
+    "cordoba": "Cordova",
+    "queseriaLaAntigua": "La Antigua ostfabrik",
+    "panaderiaMaria": "Marias bageri",
+    "descubreAQuienSeguir": "Ta reda på vem du ska följa",
+    "sigueAlMenos3ProductoresParaEmpeza": "Följ minst 3 producenter för att komma igång"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "Välj minst tre kategorier för att anpassa ditt flöde"
+  },
+  "step_location": {
+    "cordoba": "Cordova",
+    "malaga": "Malaga",
+    "estoTeMostraraProductoresCercaDeTi": "Detta visar dig producenter nära dig.",
+    "usarMiUbicacionActual": "Använd min nuvarande plats",
+    "oIntroduceCodigoPostal": "Eller ange postnummer"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "Lägg till mer information om dig själv",
+    "tuFeedPersonalizadoEstaPreparado": "Ditt personliga flöde är klart.",
+    "puedesCambiarTusPreferenciasEnCualq": "Du kan ändra dina inställningar när som helst från din profil."
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "Din profil är konfigurerad. Nu kan du utforska lokala produkter."
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "Du betalar ingenting förrän du säljer.",
+    "paraProductoresQueQuierenEmpezarAV": "För producenter som vill börja sälja riskfritt.",
+    "tiendaVirtualPersonalizadaConTuHist": "Personlig webbutik med din historia och ditt ursprung",
+    "hasta30ProductosEnCatalogo": "Upp till 30 produkter i katalogen",
+    "visibilidadNacionalEnEspana": "Nationell synlighet i Spanien",
+    "paraProductoresSeriosQueQuierenEsca": "För seriösa producenter som vill skala upp utan att bli galna.",
+    "herramientasDeIaParaMarketing": "AI-verktyg för marknadsföring",
+    "recomendacionesDinamicasDePrecioPor": "Dynamiska prisrekommendationer per geografiskt område",
+    "analiticaAvanzadaDeVentas": "Avancerad försäljningsanalys",
+    "matchingAutomaticoConHasta5Influenc": "Automatisk matchning med upp till 5 lokala influencers",
+    "paraCooperativasYProductoresConAmbi": "För kooperativ och producenter med globala ambitioner.",
+    "prediccionDeDemandaPorPaisYTempora": "Efterfrågeprognos per land och säsong",
+    "analisisDeMercadosInternacionalesPr": "Internationell marknadsanalys (pris, konkurrens, möjligheter)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "Förebyggande upptäckt av risk för leveransbrist",
+    "matchingDirectoConImportadoresVerifi": "Direkt matchning med verifierade importörer från andra länder",
+    "generacionAutomaticaDeContratosB2bE": "Automatisk generering av B2B-avtal i PDF-format",
+    "analisisDeRegulacionesYArancelesPor": "Analys av regleringar och tullar per destinationsmarknad",
+    "creacionDeDossieresDeExportacion": "Skapande av exportunderlag",
+    "prioridadAbsolutaDeVisibilidadEnLa": "Absolut prioritet för synlighet på plattformen",
+    "soporteTelefonicoDirecto": "Direkt telefonsupport",
+    "soloVendoEnEspana": "Jag säljer bara i Spanien.",
+    "yaExportoAAlgunPais": "Jag exporterar redan till vissa länder",
+    "masDe20": "Mer än 20",
+    "andalucia": "andalusien",
+    "aragon": "Aragonien",
+    "castillaYLeon": "Kastilien och León",
+    "cataluna": "Katalonien",
+    "paisVasco": "Baskien",
+    "stripeNoEstaDisponible": "Stripe är inte tillgänglig.",
+    "quienEres": "Vem är du",
+    "stripeNoEstaConfiguradoTodavia": "Stripe är inte konfigurerat än.",
+    "noPudimosPrepararElPagoSeguro": "Vi kunde inte förbereda den säkra betalningen.",
+    "necesitamosTuNombreParaDarteDeAlta": "Vi behöver ditt namn för att registrera dig.",
+    "introduceUnEmailValido": "Ange en giltig e-postadress.",
+    "necesitamosUnTelefonoOperativo": "Vi behöver en fungerande telefon.",
+    "tuContrasenaDebeTenerAlMenos6Cara": "Ditt lösenord måste vara minst 6 tecken långt.",
+    "debesAceptarLaPoliticaDePrivacidad": "Du måste acceptera sekretesspolicyn och villkoren.",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "Berätta namnet på ert varumärke eller kooperativ.",
+    "seleccionaAlMenosUnTipoDeProducto": "Välj minst en produkttyp.",
+    "indicanosSiYaExportasOQuieresEmpez": "Låt oss veta om du redan exporterar eller vill börja.",
+    "seleccionaTuRegionDeProduccion": "Välj din produktionsregion.",
+    "necesitamosUnRangoAproximadoDeRefer": "Vi behöver ett ungefärligt referensintervall.",
+    "completaLosDatosDeLaTarjetaParaCo": "Fyll i kortuppgifterna för att fortsätta.",
+    "stripeNoEstaListoTodavia": "Stripe är inte klar än.",
+    "noPudimosValidarLaTarjeta": "Vi kunde inte validera kortet.",
+    "tuBancoRechazoLaOperacion": "Din bank avvisade transaktionen.",
+    "haOcurridoUnErrorConElPagoPorFa": "Det uppstod ett fel med din betalning. Försök igen.",
+    "elMetodoDePagoFueRechazadoPorFav": "Din betalningsmetod avvisades. Använd ett annat kort.",
+    "revisaLosDatosAntesDeContinuar": "Granska informationen innan du fortsätter.",
+    "noPudimosCompletarElAltaDelProduct": "Vi kunde inte slutföra producentens registrering.",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "Ditt konto finns redan. Om det redan har skapats behöver du bara slutföra planen eller kontrollera din åtkomst.",
+    "completaLosCamposObligatoriosParaAv": "Fyll i de obligatoriska fälten för att fortsätta.",
+    "aceptoLaPoliticaDePrivacidadYLosT": "Jag accepterar integritetspolicyn och villkoren",
+    "nombreDeTuObradorMarcaOCooperativ": "Namn på din verkstad, ditt varumärke eller kooperativ",
+    "exportacionActual": "Nuvarande export",
+    "regionDeProduccion": "Produktionsregion",
+    "seleccionaTuRegion": "Välj din region",
+    "numeroDeReferencias": "Antal referenser",
+    "cargoOComision": "Position eller uppdrag",
+    "entiendoQueHispaloshopRetieneUn20": "Jag förstår att Hispaloshop behåller 20 % provision på försäljningen.",
+    "noPagarasNadaHastaQueVendasCuando": "Du betalar ingenting förrän du säljer. När du säljer behåller du 80 %.",
+    "pagoSeguroPorStripeCancelaCuandoQ": "Säker betalning via Stripe. Avsluta när som helst från din kontrollpanel.",
+    "pagoSeguroPorStripeSiTuBancoPide": "Säker betalning via Stripe. Om din bank kräver ytterligare bekräftelse hanterar vi det här utan att ta dig bort från sidan.",
+    "bienvenidoALaRevolucionDeLosProduc": "Välkommen till revolutionen av ärliga producenter.",
+    "revisaTuEmailParaVerificarTuCuenta": "Kontrollera din e-post för att verifiera ditt konto och få åtkomst till din instrumentpanel för att slutföra din profil.",
+    "siTuAltaQuedaPendienteDeRevision": "Om din ansökan väntar på granskning ser du först godkännandestatusen. Därifrån kan du fortsätta processen utan att missa något.",
+    "verGuiaRapidaParaSubirMiPrimerPro": "Se snabbguiden för att ladda upp min första produkt",
+    "tuCuentaYaExisteYElSiguientePaso": "Ditt konto finns redan, och nästa steg är att verifiera din e-postadress och slutföra förberedelserna av din profil.",
+    "laContrasenaNoSeGuardaEnLocalstora": "Lösenordet sparas inte i localStorage, vilket undviker att en hemlighet lämnas exponerad.",
+    "freeCreaLaCuentaAlInstanteProYE": "FREE skapar kontot direkt. PRO och ELITE aktiverar Stripe direkt utan att lämna flödet.",
+    "empezamosPorLoMinimoParaNoPonerte": "Vi börjar med det absolut nödvändigaste för att inte skapa ytterligare ett hinder i vägen.",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "Vi är bara ett steg ifrån att öppna din butik och göra infrastrukturen redo.",
+    "completarSuscripcionYAbrirMiTienda": "Slutför din prenumeration och öppna min butik"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "Kontot kunde inte stängas. Försök igen.",
+    "noSePudieronCargarLasHistorias": "Det gick inte att ladda berättelserna",
+    "errorAlCrearElDestacado": "Fel vid skapande av markering",
+    "seCerraraLaSesionDeEstaCuentaYTe": "Den här kontosessionen kommer att stängas och du måste logga in igen.",
+    "soloSeEliminaDelSelectorDeCuentas": "Den tas bara bort från kontoväljaren på den här enheten.",
+    "codigoCopiado": "Kod kopierad:",
+    "noHayHistoriasEnEsteDestacado": "Det finns inga berättelser i det här utvalda objektet.",
+    "lasHistoriasDelDestacadoNoSeElimin": "De utvalda berättelserna kommer inte att raderas, bara samlingen.",
+    "noHayHistoriasEnTuArchivo": "Det finns inga berättelser i din fil",
+    "publicaUnaHistoriaPrimeroParaPoder": "Publicera en berättelse först för att skapa ett utvalt reportage",
+    "lasHistoriasNoSePerderanSoloLaCo": "Berättelserna kommer inte att gå förlorade, bara samlingen."
+  },
+  "profile_tabs": {
+    "crearPublicacion": "Skapa inlägg",
+    "sinPublicacionesTodavia": "Inga inlägg ännu",
+    "sinReelsTodavia": "Inga rullar än",
+    "sinRecetasTodavia": "Inga recept än",
+    "nadaGuardadoTodavia": "Inget sparat än",
+    "publicacionGuardada": "Sparat inlägg"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "Manuell eller ansluten till plattformsprodukter."
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "Fler portioner",
+    "anadirTodoAlCarrito": "Lägg allt i varukorgen"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "Lägg till i varukorgen",
+    "iniciaSesionParaAnadirProductos": "Logga in för att lägga till produkter",
+    "noHemosPodidoCompletarLaAccion": "Vi kunde inte slutföra åtgärden",
+    "esteProductoAunNoTieneCertificados": "Denna produkt har ännu inga verifierade certifikat.",
+    "seElPrimeroEnOpinarSobreEsteProdu": "Bli först med att recensera den här produkten."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "Aktiviteten kunde inte laddas",
+    "tuActividadApareceraAqui": "Din aktivitet kommer att visas här"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Slutför inloggning..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Utforska produkter med synlig dokumentation, ordnad alfabetiskt för snabb och tydlig läsning.",
+    "filtrarPorCertificacion": "Filtrera efter certifiering",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Justera din sökning eller ta bort filter för att recensera andra certifierade produkter.",
+    "ordenAlfabeticoActivo": "aktiv alfabetisk ordning"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Din betalning har behandlats. Du kommer att få ett bekräftelsemejl med dina beställningsuppgifter inom några minuter.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Ett fel uppstod när din betalning verifierades. Om betalningen redan har behandlats, vänligen kontakta supporten.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Vi har mottagit din beställning. Du kommer att få ett e-postmeddelande med detaljerna."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Endast administratörer kan redigera gruppen.",
+    "anadirFotoDePortada": "Lägg till omslagsfoto",
+    "etiquetasMax5": "Etiketter (max. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Om du tar bort gruppen raderas alla inlägg och medlemmar permanent."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Gemenskapsnamn",
+    "sinDescripcionTodavia": "Ingen beskrivning ännu",
+    "necesitasMasSeguidores": "Du behöver fler följare",
+    "paraCrearUnaComunidadNecesitasAlMe": "För att skapa en community behöver du minst 100 följare eller vara en verifierad säljare.",
+    "elNombreDebeTenerAlMenos3Caracter": "Namnet måste vara minst 3 tecken långt",
+    "laUrlEsObligatoria": "URL:en är obligatorisk",
+    "laUrlDebeTenerAlMenos3Caracteres": "URL:en måste vara minst 3 tecken lång",
+    "laUrlDebeEmpezarConUnaLetraONume": "URL:en måste börja med en bokstav eller siffra.",
+    "comunidadCreada": "Gemenskap skapad!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Den URL:en används redan. Försök med en annan.",
+    "errorAlCrearLaComunidad": "Fel vid skapandet av gruppen",
+    "anadirFotoDePortada": "Lägg till omslagsfoto",
+    "nombreDeLaComunidad1": "Namn på gemenskap *",
+    "ejAceitesDeEspana": "Exempel: Oljor från Spanien",
+    "urlDeLaComunidad": "Community-URL *",
+    "deQueTrataTuComunidad": "Vad handlar ert samhälle om?",
+    "iconoDeLaComunidad": "Community-ikon",
+    "etiquetasMax5": "Etiketter (max. 5)",
+    "asiVeranTuComunidadLosDemas": "Så här kommer andra att se din gemenskap"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "Den bästa olivoljan",
+    "seleccionDeProductoresAndaluces": "Urval av andalusiska producenter",
+    "empiezaElDiaConEnergiaReal": "Börja dagen med riktig energi",
+    "despensaBasicaPremium": "Premium grundläggande skafferi",
+    "losEsencialesQueMarcanLaDiferencia": "Det väsentliga som gör skillnaden",
+    "certificadoEcologico": "Organisk certifiering",
+    "seleccionesEditorialesDeProductosArt": "Redaktionella urval av hantverksmässiga, hälsosamma produkter med en berättelse.",
+    "coleccion": "Samling"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Kategori hittades inte",
+    "noSePudieronCargarLosProductos": "Produkterna kunde inte laddas.",
+    "noHayProductosEnEstaCategoriaTodav": "Det finns inga produkter i den här kategorin ännu."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Språk och region"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Sidan hittades inte",
+    "estaPaginaNoExiste": "Den här sidan finns inte",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Det verkar som att du har gått vilse. Gå tillbaka till början och fortsätt utforska."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Ditt konto finns redan, men vissa funktioner kommer att förbli begränsade tills teamet validerar registreringen.",
+    "recibirasAccesoCompletoCuandoElEqui": "Du får fullständig åtkomst när teamet validerar din registrering.",
+    "mientrasTantoAlgunasFuncionesComerc": "Under tiden kommer vissa kommersiella funktioner att förbli begränsade.",
+    "subirDocumentosDeVerificacion": "Ladda upp verifieringsdokument",
+    "completarConfiguracionFiscal": "Slutför skattekonfigurationen"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Ogiltig återställningslänk",
+    "restablecerContrasena": "Återställ lösenord"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Ingen verifieringskod tillhandahölls",
+    "emailVerificadoCorrectamente": "E-postadressen har verifierats!",
+    "emailVerificadoYaPuedesIniciarSesi": "E-postadressen är verifierad. Du kan nu logga in.",
+    "elCodigoNoEsValidoOHaExpirado": "Koden är ogiltig eller har löpt ut",
+    "errorEnLaVerificacion": "Verifieringsfel",
+    "verificacionFallida": "Verifieringen misslyckades",
+    "porFavorEsperaMientrasVerificamosTu": "Vänta medan vi verifierar din e-postadress"
+  },
+  "b2_b_action": {
+    "video": "Video"
+  },
+  "collab_action": {
+    "video": "Video"
   }
 }

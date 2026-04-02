@@ -26,7 +26,7 @@
     "viewAll": "Tümünü görüntüle",
     "seeOriginal": "Orijinalini görüntüle",
     "seeTranslation": "Çeviriye bakın",
-    "translatedFrom": "{{language}}'ten çevrilmiştir.",
+    "translatedFrom": "XPHB0XPHX'ten çevrilmiştir.",
     "details": "Detaylar",
     "status": "Durum",
     "active": "Varlık",
@@ -73,7 +73,7 @@
     "logout": "Çıkış yap",
     "moreOptions": "Daha fazla seçenek",
     "memberSince": "Üyelik başlangıç tarihi",
-    "featuredProducts": "Öne çıkan ürünler",
+    "featuredProducts": "Öne Çıkan Ürünler",
     "sendMessage": "Mesaj gönder",
     "coverImage": "Kapak resmi",
     "logo": "Logo",
@@ -97,7 +97,7 @@
     "becomeProducer": "Yapımcı Olmak",
     "whyHispaloshop": "Neden Hispaloshop?",
     "certifiedQuality": "Doğrulanmış Ürünler",
-    "certifiedQualityDesc": "Her ürünün doğrulanabilir sertifikaları mevcuttur. Menşeinden sofranıza kadar tam şeffaflık.",
+    "certifiedQualityDesc": "Her ürünün doğrulanabilir sertifikaları vardır. Menşeinden sofranıza kadar tam şeffaflık.",
     "aiAssistant": "Akıllı Asistan",
     "aiAssistantDesc": "Tercihlerinize göre kişiselleştirilmiş önerilerle size en uygun ürünleri keşfedin.",
     "localCommerce": "Yerel İşletmeler",
@@ -149,7 +149,8 @@
     "organic": "Organik",
     "seafood": "Deniz ürünleri",
     "superfoods": "Süper",
-    "viewAllResults": "Tüm sonuçları görüntüle"
+    "viewAllResults": "Tüm sonuçları görüntüle",
+    "socialCommerceAlimentarioParaDescubr": "Dürüst üreticileri keşfetmek, şeffaf bir şekilde alışveriş yapmak ve toplulukla etkileşim kurmak için gıda alanında sosyal ticaret."
   },
   "header": {
     "products": "Ürünler",
@@ -249,13 +250,35 @@
     "influencerPendingNote": "Influencer hesapları yönetici onayı gerektirir. Onaylandıktan sonra, özel indirim kodunuzu oluşturabilir ve komisyon kazanmaya başlayabilirsiniz.",
     "commissionPerSale": "Kademe başına komisyon (18 aylık ilişkilendirme)",
     "discountForFollowers": "takipçileriniz için indirim",
-    "minFollowersReq": "Gereksinim: en az 1.000 takipçi",
+    "minFollowersReq": "Şart: En az 1.000 takipçi",
     "isProducer": "Siz bir yapımcısınız.",
     "registerSeller": "Üretici olarak kaydolun",
-    "isInfluencer": "Sen bir influencer'sın.",
+    "isInfluencer": "Sen bir etkileyicisin",
     "joinProgram": "Programa katılın",
     "justBuy": "Sadece satın almak istiyorsunuz.",
-    "createBuyerAccount": "Alıcı hesabı oluştur"
+    "createBuyerAccount": "Alıcı hesabı oluştur",
+    "errorAlConectarConGoogle": "Google'a bağlanırken hata oluştu.",
+    "mariaGarcia": "María García",
+    "minimo8Caracteres": "En az 8 karakter",
+    "arabiaSaudi": "Suudi Arabistan",
+    "elNombreEsObligatorio": "İsim zorunludur.",
+    "emailNoValido": "Geçersiz e-posta",
+    "minimo3Caracteres": "En az 3 karakter",
+    "esteUsuarioYaEstaEnUso": "Bu kullanıcı hesabı zaten kullanımda.",
+    "laFechaDeNacimientoEsObligatoria": "Doğum tarihi zorunludur.",
+    "debesAceptarLosTerminos": "Şartları kabul etmelisiniz.",
+    "elNombreDeEmpresaEsObligatorio": "Şirket adı zorunludur.",
+    "introduceAlMenosUnaRedSocial": "En az bir sosyal ağ girişi yapın.",
+    "laContrasenaDebeTenerAlMenos8Cara": "Parola en az 8 karakter uzunluğunda olmalıdır.",
+    "elEmailNoEsValido": "E-posta adresi geçersiz.",
+    "elNombreDeUsuarioNoEsValido": "Kullanıcı adı geçersiz.",
+    "errorDeValidacion": "Doğrulama hatası",
+    "errorAlCrearLaCuenta": "Hesap oluşturma hatası.",
+    "debesTenerAlMenos16Anos": "En az 16 yaşında olmalısınız.",
+    "letrasNumerosPuntosYGuionesBajos": "Harfler, rakamlar, noktalar ve alt çizgiler (en fazla 20 karakter)",
+    "seleccionarPais": "Ülke seçin",
+    "terminosYCondiciones": "Şartlar ve koşullar",
+    "politicaDePrivacidad": "Gizlilik Politikası"
   },
   "products": {
     "title": "Tüm Ürünler",
@@ -267,7 +290,7 @@
     "soldOut": "Yorgun",
     "onlyLeft": "Yalnızca {0} kaldı",
     "lowStock": "Yalnızca {{count}} kaldı.",
-    "byProducer": "{{producer}} tarafından",
+    "byProducer": "XPHBX0XPHX tarafından",
     "origin": "Köken",
     "price": "Fiyat",
     "category": "Kategori",
@@ -314,7 +337,15 @@
     "applyFilters": "Filtreleri uygula",
     "notAvailableCountry": "Bu ürün ülkenize teslim edilemiyor.",
     "notAvailable": "Müsait değil",
-    "notAvailableRegion": "Bölgenizde mevcut değil."
+    "notAvailableRegion": "Bölgenizde mevcut değil.",
+    "vistaCuadricula": "Izgara görünümü",
+    "precioMinimo": "Minimum fiyat",
+    "precioMaximo": "Maksimum fiyat",
+    "quitarFiltroDeCategoria": "Kategori filtresini kaldır",
+    "quitarFiltroDeEnvioGratis": "Ücretsiz kargo filtresini kaldır",
+    "quitarFiltroDePais": "Ülke filtresini kaldır",
+    "america": "Amerika",
+    "compruebaTuConexionEIntentaloDeNue": "Bağlantınızı kontrol edin ve tekrar deneyin."
   },
   "certifications": {
     "halal": "Helal",
@@ -322,7 +353,19 @@
     "vegan": "Vegan",
     "gluten-free": "Glütensiz",
     "sugar-free": "Şekersiz",
-    "organic": "Organik"
+    "organic": "Organik",
+    "certificacionOficialDeProduccionEcol": "Avrupa Birliği'nden resmi organik üretim sertifikası",
+    "garantizaQueElProductoSeProduceTr": "Ürünün belirli bir coğrafi bölgede üretildiğini, dönüştürüldüğünü ve işlendiğini garanti eder.",
+    "alMenosUnaEtapaDeProduccionSeReal": "Üretimin en az bir aşaması bu coğrafi bölgede gerçekleşir.",
+    "vinculoConElTerritorio": "Bölgeye bağlantı",
+    "supervisionPorOrganismoDeControl": "Bir denetim organı tarafından gözetim",
+    "certificacionDeQueElProductoCumple": "Ürünün İslami gıda standartlarına uygun olduğuna dair sertifika.",
+    "procesoDeSacrificioConformeALaLey": "İslam hukukuna göre kesim işlemi",
+    "sinContaminacionCruzadaConProductos": "Helal olmayan ürünlerle çapraz bulaşma riski yoktur.",
+    "productoAptoParaPersonasConEnfermed": "Çölyak hastalığı veya gluten hassasiyeti olan kişiler için uygun ürün.",
+    "produccionEnLineasLibresDeContamina": "Çevre dostu hatlarda üretim",
+    "noContieneIngredientesDeOrigenAnima": "Hayvansal kaynaklı hiçbir bileşen içermez ve hayvanlar üzerinde test edilmemiştir.",
+    "sinPruebasEnAnimales": "Hayvanlar üzerinde test yapılmamıştır."
   },
   "productDetail": {
     "loading": "Ürün yükleniyor...",
@@ -419,7 +462,14 @@
     "hours": "Takvim",
     "stats": "İstatistikler",
     "rating": "Değerlendirme",
-    "product": "Ürün"
+    "product": "Ürün",
+    "iniciaSesionParaEnviarUnMensaje": "Mesaj göndermek için giriş yapın.",
+    "seccionesDeLaTienda": "Mağaza bölümleri",
+    "noSePudoCargarLaTiendaCompruebaT": "Mağaza yüklenemedi. Bağlantınızı kontrol edin.",
+    "sinResenas": "Henüz yorum yok.",
+    "estaTiendaNoTieneProductosAun": "Bu mağazada henüz ürün bulunmamaktadır.",
+    "estaTiendaNoHaCompartidoRecetasAun": "Bu mağaza henüz tarif paylaşmadı.",
+    "anonimo": "Anonim"
   },
   "cart": {
     "title": "Alışveriş Sepeti",
@@ -436,7 +486,21 @@
     "checkout": "Ödeme İşlemine Devam Et",
     "itemsInCart": "Sepetinizde daha fazla ürün var",
     "viewCart": "Sepeti görüntüle",
-    "more": "daha öte..."
+    "more": "daha öte...",
+    "aplicarCodigoDeDescuento": "İndirim kodunu uygulayın",
+    "direccionRequerida": "Adres gerekli",
+    "codigoPostalNoValido": "Geçersiz posta kodu",
+    "paisRequerido": "Gerekli ülke",
+    "noSePudoActualizarLaCantidad": "Miktar güncellenemedi.",
+    "noSePudoEliminarElProducto": "Ürün çıkarılamadı.",
+    "descubreProductosIncreiblesDeProduct": "Yerel üreticilerden muhteşem ürünler keşfedin",
+    "laReservaDeAlgunProductoExpiroCom": "Bu ürün için yapılan rezervasyonun süresi dolmuştur. Lütfen müsaitlik durumunu kontrol edin.",
+    "calculandoEnvio": "Kargo ücreti hesaplanıyor...",
+    "maximoAlcanzado": "Ulaşılan maksimum değer",
+    "envioPorTienda": "Mağaza gönderimi",
+    "iniciaSesionParaVerElCosteDeEnvio": "Kargo ücretlerini görmek için giriş yapın.",
+    "ivaIncluido·EnvioSeCalculaAlInici": "KDV dahildir · Kargo ücreti giriş yaptığınızda hesaplanır.",
+    "iniciarSesionParaComprar": "Satın almak için giriş yapın"
   },
   "checkout": {
     "title": "Ödemek",
@@ -452,8 +516,8 @@
     "state": "Vilayet",
     "zip": "Posta kodu",
     "country": "Ülke",
-    "chargeCurrency": "Sizden {{currency}} tutarında ücret alınacaktır.",
-    "displayCurrency": "'te gösterilen {{currency}} fiyatlar",
+    "chargeCurrency": "Sizden XPHB0XPHX tutarında ücret alınacaktır.",
+    "displayCurrency": "XPHBX0XPHX'te gösterilen fiyatlar",
     "exchangeRate": "Döviz kuru",
     "fullName": "Ad Soyad",
     "useShippingAddress": "Fatura için gönderim adresini kullanın.",
@@ -499,7 +563,19 @@
     "proceedToCheckout": "Ödeme İşlemine Devam Et",
     "secureCheckout": "Stripe ile güvenli ödeme",
     "emailVerified": "E-posta doğrulandı.",
-    "emailVerifiedSuccess": "E-posta başarıyla doğrulandı!"
+    "emailVerifiedSuccess": "E-posta başarıyla doğrulandı!",
+    "direccionGuardada": "Adres kaydedildi.",
+    "seleccionaUnaDireccion": "Bir adres seçin",
+    "noSePudoIniciarElPagoIntentaloDe": "Ödeme işlemi başlatılamadı. Lütfen tekrar deneyin.",
+    "errorAlGuardarLaDireccion": "Adres kaydedilirken hata oluştu.",
+    "codigoNoValido": "Geçersiz kod",
+    "errorAlProcesarElPago": "Ödeme işlemi hatası",
+    "necesitasVerificarTuEmailParaComple": "Satın alma işlemini tamamlamak için e-postanızı doğrulamanız gerekiyor.",
+    "direccionCalleYNumero": "Adres (sokak ve numara)",
+    "codigoPostal": "Posta kodu",
+    "segunDireccion": "Adrese göre",
+    "metodoDePago": "Ödeme yöntemi",
+    "envioA": "Gönderim"
   },
   "orders": {
     "title": "Siparişlerim",
@@ -576,7 +652,8 @@
       "processing": "İşleme...",
       "success": "Sipariş gönderildi olarak işaretlendi! Müşteriye e-posta ile bildirim yapıldı.",
       "other": "Diğer"
-    }
+    },
+    "noPudimosCargarTusPedidos": "Siparişlerinizi yükleyemedik."
   },
   "producer": {
     "overview": "Özet",
@@ -598,13 +675,13 @@
     "earnings": "Kazançlar",
     "payouts": "Ödemeler",
     "connectStripe": "Stripe'ı Bağla",
-    "stripeConnected": "Stripe Bağlantılı",
+    "stripeConnected": "Şerit Bağlantılı",
     "welcome": "Hoş geldin",
     "manageProductsAndSales": "Ürünlerinizi yönetin ve satışlarınızı takip edin.",
     "accountPending": "Hesap Onay Bekliyor",
     "accountPendingDesc": "Üretici hesabınız yönetici onayını bekliyor. Ürünler ve sertifikalar oluşturabilirsiniz, ancak hesabınız onaylanana kadar bunlar müşteriler tarafından görülemez.",
     "totalProducts": "Toplam Ürünler",
-    "approvedProducts": "{{count}} onaylı",
+    "approvedProducts": "XPHB0XPHX onaylı",
     "followers": "Takipçiler",
     "ofYourStore": "mağazanızdan",
     "totalSold": "Toplam Satış",
@@ -745,12 +822,29 @@
       "DE": "Almanya",
       "IT": "İtalya",
       "PT": "Portekiz",
-      "UK": "Birleşik Krallık",
+      "GB": "Birleşik Krallık",
       "US": "Amerika",
+      "CA": "Kanada",
       "MX": "Meksika",
+      "BR": "Brezilya",
       "AR": "Arjantin",
       "CL": "Acı biber",
-      "CO": "Kolombiya"
+      "CO": "Kolombiya",
+      "PE": "Peru",
+      "JP": "Japonya",
+      "KR": "Güney Kore",
+      "CN": "Çin",
+      "IN": "Hindistan",
+      "AU": "Avustralya",
+      "AE": "Birleşik Arap Emirlikleri",
+      "SA": "Suudi Arabistan",
+      "TR": "Türkiye",
+      "ZA": "Güney Afrika",
+      "NG": "Nijerya",
+      "KE": "Kenya",
+      "EG": "Mısır",
+      "MA": "Fas",
+      "RU": "Rusya"
     },
     "percentageOff": "İndirim yüzdesi",
     "fixedAmountOff": "Sabit indirim tutarı",
@@ -935,7 +1029,7 @@
       },
       "countries": {
         "selectCountry": "Bir ülke seçin",
-        "countryAnalysis": "XPHD0'in {{country}} Analizi",
+        "countryAnalysis": "XPHD0XPHX'in Analizi",
         "totalUsers": "Toplam Kullanıcılar",
         "ordersThisMonth": "Bu Ayki Siparişler",
         "averageSpend": "Ortalama Harcama",
@@ -985,7 +1079,7 @@
         "fearTracking": "Korku Takibi",
         "fearDesc": "Kaçınma davranış kalıplarını analiz edin.",
         "healthInference": "Sağlık Çıkarımı",
-        "healthDesc": "Satın alımlara bağlı olarak sağlık sorunlarını düş"
+        "healthDesc": "Satın alımlara bağlı olarak sağlık sorunlarını düşebilirsiniz."
       }
     },
     "approveSellers": "Üreticileri onaylayın",
@@ -1010,7 +1104,7 @@
     "commissionRate": "Komisyon",
     "paymentSetup": "Ödeme Ayarları",
     "connectStripe": "Stripe ile bağlantı kurun",
-    "stripeConnected": "Stripe Bağlantılı",
+    "stripeConnected": "Şerit Bağlantılı",
     "recentCommissions": "Son Komisyonlar",
     "noCommissions": "Henüz komisyon alınmadı.",
     "shareCode": "Bu kodu takipçilerinizle paylaşın",
@@ -1058,7 +1152,7 @@
     "availableSoon": "Yakında satışa sunulacak.",
     "inNext7Days": "Önümüzdeki 7 gün içinde",
     "nextPaymentDate": "Sonraki ödeme imkanı",
-    "daysLeft": "{{days}} kalan gün sayısı",
+    "daysLeft": "XPHB0XPHX kalan gün sayısı",
     "noPendingPayments": "Ödenmemiş borç yok.",
     "paymentPolicy": "Ödeme politikası",
     "paymentPolicyDesc": "Siparişin teslimatını garanti altına almak için, elde edilen komisyonlar her satıştan 15 gün sonra tahsil edilebilir.",
@@ -1135,7 +1229,11 @@
     "status": "Durum",
     "verifiedStatus": "Doğrulandı",
     "madeIn": "Gururla Üretilmiştir",
-    "notFoundDesc": "Bu sertifika bulunamadı."
+    "notFoundDesc": "Bu sertifika bulunamadı.",
+    "espanol": "İspanyol",
+    "certificatNumerique": "Sayısal sertifika",
+    "alergenios": "Alerjenler",
+    "noHemosEncontradoLaFichaDeConfianz": "Bu ürünün güvenilirlik derecesini bulamadık."
   },
   "errors": {
     "generic": "Bir hata oluştu. Lütfen tekrar deneyin.",
@@ -1184,7 +1282,7 @@
     "memberSince": "Üyelik başlangıç tarihi",
     "verifiedSeller": "Doğrulanmış satıcı",
     "viewStore": "Mağazayı görüntüle",
-    "featuredProducts": "Öne çıkan ürünler",
+    "featuredProducts": "Öne Çıkan Ürünler",
     "sales": "Satış",
     "reviews": "Yorumlar",
     "sendMessage": "Mesaj gönder"
@@ -1266,7 +1364,7 @@
       "withdrawDescription": "Onayınızı istediğiniz zaman geri çekebilirsiniz. Bu:",
       "withdrawEffect1": "Özel yapay zeka kullanımını devre dışı bırakın.",
       "withdrawEffect2": "Yapay zekâ destekli sohbet özelliği artık kullanılamayacak.",
-      "withdrawEffect3": "Hesabınız sınırlı işlevsellikle varlığını sürdürecektir.",
+      "withdrawEffect3": "Hesabınız sınırlı işlevsellikle varlığını sürdürmeye devam edecektir.",
       "withdrawButton": "Onayımı Geri Çekiyorum",
       "reactivateTitle": "Kişiselleştirmeyi Yeniden Etkinleştir",
       "reactivateDescription": "Daha iyi öneriler için yapay zeka kişiselleştirmesini etkinleştirin.",
@@ -1314,7 +1412,9 @@
     "newsletter": "Bülten",
     "newsletterDesc": "Haberleri ve özel teklifleri almak için abone olun.",
     "subscribe": "Abone",
-    "emailPlaceholder": "tu@email.com"
+    "emailPlaceholder": "your@email.com",
+    "unimosProductoresImportadoresCreado": "Üreticileri, ithalatçıları, yaratıcıları ve tüketicileri daha net ve daha kullanışlı bir deneyimde bir araya getiriyoruz.",
+    "unaPlataformaParaDescubrirProductos": "Dürüst ürünleri keşfetmek, gerçek üreticileri takip etmek ve daha bilinçli alışveriş yapmak için bir platform."
   },
   "breadcrumbs": {
     "home": "Başlangıç",
@@ -1602,7 +1702,7 @@
     "step4Title": "Satışa başlayın!",
     "step4Desc": "Siparişleri alın ve ödemelerinizi doğrudan hesabınıza alın.",
     "ctaTitle": "Başlamaya hazır",
-    "ctaText": "Dünyanın dört bir yanındaki müşterilerine ürünlerini ulaştırmak için Hispaloshop'a güvenen yüzlerce üreticiye siz de katılın.",
+    "ctaText": "Ürünlerini dünyanın dört bir yanındaki müşterilere ulaştırmak için Hispaloshop'a güvenen yüzlerce üreticiye siz de katılın.",
     "viewProducts": "Diğer üreticilerin ürünlerini inceleyin",
     "faqTitle": "Sıkça Sorulan Sorular",
     "faq1Q": "Hispaloshop'ta kimler satış yapabilir?",
@@ -1764,7 +1864,7 @@
     },
     "messages": {
       "loadError": "Üreticiler yüklenirken hata oluştu.",
-      "statusUpdated": "Satıcı {{status}}"
+      "statusUpdated": "Satıcı XPHBX0XPHX"
     }
   },
   "adminProducts": {
@@ -1836,7 +1936,7 @@
       "total": "Toplam",
       "status": "Durum",
       "date": "Tarih",
-      "itemsCount": "{{count}} makaleleri"
+      "itemsCount": "XPHB0XPHX makaleleri"
     },
     "paymentsTable": {
       "transactionId": "İşlem Kimliği",
@@ -1870,7 +1970,7 @@
     "step2Title": "Kitlenizle paylaşın",
     "step2Desc": "Takipçileriniz kodunuzu kullanarak ilk alışverişlerinde %10 indirim kazanırlar.",
     "step3Title": "Kazançlar atıf yoluyla elde edilir",
-    "step3Desc": "Çektiğiniz her müşteri için, aktif üyelik seviyenize bağlı olarak 18 ay boyunca yaptıkları alışverişlerden komisyon kazanırsınız.",
+    "step3Desc": "Kazandırdığınız her müşteri için, aktif üyelik seviyenize bağlı olarak 18 ay boyunca yaptıkları alışverişlerden komisyon kazanırsınız.",
     "noteTitle": "Tekrarlayan komisyonlar",
     "noteText": "Referans verdiğiniz müşterilerin her satın alımı, ilk satın alımlarından itibaren 18 ay boyunca kademeli komisyonunuzu (%3-7) aktif hale getirir.",
     "benefitsTitle": "Hispaloshop'ta Influencer Olmanın Nedenleri",
@@ -1915,7 +2015,7 @@
     "stores": "Mağazalar",
     "creators": "Yaratıcılar",
     "buyers": "Alıcılar",
-    "profilesFound": "bulunan profiller",
+    "profilesFound": "profiller bulundu",
     "organic": "organik",
     "glutenFree": "glütensiz",
     "vegan": "vegan",
@@ -1923,13 +2023,22 @@
     "local": "yerel",
     "bio": "biyografi",
     "followers": "takipçiler",
-    "posts": "gönderiler"
+    "posts": "gönderiler",
+    "seleccionDelDia": "Günün Seçimi",
+    "descubreProductosArtesanalesTiendas": "El yapımı ürünleri, onaylı mağazaları ve yerel tarifleri keşfedin.",
+    "seleccionesDeProductosConHistoria": "Tarihi olan ürünlerden seçmeler"
   },
   "notifications": {
     "title": "Bildirimler",
     "markRead": "Okundu olarak işaretle",
     "empty": "Bildirim yok",
-    "newNotification": "Yeni bildirim"
+    "newNotification": "Yeni bildirim",
+    "eliminarNotificacion": "Bildirimi sil",
+    "noSePudieronEliminarLasNotificacion": "Bildirimler silinemedi.",
+    "marcarTodoComoLeido": "Tümünü okundu olarak işaretle",
+    "todoAlDia": "Her şey güncel",
+    "aquiVerasLikesComentariosActualiza": "Burada beğenileri, yorumları, sipariş güncellemelerini ve daha fazlasını görebilirsiniz.",
+    "leido": "Okumak"
   },
   "actions": {
     "newProduct": "Yeni Ürün",
@@ -1968,7 +2077,7 @@
     "addText": "Metin",
     "tagProduct": "Ürün",
     "textOverlay": "Üzerine metin ekle...",
-    "searchProduct": "Etiketlenecek bir ürün arıyorum..."
+    "searchProduct": "Etiketlenecek bir ürün arayın..."
   },
   "darkMode": {
     "toggle": "Karanlık Mod"
@@ -2013,7 +2122,7 @@
       "receive": "Almak",
       "receiveDesc": "Doğrudan üreticiden. Takip numarası dahildir.",
       "buyerPoint1": "Süpermarketlerde bulamayacağınız ürünler",
-      "buyerPoint2": "Diyet, alerjenler, menşe ülke filtreleri",
+      "buyerPoint2": "Diyet, alerjenler, menşe ülke kriterlerine göre filtreler.",
       "buyerPoint3": "65'ten fazla ülkeye hızlı kargo",
       "buyerPoint4": "Doğrulanmış alıcılardan gerçek yorumlar",
       "sellerPoint1": "Dakikalar içinde çevrimiçi mağazanız",
@@ -2075,7 +2184,7 @@
     "afterCommission": "Komisyondan sonra",
     "platformFee": "Platform Komisyonu",
     "pendingPayout": "Ödeme vadesi",
-    "stripeConnected": "Stripe bağlantılı",
+    "stripeConnected": "Şerit bağlantılı",
     "connectStripe": "Stripe'ı Bağla",
     "monthlySales": "Aylık satışlar",
     "recentOrders": "Son Siparişler",
@@ -2274,7 +2383,7 @@
     "reachCustomers": "Müşterilere ulaşın",
     "commission18pct": "%18 Komisyon",
     "aiMatches": "Yapay Zeka Eşleştirme",
-    "tier1Reqs": "15'ten fazla müşteri, 5.000$'dan fazla brüt işlem hacmi (GMV).",
+    "tier1Reqs": "15+ müşteri, 5.000$+ brüt işlem hacmi (GMV).",
     "tier2Reqs": "40'tan fazla müşteri, 12.000$'dan fazla brüt işlem hacmi (GMV).",
     "tier3Reqs": "80'den fazla müşteri, 25.000$'dan fazla brüt işlem hacmi (GMV)."
   },
@@ -2318,7 +2427,21 @@
     "blocked": "Bu kullanıcı henüz yanıt vermedi. Lütfen yanıtını bekleyin.",
     "startChat": "Konuşmaya başlayın",
     "online": "Çevrimiçi",
-    "offline": "Çevrimdışı"
+    "offline": "Çevrimdışı",
+    "eliminarConversacion": "Konuşmayı sil",
+    "buscarEnLaConversacion": "Konuşmayı ara...",
+    "respondioATuStory": "Hikayenize yanıt verdi.",
+    "hola": "Merhaba!",
+    "holaMeGustariaColaborar": "Merhaba, iş birliği yapmak istiyorum...",
+    "iniciaLaConversacion": "Konuşmayı başlatın",
+    "tuNavegadorNoSoportaGrabacionDeAud": "Tarayıcınız ses kaydını desteklemiyor. HTTPS veya uyumlu bir tarayıcı kullanın.",
+    "noSePudoAccederAlMicrofonoComprue": "Mikrofona erişilemiyor. Tarayıcı izinlerinizi kontrol edin.",
+    "enviarCorazon": "Kalp gönder",
+    "maximo10Mb": "Maksimum 10 MB",
+    "errorAlEnviarElDocumento": "Belge gönderiminde hata oluştu.",
+    "noSePudoEnviarElAudio": "Ses dosyası gönderilemedi.",
+    "pruebaOtroTerminoDeBusqueda": "Başka bir arama terimi deneyin.",
+    "seleccionaUnaConversacionParaEmpezar": "Sohbete başlamak için bir konuşma seçin."
   },
   "freshSave": {
     "lastDay": "SON GÜN -%50",
@@ -2357,11 +2480,15 @@
     "publish": "Tarifi yayınla",
     "published": "Yayınlanmış tarif",
     "addToCart": "Malzemeleri satın alın",
-    "addedToCart": "{{count}} malzemeleri sepete eklendi",
+    "addedToCart": "XPHB0XPHX malzemeleri sepete eklendi",
     "by": "İle",
     "min": "dakika",
     "portions": "bölümler",
-    "notFound": "Tarif bulunamadı."
+    "notFound": "Tarif bulunamadı.",
+    "borrarBusqueda": "Arama sonuçlarını temizle",
+    "descubreRecetasSaludablesConProducto": "Yerel el yapımı ürünler kullanarak hazırlanan sağlıklı tarifleri keşfedin. Zorluk derecesine, süreye ve diyete göre filtreleyin.",
+    "noHayRecetasConEstosFiltros": "Bu filtrelerle uyumlu tarif bulunmamaktadır.",
+    "seElPrimeroEnCompartirUnaRecetaCo": "Toplulukla ilk tarifi paylaşan siz olun."
   },
   "customerDashboard": {
     "greeting": "Merhaba",
@@ -2432,8 +2559,8 @@
     "commentDeleted": "Yorum silindi",
     "edited": "düzenlendi",
     "likes": "Severim",
-    "viewComments": "{{count}} yorumuna bakın.",
-    "viewCommentsPlural": "{{count}} yorumlarına bakın.",
+    "viewComments": "XPHBX0XPHX yorumuna bakın.",
+    "viewCommentsPlural": "XPHBX0XPHX yorumlarına bakın.",
     "loginToLike": "Beğenmek için giriş yapın",
     "loginToSave": "Kaydetmek için giriş yapın",
     "loginToFollow": "Kullanıcıları takip etmek için giriş yapın.",
@@ -2448,11 +2575,11 @@
     "unfollowed": "Bu kullanıcıyı takip etmeyi bıraktınız.",
     "nowFollowing": "Şu anda bu kullanıcıyı takip ediyorsunuz.",
     "profileUpdated": "Profil fotoğrafı güncellendi.",
-    "memberSince": "Üyelik tarihi: {{date}}",
+    "memberSince": "Üyelik tarihi: XPHBX0XPHX",
     "verifiedSeller": "Doğrulanmış satıcı",
     "viewStore": "Mağazayı görüntüle",
     "sendMessage": "Mesaj gönder",
-    "featuredProducts": "Öne çıkan ürünler",
+    "featuredProducts": "Öne Çıkan Ürünler",
     "roleSeller": "Satıcı",
     "roleInfluencer": "Etkileyici",
     "roleAdmin": "Yönetici",
@@ -2560,7 +2687,7 @@
     "quickActions": "Hızlı hareket",
     "inputPlaceholder": "Sorunuzu yazın...",
     "error": "Sorgunuz işlenirken hata oluştu.",
-    "errorRetry": "Üzgünüz, bir hata oluştu. Tekrar deneyebilirsiniz."
+    "errorRetry": "Üzgünüm, bir hata oluştu. Tekrar deneyebilirsiniz."
   },
   "bottomNav": {
     "chat": "Sohbet",
@@ -2574,7 +2701,16 @@
     "placeholder": "Kullanıcıları, ürünleri, siparişleri arayın...",
     "noResults": "Sonuç bulunamadı.",
     "toSearch": "aramak",
-    "toClose": "kapatmak için"
+    "toClose": "kapatmak için",
+    "elPrecioMinimoNoPuedeSerMayorQue": "Minimum fiyat, maksimum fiyattan yüksek olamaz.",
+    "errorAlBuscarIntentaloDeNuevo": "Arama başarısız oldu. Lütfen tekrar deneyin.",
+    "limpiarBusqueda": "Arama sonuçlarını temizle",
+    "masReciente": "En sonuncu",
+    "ecologico": "Ekolojik",
+    "buscaProductosArtesanalesRecetasTi": "El yapımı ürünler, tarifler, dükkanlar ve yerel sağlıklı yemek üreticilerini araştırın.",
+    "pruebaConOtrosTerminosORevisaLaOr": "Başka terimler deneyin veya yazımınızı kontrol edin.",
+    "jamonIberico": "İber jambonu",
+    "busquedasPopulares": "Popüler aramalar"
   },
   "influencerAI": {
     "inputPlaceholder": "İhtiyaç duyduğunuz içeriği açıklayın..."
@@ -2620,5 +2756,1808 @@
     "firstReviewDesc": "İlk yorumunuzu yazdınız.",
     "explorer": "Kaşif",
     "explorerDesc": "5 mağazayı takip ettiniz."
+  },
+  "product_detail": {
+    "resenaEnviada": "İnceleme gönderildi.",
+    "chatNoDisponibleParaEsteProducto": "Bu ürün için sohbet özelliği mevcut değil.",
+    "noSePudoAbrirElChat": "Sohbet açılamadı.",
+    "puntuacion": "Noktalama",
+    "comentarioDeLaResena": "İnceleme Yorumu",
+    "noHemosPodidoEnviarLaResena": "İncelemeyi gönderemedik.",
+    "anadirAFavoritos": "Favorilere ekle",
+    "politicaDeDevolucion": "İade politikasi",
+    "tienes14DiasDesdeLaRecepcionParaD": "Siparişinizi teslim aldıktan sonra 14 gün içinde iade edebilirsiniz. Bozulabilir gıda ürünleri iade edilemez.",
+    "anadeEsteProductoAlCatalogoB2bPara": "Toptan siparişler almak için bu ürünü B2B kataloğuna ekleyin.",
+    "anadirAlCatalogoB2b": "B2B kataloğuna ekle"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "Sepete ürün ekleme hatası",
+    "errorAlAnadir": "Ekleme hatası",
+    "noSePudoCopiarElEnlace": "Bağlantı kopyalanamadı.",
+    "anadidoALaLista": "Listeye eklendi",
+    "noSePudoGuardarEnLaLista": "Listeye kaydedilemedi.",
+    "seleccionaUnaValoracion": "Bir puan seçin",
+    "valoracionPublicada": "Yayınlanan değerlendirme",
+    "masPorciones": "Daha fazla porsiyon",
+    "errorAlPublicarLaValoracion": "Değerlendirme gönderiminde hata",
+    "preparacion": "Hazırlık",
+    "informacionNutricional": "Beslenme Bilgileri",
+    "porRacion": "Porsiyon başına",
+    "proteina": "Protein",
+    "azucar": "Şeker",
+    "aunNoHayResenasSeElPrimero": "Henüz hiç yorum yok. İlk yorumu siz yapın!",
+    "tuResena": "Sizin yorumunuz",
+    "enviarResena": "İnceleme gönder"
+  },
+  "community": {
+    "configuracion": "Yapılandırma",
+    "errorAlActualizarMembresia": "Üyelik güncelleme hatası",
+    "escribeAlgoOAnadeUnaImagen": "Bir şeyler yazın veya bir resim ekleyin.",
+    "queQuieresCompartirPuedesUsarHas": "Ne paylaşmak istersiniz? #Etiketleri kullanabilirsiniz.",
+    "anadirImagen": "Resim ekle",
+    "errorAlCargarLaComunidad": "Topluluk yüklenirken hata oluştu.",
+    "salirDeLaComunidad": "Topluluktan ayrılmak",
+    "comparteAlgoConLaComunidad": "Toplulukla bir şeyler paylaşın...",
+    "aunNoHayPosts": "Henüz hiç gönderi yok.",
+    "seElPrimeroEnPublicarAlgo": "İlk yorumu siz yapın!",
+    "verMasPosts": "Daha fazla gönderi görün",
+    "verMasComentarios": "Daha fazla yorum görün",
+    "sinMiembrosTodavia": "Henüz üye yok",
+    "verMasMiembros": "Daha fazla üye görün",
+    "normasDeLaComunidad": "Topluluk Kuralları",
+    "contenidoRelacionadoConAlimentacionY": "Yiyecek ve gastronomi ile ilgili içerik",
+    "sinSpamNiPublicidadNoAutorizada": "Spam veya izinsiz reklam yok.",
+    "sinBebidasAlcoholicas": "Alkollü içecek yok.",
+    "elAdminPuedeEliminarPostsQueNoCum": "Yönetici, kurallara uymayan gönderileri silebilir."
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "Hikayeleriniz yüklenirken hata oluştu.",
+    "errorAlSubirLaFoto": "Fotoğraf yüklenirken hata oluştu.",
+    "noSePudoAbrirLaConversacion": "Konuşma başlatılamadı.",
+    "errorAlCrearConversacion": "Konuşma oluşturulurken hata oluştu.",
+    "atras": "Geri"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "Takip hatası",
+    "cargarMasUsuarios": "Daha fazla kullanıcı yükle",
+    "pruebaConOtroTermino": "Başka bir terim deneyin.",
+    "cargarMas": "Daha fazla yükle",
+    "sinSeguidoresAun": "Henüz takipçi yok.",
+    "noSigueANadieAun": "Henüz kimseyi takip etmiyor."
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "Koleksiyon oluşturulurken hata oluştu.",
+    "nombreDeLaColeccion": "Koleksiyon adı",
+    "guardaContenidoTocandoElIconoDeMar": "Yer imi simgesine dokunarak içeriği kaydedin.",
+    "nuevaColeccion": "Yeni koleksiyon"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Google ile oturum açarken hata oluştu.",
+    "tuContrasena": "Şifreniz",
+    "elEmailEsObligatorio": "E-posta adresi gereklidir.",
+    "laContrasenaEsObligatoria": "Şifre gereklidir.",
+    "emailOContrasenaIncorrectos": "Yanlış e-posta veya şifre",
+    "tuCuentaEstaRestringidaPorEdad": "Hesabınız yaş kısıtlamasına tabidir.",
+    "noHemosPodidoIniciarTuSesion": "Sizi oturum açtıramadık.",
+    "entraEnTuCuenta": "Hesabınıza giriş yapın",
+    "tuSesionHaExpiradoIniciaSesionDe": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+    "ocultarContrasena": "Şifreyi gizle",
+    "oContinuaConEmail": "veya e-posta ile devam edin"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "Kurtarma e-postasını yeniden gönder",
+    "enviarEnlaceDeRecuperacion": "Kurtarma bağlantısını gönder",
+    "recuperarContrasena": "Şifreyi kurtar",
+    "teEnviaremosUnEnlaceParaRestablecer": "Şifrenizi sıfırlamanız için size bir bağlantı göndereceğiz."
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "Görüntünün boyutu 5 MB'ı geçemez.",
+    "noSePudoSubirLaFotoDePerfilPero": "Profil resmi yüklenemedi, ancak hesabınız yine de oluşturulacaktır.",
+    "panaderia": "Fırın",
+    "reposteria": "Şekerleme",
+    "descubreProductosArtesanalesUnicosDe": "Yerel üreticilerin eşsiz el yapımı ürünlerini keşfedin.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "Dükkanınız hazır. El yapımı ürünlerinizi satmaya başlayın.",
+    "exploraElMarketplaceB2bYEncuentraL": "B2B pazarını keşfedin ve en iyi üreticileri bulun.",
+    "errorAlGuardarTuPerfilIntentaloDe": "Profiliniz kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.",
+    "estoEsLoQueVeranOtrosUsuarios": "Diğer kullanıcılar bunu görecekler.",
+    "ubicacionOpcional": "Konum (isteğe bağlı)",
+    "validacionDeMercadoYPrimerasVentas": "Pazar doğrulaması ve ilk satışlar.",
+    "iaComercialAvanzadaYGeneracionDeCo": "Gelişmiş iş yapay zekası ve sözleşme oluşturma.",
+    "stripeNoEstaDisponible": "Stripe kullanılamıyor.",
+    "stripeNoEstaConfiguradoTodavia": "Stripe henüz kurulmadı.",
+    "noPudimosPrepararElPago": "Ödeme işlemini gerçekleştiremedik.",
+    "introduceUnEmailValido": "Geçerli bir e-posta adresi girin.",
+    "creaUnaContrasenaDeAlMenos6Caract": "En az 6 karakterden oluşan bir parola oluşturun.",
+    "necesitamosUnTelefonoOperativo": "Çalışır durumda bir telefona ihtiyacımız var.",
+    "seleccionaElPaisDondeVasAOperar": "Faaliyet göstereceğiniz ülkeyi seçin.",
+    "seleccionaTuPuntoDePartida": "Başlangıç noktanızı seçin.",
+    "eligeAlMenosUnTipoDeProducto": "En az bir ürün türü seçin.",
+    "necesitamosUnaDireccionFiscalValida": "Geçerli bir vergi adresine ihtiyacımız var.",
+    "necesitamosVatCifONifParaDarteDe": "Sizi kaydetmek için KDV, CIF veya NIF numaranıza ihtiyacımız var.",
+    "completaLosDatosDeLaTarjetaParaCo": "Devam etmek için kart bilgilerini doldurun.",
+    "stripeNoEstaListoTodavia": "Stripe henüz hazır değil.",
+    "noSePudoValidarLaTarjeta": "Kart doğrulanamadı.",
+    "tuBancoRechazoLaOperacion": "Bankanız işlemi reddetti.",
+    "haOcurridoUnErrorConElPagoPorFa": "Ödemenizde bir hata oluştu. Lütfen tekrar deneyin.",
+    "elMetodoDePagoFueRechazadoPorFav": "Ödeme yönteminiz reddedildi. Lütfen farklı bir kart kullanın.",
+    "revisaLosDatosAntesDeContinuar": "Devam etmeden önce bilgileri gözden geçirin.",
+    "noPudimosCompletarElAlta": "Taburcu işlemini tamamlayamadık.",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "Hesabınız zaten oluşturuldu. Sadece planı etkinleştirmeniz veya aboneliğinizi sonlandırmanız gerekiyor.",
+    "completaLosCamposObligatoriosParaAv": "Devam etmek için gerekli alanları doldurun.",
+    "numeroSinEspacios": "Boşluksuz sayı",
+    "paisDondeOperaras": "Faaliyet göstereceğiniz ülke",
+    "seleccionaTuPaisPrincipal": "Ana ülkenizi seçin",
+    "loUsamosParaFacturacionYAprobacion": "Bunu faturalama ve ticari onay işlemleri için kullanıyoruz.",
+    "direccionFiscal": "Vergi adresi",
+    "direccionCompletaParaFacturacion": "Tam fatura adresi",
+    "empezamosSinCuotaFijaSiElMercado": "Sabit bir ücret olmadan başlıyoruz. Piyasa tepki verirse, PRO veya ELITE'ye yükseltmeye siz karar verirsiniz.",
+    "pagoSeguroCancelaCuandoQuierasNo": "Güvenli ödeme. İstediğiniz zaman iptal edebilirsiniz. İş akışınızı bozmayacağız.",
+    "bienvenidoALaRevolucion": "Devrime hoş geldiniz.",
+    "revisaTuEmailParaVerificarTuCuenta": "Hesabınızı doğrulamak için e-postanızı kontrol edin. Bana para ve zaman kazandıracak altyapıya zaten sahipsiniz.",
+    "verCatalogoDeProductoresDisponibles": "Mevcut üreticilerin kataloğunu görüntüleyin",
+    "sinAlertsAgresivosYConGuardadoLoca": "Agresif uyarılar olmadan ve ilerleme yerel olarak kaydedilerek.",
+    "tuContrasenaNoSePersisteEnLocalsto": "Parolanız localStorage'da saklanmaz.",
+    "proYEliteUsanStripeInlineFreeCre": "PRO ve ELITE paketleri Stripe'ı doğrudan kullanır. ÜCRETSİZ paket ise hesabı anında oluşturur."
+  },
+  "post_detail": {
+    "publicacionEditada": "Düzenlenmiş yayın",
+    "editarDescripcion": "Açıklamayı düzenle",
+    "publicacion": "Yayın",
+    "editarPublicacion": "Gönderiyi düzenle",
+    "laImagenNoSePuedeCambiarTrasPubli": "Yayınlandıktan sonra görsel değiştirilemez.",
+    "seEliminaraPermanentementeJuntoConS": "Bu, yorumlarınız ve beğenilerinizle birlikte kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
+    "seElPrimeroEnComentar": "İlk yorumu siz yapın",
+    "masPopulares": "En popüler",
+    "cargarMasComentarios": "Daha fazla yorum yükle",
+    "compartirPublicacion": "Bu gönderiyi paylaş"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "Görüntüyü yükleyemedik.",
+    "noHemosPodidoCargarLaImagenDelPas": "Geçit töreninin görüntüsünü yükleyemedik.",
+    "numeroDeRaciones": "Porsiyon sayısı",
+    "anadirIngrediente": "Malzeme ekle",
+    "cuentaQueHaceEspecialEstaReceta": "Bize bu tarifin özel kılan şeyin ne olduğunu anlatın...",
+    "descripcionDeLaReceta": "Tarif açıklaması",
+    "anadirEtiqueta": "Etiket ekle...",
+    "ensaladaRapida": "Hızlı Salata",
+    "postreFacil": "Kolay tatlı",
+    "noHemosPodidoPublicarLaReceta": "Tarifi yayınlayamadık.",
+    "recetaPublicada": "Tarif yayınlandı!",
+    "tienesUnBorradorDeReceta": "Elinizde taslak bir tarif var.",
+    "momentoDelDia": "Günün saati",
+    "unaIntroduccionParaTuReceta": "Tarifinize giriş"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "Daha fazla makara yüklenirken hata oluştu.",
+    "aunNoHayReels": "Henüz hiç makara yok.",
+    "seElPrimeroEnPublicar": "İlk yorumu siz yapın",
+    "noHayMasReels": "Artık makara yok."
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "Başka bir kategori deneyin veya filtreleri ayarlayın.",
+    "verMasProductos": "Daha fazla ürün görüntüle",
+    "caracteristicas": "Özellikler"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "Yerel, el yapımı ve sağlıklı gıda üreticilerinin ürünlerini satan dükkanları keşfedin. Bölge ve ülkeye göre filtreleyin."
+  },
+  "communities_explore": {
+    "alimentacion": "Besleme",
+    "iniciaSesionParaVerTusComunidades": "Topluluklarınızı görmek için giriş yapın.",
+    "noHayComunidadesEnEstaCategoria": "Bu kategoride hiçbir topluluk bulunmamaktadır.",
+    "sinResultadosParaTuBusqueda": "Arama sonuçlarınız için herhangi bir eşleşme bulunamadı.",
+    "aunNoHayComunidades": "Henüz hiçbir topluluk yok.",
+    "creaLaPrimeraComunidadDeEstaCatego": "Bu kategorideki ilk topluluğu oluşturun.",
+    "pruebaConOtrosTerminos": "Diğer terimleri deneyin.",
+    "seElPrimeroEnCrearUnaYConectarCo": "İlk siz oluşturun ve toplulukla bağlantı kurun.",
+    "consigue100SeguidoresOVerificaTuCu": "100 takipçi kazanın veya satıcı hesabınızı doğrulayın."
+  },
+  "about": {
+    "envioGestionadoPorProductor": "Nakliye işlemleri üretici tarafından yönetilmektedir.",
+    "productosConInformacionVerificableY": "Bilgileri doğrulanabilir ve dijital sertifikaya sahip ürünler.",
+    "operacionInternacional": "Uluslararası operasyon",
+    "feedPostsYReelsConectadosConConve": "Gerçek dönüşümle bağlantılı yayınlar, gönderiler ve videolar.",
+    "checkoutSeguroComisionesYConciliaci": "Güvenli ödeme, komisyonlar ve işlem başına mutabakat.",
+    "contenidoUtil": "Faydalı içerik",
+    "clientesProductoresImportadoresEIn": "Müşteriler, üreticiler, ithalatçılar ve kanaat önderleri tek bir akışta.",
+    "gestionarPedidosYOperacionDiaria": "Siparişleri ve günlük operasyonları yönetin.",
+    "configurarEnvioYCatalogoInternaciona": "Uluslararası gönderim ve katalog ayarlarını yapılandırın.",
+    "trackingDeConversionYRendimiento": "Dönüşüm ve performans takibi",
+    "monetizacionEnPostsYReels": "Gönderilerde ve videolarda para kazanma",
+    "altaDeProductosYCatalogoPropio": "Ürün kaydı ve kendi kataloğunuz",
+    "panelDePedidosPagosYOperacion": "Sipariş, ödeme ve işlemler paneli",
+    "catalogoLimpio": "Katalogu temizle",
+    "contenidoUtilEnlazadoAProductosReal": "Gerçek ürünlerle bağlantılı faydalı içerik.",
+    "queEsHispaloshop": "Hispaloshop nedir?",
+    "unimosCompraVentaInfluenciaYTraza": "Alım satımı, etkiyi ve izlenebilirliği tek bir operasyonel platformda birleştiriyoruz.",
+    "loQueYaEstaActivo": "Hali hazırda aktif olanlar",
+    "funcionalidadRealDeProductoEnEstaV": "Bu sürümdeki ürünün gerçek işlevselliği.",
+    "porQueLaPlataformaFunciona": "Platform neden işe yarıyor?",
+    "paraQuienEstaHecho": "Kimler için üretildi?",
+    "porQueExisteHispaloshop": "Hispaloshop neden var?",
+    "laHistoriaRealDetrasDelProyecto": "Projenin ardındaki gerçek hikaye.",
+    "aLos25Perdi15000€EnUnContainerD": "25 yaşındayken, Incheon'da çürüyen bir patlamış mısır kabında 15.000 € kaybettim. Seul'deki bir parkta ağladım. 26 yaşındayken, Reus'taki anne babamın odasına geri taşındım. Saat sabah 6 ve bunu inşa etmek için iki aydır geceleri 5 saatten fazla uyuyamadım.",
+    "loHiceParaQueNingunProductorHonest": "Bunu, hiçbir dürüst yapımcının bir daha kendini görünmez hissetmemesi için yaptım. Hiçbir influencer'ın dürüstlüğü ile geçim kaynağı arasında seçim yapmak zorunda kalmaması için yaptım.",
+    "exploraCatalogoTiendasYContenido": "Kataloğu, mağazaları ve içeriği keşfedin.",
+    "checkoutCentralizadoEnUnSoloFlujo": "Tek bir işlem akışında merkezi ödeme."
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "Gönderiye en az bir resim ekleyin.",
+    "laDescripcionEsDemasiadoLarga": "Açıklama çok uzun.",
+    "publicacionCreada": "Yayın oluşturuldu",
+    "verEnElFeed": "Akışta görüntüle",
+    "errorAlPublicarCompruebaTuConexion": "Gönderimde hata oluştu. Bağlantınızı kontrol edin ve tekrar deneyin.",
+    "nuevaPublicacion": "Yeni yayın",
+    "seleccionaImagenes": "Görselleri seçin",
+    "capturaDirectamenteDesdeTuCamara": "Doğrudan kameranızdan çekim yapın.",
+    "abrirCamaraParaTomarFoto": "Fotoğraf çekmek için kamerayı açın.",
+    "abrirCamara": "Kamerayı açın",
+    "saturacion": "Doygunluk",
+    "vineteado": "Kısa öykü",
+    "tamano": "Boyut",
+    "descripcionDeLaPublicacion": "Yayın açıklaması",
+    "escribeTuPieDeFotoUsaParaHas": "Açıklamanızı yazın... Etiketler için #, bahsetmeler için @ işaretini kullanın.",
+    "sugerenciaAnadida": "Eklenen öneri",
+    "noSePudoGenerarUnaSugerencia": "Bir öneri oluşturulamadı.",
+    "errorAlConectarConDavidAi": "David AI'ya bağlanırken hata oluştu.",
+    "anadirUbicacionEjGaliciaCosta": "Konum ekle... (ör. Galiçya, Costa Brava)",
+    "cerrarBusqueda": "Aramayı kapat",
+    "publicado": "Yayınlandı!",
+    "reintentarPublicacion": "Yeniden paylaş"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "Video çok büyük (maks. 100 MB)",
+    "elVideoNoPuedeSuperarLos60Segundo": "Video 60 saniyeyi geçmemelidir. Yüklemeden önce kırpın.",
+    "noHayVideoSeleccionado": "Hiçbir video seçilmedi.",
+    "elPuntoDeInicioDelRecorteNoPuede": "Kesimin başlangıç noktası, bitiş noktasından büyük veya ona eşit olamaz.",
+    "verEnElFeed": "Akışta görüntüle",
+    "errorAlPublicarElReelCompruebaTu": "Video kaydı yüklenirken hata oluştu. Bağlantınızı kontrol edin ve tekrar deneyin.",
+    "seleccionaUnVideo": "Bir video seçin",
+    "maximo60Segundos·Mp4OMov": "Maksimum 60 saniye · MP4 veya MOV",
+    "elegirVideoDeLaGaleria": "Galeriden video seçin",
+    "elegirDeLaGaleria": "Galeriden seçim yapın",
+    "pausarVideo": "Videoyu duraklat",
+    "controlaElVolumenDelAudioOriginalD": "Videonun orijinal sesinin ses seviyesini kontrol eder.",
+    "anadirTextoAlVideo": "Videoya metin ekle",
+    "escribeAqui": "Buraya yazın...",
+    "textoParaElOverlay": "Katman için metin",
+    "tamanoDeTexto": "Metin boyutu",
+    "tienesUnBorradorDeReel": "Bir taslak kasetiniz var.",
+    "descripcionDelReel": "Video açıklaması",
+    "portadaDesdeGaleria": "Galeri kapağı",
+    "anadirUbicacion": "Konum ekle...",
+    "reelPublicado": "Film yayınlandı!"
+  },
+  "create_story": {
+    "ecologicoEu": "AB Ekolojik",
+    "anadeContenidoATuHistoria": "Hikayenize içerik ekleyin",
+    "errorAlExportarLaHistoria": "Geçmişi dışa aktarırken hata oluştu.",
+    "errorAlPublicarLaHistoria": "Haberi yayınlarken hata oluştu.",
+    "historiaPublicada": "Haber yayınlandı!",
+    "tienesUnBorradorDeStory": "Elinizde bir hikaye taslağı var.",
+    "arrastraAquiParaEliminar": "Silmek için burayı sürükleyin",
+    "escribeAqui": "Buraya yazın...",
+    "textoParaLaHistoria": "Tarih için metin",
+    "quePrefieres": "Hangisini tercih edersiniz?",
+    "opcion1": "Seçenek 1",
+    "opcion2": "Seçenek 2",
+    "anadirEncuesta": "Anket ekle",
+    "anadirMencion": "Bahsetmeyi ekle",
+    "anadirEnlace": "Bağlantı ekle",
+    "sevillaEspana": "Sevilla, İspanya",
+    "anadirUbicacion": "Konum ekle",
+    "anadirPregunta": "Soru ekle",
+    "buscarProductoParaEtiquetarEnLaHis": "Geçmişte etiketlenecek ürünü arayın",
+    "buscaUnProductoDeTuCatalogoParaAn": "Kataloğunuzda etkileşimli etiket olarak eklemek istediğiniz bir ürünü bulun."
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "Organik zeytinyağı",
+    "prediccion": "Tahmin",
+    "accedeATuRepresentanteDeVentasInte": "Pazar analiziyle uluslararası satış temsilcinize ulaşın,",
+    "errorAlContactarAlAgenteComercial": "Satış temsilcisiyle bağlantı kurululamadı. Lütfen tekrar deneyin.",
+    "tuRepresentanteDeVentasInternacional": "Yapay zekâ destekli uluslararası satış temsilciniz",
+    "chatConElAgente": "Temsilciyle sohbet edin"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "Henüz veri yok.",
+    "errorAlCargarAnaliticas": "Analitik veriler yüklenirken hata oluştu.",
+    "compruebaTuConexionEIntentaloDeNue": "Bağlantınızı kontrol edin ve tekrar deneyin.",
+    "analitica": "Analitik",
+    "productosMasVendidos": "En çok satan ürünler",
+    "deDondeVienenTusVentas": "Satışlarınız nereden geliyor?",
+    "seguidoresDeLaTienda": "Mağaza takipçileri",
+    "tasaDeConversion": "Dönüşüm oranı",
+    "anadidosAlCarrito": "Sepete eklendi"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "Takip numarasını girin",
+    "urlDeTrackingNoValidaDebeEmpezar": "Geçersiz izleme URL'si. http:// veya https:// ile başlamalıdır.",
+    "envioRegistrado": "Kayıtlı kargo",
+    "errorAlRegistrarElEnvio": "Gönderinin kaydı sırasında hata oluştu.",
+    "numeroDeTracking": "Takip numarası",
+    "introduceUnPrecioValidoPorUnidad": "Birim başına geçerli bir fiyat girin.",
+    "plazoDias": "Son tarih (gün)",
+    "ejStockDisponibleMinimo100kgPorP": "Örnek: Stok mevcuttur. Sipariş başına minimum 100 kg.",
+    "ofertaEnviadaEsperandoAprobacionYP": "Teklif gönderildi. İthalatçıdan onay ve ödeme bekleniyor.",
+    "gestionaLasSolicitudesB2bDeImportad": "İthalatçılardan gelen B2B taleplerini yönetin.",
+    "activaElModoB2bEnTusProductosPara": "İstekleri almak için ürünlerinizde B2B modunu etkinleştirin."
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "İnceleme aşamasında",
+    "pdfJpgPngMax5mb": "PDF, JPG, PNG (maks. 5MB)",
+    "100OrganicoSinPesticidasCosechaM": "%100 Organik, Pestisit İçermez, Elle Hasat Edilmiş...",
+    "aceitunasEspanaJaen10salPortug": "Zeytin: İspanya (Jaén) □ Tuz: Portekiz □..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "Yeni kullanıcıların sisteme entegrasyonu başlatılamadı.",
+    "configuraTuCuentaParaRecibirTransfe": "Otomatik para transferleri almak için hesabınızı ayarlayın.",
+    "tuCuentaEstaListaParaRecibirPagos": "Hesabınız ödeme almaya hazır.",
+    "completaLosDatosEnStripeParaActiva": "Ödemeleri ve para transferlerini etkinleştirmek için Stripe'taki bilgileri tamamlayın."
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "Kataloğunuzun keşfi ve dönüştürülmesi",
+    "conversionDesdeContenido": "İçerikten dönüşüm",
+    "sinDatosParaEstePeriodo": "Bu dönem için veri bulunmamaktadır.",
+    "todaviaNoHayRecetasConTusProductos": "Ürünlerinizi kullanan henüz hiçbir tarif bulunmamaktadır.",
+    "cuandoCreadoresCompartanRecetasUsand": "İçerik oluşturucular sizin malzemelerinizi kullanarak tarifler paylaştığında, bu tarifler burada görünecektir."
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "Stripe'taki eksik bilgileri tamamlamanız gerekiyor.",
+    "recibirasTuPorcentajeDeCadaVentaAu": "Planınıza göre her satıştan otomatik olarak payınızı alacaksınız.",
+    "completaLaVerificacionEnStripePara": "Otomatik ödemeleri etkinleştirmek için Stripe'ta doğrulama işlemini tamamlayın.",
+    "completarVerificacion": "Tam doğrulama",
+    "noHayDatosSuficientesTodavia": "Henüz yeterli veri yok.",
+    "noSePudieronCargarLasMetricasDelC": "Katalog ve mağaza ölçümleri yüklenemedi.",
+    "noSePudoCargarElResumenDePagos": "Ödeme özeti yüklenemedi.",
+    "noSePudieronCargarLosDatosPrincipa": "Ana panel verileri yüklenemedi. Lütfen sayfayı yenileyin.",
+    "errorAlCargarDatosPorFavorRefres": "Veriler yüklenirken hata oluştu. Lütfen sayfayı yenileyin.",
+    "anadirNuevoProducto": "Yeni ürün ekle",
+    "verAnaliticas": "Analizleri görüntüle",
+    "metricasYPagos": "Ölçümler ve ödemeler",
+    "requierenTuAtencion": "Onlar sizin ilginizi gerektiriyor.",
+    "noPuedesPublicarProductosHastaCompl": "Doğrulama işlemini tamamlamadan ürün yayınlayamazsınız.",
+    "certificadoProximoACaducar": "Sertifikanın süresi yakında dolacak.",
+    "renuevaloParaNoInterrumpirTusVentas": "Satışlarınızın aksamamasını sağlamak için yenileyin.",
+    "senalesDeDemanda": "Talep sinyalleri",
+    "ingredientesProductosYPiezasDeCont": "En yüksek satın alma niyeti taşıyan içerikler, ürünler ve öğeler.",
+    "sinDatosTodavia": "Henüz veri yok.",
+    "productosMasEtiquetados": "Daha fazla etiketli ürün",
+    "aunNoHayConversionesAtribuidas": "Henüz herhangi bir dönüşüm kaydı bulunmamaktadır.",
+    "conversion": "Dönüşüm",
+    "cuentaYConfiguracion": "Hesap ve ayarlar",
+    "cambiarContrasena": "Şifre değiştir"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "Henüz satış verisi yok.",
+    "metodoDePagoActualizado": "Ödeme yöntemi güncellendi.",
+    "losPagosViaStripeSeProcesanAutomat": "Stripe üzerinden yapılan ödemeler her 15 günde bir otomatik olarak işlenir.",
+    "metodoDeCobro": "Ödeme yöntemi",
+    "cobroAutomaticoCada15DiasDirectoA": "Ödemeler her 15 günde bir doğrudan banka hesabınıza otomatik olarak yapılır.",
+    "solicitasElPagoYElEquipoLoTransfi": "Siz ödeme talebinde bulunursunuz ve ekip ödemeyi hesabınıza aktarır.",
+    "guardarMetodo": "Kaydetme yöntemi",
+    "errorAlCargarDatosDePagos": "Ödeme verileri yüklenirken hata oluştu.",
+    "noSePudoObtenerElEnlaceDeStripe": "Stripe bağlantısı alınamadı.",
+    "errorAlAbrirElDashboardDeStripe": "Stripe kontrol paneli açılırken hata oluştu.",
+    "retencionFiscalAplicada": "Vergi stopajı uygulandı",
+    "tusGananciasSeAcumulanPeroNecesita": "Kazançlarınız birikir, ancak otomatik transferleri almak için Stripe Connect'e ihtiyacınız var.",
+    "comoFuncionanLosPagos": "Ödemeler nasıl işler:",
+    "sobreTusGananciasNetasSegunTuConfi": "Vergi yapılandırmanıza göre net kazançlarınız üzerinden."
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "Temel kontrol paneli",
+    "optimizacionDePreciosConIa": "Yapay zeka ile fiyat optimizasyonu",
+    "comisionMasBaja": "Alt komisyon",
+    "suscripcionMarcadaParaCancelar": "İptal edilecek abonelik olarak işaretlendi.",
+    "suscripcionReactivada": "Abonelik yeniden etkinleştirildi.",
+    "eligeElPlanQueMejorSeAdapteATuN": "İşletmenize en uygun planı seçin.",
+    "periodoDePruebaActivo": "Aktif deneme süresi",
+    "actualizaTuMetodoDePagoParaMantene": "Planınızın devam etmesi için ödeme yönteminizi güncelleyin.",
+    "cancelacionProgramada": "Planlı iptal",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "Planınız mevcut dönemin sonunda iptal edilecektir.",
+    "detallesDeSuscripcion": "Abonelik detayları",
+    "cancelarSuscripcion": "Aboneliği iptal et",
+    "todosLosPreciosSonEnEurEIncluyen": "Tüm fiyatlar EUR cinsindendir ve KDV dahildir. Plan değişiklikleri derhal yürürlüğe girer.",
+    "alCancelarMantienesElAccesoHastaE": "İptal ederek, fatura döneminin sonuna kadar erişiminizi koruyabilirsiniz."
+  },
+  "producer_products": {
+    "composicion": "Kompozisyon",
+    "elNombreDelProductoEsObligatorio": "Ürün adı zorunludur.",
+    "seleccionaUnaCategoria": "Bir kategori seçin",
+    "seleccionaElPaisDeOrigen": "Menşe ülkesini seçin",
+    "crustaceos": "Kabuklular",
+    "frutosDeCascara": "Fındık",
+    "anadeAlMenosUnaImagen": "En az bir resim ekleyin.",
+    "subeHasta5FotosDeTuProductoLaPr": "Ürününüze ait en fazla 5 fotoğraf yükleyin. İlk fotoğraf kapak fotoğrafı olacaktır.",
+    "pedidoMinimoUds": "Minimum sipariş (adet)",
+    "especificaOtrosAlergenos": "Diğer alerjenleri belirtin..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "Gönderim politikası yüklenemedi.",
+    "politicaDeEnvioGuardada": "Gönderim politikası kaydedildi",
+    "politicaDeEnvio": "Nakliye Politikası",
+    "configuraCostesDeEnvioPorPedidoPar": "Ürünleriniz için sipariş başına kargo ücretlerini yapılandırın.",
+    "habilitarGastosDeEnvio": "Nakliye maliyetlerini etkinleştirin",
+    "0SinEnvioGratis": "0 = ücretsiz kargo yok",
+    "pedidosQueSuperenEsteImporteTendran": "Bu tutarı aşan siparişlerde kargo ücretsizdir. Bunu devre dışı bırakmak için boş bırakın veya 0 olarak ayarlayın.",
+    "losClientesPuedenRecogerEnTuObrado": "Müşteriler siparişlerini atölyenizden teslim alabilirler (kargo ücreti uygulanır)."
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "Galeriye resim eklendi.",
+    "anadirFotoALaGaleria": "Fotoğrafı galeriye ekle",
+    "fotosDelObradorEquipoProcesoDeEl": "Atölye, ekipman ve üretim sürecine ait fotoğraflar.",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "Bu mağaza URL'si zaten kullanımda. Lütfen başka bir tane seçin.",
+    "errorAlCargarElPerfilDeTienda": "Mağaza profilini yüklerken hata oluştu.",
+    "compruebaTuConexionEIntentaloDeNue": "Bağlantınızı kontrol edin ve tekrar deneyin.",
+    "personalizaLaPaginaPublicaDeTuTien": "Mağazanızın herkese açık sayfasını özelleştirin.",
+    "urlDeTuTienda": "Mağazanızın URL adresi:",
+    "informacionBasica": "Temel bilgiler",
+    "nombreDeLaTienda": "Mağaza adı",
+    "aceitesEcologicosDesde1985": "1985'ten beri organik yağlar",
+    "historiaDeLaMarca": "Marka Geçmişi",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "Markanızın öyküsünü, nasıl başladığınızı, felsefenizi anlatın...",
+    "carlosMartinez": "Carlos Martínez",
+    "laCalidadNoEsUnAccidente": "Kalite tesadüf değildir...",
+    "tusCertificadosVerificadosAparecenAu": "Doğruladığınız sertifikalar otomatik olarak mağazanızda görünür.",
+    "ubicacionCiudadRegion": "Konum (şehir, bölge)",
+    "jaenAndaluciaEspana": "Jaén, Endülüs, İspanya",
+    "direccionCompleta": "Tam adres",
+    "ctraDeLosOlivaresKm1223001Jaen": "Ctra. de los Olivares, km 12, 23001 Jaén",
+    "todaEspanaPeninsular": "İspanya anakarasının tamamı",
+    "horarioDeAtencion": "Çalışma Saatleri",
+    "lun-vie900-180010sab900-1400": "Pazartesi-Cum: 9:00-18:00&#10;Cumartesi: 9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "Tesis",
+    "errorAlSubirElDocumentoCifnif": "CIF/NIF belgesi yüklenirken hata oluştu.",
+    "errorAlSubirLaFotoDeInstalaciones": "Tesislerin fotoğrafı yüklenirken hata oluştu.",
+    "errorAlSubirElCertificado": "Sertifika yüklenirken hata oluştu.",
+    "verificacionDeCuenta": "Hesap doğrulama",
+    "subeTuCifEmpresarialONifPersonal": "İşletmenizin CIF numarasını veya kişisel NIF numaranızı yükleyin. Bu, AEAT'den (İspanya Vergi Dairesi) alınmış resmi bir belge olmalıdır.",
+    "pdfJpgPng·Max5mb": "PDF, JPG, PNG · Maksimum 5 MB",
+    "enRevisionManual": "Manuel inceleme altında",
+    "nuestroEquipoRevisaraTuDocumentoEn": "Ekibimiz belgenizi 48-72 iş saati içinde inceleyecektir.",
+    "fotoDeInstalacion": "Kurulum fotoğrafı",
+    "subeUnaFotoDeTuLocalObradorFinc": "İşletmenizin, atölyenizin, çiftliğinizin, deponuzun veya çalışma alanınızın bir fotoğrafını yükleyin.",
+    "laIaVerificaraQueEsUnaInstalacion": "Yapay zeka, bunun gıda üretimiyle ilgili gerçek bir tesis olduğunu doğrulayacaktır.",
+    "jpgPngHeic·Max10mb": "JPG, PNG, HEIC · Maksimum 10 MB",
+    "instalacionVerificada": "Kurulum doğrulandı.",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "Ekibimiz fotoğrafınızı 48-72 iş saati içinde inceleyecektir.",
+    "alMenos1CertificadoValido": "En az 1 geçerli sertifika",
+    "enRevision": "İnceleme aşamasında",
+    "nuestroEquipoRevisaraTuDocumentacion": "Ekibimiz belgelerinizi 48-72 iş saati içinde inceleyecektir. Sizi e-posta yoluyla bilgilendireceğiz.",
+    "completaLaVerificacion": "Doğrulama işlemini tamamlayın"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "Pazar bazında aktivasyon kuralları:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "Paketin tüm alanlarını geçerli değerlerle doldurun."
+  },
+  "affiliate_links": {
+    "copiado": "Kopyalandı!",
+    "configuracionFiscalRequerida": "Gerekli vergi yapılandırması",
+    "generaUnLinkParaCualquierProducto": "İstediğiniz ürün için bir bağlantı oluşturun. Birisi sizin bağlantınız üzerinden satın alma işlemi gerçekleştirdiğinde, siz de komisyon kazanırsınız.",
+    "masIngresos": "Daha fazla gelir",
+    "masClics": "Daha fazla tıklama",
+    "buscaUnProductoArribaParaGenerarTu": "İlk bağlantınızı oluşturmak için yukarıdaki ürünlerden birini bulun."
+  },
+  "fiscal_setup": {
+    "sinRetencion": "Saklama olmaksızın",
+    "seleccionaUnPaisDeResidenciaFiscal": "Öncelikle vergi ikametgahı ülkesini seçin.",
+    "elArchivoNoPuedeSuperar5mb": "Dosya boyutu 5 MB'ı geçemez.",
+    "certificadoEnRevisionManual": "Sertifika manuel inceleme aşamasındadır.",
+    "certificadoNoValido": "Geçersiz sertifika",
+    "formatoDeIbanNoValidoDebeEmpezar": "Geçersiz IBAN formatı. Ülke koduyla başlamalıdır (örneğin, ES12...).",
+    "errorAlConfigurarMetodoDeCobro": "Ödeme yöntemi yapılandırılırken hata oluştu.",
+    "configuracionFiscal": "Mali yapılandırma",
+    "paisFiscal": "Vergi ülkesi",
+    "buscarPais": "Ülke ara...",
+    "pdfJpgOPng·Max5mb": "PDF, JPG veya PNG · Maksimum 5 MB",
+    "nuestroEquipoRevisaraTuCertificadoE": "Ekibimiz sertifikanızı 48-72 iş saati içinde inceleyecektir.",
+    "recibeEnMinutosEnTuCuentaStripe": "Birkaç dakika içinde Stripe hesabınıza alacaksınız.",
+    "fee025€PorTransferenciaStripeSe": "Ücret: Stripe transferi başına 0,25 € (komisyonunuzdan düşülecektir)",
+    "sinComisionAdicional·ProcesadoEn1-": "Ek ücret yok · İşlem 1-3 iş günü içinde tamamlanır",
+    "titularDeLaCuenta": "Hesap sahibi",
+    "verificacionCompletada": "Doğrulama tamamlandı",
+    "tuConfiguracionFiscalEstaVerificada": "Vergi ayarlarınız doğrulandı ve aktif durumda.",
+    "verificacionCompletadaAfiliadosActiv": "Doğrulama tamamlandı. Ortaklıklar etkinleştirildi.",
+    "errorAlCompletarLaVerificacion": "Doğrulama işlemi tamamlanırken hata oluştu.",
+    "completaLosPasosAnterioresParaAcced": "Doğrulama işlemine erişmek için yukarıdaki adımları tamamlayın.",
+    "configuracionFiscalGuardadaAfiliados": "Vergi ayarları kaydedildi. Ortaklık programları etkinleştirildi.",
+    "errorAlGuardarLaConfiguracionFiscal": "Vergi ayarlarını kaydederken hata oluştu.",
+    "completaTodosLosCamposParaContinuar": "Devam etmek için tüm alanları doldurun."
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "Para çekme işleminde hata oluştu.",
+    "introduceElCodigoDe6Digitos": "6 haneli kodu girin",
+    "emailVerificado": "E-posta doğrulandı!",
+    "codigoInvalido": "Geçersiz kod",
+    "codigoEnviadoATuEmail": "Kod e-posta adresinize gönderildi.",
+    "errorAlEnviarCodigo": "Hata kodu gönderiliyor",
+    "elCodigoDebeTenerAlMenos3Caracter": "Kod en az 3 karakter uzunluğunda olmalıdır.",
+    "codigoCreado": "Kod oluşturuldu",
+    "errorAlCrearCodigo": "Kod oluşturulurken hata oluştu.",
+    "codigosDeDescuento": "İndirim kodları",
+    "eligeUnCodigoPersonalizadoYElPorce": "Topluluğunuz için özel bir kod ve indirim yüzdesi seçin.",
+    "codigoCopiado": "kopyalanmış kod",
+    "misCodigosDeDescuento": "İndirim kodlarım",
+    "creaTuPrimerCodigoDeDescuento": "İlk indirim kodunuzu oluşturun",
+    "pendiente15Dias": "15 gün beklemede",
+    "enTransito": "Transit olarak",
+    "productosQueMejorFuncionanEnTuCont": "İçeriğiniz için en iyi sonuç veren ürünler",
+    "publicaContenidoConProductosVinculad": "Ürün bağlantıları içeren içerikler yayınlayarak performansı görmeye başlayın.",
+    "pendienteDeAprobacion": "Onay bekleniyor",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "Kodunuz Hispaloshop ekibi tarafından inceleniyor. 24 saatten kısa bir süre içinde onaylayacağız.",
+    "miCodigoHispaloshop": "Hispaloshop kodum",
+    "comisionTotal": "Toplam komisyon",
+    "tasaDeComision": "Komisyon oranı",
+    "aunNoHasRealizadoNingunCobro": "Henüz herhangi bir ödeme almadınız.",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL, komisyonlarınızın %15'ini keser ve sizin adınıza üç ayda bir Vergi Dairesine öder (Model 111).",
+    "cuandoHagasTuDeclaracionDeLaRenta": "Gelir vergisi beyannamenizi (IRPF) verdiğinizde, bu kesintiler zaten ödenmiş olacak ve bunları vergiden düşebilirsiniz.",
+    "recibirasElCertificadoDeRetenciones": "Vergi stopaj belgesini her yılın Ocak ayında alacaksınız.",
+    "evolucionDeTusComisiones": "Komisyonlarınızın evrimi",
+    "comparteloEnTusRedesSociales": "Sosyal medyada paylaşın",
+    "tuLinkDeAfiliado": "Ortaklık bağlantınız",
+    "aunNoTienesVentasComparteTuLink": "Henüz hiç satışınız yok. Bağlantınızı paylaşın!",
+    "configuracionFiscal": "vergi yapılandırması"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "Grafiği görüntülemek için yeterli veri yok.",
+    "impactoComercialDeTuContenido": "İçeriğinizin ticari etkisi",
+    "productosMasImpulsadosPorTuContenid": "İçeriğinizden en çok etkilenen ürünler",
+    "errorDeConexion": "Bağlantı hatası",
+    "noPudimosCargarTusDatosCompruebaT": "Verileriniz yüklenemedi. Bağlantınızı kontrol edin ve tekrar deneyin.",
+    "aunNoTienesDatos": "Henüz hiçbir veriniz yok.",
+    "cuandoTuContenidoImpulseClicsOComp": "İçeriğiniz tıklama veya satın alma işlemlerine yol açtığında burada görünecektir.",
+    "losDatosMuestranInteraccionesAtribui": "Veriler, içerik oluşturucu profilinize atfedilen etkileşimleri gösterir: içeriklerinizdeki ürünlere tıklamalar, sepete eklenen ürünler ve tamamlanan satın alımlar. Veriler gerçek zamanlı olarak güncellenir."
+  },
+  "payouts": {
+    "introduceUnImporteValido": "Geçerli bir tutar girin.",
+    "elImporteSuperaTuSaldoDisponible": "Miktar, mevcut bakiyenizi aşıyor.",
+    "errorAlSolicitarLaRetirada": "Para çekme talebinde hata oluştu.",
+    "lasComisionesDeTransferenciaDeStrip": "Stripe'ın transfer ücretleri (yaklaşık %1-2) otomatik olarak düşülür.",
+    "aunNoTienesPagosComparteTuCodigo": "Henüz hiçbir ödeme almadınız. Kodunuzu paylaşın ve kazanmaya başlayın.",
+    "noHayPagosConEsteEstado": "Bu statüde herhangi bir ödeme bulunmamaktadır."
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "Vergi yapılandırması bekleniyor",
+    "completaTuConfiguracionFiscalAntesD": "Para çekme işleminden önce vergi ayarlarınızı tamamlayın.",
+    "errorAlProcesarElCobroIntentaloDe": "Ödeme işleminde hata oluştu. Lütfen tekrar deneyin.",
+    "cobroEnCamino": "Ödeme yolda!",
+    "tiempoEstimado1-3DiasHabiles": "Tahmini süre: 1-3 iş günü",
+    "retencionIrpf": "Gelir Vergisi Stopajı",
+    "metodo": "Yöntem",
+    "comisionBruta": "Brüt komisyon",
+    "laComisionRealPuedeVariarSegunTuM": "Gerçek komisyon oranı, ödeme yönteminize bağlı olarak değişebilir.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Bu ödeme, Hispaloshop SL tarafından ekonomik faaliyetten elde edilen gelir olarak beyan edilecektir.",
+    "recibirasUnCertificadoDeRetenciones": "Vergi beyannameniz için Ocak ayında bir stopaj belgesi alacaksınız."
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "Tüm kategoriler",
+    "carnicos": "Et ürünleri",
+    "errorAlEnviarLaSolicitud": "İstek gönderilirken hata oluştu.",
+    "precioEstimado·ElProductorConfirmar": "Tahmini fiyat · Üretici nihai fiyatı teyit edecektir.",
+    "notasParaElProductorOpcional": "Yapımcı için notlar (isteğe bağlı)",
+    "elProductorTiene48hParaConfirmarDi": "Üreticinin, stok durumunu ve koşullarını teyit etmek için 48 saati var.",
+    "soloSeProcesaElPagoTrasSuConfirma": "Ödeme işlemi yalnızca onaydan sonra gerçekleştirilir.",
+    "catalogoMayorista": "Toptan satış kataloğu",
+    "errorAlCargarElCatalogo": "Katalog yüklenirken hata oluştu."
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "Sertifikalarını görüntülemek için bir sağlayıcı seçin.",
+    "errorAlCargarLosCertificados": "Sertifikalar yüklenirken hata oluştu.",
+    "losCertificadosDeTusProveedoresApar": "Tedarikçilerinizin sertifikaları burada görünecektir."
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "Otomatik olarak oluşturulan B2B sözleşmeleri",
+    "errorAlCargarElPanel": "Panel yüklenirken hata oluştu.",
+    "aunNoTienesProductosPublicados": "Henüz listelenmiş hiçbir ürününüz yok.",
+    "requierenTuAccion": "Harekete geçmenize ihtiyaç duyuyorlar.",
+    "catalogoB2b": "B2B Kataloğu",
+    "aunNoTienesProveedores": "Henüz hiçbir tedarikçiniz yok.",
+    "expandeTuCatalogo": "Kataloğunuzu genişletin",
+    "verAnalisis": "Analizi görüntüle",
+    "anadirProducto": "Ürün ekle",
+    "analisis": "Analiz",
+    "evolucionDeVentas": "Satış evrimi"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "İşlem kimliği mevcut değil.",
+    "recepcionConfirmada": "Resepsiyon onaylandı.",
+    "errorAlConfirmarRecepcion": "Makbuz onayı hatası",
+    "idDePedidoNoDisponible": "Sipariş numarası mevcut değil.",
+    "rastrearEnvio": "Gönderiyi takip edin",
+    "confirmarRecepcion": "Makbuzun onayını yapın."
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "İndirim kodları yüklenirken hata oluştu.",
+    "errorAlAprobarElCodigo": "Kod onayında hata oluştu.",
+    "errorAlRechazarElCodigo": "Kod reddedilirken hata oluştu.",
+    "codigoDeDescuentoActualizado": "İndirim kodu güncellendi.",
+    "codigoDeDescuentoCreado": "İndirim kodu oluşturuldu.",
+    "errorAlGuardarCodigoDeDescuento": "İndirim kodu kaydedilirken hata oluştu.",
+    "codigoDeDescuentoEliminado": "İndirim kodu kaldırıldı.",
+    "errorAlEliminarCodigoDeDescuento": "İndirim kodunu silerken hata oluştu.",
+    "errorAlCambiarEstadoDelCodigo": "Kod durumunu değiştirirken hata oluştu.",
+    "cargandoCodigosDeDescuento": "İndirim kodları yükleniyor",
+    "gestionaCodigosPromocionalesEInfluen": "Promosyon kodlarını ve influencer'ları yönetin.",
+    "nuevoCodigo": "Yeni kod",
+    "editarCodigoDeDescuento": "İndirim kodunu düzenle",
+    "importeMinimoDelCarrito": "Minimum sepet tutarı",
+    "limiteDeUso": "Kullanım sınırı",
+    "actualizarCodigo": "Güncelleme kodu",
+    "buscarCodigosDeDescuento": "İndirim kodlarını arayın...",
+    "codigo": "Kod",
+    "noSeEncontraronCodigos": "Hiçbir kod bulunamadı.",
+    "codigosActivos": "Aktif kodlar",
+    "totalDeCodigos": "Toplam kodlar"
+  },
+  "admin_fiscal": {
+    "revisionManual": "Manuel inceleme",
+    "errorAlProcesarLaRevision": "Hata işleme incelemesi",
+    "gestionFiscal": "Mali yönetim",
+    "pendientesRevision": "İnceleme aşamasında",
+    "revisionManualPendiente": "Manuel inceleme beklemede"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "Büyüme verileri yüklenemedi.",
+    "errorAlCargarLosDatos": "Veri yükleme hatası",
+    "analisisDeConversionYDescubrimiento": "Dönüşüm analizi ve keşfi",
+    "conversionDirecta": "Doğrudan dönüşüm",
+    "contenidoConMayorConversion": "Daha yüksek dönüşüm oranlarına sahip içerik",
+    "titulo": "Vasıf",
+    "productosMasClicadosDesdeContenido": "İçerikten en çok tıklanan ürünler",
+    "sobreLosDatosDeCrecimiento": "Büyüme verilerine ilişkin olarak"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "Etkileyici bilgileri yüklenirken hata oluştu.",
+    "anadirInfluencer": "Etkileyici ekle"
+  },
+  "admin_management": {
+    "paisAsignado": "Atanan ülke",
+    "elAdminSoloVeraAnalyticsDeEstePai": "Yönetici yalnızca bu ülkeye ait analizleri görebilir. Küresel erişim için bu alanı boş bırakın."
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "Sağlıkla ilgili yanlış bilgiler",
+    "claimsMedicos": "Tıbbi iddialar",
+    "razonIa": "Reason AI",
+    "contenidoConfirmadoComoInfraccion": "İçeriğin telif hakkı ihlali olduğu doğrulandı.",
+    "errorAlConfirmarLaModeracion": "Moderasyonun onaylanmasında hata",
+    "errorAlRestaurarElContenido": "İçerik geri yüklenirken hata oluştu.",
+    "errorAlEscalarElContenido": "İçerik ölçeklendirme hatası",
+    "revisaElContenidoModeradoPorIa": "Yapay zeka tarafından denetlenen içeriği inceleyin"
+  },
+  "admin_orders": {
+    "articulos": "Makaleler"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "Yönetici paneli yükleniyor",
+    "noSePudieronCargarLasEstadisticas": "İstatistikler yüklenemedi.",
+    "panelDeAdministracion": "Yönetim Paneli",
+    "gestionDeTuMercadoEnUnaVista": "Pazarınızı tek bir görünümden yönetin.",
+    "colaDeRevision": "İnceleme sırası",
+    "moderacionDeContenido": "İçerik denetimi",
+    "certificadosQueExpiranEn30Dias": "30 gün içinde geçerliliğini yitirecek sertifikalar",
+    "noHayCertificadosProximosAExpirar": "Süresi dolmak üzere olan hiçbir sertifika bulunmamaktadır.",
+    "certificadosPendientesDeRevision": "Sertifikalar inceleme aşamasında."
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "Banka işlem numarası"
+  },
+  "admin_products": {
+    "precioNoValido": "Fiyat geçerli değil.",
+    "checklistDeAprobacion": "Onay Kontrol Listesi",
+    "alMenos1FotoDelProducto": "Ürünün en az 1 fotoğrafı",
+    "descripcionCompletaMin20Caracteres": "Tam açıklama (en az 20 karakter)",
+    "paisDeOrigenIndicado": "Menşe ülke belirtilmiştir.",
+    "alergenosRevisadosCampoPresente": "İncelenen alerjenler (sahada mevcut olanlar)",
+    "marcaTodosLosItemsParaPoderAprobar": "Onaylamak için tüm öğeleri işaretleyin."
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "Geçersiz sipariş kimliği",
+    "errorAlProcesarElReembolso": "Para iadesi işleminde hata oluştu.",
+    "accionIrreversible": "Geri döndürülemez etki",
+    "seProcesaraElReembolsoEnStripeYSe": "Geri ödeme Stripe üzerinden gerçekleştirilecek ve ücretler otomatik olarak ayarlanacaktır.",
+    "gestionDeReembolsos": "Geri ödeme yönetimi"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "Yorumlar yüklenirken hata oluştu.",
+    "resenaOculta": "Gizli inceleme",
+    "resenaEliminada": "İnceleme kaldırıldı",
+    "errorAlEliminarResena": "Yorum silme işleminde hata oluştu.",
+    "moderarResenasDeClientes": "Orta düzeyde müşteri yorumları",
+    "totalDeResenas": "Toplam değerlendirmeler",
+    "calificacionPromedio": "Ortalama puan",
+    "buscarResenas": "Yorumları ara...",
+    "calificacion": "Vasıf",
+    "noSeEncontraronResenas": "Hiç yorum bulunamadı."
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "Destek vakaları yüklenemedi.",
+    "noHayCasosDeSoporteConLosFiltros": "Seçilen filtrelerle ilgili herhangi bir destek talebi bulunmamaktadır."
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "Değiştirme talebi",
+    "resolucionManual": "Manuel çözüm",
+    "noSePudoCargarElCaso": "Dosya yüklenemedi.",
+    "noSePudoActualizarElEstado": "Durum güncellenemedi.",
+    "noSePudoActualizarLaPrioridad": "Öncelik güncellenemedi.",
+    "noSePudoEnviarElMensaje": "Mesaj gönderilemedi.",
+    "accionAplicada": "Alınan önlem",
+    "noSePudoAplicarLaAccion": "Söz konusu işlem uygulanamadı.",
+    "conversacion": "Konuşma",
+    "sinMensajesAun": "Henüz mesaj yok.",
+    "tuAdmin": "Siz (yönetici)",
+    "unAgenteHumanoSeHaUnidoALaConver": "İnsan bir temsilci görüşmeye katıldı.",
+    "esteCasoEstaCerradoNoSePuedenAna": "Bu dosya kapatılmıştır. Başka mesaj eklenemez.",
+    "ultimaActualizacion": "Son güncelleme"
+  },
+  "admin_trust_safety": {
+    "enganoso": "Yanıltıcı",
+    "resena": "Gözden geçirmek",
+    "noSePudoCargarLaColaDeModeracion": "Moderasyon kuyruğu yüklenemedi.",
+    "accionAplicada": "Alınan önlem",
+    "noSePudoAplicarLaAccion": "Söz konusu işlem uygulanamadı.",
+    "colaVacia": "Boş kuyruk",
+    "noHayContenidoPendienteDeRevision": "İncelemeyi bekleyen herhangi bir içerik bulunmamaktadır.",
+    "senales": "Sinyaller",
+    "noSePudieronCargarLosReportes": "Raporlar yüklenemedi.",
+    "noHayReportesConLosFiltrosSeleccio": "Seçilen filtrelerle ilgili herhangi bir rapor bulunmamaktadır.",
+    "marcadosAutomaticamente": "Otomatik olarak işaretlendi",
+    "politicasDeLaPlataforma": "Platform Politikaları",
+    "productosProhibidosArmasDrogasCon": "Yasaklı ürünler: silahlar, uyuşturucular, yasadışı içerik, sahte ürünler.",
+    "resenasDebenSerAutenticasVerificad": "Yorumlar: Orijinal, doğrulanmış ve gerçek satın alımlara dayanmalıdır.",
+    "vendedoresResponsablesDeLaVeracidad": "Satıcılar: Açıklamaların doğruluğundan ve gıda güvenliğinden sorumludur.",
+    "contenidoGeneradoPorUsuariosSujeto": "Kullanıcı tarafından oluşturulan içerik: otomatik ve insan denetimine tabidir.",
+    "colaDeModeracion": "Moderasyon sırası",
+    "moderacionReportesEIntegridadDeLa": "Moderasyon, raporlama ve platform bütünlüğü."
+  },
+  "admin_verification": {
+    "revision": "Revizyon",
+    "revisionManual": "Manuel inceleme",
+    "numero": "Sayı",
+    "descripcionIa": "Yapay Zeka Açıklaması",
+    "rechazarVerificacion": "Doğrulama işlemini reddet",
+    "documentosProblematicos": "Sorunlu belgeler:",
+    "fotoDeInstalacionNoValida": "Geçersiz kurulum fotoğrafı",
+    "solicitarDocumentacion": "Belge talebi",
+    "verificacionRechazada": "Doğrulama reddedildi",
+    "revisionManualDeProductores": "Üretici kılavuzu incelemesi"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "Kategori adı",
+    "descripcionOpcional": "Açıklama (isteğe bağlı)",
+    "errorAlCargarLasCategorias": "Kategoriler yüklenirken hata oluştu.",
+    "categoriaCreada": "Kategori oluşturuldu",
+    "errorAlCrearLaCategoria": "Kategori oluşturulurken hata oluştu.",
+    "categoriaActualizada": "Güncellenen kategori",
+    "errorAlActualizarLaCategoria": "Kategori güncellenirken hata oluştu.",
+    "categoriaEliminada": "Kategori kaldırıldı",
+    "errorAlEliminarLaCategoria": "Kategori silinirken hata oluştu.",
+    "nuevaCategoria": "Yeni kategori",
+    "buscarCategorias": "Arama kategorileri...",
+    "noSeEncontraronCategorias": "Hiçbir kategori bulunamadı.",
+    "sinDescripcion": "Açıklama yok"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "Mesajlar yüklenemedi.",
+    "canalDeEscalacionAbiertoUnSuperadm": "Sorun bildirim kanalı açıldı. Mesajınız bir üst düzey yöneticiye iletilecektir.",
+    "errorAlAbrirEscalacion": "Yükseltme işlemi başlatılırken hata oluştu.",
+    "canalDeEscalacionPrivado": "Özel Tırmanma Kanalı",
+    "seleccionaUnaEscalacionParaVerLosM": "Mesajları görüntülemek için bir üst kademeye başvurun.",
+    "usaEsteCanalParaReportarProblemasC": "Kritik sorunları, çözülmemiş anlaşmazlıkları veya daha üst düzey müdahale gerektiren durumları bildirmek için bu kanalı kullanın.",
+    "elMensajeEstaCifradoDeExtremoAExt": "Mesaj, veritabanında uçtan uca şifrelenmiştir.",
+    "describeElProblemaOSituacionAEscal": "Üst mercilere iletilmesi gereken sorunu veya durumu açıklayın...",
+    "abrirCanalDeEscalacion": "Açık Sorun Bildirim Kanalı",
+    "sinMensajesTodavia": "Henüz mesaj yok."
+  },
+  "content_management": {
+    "sinExpiracion": "Son kullanma tarihi yok"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "GDPR talebi işlenirken hata oluştu",
+    "solicitudesDeDerechosDeUsuariosBajo": "GDPR kapsamında kullanıcı hakları talepleri. Azami yanıt süresi: 30 gün."
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "Görüntü depolama",
+    "estadoDeServiciosYConfiguracionDel": "Hizmet durumu ve ortam yapılandırması",
+    "informacionDelSistema": "Sistem bilgileri"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "Analiz paneli verileri yüklenemedi.",
+    "minimoDeUsuariosRequeridosParaMostr": "Toplu hassas verilerin görüntülenmesi için gereken minimum kullanıcı sayısı",
+    "detectarObjetivosDieteticosYDeSalud": "Beslenme ve sağlık hedeflerini belirleyin.",
+    "noHayDatosDePaisesParaMostrar": "Görüntülenecek ülke verisi yok.",
+    "noHayMetricasDeIaDisponibles": "Yapay zekâya ilişkin herhangi bir ölçüm verisi mevcut değil.",
+    "noHayDatosDeComplianceDisponibles": "Uyumluluk verisi mevcut değil."
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "Yerel satıcıların kayıt olabilmesi için bir ülkeyi etkinleştirin."
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "Bu değişikliği üretim ortamına uygulamak için süper yönetici parolanızı girin.",
+    "contrasenaSuperadmin": "Süper yönetici şifresi",
+    "introduceTuContrasena": "Şifrenizi girin",
+    "configuracionActualizadaYGuardada": "Ayarlar güncellendi ve kaydedildi.",
+    "configuracionDePlanes": "Plan ayarları",
+    "losCambiosSeAplicanAutomaticamenteE": "Değişiklikler Stripe'ta otomatik olarak uygulanacaktır. Onaylamak için süper yönetici şifresi gereklidir.",
+    "comisionSobreElTotalDeVentaDespue": "Toplam satış tutarı üzerinden (kargo ve KDV hariç) komisyon alınır. Bu komisyon platformun kar marjından karşılanır."
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "Genel bakış yüklenemedi.",
+    "revisaLaConexionConElBackend": "Arka uç sunucuyla olan bağlantıyı kontrol edin.",
+    "sinDatosDeTendencia": "Trend verisi yok.",
+    "distribucionDePlanes": "Plan dağıtımı"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "B2B kataloğu yüklenirken hata oluştu.",
+    "noSePudoCambiarElEstado": "Durum değiştirilemezdi.",
+    "noTienesAccesoAEstaSeccion": "Bu bölüme erişiminiz yok.",
+    "necesitasUnPerfilDeProductorOImpor": "B2B kataloğuna erişmek için bir üretici veya ithalatçı profiline ihtiyacınız var.",
+    "gestionaQueProductosOfrecesAlPorMa": "Toptan satışını yapacağınız ürünleri ve hangi koşullar altında sunacağınızı yönetin.",
+    "noTienesProductosEnElCatalogoB2b": "B2B kataloğunuzda hiçbir ürününüz yok.",
+    "empiezaAnadiendoTuPrimerProductoMay": "İlk toptan ürününüzü ekleyerek başlayın.",
+    "anadirPrimerProducto": "İlk ürünü ekle",
+    "anadirProductoAlCatalogoB2b": "Ürünü B2B kataloğuna ekle"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "Mesaj göndererek sohbete başlayın.",
+    "noTienesAccesoAEstaSeccion": "Bu bölüme erişiminiz yok.",
+    "necesitasUnPerfilDeProductorOImpor": "B2B sohbetine erişmek için bir üretici veya ithalatçı profiline ihtiyacınız var."
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "İşlem yüklenemedi.",
+    "noTienesAccesoAEstaSeccion": "Bu bölüme erişiminiz yok.",
+    "necesitasUnPerfilDeProductorOImpor": "B2B sözleşmelerine erişmek için üretici veya ithalatçı profiline ihtiyacınız var.",
+    "operacionNoEncontrada": "İşlem bulunamadı.",
+    "laOperacionSolicitadaNoExisteONoT": "İstenen işlem mevcut değil veya erişim izniniz yok.",
+    "laIaEstaGenerandoElContrato": "Yapay zeka sözleşmeyi oluşturuyor...",
+    "elContratoEstaTardandoMasDeLoEspe": "Sözleşme beklenenden daha uzun sürüyor.",
+    "recibirasUnaNotificacionCuandoEsteL": "Hazır olduğunda size bir bildirim gönderilecektir.",
+    "cartaDeCreditoPagoDividido": "Akreditif (bölünmüş ödeme)",
+    "pagoA30Dias": "Ödeme 30 gün içinde yapılmalıdır.",
+    "pagoA60Dias": "Ödeme 60 gün içinde yapılmalıdır.",
+    "alFirmarConfirmasQueHasLeidoYAcep": "İmzalayarak sözleşmenin tüm şartlarını okuduğunuzu ve kabul ettiğinizi onaylamış olursunuz.",
+    "laFirmaQuedaRegistradaConFechaHor": "İmza, tarih, saat ve IP adresiyle birlikte kaydedilir.",
+    "necesitasSubirTuFirmaDigitalAntesD": "Sözleşmeleri imzalamadan önce dijital imzanızı yüklemeniz gerekiyor."
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "Yanlış dokümantasyon",
+    "maximo5Archivos": "En fazla 5 dosya",
+    "errorAlAbrirLaDisputa": "Anlaşmazlık açma hatası",
+    "antesDeAbrirUnaDisputaTeRecomenda": "Anlaşmazlık başlatmadan önce, diğer tarafla sohbet üzerinden görüşmenizi öneririz.",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "Anlaşmaya varamazsanız, Hispaloshop yöneticisi durumu 72 saat içinde inceleyecektir.",
+    "describeDetalladamenteElProblemaMin": "Sorunu ayrıntılı olarak açıklayın (en az 50 karakter)...",
+    "max5Archivos10mbCadaUno": "En fazla 5 dosya, her biri 10 MB.",
+    "estaAccionNotificaraAlAdminDeHispa": "Bu işlem Hispaloshop yöneticisine bildirim gönderecek ve karşı tarafın itibarını etkileyebilir."
+  },
+  "b2_b_marketplace": {
+    "catalogo": "Katalog",
+    "precioMasBajo": "En düşük fiyat",
+    "masProductos": "Daha fazla ürün",
+    "sinAccesoAlCatalogoB2b": "B2B kataloğuna erişim yok.",
+    "completaTuPerfilDeImportadorParaAc": "Erişim sağlamak için ithalatçı profilinizi tamamlayın.",
+    "sinAccesoAlDirectorioDeProductores": "Üretici dizinine erişim olmadan",
+    "indicaElProductorLosProductosYLa": "Üreticiyi, ürünleri ve miktarı belirtin. Üretici talebinizi alacak ve size özel bir teklifle yanıt verecektir."
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "Akreditif",
+    "elCompradorAsumeTodosLosCostesDesd": "Alıcı, fabrikadan kaynaklanan tüm masrafları üstlenir.",
+    "vendedorEntregaEnDestinoSinDescarga": "Satıcı, ürünü boşaltmadan varış noktasına teslim eder.",
+    "indicaElPlazoMinimoDeEntrega": "Minimum teslim süresini belirtin.",
+    "validezDias": "Geçerlilik süresi (gün)",
+    "errorAlEnviarLaOferta": "Teklif gönderilirken hata oluştu."
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "Görüşmeler devam ediyor.",
+    "noTienesAccesoAEstaSeccion": "Bu bölüme erişiminiz yok.",
+    "necesitasUnPerfilDeProductorOImpor": "B2B işlemlerine erişmek için üretici veya ithalatçı profiline ihtiyacınız var.",
+    "errorAlCargarLasOperaciones": "İşlemler yüklenirken hata oluştu."
+  },
+  "b2_b_payment": {
+    "net30Dias": "Net 30 gün",
+    "net60Dias": "Net 60 gün",
+    "cartaDeCredito": "Akreditif",
+    "errorAlCargarLosDatosDePago": "Ödeme bilgilerini yüklerken hata oluştu.",
+    "noSePudoInicializarElPago": "Ödeme işlemi başlatılamadı.",
+    "noTienesAccesoAEstaSeccion": "Bu bölüme erişiminiz yok.",
+    "necesitasUnPerfilDeProductorOImpor": "B2B ödemelerine erişmek için üretici veya ithalatçı profiline ihtiyacınız var.",
+    "esperandoElPagoDelComprador": "Alıcıdan ödeme bekleniyor...",
+    "recibirasUnaNotificacionCuandoElPag": "Ödeme işlemi tamamlandığında bir bildirim alacaksınız.",
+    "losFondosEstanRetenidosHastaQueSub": "Gönderi belgelerini yükleyene kadar paralar bloke edilecektir.",
+    "comisionHispaloshop3": "Hispaloshop Komisyonu (%3)"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "Ürünlerinize ilgi duyan ithalatçılardan gelen fiyat teklifi talepleri (RFQ'lar)",
+    "historialDeTusSolicitudesDeCotizaci": "Toptan fiyat teklifi taleplerinizin geçmişi",
+    "noSePudieronCargarLasSolicitudes": "İstekler yüklenemedi.",
+    "soloDisponibleParaCuentasDeProducto": "Sadece üretici hesapları için geçerlidir.",
+    "soloDisponibleParaCuentasDeImportad": "Sadece ithalatçı hesapları için geçerlidir.",
+    "noHasEnviadoSolicitudesAun": "Henüz hiçbir başvuru göndermediniz.",
+    "usaElMarketplaceB2bParaContactarPr": "Üreticilerle iletişime geçmek için B2B Pazaryerini kullanın."
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "İşlem yüklenirken hata oluştu.",
+    "envioConfirmado": "Gönderim onaylandı.",
+    "noSePudoConfirmarElEnvio": "Gönderi onaylanamadı.",
+    "operacionNoEncontrada": "İşlem bulunamadı.",
+    "noSePudoCargarLaOperacionSolicitad": "İstenen işlem yüklenemedi.",
+    "abrirChatDeLaOperacion": "Operasyon için sohbeti açın.",
+    "confirmarEnvio": "Gönderiyi onaylayın",
+    "esperandoConfirmacionDeEnvioDelProd": "Üreticiden sevkiyat onayı bekleniyor.",
+    "documentacion": "Dokümantasyon",
+    "documentosNecesariosParaEstaOperacio": "Bu işlem için gerekli belgeler",
+    "revisaLaDocumentacionPendienteAntes": "Lütfen göndermeden önce eksik olan tüm belgeleri gözden geçirin.",
+    "proximamente": "Yakında",
+    "elCompradorRealizaraElPagoFinalTra": "Alıcı, teslimattan sonra nihai ödemeyi yapacaktır."
+  },
+  "customer_orders": {
+    "masAntiguos": "Daha yaşlı",
+    "errorAlCargarLosPedidos": "Siparişler yüklenirken hata oluştu.",
+    "errorAlActualizarLosPedidos": "Siparişler güncellenirken hata oluştu.",
+    "noHayPedidosEnEstaCategoria": "Bu kategoride sipariş bulunmamaktadır.",
+    "productosAnadidosAlCarrito": "Sepete eklenen ürünler",
+    "noSePudoRepetirElPedido": "Sipariş tekrarlanamadı.",
+    "cargarMasPedidos": "Daha fazla sipariş yükle"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "Bazı veriler yüklenemedi. Tekrar denemek için aşağı kaydırın."
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "Profil yüklenirken hata oluştu.",
+    "errorAlCargarLasDirecciones": "Adresler yüklenirken hata oluştu.",
+    "generaUnCodigoDeDescuentoPersonaliz": "Özel bir indirim kodu oluşturun.",
+    "tusSeguidoresObtienen10DeDescuento": "Takipçileriniz %10 indirim kazanır.",
+    "tuGanasEntre3Y7DeCadaVenta": "Her satıştan %3 ile %7 arasında komisyon kazanırsınız.",
+    "programaDeAfiliadosActivado": "Ortaklık programı aktif edildi!",
+    "errorAlActivarElPrograma": "Program etkinleştirilirken hata oluştu."
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "Henüz hiçbir mesaj yok. Kısa süre içinde yanıt alacaksınız.",
+    "esteCasoEstaCerrado": "Bu dava kapanmıştır.",
+    "noSePudoCargarTuHistorialDeSoport": "Destek geçmişiniz yüklenemedi.",
+    "noSePudoAbrirElCaso": "Dosya açılamadı.",
+    "historialDeTusCasosDeSoporteConHi": "Hispaloshop ile olan destek taleplerinizin geçmişi.",
+    "noTienesNingunCasoDeSoporteAbierto": "Şu anda açık bir destek talebiniz yok. Yardıma ihtiyacınız olursa HI ile iletişime geçin."
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "Ürün sepete eklendi.",
+    "errorAlAnadirAlCarrito": "Sepete ekleme hatası"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "Sipariş yüklenirken hata oluştu.",
+    "resenaPublicada": "Yayınlanmış inceleme",
+    "errorAlPublicarLaResena": "Yorum gönderme hatası",
+    "esteDocumentoNoEsUnaFacturaFiscal": "Bu belge vergi faturası DEĞİLDİR.",
+    "noSePudoDescargarLaFactura": "Fatura indirilemedi.",
+    "elImporteSeReflejaraEnTuCuentaEn": "Tutar 5-10 iş günü içinde hesabınıza yansıtılacaktır.",
+    "seHaReembolsadoParteDelImporteATu": "Tutarın bir kısmı hesabınıza iade edildi.",
+    "elPagoNoSePudoProcesarIntentaloD": "Ödemeniz işlenemedi. Lütfen tekrar deneyin veya destek ekibiyle iletişime geçin.",
+    "dejaUnaResena": "Bir yorum bırakın...",
+    "publicarResena": "Bir yorum yayınla",
+    "resenaEnviadaGracias": "Değerlendirme gönderildi. Teşekkürler!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "Şifre güncellendi.",
+    "contrasenaActualIncorrecta": "Geçerli parola yanlış.",
+    "errorAlCambiarContrasena": "Parola değiştirme hatası",
+    "tuCuentaUsaGoogleParaIniciarSesion": "Hesabınıza Google ile giriş yapıyorsunuz. Şifre belirlemediniz.",
+    "puedesAnadirUnaAContinuacion": "Aşağıya bir tane ekleyebilirsiniz.",
+    "contrasenaActual": "Mevcut Şifre",
+    "nuevaContrasena": "Yeni Şifre",
+    "repetirNuevaContrasena": "Yeni şifreyi tekrarla",
+    "lasContrasenasNoCoinciden": "Şifreler eşleşmiyor.",
+    "anadirContrasena": "Şifre ekle"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "Kullanıcı adı mevcut değil.",
+    "urlNoValida": "Geçersiz URL",
+    "esteNombreDeUsuarioNoEstaDisponibl": "Bu kullanıcı adı kullanılamıyor.",
+    "elUsuarioDebeTenerAlMenos3Caracte": "Kullanıcı adı en az 3 karakterden oluşmalıdır.",
+    "biografia": "Biyografi",
+    "cuentanosSobreTi": "Bize kendinizden bahsedin...",
+    "madridEspana": "Madrid, İspanya",
+    "informacionDeContacto": "İletişim bilgileri",
+    "elEmailNoSePuedeCambiarDesdeAqui": "E-posta adresi buradan değiştirilemez.",
+    "nombreDeLaEmpresa": "Firma Adı",
+    "descripcionDeLaTienda": "Mağaza açıklaması",
+    "describeTuTiendaTusProductosTuHi": "Mağazanızı, ürünlerinizi, hikayenizi anlatın...",
+    "maximo5Mb": "Maksimum 5 MB",
+    "eseNombreDeUsuarioYaEstaEnUso": "Bu kullanıcı adı zaten kullanımda.",
+    "elNombreDeUsuarioDebeTenerAlMenos": "Kullanıcı adı en az 3 karakter uzunluğunda olmalıdır.",
+    "noSePudoGuardarIntentaloDeNuevo": "Kaydedilemedi. Lütfen tekrar deneyin.",
+    "min3Caracteres": "En az 3 karakter",
+    "cuentanosAlgoSobreTi…": "Bize kendinizden biraz bahsedin…",
+    "descripcionDeTienda": "Mağaza açıklaması"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "İstek işlenirken hata oluştu",
+    "cuandoAlguienQuieraSeguirteAparecer": "Birisi sizi takip etmek istediğinde burada görünecektir."
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "Sipariş onayı",
+    "actualizacionesDeEnvio": "Nakliye güncellemeleri",
+    "solicitudesDeResena": "İnceleme talepleri"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "IBAN formatı geçerli değil.",
+    "sinComision-2-3DiasLaborables": "Komisyon yok - 2-3 iş günü",
+    "tuCuentaDeStripeConnectEstaActiva": "Stripe Connect hesabınız aktif. Ödemeler otomatik olarak işleniyor.",
+    "conectaTuCuentaDeStripeParaRecibir": "Ödemelerinizi doğrudan almak için Stripe hesabınızı bağlayın. Stripe doğrulama işlemine yönlendirileceksiniz.",
+    "losPagosPorVentasDeProductosSePro": "Ürün satışlarına ilişkin ödemeler Stripe Connect aracılığıyla otomatik olarak işlenir.",
+    "configuraTuCuentaDeStripeParaEmpez": "Ödeme almaya başlamak için Stripe hesabınızı kurun."
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "Temel mağaza profili",
+    "analiticasBasicas": "Temel analizler",
+    "analiticasAvanzadas": "Gelişmiş analitik",
+    "generacionDeContratos": "Sözleşme oluşturma",
+    "errorAlAbrirFacturacion": "Fatura açma hatası",
+    "errorAlCambiarDePlan": "Plan değiştirme hatası",
+    "perderasLasFuncionalidadesPremiumAl": "Fatura döneminin sonunda premium özelliklerinizi kaybedeceksiniz."
+  },
+  "settings": {
+    "cuentaPublicaActivada": "Herkese açık hesap etkinleştirildi.",
+    "errorAlCambiarLaPrivacidad": "Gizlilik ayarlarını değiştirirken hata oluştu.",
+    "sesionCerradaCambiadoAOtraCuenta": "Oturum kapatıldı. Başka bir hesaba geçildi.",
+    "errorAlEliminarLaCuenta": "Hesap silme işleminde hata oluştu.",
+    "paisEIdioma": "Ülke ve dil",
+    "lasCuentasDeProductorSonSiemprePub": "Yapımcı hesapları her zaman herkese açıktır.",
+    "planDeSuscripcion": "Abonelik planı",
+    "confirmarCierreDeSesion": "Oturumun kapatıldığını onaylayın",
+    "tendrasQueVolverAIniciarSesionPara": "Hesabınıza erişmek için tekrar giriş yapmanız gerekecek.",
+    "confirmarEliminacionDeCuenta": "Hesap silme işlemini onaylayın",
+    "estaAccionEsIrreversibleSeEliminar": "Bu işlem geri alınamaz. Tüm verileriniz, siparişleriniz ve içerikleriniz silinecektir.",
+    "escribeTuEmailParaConfirmar": "Onaylamak için e-postanızı girin.",
+    "confirmaTuEmailParaEliminarLaCuent": "Hesabı silmek için e-postanızı onaylayın."
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "Kaydetmeden önce imzanızı atın.",
+    "subeUnaImagenDeTuFirma": "İmzanızın bir resmini yükleyin.",
+    "configuraTuFirmaAntesDeGuardar": "Kaydetmeden önce imzanızı yapılandırın.",
+    "errorAlProcesarLaFirmaExistente": "Mevcut imzanın işlenmesinde hata oluştu.",
+    "errorAlGuardarLaFirma": "İmza kaydedilirken hata oluştu.",
+    "necesitasConfigurarTuFirmaParaPoder": "B2B sözleşmelerini imzalayabilmek için imzanızı yapılandırmanız gerekmektedir.",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "Dijital imzanız, B2B sözleşmelerine otomatik olarak uygulanır.",
+    "laFirmaQuedaRegistradaConTimestamp": "İmza, zaman damgası ve SHA-256 özet değeriyle birlikte kaydedilir.",
+    "seSuperpondraSobreLaFirmaEnLosCon": "Sözleşmelerdeki imzanın üzerine yerleştirilecektir."
+  },
+  "role_onboarding": {
+    "omnivoro": "Omnivor",
+    "paraRecomendarteLosMejoresProductos": "Size en iyi ürünleri önermek için. Birkaç seçenek arasından seçim yapabilirsiniz.",
+    "tuFeedSePersonalizaraConSusProduct": "Akışınız, ürünleriniz ve içeriklerinizle kişiselleştirilecektir.",
+    "escribeElNombreDeTuTienda": "Mağazanızın adını yazın.",
+    "errorConectandoConStripeHazloDesde": "Stripe'a bağlanırken hata oluştu. Lütfen kontrol panelinizden bağlanın.",
+    "estoEsLoPrimeroQueVeranTusCliente": "Bu, müşterilerinizin ilk göreceği şey olacak.",
+    "anadirLogo": "Logo ekle",
+    "jpgPngOWebp·Maximo5mb": "JPG, PNG veya WebP · Maksimum 5 MB",
+    "nombreDeTuTienda": "Mağazanızın adı",
+    "puedesAnadirMasDesdeTuPanelEsteP": "Kontrol panelinizden daha fazla öğe ekleyebilirsiniz. Bu adım isteğe bağlıdır.",
+    "necesitamosVerificarTuIdentidadPara": "Satışlardan elde ettiğiniz parayı size güvenli bir şekilde aktarabilmemiz için kimliğinizi doğrulamamız gerekiyor.",
+    "tusDatosBancariosNuncaPasanPorHisp": "Banka bilgileriniz asla Hispaloshop üzerinden geçmiyor.",
+    "recibirasTusPagosAutomaticamente": "Ödemeleriniz otomatik olarak size gönderilecektir.",
+    "puedesHacerloMasTardeDesdeTuPanel": "Bunu daha sonra kontrol panelinizden yapabilirsiniz.",
+    "loHareMasTarde": "Bunu daha sonra yapacağım.",
+    "noSePudoObtenerTuCodigo": "Kodunuz alınamadı.",
+    "apareceranEnTuPerfilCuandoAlguien": "Bunlar profilinizde görünecek. Birisi bunları satın aldığında, siz komisyon kazanacaksınız.",
+    "tusSeguidoresObtienenUn10DeDescue": "Takipçileriniz ilk alışverişlerinde %10 indirim kazanır. Siz de ömür boyu komisyon kazanırsınız.",
+    "comoGanasDinero": "Nasıl para kazanırsınız:",
+    "cadaCompraQueHaganTeGeneraComision": "Yaptıkları her satın alma işlemi sizin için komisyon oluşturur.",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "Ödemeniz otomatik olarak banka hesabınıza yatırılır.",
+    "todoListo": "Her şey hazır!",
+    "empiezaCompartiendoTuCodigoConTusS": "Kodunuzu takipçilerinizle paylaşarak başlayın.",
+    "veTusComisionesEnTiempoReal": "Komisyonlarınızı gerçek zamanlı olarak görüntüleyin.",
+    "minimo20€TransferenciaAutomatica": "Minimum 20 €, otomatik transfer"
+  },
+  "chats": {
+    "colaboracion": "İşbirliği",
+    "aunNoTienesMensajes": "Henüz hiç mesajınız yok.",
+    "empiezaUnaConversacionConProductores": "Yapımcılar, etkileyiciler ve daha fazlasıyla bir sohbet başlatın.",
+    "enviaMensajesPrivadosATiendasProdu": "HispaloShop topluluğundaki mağazalara, üreticilere ve etkileyicilere özel mesajlar gönderin."
+  },
+  "consumer_register": {
+    "datosBasicos": "Temel veriler",
+    "errorAlCrearLaCuentaIntentaloDeN": "Hesap oluşturma hatası oluştu. Lütfen tekrar deneyin.",
+    "completaTuRegistroEnPocosPasosYDe": "Kayıt işleminizi birkaç adımda tamamlayın ve bitirdiğinizde ilk özelleştirmeleriniz hazır olsun."
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "Rol seçimine geri dön",
+    "esteFlujoYaEstaConectadoDePrincipi": "Bu akış zaten baştan sona bağlantılı durumda. Telefon ve sosyal medya erişimi daha sonra eklenecektir.",
+    "crearasTuCuentaYDespuesCompletaremo": "Hesabınızı oluşturacaksınız, ardından tercihlerinizi tamamlayacağız.",
+    "googleAppleYTelefonoVolveranCuando": "Google, Apple ve telefon, bu akışla aynı güvenilirlik seviyesinde bağlantı kurulduklarında geri dönecekler."
+  },
+  "step2_basic": {
+    "datosBasicos": "Temel veriler",
+    "empezamosConTuInformacionEsencialPa": "Hesabınızı oluşturmak için öncelikle temel bilgilerinizi isteyeceğiz.",
+    "maria": "Maria",
+    "garciaLopez": "García López",
+    "creaUnaContrasenaSegura": "Güvenli bir parola oluşturun",
+    "debesTenerAlMenos16Anos": "En az 16 yaşında olmalısınız.",
+    "terminos": "şartlar",
+    "politicaDePrivacidad": "Gizlilik Politikası"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "İlgi alanlarınızı, katalog ve önerilere daha seçici bir bakış açısıyla yaklaşacak şekilde ayarlayın.",
+    "nosAyudaAMostrarProductoresYEnvios": "Bu, en önemli üreticileri ve gönderileri sergilememize yardımcı olur."
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "İlgi alanlarınıza ve faaliyetlerinize uygun öneriler.",
+    "loMasPopular": "En popüler",
+    "losProductosQueMasEstanComprandoOt": "Diğer kullanıcıların en çok satın aldığı ürünler.",
+    "ordenaPrimeroPorResenasYConfianza": "Önce yorumlara ve güvene göre sıralayın.",
+    "defineComoQuieresEmpezarAVerProduc": "Ürünlere nasıl bakmaya başlamak istediğinizi ve genellikle ne sıklıkla alışveriş yaptığınızı belirleyin."
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "Sonraki adım, akışın, kataloğun ve önerilerin daha anlamlı bir şekilde çalışmaya başlaması için entegrasyon sürecini tamamlamaktır.",
+    "cuandoTerminesElOnboardingTeEnsenar": "Oryantasyon süreciniz tamamlandıktan sonra, size öncelikle sizin için daha uygun olan üreticileri, kategorileri ve hesapları göstereceğiz."
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "Aracıya kar marjınızı kaptırmayı bırakın.",
+    "conectaConProductoresRealesSinInte": "Gerçek üreticilerle bağlantı kurun. Aracı yok. Yalan yok."
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop, yiyeceklerin tarihle iç içe olduğu bir pazar yeridir.",
+    "unaPlataformaDondeCadaProductoTiene": "Her ürünün bir yüzü ve hikayesi olduğu bir platform. Tarladan sofranıza, aracı olmadan.",
+    "entreElProductorYTuPlatoHayUnaCa": "Üretici ile tabağınız arasında, fiyatı artıran, kaliteyi düşüren ve yediğiniz şeyin tarihini silen bir aracı zinciri vardır.",
+    "conectamosAlQueProduceConElQueCom": "Üreticiyi tüketiciyle buluşturuyoruz.",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop, zanaatkâr üreticilerin kendi mağazalarını açtığı, hikayelerini anlattığı ve doğrudan son tüketiciye satış yaptığı bir sosyal ticaret platformudur."
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "Gönderim hatası oluştu. Lütfen tekrar deneyin.",
+    "paraDudasSobreLaPlataformaColabora": "Platform, iş birlikleri veya basınla ilgili sorularınız için.",
+    "respondemosEnMenosDe24Horas": "24 saatten kısa sürede yanıt veriyoruz.",
+    "losProductoresGestionanElEnvioDirec": "Üreticiler nakliyeyi doğrudan kendileri üstlenir. Teslimat süreleri her üreticiye ve varış noktasına göre değişir.",
+    "siHispaloshopSoportaMultiplesIdioma": "Evet. HispaloShop, uluslararası satışlar için birden fazla dil ve para birimini desteklemektedir.",
+    "paraCompradoresEsGratisProductores": "Alıcılar için ücretsizdir. Üreticilerin planları 0 €'dan başlıyor. Influencer'lar komisyon kazanıyor."
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "İthalat yapın, satın ve büyütün. Küresel tüketicilere, etkileyicilere ve üreticilere doğrudan erişim. HispaloShop'ta ithalatçılar için tüm avantajları keşfedin.",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "B2C ve B2B mağazalarınız tek bir yerde.",
+    "accedeAConsumidoresFinalesConectaC": "Son tüketicilere ulaşın, yerel etkileyicilerle bağlantı kurun ve herhangi bir ülkedeki üreticilerden doğrudan satın alın. Tüm bunları tek bir platform üzerinden, aracılar olmadan yapın.",
+    "vendeTusProductosImportadosDirectame": "İthal ettiğiniz ürünleri aracılar olmadan doğrudan hedef ülkedeki tüketiciye satın.",
+    "conectaYColaboraConInfluencersLocal": "Ürünlerinizi (Pro ve Elite) tanıtmak için yerel etkileyicilerle bağlantı kurun ve iş birliği yapın.",
+    "compraDirectamenteAProductoresDeCua": "Aracısız ve doğrudan iletişim kurarak, herhangi bir ülkedeki üreticilerden satın alın.",
+    "panelDeGestionUnificado": "Birleşik yönetim paneli",
+    "gestionaPedidosPagosLogisticaCert": "Siparişleri, ödemeleri, lojistiği, sertifikaları ve iletişimi tek bir kontrol panelinden yönetin.",
+    "soportePorChatInternoConAdminLocal": "Tüm planlarda yerel yöneticiyle dahili sohbet desteği ve e-posta desteği mevcuttur.",
+    "todasLasFuncionesBasicasVenderB2c": "Tüm temel işlevler, B2C satış, ürün yayınlama, QR sertifikaları, standart destek.",
+    "matchingConInfluencersDashboardAvan": "Etkileyici kişi eşleştirme, gelişmiş kontrol paneli, satış analizi, öncelikli destek.",
+    "todoLoAnteriorIaComercialAvanzada": "Yukarıdakilerin tümü + gelişmiş iş yapay zekası, uluslararası pazar analizi, otomatik sözleşme oluşturma, daha düşük komisyon.",
+    "colaboracionConInfluencersLocalesPr": "Yerel etkileyicilerle (Profesyonel ve Elit) iş birliği",
+    "panelDeGestionPagosYLogisticaUnif": "Birleşik yönetim, ödeme ve lojistik paneli",
+    "iaComercialAvanzadaYGeneracionDeCo": "Gelişmiş ticari yapay zeka ve sözleşme oluşturma (Elite)",
+    "importarYVenderNuncaFueTanFacil": "İthalat ve satış hiç bu kadar kolay olmamıştı.",
+    "creaTuCuentaDeImportador": "İthalatçı hesabınızı oluşturun",
+    "accedeAHerramientasDeIaYAnalitica": "Yapay zeka araçlarına ve gelişmiş analitik özelliklere erişin (Pro ve Elite)",
+    "gestionaPagosLogisticaYCertificados": "Ödemeleri, lojistiği ve sertifikaları tek bir kontrol panelinden yönetin.",
+    "soloCrearTuCuentaYSubirTusProduct": "Hesabınızı oluşturun ve ürünlerinizi yükleyin.",
+    "siPuedesVenderAlConsumidorFinalY": "Evet, hem son tüketiciye satış yapabilir hem de B2B fırsatlarından yararlanabilirsiniz.",
+    "siemprePorChatInternoYEmailConPr": "İletişim her zaman dahili sohbet ve e-posta yoluyla sağlanır, Pro ve Elite üyelere öncelik verilir.",
+    "daElSaltoAlCanalDigitalYAccedeA": "Dijital kanala geçiş yapın ve küresel tüketicilere, etkileyicilere ve üreticilere ulaşın."
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "Bir topluluk oluşturun, dürüst üreticileri destekleyin ve emeklerinizin karşılığını gerçekten alın. Tekrarlayan komisyonlar, yaratıcı özgürlük ve doğrudan destek.",
+    "estoNoVaDeVenderPorVenderVaDeD": "Bu, sırf satmak için satmakla ilgili değil. Dürüst üreticilere görünürlük kazandırmak, takipçilerinize sağlıklı yiyecekler sunmak ve çabalarınızdan düzenli olarak gelir elde etmekle ilgili. Burada özgürlük, topluluk ve doğrudan destek bulacaksınız. Ben Bil Chanfou ve bunu sizin için kurdum.",
+    "ganaMasDejaHuella": "Daha çok kazanın, iz bırakın",
+    "hercules": "Herkül",
+    "laMayoriaLlegaAqui": "Çoğu buraya geliyor.",
+    "comisionRecurrenteDurante18MesesPor": "Referans verdiğiniz her kullanıcı için 18 ay boyunca tekrarlayan komisyon.",
+    "creaComunidadApoyaProductoresHonest1": "Bir topluluk oluşturun, dürüst üreticileri destekleyin ve emeklerinizin karşılığını gerçekten alın. Burada özgürlüğe ve doğrudan desteğe sahipsiniz. Herhangi bir şeye ihtiyacınız olursa, iletişime geçin. Ben Bil Chanfou."
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "Üretiminizi dünya çapındaki ithalatçılar ve müşterilerle bağlantılandırın. Erişim alanınızı genişletin, kataloğunuzu dijitalleştirin ve yeni iş fırsatlarına erişin.",
+    "uneteALaPlataformaQueConectaProduc": "Dünya çapında üreticileri ithalatçılar ve müşterilerle buluşturan platforma katılın. Kataloğunuzu dijitalleştirin ve yeni iş fırsatlarına erişin.",
+    "registrateGratis": "Ücretsiz kayıt olun",
+    "publicaTuCatalogo": "Kataloğunuzu yayınlayın",
+    "accesoInmediatoAUnaRedGlobalDeImp": "Doğrulanmış ithalatçılardan oluşan küresel bir ağa anında erişim.",
+    "herramientasParaDestacarTuMarcaYPr": "Markanızı ve ürünlerinizi öne çıkarmanıza yardımcı olacak araçlar.",
+    "opcionesDePromocionPremiumSegunTuP": "Planınıza bağlı olarak premium promosyon seçenekleri.",
+    "gestionEficienteDeContactosYOportun": "İletişim ve fırsatların etkin yönetimi.",
+    "paraProductoresEnCrecimiento": "Üreticilerin büyümesi için",
+    "maximaVisibilidadYVentajas": "Maksimum görünürlük ve avantajlar",
+    "sinTarjetaDeCreditoParaEmpezar": "Başlamak için kredi kartı gerekmiyor.",
+    "elRegistroEsGratuitoPuedesAcceder": "Kayıt ücretsizdir. Premium planlarla gelişmiş özelliklere erişebilirsiniz.",
+    "puedesPublicarCualquierProductoQueC": "Politikalarımıza ve kalite standartlarımıza uyan herhangi bir ürünü listeleyebilirsiniz.",
+    "unaVezRegistradoPodrasContactarImp": "Kayıt olduktan sonra, platform üzerinden doğrudan ithalatçılarla iletişime geçebileceksiniz.",
+    "mayorVisibilidadAccesoPrioritarioA": "İşletmenizi geliştirmek için daha fazla görünürlük, fırsatlara öncelikli erişim ve özel araçlar.",
+    "siPuedesVenderTantoAConsumidoresF": "Evet, hem son tüketicilere hem de ithalatçılara ve işletmelere satış yapabilirsiniz.",
+    "soportePersonalizadoRecursosEducativ": "Kişiselleştirilmiş destek, eğitim kaynakları ve uluslararası ticaret konusunda tavsiyeler.",
+    "uneteACientosDeProductoresQueYaEs": "Hispaloshop ile halihazırda büyüyen yüzlerce üreticiye katılın."
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop, platformdaki tüm üreticileri aktif olarak doğrulamaya çalışsa da, üçüncü taraflarca satılan ürünlerin kalitesinden sorumlu değildir."
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "Bölgenize özgü el yapımı ürünleri keşfedin",
+    "basadoEnTusCompras": "Satın alımlarınıza bağlı olarak",
+    "descubreRecetasMediterraneasConTusP": "Ürünlerinizle Akdeniz mutfağı tariflerini keşfedin.",
+    "aquiEstaTuResumenDeHoy": "İşte bugünkü özetiniz."
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "Gelişmiş ölçümler şu anda kullanılamıyor.",
+    "noSePudoCargarElStockDeProductos": "Uyarılar için ürün stoğu yüklenemedi.",
+    "enPreparacion": "Hazırlık aşamasında",
+    "anadeMasProductosParaAumentarTuVis": "Görünürlüğünüzü artırmak için daha fazla ürün ekleyin.",
+    "anadirProducto": "Ürün ekle",
+    "colaboraConInfluencersParaPromociona": "Ürünlerinizi tanıtmak için etkileyicilerle işbirliği yapın.",
+    "analisis": "Analiz",
+    "resumenDeTuNegocio": "İşletmenizin özeti",
+    "evolucionDeVentas": "Satış evrimi"
+  },
+  "signed_documents": {
+    "documentoIntegro": "Tam belge",
+    "elContratoNoHaSidoModificadoDesde": "Sözleşme imzalandığından beri değiştirilmemiştir.",
+    "elHashDelDocumentoNoCoincideConEl": "Belge özeti, imzalama sırasında kaydedilenle eşleşmiyor. Lütfen destek ekibiyle iletişime geçin.",
+    "noTienesContratosFirmadosTodavia": "Henüz imzalanmış herhangi bir sözleşmeniz yok.",
+    "lasFacturasEstaranDisponiblesProxima": "Faturalar yakında hazır olacak."
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "Yeni iş birliği",
+    "elCosteCorreACargoDelProductor": "Maliyet üretici tarafından karşılanır.",
+    "holaViTuContenidoYCreoQueEncajar": "Merhaba! İçeriklerinizi gördüm ve ürünlerimiz için mükemmel bir seçim olacağınızı düşünüyorum...",
+    "previewDeLaPropuesta": "Teklif önizlemesi",
+    "propuestaDeColaboracion": "İşbirliği önerisi",
+    "comisionEspecial": "Özel Komisyon",
+    "duracion": "Süre"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "Alışveriş asistanını kullanmak için lütfen giriş yapın.",
+    "loSientoHaOcurridoUnErrorPorFav": "Üzgünüz, bir hata oluştu. Lütfen tekrar deneyin.",
+    "iniciaSesionParaUnaExperienciaPerso": "Kişiselleştirilmiş bir deneyim için giriş yapın.",
+    "busquedasRapidas": "Hızlı aramalar",
+    "recomendacionesBasadasEnCertificados": "Ürün sertifikalarına dayalı öneriler."
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "Boş ekranın oluşmasını engelledik. Ana ekrana dönebilir veya uygulamayı yeniden yükleyebilirsiniz."
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "Menşei belli yağlar ve soslar.",
+    "exploraElCatalogoDesdeCategoriasCla": "Kataloğu, görsel karmaşadan uzak, net kategoriler kullanarak keşfedin.",
+    "productoLocalEImportadoYaDisponible": "Artık İspanya'da yerli ve ithal ürünler, abartılı hikayeler veya gereksiz kategoriler olmadan satışa sunuluyor."
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "Bu kategoride hiçbir ürün bulamadık. Lütfen başka bir arama deneyin.",
+    "anadeAlgunosProductosArtesanalesPara": "Alışverişinize el yapımı ürünler ekleyerek başlayın.",
+    "tusPedidosApareceranAquiCuandoReali": "İlk satın alma işleminizi gerçekleştirdiğinizde siparişleriniz burada görünecektir.",
+    "sigueAMasProductoresEInfluencersPa": "Daha fazla içerik üreticisi ve influencer'ı takip ederek onların içeriklerini buradan takip edebilirsiniz.",
+    "intentaConOtrosTerminosDeBusqueda": "Başka arama terimleri deneyin.",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "Daha sonra tekrar deneyin veya arama filtrelerinizi değiştirin."
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "Beklenmeyen bir hata oluştu. Lütfen sayfayı yenilemeyi deneyin."
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "İyi şeyler sandığınızdan daha yakın.",
+    "descubrirCercaDeMi": "Yakınımda Keşfet",
+    "usaTuUbicacionActualOEscribeTuCod": "Bulunduğunuz konumu kullanın veya posta kodunuzu girerek size en yakın olanlara öncelik verin.",
+    "buscandoTuUbicacion": "Konumunuz aranıyor..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "Analiz verisi mevcut değil.",
+    "analyticsDeTuCodigo": "Kodunuzun Analizi",
+    "tuEnlaceDeReferido": "Yönlendirme bağlantınız",
+    "comparteEsteEnlaceEnTusRedesCada": "Bu bağlantıyı sosyal ağlarınızda paylaşın. Her ziyaret otomatik olarak takip edilir.",
+    "usosDelCodigo": "Kodun kullanım alanları",
+    "codigoAplicado": "Uygulanan kod",
+    "usosCodigo": "Kod Kullanımları",
+    "comoFuncionanTusComisiones": "Komisyonlarınız nasıl çalışır?",
+    "calculoDeTuComision": "Komisyonunuzun hesaplanması:",
+    "tipsParaMejorarTusConversiones": "Dönüşüm oranlarınızı artırmak için ipuçları"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "Sohbette paylaşılan görsel",
+    "noSePudoCargarLaImagen": "Görüntü yüklenemedi.",
+    "pegaUnEnlaceDeProductoOSuId": "Ürün bağlantısını veya ürün kimliğini yapıştırın.",
+    "pegaUnEnlaceDeRecetaOSuId": "Tarif bağlantısını veya kullanıcı adınızı yapıştırın.",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Hispaloshop'tan bir gönderiye veya videoya ait bağlantıyı yapıştırın.",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "Kompakt bir kart oluşturmak için geçerli bir Hispaloshop bağlantısını yapıştırın.",
+    "miembroDeLaComunidad": "Topluluğun bir üyesi",
+    "pruebaConOtroNombreOCambiaElFiltr": "Farklı bir isim deneyin veya filtreyi değiştirin.",
+    "noSePudoEliminarElMensaje": "Mesaj silinemedi.",
+    "conversacionEliminada": "Konuşma silindi",
+    "errorAlEliminarLaConversacion": "Konuşma silinirken hata oluştu.",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "Geçerli bir Hispaloshop bağlantısı veya kimliği yapıştırın.",
+    "noPudimosGenerarLaVistaPrevia": "Önizlemeyi oluşturamadık.",
+    "noSePudoEnviarElMensaje": "Mesaj gönderilemedi.",
+    "laImagenNoPuedeSuperar5Mb": "Görüntü boyutu 5 MB'ı geçmemelidir.",
+    "elArchivoNoPuedeSuperar10Mb": "Dosya boyutu 10 MB'ı geçemez.",
+    "errorAlSubirElDocumento": "Belge yüklenirken hata oluştu.",
+    "buscarConversacion": "Sohbet arıyorum",
+    "empiezaUnChatNuevoDesdeElBotonSup": "En üstteki düğmeden yeni bir sohbet başlatın, böylece gelen kutunuz çok daha temiz kalır.",
+    "seleccionaUnaConversacionDelPanelIz": "Sol panelden bir konuşma seçin veya yeni bir konuşma başlatın.",
+    "llamadaDeVozProximamente": "Sesli arama (yakında)",
+    "videollamadaProximamente": "Video görüşmesi (yakında)",
+    "mensajesDeLaConversacion": "Konuşma mesajları",
+    "empiezaLaConversacion": "Konuşmayı başlatın",
+    "escribeElPrimerMensajeYMantenLaCo": "İlk mesajı yazın ve konuşmayı net bir bağlam içinde tutun.",
+    "vistaPreviaDeLaImagenAdjunta": "Ekli görüntünün önizlemesi"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "Bir şeyler ters gitti.",
+    "noSePudoCargarEsteContenidoIntent": "Bu içerik yüklenemedi. Lütfen tekrar deneyin."
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "Temel plan. Komisyonu azaltmak ve araçlara erişmek için yükseltme yapın."
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "Gönderi düzenleme henüz mevcut değil."
+  },
+  "product": {
+    "anadirAlCarrito": "Sepete ekle"
+  },
+  "review": {
+    "valoracionEnviada": "Puanlama gönderildi",
+    "errorAlEnviarValoracion": "Değerlendirme gönderilirken hata oluştu.",
+    "cuentanosTuExperiencia": "Bize deneyimlerinizden bahsedin...",
+    "enviarValoracion": "Geri bildirim gönder"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "Kapatma bildirimi"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "Bana hızlı bir tarif ver.",
+    "ayudameConMiDieta": "Diyetim konusunda bana yardımcı olun.",
+    "tuCompaneroDeCompras": "Alışveriş ortağınız",
+    "estoyAquiParaAyudarteAEncontrarLo": "İhtiyacınız olanı bulmanıza yardımcı olmak için buradayım.",
+    "preguntaleADavid": "David'e sorun...",
+    "microfono": "Mikrofon"
+  },
+  "auth_diagnostic": {
+    "testConexion": "Test Bağlantısı",
+    "elBackendRespondePeroElEndpointNo": "Arka uç yanıt veriyor ancak uç nokta mevcut değil.",
+    "laConexionFuncionaRevisaLosDetalle": "Bağlantı çalışıyor. Yukarıdaki ayrıntıları kontrol edin."
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "Kimlik doğrulama testleri başlatılıyor...",
+    "sesionActiva": "Aktif oturum:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "Yanlış veya süresi dolmuş kod",
+    "codigoIncorrecto": "Yanlış kod",
+    "codigoReenviadoATuEmail": "Kod e-postanıza iletildi.",
+    "noSePudoReenviarElCodigo": "Kod yeniden gönderilemedi.",
+    "maximoDeReenviosAlcanzadoRevisaTu": "İletilen mesaj sayısının maksimum sınırına ulaşıldı. Lütfen spam klasörünüzü kontrol edin.",
+    "reenviarCodigoDeVerificacion": "Doğrulama kodunu yeniden gönder"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "Ürün B2B kataloğundan kaldırıldı.",
+    "cantidadMinimaDePedidoMoq": "Minimum sipariş miktarı (MOQ)",
+    "descripcionMayorista": "Toptan satış açıklaması",
+    "maximoDeMuestrasPorSolicitud": "Talep başına maksimum örnek sayısı",
+    "publicarEnCatalogoB2b": "B2B kataloğunda yayınla",
+    "quitarDelCatalogoB2b": "B2B kataloğundan kaldır"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "Menşe ülke (ES)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "Minimum 1 adet",
+    "codigoDePaisDebeTener2Letras": "Ülke kodu 2 harften oluşmalıdır.",
+    "elMensajeDebeTenerAlMenos10Caract": "Mesaj en az 10 karakter uzunluğunda olmalıdır.",
+    "anadeAlMenosUnProducto": "En az bir ürün ekleyin.",
+    "noSePudoEnviarLaRfq": "Teklif talebi gönderilemedi.",
+    "nuevaSolicitudDeCotizacionRfq": "Yeni Teklif Talebi (RFQ)",
+    "describeVolumenFormatosCertificacio": "Hacim, formatlar, sertifikalar veya lojistik gereksinimlerini açıklayın."
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "İthalat ruhsatını, vergi kaydını ve araç tescil sigortasını yükleyin."
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "Ürün sepete eklenirken hata oluştu.",
+    "anadirAlCarrito": "Sepete ekle",
+    "productoAnadido": "Ürün eklendi",
+    "anadido": "Eklendi!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "Bu oturuma ait tüm mesajlar silinecektir."
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "B2B talebi görüşme aşamasında."
+  },
+  "use_h_i_chat": {
+    "buenosDias": "Günaydın",
+    "tuCompaneroDeComprasYAlimentacion": "Alışveriş ve yemek ortağınız",
+    "tuAsesorDeNegocioParaProductores": "Üreticiler için iş danışmanınız",
+    "estrategiaDeExportacion": "İhracat stratejisi",
+    "asistenteCreativoParaContenidoYCamp": "İçerik ve kampanyalar için yaratıcı asistan",
+    "disenarUnaCampana": "Bir kampanya tasarlayın",
+    "analisisDeMercadoInternacionalParaI": "İthalatçılar için uluslararası pazar analizi",
+    "analisisDeMargenes": "Marj analizi",
+    "noTienesAccesoAEsteModoActualiza": "Bu moda erişiminiz yok. Planınızı yükseltin.",
+    "elAsistenteNoEstaDisponibleAhoraI": "Asistan şu anda müsait değil. Lütfen tekrar deneyin."
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "Hesabınıza erişmek için giriş yapın."
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "Kodum"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "Hesabınız inceleme altında."
+  },
+  "dashboard_header": {
+    "buenosDias": "Günaydın"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "Üreticileri, ithalatçıları ve etkileyicileri takip ederek içeriklerini burada görebilirsiniz.",
+    "estasAlDia": "Güncel bilgilere sahipsiniz."
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "HispaloShop'ta geçireceğiniz bir hafta",
+    "descubrirMas": "Daha fazlasını keşfedin",
+    "sigueProductoresParaVerSuContenido": "Yapımcıları takip ederek içeriklerini buradan görebilirsiniz."
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "Hızlı erişim"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 beğeni!",
+    "alguienTeGuardo": "Birisi seni kurtardı!",
+    "50MeGusta": "50 beğeni!",
+    "7DiasSeguidos": "Üst üste 7 gün!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "Kullanıcı takip edilemedi.",
+    "seEliminaraPermanentementeJuntoConS": "Yorumlarınız ve beğenilerinizle birlikte kalıcı olarak silinecektir.",
+    "noSePudoDejarDeSeguir": "İzlemeyi bırakmak imkansızdı.",
+    "uneteALaConversacion": "Sohbete katılın...",
+    "progresoDelVideo": "Videoda ilerleme"
+  },
+  "stories_bar": {
+    "recetaDelDia": "Günün tarifi"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "Hikaye İçeriği",
+    "sinDatosDeVistasDisponibles": "Görüntüleme verisi mevcut değil.",
+    "buscarConversacion": "Sohbet etmek istiyorum..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "Kullanıcı takip edilemedi. Lütfen tekrar deneyin."
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "Dosyaları buraya sürükleyin veya seçmek için tıklayın."
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "Başarı kilidi açıldı!"
+  },
+  "application": {
+    "quienEres": "Sen kimsin",
+    "confirmacion": "Onay",
+    "recomendadoParaLaMayoria": "Çoğu kişi için tavsiye edilir.",
+    "pideRevisionManualPrioritaria": "Öncelikli manuel inceleme talebinde bulunuyorum.",
+    "paraPerfilesConUnaComunidadMuyActi": "Çok aktif bir topluluğa sahip profiller için.",
+    "necesitamosSaberComoTeConocen": "İnsanların sizi nasıl tanıdığını bilmemiz gerekiyor.",
+    "tuEmailProfesionalEsObligatorio": "Profesyonel e-posta adresiniz gereklidir.",
+    "eseEmailNoPareceValido": "Bu e-posta adresi geçerli görünmüyor.",
+    "tuInstagramPrincipalEsObligatorio": "Birincil Instagram hesabınız gereklidir.",
+    "necesitamosUnaViaRealParaContactart": "Sizinle iletişim kurabilmemiz için gerçek bir yönteme ihtiyacımız var.",
+    "seleccionaTuPais": "Ülkenizi seçin.",
+    "eligeAlMenosUnNicho": "En az bir niş seçin.",
+    "seleccionaTuRangoDeSeguidores": "Takipçi aralığınızı seçin.",
+    "seleccionaElPaisPrincipalDeTuAudie": "Hedef kitlenizin ana ülkesini seçin.",
+    "cuentanosPorQueQuieresEntrar": "Bize neden katılmak istediğinizi anlatın.",
+    "necesitamosAlMenos140CaracteresPara": "Dumanı filtrelemek için en az 140 karaktere ihtiyacımız var.",
+    "eseEnlaceNoPareceValido": "Bu bağlantı geçerli görünmüyor.",
+    "debesAceptarEstaCondicion": "Bu koşulu kabul etmelisiniz.",
+    "yaExisteUnaSolicitudOCuentaConEst": "Bu e-posta adresiyle zaten bir talep veya hesap mevcut.",
+    "noPudimosEnviarLaSolicitudIntental": "İsteği gönderemedik. Lütfen tekrar deneyin.",
+    "solicitarRevision": "Bir inceleme isteyin",
+    "aplicacionInfluencerHispaloshop": "Hispaloshop influencer uygulaması",
+    "formularioDeTresPasosParaAplicarAl": "Hispaloshop influencer programına başvurmak için üç adımlı form.",
+    "aplicacionReal": "Gerçek dünya uygulaması",
+    "noEsUnFormularioCorporativoEsTuP": "Bu bir şirket formu değil. Bu sizin çıkış yolunuz.",
+    "tresPasosSinPagoSinHumoSiElige": "Üç adım. Ödeme yok. Sorun yok. Hercules'i seçerseniz, hızlı aktivasyona girersiniz. Eğer amacınız...",
+    "ateneaOZeusHacemosRevisionHumanaE": "Athena veya Zeus, insan değerlendirmesini 24-48 saat içinde yapıyoruz.",
+    "siTuVozEncajaConComidaWellnessL": "Sesiniz yemek, sağlık, yaşam tarzı veya sürdürülebilirlik konularıyla örtüşüyorsa.",
+    "siQuieresRecomendarCosasQueDeVerda": "Eğer gerçekten kullanabileceğiniz şeyleri önermek istiyorsanız.",
+    "cadaCompraQueConectesSeQuedaAtribu": "Bağlantısını paylaştığınız her satın alma işlemi 18 ay boyunca sizin adınıza kaydedilir. Sisteme köle olmanıza gerek yok.",
+    "siQuieresComprobarQueSoyRealAhiM": "Eğer gerçek olduğumu kanıtlamak istiyorsanız, işte buradayım.",
+    "bienvenidoALaResistenciaRevisaTuE": "Direnişe hoş geldiniz. Etkileyici kişiler panelinize erişmek için e-postanızı kontrol edin.",
+    "herculesEntraPorViaRapidaHemosMar": "Hercules'in süreci hızlandırıldı. Profiliniz, anında etkinleştirme ve sonraki adımlar için işaretlendi.",
+    "tuPerfilPasaARevisionHumanaSiApl": "Profiliniz artık insan incelemesinden geçecektir. Athena veya Zeus'a başvurduysanız, 24-48 saat içinde otomatik olmayan, gerçek bir kararla size geri dönüş yapacağız.",
+    "verCatalogoParaPromocionar": "Kataloğu tanıtım amaçlı inceleyin.",
+    "tuTarjetaDePresentacionSinTrajesN": "İş kartınız, takım elbise veya boş sözler olmadan.",
+    "reusSeulCiudadDeMexico": "Reus, Seul, Meksika Şehri...",
+    "seleccionaPais": "Ülke seçin",
+    "queremosSaberQueTipoDeComunidadHas": "Oluşturduğunuz topluluğun ne tür bir topluluk olduğunu ve neden sizi bir yere kadar takip edeceklerini bilmek istiyoruz.",
+    "paisPrincipalDeTuAudiencia": "Hedef kitlenizin ana ülkesi",
+    "cuentanosLaVerdadQueTipoDeEstabil": "Bize doğruyu söyleyin: Ne tür bir istikrar arıyorsunuz, neden bazı markalar sizi hayal kırıklığına uğrattı ve topluluğunuza nasıl davranırdınız?",
+    "laComisionEsTransparenteHercules3": "Komisyon şeffaftır: Herkül %3, Athena %5, Zeus %7, 18 aylık takip süresiyle.",
+    "entiendoQueLaComisionSePagaSobreE": "Komisyonun, sevkiyat sonrası değer ve vergiler üzerinden ödendiğini anlıyorum.",
+    "entiendoQueElTrackingDe18MesesEs": "Anladığım kadarıyla 18 aylık takip süresi kullanıcının ilk satın alımından itibaren başlıyor.",
+    "aceptoPromoverSoloProductosQueRealm": "Sadece deneyeceğim veya deneyeceğim ürünlerin tanıtımını yapmayı kabul ediyorum.",
+    "heLeidoYAceptoLosTerminosDelProgr": "Influencer programının şartlarını okudum ve kabul ediyorum.",
+    "solicitudGratuitaNingunPasoDePago": "Ücretsiz başvuru. Herhangi bir ödeme adımı yok."
+  },
+  "shared": {
+    "queEs": "Nedir?"
+  },
+  "footer_landing": {
+    "terminos": "Şartlar",
+    "unaFormaMasClaraDeDescubrirEntend": "Yiyecekleri bağlamıyla birlikte keşfetmenin, anlamanın ve satın almanın daha net bir yolu."
+  },
+  "navbar_landing": {
+    "iniciarSesion": "Giriş yapmak",
+    "cerrarMenu": "Menüyü kapat"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "Toplumdan gerçek sesler geldiğinde, bunlar burada yer alacak."
+  },
+  "auth_layout": {
+    "terminos": "Şartlar"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "Bana herhangi bir ürün veya üretici hakkında soru sorabilirsiniz.",
+    "terminos": "Şartlar"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "Menüyü kapat",
+    "queEsHispaloshop": "HispaloShop nedir?"
+  },
+  "info_header": {
+    "queEs": "Nedir?",
+    "cerrarMenu": "Menüyü kapat",
+    "iniciarSesion": "Giriş yapmak"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "İnternet bağlantısı yok."
+  },
+  "report_button": {
+    "informacionEnganosa": "yanıltıcı bilgi",
+    "violacionDeDerechosDeAutor": "Telif hakkı ihlali",
+    "noSePudoEnviarElReporte": "Rapor gönderilemedi.",
+    "anadeUnDetalleOpcional": "Ayrıntı ekleyin (isteğe bağlı)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "Kapatma bildirimi"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "Mesaj bildirimini kapat"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "Üyelik sürecini tamamlamak için en az 3 hesabı takip edin.",
+    "noHemosPodidoGuardarLasCuentasSegu": "Henüz ardışık hesapları kaydedemedik.",
+    "eligeAlMenos3ProductoresOCreadores": "İlk yayın akışınızın gerçek sinyallerle başlaması için en az 3 yapımcı veya içerik oluşturucu seçin.",
+    "puedesFinalizarYEmpezarADescubrirC": "İşlemi tamamlayıp daha sonra hesapları keşfetmeye başlayabilirsiniz."
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "Devam etmek için en az 3 kategori seçin.",
+    "noHemosPodidoGuardarTusInteresesTo": "Henüz çıkarlarınızı koruyamadık.",
+    "eligeAlMenos3CategoriasParaQueEl": "Katalog ve içerik akışının faydalı bir temel üzerine kurulması için en az 3 kategori seçin."
+  },
+  "location": {
+    "seleccionaUnPais": "Bir ülke seçin.",
+    "introduceTuCodigoPostal": "Posta kodunuzu girin.",
+    "noHemosPodidoGuardarTuUbicacionTod": "Konumunuzu henüz kaydedemedik.",
+    "usamosTuZonaParaMostrarCatalogoDis": "Bulunduğunuz bölgeyi kullanarak mevcut katalogları, yakındaki önerileri ve daha iyi kargo seçeneklerini gösteriyoruz."
+  },
+  "step_follow": {
+    "cordoba": "Cordova",
+    "queseriaLaAntigua": "La Antigua Peynir Fabrikası",
+    "panaderiaMaria": "Maria'nın Fırını",
+    "descubreAQuienSeguir": "Kimi takip edeceğinizi öğrenin.",
+    "sigueAlMenos3ProductoresParaEmpeza": "Başlamak için en az 3 yapımcıyı takip edin."
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "Akışınızı kişiselleştirmek için en az 3 kategori seçin."
+  },
+  "step_location": {
+    "cordoba": "Cordova",
+    "malaga": "Malaga",
+    "estoTeMostraraProductoresCercaDeTi": "Bu size yakınınızdaki üreticileri gösterecektir.",
+    "usarMiUbicacionActual": "Mevcut konumumu kullan",
+    "oIntroduceCodigoPostal": "Veya posta kodunu girin"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "Kendinizle ilgili daha fazla bilgi ekleyin.",
+    "tuFeedPersonalizadoEstaPreparado": "Kişiselleştirilmiş haber akışınız hazır.",
+    "puedesCambiarTusPreferenciasEnCualq": "Tercihlerinizi dilediğiniz zaman profilinizden değiştirebilirsiniz."
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "Profiliniz oluşturuldu. Şimdi yerel ürünleri keşfedebilirsiniz."
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "Satış gerçekleşene kadar hiçbir ücret ödemeyeceksiniz.",
+    "paraProductoresQueQuierenEmpezarAV": "Risk almadan satışa başlamak isteyen üreticiler için.",
+    "tiendaVirtualPersonalizadaConTuHist": "Hikayeniz ve kökeninizle kişiselleştirilmiş çevrimiçi mağaza.",
+    "hasta30ProductosEnCatalogo": "Katalogda en fazla 30 ürün bulunmaktadır.",
+    "visibilidadNacionalEnEspana": "İspanya'da ulusal görünürlük",
+    "paraProductoresSeriosQueQuierenEsca": "Aşırıya kaçmadan ölçeklendirme yapmak isteyen ciddi yapımcılar için.",
+    "herramientasDeIaParaMarketing": "pazarlama için yapay zeka araçları",
+    "recomendacionesDinamicasDePrecioPor": "Coğrafi bölgeye göre dinamik fiyat önerileri",
+    "analiticaAvanzadaDeVentas": "Gelişmiş satış analizi",
+    "matchingAutomaticoConHasta5Influenc": "5'e kadar yerel influencer ile otomatik eşleştirme",
+    "paraCooperativasYProductoresConAmbi": "Küresel hedefleri olan kooperatifler ve üreticiler için.",
+    "prediccionDeDemandaPorPaisYTempora": "Ülke ve mevsime göre talep tahmini",
+    "analisisDeMercadosInternacionalesPr": "Uluslararası pazar analizi (fiyat, rekabet, fırsat)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "Tedarik kıtlığı riskinin önleyici tespiti",
+    "matchingDirectoConImportadoresVerifi": "Diğer ülkelerden doğrulanmış ithalatçılarla doğrudan eşleştirme",
+    "generacionAutomaticaDeContratosB2bE": "B2B sözleşmelerinin PDF formatında otomatik olarak oluşturulması",
+    "analisisDeRegulacionesYArancelesPor": "Hedef pazar bazında düzenlemelerin ve tarifelerin analizi",
+    "creacionDeDossieresDeExportacion": "İhracat dosyalarının oluşturulması",
+    "prioridadAbsolutaDeVisibilidadEnLa": "Platformda görünürlük konusunda mutlak öncelik.",
+    "soporteTelefonicoDirecto": "Doğrudan telefon desteği",
+    "soloVendoEnEspana": "Sadece İspanya'da satış yapıyorum.",
+    "yaExportoAAlgunPais": "Zaten bazı ülkelere ihracat yapıyorum.",
+    "masDe20": "20'den fazla",
+    "andalucia": "Endülüs",
+    "aragon": "Aragon",
+    "castillaYLeon": "Kastilya ve León",
+    "cataluna": "Katalonya",
+    "paisVasco": "Bask Ülkesi",
+    "stripeNoEstaDisponible": "Stripe kullanılamıyor.",
+    "quienEres": "Sen kimsin",
+    "stripeNoEstaConfiguradoTodavia": "Stripe henüz kurulmadı.",
+    "noPudimosPrepararElPagoSeguro": "Güvenli ödeme işlemini gerçekleştiremedik.",
+    "necesitamosTuNombreParaDarteDeAlta": "Kayıt işlemini gerçekleştirebilmemiz için adınıza ihtiyacımız var.",
+    "introduceUnEmailValido": "Geçerli bir e-posta adresi girin.",
+    "necesitamosUnTelefonoOperativo": "Çalışır durumda bir telefona ihtiyacımız var.",
+    "tuContrasenaDebeTenerAlMenos6Cara": "Parolanız en az 6 karakter uzunluğunda olmalıdır.",
+    "debesAceptarLaPoliticaDePrivacidad": "Gizlilik politikasını ve şartlarını kabul etmelisiniz.",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "Lütfen markanızın veya kooperatifinizin adını bize bildirin.",
+    "seleccionaAlMenosUnTipoDeProducto": "Lütfen en az bir ürün türü seçin.",
+    "indicanosSiYaExportasOQuieresEmpez": "Eğer zaten ihracat yapıyorsanız veya başlamak istiyorsanız lütfen bize bildirin.",
+    "seleccionaTuRegionDeProduccion": "Üretim bölgenizi seçin.",
+    "necesitamosUnRangoAproximadoDeRefer": "Yaklaşık bir referans aralığına ihtiyacımız var.",
+    "completaLosDatosDeLaTarjetaParaCo": "Devam etmek için kart bilgilerini doldurun.",
+    "stripeNoEstaListoTodavia": "Stripe henüz hazır değil.",
+    "noPudimosValidarLaTarjeta": "Kartı doğrulayamadık.",
+    "tuBancoRechazoLaOperacion": "Bankanız işlemi reddetti.",
+    "haOcurridoUnErrorConElPagoPorFa": "Ödemenizde bir hata oluştu. Lütfen tekrar deneyin.",
+    "elMetodoDePagoFueRechazadoPorFav": "Ödeme yönteminiz reddedildi. Lütfen farklı bir kart kullanın.",
+    "revisaLosDatosAntesDeContinuar": "Devam etmeden önce bilgileri gözden geçirin.",
+    "noPudimosCompletarElAltaDelProduct": "Yapımcının kaydını tamamlayamadık.",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "Hesabınız zaten mevcut. Eğer hesap zaten oluşturulduysa, sadece planı tamamlamanız veya erişiminizi kontrol etmeniz yeterlidir.",
+    "completaLosCamposObligatoriosParaAv": "Devam etmek için gerekli alanları doldurun.",
+    "aceptoLaPoliticaDePrivacidadYLosT": "Gizlilik politikasını ve şartlarını kabul ediyorum.",
+    "nombreDeTuObradorMarcaOCooperativ": "Atölyenizin, markanızın veya kooperatifinizin adı",
+    "exportacionActual": "Mevcut ihracat",
+    "regionDeProduccion": "Üretim bölgesi",
+    "seleccionaTuRegion": "Bölgenizi seçin",
+    "numeroDeReferencias": "Referans sayısı",
+    "cargoOComision": "Pozisyon veya görev",
+    "entiendoQueHispaloshopRetieneUn20": "Hispaloshop'un satışlardan %20 komisyon aldığını anlıyorum.",
+    "noPagarasNadaHastaQueVendasCuando": "Satış gerçekleşene kadar hiçbir ücret ödemeyeceksiniz. Satış gerçekleştiğinde ise %80'ini kendinize saklayacaksınız.",
+    "pagoSeguroPorStripeCancelaCuandoQ": "Stripe üzerinden güvenli ödeme. İstediğiniz zaman kontrol panelinizden iptal edebilirsiniz.",
+    "pagoSeguroPorStripeSiTuBancoPide": "Stripe üzerinden güvenli ödeme. Bankanız ek onay gerektiriyorsa, sizi sayfadan çıkarmadan bu işlemi burada halledeceğiz.",
+    "bienvenidoALaRevolucionDeLosProduc": "Dürüst üreticilerin devrimine hoş geldiniz.",
+    "revisaTuEmailParaVerificarTuCuenta": "Hesabınızı doğrulamak ve profilinizi tamamlamak için e-postanızı kontrol edin ve kontrol panelinize erişin.",
+    "siTuAltaQuedaPendienteDeRevision": "Başvurunuz inceleme aşamasındaysa, öncelikle onay durumunu göreceksiniz. Oradan, hiçbir şeyi kaçırmadan sürece devam edebilirsiniz.",
+    "verGuiaRapidaParaSubirMiPrimerPro": "İlk ürünümü yükleme konusunda hızlı rehbere bakın.",
+    "tuCuentaYaExisteYElSiguientePaso": "Hesabınız zaten mevcut, bir sonraki adım e-postanızı doğrulamak ve profilinizi hazırlamayı tamamlamaktır.",
+    "laContrasenaNoSeGuardaEnLocalstora": "Parola localStorage'a kaydedilmez, böylece gizli bilginin açığa çıkması önlenir.",
+    "freeCreaLaCuentaAlInstanteProYE": "ÜCRETSİZ sürüm hesabı anında oluşturur. PRO ve ELITE sürümleri ise akıştan çıkmadan Stripe'ı etkinleştirir.",
+    "empezamosPorLoMinimoParaNoPonerte": "Önünüze başka bir engel çıkarmamak için en temel şeylerle başlayacağız.",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "Mağazanızı açmaya ve altyapıyı hazır hale getirmeye bir adım kaldı.",
+    "completarSuscripcionYAbrirMiTienda": "Aboneliğinizi tamamlayın ve mağazamı açın."
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "Hesap kapatılamadı. Lütfen tekrar deneyin.",
+    "noSePudieronCargarLasHistorias": "Haberler yüklenemedi.",
+    "errorAlCrearElDestacado": "Vurgu oluşturulurken hata oluştu",
+    "seCerraraLaSesionDeEstaCuentaYTe": "Bu hesap oturumu kapatılacak ve tekrar giriş yapmanız gerekecek.",
+    "soloSeEliminaDelSelectorDeCuentas": "Bu yalnızca bu cihazdaki hesap seçici bölümünden kaldırılmıştır.",
+    "codigoCopiado": "Kopyalanan kod:",
+    "noHayHistoriasEnEsteDestacado": "Bu öne çıkan içerikte herhangi bir hikaye bulunmamaktadır.",
+    "lasHistoriasDelDestacadoNoSeElimin": "Öne çıkan hikayeler silinmeyecek, sadece koleksiyon silinecek.",
+    "noHayHistoriasEnTuArchivo": "Dosyanızda hiçbir hikaye yok.",
+    "publicaUnaHistoriaPrimeroParaPoder": "Öne çıkan bir içerik oluşturmak için önce bir hikaye yayınlayın.",
+    "lasHistoriasNoSePerderanSoloLaCo": "Hikayeler kaybolmayacak, sadece koleksiyon yok olacak."
+  },
+  "profile_tabs": {
+    "crearPublicacion": "Gönderi oluştur",
+    "sinPublicacionesTodavia": "Henüz hiçbir gönderi yok.",
+    "sinReelsTodavia": "Henüz makara yok",
+    "sinRecetasTodavia": "Henüz tarif yok.",
+    "nadaGuardadoTodavia": "Henüz hiçbir şey kaydedilmedi.",
+    "publicacionGuardada": "Kaydedilen gönderi"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "Manuel veya platform ürünleriyle bağlantılı."
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "Daha fazla porsiyon",
+    "anadirTodoAlCarrito": "Sepete ekle"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "Sepete ekle",
+    "iniciaSesionParaAnadirProductos": "Ürün eklemek için giriş yapın.",
+    "noHemosPodidoCompletarLaAccion": "İşlemi tamamlayamadık.",
+    "esteProductoAunNoTieneCertificados": "Bu ürün henüz doğrulanmış sertifikalara sahip değil.",
+    "seElPrimeroEnOpinarSobreEsteProdu": "Bu ürünü ilk değerlendiren siz olun."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "Etkinlik yüklenemedi.",
+    "tuActividadApareceraAqui": "Etkinliğiniz burada görünecektir."
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Giriş işlemi tamamlanıyor..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Ürünleri, hızlı ve kolay okuma için alfabetik olarak düzenlenmiş, görünür belgelerle keşfedin.",
+    "filtrarPorCertificacion": "Sertifikaya göre filtrele",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Arama kriterlerinizi değiştirin veya filtreleri kaldırarak diğer onaylı ürünleri inceleyin.",
+    "ordenAlfabeticoActivo": "aktif alfabetik sıralama"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Ödemeniz başarıyla işlendi. Sipariş detaylarınızı içeren bir onay e-postası birkaç dakika içinde alacaksınız.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Ödemeniz doğrulanırken bir hata oluştu. Ödemeniz zaten işlendiyse lütfen destek ekibiyle iletişime geçin.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Siparişiniz bize ulaştı. Detayları içeren bir e-posta alacaksınız."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Topluluğu yalnızca yöneticiler düzenleyebilir.",
+    "anadirFotoDePortada": "Kapak fotoğrafı ekle",
+    "etiquetasMax5": "Etiketler (en fazla 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Topluluğu silmek, tüm gönderileri ve üyeleri kalıcı olarak silecektir."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Topluluk adı",
+    "sinDescripcionTodavia": "Henüz açıklama yok.",
+    "necesitasMasSeguidores": "Daha fazla takipçiye ihtiyacınız var.",
+    "paraCrearUnaComunidadNecesitasAlMe": "Topluluk oluşturmak için en az 100 takipçiye sahip olmanız veya doğrulanmış bir satıcı olmanız gerekir.",
+    "elNombreDebeTenerAlMenos3Caracter": "İsim en az 3 karakter uzunluğunda olmalıdır.",
+    "laUrlEsObligatoria": "URL gereklidir.",
+    "laUrlDebeTenerAlMenos3Caracteres": "URL en az 3 karakter uzunluğunda olmalıdır.",
+    "laUrlDebeEmpezarConUnaLetraONume": "URL bir harf veya rakamla başlamalıdır.",
+    "comunidadCreada": "Topluluk tarafından oluşturuldu!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Bu URL zaten kullanımda. Lütfen başka bir URL deneyin.",
+    "errorAlCrearLaComunidad": "Topluluk oluşturulurken hata oluştu.",
+    "anadirFotoDePortada": "Kapak fotoğrafı ekle",
+    "nombreDeLaComunidad1": "Topluluk Adı *",
+    "ejAceitesDeEspana": "Örnek: İspanya'dan gelen yağlar",
+    "urlDeLaComunidad": "Topluluk URL'si *",
+    "deQueTrataTuComunidad": "Topluluğunuz neyle ilgili?",
+    "iconoDeLaComunidad": "Topluluk simgesi",
+    "etiquetasMax5": "Etiketler (en fazla 5)",
+    "asiVeranTuComunidadLosDemas": "Başkaları topluluğunuzu işte böyle görecek."
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "en iyi zeytinyağı",
+    "seleccionDeProductoresAndaluces": "Endülüs üreticilerinden seçmeler",
+    "empiezaElDiaConEnergiaReal": "Güne gerçek enerjiyle başlayın",
+    "despensaBasicaPremium": "Premium temel mutfak malzemeleri",
+    "losEsencialesQueMarcanLaDiferencia": "Fark yaratan temel unsurlar",
+    "certificadoEcologico": "Organik sertifika",
+    "seleccionesEditorialesDeProductosArt": "Editörün seçtiği, hikayesi olan el yapımı, sağlıklı ürünler.",
+    "coleccion": "Koleksiyon"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Kategori bulunamadı.",
+    "noSePudieronCargarLosProductos": "Ürünler yüklenemedi.",
+    "noHayProductosEnEstaCategoriaTodav": "Bu kategoride henüz hiçbir ürün bulunmamaktadır."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Dil ve bölge"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Sayfa bulunamadı.",
+    "estaPaginaNoExiste": "Bu sayfa mevcut değil.",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Görünüşe göre yolunuzu kaybettiniz. Başa dönün ve keşfetmeye devam edin."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Hesabınız zaten mevcut, ancak ekip kaydı doğrulayana kadar bazı özellikler sınırlı kalacaktır.",
+    "recibirasAccesoCompletoCuandoElEqui": "Ekip kaydınızı doğruladıktan sonra tam erişim hakkı kazanacaksınız.",
+    "mientrasTantoAlgunasFuncionesComerc": "Bu arada, bazı ticari faaliyetler kısıtlı kalmaya devam edecek.",
+    "subirDocumentosDeVerificacion": "Doğrulama belgelerini yükleyin.",
+    "completarConfiguracionFiscal": "Vergi yapılandırmasını tamamlayın"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Geçersiz kurtarma bağlantısı",
+    "restablecerContrasena": "Şifreyi sıfırla"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Doğrulama kodu sağlanmadı.",
+    "emailVerificadoCorrectamente": "E-posta başarıyla doğrulandı!",
+    "emailVerificadoYaPuedesIniciarSesi": "E-posta adresiniz doğrulandı. Artık giriş yapabilirsiniz.",
+    "elCodigoNoEsValidoOHaExpirado": "Kod geçersiz veya süresi dolmuş.",
+    "errorEnLaVerificacion": "Doğrulama hatası",
+    "verificacionFallida": "Doğrulama başarısız oldu",
+    "porFavorEsperaMientrasVerificamosTu": "E-posta adresinizi doğrularken lütfen bekleyin."
+  },
+  "b2_b_action": {
+    "video": "Video"
+  },
+  "collab_action": {
+    "video": "Video"
   }
 }

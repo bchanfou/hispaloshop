@@ -4322,5 +4322,99 @@
     "noHemosPodidoCompletarLaAccion": "アクションを完了できませんでした",
     "esteProductoAunNoTieneCertificados": "この製品はまだ認証済みの証明書を取得していません。",
     "seElPrimeroEnOpinarSobreEsteProdu": "この製品のレビューを一番最初に投稿してください。"
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "アクティビティを読み込むことができませんでした",
+    "tuActividadApareceraAqui": "あなたのアクティビティはここに表示されます"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "ログインを完了しています..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "分かりやすい説明書付きの製品を、アルファベット順に整理してご紹介します。",
+    "filtrarPorCertificacion": "認証で絞り込む",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "検索条件を調整するか、フィルターを解除して、他の認定製品をご覧ください。",
+    "ordenAlfabeticoActivo": "アクティブなアルファベット順"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "お支払いは正常に処理されました。数分以内に、ご注文内容の詳細を記載した確認メールが届きます。",
+    "haOcurridoUnErrorAlVerificarTuPag": "お支払いの確認中にエラーが発生しました。既にお支払いが完了している場合は、サポートまでお問い合わせください。",
+    "hemosRecibidoTuPedidoRecibirasUnE": "ご注文を承りました。詳細はメールにてご連絡いたします。"
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "コミュニティを編集できるのは管理者のみです。",
+    "anadirFotoDePortada": "カバー写真を追加",
+    "etiquetasMax5": "ラベル（最大5個）",
+    "eliminarLaComunidadBorraraTodosLos": "コミュニティを削除すると、すべての投稿とメンバーが完全に消去されます。"
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "コミュニティ名",
+    "sinDescripcionTodavia": "まだ説明がありません",
+    "necesitasMasSeguidores": "もっとフォロワーが必要です",
+    "paraCrearUnaComunidadNecesitasAlMe": "コミュニティを作成するには、少なくとも100人のフォロワーがいるか、認証済みの販売者である必要があります。",
+    "elNombreDebeTenerAlMenos3Caracter": "名前は3文字以上でなければなりません",
+    "laUrlEsObligatoria": "URLは必須です。",
+    "laUrlDebeTenerAlMenos3Caracteres": "URLは3文字以上である必要があります。",
+    "laUrlDebeEmpezarConUnaLetraONume": "URLは文字または数字で始まる必要があります。",
+    "comunidadCreada": "コミュニティが作成されました！",
+    "esaUrlYaEstaEnUsoPruebaOtra": "そのURLは既に使用されています。別のURLをお試しください。",
+    "errorAlCrearLaComunidad": "コミュニティの作成中にエラーが発生しました",
+    "anadirFotoDePortada": "カバー写真を追加",
+    "nombreDeLaComunidad1": "コミュニティ名 *",
+    "ejAceitesDeEspana": "例：スペイン産のオイル",
+    "urlDeLaComunidad": "コミュニティURL *",
+    "deQueTrataTuComunidad": "あなたのコミュニティはどのようなものですか？",
+    "iconoDeLaComunidad": "コミュニティアイコン",
+    "etiquetasMax5": "ラベル（最大5枚）",
+    "asiVeranTuComunidadLosDemas": "これは、他の人があなたのコミュニティをどのように見るかということです"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "最高級のオリーブオイル",
+    "seleccionDeProductoresAndaluces": "アンダルシア産生産者のセレクション",
+    "empiezaElDiaConEnergiaReal": "一日を真のエネルギーでスタートしよう",
+    "despensaBasicaPremium": "プレミアムベーシックパントリー",
+    "losEsencialesQueMarcanLaDiferencia": "違いを生み出す本質",
+    "certificadoEcologico": "有機認証",
+    "seleccionesEditorialesDeProductosArt": "ストーリー性のある、職人技が光る健康的な製品を厳選してご紹介します。",
+    "coleccion": "コレクション"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "カテゴリが見つかりません",
+    "noSePudieronCargarLosProductos": "製品を読み込むことができませんでした。",
+    "noHayProductosEnEstaCategoriaTodav": "このカテゴリーにはまだ商品がありません。"
+  },
+  "locale_settings": {
+    "idiomaYRegion": "言語と地域"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "ページが見つかりません",
+    "estaPaginaNoExiste": "このページは存在しません",
+    "pareceQueTeHasPerdidoVuelveAlIni": "どうやら道に迷ってしまったようですね。最初に戻って探索を続けてください。"
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "お客様のアカウントは既に存在しますが、チームが登録内容を確認するまで、一部の機能は制限されたままとなります。",
+    "recibirasAccesoCompletoCuandoElEqui": "登録内容がチームによって承認され次第、すべてのアクセス権が付与されます。",
+    "mientrasTantoAlgunasFuncionesComerc": "一方、一部の商業活動は引き続き制限される。",
+    "subirDocumentosDeVerificacion": "確認書類をアップロードしてください",
+    "completarConfiguracionFiscal": "税務設定を完了する"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "無効な復旧リンク",
+    "restablecerContrasena": "パスワードをリセット"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "確認コードは提供されませんでした",
+    "emailVerificadoCorrectamente": "メールアドレスの認証が完了しました！",
+    "emailVerificadoYaPuedesIniciarSesi": "メールアドレスの確認が完了しました。ログインできるようになりました。",
+    "elCodigoNoEsValidoOHaExpirado": "コードが無効であるか、期限切れです。",
+    "errorEnLaVerificacion": "検証エラー",
+    "verificacionFallida": "検証に失敗しました",
+    "porFavorEsperaMientrasVerificamosTu": "メールアドレスの確認が完了するまでしばらくお待ちください。"
+  },
+  "b2_b_action": {
+    "video": "ビデオ"
+  },
+  "collab_action": {
+    "video": "ビデオ"
   }
 }

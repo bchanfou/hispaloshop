@@ -97,7 +97,7 @@
     "becomeProducer": "Bycie producentem",
     "whyHispaloshop": "Dlaczego Hispaloshop?",
     "certifiedQuality": "Zweryfikowane produkty",
-    "certifiedQualityDesc": "Każdy produkt posiada weryfikowalne certyfikaty. Pełna transparentność od źródła do stołu.",
+    "certifiedQualityDesc": "Każdy produkt posiada weryfikowalne certyfikaty. Pełna transparentność od pochodzenia do stołu.",
     "aiAssistant": "Inteligentny asystent",
     "aiAssistantDesc": "Odkryj produkty idealne dla Ciebie dzięki spersonalizowanym rekomendacjom opartym na Twoich preferencjach.",
     "localCommerce": "Lokalne firmy",
@@ -353,7 +353,19 @@
     "vegan": "Wegański",
     "gluten-free": "Bezglutenowe",
     "sugar-free": "Bez cukru",
-    "organic": "Organiczny"
+    "organic": "Organiczny",
+    "certificacionOficialDeProduccionEcol": "Oficjalny certyfikat produkcji ekologicznej z Unii Europejskiej",
+    "garantizaQueElProductoSeProduceTr": "Gwarantuje, że produkt jest wytwarzany, przetwarzany i przetwarzany na określonym obszarze geograficznym.",
+    "alMenosUnaEtapaDeProduccionSeReal": "Co najmniej jeden etap produkcji odbywa się na obszarze geograficznym",
+    "vinculoConElTerritorio": "Link do terytorium",
+    "supervisionPorOrganismoDeControl": "Nadzór organu kontrolnego",
+    "certificacionDeQueElProductoCumple": "Certyfikat potwierdzający zgodność produktu z islamskimi standardami żywnościowymi",
+    "procesoDeSacrificioConformeALaLey": "Proces uboju według prawa islamskiego",
+    "sinContaminacionCruzadaConProductos": "Brak zanieczyszczenia krzyżowego produktami niehalal",
+    "productoAptoParaPersonasConEnfermed": "Produkt odpowiedni dla osób chorych na celiakię lub nadwrażliwość na gluten",
+    "produccionEnLineasLibresDeContamina": "Produkcja na liniach wolnych od zanieczyszczeń",
+    "noContieneIngredientesDeOrigenAnima": "Produkt nie zawiera składników pochodzenia zwierzęcego i nie był testowany na zwierzętach.",
+    "sinPruebasEnAnimales": "Brak testów na zwierzętach"
   },
   "productDetail": {
     "loading": "Ładowanie produktu...",
@@ -482,7 +494,7 @@
     "noSePudoActualizarLaCantidad": "Kwota nie mogła zostać zaktualizowana",
     "noSePudoEliminarElProducto": "Produktu nie można usunąć",
     "descubreProductosIncreiblesDeProduct": "Odkryj niesamowite produkty od lokalnych producentów",
-    "laReservaDeAlgunProductoExpiroCom": "Rezerwacja niektórych produktów wygasła. Proszę sprawdzić dostępność.",
+    "laReservaDeAlgunProductoExpiroCom": "Rezerwacja tego produktu wygasła. Proszę sprawdzić dostępność.",
     "calculandoEnvio": "Obliczanie kosztów wysyłki...",
     "maximoAlcanzado": "Maksymalnie osiągnięto",
     "envioPorTienda": "Wysyłka sklepu",
@@ -640,7 +652,8 @@
       "processing": "Przetwarzanie...",
       "success": "Zamówienie oznaczone jako wysłane! Klient został powiadomiony e-mailem.",
       "other": "Inny"
-    }
+    },
+    "noPudimosCargarTusPedidos": "Nie udało nam się załadować Twoich zamówień"
   },
   "producer": {
     "overview": "Streszczenie",
@@ -700,7 +713,7 @@
       "newFollowers": "Nowy"
     },
     "healthScore": {
-      "title": "Wynik kondycji Twojego sklepu",
+      "title": "Wynik stanu zdrowia Twojego sklepu",
       "subtitle": "Wynik na podstawie sprzedaży, obserwujących i recenzji",
       "orders30d": "Zamówienia (30 dni)",
       "revenue30d": "Dochód (30 dni)",
@@ -2010,7 +2023,10 @@
     "local": "lokalny",
     "bio": "bio",
     "followers": "świta",
-    "posts": "posty"
+    "posts": "posty",
+    "seleccionDelDia": "Wybór dnia",
+    "descubreProductosArtesanalesTiendas": "Odkryj produkty rzemieślnicze, sprawdzone sklepy i lokalne przepisy.",
+    "seleccionesDeProductosConHistoria": "Wybór produktów z historią"
   },
   "notifications": {
     "title": "Powiadomienia",
@@ -2227,7 +2243,7 @@
     "trialEnds": "Zakończenie procesu",
     "nextBilling": "Następna płatność",
     "upgradePro": "Uaktualnij do wersji PRO (18%)",
-    "upgradeElite": "Awans do poziomu ELITE (17%)",
+    "upgradeElite": "Przejdź do poziomu ELITE (17%)",
     "pendingShip": "oczekująca wysyłka",
     "lowStockAlert": "produkty o niskim stanie magazynowym",
     "latestReviews": "Najnowsze recenzje",
@@ -2700,7 +2716,7 @@
     "inputPlaceholder": "Opisz jakiej treści potrzebujesz..."
   },
   "predictions": {
-    "purchased": "Zakupiono XPHBX0XPHXx"
+    "purchased": "Zakupiono {{count}}x"
   },
   "wishlist": {
     "title": "Lista życzeń",
@@ -2825,11 +2841,14 @@
     "noHemosPodidoIniciarTuSesion": "Nie udało nam się zalogować.",
     "entraEnTuCuenta": "Zaloguj się na swoje konto",
     "tuSesionHaExpiradoIniciaSesionDe": "Twoja sesja wygasła. Zaloguj się ponownie.",
-    "ocultarContrasena": "Ukryj hasło"
+    "ocultarContrasena": "Ukryj hasło",
+    "oContinuaConEmail": "lub kontynuuj za pomocą poczty e-mail"
   },
   "forgot_password": {
     "reenviarEmailDeRecuperacion": "Wyślij ponownie e-mail z prośbą o odzyskanie",
-    "enviarEnlaceDeRecuperacion": "Wyślij link do odzyskiwania"
+    "enviarEnlaceDeRecuperacion": "Wyślij link do odzyskiwania",
+    "recuperarContrasena": "Odzyskaj hasło",
+    "teEnviaremosUnEnlaceParaRestablecer": "Wyślemy Ci link umożliwiający zresetowanie hasła."
   },
   "onboarding": {
     "laImagenNoPuedeSuperar5Mb": "Obraz nie może przekraczać 5 MB",
@@ -2909,7 +2928,10 @@
     "unaIntroduccionParaTuReceta": "Wprowadzenie do Twojego przepisu"
   },
   "reels": {
-    "errorAlCargarMasReels": "Błąd podczas ładowania większej liczby rolek"
+    "errorAlCargarMasReels": "Błąd podczas ładowania większej liczby rolek",
+    "aunNoHayReels": "Nie ma jeszcze żadnych bębnów",
+    "seElPrimeroEnPublicar": "Bądź pierwszy, który napisze",
+    "noHayMasReels": "Nie ma więcej rolek"
   },
   "category": {
     "pruebaConOtraCategoriaOAjustaLosF": "Spróbuj innej kategorii lub dostosuj filtry.",
@@ -3085,7 +3107,7 @@
     "completaLaVerificacionEnStripePara": "Aby aktywować automatyczne płatności, ukończ proces weryfikacji w Stripe.",
     "completarVerificacion": "Pełna weryfikacja",
     "noHayDatosSuficientesTodavia": "Nie ma jeszcze wystarczającej ilości danych",
-    "noSePudieronCargarLasMetricasDelC": "Nie udało się wczytać metryk katalogu i sklepu.",
+    "noSePudieronCargarLasMetricasDelC": "Nie udało się załadować metryk katalogu i sklepu.",
     "noSePudoCargarElResumenDePagos": "Nie udało się załadować podsumowania płatności.",
     "noSePudieronCargarLosDatosPrincipa": "Nie udało się załadować danych z głównego panelu. Odśwież stronę.",
     "errorAlCargarDatosPorFavorRefres": "Błąd ładowania danych. Odśwież stronę.",
@@ -3118,7 +3140,8 @@
     "errorAlAbrirElDashboardDeStripe": "Błąd podczas otwierania pulpitu nawigacyjnego Stripe",
     "retencionFiscalAplicada": "Zastosowano potrącenie podatku",
     "tusGananciasSeAcumulanPeroNecesita": "Twoje zarobki się kumulują, ale aby otrzymywać automatyczne przelewy, potrzebujesz usługi Stripe Connect.",
-    "comoFuncionanLosPagos": "Jak działają płatności:"
+    "comoFuncionanLosPagos": "Jak działają płatności:",
+    "sobreTusGananciasNetasSegunTuConfi": "od Twojego dochodu netto zgodnie z Twoją konfiguracją podatkową."
   },
   "producer_plan": {
     "panelDeControlBasico": "Podstawowy panel sterowania",
@@ -3144,7 +3167,7 @@
     "crustaceos": "Skorupiaki",
     "frutosDeCascara": "Orzechy",
     "anadeAlMenosUnaImagen": "Dodaj co najmniej jeden obraz",
-    "subeHasta5FotosDeTuProductoLaPr": "Prześlij maksymalnie 5 zdjęć swojego produktu. Pierwsze będzie zdjęciem na okładce.",
+    "subeHasta5FotosDeTuProductoLaPr": "Prześlij maksymalnie 5 zdjęć swojego produktu. Pierwsze będzie zdjęciem na okładkę.",
     "pedidoMinimoUds": "Minimalne zamówienie (szt.)",
     "especificaOtrosAlergenos": "Podaj inne alergeny..."
   },
@@ -3269,13 +3292,14 @@
     "comisionTotal": "Całkowita prowizja",
     "tasaDeComision": "Stawka prowizji",
     "aunNoHasRealizadoNingunCobro": "Nie otrzymałeś jeszcze żadnej płatności.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL zatrzymuje 15% Twojej prowizji i przekazuje ją w Twoim imieniu kwartalnie do Urzędu Skarbowego (Model 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL pobiera 15% prowizji od Twojej należności i odprowadza ją kwartalnie w Twoim imieniu do Urzędu Skarbowego (Model 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "Kiedy składasz zeznanie podatkowe (IRPF), te potrącenia zostaną już pobrane i możesz je odliczyć.",
     "recibirasElCertificadoDeRetenciones": "Zaświadczenie o potrąceniu podatku otrzymasz w styczniu każdego roku.",
     "evolucionDeTusComisiones": "Ewolucja Twoich prowizji",
     "comparteloEnTusRedesSociales": "Udostępnij w mediach społecznościowych",
     "tuLinkDeAfiliado": "Twój link partnerski",
-    "aunNoTienesVentasComparteTuLink": "Nie masz jeszcze żadnych ofert sprzedaży. Podziel się linkiem!"
+    "aunNoTienesVentasComparteTuLink": "Nie masz jeszcze żadnych ofert sprzedaży. Podziel się linkiem!",
+    "configuracionFiscal": "konfiguracja podatku"
   },
   "influencer_insights": {
     "sinDatosSuficientesParaMostrarGrafi": "Za mało danych do wyświetlenia wykresu",
@@ -3364,7 +3388,7 @@
     "actualizarCodigo": "Zaktualizuj kod",
     "buscarCodigosDeDescuento": "Wyszukaj kody rabatowe...",
     "codigo": "Kod",
-    "noSeEncontraronCodigos": "Nie znaleziono żadnych kodów",
+    "noSeEncontraronCodigos": "Nie znaleziono kodów",
     "codigosActivos": "Aktywne kody",
     "totalDeCodigos": "Łączna liczba kodów"
   },
@@ -3498,7 +3522,7 @@
     "fotoDeInstalacionNoValida": "Nieprawidłowe zdjęcie instalacji",
     "solicitarDocumentacion": "Poproś o dokumentację",
     "verificacionRechazada": "Weryfikacja odrzucona",
-    "revisionManualDeProductores": "Ręczny przegląd producentów"
+    "revisionManualDeProductores": "Recenzja instrukcji producenta"
   },
   "categories": {
     "nombreDeLaCategoria": "Nazwa kategorii",
@@ -3640,7 +3664,8 @@
     "necesitasUnPerfilDeProductorOImpor": "Aby uzyskać dostęp do płatności B2B, musisz posiadać profil producenta lub importera.",
     "esperandoElPagoDelComprador": "Oczekiwanie na zapłatę od kupującego...",
     "recibirasUnaNotificacionCuandoElPag": "Otrzymasz powiadomienie, gdy płatność zostanie przetworzona.",
-    "losFondosEstanRetenidosHastaQueSub": "Środki zostaną wstrzymane do momentu przesłania dokumentacji wysyłkowej."
+    "losFondosEstanRetenidosHastaQueSub": "Środki zostaną wstrzymane do momentu przesłania dokumentacji wysyłkowej.",
+    "comisionHispaloshop3": "Komisja Hispaloshop (3%)"
   },
   "b2_b_quotes_history": {
     "rfqsDeImportadoresInteresadosEnTus": "Zapytania ofertowe od importerów zainteresowanych Twoimi produktami",
@@ -3821,7 +3846,8 @@
     "cobrasAutomaticamenteEnTuCuentaBanc": "Wypłata zostanie automatycznie przelana na Twoje konto bankowe",
     "todoListo": "Wszystko gotowe!",
     "empiezaCompartiendoTuCodigoConTusS": "Zacznij od udostępnienia kodu osobom, które Cię obserwują.",
-    "veTusComisionesEnTiempoReal": "Przeglądaj swoje prowizje w czasie rzeczywistym"
+    "veTusComisionesEnTiempoReal": "Przeglądaj swoje prowizje w czasie rzeczywistym",
+    "minimo20€TransferenciaAutomatica": "Minimum 20 €, przelew automatyczny"
   },
   "chats": {
     "colaboracion": "Współpraca",
@@ -3846,7 +3872,9 @@
     "maria": "Maria",
     "garciaLopez": "García López",
     "creaUnaContrasenaSegura": "Utwórz bezpieczne hasło",
-    "debesTenerAlMenos16Anos": "Musisz mieć co najmniej 16 lat."
+    "debesTenerAlMenos16Anos": "Musisz mieć co najmniej 16 lat.",
+    "terminos": "warunki",
+    "politicaDePrivacidad": "Polityka prywatności"
   },
   "step3_profile": {
     "ajustaTusInteresesParaQueElCatalog": "Dostosuj swoje zainteresowania, aby katalog i rekomendacje były bardziej przemyślane.",
@@ -3879,7 +3907,8 @@
     "paraDudasSobreLaPlataformaColabora": "W przypadku pytań dotyczących platformy, współpracy lub zapytań prasowych.",
     "respondemosEnMenosDe24Horas": "Odpowiadamy w czasie krótszym niż 24 godziny.",
     "losProductoresGestionanElEnvioDirec": "Producenci zajmują się wysyłką bezpośrednio. Czas dostawy zależy od producenta i miejsca przeznaczenia.",
-    "siHispaloshopSoportaMultiplesIdioma": "Tak. HispaloShop obsługuje wiele języków i walut na potrzeby sprzedaży międzynarodowej."
+    "siHispaloshopSoportaMultiplesIdioma": "Tak. HispaloShop obsługuje wiele języków i walut na potrzeby sprzedaży międzynarodowej.",
+    "paraCompradoresEsGratisProductores": "Dla kupujących jest to darmowe. Producenci oferują plany już od 0 €. Influencerzy zarabiają prowizję."
   },
   "for_importers": {
     "importaVendeYCreceAccesoDirectoA": "Importuj, sprzedawaj i rozwijaj. Bezpośredni dostęp do globalnych konsumentów, influencerów i producentów. Odkryj wszystkie korzyści dla importerów w HispaloShop.",
@@ -4262,7 +4291,8 @@
     "terminos": "Warunki"
   },
   "hamburger_menu": {
-    "cerrarMenu": "Zamknij menu"
+    "cerrarMenu": "Zamknij menu",
+    "queEsHispaloshop": "Czym jest HispaloShop?"
   },
   "info_header": {
     "queEs": "Co to jest",
@@ -4435,5 +4465,99 @@
     "noHemosPodidoCompletarLaAccion": "Nie udało nam się dokończyć akcji",
     "esteProductoAunNoTieneCertificados": "Ten produkt nie posiada jeszcze zweryfikowanych certyfikatów.",
     "seElPrimeroEnOpinarSobreEsteProdu": "Bądź pierwszy, który oceni ten produkt."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "Nie można załadować aktywności",
+    "tuActividadApareceraAqui": "Twoja aktywność będzie tutaj widoczna"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Trwa logowanie..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Przeglądaj produkty z widoczną dokumentacją, ułożoną alfabetycznie, co umożliwia szybkie i przejrzyste czytanie.",
+    "filtrarPorCertificacion": "Filtruj według certyfikatu",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Dostosuj wyszukiwanie lub usuń filtry, aby przejrzeć inne certyfikowane produkty.",
+    "ordenAlfabeticoActivo": "aktywny porządek alfabetyczny"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Twoja płatność została pomyślnie przetworzona. W ciągu kilku minut otrzymasz e-mail z potwierdzeniem i szczegółami zamówienia.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Wystąpił błąd podczas weryfikacji płatności. Jeśli płatność została już przetworzona, skontaktuj się z pomocą techniczną.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Otrzymaliśmy Twoje zamówienie. Otrzymasz e-mail ze szczegółami."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Tylko administratorzy mogą edytować społeczność.",
+    "anadirFotoDePortada": "Dodaj zdjęcie na okładkę",
+    "etiquetasMax5": "Etykiety (maks. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Usunięcie społeczności spowoduje trwałe usunięcie wszystkich postów i członków."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Nazwa społeczności",
+    "sinDescripcionTodavia": "Brak opisu",
+    "necesitasMasSeguidores": "Potrzebujesz więcej obserwujących",
+    "paraCrearUnaComunidadNecesitasAlMe": "Aby utworzyć społeczność musisz mieć co najmniej 100 obserwujących lub być zweryfikowanym sprzedawcą.",
+    "elNombreDebeTenerAlMenos3Caracter": "Nazwa musi mieć co najmniej 3 znaki",
+    "laUrlEsObligatoria": "Adres URL jest wymagany",
+    "laUrlDebeTenerAlMenos3Caracteres": "Adres URL musi mieć co najmniej 3 znaki",
+    "laUrlDebeEmpezarConUnaLetraONume": "Adres URL musi zaczynać się literą lub cyfrą.",
+    "comunidadCreada": "Społeczność utworzona!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Ten adres URL jest już zajęty. Spróbuj innego.",
+    "errorAlCrearLaComunidad": "Błąd podczas tworzenia społeczności",
+    "anadirFotoDePortada": "Dodaj zdjęcie na okładkę",
+    "nombreDeLaComunidad1": "Nazwa społeczności *",
+    "ejAceitesDeEspana": "Przykład: Oleje z Hiszpanii",
+    "urlDeLaComunidad": "Adres URL społeczności *",
+    "deQueTrataTuComunidad": "Na czym polega działalność Twojej społeczności?",
+    "iconoDeLaComunidad": "Ikona społeczności",
+    "etiquetasMax5": "Etykiety (maks. 5)",
+    "asiVeranTuComunidadLosDemas": "Tak inni będą postrzegać Twoją społeczność"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "Najlepsza oliwa z oliwek",
+    "seleccionDeProductoresAndaluces": "Wybór andaluzyjskich producentów",
+    "empiezaElDiaConEnergiaReal": "Rozpocznij dzień z prawdziwą energią",
+    "despensaBasicaPremium": "Podstawowa spiżarnia premium",
+    "losEsencialesQueMarcanLaDiferencia": "Podstawowe elementy, które robią różnicę",
+    "certificadoEcologico": "Certyfikacja ekologiczna",
+    "seleccionesEditorialesDeProductosArt": "Wybór redakcyjny produktów rzemieślniczych, zdrowych i z historią.",
+    "coleccion": "Kolekcja"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Kategoria nie znaleziona",
+    "noSePudieronCargarLosProductos": "Nie udało się załadować produktów.",
+    "noHayProductosEnEstaCategoriaTodav": "W tej kategorii nie ma jeszcze żadnych produktów."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Język i region"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Strona nie znaleziona",
+    "estaPaginaNoExiste": "Ta strona nie istnieje",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Wygląda na to, że się zgubiłeś. Wróć na początek i kontynuuj eksplorację."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Twoje konto już istnieje, ale niektóre funkcje będą ograniczone do momentu, aż zespół zweryfikuje rejestrację.",
+    "recibirasAccesoCompletoCuandoElEqui": "Pełny dostęp otrzymasz po zatwierdzeniu rejestracji przez zespół.",
+    "mientrasTantoAlgunasFuncionesComerc": "Tymczasem niektóre funkcje komercyjne nadal będą ograniczone.",
+    "subirDocumentosDeVerificacion": "Prześlij dokumenty weryfikacyjne",
+    "completarConfiguracionFiscal": "Pełna konfiguracja podatku"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Nieprawidłowy link odzyskiwania",
+    "restablecerContrasena": "Zresetuj hasło"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Nie podano kodu weryfikacyjnego",
+    "emailVerificadoCorrectamente": "Adres e-mail został pomyślnie zweryfikowany!",
+    "emailVerificadoYaPuedesIniciarSesi": "Adres e-mail zweryfikowany. Możesz się teraz zalogować.",
+    "elCodigoNoEsValidoOHaExpirado": "Kod jest nieprawidłowy lub wygasł",
+    "errorEnLaVerificacion": "Błąd weryfikacji",
+    "verificacionFallida": "Weryfikacja nie powiodła się",
+    "porFavorEsperaMientrasVerificamosTu": "Proszę czekać, aż zweryfikujemy Twój adres e-mail"
+  },
+  "b2_b_action": {
+    "video": "Wideo"
+  },
+  "collab_action": {
+    "video": "Wideo"
   }
 }

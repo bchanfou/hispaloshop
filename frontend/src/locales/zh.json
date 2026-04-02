@@ -4322,5 +4322,99 @@
     "noHemosPodidoCompletarLaAccion": "我们未能完成该操作。",
     "esteProductoAunNoTieneCertificados": "该产品尚未获得认证。",
     "seElPrimeroEnOpinarSobreEsteProdu": "成为第一个评价这款产品的人。"
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "活动加载失败",
+    "tuActividadApareceraAqui": "您的活动将显示在此处。"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "登录完成……"
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "浏览产品文档，文档按字母顺序排列，方便快速清晰地阅读。",
+    "filtrarPorCertificacion": "按认证筛选",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "调整搜索条件或移除筛选条件，以查看其他认证产品。",
+    "ordenAlfabeticoActivo": "按字母顺序排列"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "您的付款已成功处理。您将在几分钟内收到一封确认邮件，其中包含您的订单详情。",
+    "haOcurridoUnErrorAlVerificarTuPag": "验证您的付款时出错。如果付款已经处理完毕，请联系客服。",
+    "hemosRecibidoTuPedidoRecibirasUnE": "我们已收到您的订单。您将收到一封包含订单详情的电子邮件。"
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "只有管理员才能编辑社区。",
+    "anadirFotoDePortada": "添加封面照片",
+    "etiquetasMax5": "标签（最多 5 个）",
+    "eliminarLaComunidadBorraraTodosLos": "删除社区将永久删除所有帖子和成员。"
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "社区名称",
+    "sinDescripcionTodavia": "暂无描述",
+    "necesitasMasSeguidores": "你需要更多粉丝",
+    "paraCrearUnaComunidadNecesitasAlMe": "要创建社群，您至少需要 100 名粉丝或成为认证卖家。",
+    "elNombreDebeTenerAlMenos3Caracter": "名称长度必须至少为 3 个字符。",
+    "laUrlEsObligatoria": "必须提供网址。",
+    "laUrlDebeTenerAlMenos3Caracteres": "URL长度必须至少为3个字符。",
+    "laUrlDebeEmpezarConUnaLetraONume": "网址必须以字母或数字开头。",
+    "comunidadCreada": "社区已创建！",
+    "esaUrlYaEstaEnUsoPruebaOtra": "该网址已被占用，请尝试其他网址。",
+    "errorAlCrearLaComunidad": "创建社区时出错",
+    "anadirFotoDePortada": "添加封面照片",
+    "nombreDeLaComunidad1": "社区名称*",
+    "ejAceitesDeEspana": "例如：西班牙产橄榄油",
+    "urlDeLaComunidad": "社区网址*",
+    "deQueTrataTuComunidad": "你的社区是做什么的？",
+    "iconoDeLaComunidad": "社区图标",
+    "etiquetasMax5": "标签（最多 5 个）",
+    "asiVeranTuComunidadLosDemas": "这就是其他人如何看待你的社区"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "最好的橄榄油",
+    "seleccionDeProductoresAndaluces": "安达卢西亚生产商精选",
+    "empiezaElDiaConEnergiaReal": "以饱满的精力开启新的一天",
+    "despensaBasicaPremium": "高级基础食品储藏室",
+    "losEsencialesQueMarcanLaDiferencia": "决定成败的关键因素",
+    "certificadoEcologico": "有机认证",
+    "seleccionesEditorialesDeProductosArt": "精选具有故事的手工健康产品。",
+    "coleccion": "收藏"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "未找到类别",
+    "noSePudieronCargarLosProductos": "产品无法加载。",
+    "noHayProductosEnEstaCategoriaTodav": "该类别下目前还没有产品。"
+  },
+  "locale_settings": {
+    "idiomaYRegion": "语言和地区"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "页面未找到",
+    "estaPaginaNoExiste": "此页面不存在",
+    "pareceQueTeHasPerdidoVuelveAlIni": "你好像迷路了。回到起点继续探索吧。"
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "您的账户已存在，但部分功能仍将受到限制，直到团队验证注册信息为止。",
+    "recibirasAccesoCompletoCuandoElEqui": "团队验证您的注册信息后，您将获得完整访问权限。",
+    "mientrasTantoAlgunasFuncionesComerc": "与此同时，部分商业功能仍将受到限制。",
+    "subirDocumentosDeVerificacion": "上传验证文件",
+    "completarConfiguracionFiscal": "完整的税务配置"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "无效的恢复链接",
+    "restablecerContrasena": "重置密码"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "未提供验证码",
+    "emailVerificadoCorrectamente": "邮箱验证成功！",
+    "emailVerificadoYaPuedesIniciarSesi": "邮箱已验证。您现在可以登录了。",
+    "elCodigoNoEsValidoOHaExpirado": "验证码无效或已过期。",
+    "errorEnLaVerificacion": "验证错误",
+    "verificacionFallida": "验证失败",
+    "porFavorEsperaMientrasVerificamosTu": "请稍候，我们正在验证您的电子邮件地址"
+  },
+  "b2_b_action": {
+    "video": "视频"
+  },
+  "collab_action": {
+    "video": "视频"
   }
 }

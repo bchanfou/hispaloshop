@@ -9,7 +9,7 @@ const ONBOARDING_STEPS = [
   { key: 'account', label: 'Cuenta' },
   { key: 'business', label: 'Negocio' },
   { key: 'bank', label: 'Banco' },
-  { key: 'verification', label: t('becomeSeller.step2Title', 'Verificación') },
+  { key: 'verification', label: 'Verificación' },
 ];
 
 function deriveStep(status) {

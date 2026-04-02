@@ -353,7 +353,19 @@
     "vegan": "Vegan",
     "gluten-free": "Glutenvrij",
     "sugar-free": "Suikervrij",
-    "organic": "Organisch"
+    "organic": "Organisch",
+    "certificacionOficialDeProduccionEcol": "Officiële certificering van biologische productie door de Europese Unie.",
+    "garantizaQueElProductoSeProduceTr": "Het garandeert dat het product in een specifiek geografisch gebied wordt geproduceerd, bewerkt en verwerkt.",
+    "alMenosUnaEtapaDeProduccionSeReal": "Ten minste één productiefase vindt plaats in het geografische gebied.",
+    "vinculoConElTerritorio": "Link naar het grondgebied",
+    "supervisionPorOrganismoDeControl": "Toezicht door een controlerend orgaan",
+    "certificacionDeQueElProductoCumple": "Certificering dat het product voldoet aan de islamitische voedselnormen.",
+    "procesoDeSacrificioConformeALaLey": "Het slachtproces volgens de islamitische wet.",
+    "sinContaminacionCruzadaConProductos": "Geen kruisbesmetting met niet-halalproducten.",
+    "productoAptoParaPersonasConEnfermed": "Dit product is geschikt voor mensen met coeliakie of glutenintolerantie.",
+    "produccionEnLineasLibresDeContamina": "Productie op milieuvriendelijke lijnen",
+    "noContieneIngredientesDeOrigenAnima": "Het bevat geen ingrediënten van dierlijke oorsprong en is niet op dieren getest.",
+    "sinPruebasEnAnimales": "Geen dierproeven"
   },
   "productDetail": {
     "loading": "Product wordt geladen...",
@@ -640,7 +652,8 @@
       "processing": "Bezig met verwerken...",
       "success": "Bestelling is verzonden! De klant is per e-mail op de hoogte gesteld.",
       "other": "Ander"
-    }
+    },
+    "noPudimosCargarTusPedidos": "Het is ons niet gelukt uw bestelling te verwerken."
   },
   "producer": {
     "overview": "Samenvatting",
@@ -1106,7 +1119,7 @@
     "verifyEmailDesc": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer deze hier in om uw account te activeren.",
     "verify": "Verifiëren",
     "resendCode": "Code opnieuw verzenden",
-    "createCode": "Maak je eigen kortingscode aan",
+    "createCode": "Maak je eigen kortingscode aan.",
     "createCodeDesc": "Kies een eigen code waarmee je volgers 10% korting krijgen.",
     "createCodePlaceholder": "Voorbeeld: MARIA10",
     "createCodeButton": "Code genereren",
@@ -2010,7 +2023,10 @@
     "local": "lokaal",
     "bio": "bio",
     "followers": "volgers",
-    "posts": "berichten"
+    "posts": "berichten",
+    "seleccionDelDia": "Keuze van de dag",
+    "descubreProductosArtesanalesTiendas": "Ontdek ambachtelijke producten, gecertificeerde winkels en recepten van lokale gemeenschappen.",
+    "seleccionesDeProductosConHistoria": "Producten met een rijke geschiedenis."
   },
   "notifications": {
     "title": "Meldingen",
@@ -2419,7 +2435,7 @@
     "holaMeGustariaColaborar": "Hallo, ik wil graag samenwerken...",
     "iniciaLaConversacion": "Begin het gesprek",
     "tuNavegadorNoSoportaGrabacionDeAud": "Uw browser ondersteunt geen audio-opname. Gebruik HTTPS of een compatibele browser.",
-    "noSePudoAccederAlMicrofonoComprue": "De microfoon kon niet worden gebruikt. Controleer de machtigingen van uw browser.",
+    "noSePudoAccederAlMicrofonoComprue": "De microfoon kon niet worden benaderd. Controleer de machtigingen van uw browser.",
     "enviarCorazon": "Stuur een hartje",
     "maximo10Mb": "Maximaal 10 MB",
     "errorAlEnviarElDocumento": "Fout bij het verzenden van het document.",
@@ -2590,7 +2606,7 @@
     "products": "Producten"
   },
   "plans": {
-    "requiredPlan": "Het vereist een plan.",
+    "requiredPlan": "Vereist een plan",
     "upgradeToUnlock": "Upgrade je abonnement om deze functie te ontgrendelen.",
     "upgrade": "Verbeter het plan",
     "featureLocked": "Functie geblokkeerd"
@@ -2759,7 +2775,7 @@
     "errorAlAnadir": "Fout bij het toevoegen",
     "noSePudoCopiarElEnlace": "De link kon niet worden gekopieerd.",
     "anadidoALaLista": "Toegevoegd aan de lijst",
-    "noSePudoGuardarEnLaLista": "Het kon niet aan de lijst worden toegevoegd.",
+    "noSePudoGuardarEnLaLista": "Het kon niet in de lijst worden opgeslagen.",
     "seleccionaUnaValoracion": "Selecteer een beoordeling",
     "valoracionPublicada": "Gepubliceerde beoordeling",
     "masPorciones": "Meer porties",
@@ -2825,11 +2841,14 @@
     "noHemosPodidoIniciarTuSesion": "Het is ons niet gelukt om u in te loggen.",
     "entraEnTuCuenta": "Log in op je account",
     "tuSesionHaExpiradoIniciaSesionDe": "Je sessie is verlopen. Log opnieuw in.",
-    "ocultarContrasena": "Wachtwoord verbergen"
+    "ocultarContrasena": "Wachtwoord verbergen",
+    "oContinuaConEmail": "of ga verder met e-mail"
   },
   "forgot_password": {
     "reenviarEmailDeRecuperacion": "Herstelmail opnieuw verzenden",
-    "enviarEnlaceDeRecuperacion": "Herstellink verzenden"
+    "enviarEnlaceDeRecuperacion": "Herstellink verzenden",
+    "recuperarContrasena": "Wachtwoord herstellen",
+    "teEnviaremosUnEnlaceParaRestablecer": "We sturen je een link om je wachtwoord opnieuw in te stellen."
   },
   "onboarding": {
     "laImagenNoPuedeSuperar5Mb": "De afbeelding mag niet groter zijn dan 5 MB.",
@@ -2909,7 +2928,10 @@
     "unaIntroduccionParaTuReceta": "Een inleiding op je recept"
   },
   "reels": {
-    "errorAlCargarMasReels": "Fout bij het laden van meer video's"
+    "errorAlCargarMasReels": "Fout bij het laden van meer video's",
+    "aunNoHayReels": "Er zijn nog geen rollen beschikbaar.",
+    "seElPrimeroEnPublicar": "Wees de eerste die een bericht plaatst",
+    "noHayMasReels": "Er zijn geen rollen meer over."
   },
   "category": {
     "pruebaConOtraCategoriaOAjustaLosF": "Probeer een andere categorie of pas de filters aan.",
@@ -3068,7 +3090,7 @@
   },
   "producer_connect": {
     "noSePudoIniciarElOnboarding": "Het onboardingproces kon niet worden gestart.",
-    "configuraTuCuentaParaRecibirTransfe": "Stel uw account in om automatische overboekingen te ontvangen.",
+    "configuraTuCuentaParaRecibirTransfe": "Stel uw account in voor automatische overboekingen.",
     "tuCuentaEstaListaParaRecibirPagos": "Uw account is klaar om betalingen te ontvangen.",
     "completaLosDatosEnStripeParaActiva": "Vul de gegevens in Stripe in om betalingen en uitbetalingen te activeren."
   },
@@ -3100,7 +3122,7 @@
     "ingredientesProductosYPiezasDeCont": "Ingrediënten, producten en content met de hoogste koopintentie.",
     "sinDatosTodavia": "Nog geen gegevens.",
     "productosMasEtiquetados": "Meer producten met een etiket",
-    "aunNoHayConversionesAtribuidas": "Er zijn nog geen conversies met toewijzing.",
+    "aunNoHayConversionesAtribuidas": "Er zijn nog geen conversies toegewezen.",
     "conversion": "Conversie",
     "cuentaYConfiguracion": "Account en instellingen",
     "cambiarContrasena": "Wachtwoord wijzigen"
@@ -3118,7 +3140,8 @@
     "errorAlAbrirElDashboardDeStripe": "Fout bij het openen van het Stripe-dashboard",
     "retencionFiscalAplicada": "Belastinginhouding toegepast",
     "tusGananciasSeAcumulanPeroNecesita": "Je inkomsten lopen op, maar je hebt Stripe Connect nodig om automatische overboekingen te ontvangen.",
-    "comoFuncionanLosPagos": "Hoe betalingen werken:"
+    "comoFuncionanLosPagos": "Hoe betalingen werken:",
+    "sobreTusGananciasNetasSegunTuConfi": "op uw netto-inkomsten, afhankelijk van uw belastingregeling."
   },
   "producer_plan": {
     "panelDeControlBasico": "Basisbedieningspaneel",
@@ -3134,7 +3157,7 @@
     "detallesDeSuscripcion": "Abonnementsgegevens",
     "cancelarSuscripcion": "Abonnement opzeggen",
     "todosLosPreciosSonEnEurEIncluyen": "Alle prijzen zijn in euro's en inclusief btw. Wijzigingen in de abonnementen gaan onmiddellijk in.",
-    "alCancelarMantienesElAccesoHastaE": "Door te annuleren behoudt u de toegang tot het einde van de factureringsperiode."
+    "alCancelarMantienesElAccesoHastaE": "Door te annuleren behoudt u toegang tot het einde van de factureringsperiode."
   },
   "producer_products": {
     "composicion": "Samenstelling",
@@ -3216,7 +3239,7 @@
     "generaUnLinkParaCualquierProducto": "Genereer een link voor elk gewenst product. Wanneer iemand via jouw link iets koopt, verdien je een commissie.",
     "masIngresos": "Meer inkomen",
     "masClics": "Meer klikken",
-    "buscaUnProductoArribaParaGenerarTu": "Selecteer hierboven een product om je eerste link te genereren."
+    "buscaUnProductoArribaParaGenerarTu": "Zoek hierboven naar een product om je eerste link te genereren."
   },
   "fiscal_setup": {
     "sinRetencion": "Zonder retentie",
@@ -3275,7 +3298,8 @@
     "evolucionDeTusComisiones": "Evolutie van uw opdrachten",
     "comparteloEnTusRedesSociales": "Deel het op je sociale media.",
     "tuLinkDeAfiliado": "Jouw affiliate link",
-    "aunNoTienesVentasComparteTuLink": "Je hebt nog geen verkopen. Deel je link!"
+    "aunNoTienesVentasComparteTuLink": "Je hebt nog geen verkopen. Deel je link!",
+    "configuracionFiscal": "belastingconfiguratie"
   },
   "influencer_insights": {
     "sinDatosSuficientesParaMostrarGrafi": "Onvoldoende gegevens om de grafiek weer te geven.",
@@ -3444,7 +3468,7 @@
     "moderarResenasDeClientes": "Gemiddelde klantbeoordelingen",
     "totalDeResenas": "Totaal aantal beoordelingen",
     "calificacionPromedio": "Gemiddelde beoordeling",
-    "buscarResenas": "Zoek naar recensies...",
+    "buscarResenas": "Zoek recensies...",
     "calificacion": "Kwalificatie",
     "noSeEncontraronResenas": "Er zijn geen recensies gevonden."
   },
@@ -3640,7 +3664,8 @@
     "necesitasUnPerfilDeProductorOImpor": "Je hebt een producenten- of importeursprofiel nodig om toegang te krijgen tot B2B-betalingen.",
     "esperandoElPagoDelComprador": "Wachten op betaling van de koper...",
     "recibirasUnaNotificacionCuandoElPag": "Je ontvangt een melding zodra de betaling is verwerkt.",
-    "losFondosEstanRetenidosHastaQueSub": "Het geld wordt vastgehouden totdat u de verzenddocumenten uploadt."
+    "losFondosEstanRetenidosHastaQueSub": "Het geld wordt vastgehouden totdat u de verzenddocumenten uploadt.",
+    "comisionHispaloshop3": "Hispaloshop-commissie (3%)"
   },
   "b2_b_quotes_history": {
     "rfqsDeImportadoresInteresadosEnTus": "Offerteaanvragen van importeurs die geïnteresseerd zijn in uw producten.",
@@ -3821,7 +3846,8 @@
     "cobrasAutomaticamenteEnTuCuentaBanc": "Het bedrag wordt automatisch op uw bankrekening gestort.",
     "todoListo": "Alles is klaar!",
     "empiezaCompartiendoTuCodigoConTusS": "Begin met het delen van je code met je volgers.",
-    "veTusComisionesEnTiempoReal": "Bekijk uw opdrachten in realtime."
+    "veTusComisionesEnTiempoReal": "Bekijk uw opdrachten in realtime.",
+    "minimo20€TransferenciaAutomatica": "Minimumbedrag €20, automatische overschrijving"
   },
   "chats": {
     "colaboracion": "Samenwerking",
@@ -3846,7 +3872,9 @@
     "maria": "Maria",
     "garciaLopez": "García López",
     "creaUnaContrasenaSegura": "Maak een veilig wachtwoord aan.",
-    "debesTenerAlMenos16Anos": "Je moet minimaal 16 jaar oud zijn."
+    "debesTenerAlMenos16Anos": "Je moet minimaal 16 jaar oud zijn.",
+    "terminos": "voorwaarden",
+    "politicaDePrivacidad": "Privacybeleid"
   },
   "step3_profile": {
     "ajustaTusInteresesParaQueElCatalog": "Pas je interesses aan zodat de catalogus en aanbevelingen op basis van meer onderscheidingsvermogen worden bekeken.",
@@ -3879,7 +3907,8 @@
     "paraDudasSobreLaPlataformaColabora": "Voor vragen over het platform, samenwerkingen of persvragen.",
     "respondemosEnMenosDe24Horas": "Wij reageren binnen 24 uur.",
     "losProductoresGestionanElEnvioDirec": "De producenten verzorgen de verzending rechtstreeks. De levertijden zijn afhankelijk van de producent en de bestemming.",
-    "siHispaloshopSoportaMultiplesIdioma": "Ja. HispaloShop ondersteunt meerdere talen en valuta voor internationale verkopen."
+    "siHispaloshopSoportaMultiplesIdioma": "Ja. HispaloShop ondersteunt meerdere talen en valuta voor internationale verkopen.",
+    "paraCompradoresEsGratisProductores": "Het is gratis voor kopers. Producenten bieden abonnementen aan vanaf €0. Influencers verdienen commissies."
   },
   "for_importers": {
     "importaVendeYCreceAccesoDirectoA": "Importeer, verkoop en groei. Directe toegang tot wereldwijde consumenten, influencers en producenten. Ontdek alle voordelen voor importeurs bij HispaloShop.",
@@ -3921,7 +3950,7 @@
     "registrateGratis": "Meld je gratis aan",
     "publicaTuCatalogo": "Publiceer uw catalogus",
     "accesoInmediatoAUnaRedGlobalDeImp": "Directe toegang tot een wereldwijd netwerk van geverifieerde importeurs.",
-    "herramientasParaDestacarTuMarcaYPr": "Hulpmiddelen om uw merk en producten in de schijnwerpers te zetten.",
+    "herramientasParaDestacarTuMarcaYPr": "Hulpmiddelen om uw merk en producten onder de aandacht te brengen.",
     "opcionesDePromocionPremiumSegunTuP": "Premium promotieopties, afhankelijk van uw abonnement.",
     "gestionEficienteDeContactosYOportun": "Efficiënt beheer van contacten en kansen.",
     "paraProductoresEnCrecimiento": "Voor groeiende producenten",
@@ -4262,7 +4291,8 @@
     "terminos": "Voorwaarden"
   },
   "hamburger_menu": {
-    "cerrarMenu": "Menu sluiten"
+    "cerrarMenu": "Menu sluiten",
+    "queEsHispaloshop": "Wat is HispaloShop?"
   },
   "info_header": {
     "queEs": "Wat is",
@@ -4435,5 +4465,99 @@
     "noHemosPodidoCompletarLaAccion": "We konden de actie niet voltooien.",
     "esteProductoAunNoTieneCertificados": "Dit product beschikt nog niet over geverifieerde certificaten.",
     "seElPrimeroEnOpinarSobreEsteProdu": "Schrijf de eerste review voor dit product."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "De activiteit kon niet worden geladen.",
+    "tuActividadApareceraAqui": "Uw activiteit verschijnt hier."
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Aanmelden voltooid..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Ontdek producten met duidelijke documentatie, alfabetisch gerangschikt voor snel en overzichtelijk lezen.",
+    "filtrarPorCertificacion": "Filteren op certificering",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Pas je zoekopdracht aan of verwijder filters om andere gecertificeerde producten te bekijken.",
+    "ordenAlfabeticoActivo": "actieve alfabetische volgorde"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Uw betaling is succesvol verwerkt. U ontvangt binnen enkele minuten een bevestigingsmail met uw bestelgegevens.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Er is een fout opgetreden tijdens de verificatie van uw betaling. Als de betaling al is verwerkt, neem dan contact op met de klantenservice.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "We hebben uw bestelling ontvangen. U ontvangt een e-mail met de details."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Alleen beheerders kunnen de community bewerken.",
+    "anadirFotoDePortada": "Omslagfoto toevoegen",
+    "etiquetasMax5": "Labels (max. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Door de community te verwijderen, worden alle berichten en leden permanent gewist."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Gemeenschapsnaam",
+    "sinDescripcionTodavia": "Nog geen beschrijving",
+    "necesitasMasSeguidores": "Je hebt meer volgers nodig.",
+    "paraCrearUnaComunidadNecesitasAlMe": "Om een community te creëren, heb je minimaal 100 volgers nodig of moet je een geverifieerde verkoper zijn.",
+    "elNombreDebeTenerAlMenos3Caracter": "De naam moet minimaal 3 tekens lang zijn.",
+    "laUrlEsObligatoria": "De URL is verplicht.",
+    "laUrlDebeTenerAlMenos3Caracteres": "De URL moet minimaal 3 tekens lang zijn.",
+    "laUrlDebeEmpezarConUnaLetraONume": "De URL moet beginnen met een letter of een cijfer.",
+    "comunidadCreada": "Door de community gecreëerd!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Die URL is al in gebruik. Probeer een andere.",
+    "errorAlCrearLaComunidad": "Fout bij het aanmaken van de community",
+    "anadirFotoDePortada": "Omslagfoto toevoegen",
+    "nombreDeLaComunidad1": "Naam van de gemeenschap *",
+    "ejAceitesDeEspana": "Voorbeeld: Oliën uit Spanje",
+    "urlDeLaComunidad": "Community-URL *",
+    "deQueTrataTuComunidad": "Waar draait jullie gemeenschap om?",
+    "iconoDeLaComunidad": "Gemeenschapsicoon",
+    "etiquetasMax5": "Labels (max. 5)",
+    "asiVeranTuComunidadLosDemas": "Zo zullen anderen uw gemeenschap zien."
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "De beste olijfolie",
+    "seleccionDeProductoresAndaluces": "Selectie van Andalusische producenten",
+    "empiezaElDiaConEnergiaReal": "Begin de dag vol energie.",
+    "despensaBasicaPremium": "Premium basisvoorraadkast",
+    "losEsencialesQueMarcanLaDiferencia": "De essentiële elementen die het verschil maken.",
+    "certificadoEcologico": "Biologische certificering",
+    "seleccionesEditorialesDeProductosArt": "Een redactionele selectie van ambachtelijke, gezonde producten met een verhaal.",
+    "coleccion": "Verzameling"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Categorie niet gevonden",
+    "noSePudieronCargarLosProductos": "De producten konden niet worden geladen.",
+    "noHayProductosEnEstaCategoriaTodav": "Er zijn nog geen producten in deze categorie."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Taal en regio"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Pagina niet gevonden",
+    "estaPaginaNoExiste": "Deze pagina bestaat niet.",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Het lijkt erop dat je verdwaald bent. Ga terug naar het begin en vervolg je verkenningstocht."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Je account bestaat al, maar sommige functies blijven beperkt totdat het team de registratie heeft gevalideerd.",
+    "recibirasAccesoCompletoCuandoElEqui": "Je krijgt volledige toegang zodra het team je registratie heeft gevalideerd.",
+    "mientrasTantoAlgunasFuncionesComerc": "Intussen blijven sommige commerciële functies beperkt.",
+    "subirDocumentosDeVerificacion": "Verificatiedocumenten uploaden",
+    "completarConfiguracionFiscal": "Volledige belastingconfiguratie"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Ongeldige herstellink",
+    "restablecerContrasena": "Wachtwoord opnieuw instellen"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Er werd geen verificatiecode verstrekt.",
+    "emailVerificadoCorrectamente": "E-mailadres succesvol geverifieerd!",
+    "emailVerificadoYaPuedesIniciarSesi": "E-mailadres geverifieerd. U kunt nu inloggen.",
+    "elCodigoNoEsValidoOHaExpirado": "De code is ongeldig of verlopen.",
+    "errorEnLaVerificacion": "Verificatiefout",
+    "verificacionFallida": "Verificatie mislukt",
+    "porFavorEsperaMientrasVerificamosTu": "Even geduld alstublieft terwijl we uw e-mailadres controleren."
+  },
+  "b2_b_action": {
+    "video": "Video"
+  },
+  "collab_action": {
+    "video": "Video"
   }
 }

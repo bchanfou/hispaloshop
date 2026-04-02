@@ -2627,5 +2627,1808 @@
     "firstReviewDesc": "आपने अपनी पहली समीक्षा लिखी",
     "explorer": "एक्सप्लोरर",
     "explorerDesc": "आपने 5 स्टोर को फॉलो किया"
+  },
+  "product_detail": {
+    "resenaEnviada": "समीक्षा प्रस्तुत की गई",
+    "chatNoDisponibleParaEsteProducto": "इस उत्पाद के लिए चैट सुविधा उपलब्ध नहीं है।",
+    "noSePudoAbrirElChat": "चैट नहीं खुल सकी",
+    "puntuacion": "विराम चिह्न",
+    "comentarioDeLaResena": "समीक्षा टिप्पणी",
+    "noHemosPodidoEnviarLaResena": "हम समीक्षा प्रस्तुत करने में असमर्थ रहे।",
+    "anadirAFavoritos": "पसंदीदा में जोड़े",
+    "politicaDeDevolucion": "वापसी नीति",
+    "tienes14DiasDesdeLaRecepcionParaD": "आपको अपना ऑर्डर प्राप्त होने के 14 दिनों के भीतर वापस करने की सुविधा मिलती है। खराब होने वाले खाद्य उत्पाद वापसी के लिए पात्र नहीं हैं।",
+    "anadeEsteProductoAlCatalogoB2bPara": "थोक ऑर्डर प्राप्त करने के लिए इस उत्पाद को बी2बी कैटलॉग में जोड़ें।",
+    "anadirAlCatalogoB2b": "B2B कैटलॉग में जोड़ें"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "कार्ट में उत्पाद जोड़ने में त्रुटि",
+    "errorAlAnadir": "जोड़ने में त्रुटि",
+    "noSePudoCopiarElEnlace": "लिंक कॉपी नहीं किया जा सका",
+    "anadidoALaLista": "सूची में जोड़ा गया",
+    "noSePudoGuardarEnLaLista": "इसे सूची में सहेजा नहीं जा सका",
+    "seleccionaUnaValoracion": "रेटिंग चुनें",
+    "valoracionPublicada": "प्रकाशित रेटिंग",
+    "masPorciones": "अधिक भाग",
+    "errorAlPublicarLaValoracion": "रेटिंग पोस्ट करने में त्रुटि",
+    "preparacion": "तैयारी",
+    "informacionNutricional": "पोषण संबंधी जानकारी",
+    "porRacion": "सेवारत प्रति",
+    "proteina": "प्रोटीन",
+    "azucar": "चीनी",
+    "aunNoHayResenasSeElPrimero": "अभी तक कोई समीक्षा नहीं है। पहले समीक्षाकर्ता बनें!",
+    "tuResena": "आपकी समीक्षा",
+    "enviarResena": "समीक्षा जमा करें"
+  },
+  "community": {
+    "configuracion": "विन्यास",
+    "errorAlActualizarMembresia": "सदस्यता अद्यतन त्रुटि",
+    "escribeAlgoOAnadeUnaImagen": "कुछ लिखें या कोई चित्र जोड़ें",
+    "queQuieresCompartirPuedesUsarHas": "आप क्या साझा करना चाहते हैं? आप हैशटैग का उपयोग कर सकते हैं।",
+    "anadirImagen": "छवि जोड़ें",
+    "errorAlCargarLaComunidad": "समुदाय लोड करने में त्रुटि",
+    "salirDeLaComunidad": "समुदाय को छोड़ना",
+    "comparteAlgoConLaComunidad": "समुदाय के साथ कुछ साझा करें...",
+    "aunNoHayPosts": "अभी तक कोई पोस्ट नहीं है।",
+    "seElPrimeroEnPublicarAlgo": "सबसे पहले पोस्ट करने वाले आप ही बनें!",
+    "verMasPosts": "और भी पोस्ट देखें",
+    "verMasComentarios": "और भी टिप्पणियाँ देखें",
+    "sinMiembrosTodavia": "अभी तक कोई सदस्य नहीं",
+    "verMasMiembros": "और सदस्य देखें",
+    "normasDeLaComunidad": "समुदाय दिशानिर्देश",
+    "contenidoRelacionadoConAlimentacionY": "भोजन और खान-पान से संबंधित सामग्री",
+    "sinSpamNiPublicidadNoAutorizada": "स्पैम या अनधिकृत विज्ञापन प्रतिबंधित हैं।",
+    "sinBebidasAlcoholicas": "मादक पेय पदार्थों का सेवन वर्जित है।",
+    "elAdminPuedeEliminarPostsQueNoCum": "प्रशासक नियमों का पालन न करने वाली पोस्ट को हटा सकता है।"
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "आपकी कहानियाँ लोड करने में त्रुटि",
+    "errorAlSubirLaFoto": "फोटो अपलोड करने में त्रुटि",
+    "noSePudoAbrirLaConversacion": "बातचीत शुरू नहीं हो सकी",
+    "errorAlCrearConversacion": "वार्तालाप बनाने में त्रुटि",
+    "atras": "पीछे"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "अनफ़ॉलो करने में त्रुटि",
+    "cargarMasUsuarios": "और उपयोगकर्ता लोड करें",
+    "pruebaConOtroTermino": "कोई दूसरा शब्द आजमाएँ",
+    "cargarMas": "और लोड करें",
+    "sinSeguidoresAun": "अभी तक कोई फ़ॉलोअर नहीं",
+    "noSigueANadieAun": "वह अभी तक किसी को फॉलो नहीं करती है"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "संग्रह बनाने में त्रुटि",
+    "nombreDeLaColeccion": "संग्रह का नाम",
+    "guardaContenidoTocandoElIconoDeMar": "बुकमार्क आइकन पर टैप करके सामग्री सहेजें",
+    "nuevaColeccion": "नया संग्रह"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "गूगल से लॉग इन करने में त्रुटि।",
+    "tuContrasena": "आपका पासवर्ड",
+    "elEmailEsObligatorio": "ईमेल की जरूरत है",
+    "laContrasenaEsObligatoria": "पासवर्ड आवश्यक है।",
+    "emailOContrasenaIncorrectos": "गलत ईमेल या पासवर्ड",
+    "tuCuentaEstaRestringidaPorEdad": "आपका खाता आयु-प्रतिबंधित है।",
+    "noHemosPodidoIniciarTuSesion": "हम आपको लॉग इन नहीं कर पाए।",
+    "entraEnTuCuenta": "अपने अकाउंट में लॉग इन करें",
+    "tuSesionHaExpiradoIniciaSesionDe": "आपका सत्र समाप्त हो गया है। कृपया पुनः लॉग इन करें।",
+    "ocultarContrasena": "पासवर्ड छिपाएं",
+    "oContinuaConEmail": "या ईमेल के साथ जारी रखें"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "रिकवरी ईमेल दोबारा भेजें",
+    "enviarEnlaceDeRecuperacion": "रिकवरी लिंक भेजें",
+    "recuperarContrasena": "पासवर्ड की वसूली",
+    "teEnviaremosUnEnlaceParaRestablecer": "हम आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक भेजेंगे।"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "छवि का आकार 5 एमबी से अधिक नहीं होना चाहिए।",
+    "noSePudoSubirLaFotoDePerfilPero": "प्रोफाइल पिक्चर अपलोड नहीं हो सकी, लेकिन आपका अकाउंट फिर भी बन जाएगा।",
+    "panaderia": "बेकरी",
+    "reposteria": "हलवाई की दुकान",
+    "descubreProductosArtesanalesUnicosDe": "स्थानीय उत्पादकों द्वारा निर्मित अद्वितीय हस्तनिर्मित उत्पादों की खोज करें।",
+    "tuTiendaEstaListaEmpiezaAVenderT": "आपकी दुकान तैयार है। अपने हस्तनिर्मित उत्पाद बेचना शुरू करें।",
+    "exploraElMarketplaceB2bYEncuentraL": "बी2बी मार्केटप्लेस का अन्वेषण करें और सर्वश्रेष्ठ उत्पादकों को खोजें।",
+    "errorAlGuardarTuPerfilIntentaloDe": "आपकी प्रोफ़ाइल सहेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "estoEsLoQueVeranOtrosUsuarios": "यही चीज़ दूसरे उपयोगकर्ताओं को दिखाई देगी।",
+    "ubicacionOpcional": "वैकल्पिक स्थान)",
+    "validacionDeMercadoYPrimerasVentas": "बाजार सत्यापन और प्रारंभिक बिक्री।",
+    "iaComercialAvanzadaYGeneracionDeCo": "उन्नत व्यावसायिक एआई और अनुबंध निर्माण।",
+    "stripeNoEstaDisponible": "स्ट्राइप उपलब्ध नहीं है",
+    "stripeNoEstaConfiguradoTodavia": "स्ट्राइप अभी तक स्थापित नहीं हुआ है।",
+    "noPudimosPrepararElPago": "हम भुगतान संसाधित करने में असमर्थ रहे।",
+    "introduceUnEmailValido": "एक मान्य ईमेल पता दर्ज करें।",
+    "creaUnaContrasenaDeAlMenos6Caract": "कम से कम 6 अक्षरों का पासवर्ड बनाएं।",
+    "necesitamosUnTelefonoOperativo": "हमें एक चालू फोन चाहिए।",
+    "seleccionaElPaisDondeVasAOperar": "उस देश का चयन करें जहां आप अपना परिचालन करेंगे।",
+    "seleccionaTuPuntoDePartida": "अपना प्रारंभिक बिंदु चुनें।",
+    "eligeAlMenosUnTipoDeProducto": "कम से कम एक प्रकार का उत्पाद चुनें।",
+    "necesitamosUnaDireccionFiscalValida": "हमें एक वैध कर पता चाहिए।",
+    "necesitamosVatCifONifParaDarteDe": "हमें आपका पंजीकरण करने के लिए आपके वैट, सीआईएफ या एनआईएफ नंबर की आवश्यकता है।",
+    "completaLosDatosDeLaTarjetaParaCo": "आगे बढ़ने के लिए कार्ड का विवरण पूरा करें।",
+    "stripeNoEstaListoTodavia": "स्ट्राइप अभी तैयार नहीं है।",
+    "noSePudoValidarLaTarjeta": "कार्ड का सत्यापन नहीं हो सका।",
+    "tuBancoRechazoLaOperacion": "आपके बैंक ने लेनदेन अस्वीकार कर दिया।",
+    "haOcurridoUnErrorConElPagoPorFa": "आपके भुगतान में कोई त्रुटि हुई है। कृपया पुनः प्रयास करें।",
+    "elMetodoDePagoFueRechazadoPorFav": "आपका भुगतान तरीका अस्वीकृत हो गया है। कृपया किसी दूसरे कार्ड का उपयोग करें।",
+    "revisaLosDatosAntesDeContinuar": "आगे बढ़ने से पहले जानकारी की समीक्षा कर लें।",
+    "noPudimosCompletarElAlta": "हम मरीज को अस्पताल से छुट्टी नहीं दे पाए।",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "आपका खाता पहले ही बन चुका है। आपको बस प्लान को सक्रिय करना है या सदस्यता समाप्त करनी है।",
+    "completaLosCamposObligatoriosParaAv": "आगे बढ़ने के लिए आवश्यक फ़ील्ड भरें।",
+    "numeroSinEspacios": "बिना रिक्त स्थान के संख्या",
+    "paisDondeOperaras": "जिस देश में आप काम करेंगे",
+    "seleccionaTuPaisPrincipal": "अपना प्राथमिक देश चुनें",
+    "loUsamosParaFacturacionYAprobacion": "हम इसका उपयोग बिलिंग और वाणिज्यिक अनुमोदन के लिए करते हैं।",
+    "direccionFiscal": "कर पता",
+    "direccionCompletaParaFacturacion": "पूरा बिलिंग पता",
+    "empezamosSinCuotaFijaSiElMercado": "हम बिना किसी निश्चित शुल्क के शुरुआत करते हैं। यदि बाजार में इसकी मांग बढ़ती है, तो आप PRO या ELITE में अपग्रेड करने का निर्णय ले सकते हैं।",
+    "pagoSeguroCancelaCuandoQuierasNo": "सुरक्षित भुगतान। कभी भी रद्द करें। हम आपके काम में कोई बाधा नहीं डालेंगे।",
+    "bienvenidoALaRevolucion": "क्रांति में आपका स्वागत है।",
+    "revisaTuEmailParaVerificarTuCuenta": "अपना खाता सत्यापित करने के लिए अपना ईमेल देखें। आपके पास पहले से ही वह ढांचा मौजूद है जिससे मेरे पैसे और समय की बचत हो सकती थी।",
+    "verCatalogoDeProductoresDisponibles": "उपलब्ध उत्पादकों की सूची देखें",
+    "sinAlertsAgresivosYConGuardadoLoca": "आक्रामक चेतावनियों के बिना और प्रगति को स्थानीय स्तर पर सहेजने की सुविधा के साथ।",
+    "tuContrasenaNoSePersisteEnLocalsto": "आपका पासवर्ड localStorage में सेव नहीं किया गया है।",
+    "proYEliteUsanStripeInlineFreeCre": "PRO और ELITE में Stripe का सीधा उपयोग होता है। FREE प्लान से तुरंत खाता बन जाता है।"
+  },
+  "post_detail": {
+    "publicacionEditada": "संपादित प्रकाशन",
+    "editarDescripcion": "संपादित करें] वर्णन",
+    "publicacion": "प्रकाशन",
+    "editarPublicacion": "संपादित पोस्ट",
+    "laImagenNoSePuedeCambiarTrasPubli": "पोस्ट करने के बाद छवि को बदला नहीं जा सकता।",
+    "seEliminaraPermanentementeJuntoConS": "इसे आपकी टिप्पणियों और लाइक्स के साथ स्थायी रूप से हटा दिया जाएगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता है।",
+    "seElPrimeroEnComentar": "टिप्पणी करने वाले पहले बनो",
+    "masPopulares": "सबसे लोकप्रिय",
+    "cargarMasComentarios": "और टिप्पणियाँ लोड करें",
+    "compartirPublicacion": "इस पोस्ट पर साझा करें"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "हम छवि लोड करने में असमर्थ रहे।",
+    "noHemosPodidoCargarLaImagenDelPas": "हम जुलूस की तस्वीर अपलोड नहीं कर पाए।",
+    "numeroDeRaciones": "परोसने की संख्या",
+    "anadirIngrediente": "सामग्री डालें",
+    "cuentaQueHaceEspecialEstaReceta": "हमें बताइए कि इस रेसिपी को क्या खास बनाता है...",
+    "descripcionDeLaReceta": "रेसिपी का विवरण",
+    "anadirEtiqueta": "टैग जोड़ें...",
+    "ensaladaRapida": "झटपट सलाद",
+    "postreFacil": "आसान मिठाई",
+    "noHemosPodidoPublicarLaReceta": "हम रेसिपी प्रकाशित नहीं कर पाए।",
+    "recetaPublicada": "रेसिपी प्रकाशित हो गई है!",
+    "tienesUnBorradorDeReceta": "आपके पास एक ड्राफ्ट रेसिपी है",
+    "momentoDelDia": "अपना समय",
+    "unaIntroduccionParaTuReceta": "आपकी रेसिपी का परिचय"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "अधिक रील लोड करने में त्रुटि",
+    "aunNoHayReels": "अभी तक कोई रील उपलब्ध नहीं है",
+    "seElPrimeroEnPublicar": "सबसे पहले पोस्ट करने वाले बनें",
+    "noHayMasReels": "अब और रीलें नहीं हैं"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "किसी दूसरी श्रेणी को आजमाएं या फ़िल्टरों को समायोजित करें।",
+    "verMasProductos": "और भी उत्पाद देखें",
+    "caracteristicas": "विशेषताएँ"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "स्थानीय, हस्तनिर्मित और स्वास्थ्यवर्धक खाद्य उत्पादकों की दुकानों को देखें। क्षेत्र और देश के अनुसार फ़िल्टर करें।"
+  },
+  "communities_explore": {
+    "alimentacion": "खिला",
+    "iniciaSesionParaVerTusComunidades": "अपने समुदायों को देखने के लिए लॉग इन करें",
+    "noHayComunidadesEnEstaCategoria": "इस श्रेणी में कोई समुदाय नहीं है।",
+    "sinResultadosParaTuBusqueda": "आपकी खोज के कोई नतीजे नहीं मिलें",
+    "aunNoHayComunidades": "अभी तक कोई समुदाय नहीं हैं।",
+    "creaLaPrimeraComunidadDeEstaCatego": "इस श्रेणी का पहला समुदाय बनाएं",
+    "pruebaConOtrosTerminos": "अन्य शब्दों का प्रयोग करें",
+    "seElPrimeroEnCrearUnaYConectarCo": "सबसे पहले एक बनाएं और समुदाय से जुड़ें",
+    "consigue100SeguidoresOVerificaTuCu": "100 फ़ॉलोअर्स प्राप्त करें या अपना विक्रेता खाता सत्यापित करें"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "शिपिंग का प्रबंधन निर्माता द्वारा किया जाता है",
+    "productosConInformacionVerificableY": "सत्यापित जानकारी और डिजिटल प्रमाणपत्र वाले उत्पाद।",
+    "operacionInternacional": "अंतर्राष्ट्रीय संचालन",
+    "feedPostsYReelsConectadosConConve": "फीड, पोस्ट और रील वास्तविक रूपांतरण से जुड़े होते हैं।",
+    "checkoutSeguroComisionesYConciliaci": "सुरक्षित चेकआउट, कमीशन और प्रत्येक लेनदेन का मिलान।",
+    "contenidoUtil": "उपयोगी सामग्री",
+    "clientesProductoresImportadoresEIn": "ग्राहक, उत्पादक, आयातक और प्रभावशाली व्यक्ति एक ही प्रवाह में।",
+    "gestionarPedidosYOperacionDiaria": "ऑर्डर और दैनिक कार्यों का प्रबंधन करें",
+    "configurarEnvioYCatalogoInternaciona": "अंतर्राष्ट्रीय शिपिंग और कैटलॉग को कॉन्फ़िगर करें",
+    "trackingDeConversionYRendimiento": "रूपांतरण और प्रदर्शन ट्रैकिंग",
+    "monetizacionEnPostsYReels": "पोस्ट और रील्स में मुद्रीकरण",
+    "altaDeProductosYCatalogoPropio": "उत्पाद पंजीकरण और स्वयं का कैटलॉग",
+    "panelDePedidosPagosYOperacion": "ऑर्डर, भुगतान और संचालन पैनल",
+    "catalogoLimpio": "साफ़ कैटलॉग",
+    "contenidoUtilEnlazadoAProductosReal": "वास्तविक उत्पादों से संबंधित उपयोगी सामग्री।",
+    "queEsHispaloshop": "हिस्पलोशॉप क्या है?",
+    "unimosCompraVentaInfluenciaYTraza": "हम खरीद, बिक्री, प्रभाव और पता लगाने की क्षमता को एक ही परिचालन मंच में एकीकृत करते हैं।",
+    "loQueYaEstaActivo": "जो पहले से सक्रिय है",
+    "funcionalidadRealDeProductoEnEstaV": "इस संस्करण में उत्पाद की वास्तविक कार्यक्षमता।",
+    "porQueLaPlataformaFunciona": "यह प्लेटफॉर्म क्यों काम करता है",
+    "paraQuienEstaHecho": "यह किसके लिए बनाया गया है?",
+    "porQueExisteHispaloshop": "हिस्पालोशॉप क्यों मौजूद है?",
+    "laHistoriaRealDetrasDelProyecto": "इस परियोजना के पीछे की सच्ची कहानी।",
+    "aLos25Perdi15000€EnUnContainerD": "25 साल की उम्र में, इंचियोन में एक पॉपकॉर्न के डिब्बे के सड़ जाने से मेरे 15,000 यूरो बर्बाद हो गए। मैं सियोल के एक पार्क में रोई। 26 साल की उम्र में, मैं रेउस में अपने माता-पिता के कमरे में वापस रहने लगी। सुबह के 6 बज रहे हैं और इसे बनाने में लगे दो महीनों से मैं रात में 5 घंटे से ज़्यादा नहीं सोई हूँ।",
+    "loHiceParaQueNingunProductorHonest": "मैंने ऐसा इसलिए किया ताकि कोई भी ईमानदार निर्माता फिर कभी अनदेखा महसूस न करे। ताकि किसी भी इन्फ्लुएंसर को अपनी ईमानदारी और अपनी आजीविका के बीच चुनाव न करना पड़े।",
+    "exploraCatalogoTiendasYContenido": "कैटलॉग, स्टोर और सामग्री देखें।",
+    "checkoutCentralizadoEnUnSoloFlujo": "एक ही प्रक्रिया में केंद्रीकृत चेकआउट।"
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "पोस्ट में कम से कम एक छवि जोड़ें",
+    "laDescripcionEsDemasiadoLarga": "विवरण बहुत लंबा है",
+    "publicacionCreada": "प्रकाशन बनाया गया",
+    "verEnElFeed": "फ़ीड में देखें",
+    "errorAlPublicarCompruebaTuConexion": "पोस्ट करने में त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+    "nuevaPublicacion": "नया प्रकाशन",
+    "seleccionaImagenes": "छवियों का चयन करें",
+    "capturaDirectamenteDesdeTuCamara": "सीधे अपने कैमरे से कैप्चर करें",
+    "abrirCamaraParaTomarFoto": "फोटो खींचने के लिए कैमरा खोलें",
+    "abrirCamara": "कैमरा खोलें",
+    "saturacion": "परिपूर्णता",
+    "vineteado": "विनेट",
+    "tamano": "आकार",
+    "descripcionDeLaPublicacion": "प्रकाशन विवरण",
+    "escribeTuPieDeFotoUsaParaHas": "अपना कैप्शन लिखें... हैशटैग के लिए # और उल्लेख के लिए @ का प्रयोग करें।",
+    "sugerenciaAnadida": "सुझाव जोड़ा गया",
+    "noSePudoGenerarUnaSugerencia": "कोई सुझाव उत्पन्न नहीं किया जा सका",
+    "errorAlConectarConDavidAi": "डेविड एआई से कनेक्ट करने में त्रुटि",
+    "anadirUbicacionEjGaliciaCosta": "स्थान जोड़ें... (जैसे, गैलिसिया, कोस्टा ब्रावा)",
+    "cerrarBusqueda": "खोज बंद करें",
+    "publicado": "प्रकाशित!",
+    "reintentarPublicacion": "पुन: पोस्ट"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "वीडियो का आकार बहुत बड़ा है (अधिकतम 100 एमबी)।",
+    "elVideoNoPuedeSuperarLos60Segundo": "वीडियो 60 सेकंड से अधिक लंबा नहीं होना चाहिए। अपलोड करने से पहले इसे छोटा कर लें।",
+    "noHayVideoSeleccionado": "कोई वीडियो चयनित नहीं है",
+    "elPuntoDeInicioDelRecorteNoPuede": "कटाई का प्रारंभिक बिंदु अंतिम बिंदु से बड़ा या उसके बराबर नहीं हो सकता।",
+    "verEnElFeed": "फ़ीड में देखें",
+    "errorAlPublicarElReelCompruebaTu": "रील पोस्ट करने में त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+    "seleccionaUnVideo": "एक वीडियो चुनें",
+    "maximo60Segundos·Mp4OMov": "अधिकतम 60 सेकंड · MP4 या MOV",
+    "elegirVideoDeLaGaleria": "गैलरी से वीडियो चुनें",
+    "elegirDeLaGaleria": "गैलरी से चुनें",
+    "pausarVideo": "वीडियो रोकें",
+    "controlaElVolumenDelAudioOriginalD": "यह वीडियो के मूल ऑडियो की मात्रा को नियंत्रित करता है।",
+    "anadirTextoAlVideo": "वीडियो में टेक्स्ट जोड़ें",
+    "escribeAqui": "यहाँ लिखें...",
+    "textoParaElOverlay": "ओवरले के लिए पाठ",
+    "tamanoDeTexto": "टेक्स्ट का साइज़",
+    "tienesUnBorradorDeReel": "आपके पास एक ड्राफ्ट रील है",
+    "descripcionDelReel": "रील का विवरण",
+    "portadaDesdeGaleria": "गैलरी से कवर",
+    "anadirUbicacion": "स्थान जोड़ना...",
+    "reelPublicado": "रील प्रकाशित हो गई!"
+  },
+  "create_story": {
+    "ecologicoEu": "यूरोपीय संघ पारिस्थितिक",
+    "anadeContenidoATuHistoria": "अपनी कहानी में सामग्री जोड़ें",
+    "errorAlExportarLaHistoria": "इतिहास निर्यात करने में त्रुटि",
+    "errorAlPublicarLaHistoria": "कहानी प्रकाशित करने में त्रुटि",
+    "historiaPublicada": "कहानी प्रकाशित हो गई!",
+    "tienesUnBorradorDeStory": "आपके पास कहानी का मसौदा है",
+    "arrastraAquiParaEliminar": "हटाने के लिए यहां खींचें",
+    "escribeAqui": "यहाँ लिखें...",
+    "textoParaLaHistoria": "इतिहास के लिए पाठ",
+    "quePrefieres": "आप क्या करना चाहते हैं?",
+    "opcion1": "विकल्प 1",
+    "opcion2": "विकल्प 2",
+    "anadirEncuesta": "सर्वेक्षण जोड़ें",
+    "anadirMencion": "उल्लेख जोड़ें",
+    "anadirEnlace": "लिंक जोड़ें",
+    "sevillaEspana": "सेविल, स्पेन",
+    "anadirUbicacion": "स्थान जोड़ना",
+    "anadirPregunta": "प्रश्न जोड़ें",
+    "buscarProductoParaEtiquetarEnLaHis": "इतिहास में टैग करने के लिए उत्पाद खोजें",
+    "buscaUnProductoDeTuCatalogoParaAn": "अपने कैटलॉग में से कोई उत्पाद ढूंढें और उसे इंटरैक्टिव स्टिकर के रूप में जोड़ें।"
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "जैविक जैतून का तेल",
+    "prediccion": "भविष्यवाणी",
+    "accedeATuRepresentanteDeVentasInte": "बाजार विश्लेषण के लिए अपने अंतरराष्ट्रीय बिक्री प्रतिनिधि से संपर्क करें।",
+    "errorAlContactarAlAgenteComercial": "बिक्री प्रतिनिधि से संपर्क करने में त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "tuRepresentanteDeVentasInternacional": "आपका एआई-संचालित अंतर्राष्ट्रीय बिक्री प्रतिनिधि",
+    "chatConElAgente": "एजेंट से चैट करें"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "अभी तक कोई डेटा उपलब्ध नहीं है",
+    "errorAlCargarAnaliticas": "एनालिटिक्स लोड करने में त्रुटि",
+    "compruebaTuConexionEIntentaloDeNue": "अपना इंटरनेट कनेक्शन जांचें और दोबारा प्रयास करें।",
+    "analitica": "एनालिटिक्स",
+    "productosMasVendidos": "सबसे ज्यादा बिकने वाले उत्पाद",
+    "deDondeVienenTusVentas": "आपकी बिक्री का स्रोत क्या है?",
+    "seguidoresDeLaTienda": "स्टोर फॉलोअर्स",
+    "tasaDeConversion": "रूपांतरण दर",
+    "anadidosAlCarrito": "कार्ट में जोड़ा गया"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "ट्रैकिंग नंबर दर्ज करें",
+    "urlDeTrackingNoValidaDebeEmpezar": "अमान्य ट्रैकिंग यूआरएल। यह http:// या https:// से शुरू होना चाहिए।",
+    "envioRegistrado": "पंजीकृत शिपिंग",
+    "errorAlRegistrarElEnvio": "शिपमेंट को पंजीकृत करने में त्रुटि",
+    "numeroDeTracking": "ट्रैकिंग नंबर",
+    "introduceUnPrecioValidoPorUnidad": "प्रति यूनिट मान्य मूल्य दर्ज करें",
+    "plazoDias": "समय सीमा (दिनों में)",
+    "ejStockDisponibleMinimo100kgPorP": "उदाहरण: स्टॉक उपलब्ध है। प्रति ऑर्डर न्यूनतम 100 किलोग्राम।",
+    "ofertaEnviadaEsperandoAprobacionYP": "प्रस्ताव भेज दिया गया है। आयातकर्ता से अनुमोदन और भुगतान की प्रतीक्षा है।",
+    "gestionaLasSolicitudesB2bDeImportad": "आयातकों से प्राप्त बी2बी अनुरोधों का प्रबंधन करें",
+    "activaElModoB2bEnTusProductosPara": "अनुरोध प्राप्त करने के लिए अपने उत्पादों पर बी2बी मोड सक्रिय करें।"
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "समीक्षा लंबित है",
+    "pdfJpgPngMax5mb": "पीडीएफ, जेपीजी, पीएनजी (अधिकतम 5 एमबी)",
+    "100OrganicoSinPesticidasCosechaM": "100% जैविक, कीटनाशक रहित, हाथ से काटी गई फसल...",
+    "aceitunasEspanaJaen10salPortug": "जैतून: स्पेन (जैएन) → नमक: पुर्तगाल →..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "ऑनबोर्डिंग शुरू नहीं हो सकी",
+    "configuraTuCuentaParaRecibirTransfe": "स्वचालित धन हस्तांतरण प्राप्त करने के लिए अपना खाता सेट करें।",
+    "tuCuentaEstaListaParaRecibirPagos": "आपका खाता भुगतान प्राप्त करने के लिए तैयार है।",
+    "completaLosDatosEnStripeParaActiva": "भुगतान और भुगतान प्रक्रिया को सक्रिय करने के लिए स्ट्राइप में दी गई जानकारी को पूरा करें।"
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "आपके कैटलॉग की खोज और रूपांतरण",
+    "conversionDesdeContenido": "सामग्री से रूपांतरण",
+    "sinDatosParaEstePeriodo": "इस अवधि के लिए कोई डेटा उपलब्ध नहीं है",
+    "todaviaNoHayRecetasConTusProductos": "आपके उत्पादों का उपयोग करके अभी तक कोई रेसिपी उपलब्ध नहीं है।",
+    "cuandoCreadoresCompartanRecetasUsand": "जब रचनाकार आपकी सामग्री का उपयोग करके व्यंजन साझा करेंगे, तो वे यहां दिखाई देंगे।"
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "आपको Stripe में अधूरी जानकारी पूरी करनी होगी।",
+    "recibirasTuPorcentajeDeCadaVentaAu": "आपको अपनी योजना के अनुसार प्रत्येक बिक्री का अपना निश्चित प्रतिशत स्वतः प्राप्त होगा।",
+    "completaLaVerificacionEnStripePara": "स्वचालित भुगतान सक्रिय करने के लिए स्ट्राइप पर सत्यापन प्रक्रिया पूरी करें।",
+    "completarVerificacion": "पूर्ण सत्यापन",
+    "noHayDatosSuficientesTodavia": "अभी पर्याप्त आंकड़े उपलब्ध नहीं हैं",
+    "noSePudieronCargarLasMetricasDelC": "कैटलॉग और स्टोर मेट्रिक्स लोड नहीं हो सके।",
+    "noSePudoCargarElResumenDePagos": "भुगतान सारांश लोड नहीं किया जा सका।",
+    "noSePudieronCargarLosDatosPrincipa": "मुख्य पैनल का डेटा लोड नहीं हो सका। कृपया पेज को रीफ़्रेश करें।",
+    "errorAlCargarDatosPorFavorRefres": "डेटा लोड करने में त्रुटि। कृपया पृष्ठ को रीफ़्रेश करें।",
+    "anadirNuevoProducto": "नया उत्पाद जोड़ें",
+    "verAnaliticas": "विश्लेषण देखें",
+    "metricasYPagos": "मैट्रिक्स और भुगतान",
+    "requierenTuAtencion": "उन्हें आपके ध्यान की आवश्यकता है",
+    "noPuedesPublicarProductosHastaCompl": "सत्यापन प्रक्रिया पूरी होने तक आप उत्पाद प्रकाशित नहीं कर सकते।",
+    "certificadoProximoACaducar": "प्रमाणपत्र की वैधता समाप्त होने वाली है",
+    "renuevaloParaNoInterrumpirTusVentas": "अपनी बिक्री में बाधा न आए, इसलिए इसे नवीनीकृत करें।",
+    "senalesDeDemanda": "मांग संकेत",
+    "ingredientesProductosYPiezasDeCont": "वे सामग्रियां, उत्पाद और सामग्री जिनमें खरीदारी की सबसे अधिक इच्छा होती है।",
+    "sinDatosTodavia": "अभी तक कोई डेटा उपलब्ध नहीं है।",
+    "productosMasEtiquetados": "अधिक लेबल वाले उत्पाद",
+    "aunNoHayConversionesAtribuidas": "अभी तक कोई भी रूपांतरण प्रमाणित नहीं हुआ है।",
+    "conversion": "परिवर्तन",
+    "cuentaYConfiguracion": "खाता और सेटिंग्स",
+    "cambiarContrasena": "पासवर्ड बदलें"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "अभी तक बिक्री के आंकड़े उपलब्ध नहीं हैं।",
+    "metodoDePagoActualizado": "भुगतान विधि अपडेट की गई",
+    "losPagosViaStripeSeProcesanAutomat": "स्ट्राइप के माध्यम से किए गए भुगतान हर 15 दिनों में स्वचालित रूप से संसाधित होते हैं।",
+    "metodoDeCobro": "भुगतान विधि",
+    "cobroAutomaticoCada15DiasDirectoA": "हर 15 दिन में सीधे आपके बैंक खाते में स्वचालित भुगतान।",
+    "solicitasElPagoYElEquipoLoTransfi": "आप भुगतान का अनुरोध करते हैं और टीम उसे आपके खाते में स्थानांतरित कर देती है।",
+    "guardarMetodo": "सेव विधि",
+    "errorAlCargarDatosDePagos": "भुगतान डेटा लोड करने में त्रुटि",
+    "noSePudoObtenerElEnlaceDeStripe": "स्ट्राइप लिंक प्राप्त नहीं किया जा सका",
+    "errorAlAbrirElDashboardDeStripe": "स्ट्राइप डैशबोर्ड खोलने में त्रुटि",
+    "retencionFiscalAplicada": "कर कटौती लागू",
+    "tusGananciasSeAcumulanPeroNecesita": "आपकी कमाई जमा होती रहती है, लेकिन स्वचालित हस्तांतरण प्राप्त करने के लिए आपको स्ट्राइप कनेक्ट की आवश्यकता होती है।",
+    "comoFuncionanLosPagos": "भुगतान कैसे काम करता है:",
+    "sobreTusGananciasNetasSegunTuConfi": "आपकी कर व्यवस्था के अनुसार आपकी शुद्ध आय पर।"
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "बुनियादी नियंत्रण पैनल",
+    "optimizacionDePreciosConIa": "एआई के साथ मूल्य अनुकूलन",
+    "comisionMasBaja": "कम कमीशन",
+    "suscripcionMarcadaParaCancelar": "सदस्यता रद्द करने के लिए चिह्नित की गई",
+    "suscripcionReactivada": "सदस्यता पुनः सक्रिय हो गई",
+    "eligeElPlanQueMejorSeAdapteATuN": "वह योजना चुनें जो आपके व्यवसाय के लिए सबसे उपयुक्त हो।",
+    "periodoDePruebaActivo": "सक्रिय परीक्षण अवधि",
+    "actualizaTuMetodoDePagoParaMantene": "अपनी योजना को जारी रखने के लिए अपनी भुगतान विधि को अपडेट करें।",
+    "cancelacionProgramada": "निर्धारित रद्दकरण",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "वर्तमान अवधि के अंत में आपकी योजना रद्द कर दी जाएगी।",
+    "detallesDeSuscripcion": "सदस्यता विवरण",
+    "cancelarSuscripcion": "सदस्यता रद्द करें",
+    "todosLosPreciosSonEnEurEIncluyen": "सभी कीमतें यूरो में हैं और इनमें वैट शामिल है। योजना में किए गए बदलाव तुरंत प्रभावी होंगे।",
+    "alCancelarMantienesElAccesoHastaE": "रद्द करने पर भी, आपको बिलिंग अवधि के अंत तक पहुंच प्राप्त रहेगी।"
+  },
+  "producer_products": {
+    "composicion": "संघटन",
+    "elNombreDelProductoEsObligatorio": "उत्पाद का नाम आवश्यक है",
+    "seleccionaUnaCategoria": "एक श्रेणी चुनें",
+    "seleccionaElPaisDeOrigen": "मूल देश का चयन करें",
+    "crustaceos": "क्रसटेशियन",
+    "frutosDeCascara": "पागल",
+    "anadeAlMenosUnaImagen": "कम से कम एक छवि जोड़ें",
+    "subeHasta5FotosDeTuProductoLaPr": "अपने उत्पाद की अधिकतम 5 तस्वीरें अपलोड करें। पहली तस्वीर कवर फोटो होगी।",
+    "pedidoMinimoUds": "न्यूनतम ऑर्डर (इकाइयाँ)",
+    "especificaOtrosAlergenos": "अन्य एलर्जी कारकों का उल्लेख करें..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "शिपिंग नीति लोड नहीं हो सकी",
+    "politicaDeEnvioGuardada": "शिपिंग नीति सहेजी गई",
+    "politicaDeEnvio": "शिपिंग नीति",
+    "configuraCostesDeEnvioPorPedidoPar": "अपने उत्पादों के लिए प्रति ऑर्डर शिपिंग लागत निर्धारित करें।",
+    "habilitarGastosDeEnvio": "शिपिंग लागत सक्षम करें",
+    "0SinEnvioGratis": "0 = कोई निःशुल्क शिपिंग नहीं",
+    "pedidosQueSuperenEsteImporteTendran": "इस राशि से अधिक के ऑर्डर पर मुफ़्त शिपिंग होगी। इसे खाली छोड़ दें या इसे निष्क्रिय करने के लिए 0 पर सेट करें।",
+    "losClientesPuedenRecogerEnTuObrado": "ग्राहक अपना ऑर्डर आपकी वर्कशॉप से ले सकते हैं (शिपिंग शुल्क लागू होगा)।"
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "छवि गैलरी में जोड़ दी गई है",
+    "anadirFotoALaGaleria": "गैलरी में फ़ोटो जोड़ें",
+    "fotosDelObradorEquipoProcesoDeEl": "कार्यशाला, उपकरण और उत्पादन प्रक्रिया की तस्वीरें",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "यह स्टोर यूआरएल पहले से ही उपयोग में है। कृपया कोई दूसरा यूआरएल चुनें।",
+    "errorAlCargarElPerfilDeTienda": "स्टोर प्रोफ़ाइल लोड करने में त्रुटि",
+    "compruebaTuConexionEIntentaloDeNue": "अपना इंटरनेट कनेक्शन जांचें और दोबारा प्रयास करें।",
+    "personalizaLaPaginaPublicaDeTuTien": "अपने स्टोर के सार्वजनिक पृष्ठ को अनुकूलित करें",
+    "urlDeTuTienda": "आपके स्टोर का यूआरएल:",
+    "informacionBasica": "मूल जानकारी",
+    "nombreDeLaTienda": "स्टोर नाम",
+    "aceitesEcologicosDesde1985": "1985 से जैविक तेल",
+    "historiaDeLaMarca": "ब्रांड का इतिहास",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "अपने ब्रांड की कहानी बताएं, आपने कैसे शुरुआत की, आपका दर्शन क्या है...",
+    "carlosMartinez": "कार्लोस मार्टिनेज़",
+    "laCalidadNoEsUnAccidente": "गुणवत्ता संयोग से नहीं मिलती...",
+    "tusCertificadosVerificadosAparecenAu": "आपके सत्यापित प्रमाणपत्र स्वचालित रूप से आपके स्टोर में दिखाई देंगे।",
+    "ubicacionCiudadRegion": "स्थान (शहर, क्षेत्र)",
+    "jaenAndaluciaEspana": "जैंन, अंडालूसिया, स्पेन",
+    "direccionCompleta": "पूरा पता",
+    "ctraDeLosOlivaresKm1223001Jaen": "सीटीआरए. डे लॉस ओलिवारेस, किमी 12, 23001 जेन",
+    "todaEspanaPeninsular": "स्पेन की मुख्य भूमि का पूरा हिस्सा",
+    "horarioDeAtencion": "काम करने के घंटे",
+    "lun-vie900-180010sab900-1400": "सोम-शुक्र: 9:00-18:00&#10;शनि: 9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "सुविधा",
+    "errorAlSubirElDocumentoCifnif": "CIF/NIF दस्तावेज़ अपलोड करने में त्रुटि",
+    "errorAlSubirLaFotoDeInstalaciones": "सुविधाओं की तस्वीर अपलोड करने में त्रुटि हुई।",
+    "errorAlSubirElCertificado": "प्रमाणपत्र अपलोड करने में त्रुटि",
+    "verificacionDeCuenta": "खाता सत्यापन",
+    "subeTuCifEmpresarialONifPersonal": "अपने व्यवसाय का सीआईएफ या व्यक्तिगत एनआईएफ अपलोड करें। यह स्पेनिश कर एजेंसी (एईएटी) का आधिकारिक दस्तावेज होना चाहिए।",
+    "pdfJpgPng·Max5mb": "पीडीएफ, जेपीजी, पीएनजी · अधिकतम 5 एमबी",
+    "enRevisionManual": "मैन्युअल समीक्षा के तहत",
+    "nuestroEquipoRevisaraTuDocumentoEn": "हमारी टीम 48-72 कार्य घंटों के भीतर आपके दस्तावेज़ की समीक्षा करेगी।",
+    "fotoDeInstalacion": "स्थापना की तस्वीर",
+    "subeUnaFotoDeTuLocalObradorFinc": "अपने परिसर, कार्यशाला, खेत, गोदाम या कार्यस्थल की एक तस्वीर अपलोड करें।",
+    "laIaVerificaraQueEsUnaInstalacion": "एआई यह सत्यापित करेगा कि यह खाद्य उत्पादन से संबंधित एक वास्तविक सुविधा है।",
+    "jpgPngHeic·Max10mb": "जेपीजी, पीएनजी, एचईआईसी · अधिकतम 10 एमबी",
+    "instalacionVerificada": "स्थापना सत्यापित हो गई",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "हमारी टीम 48-72 कार्य घंटों के भीतर आपकी तस्वीर की समीक्षा करेगी।",
+    "alMenos1CertificadoValido": "कम से कम 1 वैध प्रमाणपत्र",
+    "enRevision": "समीक्षा के अंतर्गत",
+    "nuestroEquipoRevisaraTuDocumentacion": "हमारी टीम 48-72 कार्य घंटों के भीतर आपके दस्तावेज़ों की समीक्षा करेगी। हम आपको ईमेल द्वारा सूचित करेंगे।",
+    "completaLaVerificacion": "सत्यापन पूरा करें"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "बाजार के अनुसार सक्रियण नियम:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "पैक के सभी फ़ील्ड में मान्य मान भरें"
+  },
+  "affiliate_links": {
+    "copiado": "कॉपी हो गया!",
+    "configuracionFiscalRequerida": "आवश्यक कर विन्यास",
+    "generaUnLinkParaCualquierProducto": "किसी भी उत्पाद के लिए लिंक बनाएं। जब कोई आपके लिंक के माध्यम से खरीदारी करता है, तो आपको कमीशन मिलता है।",
+    "masIngresos": "अधिक आय",
+    "masClics": "अधिक क्लिक",
+    "buscaUnProductoArribaParaGenerarTu": "अपना पहला लिंक जनरेट करने के लिए ऊपर दिए गए उत्पाद को खोजें।"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "प्रतिधारण के बिना",
+    "seleccionaUnPaisDeResidenciaFiscal": "सबसे पहले कर निवास के देश का चयन करें",
+    "elArchivoNoPuedeSuperar5mb": "फ़ाइल का आकार 5MB से अधिक नहीं हो सकता।",
+    "certificadoEnRevisionManual": "प्रमाणपत्र की मैन्युअल समीक्षा चल रही है।",
+    "certificadoNoValido": "अमान्य प्रमाणपत्र",
+    "formatoDeIbanNoValidoDebeEmpezar": "अमान्य आईबीएएन प्रारूप। देश कोड से शुरू होना चाहिए (उदाहरण के लिए, ES12...)",
+    "errorAlConfigurarMetodoDeCobro": "भुगतान विधि को कॉन्फ़िगर करने में त्रुटि",
+    "configuracionFiscal": "राजकोषीय विन्यास",
+    "paisFiscal": "कर देश",
+    "buscarPais": "देश खोजें...",
+    "pdfJpgOPng·Max5mb": "पीडीएफ, जेपीजी या पीएनजी · अधिकतम 5 एमबी",
+    "nuestroEquipoRevisaraTuCertificadoE": "हमारी टीम 48-72 कार्य घंटों के भीतर आपके प्रमाणपत्र की समीक्षा करेगी।",
+    "recibeEnMinutosEnTuCuentaStripe": "इसे कुछ ही मिनटों में अपने स्ट्राइप खाते में प्राप्त करें।",
+    "fee025€PorTransferenciaStripeSe": "शुल्क: प्रति स्ट्राइप ट्रांसफर €0.25 (आपके कमीशन से काटा जाएगा)",
+    "sinComisionAdicional·ProcesadoEn1-": "कोई अतिरिक्त शुल्क नहीं · 1-3 कार्य दिवसों में प्रक्रिया पूरी हो जाएगी",
+    "titularDeLaCuenta": "खाताधारक",
+    "verificacionCompletada": "सत्यापन पूरा हुआ",
+    "tuConfiguracionFiscalEstaVerificada": "आपकी कर संबंधी सेटिंग्स सत्यापित और सक्रिय हैं।",
+    "verificacionCompletadaAfiliadosActiv": "सत्यापन पूर्ण हो गया। संबद्ध सदस्य सक्रिय हो गए।",
+    "errorAlCompletarLaVerificacion": "सत्यापन पूरा करने में त्रुटि।",
+    "completaLosPasosAnterioresParaAcced": "सत्यापन प्रक्रिया शुरू करने के लिए ऊपर दिए गए चरणों को पूरा करें।",
+    "configuracionFiscalGuardadaAfiliados": "कर संबंधी सेटिंग्स सहेज ली गईं। संबद्ध सेवाएं सक्रिय कर दी गईं।",
+    "errorAlGuardarLaConfiguracionFiscal": "कर संबंधी सेटिंग्स सहेजने में त्रुटि।",
+    "completaTodosLosCamposParaContinuar": "जारी रखने के लिए सभी फ़ील्ड भरें"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "निकासी प्रक्रिया में त्रुटि",
+    "introduceElCodigoDe6Digitos": "6 अंकों का कोड दर्ज करें",
+    "emailVerificado": "ईमेल सत्यापित हो गया!",
+    "codigoInvalido": "अवैध कोड",
+    "codigoEnviadoATuEmail": "कोड आपके ईमेल पर भेजा गया है",
+    "errorAlEnviarCodigo": "कोड भेजने में त्रुटि",
+    "elCodigoDebeTenerAlMenos3Caracter": "कोड कम से कम 3 अक्षरों का होना चाहिए।",
+    "codigoCreado": "कोड बनाया गया",
+    "errorAlCrearCodigo": "कोड बनाने में त्रुटि",
+    "codigosDeDescuento": "छूट कोड",
+    "eligeUnCodigoPersonalizadoYElPorce": "अपने समुदाय के लिए एक कस्टम कोड और छूट प्रतिशत चुनें।",
+    "codigoCopiado": "कॉपी किया गया कोड",
+    "misCodigosDeDescuento": "मेरे डिस्काउंट कोड",
+    "creaTuPrimerCodigoDeDescuento": "अपना पहला डिस्काउंट कोड बनाएं",
+    "pendiente15Dias": "15 दिन लंबित",
+    "enTransito": "यात्रा में",
+    "productosQueMejorFuncionanEnTuCont": "वे उत्पाद जो आपकी सामग्री के लिए सबसे उपयुक्त हैं",
+    "publicaContenidoConProductosVinculad": "बेहतर प्रदर्शन देखने के लिए लिंक किए गए उत्पादों के साथ सामग्री प्रकाशित करें।",
+    "pendienteDeAprobacion": "लंबित अनुमोदन",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "आपके कोड की समीक्षा हिस्पलोशॉप टीम द्वारा की जा रही है। हम इसे 24 घंटे से भी कम समय में स्वीकृत कर देंगे।",
+    "miCodigoHispaloshop": "मेरा हिस्पालोशॉप कोड",
+    "comisionTotal": "कुल कमीशन",
+    "tasaDeComision": "कमीशन दर",
+    "aunNoHasRealizadoNingunCobro": "आपको अभी तक कोई भुगतान प्राप्त नहीं हुआ है।",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL आपके कमीशन का 15% हिस्सा रोक लेता है और तिमाही आधार पर आपकी ओर से कर कार्यालय को भुगतान करता है (मॉडल 111)।",
+    "cuandoHagasTuDeclaracionDeLaRenta": "जब आप अपना आयकर रिटर्न (आईआरपीएफ) दाखिल करते हैं, तो वे कटौतियां पहले ही अदा हो चुकी होंगी और आप उन्हें कटौती के रूप में दिखा सकते हैं।",
+    "recibirasElCertificadoDeRetenciones": "आपको प्रत्येक वर्ष जनवरी में कर कटौती प्रमाणपत्र प्राप्त होगा।",
+    "evolucionDeTusComisiones": "आपके कमीशन का विकास",
+    "comparteloEnTusRedesSociales": "इसे अपने सोशल मीडिया पर शेयर करें",
+    "tuLinkDeAfiliado": "आपका संबद्ध लिंक",
+    "aunNoTienesVentasComparteTuLink": "अभी तक आपकी कोई बिक्री नहीं हुई है। अपना लिंक साझा करें!",
+    "configuracionFiscal": "कर विन्यास"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "ग्राफ प्रदर्शित करने के लिए अपर्याप्त डेटा",
+    "impactoComercialDeTuContenido": "आपकी सामग्री का व्यावसायिक प्रभाव",
+    "productosMasImpulsadosPorTuContenid": "आपके कंटेंट से सबसे ज्यादा प्रभावित होने वाले उत्पाद",
+    "errorDeConexion": "संपर्क त्रुटि",
+    "noPudimosCargarTusDatosCompruebaT": "हम आपका डेटा लोड नहीं कर पाए। कृपया अपना कनेक्शन जांचें और दोबारा प्रयास करें।",
+    "aunNoTienesDatos": "आपके पास अभी तक कोई डेटा नहीं है।",
+    "cuandoTuContenidoImpulseClicsOComp": "जब आपकी सामग्री पर क्लिक या खरीदारी होती है, तो वह यहां दिखाई देगी।",
+    "losDatosMuestranInteraccionesAtribui": "यह डेटा आपके क्रिएटर प्रोफाइल से संबंधित इंटरैक्शन दिखाता है: आपके कंटेंट में मौजूद प्रोडक्ट्स पर क्लिक, कार्ट में जोड़े गए आइटम और पूरी हुई खरीदारी। यह डेटा रियल टाइम में अपडेट होता रहता है।"
+  },
+  "payouts": {
+    "introduceUnImporteValido": "एक वैध राशि दर्ज करें",
+    "elImporteSuperaTuSaldoDisponible": "यह राशि आपके उपलब्ध बैलेंस से अधिक है।",
+    "errorAlSolicitarLaRetirada": "निकासी अनुरोध में त्रुटि",
+    "lasComisionesDeTransferenciaDeStrip": "स्ट्राइप की ट्रांसफर फीस (लगभग 1-2%) स्वचालित रूप से काट ली जाती है।",
+    "aunNoTienesPagosComparteTuCodigo": "आपको अभी तक कोई भुगतान प्राप्त नहीं हुआ है। अपना कोड साझा करें और कमाना शुरू करें।",
+    "noHayPagosConEsteEstado": "इस स्थिति में कोई भुगतान उपलब्ध नहीं है।"
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "लंबित कर विन्यास",
+    "completaTuConfiguracionFiscalAntesD": "पैसे निकालने से पहले अपनी टैक्स संबंधी सेटिंग्स पूरी कर लें।",
+    "errorAlProcesarElCobroIntentaloDe": "भुगतान प्रक्रिया में त्रुटि हुई है। कृपया पुनः प्रयास करें।",
+    "cobroEnCamino": "भुगतान जल्द ही भेजा जाएगा!",
+    "tiempoEstimado1-3DiasHabiles": "अनुमानित समय: 1-3 कार्य दिवस",
+    "retencionIrpf": "आयकर कटौती",
+    "metodo": "तरीका",
+    "comisionBruta": "सकल कमीशन",
+    "laComisionRealPuedeVariarSegunTuM": "आपके भुगतान के तरीके के आधार पर वास्तविक कमीशन भिन्न हो सकता है।",
+    "esteCobroSeraDeclaradoPorHispalosho": "इस भुगतान को हिस्पलोशॉप एसएल द्वारा आर्थिक गतिविधि से होने वाली आय के रूप में घोषित किया जाएगा।",
+    "recibirasUnCertificadoDeRetenciones": "आपको जनवरी में अपने टैक्स रिटर्न के लिए एक विदहोल्डिंग सर्टिफिकेट प्राप्त होगा।"
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "सभी श्रेणियाँ",
+    "carnicos": "मांस उत्पादों",
+    "errorAlEnviarLaSolicitud": "अनुरोध भेजने में त्रुटि",
+    "precioEstimado·ElProductorConfirmar": "अनुमानित कीमत · निर्माता अंतिम कीमत की पुष्टि करेगा",
+    "notasParaElProductorOpcional": "निर्माता के लिए टिप्पणियाँ (वैकल्पिक)",
+    "elProductorTiene48hParaConfirmarDi": "निर्माता के पास उपलब्धता और शर्तों की पुष्टि करने के लिए 48 घंटे का समय है।",
+    "soloSeProcesaElPagoTrasSuConfirma": "भुगतान की प्रक्रिया पुष्टि होने के बाद ही पूरी की जाती है।",
+    "catalogoMayorista": "थोक सूची",
+    "errorAlCargarElCatalogo": "कैटलॉग लोड करने में त्रुटि"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "उनके प्रमाणपत्र देखने के लिए प्रदाता का चयन करें",
+    "errorAlCargarLosCertificados": "प्रमाणपत्र लोड करने में त्रुटि",
+    "losCertificadosDeTusProveedoresApar": "आपके आपूर्तिकर्ताओं के प्रमाणपत्र यहां दिखाई देंगे।"
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "स्वचालित रूप से उत्पन्न बी2बी अनुबंध",
+    "errorAlCargarElPanel": "पैनल लोड करने में त्रुटि",
+    "aunNoTienesProductosPublicados": "अभी तक आपके पास कोई उत्पाद सूचीबद्ध नहीं है।",
+    "requierenTuAccion": "उन्हें आपकी कार्रवाई की आवश्यकता है",
+    "catalogoB2b": "बी2बी कैटलॉग",
+    "aunNoTienesProveedores": "आपके पास अभी तक कोई आपूर्तिकर्ता नहीं है।",
+    "expandeTuCatalogo": "अपने कैटलॉग का विस्तार करें",
+    "verAnalisis": "विश्लेषण देखें",
+    "anadirProducto": "उत्पाद जोड़ें",
+    "analisis": "विश्लेषण",
+    "evolucionDeVentas": "बिक्री विकास"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "लेनदेन आईडी उपलब्ध नहीं है",
+    "recepcionConfirmada": "स्वागत की पुष्टि हो गई है",
+    "errorAlConfirmarRecepcion": "रसीद की पुष्टि करने में त्रुटि",
+    "idDePedidoNoDisponible": "ऑर्डर आईडी उपलब्ध नहीं है",
+    "rastrearEnvio": "शिपमेंट को ट्रैक करें",
+    "confirmarRecepcion": "प्राप्ति की पुष्टि"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "डिस्काउंट कोड लोड करने में त्रुटि",
+    "errorAlAprobarElCodigo": "कोड को स्वीकृत करने में त्रुटि",
+    "errorAlRechazarElCodigo": "कोड अस्वीकार करने में त्रुटि",
+    "codigoDeDescuentoActualizado": "डिस्काउंट कोड अपडेट किया गया",
+    "codigoDeDescuentoCreado": "डिस्काउंट कोड बनाया गया",
+    "errorAlGuardarCodigoDeDescuento": "डिस्काउंट कोड सेव करने में त्रुटि",
+    "codigoDeDescuentoEliminado": "डिस्काउंट कोड हटा दिया गया",
+    "errorAlEliminarCodigoDeDescuento": "डिस्काउंट कोड हटाने में त्रुटि",
+    "errorAlCambiarEstadoDelCodigo": "कोड स्थिति बदलने में त्रुटि",
+    "cargandoCodigosDeDescuento": "डिस्काउंट कोड लोड हो रहे हैं",
+    "gestionaCodigosPromocionalesEInfluen": "प्रमोशनल कोड और इन्फ्लुएंसरों को मैनेज करें",
+    "nuevoCodigo": "नया कोड",
+    "editarCodigoDeDescuento": "डिस्काउंट कोड संपादित करें",
+    "importeMinimoDelCarrito": "न्यूनतम कार्ट राशि",
+    "limiteDeUso": "उपयोग सीमा",
+    "actualizarCodigo": "कोड अपडेट करें",
+    "buscarCodigosDeDescuento": "डिस्काउंट कोड खोजें...",
+    "codigo": "कोड",
+    "noSeEncontraronCodigos": "कोई कोड नहीं मिला",
+    "codigosActivos": "सक्रिय कोड",
+    "totalDeCodigos": "कुल कोड"
+  },
+  "admin_fiscal": {
+    "revisionManual": "मैनुअल समीक्षा",
+    "errorAlProcesarLaRevision": "समीक्षा प्रक्रिया में त्रुटि",
+    "gestionFiscal": "वित्तीय प्रबंधन",
+    "pendientesRevision": "समीक्षा लंबित है",
+    "revisionManualPendiente": "मैन्युअल समीक्षा लंबित है"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "विकास डेटा लोड नहीं हो सका",
+    "errorAlCargarLosDatos": "डेटा लोड करने में त्रुटि",
+    "analisisDeConversionYDescubrimiento": "रूपांतरण विश्लेषण और खोज",
+    "conversionDirecta": "प्रत्यक्ष रूपांतरण",
+    "contenidoConMayorConversion": "उच्च रूपांतरण दर वाली सामग्री",
+    "titulo": "योग्यता",
+    "productosMasClicadosDesdeContenido": "कंटेंट से सबसे ज्यादा क्लिक किए गए उत्पाद",
+    "sobreLosDatosDeCrecimiento": "विकास आंकड़ों के संबंध में"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "इन्फ्लुएंसर विवरण लोड करने में त्रुटि",
+    "anadirInfluencer": "इन्फ्लुएंसर जोड़ें"
+  },
+  "admin_management": {
+    "paisAsignado": "निर्दिष्ट देश",
+    "elAdminSoloVeraAnalyticsDeEstePai": "एडमिन को केवल इसी देश के लिए एनालिटिक्स दिखाई देंगे। वैश्विक एक्सेस के लिए इसे खाली छोड़ दें।"
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "स्वास्थ्य संबंधी गलत जानकारी",
+    "claimsMedicos": "चिकित्सा दावे",
+    "razonIa": "रीज़न एआई",
+    "contenidoConfirmadoComoInfraccion": "सामग्री को उल्लंघन के रूप में पुष्टि की गई है",
+    "errorAlConfirmarLaModeracion": "मॉडरेशन की पुष्टि करने में त्रुटि",
+    "errorAlRestaurarElContenido": "सामग्री पुनर्स्थापित करने में त्रुटि",
+    "errorAlEscalarElContenido": "सामग्री को स्केल करने में त्रुटि",
+    "revisaElContenidoModeradoPorIa": "एआई द्वारा नियंत्रित सामग्री की समीक्षा करें"
+  },
+  "admin_orders": {
+    "articulos": "सामग्री"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "एडमिन पैनल लोड हो रहा है",
+    "noSePudieronCargarLasEstadisticas": "आंकड़े लोड नहीं हो सके",
+    "panelDeAdministracion": "प्रशासन पैनल",
+    "gestionDeTuMercadoEnUnaVista": "अपने बाज़ार को एक ही दृश्य में प्रबंधित करें",
+    "colaDeRevision": "समीक्षा कतार",
+    "moderacionDeContenido": "सामग्री मॉडरेशन",
+    "certificadosQueExpiranEn30Dias": "वे प्रमाणपत्र जिनकी वैधता 30 दिनों में समाप्त हो रही है",
+    "noHayCertificadosProximosAExpirar": "कोई भी प्रमाणपत्र जल्द ही समाप्त होने वाला नहीं है।",
+    "certificadosPendientesDeRevision": "प्रमाणपत्रों की समीक्षा लंबित है"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "बैंक लेनदेन संख्या"
+  },
+  "admin_products": {
+    "precioNoValido": "मूल्य मान्य नहीं है",
+    "checklistDeAprobacion": "अनुमोदन चेकलिस्ट",
+    "alMenos1FotoDelProducto": "उत्पाद की कम से कम 1 तस्वीर",
+    "descripcionCompletaMin20Caracteres": "पूर्ण विवरण (कम से कम 20 अक्षर)",
+    "paisDeOrigenIndicado": "उत्पत्ति देश इंगित किया गया है",
+    "alergenosRevisadosCampoPresente": "समीक्षा किए गए एलर्जेन (क्षेत्र में मौजूद)",
+    "marcaTodosLosItemsParaPoderAprobar": "अनुमोदन के लिए सभी मदों की जाँच करें"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "अमान्य ऑर्डर आईडी",
+    "errorAlProcesarElReembolso": "धनवापसी प्रक्रिया में त्रुटि",
+    "accionIrreversible": "अपरिवर्तनीय कार्रवाई",
+    "seProcesaraElReembolsoEnStripeYSe": "रिफंड की प्रक्रिया स्ट्राइप के माध्यम से की जाएगी और शुल्क स्वचालित रूप से समायोजित हो जाएगा।",
+    "gestionDeReembolsos": "धनवापसी प्रबंधन"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "समीक्षाएँ लोड करने में त्रुटि",
+    "resenaOculta": "छिपी हुई समीक्षा",
+    "resenaEliminada": "समीक्षा हटा दी गई",
+    "errorAlEliminarResena": "समीक्षा हटाने में त्रुटि",
+    "moderarResenasDeClientes": "ग्राहकों की समीक्षाएँ औसत दर्जे की हैं।",
+    "totalDeResenas": "कुल समीक्षाएँ",
+    "calificacionPromedio": "औसत श्रेणी",
+    "buscarResenas": "समीक्षाएँ खोजें...",
+    "calificacion": "योग्यता",
+    "noSeEncontraronResenas": "कोई समीक्षा नहीं मिली"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "समर्थन मामले लोड नहीं हो सके",
+    "noHayCasosDeSoporteConLosFiltros": "चयनित फ़िल्टरों के साथ कोई समर्थन मामले उपलब्ध नहीं हैं।"
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "प्रतिस्थापन का अनुरोध करें",
+    "resolucionManual": "मैन्युअल समाधान",
+    "noSePudoCargarElCaso": "केस लोड नहीं हो सका",
+    "noSePudoActualizarElEstado": "स्थिति अपडेट नहीं हो सकी",
+    "noSePudoActualizarLaPrioridad": "प्राथमिकता को अपडेट नहीं किया जा सका",
+    "noSePudoEnviarElMensaje": "संदेश भेजा नहीं जा सका।",
+    "accionAplicada": "कार्रवाई की",
+    "noSePudoAplicarLaAccion": "यह कार्रवाई लागू नहीं की जा सकी",
+    "conversacion": "बातचीत",
+    "sinMensajesAun": "अभी तक कोई संदेश नहीं आया है।",
+    "tuAdmin": "आप (प्रशासक)",
+    "unAgenteHumanoSeHaUnidoALaConver": "एक मानव प्रतिनिधि इस बातचीत में शामिल हो गया है।",
+    "esteCasoEstaCerradoNoSePuedenAna": "यह मामला बंद हो चुका है। अब इसमें कोई और संदेश नहीं जोड़ा जा सकता।",
+    "ultimaActualizacion": "नवीनतम अपडेट"
+  },
+  "admin_trust_safety": {
+    "enganoso": "गुमराह करने वाले",
+    "resena": "समीक्षा",
+    "noSePudoCargarLaColaDeModeracion": "मॉडरेशन कतार लोड नहीं हो सकी",
+    "accionAplicada": "कार्रवाई की",
+    "noSePudoAplicarLaAccion": "यह कार्रवाई लागू नहीं की जा सकी",
+    "colaVacia": "खाली कतार",
+    "noHayContenidoPendienteDeRevision": "समीक्षा के लिए कोई सामग्री लंबित नहीं है।",
+    "senales": "सिग्नल",
+    "noSePudieronCargarLosReportes": "रिपोर्ट लोड नहीं हो सकीं",
+    "noHayReportesConLosFiltrosSeleccio": "चयनित फ़िल्टरों से संबंधित कोई रिपोर्ट उपलब्ध नहीं है।",
+    "marcadosAutomaticamente": "स्वचालित रूप से चिह्नित",
+    "politicasDeLaPlataforma": "प्लेटफ़ॉर्म नीतियां",
+    "productosProhibidosArmasDrogasCon": "निषिद्ध उत्पाद: हथियार, मादक पदार्थ, अवैध सामग्री, नकली सामान।",
+    "resenasDebenSerAutenticasVerificad": "समीक्षाएँ: प्रामाणिक, सत्यापित और वास्तविक खरीदारी पर आधारित होनी चाहिए।",
+    "vendedoresResponsablesDeLaVeracidad": "विक्रेता: विवरण की सटीकता और खाद्य सुरक्षा के लिए जिम्मेदार हैं।",
+    "contenidoGeneradoPorUsuariosSujeto": "उपयोगकर्ता द्वारा निर्मित सामग्री: स्वचालित और मानवीय मॉडरेशन के अधीन।",
+    "colaDeModeracion": "मॉडरेशन कतार",
+    "moderacionReportesEIntegridadDeLa": "मॉडरेशन, रिपोर्टिंग और प्लेटफॉर्म की अखंडता।"
+  },
+  "admin_verification": {
+    "revision": "दोहराव",
+    "revisionManual": "मैनुअल समीक्षा",
+    "numero": "संख्या",
+    "descripcionIa": "एआई विवरण",
+    "rechazarVerificacion": "सत्यापन अस्वीकार करें",
+    "documentosProblematicos": "समस्याग्रस्त दस्तावेज़:",
+    "fotoDeInstalacionNoValida": "अमान्य इंस्टॉलेशन फोटो",
+    "solicitarDocumentacion": "अनुरोध दस्तावेज़",
+    "verificacionRechazada": "सत्यापन अस्वीकृत",
+    "revisionManualDeProductores": "निर्माताओं की नियमावली की समीक्षा"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "श्रेणी नाम",
+    "descripcionOpcional": "विवरण (वैकल्पिक)",
+    "errorAlCargarLasCategorias": "श्रेणियाँ लोड करने में त्रुटि",
+    "categoriaCreada": "श्रेणी बनाई गई",
+    "errorAlCrearLaCategoria": "श्रेणी बनाने में त्रुटि",
+    "categoriaActualizada": "अद्यतन श्रेणी",
+    "errorAlActualizarLaCategoria": "श्रेणी को अपडेट करने में त्रुटि",
+    "categoriaEliminada": "श्रेणी हटा दी गई",
+    "errorAlEliminarLaCategoria": "श्रेणी को हटाने में त्रुटि",
+    "nuevaCategoria": "नई श्रेणी",
+    "buscarCategorias": "खोज श्रेणियाँ...",
+    "noSeEncontraronCategorias": "कोई श्रेणियां नहीं मिलीं",
+    "sinDescripcion": "कोई विवरण नहीं"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "संदेश लोड नहीं हो सके।",
+    "canalDeEscalacionAbiertoUnSuperadm": "समस्या निवारण चैनल खुला है। आपका संदेश एक सुपरएडमिन को प्राप्त होगा।",
+    "errorAlAbrirEscalacion": "एस्केलेशन खोलने में त्रुटि",
+    "canalDeEscalacionPrivado": "निजी पर्वतारोहण चैनल",
+    "seleccionaUnaEscalacionParaVerLosM": "संदेश देखने के लिए एस्केलेशन का चयन करें।",
+    "usaEsteCanalParaReportarProblemasC": "गंभीर समस्याओं, अनसुलझे विवादों या उच्च स्तरीय हस्तक्षेप की आवश्यकता वाली स्थितियों की रिपोर्ट करने के लिए इस चैनल का उपयोग करें।",
+    "elMensajeEstaCifradoDeExtremoAExt": "यह संदेश डेटाबेस में एंड-टू-एंड एन्क्रिप्टेड है।",
+    "describeElProblemaOSituacionAEscal": "उस समस्या या स्थिति का वर्णन करें जिसे आगे बढ़ाना है...",
+    "abrirCanalDeEscalacion": "ओपन एस्केलेशन चैनल",
+    "sinMensajesTodavia": "अभी तक कोई संदेश नहीं"
+  },
+  "content_management": {
+    "sinExpiracion": "कोई समय समाप्ति नहीं"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "GDPR अनुरोध को संसाधित करने में त्रुटि",
+    "solicitudesDeDerechosDeUsuariosBajo": "GDPR के अंतर्गत उपयोगकर्ता अधिकारों के लिए अनुरोध। अधिकतम प्रतिक्रिया समय: 30 दिन।"
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "छवि संग्रहण",
+    "estadoDeServiciosYConfiguracionDel": "सेवा की स्थिति और पर्यावरण कॉन्फ़िगरेशन",
+    "informacionDelSistema": "व्यवस्था जानकारी"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "इनसाइट्स पैनल का डेटा लोड नहीं हो सका।",
+    "minimoDeUsuariosRequeridosParaMostr": "एकत्रित संवेदनशील डेटा प्रदर्शित करने के लिए आवश्यक उपयोगकर्ताओं की न्यूनतम संख्या",
+    "detectarObjetivosDieteticosYDeSalud": "आहार और स्वास्थ्य संबंधी लक्ष्यों की पहचान करें",
+    "noHayDatosDePaisesParaMostrar": "प्रदर्शित करने के लिए कोई देश डेटा उपलब्ध नहीं है।",
+    "noHayMetricasDeIaDisponibles": "कोई एआई मेट्रिक्स उपलब्ध नहीं हैं।",
+    "noHayDatosDeComplianceDisponibles": "अनुपालन संबंधी कोई डेटा उपलब्ध नहीं है।"
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "किसी देश को सक्रिय करें ताकि स्थानीय विक्रेता पंजीकरण कर सकें।"
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "उत्पादन में यह बदलाव लागू करने के लिए अपना सुपरएडमिन पासवर्ड दर्ज करें।",
+    "contrasenaSuperadmin": "सुपरएडमिन पासवर्ड",
+    "introduceTuContrasena": "अपना कूटशब्द भरें",
+    "configuracionActualizadaYGuardada": "सेटिंग्स अपडेट और सेव कर ली गईं",
+    "configuracionDePlanes": "योजना सेटिंग्स",
+    "losCambiosSeAplicanAutomaticamenteE": "स्ट्राइप में बदलाव अपने आप लागू हो जाएंगे। पुष्टि के लिए सुपरएडमिन पासवर्ड आवश्यक है।",
+    "comisionSobreElTotalDeVentaDespue": "कुल बिक्री पर कमीशन (शिपिंग और वैट के बाद)। यह प्लेटफॉर्म के मार्जिन से काटा जाता है।"
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "अवलोकन लोड नहीं हो सका",
+    "revisaLaConexionConElBackend": "बैकएंड से कनेक्शन की जांच करें।",
+    "sinDatosDeTendencia": "कोई रुझान डेटा उपलब्ध नहीं है",
+    "distribucionDePlanes": "योजना वितरण"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "बी2बी कैटलॉग लोड करने में त्रुटि",
+    "noSePudoCambiarElEstado": "राज्य को बदला नहीं जा सका",
+    "noTienesAccesoAEstaSeccion": "आपको इस अनुभाग तक पहुंच प्राप्त नहीं है",
+    "necesitasUnPerfilDeProductorOImpor": "बी2बी कैटलॉग तक पहुंचने के लिए आपको एक उत्पादक या आयातक प्रोफाइल की आवश्यकता है।",
+    "gestionaQueProductosOfrecesAlPorMa": "यह प्रबंधित करें कि आप थोक में कौन से उत्पाद और किन शर्तों के तहत बेचते हैं।",
+    "noTienesProductosEnElCatalogoB2b": "आपके बी2बी कैटलॉग में कोई उत्पाद नहीं है।",
+    "empiezaAnadiendoTuPrimerProductoMay": "सबसे पहले अपना पहला थोक उत्पाद जोड़ें।",
+    "anadirPrimerProducto": "पहला उत्पाद जोड़ें",
+    "anadirProductoAlCatalogoB2b": "उत्पाद को B2B कैटलॉग में जोड़ें"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "संदेश भेजकर बातचीत शुरू करें।",
+    "noTienesAccesoAEstaSeccion": "आपको इस अनुभाग तक पहुंच प्राप्त नहीं है",
+    "necesitasUnPerfilDeProductorOImpor": "बी2बी चैट तक पहुंचने के लिए आपको एक उत्पादक या आयातक प्रोफाइल की आवश्यकता है।"
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "ऑपरेशन लोड नहीं हो सका",
+    "noTienesAccesoAEstaSeccion": "आपको इस अनुभाग तक पहुंच प्राप्त नहीं है",
+    "necesitasUnPerfilDeProductorOImpor": "बी2बी अनुबंधों तक पहुंचने के लिए आपको उत्पादक या आयातक प्रोफ़ाइल की आवश्यकता होती है।",
+    "operacionNoEncontrada": "ऑपरेशन नहीं मिला",
+    "laOperacionSolicitadaNoExisteONoT": "अनुरोधित ऑपरेशन मौजूद नहीं है या आपके पास उस तक पहुंच नहीं है।",
+    "laIaEstaGenerandoElContrato": "एआई अनुबंध तैयार कर रहा है...",
+    "elContratoEstaTardandoMasDeLoEspe": "अनुबंध में उम्मीद से ज्यादा समय लग रहा है।",
+    "recibirasUnaNotificacionCuandoEsteL": "तैयार होने पर आपको एक सूचना प्राप्त होगी।",
+    "cartaDeCreditoPagoDividido": "साख पत्र (विभाजित भुगतान)",
+    "pagoA30Dias": "भुगतान 30 दिनों में देय है",
+    "pagoA60Dias": "भुगतान 60 दिनों में देय है",
+    "alFirmarConfirmasQueHasLeidoYAcep": "हस्ताक्षर करके आप पुष्टि करते हैं कि आपने अनुबंध की सभी शर्तें पढ़ ली हैं और उनसे सहमत हैं।",
+    "laFirmaQuedaRegistradaConFechaHor": "हस्ताक्षर को दिनांक, समय और आईपी पते के साथ रिकॉर्ड किया जाता है।",
+    "necesitasSubirTuFirmaDigitalAntesD": "अनुबंधों पर हस्ताक्षर करने से पहले आपको अपना डिजिटल हस्ताक्षर अपलोड करना होगा।"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "गलत दस्तावेज़ीकरण",
+    "maximo5Archivos": "अधिकतम 5 फ़ाइलें",
+    "errorAlAbrirLaDisputa": "विवाद खोलने में त्रुटि",
+    "antesDeAbrirUnaDisputaTeRecomenda": "विवाद शुरू करने से पहले, हम चैट में दूसरे पक्ष से बात करने की सलाह देते हैं।",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "यदि आप किसी समझौते पर नहीं पहुंच पाते हैं, तो हिस्पालोशॉप एडमिन 72 घंटों के भीतर मामले की समीक्षा करेगा।",
+    "describeDetalladamenteElProblemaMin": "समस्या का विस्तारपूर्वक वर्णन करें (कम से कम 50 अक्षर)...",
+    "max5Archivos10mbCadaUno": "अधिकतम 5 फाइलें, प्रत्येक 10MB की।",
+    "estaAccionNotificaraAlAdminDeHispa": "इस कार्रवाई से हिस्पालोशॉप एडमिन को सूचित किया जाएगा और इससे दूसरे पक्ष की प्रतिष्ठा प्रभावित हो सकती है।"
+  },
+  "b2_b_marketplace": {
+    "catalogo": "सूची",
+    "precioMasBajo": "सबसे कम कीमत",
+    "masProductos": "और उत्पाद",
+    "sinAccesoAlCatalogoB2b": "बी2बी कैटलॉग तक पहुंच उपलब्ध नहीं है",
+    "completaTuPerfilDeImportadorParaAc": "पहुँच प्राप्त करने के लिए अपनी आयातक प्रोफ़ाइल पूरी करें।",
+    "sinAccesoAlDirectorioDeProductores": "निर्माताओं की निर्देशिका तक पहुंच के बिना",
+    "indicaElProductorLosProductosYLa": "कृपया निर्माता, उत्पाद और मात्रा निर्दिष्ट करें। निर्माता को आपका अनुरोध प्राप्त होगा और वे आपको एक व्यक्तिगत प्रस्ताव भेज सकते हैं।"
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "साख पत्र",
+    "elCompradorAsumeTodosLosCostesDesd": "कारखाने से संबंधित सभी लागतें खरीदार द्वारा वहन की जाती हैं।",
+    "vendedorEntregaEnDestinoSinDescarga": "विक्रेता बिना माल उतारे ही सामान गंतव्य तक पहुंचा देता है।",
+    "indicaElPlazoMinimoDeEntrega": "न्यूनतम डिलीवरी समय बताएं",
+    "validezDias": "वैधता (दिनों में)",
+    "errorAlEnviarLaOferta": "प्रस्ताव भेजने में त्रुटि"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "बातचीत जारी है",
+    "noTienesAccesoAEstaSeccion": "आपको इस अनुभाग तक पहुंच प्राप्त नहीं है",
+    "necesitasUnPerfilDeProductorOImpor": "बी2बी संचालन तक पहुंचने के लिए आपको उत्पादक या आयातक प्रोफ़ाइल की आवश्यकता होती है।",
+    "errorAlCargarLasOperaciones": "संचालन लोड करने में त्रुटि"
+  },
+  "b2_b_payment": {
+    "net30Dias": "कुल 30 दिन",
+    "net60Dias": "कुल 60 दिन",
+    "cartaDeCredito": "साख पत्र",
+    "errorAlCargarLosDatosDePago": "भुगतान विवरण लोड करने में त्रुटि",
+    "noSePudoInicializarElPago": "भुगतान शुरू नहीं हो सका।",
+    "noTienesAccesoAEstaSeccion": "आपको इस अनुभाग तक पहुंच प्राप्त नहीं है",
+    "necesitasUnPerfilDeProductorOImpor": "बी2बी भुगतान तक पहुंचने के लिए आपको उत्पादक या आयातक प्रोफ़ाइल की आवश्यकता होती है।",
+    "esperandoElPagoDelComprador": "खरीदार से भुगतान की प्रतीक्षा है...",
+    "recibirasUnaNotificacionCuandoElPag": "भुगतान प्रक्रिया पूरी होने पर आपको एक सूचना प्राप्त होगी।",
+    "losFondosEstanRetenidosHastaQueSub": "शिपिंग संबंधी दस्तावेज अपलोड करने तक धनराशि रोक कर रखी जाएगी।",
+    "comisionHispaloshop3": "हिस्पालोशॉप आयोग (3%)"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "आपके उत्पादों में रुचि रखने वाले आयातकों से अनुरोध (आरएफक्यू)",
+    "historialDeTusSolicitudesDeCotizaci": "आपके थोक कोटेशन अनुरोधों का इतिहास",
+    "noSePudieronCargarLasSolicitudes": "अनुरोध लोड नहीं हो सके।",
+    "soloDisponibleParaCuentasDeProducto": "केवल निर्माता खातों के लिए उपलब्ध है",
+    "soloDisponibleParaCuentasDeImportad": "केवल आयातक खातों के लिए उपलब्ध है",
+    "noHasEnviadoSolicitudesAun": "आपने अभी तक कोई आवेदन नहीं भेजा है।",
+    "usaElMarketplaceB2bParaContactarPr": "उत्पादकों से संपर्क करने के लिए B2B मार्केटप्लेस का उपयोग करें।"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "ऑपरेशन लोड करने में त्रुटि",
+    "envioConfirmado": "शिपिंग की पुष्टि हो गई है",
+    "noSePudoConfirmarElEnvio": "शिपमेंट की पुष्टि नहीं हो सकी",
+    "operacionNoEncontrada": "ऑपरेशन नहीं मिला",
+    "noSePudoCargarLaOperacionSolicitad": "अनुरोधित ऑपरेशन लोड नहीं हो सका।",
+    "abrirChatDeLaOperacion": "ऑपरेशन के लिए चैट खोलें",
+    "confirmarEnvio": "शिपमेंट की पुष्टि करें",
+    "esperandoConfirmacionDeEnvioDelProd": "निर्माता से शिपमेंट की पुष्टि की प्रतीक्षा है",
+    "documentacion": "प्रलेखन",
+    "documentosNecesariosParaEstaOperacio": "इस प्रक्रिया के लिए आवश्यक दस्तावेज़",
+    "revisaLaDocumentacionPendienteAntes": "कृपया जमा करने से पहले सभी लंबित दस्तावेजों की समीक्षा कर लें।",
+    "proximamente": "जल्द ही",
+    "elCompradorRealizaraElPagoFinalTra": "खरीददार सामान की डिलीवरी के बाद अंतिम भुगतान करेगा।"
+  },
+  "customer_orders": {
+    "masAntiguos": "पुराने",
+    "errorAlCargarLosPedidos": "ऑर्डर लोड करने में त्रुटि",
+    "errorAlActualizarLosPedidos": "ऑर्डर अपडेट करने में त्रुटि",
+    "noHayPedidosEnEstaCategoria": "इस श्रेणी में कोई ऑर्डर नहीं है।",
+    "productosAnadidosAlCarrito": "उत्पाद कार्ट में जोड़ दिए गए",
+    "noSePudoRepetirElPedido": "आदेश दोहराया नहीं जा सका",
+    "cargarMasPedidos": "और ऑर्डर लोड करें"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "कुछ डेटा लोड नहीं हो सका। पुनः प्रयास करने के लिए नीचे की ओर स्वाइप करें।"
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "प्रोफ़ाइल लोड करने में त्रुटि",
+    "errorAlCargarLasDirecciones": "पते लोड करने में त्रुटि",
+    "generaUnCodigoDeDescuentoPersonaliz": "अपना खुद का डिस्काउंट कोड जनरेट करें।",
+    "tusSeguidoresObtienen10DeDescuento": "आपके फॉलोअर्स को 10% की छूट मिलेगी।",
+    "tuGanasEntre3Y7DeCadaVenta": "आपको प्रत्येक बिक्री पर 3% से 7% के बीच कमीशन मिलता है।",
+    "programaDeAfiliadosActivado": "एफिलिएट प्रोग्राम सक्रिय हो गया!",
+    "errorAlActivarElPrograma": "प्रोग्राम को सक्रिय करने में त्रुटि"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "अभी तक कोई संदेश नहीं आया है। आपको शीघ्र ही उत्तर प्राप्त होगा।",
+    "esteCasoEstaCerrado": "यह मामला बंद हो गया है।",
+    "noSePudoCargarTuHistorialDeSoport": "आपकी सहायता इतिहास लोड नहीं हो सका",
+    "noSePudoAbrirElCaso": "मामला खोला नहीं जा सका",
+    "historialDeTusCasosDeSoporteConHi": "हिस्पलोशॉप के साथ आपके सहायता मामलों का इतिहास।",
+    "noTienesNingunCasoDeSoporteAbierto": "आपके कोई लंबित सहायता मामले नहीं हैं। यदि आपको सहायता की आवश्यकता है, तो HI से संपर्क करें।"
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "उत्पाद कार्ट में जोड़ दिया गया है",
+    "errorAlAnadirAlCarrito": "कार्ट में जोड़ने में त्रुटि"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "ऑर्डर लोड करने में त्रुटि",
+    "resenaPublicada": "प्रकाशित समीक्षा",
+    "errorAlPublicarLaResena": "समीक्षा पोस्ट करने में त्रुटि",
+    "esteDocumentoNoEsUnaFacturaFiscal": "यह दस्तावेज़ कर चालान नहीं है।",
+    "noSePudoDescargarLaFactura": "इनवॉइस डाउनलोड नहीं हो सका।",
+    "elImporteSeReflejaraEnTuCuentaEn": "यह राशि 5-10 कार्य दिवसों के भीतर आपके खाते में दिखाई देगी।",
+    "seHaReembolsadoParteDelImporteATu": "राशि का कुछ हिस्सा आपके खाते में वापस कर दिया गया है।",
+    "elPagoNoSePudoProcesarIntentaloD": "आपका भुगतान संसाधित नहीं हो सका। कृपया पुनः प्रयास करें या सहायता टीम से संपर्क करें।",
+    "dejaUnaResena": "समीक्षा लिखें...",
+    "publicarResena": "समीक्षा प्रकाशित करें",
+    "resenaEnviadaGracias": "समीक्षा प्रस्तुत कर दी गई है। धन्यवाद!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "पासवर्ड अपडेट किया गया",
+    "contrasenaActualIncorrecta": "वर्तमान पासवर्ड गलत है",
+    "errorAlCambiarContrasena": "पासवर्ड बदलने में त्रुटि",
+    "tuCuentaUsaGoogleParaIniciarSesion": "आपका खाता Google के माध्यम से लॉग इन होता है। आपने कोई पासवर्ड सेट नहीं किया है।",
+    "puedesAnadirUnaAContinuacion": "आप नीचे एक जोड़ सकते हैं।",
+    "contrasenaActual": "वर्तमान पासवर्ड",
+    "nuevaContrasena": "नया पासवर्ड",
+    "repetirNuevaContrasena": "नया पासवर्ड दोहराएं",
+    "lasContrasenasNoCoinciden": "पासवर्ड मेल नहीं खाया",
+    "anadirContrasena": "पासवर्ड जोड़ें"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "उपयोगकर्ता नाम उपलब्ध नहीं है",
+    "urlNoValida": "असामान्य यूआरएल",
+    "esteNombreDeUsuarioNoEstaDisponibl": "यह उपयोगकर्ता नाम उपलब्ध नहीं है",
+    "elUsuarioDebeTenerAlMenos3Caracte": "उपयोगकर्ता नाम में कम से कम 3 अक्षर होने चाहिए।",
+    "biografia": "जीवनी",
+    "cuentanosSobreTi": "अपने बारे में हमें बताएं...",
+    "madridEspana": "मैड्रिड, स्पेन",
+    "informacionDeContacto": "संपर्क जानकारी",
+    "elEmailNoSePuedeCambiarDesdeAqui": "यहां से ईमेल पता नहीं बदला जा सकता।",
+    "nombreDeLaEmpresa": "कंपनी का नाम",
+    "descripcionDeLaTienda": "स्टोर का विवरण",
+    "describeTuTiendaTusProductosTuHi": "अपने स्टोर, अपने उत्पादों और अपनी कहानी का वर्णन करें...",
+    "maximo5Mb": "अधिकतम 5 एमबी",
+    "eseNombreDeUsuarioYaEstaEnUso": "यह उपयोगकर्ता नाम पहले से प्रयोग में है",
+    "elNombreDeUsuarioDebeTenerAlMenos": "उपयोगकर्ता नाम कम से कम 3 अक्षरों का होना चाहिए।",
+    "noSePudoGuardarIntentaloDeNuevo": "इसे सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।",
+    "min3Caracteres": "कम से कम 3 अक्षर",
+    "cuentanosAlgoSobreTi…": "अपने बारे में कुछ बताइए…",
+    "descripcionDeTienda": "स्टोर का विवरण"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "अनुरोध संसाधित करने में त्रुटि",
+    "cuandoAlguienQuieraSeguirteAparecer": "जब कोई आपको फॉलो करना चाहेगा, तो वह यहां दिखाई देगा।"
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "ऑर्डर की पुष्टि",
+    "actualizacionesDeEnvio": "शिपिंग अपडेट",
+    "solicitudesDeResena": "समीक्षा अनुरोध"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "आईबीएएन प्रारूप मान्य नहीं है",
+    "sinComision-2-3DiasLaborables": "कोई कमीशन नहीं - 2-3 कार्यदिवस",
+    "tuCuentaDeStripeConnectEstaActiva": "आपका स्ट्राइप कनेक्ट खाता सक्रिय है। भुगतान स्वचालित रूप से संसाधित किए जाते हैं।",
+    "conectaTuCuentaDeStripeParaRecibir": "सीधे भुगतान प्राप्त करने के लिए अपना स्ट्राइप खाता कनेक्ट करें। आपको स्ट्राइप सत्यापन प्रक्रिया पर रीडायरेक्ट किया जाएगा।",
+    "losPagosPorVentasDeProductosSePro": "उत्पाद बिक्री के लिए भुगतान स्ट्राइप कनेक्ट के माध्यम से स्वचालित रूप से संसाधित किए जाते हैं।",
+    "configuraTuCuentaDeStripeParaEmpez": "भुगतान प्राप्त करना शुरू करने के लिए अपना स्ट्राइप खाता सेट अप करें।"
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "बुनियादी स्टोर प्रोफ़ाइल",
+    "analiticasBasicas": "बुनियादी विश्लेषण",
+    "analiticasAvanzadas": "उन्नत विश्लेषण",
+    "generacionDeContratos": "अनुबंध निर्माण",
+    "errorAlAbrirFacturacion": "बिल खोलने में त्रुटि",
+    "errorAlCambiarDePlan": "योजना बदलने में त्रुटि",
+    "perderasLasFuncionalidadesPremiumAl": "बिलिंग अवधि समाप्त होने पर आप प्रीमियम सुविधाओं का लाभ नहीं उठा पाएंगे।"
+  },
+  "settings": {
+    "cuentaPublicaActivada": "सार्वजनिक खाता सक्रिय हो गया है",
+    "errorAlCambiarLaPrivacidad": "गोपनीयता सेटिंग्स बदलने में त्रुटि",
+    "sesionCerradaCambiadoAOtraCuenta": "सत्र समाप्त हो गया। दूसरे खाते पर स्विच कर लिया गया।",
+    "errorAlEliminarLaCuenta": "खाता हटाने में त्रुटि",
+    "paisEIdioma": "देश और भाषा",
+    "lasCuentasDeProductorSonSiemprePub": "प्रोड्यूसर अकाउंट हमेशा सार्वजनिक होते हैं।",
+    "planDeSuscripcion": "सदस्यता योजना",
+    "confirmarCierreDeSesion": "सत्र बंद होने की पुष्टि करें",
+    "tendrasQueVolverAIniciarSesionPara": "अपने खाते तक पहुंचने के लिए आपको दोबारा लॉग इन करना होगा।",
+    "confirmarEliminacionDeCuenta": "खाता हटाने की पुष्टि करें",
+    "estaAccionEsIrreversibleSeEliminar": "यह कार्रवाई अपरिवर्तनीय है। आपका सारा डेटा, ऑर्डर और सामग्री हटा दी जाएगी।",
+    "escribeTuEmailParaConfirmar": "पुष्टि करने के लिए अपना ईमेल दर्ज करें।",
+    "confirmaTuEmailParaEliminarLaCuent": "अपना खाता हटाने के लिए अपना ईमेल सत्यापित करें"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "सेव करने से पहले अपने हस्ताक्षर बना लें।",
+    "subeUnaImagenDeTuFirma": "अपने हस्ताक्षर की एक छवि अपलोड करें",
+    "configuraTuFirmaAntesDeGuardar": "सेव करने से पहले अपने हस्ताक्षर को कॉन्फ़िगर करें",
+    "errorAlProcesarLaFirmaExistente": "मौजूदा हस्ताक्षर को संसाधित करने में त्रुटि",
+    "errorAlGuardarLaFirma": "हस्ताक्षर सहेजने में त्रुटि",
+    "necesitasConfigurarTuFirmaParaPoder": "बी2बी अनुबंधों पर हस्ताक्षर करने के लिए आपको अपने हस्ताक्षर को कॉन्फ़िगर करना होगा।",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "आपके डिजिटल हस्ताक्षर स्वचालित रूप से उन बी2बी अनुबंधों पर लागू हो जाते हैं जो",
+    "laFirmaQuedaRegistradaConTimestamp": "हस्ताक्षर को टाइमस्टैम्प और SHA-256 हैश के साथ रिकॉर्ड किया जाता है।",
+    "seSuperpondraSobreLaFirmaEnLosCon": "इसे अनुबंधों पर हस्ताक्षर के ऊपर अंकित किया जाएगा।"
+  },
+  "role_onboarding": {
+    "omnivoro": "सर्वाहारी",
+    "paraRecomendarteLosMejoresProductos": "हम आपको सर्वोत्तम उत्पादों की अनुशंसा करेंगे। आप कई विकल्पों में से चुन सकते हैं।",
+    "tuFeedSePersonalizaraConSusProduct": "आपकी फ़ीड आपके उत्पादों और सामग्री के अनुसार वैयक्तिकृत की जाएगी।",
+    "escribeElNombreDeTuTienda": "अपनी दुकान का नाम लिखें",
+    "errorConectandoConStripeHazloDesde": "Stripe से कनेक्ट करने में त्रुटि। कृपया अपने डैशबोर्ड से कनेक्ट करें।",
+    "estoEsLoPrimeroQueVeranTusCliente": "यह पहली चीज है जो आपके ग्राहक देखेंगे।",
+    "anadirLogo": "लोगो जोड़ें",
+    "jpgPngOWebp·Maximo5mb": "जेपीजी, पीएनजी या वेबपी फॉर्मेट · अधिकतम 5 एमबी",
+    "nombreDeTuTienda": "आपके स्टोर का नाम",
+    "puedesAnadirMasDesdeTuPanelEsteP": "आप अपने डैशबोर्ड से और भी आइटम जोड़ सकते हैं। यह चरण वैकल्पिक है।",
+    "necesitamosVerificarTuIdentidadPara": "आपकी बिक्री की राशि को सुरक्षित रूप से आप तक पहुंचाने के लिए हमें आपकी पहचान सत्यापित करने की आवश्यकता है।",
+    "tusDatosBancariosNuncaPasanPorHisp": "आपकी बैंक संबंधी जानकारी कभी भी Hispaloshop के माध्यम से नहीं भेजी जाती है।",
+    "recibirasTusPagosAutomaticamente": "आपको आपका भुगतान स्वचालित रूप से प्राप्त हो जाएगा।",
+    "puedesHacerloMasTardeDesdeTuPanel": "आप इसे बाद में अपने डैशबोर्ड से कर सकते हैं।",
+    "loHareMasTarde": "मैं इसे बाद में कर लूँगा।",
+    "noSePudoObtenerTuCodigo": "आपका कोड प्राप्त नहीं हो सका।",
+    "apareceranEnTuPerfilCuandoAlguien": "ये आपके प्रोफाइल पर दिखाई देंगे। जब कोई इन्हें खरीदेगा, तो आपको कमीशन मिलेगा।",
+    "tusSeguidoresObtienenUn10DeDescue": "आपके फॉलोअर्स को उनकी पहली खरीदारी पर 10% की छूट मिलेगी। आपको जीवन भर कमीशन मिलेगा।",
+    "comoGanasDinero": "आप पैसे कैसे कमाते हैं:",
+    "cadaCompraQueHaganTeGeneraComision": "उनके द्वारा की गई प्रत्येक खरीदारी से आपको कमीशन मिलता है।",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "आपको स्वचालित रूप से आपके बैंक खाते में भुगतान प्राप्त हो जाएगा।",
+    "todoListo": "सभी कुछ तैयार है!",
+    "empiezaCompartiendoTuCodigoConTusS": "सबसे पहले अपना कोड अपने फॉलोअर्स के साथ शेयर करें।",
+    "veTusComisionesEnTiempoReal": "अपने कमीशन को वास्तविक समय में देखें",
+    "minimo20€TransferenciaAutomatica": "न्यूनतम €20, स्वचालित हस्तांतरण"
+  },
+  "chats": {
+    "colaboracion": "सहयोग",
+    "aunNoTienesMensajes": "आपके पास अभी तक कोई संदेश नहीं है।",
+    "empiezaUnaConversacionConProductores": "प्रोड्यूसर्स, इन्फ्लुएंसर्स और अन्य लोगों के साथ बातचीत शुरू करें",
+    "enviaMensajesPrivadosATiendasProdu": "HispaloShop समुदाय में मौजूद स्टोर, उत्पादकों और प्रभावशाली व्यक्तियों को निजी संदेश भेजें।"
+  },
+  "consumer_register": {
+    "datosBasicos": "मूल डेटा",
+    "errorAlCrearLaCuentaIntentaloDeN": "खाता बनाने में त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "completaTuRegistroEnPocosPasosYDe": "कुछ ही चरणों में अपना पंजीकरण पूरा करें और पंजीकरण समाप्त होने पर प्रारंभिक अनुकूलन तैयार रखें।"
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "भूमिका चयन पर वापस लौटें",
+    "esteFlujoYaEstaConectadoDePrincipi": "यह प्रक्रिया शुरू से अंत तक पहले से ही जुड़ी हुई है। फ़ोन और सोशल मीडिया की सुविधा बाद में जोड़ी जाएगी।",
+    "crearasTuCuentaYDespuesCompletaremo": "आप अपना खाता बनाएंगे और फिर हम आपकी प्राथमिकताएं पूरी कर देंगे।",
+    "googleAppleYTelefonoVolveranCuando": "गूगल, एप्पल और फोन तभी वापस आएंगे जब वे इस प्रवाह के समान विश्वसनीयता स्तर पर कनेक्ट हो जाएंगे।"
+  },
+  "step2_basic": {
+    "datosBasicos": "मूल डेटा",
+    "empezamosConTuInformacionEsencialPa": "हम खाता बनाने के लिए आपकी आवश्यक जानकारी से शुरुआत करेंगे।",
+    "maria": "मारिया",
+    "garciaLopez": "गार्सिया लोपेज़",
+    "creaUnaContrasenaSegura": "एक सुरक्षित पासवर्ड बनाएं",
+    "debesTenerAlMenos16Anos": "आपकी आयु कम से कम 16 वर्ष होनी चाहिए।",
+    "terminos": "शर्तें",
+    "politicaDePrivacidad": "गोपनीयता नीति"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "अपनी रुचियों को इस प्रकार समायोजित करें ताकि कैटलॉग और अनुशंसाओं को अधिक विवेकपूर्ण तरीके से देखा जा सके।",
+    "nosAyudaAMostrarProductoresYEnvios": "इससे हमें सबसे प्रासंगिक उत्पादकों और शिपमेंट को प्रदर्शित करने में मदद मिलती है।"
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "आपकी रुचियों और गतिविधियों के अनुरूप सुझाव।",
+    "loMasPopular": "सबसे लोकप्रिय",
+    "losProductosQueMasEstanComprandoOt": "वे उत्पाद जिन्हें अन्य उपयोगकर्ता सबसे अधिक खरीद रहे हैं।",
+    "ordenaPrimeroPorResenasYConfianza": "समीक्षाओं और भरोसे के आधार पर पहले क्रमबद्ध करें।",
+    "defineComoQuieresEmpezarAVerProduc": "यह परिभाषित करें कि आप उत्पादों को किस प्रकार देखना शुरू करना चाहते हैं और आप आमतौर पर कितनी बार खरीदारी करते हैं।"
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "अगला चरण आपकी ऑनबोर्डिंग प्रक्रिया को पूरा करना है ताकि फ़ीड, कैटलॉग और सुझाव अधिक सार्थक रूप से काम करना शुरू कर सकें।",
+    "cuandoTerminesElOnboardingTeEnsenar": "एक बार जब आप ऑनबोर्डिंग पूरी कर लेंगे, तो हम सबसे पहले आपको ऐसे प्रोड्यूसर, कैटेगरी और अकाउंट दिखाएंगे जो आपके लिए बेहतर उपयुक्त हों।"
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "बिचौलियों को अपना मुनाफा देना बंद करें",
+    "conectaConProductoresRealesSinInte": "असली निर्माताओं से जुड़ें। कोई बिचौलिए नहीं। कोई झूठ नहीं।"
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "हिस्पालोशॉप एक ऐसा बाजार है जहां भोजन का अपना एक इतिहास है।",
+    "unaPlataformaDondeCadaProductoTiene": "एक ऐसा मंच जहां हर उत्पाद का अपना चेहरा और अपनी कहानी होती है। खेत से लेकर आपकी मेज तक, बीच में कोई मध्यस्थ नहीं।",
+    "entreElProductorYTuPlatoHayUnaCa": "उत्पादक और आपकी थाली के बीच बिचौलियों की एक श्रृंखला होती है जो कीमत बढ़ाती है, गुणवत्ता को कम करती है और आपके द्वारा खाए जाने वाले भोजन के इतिहास को मिटा देती है।",
+    "conectamosAlQueProduceConElQueCom": "हम उत्पादक को उपभोक्ता से जोड़ते हैं।",
+    "hispaloshopEsUnaPlataformaDeSocial": "हिस्पालोशॉप एक सोशल कॉमर्स प्लेटफॉर्म है जहां कारीगर उत्पादक अपना खुद का स्टोर खोलते हैं, अपनी कहानी बताते हैं और सीधे अंतिम उपभोक्ता को बेचते हैं।"
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।",
+    "paraDudasSobreLaPlataformaColabora": "प्लेटफ़ॉर्म, सहयोग या प्रेस संबंधी पूछताछ के लिए।",
+    "respondemosEnMenosDe24Horas": "हम 24 घंटे से भी कम समय में जवाब देते हैं।",
+    "losProductoresGestionanElEnvioDirec": "शिपिंग का काम सीधे उत्पादक संभालते हैं। डिलीवरी का समय प्रत्येक उत्पादक और गंतव्य स्थान पर निर्भर करता है।",
+    "siHispaloshopSoportaMultiplesIdioma": "जी हां। हिस्पालोशॉप अंतरराष्ट्रीय बिक्री के लिए कई भाषाओं और मुद्राओं का समर्थन करता है।",
+    "paraCompradoresEsGratisProductores": "खरीदारों के लिए यह मुफ़्त है। निर्माताओं के लिए €0 से शुरू होने वाली योजनाएँ उपलब्ध हैं। इन्फ्लुएंसर कमीशन कमाते हैं।"
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "आयात करें, बेचें और विकास करें। वैश्विक उपभोक्ताओं, प्रभावशाली व्यक्तियों और उत्पादकों तक सीधी पहुंच। हिस्पालोशॉप पर आयातकों के लिए सभी लाभों का पता लगाएं।",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "आपका बी2सी और बी2बी स्टोर एक ही स्थान पर।",
+    "accedeAConsumidoresFinalesConectaC": "सीधे उपभोक्ताओं तक पहुंचें, स्थानीय प्रभावशाली लोगों से जुड़ें और किसी भी देश के उत्पादकों से सीधे खरीदारी करें। यह सब एक ही प्लेटफॉर्म से, बिना किसी बिचौलिए के संभव है।",
+    "vendeTusProductosImportadosDirectame": "अपने आयातित उत्पादों को बिचौलियों के बिना सीधे गंतव्य देश में उपभोक्ता को बेचें।",
+    "conectaYColaboraConInfluencersLocal": "अपने उत्पादों (प्रो और एलीट) को बढ़ावा देने के लिए स्थानीय प्रभावशाली व्यक्तियों से जुड़ें और उनके साथ सहयोग करें।",
+    "compraDirectamenteAProductoresDeCua": "किसी भी देश में उत्पादकों से सीधे, बिना किसी मध्यस्थ के, सीधे संपर्क के माध्यम से खरीदें।",
+    "panelDeGestionUnificado": "एकीकृत प्रबंधन पैनल",
+    "gestionaPedidosPagosLogisticaCert": "एक ही डैशबोर्ड से ऑर्डर, भुगतान, लॉजिस्टिक्स, प्रमाणपत्र और संचार का प्रबंधन करें।",
+    "soportePorChatInternoConAdminLocal": "सभी प्लान में स्थानीय एडमिन के साथ आंतरिक चैट सहायता और ईमेल सहायता उपलब्ध है।",
+    "todasLasFuncionesBasicasVenderB2c": "सभी बुनियादी कार्य, बी2सी बिक्री, उत्पाद प्रकाशन, क्यूआर प्रमाणपत्र, मानक समर्थन।",
+    "matchingConInfluencersDashboardAvan": "इंफ्लुएंसर मैचिंग, एडवांस्ड डैशबोर्ड, सेल्स एनालिटिक्स, प्रायोरिटी सपोर्ट।",
+    "todoLoAnteriorIaComercialAvanzada": "उपरोक्त सभी सुविधाओं के अलावा उन्नत बिजनेस एआई, अंतरराष्ट्रीय बाजार विश्लेषण, स्वचालित अनुबंध निर्माण और कम कमीशन की सुविधा भी उपलब्ध है।",
+    "colaboracionConInfluencersLocalesPr": "स्थानीय प्रभावशाली व्यक्तियों (पेशेवर और विशिष्ट) के साथ सहयोग",
+    "panelDeGestionPagosYLogisticaUnif": "एकीकृत प्रबंधन, भुगतान और लॉजिस्टिक्स पैनल",
+    "iaComercialAvanzadaYGeneracionDeCo": "उन्नत वाणिज्यिक एआई और अनुबंध निर्माण (एलीट)",
+    "importarYVenderNuncaFueTanFacil": "आयात और बिक्री करना अब पहले से कहीं अधिक आसान हो गया है।",
+    "creaTuCuentaDeImportador": "अपना आयातक खाता बनाएं",
+    "accedeAHerramientasDeIaYAnalitica": "एआई टूल्स और एडवांस्ड एनालिटिक्स तक पहुंच (प्रो और एलीट)",
+    "gestionaPagosLogisticaYCertificados": "एक ही डैशबोर्ड से भुगतान, लॉजिस्टिक्स और प्रमाणपत्रों का प्रबंधन करें।",
+    "soloCrearTuCuentaYSubirTusProduct": "बस अपना खाता बनाएं और अपने उत्पाद अपलोड करें।",
+    "siPuedesVenderAlConsumidorFinalY": "हां, आप अंतिम उपभोक्ता को सामान बेच सकते हैं और साथ ही बी2बी अवसरों का भी लाभ उठा सकते हैं।",
+    "siemprePorChatInternoYEmailConPr": "हमेशा आंतरिक चैट और ईमेल के माध्यम से, प्रो और एलीट सदस्यों को प्राथमिकता दी जाएगी।",
+    "daElSaltoAlCanalDigitalYAccedeA": "डिजिटल चैनल की ओर कदम बढ़ाएं और वैश्विक उपभोक्ताओं, प्रभावशाली व्यक्तियों और उत्पादकों तक पहुंचें।"
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "एक समुदाय बनाएं, ईमानदार निर्माताओं का समर्थन करें और अपने प्रयासों से सही मायने में कमाई करें। नियमित कमीशन, रचनात्मक स्वतंत्रता और प्रत्यक्ष समर्थन।",
+    "estoNoVaDeVenderPorVenderVaDeD": "यह सिर्फ बेचने के लिए नहीं है। यह ईमानदार उत्पादकों को पहचान दिलाने, अपने फॉलोअर्स को पौष्टिक भोजन उपलब्ध कराने और अपने प्रयासों से नियमित रूप से कमाई करने के बारे में है। यहां आपको स्वतंत्रता, समुदाय और सीधा समर्थन मिलता है। मैं बिल चानफू हूं, और मैंने यह आपके लिए बनाया है।",
+    "ganaMasDejaHuella": "अधिक कमाएँ, अपनी छाप छोड़ें",
+    "hercules": "अत्यंत बलवान आदमी",
+    "laMayoriaLlegaAqui": "उनमें से अधिकतर यहाँ पहुँचते हैं",
+    "comisionRecurrenteDurante18MesesPor": "प्रत्येक रेफर किए गए उपयोगकर्ता के लिए 18 महीनों तक आवर्ती कमीशन।",
+    "creaComunidadApoyaProductoresHonest1": "एक समुदाय बनाएं, ईमानदार उत्पादकों का समर्थन करें और अपने प्रयासों से सही मायने में कमाई करें। यहां आपको स्वतंत्रता और सीधा समर्थन मिलेगा। अगर आपको किसी भी चीज़ की ज़रूरत हो, तो बेझिझक संपर्क करें। मेरा नाम बिल चानफू है।"
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "अपने उत्पादन को विश्वभर के आयातकों और ग्राहकों से जोड़ें। अपनी पहुंच बढ़ाएं, अपने कैटलॉग को डिजिटाइज़ करें और नए व्यावसायिक अवसरों का लाभ उठाएं।",
+    "uneteALaPlataformaQueConectaProduc": "उस प्लेटफॉर्म से जुड़ें जो दुनिया भर में उत्पादकों को आयातकों और ग्राहकों से जोड़ता है। अपने कैटलॉग को डिजिटाइज़ करें और नए व्यावसायिक अवसरों का लाभ उठाएं।",
+    "registrateGratis": "मुफ्त में साइन अप",
+    "publicaTuCatalogo": "अपनी कैटलॉग प्रकाशित करें",
+    "accesoInmediatoAUnaRedGlobalDeImp": "सत्यापित आयातकों के वैश्विक नेटवर्क तक तत्काल पहुंच।",
+    "herramientasParaDestacarTuMarcaYPr": "अपने ब्रांड और उत्पादों को प्रदर्शित करने के लिए उपकरण।",
+    "opcionesDePromocionPremiumSegunTuP": "आपके प्लान के आधार पर प्रीमियम प्रमोशन विकल्प उपलब्ध हैं।",
+    "gestionEficienteDeContactosYOportun": "संपर्कों और अवसरों का कुशल प्रबंधन।",
+    "paraProductoresEnCrecimiento": "बढ़ते उत्पादकों के लिए",
+    "maximaVisibilidadYVentajas": "अधिकतम दृश्यता और लाभ",
+    "sinTarjetaDeCreditoParaEmpezar": "शुरू करने के लिए क्रेडिट कार्ड की आवश्यकता नहीं है",
+    "elRegistroEsGratuitoPuedesAcceder": "पंजीकरण निःशुल्क है। प्रीमियम प्लान के साथ आप उन्नत सुविधाओं का लाभ उठा सकते हैं।",
+    "puedesPublicarCualquierProductoQueC": "आप कोई भी ऐसा उत्पाद सूचीबद्ध कर सकते हैं जो हमारी नीतियों और गुणवत्ता मानकों को पूरा करता हो।",
+    "unaVezRegistradoPodrasContactarImp": "एक बार पंजीकरण हो जाने के बाद, आप सीधे प्लेटफॉर्म से आयातकों से संपर्क कर सकेंगे।",
+    "mayorVisibilidadAccesoPrioritarioA": "बेहतर दृश्यता, अवसरों तक प्राथमिकता के आधार पर पहुंच और आपके व्यवसाय को बढ़ावा देने के लिए विशेष उपकरण।",
+    "siPuedesVenderTantoAConsumidoresF": "हां, आप अंतिम उपभोक्ताओं, आयातकों और व्यवसायों, सभी को अपना उत्पाद बेच सकते हैं।",
+    "soportePersonalizadoRecursosEducativ": "अंतर्राष्ट्रीय व्यापार पर व्यक्तिगत सहायता, शैक्षिक संसाधन और सलाह।",
+    "uneteACientosDeProductoresQueYaEs": "उन सैकड़ों उत्पादकों से जुड़ें जो पहले से ही हिस्पलोशॉप के साथ आगे बढ़ रहे हैं।"
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop तीसरे पक्ष द्वारा बेचे जाने वाले उत्पादों की गुणवत्ता के लिए जिम्मेदार नहीं है, हालांकि हम प्लेटफॉर्म पर सभी उत्पादकों को सत्यापित करने के लिए सक्रिय रूप से काम करते हैं।"
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "अपने क्षेत्र के हस्तनिर्मित उत्पादों की खोज करें",
+    "basadoEnTusCompras": "आपकी खरीदारी के आधार पर",
+    "descubreRecetasMediterraneasConTusP": "अपने उत्पादों के साथ भूमध्यसागरीय व्यंजनों की खोज करें",
+    "aquiEstaTuResumenDeHoy": "आज का सारांश यहाँ दिया गया है।"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "उन्नत मेट्रिक्स फिलहाल उपलब्ध नहीं हैं।",
+    "noSePudoCargarElStockDeProductos": "अलर्ट के लिए उत्पाद स्टॉक लोड नहीं किया जा सका।",
+    "enPreparacion": "तैयारी में",
+    "anadeMasProductosParaAumentarTuVis": "अपनी दृश्यता बढ़ाने के लिए और अधिक उत्पाद जोड़ें।",
+    "anadirProducto": "उत्पाद जोड़ें",
+    "colaboraConInfluencersParaPromociona": "अपने उत्पादों को बढ़ावा देने के लिए प्रभावशाली लोगों के साथ सहयोग करें।",
+    "analisis": "विश्लेषण",
+    "resumenDeTuNegocio": "आपके व्यवसाय का सारांश",
+    "evolucionDeVentas": "बिक्री विकास"
+  },
+  "signed_documents": {
+    "documentoIntegro": "पूरा दस्तावेज़",
+    "elContratoNoHaSidoModificadoDesde": "इस अनुबंध पर हस्ताक्षर होने के बाद से इसमें कोई बदलाव नहीं किया गया है।",
+    "elHashDelDocumentoNoCoincideConEl": "दस्तावेज़ का हैश हस्ताक्षर करते समय दर्ज किए गए हैश से मेल नहीं खाता है। सहायता के लिए संपर्क करें।",
+    "noTienesContratosFirmadosTodavia": "आपके पास अभी तक कोई हस्ताक्षरित अनुबंध नहीं है।",
+    "lasFacturasEstaranDisponiblesProxima": "बिल जल्द ही उपलब्ध हो जाएंगे।"
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "नया सहयोग",
+    "elCosteCorreACargoDelProductor": "इसका खर्च निर्माता वहन करता है।",
+    "holaViTuContenidoYCreoQueEncajar": "हाय! मैंने आपकी सामग्री देखी और मुझे लगता है कि आप हमारे उत्पादों के लिए बिल्कुल उपयुक्त रहेंगे...",
+    "previewDeLaPropuesta": "प्रस्ताव का पूर्वावलोकन",
+    "propuestaDeColaboracion": "सहयोग प्रस्ताव",
+    "comisionEspecial": "विशेष आयोग",
+    "duracion": "अवधि"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "शॉपिंग असिस्टेंट का उपयोग करने के लिए कृपया लॉग इन करें।",
+    "loSientoHaOcurridoUnErrorPorFav": "क्षमा करें, कोई त्रुटि हुई है। कृपया पुनः प्रयास करें।",
+    "iniciaSesionParaUnaExperienciaPerso": "व्यक्तिगत अनुभव के लिए लॉग इन करें।",
+    "busquedasRapidas": "त्वरित खोज",
+    "recomendacionesBasadasEnCertificados": "उत्पाद प्रमाणपत्रों के आधार पर अनुशंसाएँ।"
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "हमने स्क्रीन खाली होने से बचा लिया है। आप होम स्क्रीन पर वापस जा सकते हैं या एप्लिकेशन को रीलोड कर सकते हैं।"
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "स्पष्ट स्रोत वाले तेल और ड्रेसिंग।",
+    "exploraElCatalogoDesdeCategoriasCla": "दृश्य अव्यवस्था से मुक्त, स्पष्ट श्रेणियों का उपयोग करके कैटलॉग को एक्सप्लोर करें।",
+    "productoLocalEImportadoYaDisponible": "अब स्पेन में स्थानीय और आयातित उत्पाद बिना किसी बढ़ा-चढ़ाकर बताई गई बातों या अनावश्यक श्रेणियों के उपलब्ध हैं।"
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "हमें इस श्रेणी में कोई उत्पाद नहीं मिला। कृपया दूसरी खोज का प्रयास करें।",
+    "anadeAlgunosProductosArtesanalesPara": "अपनी खरीदारी शुरू करने के लिए कुछ हस्तनिर्मित उत्पाद भी शामिल करें।",
+    "tusPedidosApareceranAquiCuandoReali": "जब आप पहली बार खरीदारी करेंगे तो आपके ऑर्डर यहां दिखाई देंगे।",
+    "sigueAMasProductoresEInfluencersPa": "यहां अन्य प्रोड्यूसर्स और इन्फ्लुएंसर्स को फॉलो करें और उनका कंटेंट देखें।",
+    "intentaConOtrosTerminosDeBusqueda": "अन्य खोज शब्दों का प्रयोग करें।",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "बाद में पुनः प्रयास करें या अपने खोज फ़िल्टर बदलें।"
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "एक अप्रत्याशित त्रुटि उत्पन्न हो गई है। कृपया पृष्ठ को रीफ़्रेश करने का प्रयास करें।"
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "अच्छी चीजें आपके अनुमान से कहीं अधिक करीब हैं।",
+    "descubrirCercaDeMi": "मेरे आस-पास खोजें",
+    "usaTuUbicacionActualOEscribeTuCod": "अपने वर्तमान स्थान का उपयोग करें या अपने पोस्टल कोड दर्ज करें ताकि आपको अपने सबसे नज़दीकी विकल्पों को प्राथमिकता दी जा सके।",
+    "buscandoTuUbicacion": "आपके स्थान की खोज की जा रही है..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "कोई विश्लेषणात्मक डेटा उपलब्ध नहीं है",
+    "analyticsDeTuCodigo": "आपके कोड का विश्लेषण",
+    "tuEnlaceDeReferido": "आपका रेफरल लिंक",
+    "comparteEsteEnlaceEnTusRedesCada": "इस लिंक को अपने सोशल नेटवर्क पर शेयर करें। हर विज़िट को स्वचालित रूप से ट्रैक किया जाएगा।",
+    "usosDelCodigo": "कोड के उपयोग",
+    "codigoAplicado": "लागू कोड",
+    "usosCodigo": "कोड उपयोग",
+    "comoFuncionanTusComisiones": "आपके कमीशन कैसे काम करते हैं",
+    "calculoDeTuComision": "अपना कमीशन कैलकुलेट करना:",
+    "tipsParaMejorarTusConversiones": "कन्वर्ज़न बढ़ाने के लिए सुझाव"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "चैट में साझा की गई छवि",
+    "noSePudoCargarLaImagen": "छवि लोड नहीं हो सकी",
+    "pegaUnEnlaceDeProductoOSuId": "उत्पाद का लिंक या उसकी आईडी पेस्ट करें।",
+    "pegaUnEnlaceDeRecetaOSuId": "किसी रेसिपी का लिंक या अपनी आईडी पेस्ट करें।",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Hispaloshop से किसी पोस्ट या रील का लिंक पेस्ट करें।",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "एक कॉम्पैक्ट कार्ड बनाने के लिए एक वैध हिस्पालोशॉप लिंक पेस्ट करें।",
+    "miembroDeLaComunidad": "समुदाय का सदस्य",
+    "pruebaConOtroNombreOCambiaElFiltr": "कोई दूसरा नाम आजमाएं या फ़िल्टर बदलें।",
+    "noSePudoEliminarElMensaje": "यह संदेश हटाया नहीं जा सका।",
+    "conversacionEliminada": "बातचीत हटा दी गई",
+    "errorAlEliminarLaConversacion": "वार्तालाप हटाने में त्रुटि",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "एक वैध हिस्पालोशॉप लिंक या आईडी पेस्ट करें।",
+    "noPudimosGenerarLaVistaPrevia": "हम पूर्वावलोकन उत्पन्न करने में असमर्थ थे।",
+    "noSePudoEnviarElMensaje": "संदेश भेजा नहीं जा सका।",
+    "laImagenNoPuedeSuperar5Mb": "छवि का आकार 5 एमबी से अधिक नहीं होना चाहिए।",
+    "elArchivoNoPuedeSuperar10Mb": "फाइल का आकार 10 एमबी से अधिक नहीं हो सकता।",
+    "errorAlSubirElDocumento": "दस्तावेज़ अपलोड करने में त्रुटि।",
+    "buscarConversacion": "बातचीत की तलाश में हूँ",
+    "empiezaUnChatNuevoDesdeElBotonSup": "ऊपर दिए गए बटन से एक नई चैट शुरू करें और इससे आपका इनबॉक्स काफी साफ-सुथरा रहेगा।",
+    "seleccionaUnaConversacionDelPanelIz": "बाएं पैनल से कोई बातचीत चुनें या कोई नई बातचीत शुरू करें।",
+    "llamadaDeVozProximamente": "वॉइस कॉल (जल्द ही उपलब्ध होगा)",
+    "videollamadaProximamente": "वीडियो कॉल (जल्द ही उपलब्ध होगा)",
+    "mensajesDeLaConversacion": "वार्तालाप संदेश",
+    "empiezaLaConversacion": "बातचीत शुरू करें",
+    "escribeElPrimerMensajeYMantenLaCo": "पहला संदेश लिखें और बातचीत को स्पष्ट संदर्भ में रखें।",
+    "vistaPreviaDeLaImagenAdjunta": "संलग्न छवि का पूर्वावलोकन"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "कुछ गलत हो गया।",
+    "noSePudoCargarEsteContenidoIntent": "यह सामग्री लोड नहीं हो सकी। कृपया पुनः प्रयास करें।"
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "बेसिक प्लान। कमीशन कम करने और टूल्स का उपयोग करने के लिए अपग्रेड करें।"
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "पोस्ट एडिटिंग अभी उपलब्ध नहीं है"
+  },
+  "product": {
+    "anadirAlCarrito": "कार्ट में जोड़ें"
+  },
+  "review": {
+    "valoracionEnviada": "रेटिंग सबमिट कर दी गई",
+    "errorAlEnviarValoracion": "रेटिंग सबमिट करने में त्रुटि",
+    "cuentanosTuExperiencia": "अपने अनुभव के बारे में बताएं...",
+    "enviarValoracion": "प्रतिक्रिया भेजें"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "सूचना बंद करें"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "मुझे एक आसान रेसिपी बताएं",
+    "ayudameConMiDieta": "कृपया मुझे मेरे आहार के बारे में बताएं।",
+    "tuCompaneroDeCompras": "आपका खरीदारी साथी",
+    "estoyAquiParaAyudarteAEncontrarLo": "मैं आपकी ज़रूरत की चीज़ें ढूंढने में आपकी मदद करने के लिए यहाँ हूँ।",
+    "preguntaleADavid": "डेविड से पूछो...",
+    "microfono": "माइक्रोफ़ोन"
+  },
+  "auth_diagnostic": {
+    "testConexion": "कनेक्शन का परीक्षण करें",
+    "elBackendRespondePeroElEndpointNo": "बैकएंड से प्रतिक्रिया तो मिलती है, लेकिन एंडपॉइंट मौजूद नहीं है।",
+    "laConexionFuncionaRevisaLosDetalle": "कनेक्शन सही से काम कर रहा है। कृपया ऊपर दिए गए विवरण देखें।"
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "प्रमाणीकरण परीक्षण शुरू हो रहे हैं...",
+    "sesionActiva": "सक्रिय सत्र:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "गलत या समाप्त हो चुका कोड",
+    "codigoIncorrecto": "गलत कोड़",
+    "codigoReenviadoATuEmail": "कोड आपके ईमेल पर भेज दिया गया है",
+    "noSePudoReenviarElCodigo": "कोड को दोबारा नहीं भेजा जा सका",
+    "maximoDeReenviosAlcanzadoRevisaTu": "अधिकतम फॉरवर्ड संदेशों की संख्या पूरी हो चुकी है। कृपया अपना स्पैम फोल्डर चेक करें।",
+    "reenviarCodigoDeVerificacion": "सत्यापन कोड पुनः भेजें"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "उत्पाद को B2B कैटलॉग से हटा दिया गया है",
+    "cantidadMinimaDePedidoMoq": "न्यूनतम ऑर्डर मात्रा (एमओक्यू)",
+    "descripcionMayorista": "थोक विवरण",
+    "maximoDeMuestrasPorSolicitud": "प्रति अनुरोध नमूनों की अधिकतम संख्या",
+    "publicarEnCatalogoB2b": "बी2बी कैटलॉग में प्रकाशित करें",
+    "quitarDelCatalogoB2b": "B2B कैटलॉग से हटाएँ"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "उत्पत्ति का देश (ES)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "न्यूनतम 1 इकाई",
+    "codigoDePaisDebeTener2Letras": "देश कोड में 2 अक्षर होने चाहिए",
+    "elMensajeDebeTenerAlMenos10Caract": "संदेश कम से कम 10 अक्षरों का होना चाहिए।",
+    "anadeAlMenosUnProducto": "कम से कम एक उत्पाद जोड़ें",
+    "noSePudoEnviarLaRfq": "आरएफक्यू भेजा नहीं जा सका।",
+    "nuevaSolicitudDeCotizacionRfq": "नई मूल्य निर्धारण अनुरोध (आरएफक्यू)",
+    "describeVolumenFormatosCertificacio": "मात्रा, प्रारूप, प्रमाणन या लॉजिस्टिक्स संबंधी आवश्यकताओं का वर्णन करें।"
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "आयात लाइसेंस, कर पंजीकरण और आरसी बीमा अपलोड करें"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "उत्पाद को कार्ट में जोड़ने में त्रुटि",
+    "anadirAlCarrito": "कार्ट में जोड़ें",
+    "productoAnadido": "उत्पाद जोड़ा गया",
+    "anadido": "जोड़ दिया गया!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "इस सत्र के सभी संदेश हटा दिए जाएंगे।"
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "बी2बी अनुरोध पर बातचीत चल रही है"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "शुभ प्रभात",
+    "tuCompaneroDeComprasYAlimentacion": "आपकी खरीदारी और भोजन का साथी",
+    "tuAsesorDeNegocioParaProductores": "उत्पादकों के लिए आपका व्यावसायिक सलाहकार",
+    "estrategiaDeExportacion": "निर्यात रणनीति",
+    "asistenteCreativoParaContenidoYCamp": "कंटेंट और कैंपेन के लिए क्रिएटिव असिस्टेंट",
+    "disenarUnaCampana": "एक अभियान तैयार करें",
+    "analisisDeMercadoInternacionalParaI": "आयातकों के लिए अंतर्राष्ट्रीय बाजार विश्लेषण",
+    "analisisDeMargenes": "मार्जिन विश्लेषण",
+    "noTienesAccesoAEsteModoActualiza": "आपको इस मोड का उपयोग करने की अनुमति नहीं है। कृपया अपना प्लान अपग्रेड करें।",
+    "elAsistenteNoEstaDisponibleAhoraI": "सहायक इस समय उपलब्ध नहीं है। कृपया पुनः प्रयास करें।"
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "अपने खाता तक पहुंच के लिए लॉगिन करें।"
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "मेरा कोड"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "आपके खाते की समीक्षा की जा रही है।"
+  },
+  "dashboard_header": {
+    "buenosDias": "शुभ प्रभात"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "यहां आप उत्पादकों, आयातकों और प्रभावशाली व्यक्तियों को फॉलो करके उनकी सामग्री देख सकते हैं।",
+    "estasAlDia": "आप अप-टू-डेट हैं"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "हिस्पालोशॉप में आपका सप्ताह",
+    "descubrirMas": "और ढूंढें",
+    "sigueProductoresParaVerSuContenido": "यहां उनके कंटेंट को देखने के लिए प्रोड्यूसर्स को फॉलो करें।"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "त्वरित पहुंच"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 लाइक!",
+    "alguienTeGuardo": "किसी ने आपकी जान बचाई!",
+    "50MeGusta": "50 लाइक!",
+    "7DiasSeguidos": "लगातार 7 दिन!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "उपयोगकर्ता का अनुसरण नहीं किया जा सका",
+    "seEliminaraPermanentementeJuntoConS": "इसे आपकी टिप्पणियों और पसंदों के साथ स्थायी रूप से हटा दिया जाएगा।",
+    "noSePudoDejarDeSeguir": "इसे देखना बंद करना नामुमकिन था",
+    "uneteALaConversacion": "बातचीत में शामिल हों...",
+    "progresoDelVideo": "वीडियो की प्रगति"
+  },
+  "stories_bar": {
+    "recetaDelDia": "आज की रेसिपी"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "कहानी की सामग्री",
+    "sinDatosDeVistasDisponibles": "कोई दृश्य डेटा उपलब्ध नहीं है",
+    "buscarConversacion": "बातचीत की तलाश में हूँ..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "उपयोगकर्ता का अनुसरण नहीं किया जा सका। कृपया पुनः प्रयास करें।"
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "फ़ाइलों को यहाँ खींचें या चुनने के लिए क्लिक करें"
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "खुली उपलब्धि!"
+  },
+  "application": {
+    "quienEres": "आप कौन हैं",
+    "confirmacion": "पुष्टीकरण",
+    "recomendadoParaLaMayoria": "अधिकांश लोगों के लिए अनुशंसित।",
+    "pideRevisionManualPrioritaria": "मैनुअल की प्राथमिकता के आधार पर समीक्षा का अनुरोध करें।",
+    "paraPerfilesConUnaComunidadMuyActi": "उन प्रोफाइलों के लिए जिनमें एक बहुत सक्रिय समुदाय है।",
+    "necesitamosSaberComoTeConocen": "हमें यह जानना जरूरी है कि लोग आपको कैसे जानते हैं।",
+    "tuEmailProfesionalEsObligatorio": "आपका पेशेवर ईमेल पता आवश्यक है।",
+    "eseEmailNoPareceValido": "वह ईमेल पता मान्य नहीं लगता।",
+    "tuInstagramPrincipalEsObligatorio": "आपका प्राथमिक इंस्टाग्राम अकाउंट आवश्यक है।",
+    "necesitamosUnaViaRealParaContactart": "हमें आपसे संपर्क करने का एक वास्तविक तरीका चाहिए।",
+    "seleccionaTuPais": "अपने देश का चयन करॊ।",
+    "eligeAlMenosUnNicho": "कम से कम एक विशिष्ट क्षेत्र चुनें।",
+    "seleccionaTuRangoDeSeguidores": "अपने फॉलोअर्स की संख्या चुनें।",
+    "seleccionaElPaisPrincipalDeTuAudie": "अपने दर्शकों के मुख्य देश का चयन करें।",
+    "cuentanosPorQueQuieresEntrar": "हमें बताएं कि आप क्यों जुड़ना चाहते हैं।",
+    "necesitamosAlMenos140CaracteresPara": "हमें अस्पष्ट संदेशों को छानने के लिए कम से कम 140 अक्षरों की आवश्यकता है।",
+    "eseEnlaceNoPareceValido": "वह लिंक मान्य नहीं प्रतीत होता है।",
+    "debesAceptarEstaCondicion": "आपको यह शर्त स्वीकार करनी होगी।",
+    "yaExisteUnaSolicitudOCuentaConEst": "इस ईमेल पते से पहले से ही एक अनुरोध या खाता मौजूद है।",
+    "noPudimosEnviarLaSolicitudIntental": "अनुरोध भेजने में असमर्थ रहे। कृपया पुनः प्रयास करें।",
+    "solicitarRevision": "समीक्षा का अनुरोध करें",
+    "aplicacionInfluencerHispaloshop": "हिस्पालोशॉप इन्फ्लुएंसर ऐप",
+    "formularioDeTresPasosParaAplicarAl": "हिस्पालोशॉप इन्फ्लुएंसर प्रोग्राम में आवेदन करने के लिए तीन चरणों वाला फॉर्म।",
+    "aplicacionReal": "वास्तविक दुनिया में अनुप्रयोग",
+    "noEsUnFormularioCorporativoEsTuP": "यह कोई कॉर्पोरेट फॉर्म नहीं है। यह आपका बाहर निकलने का रास्ता है।",
+    "tresPasosSinPagoSinHumoSiElige": "तीन चरण। कोई भुगतान नहीं। कोई झंझट नहीं। यदि आप हरक्यूलिस चुनते हैं, तो हम तुरंत सक्रियण शुरू कर देते हैं। यदि आप इसके लिए प्रयासरत हैं...",
+    "ateneaOZeusHacemosRevisionHumanaE": "एथेना हो या ज़्यूस, हम 24-48 घंटों में मानव समीक्षा करते हैं।",
+    "siTuVozEncajaConComidaWellnessL": "यदि आपकी राय भोजन, स्वास्थ्य, जीवनशैली या स्थिरता से संबंधित विषयों में फिट बैठती है।",
+    "siQuieresRecomendarCosasQueDeVerda": "यदि आप ऐसी चीजों की सिफारिश करना चाहते हैं जिनका आप वास्तव में उपयोग कर सकते हैं।",
+    "cadaCompraQueConectesSeQuedaAtribu": "आपके द्वारा की गई प्रत्येक खरीदारी 18 महीनों तक आपके नाम से ही दर्ज रहेगी। आपको इस सिस्टम का गुलाम बनने की जरूरत नहीं है।",
+    "siQuieresComprobarQueSoyRealAhiM": "अगर आप यह साबित करना चाहते हैं कि मैं असली हूं, तो मैं यहां हूं।",
+    "bienvenidoALaResistenciaRevisaTuE": "प्रतिरोध में आपका स्वागत है। अपने इन्फ्लुएंसर डैशबोर्ड तक पहुंचने के लिए अपना ईमेल देखें।",
+    "herculesEntraPorViaRapidaHemosMar": "हरक्यूलिस की प्रक्रिया को प्राथमिकता दी जा रही है। हमने आपकी प्रोफ़ाइल को तत्काल सक्रियण और अगले चरणों के लिए चिह्नित कर दिया है।",
+    "tuPerfilPasaARevisionHumanaSiApl": "अब आपकी प्रोफ़ाइल की मानवीय समीक्षा की जाएगी। यदि आपने एथेना या ज़्यूस के लिए आवेदन किया है, तो हम 24-48 घंटों के भीतर आपको वास्तविक निर्णय बताएंगे, स्वचालित नहीं।",
+    "verCatalogoParaPromocionar": "प्रचार संबंधी उद्देश्यों के लिए कैटलॉग देखें",
+    "tuTarjetaDePresentacionSinTrajesN": "आपका बिजनेस कार्ड, बिना किसी दिखावे या खोखले शब्दों के।",
+    "reusSeulCiudadDeMexico": "रियूस, सियोल, मेक्सिको सिटी...",
+    "seleccionaPais": "देश चुनें",
+    "queremosSaberQueTipoDeComunidadHas": "हम यह जानना चाहते हैं कि आपने किस तरह का समुदाय बनाया है और वे किसी काम के लिए आपका अनुसरण क्यों करेंगे।",
+    "paisPrincipalDeTuAudiencia": "आपके दर्शकों का मुख्य देश",
+    "cuentanosLaVerdadQueTipoDeEstabil": "हमें सच-सच बताएं: आप किस तरह की स्थिरता की तलाश कर रहे हैं, कुछ ब्रांडों से आपको नुकसान क्यों हुआ, और आप अपने समुदाय के साथ कैसा व्यवहार करेंगे?",
+    "laComisionEsTransparenteHercules3": "यह आयोग पारदर्शी है: हरक्यूलिस 3%, एथेना 5%, ज़्यूस 7%, और 18 महीने की ट्रैकिंग के साथ।",
+    "entiendoQueLaComisionSePagaSobreE": "मुझे पता है कि कमीशन शिपमेंट के बाद के मूल्य और करों पर दिया जाता है।",
+    "entiendoQueElTrackingDe18MesesEs": "मुझे समझ में आता है कि 18 महीने की ट्रैकिंग अवधि उपयोगकर्ता की पहली खरीदारी से शुरू होती है।",
+    "aceptoPromoverSoloProductosQueRealm": "मैं केवल उन्हीं उत्पादों का प्रचार करने के लिए सहमत होता हूँ जिन्हें मैं वास्तव में आज़माना चाहूँगा या आज़माऊँगा।",
+    "heLeidoYAceptoLosTerminosDelProgr": "मैंने इन्फ्लुएंसर प्रोग्राम की शर्तें पढ़ ली हैं और मैं उनसे सहमत हूं।",
+    "solicitudGratuitaNingunPasoDePago": "आवेदन निःशुल्क है। भुगतान की कोई आवश्यकता नहीं है।"
+  },
+  "shared": {
+    "queEs": "क्या है"
+  },
+  "footer_landing": {
+    "terminos": "शर्तें",
+    "unaFormaMasClaraDeDescubrirEntend": "संदर्भ सहित भोजन को खोजने, समझने और खरीदने का एक स्पष्ट तरीका।"
+  },
+  "navbar_landing": {
+    "iniciarSesion": "लॉग इन करें",
+    "cerrarMenu": "मेनू बंद करें"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "जब हमें समुदाय की वास्तविक आवाज़ें मिलेंगी, तो वे यहां दिखाई देंगी।"
+  },
+  "auth_layout": {
+    "terminos": "शर्तें"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "आप मुझसे किसी भी उत्पाद या निर्माता के बारे में पूछ सकते हैं।",
+    "terminos": "शर्तें"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "मेनू बंद करें",
+    "queEsHispaloshop": "हिस्पालोशॉप क्या है?"
+  },
+  "info_header": {
+    "queEs": "क्या है",
+    "cerrarMenu": "मेनू बंद करें",
+    "iniciarSesion": "लॉग इन करें"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "कोई इंटरनेट कनेक्शन नहीं"
+  },
+  "report_button": {
+    "informacionEnganosa": "भ्रांतिजनक जानकारी",
+    "violacionDeDerechosDeAutor": "सर्वाधिकार उल्लंघन",
+    "noSePudoEnviarElReporte": "रिपोर्ट भेजी नहीं जा सकी",
+    "anadeUnDetalleOpcional": "विवरण जोड़ें (वैकल्पिक)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "सूचना बंद करें"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "संदेश सूचना बंद करें"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "ऑनबोर्डिंग प्रक्रिया पूरी करने के लिए कम से कम 3 खातों को फॉलो करें।",
+    "noHemosPodidoGuardarLasCuentasSegu": "हम अभी तक लगातार खातों को सुरक्षित नहीं कर पाए हैं।",
+    "eligeAlMenos3ProductoresOCreadores": "कम से कम 3 प्रोड्यूसर या क्रिएटर चुनें ताकि आपकी शुरुआती फीड वास्तविक संकेतों से शुरू हो।",
+    "puedesFinalizarYEmpezarADescubrirC": "आप इसे पूरा कर सकते हैं और बाद में खातों की खोज शुरू कर सकते हैं।"
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "आगे बढ़ने के लिए कम से कम 3 श्रेणियां चुनें।",
+    "noHemosPodidoGuardarTusInteresesTo": "हम अभी तक आपके हितों की रक्षा नहीं कर पाए हैं।",
+    "eligeAlMenos3CategoriasParaQueEl": "कम से कम 3 श्रेणियां चुनें ताकि कैटलॉग और फीड एक उपयोगी आधार के साथ शुरू हो सकें।"
+  },
+  "location": {
+    "seleccionaUnPais": "कोई देश चुनें।",
+    "introduceTuCodigoPostal": "अपना पोस्टल कोड दर्ज करें।",
+    "noHemosPodidoGuardarTuUbicacionTod": "हम अभी तक आपकी लोकेशन सेव नहीं कर पाए हैं।",
+    "usamosTuZonaParaMostrarCatalogoDis": "हम आपके क्षेत्र का उपयोग उपलब्ध कैटलॉग, आस-पास के सुझाव और बेहतर शिपिंग विकल्प दिखाने के लिए करते हैं।"
+  },
+  "step_follow": {
+    "cordoba": "कॉर्डोबा",
+    "queseriaLaAntigua": "ला एंटिगुआ चीज़ फ़ैक्टरी",
+    "panaderiaMaria": "मारिया की बेकरी",
+    "descubreAQuienSeguir": "पता लगाएं कि आपको किसका अनुसरण करना चाहिए",
+    "sigueAlMenos3ProductoresParaEmpeza": "शुरुआत करने के लिए कम से कम 3 प्रोड्यूसर्स को फॉलो करें।"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "अपनी फ़ीड को वैयक्तिकृत करने के लिए कम से कम 3 श्रेणियां चुनें"
+  },
+  "step_location": {
+    "cordoba": "कॉर्डोबा",
+    "malaga": "लाल रंग",
+    "estoTeMostraraProductoresCercaDeTi": "इससे आपको अपने आस-पास के उत्पादकों की जानकारी मिलेगी।",
+    "usarMiUbicacionActual": "मेरी वर्तमान लोकेशन का उपयोग करें",
+    "oIntroduceCodigoPostal": "या पोस्टल कोड दर्ज करें"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "अपने बारे में और अधिक जानकारी जोड़ें",
+    "tuFeedPersonalizadoEstaPreparado": "आपका पर्सनलाइज़्ड फीड तैयार है।",
+    "puedesCambiarTusPreferenciasEnCualq": "आप अपनी प्रोफ़ाइल से किसी भी समय अपनी प्राथमिकताएं बदल सकते हैं।"
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "आपकी प्रोफ़ाइल बन गई है। अब आप स्थानीय उत्पादों को देख सकते हैं।"
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "जब तक आप बेच नहीं देते, तब तक आपको कुछ भी भुगतान नहीं करना होगा।",
+    "paraProductoresQueQuierenEmpezarAV": "उन उत्पादकों के लिए जो बिना किसी जोखिम के बिक्री शुरू करना चाहते हैं।",
+    "tiendaVirtualPersonalizadaConTuHist": "आपकी कहानी और मूल स्थान से जुड़ी व्यक्तिगत ऑनलाइन दुकान",
+    "hasta30ProductosEnCatalogo": "कैटलॉग में अधिकतम 30 उत्पाद शामिल हैं।",
+    "visibilidadNacionalEnEspana": "स्पेन में राष्ट्रीय स्तर पर पहचान",
+    "paraProductoresSeriosQueQuierenEsca": "उन गंभीर निर्माताओं के लिए जो बिना किसी झंझट के अपने काम को बड़े पैमाने पर बढ़ाना चाहते हैं।",
+    "herramientasDeIaParaMarketing": "मार्केटिंग के लिए एआई उपकरण",
+    "recomendacionesDinamicasDePrecioPor": "भौगोलिक क्षेत्र के आधार पर गतिशील मूल्य अनुशंसाएँ",
+    "analiticaAvanzadaDeVentas": "उन्नत बिक्री विश्लेषण",
+    "matchingAutomaticoConHasta5Influenc": "अधिकतम 5 स्थानीय इन्फ्लुएंसरों के साथ स्वचालित मिलान",
+    "paraCooperativasYProductoresConAmbi": "वैश्विक महत्वाकांक्षा रखने वाली सहकारी समितियों और उत्पादकों के लिए।",
+    "prediccionDeDemandaPorPaisYTempora": "देश और मौसम के अनुसार मांग का पूर्वानुमान",
+    "analisisDeMercadosInternacionalesPr": "अंतर्राष्ट्रीय बाजार विश्लेषण (मूल्य, प्रतिस्पर्धा, अवसर)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "आपूर्ति की कमी के जोखिम का निवारक पता लगाना",
+    "matchingDirectoConImportadoresVerifi": "अन्य देशों के सत्यापित आयातकों के साथ सीधा मिलान",
+    "generacionAutomaticaDeContratosB2bE": "पीडीएफ प्रारूप में बी2बी अनुबंधों का स्वचालित निर्माण",
+    "analisisDeRegulacionesYArancelesPor": "गंतव्य बाजार के अनुसार नियमों और शुल्कों का विश्लेषण",
+    "creacionDeDossieresDeExportacion": "निर्यात संबंधी दस्तावेज़ों का निर्माण",
+    "prioridadAbsolutaDeVisibilidadEnLa": "प्लेटफ़ॉर्म पर दृश्यता को सर्वोच्च प्राथमिकता दी जाएगी।",
+    "soporteTelefonicoDirecto": "प्रत्यक्ष टेलीफोन सहायता",
+    "soloVendoEnEspana": "मैं केवल स्पेन में ही बेचता हूँ।",
+    "yaExportoAAlgunPais": "मैं पहले से ही कुछ देशों को निर्यात करता हूं",
+    "masDe20": "20 से अधिक",
+    "andalucia": "Andalusia",
+    "aragon": "आरागॉन",
+    "castillaYLeon": "कैस्टिले और लियोन",
+    "cataluna": "कैटालोनिया",
+    "paisVasco": "बास्क देश",
+    "stripeNoEstaDisponible": "स्ट्राइप उपलब्ध नहीं है।",
+    "quienEres": "आप कौन हैं",
+    "stripeNoEstaConfiguradoTodavia": "स्ट्राइप अभी तक स्थापित नहीं हुआ है।",
+    "noPudimosPrepararElPagoSeguro": "हम सुरक्षित भुगतान की व्यवस्था करने में असमर्थ रहे।",
+    "necesitamosTuNombreParaDarteDeAlta": "हमें आपका नाम पंजीकरण के लिए चाहिए।",
+    "introduceUnEmailValido": "एक मान्य ईमेल पता दर्ज करें।",
+    "necesitamosUnTelefonoOperativo": "हमें एक चालू फोन चाहिए।",
+    "tuContrasenaDebeTenerAlMenos6Cara": "आपका पासवर्ड कम से कम छः अक्षरों का होना चाहिए।",
+    "debesAceptarLaPoliticaDePrivacidad": "आपको गोपनीयता नीति और शर्तों को स्वीकार करना होगा।",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "हमें अपने ब्रांड या सहकारी संस्था का नाम बताइए।",
+    "seleccionaAlMenosUnTipoDeProducto": "कम से कम एक उत्पाद प्रकार का चयन करें।",
+    "indicanosSiYaExportasOQuieresEmpez": "अगर आप पहले से ही निर्यात करते हैं या शुरू करना चाहते हैं तो हमें बताएं।",
+    "seleccionaTuRegionDeProduccion": "अपना उत्पादन क्षेत्र चुनें।",
+    "necesitamosUnRangoAproximadoDeRefer": "हमें संदर्भों की एक अनुमानित सीमा की आवश्यकता है।",
+    "completaLosDatosDeLaTarjetaParaCo": "आगे बढ़ने के लिए कार्ड का विवरण पूरा करें।",
+    "stripeNoEstaListoTodavia": "स्ट्राइप अभी तैयार नहीं है।",
+    "noPudimosValidarLaTarjeta": "हम कार्ड को सत्यापित नहीं कर पाए।",
+    "tuBancoRechazoLaOperacion": "आपके बैंक ने लेनदेन अस्वीकार कर दिया।",
+    "haOcurridoUnErrorConElPagoPorFa": "आपके भुगतान में कोई त्रुटि हुई है। कृपया पुनः प्रयास करें।",
+    "elMetodoDePagoFueRechazadoPorFav": "आपका भुगतान तरीका अस्वीकृत हो गया है। कृपया किसी दूसरे कार्ड का उपयोग करें।",
+    "revisaLosDatosAntesDeContinuar": "आगे बढ़ने से पहले जानकारी की समीक्षा कर लें।",
+    "noPudimosCompletarElAltaDelProduct": "हम निर्माता का पंजीकरण पूरा नहीं कर पाए।",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "आपका खाता पहले से मौजूद है। यदि यह पहले से ही बन चुका है, तो आपको बस योजना पूरी करनी होगी या अपनी पहुंच की जांच करनी होगी।",
+    "completaLosCamposObligatoriosParaAv": "आगे बढ़ने के लिए आवश्यक फ़ील्ड भरें।",
+    "aceptoLaPoliticaDePrivacidadYLosT": "मैं गोपनीयता नीति और शर्तों को स्वीकार करता/करती हूं।",
+    "nombreDeTuObradorMarcaOCooperativ": "आपकी कार्यशाला, ब्रांड या सहकारी संस्था का नाम",
+    "exportacionActual": "वर्तमान निर्यात",
+    "regionDeProduccion": "उत्पादन क्षेत्र",
+    "seleccionaTuRegion": "अपना क्षेत्र चुनें",
+    "numeroDeReferencias": "संदर्भों की संख्या",
+    "cargoOComision": "पद या कमीशन",
+    "entiendoQueHispaloshopRetieneUn20": "मुझे पता है कि हिस्पालोशॉप बिक्री पर 20% कमीशन रखता है।",
+    "noPagarasNadaHastaQueVendasCuando": "जब तक आप बेच नहीं देते, तब तक आपको कुछ भी भुगतान नहीं करना होगा। बेचने पर आपको 80% मिलेगा।",
+    "pagoSeguroPorStripeCancelaCuandoQ": "स्ट्राइप के माध्यम से सुरक्षित भुगतान। अपने डैशबोर्ड से कभी भी रद्द करें।",
+    "pagoSeguroPorStripeSiTuBancoPide": "स्ट्राइप के माध्यम से सुरक्षित भुगतान। यदि आपके बैंक को अतिरिक्त पुष्टि की आवश्यकता है, तो हम आपको पेज से बाहर ले जाए बिना यहीं पर इसकी प्रक्रिया पूरी कर देंगे।",
+    "bienvenidoALaRevolucionDeLosProduc": "ईमानदार उत्पादकों की क्रांति में आपका स्वागत है।",
+    "revisaTuEmailParaVerificarTuCuenta": "अपना खाता सत्यापित करने के लिए अपना ईमेल देखें और अपनी प्रोफ़ाइल पूरी करने के लिए अपने डैशबोर्ड तक पहुंचें।",
+    "siTuAltaQuedaPendienteDeRevision": "यदि आपका आवेदन समीक्षाधीन है, तो सबसे पहले आपको स्वीकृति की स्थिति दिखाई देगी। वहां से आप बिना कुछ छोड़े प्रक्रिया जारी रख सकते हैं।",
+    "verGuiaRapidaParaSubirMiPrimerPro": "अपना पहला उत्पाद अपलोड करने के लिए त्वरित गाइड देखें",
+    "tuCuentaYaExisteYElSiguientePaso": "आपका खाता पहले से मौजूद है, और अगला चरण आपके ईमेल को सत्यापित करना और अपनी प्रोफ़ाइल तैयार करने की प्रक्रिया पूरी करना है।",
+    "laContrasenaNoSeGuardaEnLocalstora": "पासवर्ड को localStorage में सेव नहीं किया जाता है, जिससे किसी भी गुप्त जानकारी के उजागर होने से बचा जा सके।",
+    "freeCreaLaCuentaAlInstanteProYE": "FREE प्लान से तुरंत अकाउंट बन जाता है। PRO और ELITE प्लान में फ्लो को छोड़े बिना ही Stripe को एक्टिवेट किया जा सकता है।",
+    "empezamosPorLoMinimoParaNoPonerte": "हम न्यूनतम आवश्यकताओं से शुरुआत करेंगे ताकि आपके रास्ते में कोई और बाधा न आए।",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "हम आपका स्टोर खोलने और बुनियादी ढांचा तैयार करने से बस एक कदम दूर हैं।",
+    "completarSuscripcionYAbrirMiTienda": "अपनी सदस्यता पूरी करें और मेरा स्टोर खोलें"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "खाता बंद नहीं हो सका। कृपया पुनः प्रयास करें।",
+    "noSePudieronCargarLasHistorias": "कहानियां लोड नहीं हो सकीं",
+    "errorAlCrearElDestacado": "हाइलाइट बनाने में त्रुटि",
+    "seCerraraLaSesionDeEstaCuentaYTe": "इस खाते का सत्र बंद कर दिया जाएगा और आपको दोबारा लॉग इन करना होगा।",
+    "soloSeEliminaDelSelectorDeCuentas": "इसे केवल इसी डिवाइस पर खाता चयनकर्ता से हटाया जाता है।",
+    "codigoCopiado": "कोड कॉपी किया गया:",
+    "noHayHistoriasEnEsteDestacado": "इस विशेष लेख में कोई कहानी नहीं है।",
+    "lasHistoriasDelDestacadoNoSeElimin": "चुनिंदा कहानियों को हटाया नहीं जाएगा, केवल संग्रह को हटाया जाएगा।",
+    "noHayHistoriasEnTuArchivo": "आपकी फ़ाइल में कोई कहानी नहीं है",
+    "publicaUnaHistoriaPrimeroParaPoder": "एक विशेष लेख बनाने के लिए पहले एक कहानी प्रकाशित करें।",
+    "lasHistoriasNoSePerderanSoloLaCo": "कहानियां तो खो जाएंगी, लेकिन संग्रह नष्ट हो जाएगा।"
+  },
+  "profile_tabs": {
+    "crearPublicacion": "पोस्ट बनाएं",
+    "sinPublicacionesTodavia": "अब तक कोई पोस्ट नहीं",
+    "sinReelsTodavia": "अभी तक कोई रील नहीं",
+    "sinRecetasTodavia": "अभी तक कोई रेसिपी उपलब्ध नहीं है",
+    "nadaGuardadoTodavia": "अभी तक कुछ भी सेव नहीं हुआ है",
+    "publicacionGuardada": "सहेजी गई पोस्ट"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "मैनुअल या प्लेटफॉर्म उत्पादों से जुड़ा हुआ।"
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "अधिक सर्विंग्स",
+    "anadirTodoAlCarrito": "सभी सामान कार्ट में जोड़ें"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "कार्ट में जोड़ें",
+    "iniciaSesionParaAnadirProductos": "उत्पाद जोड़ने के लिए लॉग इन करें",
+    "noHemosPodidoCompletarLaAccion": "हम कार्रवाई पूरी करने में असमर्थ रहे।",
+    "esteProductoAunNoTieneCertificados": "इस उत्पाद के पास अभी तक सत्यापित प्रमाणपत्र नहीं हैं।",
+    "seElPrimeroEnOpinarSobreEsteProdu": "इस उत्पाद की सबसे पहले समीक्षा करें।"
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "गतिविधि लोड नहीं हो सकी",
+    "tuActividadApareceraAqui": "आपकी गतिविधि यहां दिखाई देगी"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "लॉगिन प्रक्रिया पूरी हो रही है..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "स्पष्ट जानकारी के साथ उत्पादों का अन्वेषण करें, जिन्हें त्वरित और स्पष्ट पठन के लिए वर्णानुक्रम में व्यवस्थित किया गया है।",
+    "filtrarPorCertificacion": "प्रमाणन के आधार पर फ़िल्टर करें",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "अन्य प्रमाणित उत्पादों की समीक्षा करने के लिए अपनी खोज को समायोजित करें या फ़िल्टर हटाएँ।",
+    "ordenAlfabeticoActivo": "सक्रिय वर्णानुक्रम"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "आपका भुगतान सफलतापूर्वक संसाधित हो गया है। अगले कुछ मिनटों में आपको अपने ऑर्डर के विवरण के साथ एक पुष्टिकरण ईमेल प्राप्त होगा।",
+    "haOcurridoUnErrorAlVerificarTuPag": "आपके भुगतान की पुष्टि करते समय एक त्रुटि हुई। यदि भुगतान पहले ही हो चुका है, तो कृपया सहायता टीम से संपर्क करें।",
+    "hemosRecibidoTuPedidoRecibirasUnE": "हमें आपका ऑर्डर प्राप्त हो गया है। आपको विवरण के साथ एक ईमेल प्राप्त होगा।"
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "केवल प्रशासक ही समुदाय को संपादित कर सकते हैं।",
+    "anadirFotoDePortada": "कवर फ़ोटो जोड़ें",
+    "etiquetasMax5": "लेबल (अधिकतम 5)",
+    "eliminarLaComunidadBorraraTodosLos": "कम्युनिटी को डिलीट करने से सभी पोस्ट और सदस्य स्थायी रूप से मिट जाएंगे।"
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "समुदाय का नाम",
+    "sinDescripcionTodavia": "अभी तक कोई विवरण नहीं है",
+    "necesitasMasSeguidores": "आपको और अधिक फॉलोअर्स की आवश्यकता है",
+    "paraCrearUnaComunidadNecesitasAlMe": "एक कम्युनिटी बनाने के लिए आपको कम से कम 100 फॉलोअर्स की आवश्यकता होती है या फिर आपको एक वेरिफाइड सेलर होना चाहिए।",
+    "elNombreDebeTenerAlMenos3Caracter": "नाम कम से कम 3 अक्षरों का होना चाहिए।",
+    "laUrlEsObligatoria": "यूआरएल आवश्यक है",
+    "laUrlDebeTenerAlMenos3Caracteres": "यूआरएल कम से कम 3 अक्षरों का होना चाहिए।",
+    "laUrlDebeEmpezarConUnaLetraONume": "यूआरएल की शुरुआत अक्षर या संख्या से होनी चाहिए।",
+    "comunidadCreada": "समुदाय का निर्माण हुआ!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "यह यूआरएल पहले से ही उपयोग में है। कृपया कोई दूसरा यूआरएल आजमाएं।",
+    "errorAlCrearLaComunidad": "समुदाय बनाने में त्रुटि",
+    "anadirFotoDePortada": "कवर फ़ोटो जोड़ें",
+    "nombreDeLaComunidad1": "समुदाय का नाम *",
+    "ejAceitesDeEspana": "उदाहरण: स्पेन से प्राप्त तेल",
+    "urlDeLaComunidad": "समुदाय यूआरएल *",
+    "deQueTrataTuComunidad": "आपका समुदाय किस बारे में है?",
+    "iconoDeLaComunidad": "सामुदायिक आइकन",
+    "etiquetasMax5": "लेबल (अधिकतम 5)",
+    "asiVeranTuComunidadLosDemas": "इस तरह से दूसरे लोग आपके समुदाय को देखेंगे।"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "सर्वोत्तम जैतून का तेल",
+    "seleccionDeProductoresAndaluces": "अंडालूसियाई उत्पादकों का चयन",
+    "empiezaElDiaConEnergiaReal": "दिन की शुरुआत भरपूर ऊर्जा के साथ करें।",
+    "despensaBasicaPremium": "प्रीमियम बेसिक पेंट्री",
+    "losEsencialesQueMarcanLaDiferencia": "वे आवश्यक तत्व जो फर्क पैदा करते हैं",
+    "certificadoEcologico": "जैविक प्रमाणन",
+    "seleccionesEditorialesDeProductosArt": "संपादकीय चयन में शामिल हस्तनिर्मित, स्वास्थ्यवर्धक उत्पाद, जिनकी अपनी एक कहानी है।",
+    "coleccion": "संग्रह"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "श्रेणी नहीं मिली",
+    "noSePudieronCargarLosProductos": "उत्पादों को लोड नहीं किया जा सका।",
+    "noHayProductosEnEstaCategoriaTodav": "इस श्रेणी में अभी तक कोई उत्पाद नहीं है।"
+  },
+  "locale_settings": {
+    "idiomaYRegion": "भाषा और क्षेत्र"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "पृष्ठ नहीं मिला",
+    "estaPaginaNoExiste": "यह पृष्ठ मौजूद नहीं है",
+    "pareceQueTeHasPerdidoVuelveAlIni": "लगता है आप रास्ता भटक गए हैं। शुरुआत में वापस जाइए और फिर से खोजबीन शुरू कीजिए।"
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "आपका खाता पहले से मौजूद है, लेकिन टीम द्वारा पंजीकरण की पुष्टि होने तक कुछ सुविधाएं सीमित रहेंगी।",
+    "recibirasAccesoCompletoCuandoElEqui": "टीम द्वारा आपके पंजीकरण की पुष्टि हो जाने के बाद आपको पूर्ण पहुंच प्राप्त हो जाएगी।",
+    "mientrasTantoAlgunasFuncionesComerc": "इस बीच, कुछ व्यावसायिक गतिविधियां प्रतिबंधित रहेंगी।",
+    "subirDocumentosDeVerificacion": "सत्यापन दस्तावेज़ अपलोड करें",
+    "completarConfiguracionFiscal": "संपूर्ण कर विन्यास"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "अमान्य रिकवरी लिंक",
+    "restablecerContrasena": "पासवर्ड रीसेट"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "कोई सत्यापन कोड प्रदान नहीं किया गया",
+    "emailVerificadoCorrectamente": "ईमेल का सत्यापन सफलतापूर्वक हो गया!",
+    "emailVerificadoYaPuedesIniciarSesi": "ईमेल सत्यापित हो गया है। अब आप लॉग इन कर सकते हैं।",
+    "elCodigoNoEsValidoOHaExpirado": "यह कोड अमान्य है या इसकी समय सीमा समाप्त हो गई है।",
+    "errorEnLaVerificacion": "सत्यापन त्रुटि",
+    "verificacionFallida": "सत्यापन में विफल रहा",
+    "porFavorEsperaMientrasVerificamosTu": "कृपया प्रतीक्षा करें जब तक हम आपके ईमेल पते की पुष्टि नहीं कर लेते।"
+  },
+  "b2_b_action": {
+    "video": "वीडियो"
+  },
+  "collab_action": {
+    "video": "वीडियो"
   }
 }

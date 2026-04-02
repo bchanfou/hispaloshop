@@ -353,7 +353,7 @@ export default function ProductDetailPage() {
               onClick={toggleWishlist}
               disabled={wishlistLoading}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
-              aria-label={inWishlist ? 'Quitar de favoritos' : t('product_detail.anadirAFavoritos', 'Añadir a favoritos')}
+              aria-label={inWishlist ? t('product_detail.quitarDeFavoritos', 'Quitar de favoritos') : t('product_detail.anadirAFavoritos', 'Añadir a favoritos')}
             >
               <Heart
                 size={18}
@@ -456,7 +456,7 @@ export default function ProductDetailPage() {
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {product.is_organic && (
               <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
-                <Leaf size={12} /> Ecológico
+                <Leaf size={12} /> {t('certifications.organic', 'Ecológico')}
               </span>
             )}
             {product.is_gluten_free && (
@@ -570,11 +570,11 @@ export default function ProductDetailPage() {
         <div className="mt-3 flex items-center gap-2 text-sm py-2">
           <Truck size={16} className={isFreeShipping || product?.free_shipping ? 'text-stone-950' : 'text-stone-500'} />
           {product?.free_shipping ? (
-            <span className="font-semibold text-stone-950">&#10003; Envío gratis</span>
+            <span className="font-semibold text-stone-950">&#10003; {t('products.freeShipping', 'Envío gratis')}</span>
           ) : isFreeShipping ? (
-            <span className="font-semibold text-stone-950">&#10003; Envío gratis</span>
+            <span className="font-semibold text-stone-950">&#10003; {t('products.freeShipping', 'Envío gratis')}</span>
           ) : (
-            <span className="text-stone-500">Envío desde €4.90</span>
+            <span className="text-stone-500">{t('product_detail.shippingFrom', 'Envío desde €4.90')}</span>
           )}
         </div>
 
@@ -592,7 +592,7 @@ export default function ProductDetailPage() {
             <Lock size={14} /> Pago seguro
           </span>
           <span className="flex items-center gap-1.5 text-xs text-stone-500">
-            <Package size={14} /> Envío rastreable
+            <Package size={14} /> {t('product_detail.trackableShipping', 'Envío rastreable')}
           </span>
           {hasCertifications && (
             <span className="flex items-center gap-1.5 text-xs text-stone-500">
@@ -624,7 +624,7 @@ export default function ProductDetailPage() {
                 className="overflow-hidden"
               >
                 <p className="mt-2 text-xs leading-relaxed text-stone-500">
-                  Tienes 14 días desde la recepción para devolver tu pedido. Los productos alimentarios perecederos no admiten devolución.
+                  {t('product_detail.returnPolicy', 'Tienes 14 días desde la recepción para devolver tu pedido. Los productos alimentarios perecederos no admiten devolución.')}
                 </p>
               </motion.div>
             )}
@@ -1206,14 +1206,14 @@ export default function ProductDetailPage() {
             ) : (
               <>
                 <p className="my-1 mb-3 text-[13px] text-stone-500">
-                  Añade este producto al catálogo B2B para recibir pedidos mayoristas.
+                  {t('product_detail.addToB2BCatalog', 'Añade este producto al catálogo B2B para recibir pedidos mayoristas.')}
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowB2BModal(true)}
                   className="rounded-full bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white"
                 >
-                  Añadir al catálogo B2B
+                  {t('product_detail.addToB2B', 'Añadir al catálogo B2B')}
                 </button>
               </>
             )}

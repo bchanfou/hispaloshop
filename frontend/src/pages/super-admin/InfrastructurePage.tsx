@@ -10,7 +10,7 @@ const SERVICES = [
   { key: 'frontend', name: 'Frontend (Vercel)', description: 'React SPA' },
   { key: 'database', name: 'MongoDB Atlas', description: 'Base de datos principal' },
   { key: 'stripe', name: 'Stripe', description: 'Pasarela de pagos' },
-  { key: 'cloudinary', name: 'Cloudinary', description: t('infrastructure.almacenamientoDeImagenes', 'Almacenamiento de imágenes') },
+  { key: 'cloudinary', name: 'Cloudinary', description: 'Almacenamiento de imágenes' },
   { key: 'sentry', name: 'Sentry', description: 'Rastreo de errores' },
 ];
 

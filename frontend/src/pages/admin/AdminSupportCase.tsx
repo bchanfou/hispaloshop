@@ -39,8 +39,8 @@ const PRIORITIES = ['baja', 'media', 'alta', 'urgente'];
 
 const ADMIN_ACTIONS = [
   { key: 'refund_recommendation', label: 'Recomendar reembolso' },
-  { key: 'replacement_request',   label: t('admin_support_case.solicitarReposicion', 'Solicitar reposición') },
-  { key: 'manual_resolution',     label: t('admin_support_case.resolucionManual', 'Resolución manual') },
+  { key: 'replacement_request',   label: 'Solicitar reposición' },
+  { key: 'manual_resolution',     label: 'Resolución manual' },
   { key: 'close',                 label: 'Cerrar caso' },
 ];
 
@@ -370,7 +370,7 @@ export default function AdminSupportCase() {
           {/* Timestamps */}
           <div className="rounded-[24px] border border-stone-100 bg-white p-5 space-y-3">
             <InfoRow label="Abierto el" value={formatTs(caseData.created_at)} />
-            <InfoRow label=t('admin_support_case.ultimaActualizacion', 'Última actualización') value={formatTs(caseData.updated_at)} />
+            <InfoRow label="Última actualización" value={formatTs(caseData.updated_at)} />
             {caseData.resolved_at && (
               <InfoRow label="Resuelto el" value={formatTs(caseData.resolved_at)} />
             )}

@@ -12,9 +12,9 @@ const makeFmt = (cur = 'EUR') => new Intl.NumberFormat(undefined, { style: 'curr
 
 const PAYMENT_TERMS = {
   prepaid: '100% adelantado',
-  net_30: t('b2_b_payment.net30Dias', 'Net 30 días'),
-  net_60: t('b2_b_payment.net60Dias', 'Net 60 días'),
-  letter_of_credit: t('b2_b_payment.cartaDeCredito', 'Carta de crédito'),
+  net_30: 'Net 30 días',
+  net_60: 'Net 60 días',
+  letter_of_credit: 'Carta de crédito',
 };
 
 let stripeLoader;

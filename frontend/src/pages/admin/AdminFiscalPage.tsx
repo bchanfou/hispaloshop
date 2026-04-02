@@ -19,7 +19,7 @@ function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">Verificado</span>
   );
   if (needsReview) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">{t('admin_fiscal.revisionManual', 'Revisión manual')}</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">Revisión manual</span>
   );
   if (hasUrl && !verified) return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-200 bg-white text-stone-400">Rechazado</span>

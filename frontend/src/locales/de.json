@@ -4322,5 +4322,99 @@
     "noHemosPodidoCompletarLaAccion": "Die Aktion konnte nicht abgeschlossen werden.",
     "esteProductoAunNoTieneCertificados": "Für dieses Produkt liegen noch keine verifizierten Zertifikate vor.",
     "seElPrimeroEnOpinarSobreEsteProdu": "Seien Sie der Erste, der dieses Produkt bewertet."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "Die Aktivität konnte nicht geladen werden.",
+    "tuActividadApareceraAqui": "Ihre Aktivitäten werden hier angezeigt."
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Anmeldung wird abgeschlossen..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Entdecken Sie Produkte mit übersichtlicher Dokumentation, alphabetisch geordnet für schnelles und einfaches Lesen.",
+    "filtrarPorCertificacion": "Nach Zertifizierung filtern",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Passen Sie Ihre Suche an oder entfernen Sie Filter, um weitere zertifizierte Produkte anzuzeigen.",
+    "ordenAlfabeticoActivo": "aktive alphabetische Reihenfolge"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Ihre Zahlung wurde erfolgreich verarbeitet. Sie erhalten in den nächsten Minuten eine Bestätigungs-E-Mail mit Ihren Bestelldetails.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Bei der Überprüfung Ihrer Zahlung ist ein Fehler aufgetreten. Falls die Zahlung bereits verarbeitet wurde, kontaktieren Sie bitte den Kundenservice.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Wir haben Ihre Bestellung erhalten. Sie erhalten eine E-Mail mit den Details."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Nur Administratoren können die Community bearbeiten.",
+    "anadirFotoDePortada": "Titelbild hinzufügen",
+    "etiquetasMax5": "Beschriftungen (max. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Durch das Löschen der Community werden alle Beiträge und Mitglieder dauerhaft gelöscht."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Name der Gemeinde",
+    "sinDescripcionTodavia": "Noch keine Beschreibung.",
+    "necesitasMasSeguidores": "Du brauchst mehr Follower",
+    "paraCrearUnaComunidadNecesitasAlMe": "Um eine Community aufzubauen, benötigen Sie mindestens 100 Follower oder müssen ein verifizierter Verkäufer sein.",
+    "elNombreDebeTenerAlMenos3Caracter": "Der Name muss mindestens 3 Zeichen lang sein.",
+    "laUrlEsObligatoria": "Die URL ist erforderlich",
+    "laUrlDebeTenerAlMenos3Caracteres": "Die URL muss mindestens 3 Zeichen lang sein.",
+    "laUrlDebeEmpezarConUnaLetraONume": "Die URL muss mit einem Buchstaben oder einer Zahl beginnen.",
+    "comunidadCreada": "Community gegründet!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Diese URL wird bereits verwendet. Bitte versuchen Sie es mit einer anderen.",
+    "errorAlCrearLaComunidad": "Fehler beim Erstellen der Community",
+    "anadirFotoDePortada": "Titelbild hinzufügen",
+    "nombreDeLaComunidad1": "Name der Gemeinde *",
+    "ejAceitesDeEspana": "Beispiel: Öle aus Spanien",
+    "urlDeLaComunidad": "Community-URL *",
+    "deQueTrataTuComunidad": "Worum geht es in Ihrer Gemeinschaft?",
+    "iconoDeLaComunidad": "Community-Symbol",
+    "etiquetasMax5": "Beschriftungen (max. 5)",
+    "asiVeranTuComunidadLosDemas": "So werden andere Ihre Gemeinschaft sehen"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "Das beste Olivenöl",
+    "seleccionDeProductoresAndaluces": "Auswahl andalusischer Produzenten",
+    "empiezaElDiaConEnergiaReal": "Starte den Tag mit echter Energie",
+    "despensaBasicaPremium": "Premium-Grundausstattung",
+    "losEsencialesQueMarcanLaDiferencia": "Die wesentlichen Dinge, die den Unterschied ausmachen",
+    "certificadoEcologico": "Bio-Zertifizierung",
+    "seleccionesEditorialesDeProductosArt": "Redaktionelle Auswahl handwerklich hergestellter, gesunder Produkte mit einer Geschichte.",
+    "coleccion": "Sammlung"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Kategorie nicht gefunden",
+    "noSePudieronCargarLosProductos": "Die Produkte konnten nicht geladen werden.",
+    "noHayProductosEnEstaCategoriaTodav": "In dieser Kategorie sind noch keine Produkte vorhanden."
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Sprache und Region"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Seite nicht gefunden",
+    "estaPaginaNoExiste": "Diese Seite existiert nicht.",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Du scheinst dich verirrt zu haben. Geh zurück zum Anfang und erkunde die Welt weiter."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Ihr Konto existiert bereits, einige Funktionen bleiben jedoch eingeschränkt, bis das Team die Registrierung bestätigt hat.",
+    "recibirasAccesoCompletoCuandoElEqui": "Sie erhalten vollen Zugriff, sobald das Team Ihre Registrierung bestätigt hat.",
+    "mientrasTantoAlgunasFuncionesComerc": "Unterdessen bleiben einige kommerzielle Funktionen eingeschränkt.",
+    "subirDocumentosDeVerificacion": "Verifizierungsdokumente hochladen",
+    "completarConfiguracionFiscal": "Vollständige Steuerkonfiguration"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Ungültiger Wiederherstellungslink",
+    "restablecerContrasena": "Passwort zurücksetzen"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "Es wurde kein Bestätigungscode bereitgestellt.",
+    "emailVerificadoCorrectamente": "E-Mail erfolgreich verifiziert!",
+    "emailVerificadoYaPuedesIniciarSesi": "E-Mail-Adresse verifiziert. Sie können sich jetzt anmelden.",
+    "elCodigoNoEsValidoOHaExpirado": "Der Code ist ungültig oder abgelaufen.",
+    "errorEnLaVerificacion": "Verifizierungsfehler",
+    "verificacionFallida": "Überprüfung fehlgeschlagen",
+    "porFavorEsperaMientrasVerificamosTu": "Bitte warten Sie, während wir Ihre E-Mail-Adresse überprüfen."
+  },
+  "b2_b_action": {
+    "video": "Video"
+  },
+  "collab_action": {
+    "video": "Video"
   }
 }
