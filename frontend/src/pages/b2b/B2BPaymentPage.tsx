@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { captureException } from '../../lib/sentry';
 
-const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+const makeFmt = (cur = 'EUR') => new Intl.NumberFormat(undefined, { style: 'currency', currency: cur });
 
 const PAYMENT_TERMS = {
   prepaid: '100% adelantado',
@@ -54,6 +54,8 @@ export default function B2BPaymentPage() {
 
   const userId = user?.user_id || user?._id || user?.id;
 
+  const fmt = useMemo(() => makeFmt(operation?.currency || 'EUR'), [operation?.currency]);
+
   const isBuyer = useMemo(() => {
     if (!operation) return false;
     return userId === operation.buyer_id;
@@ -74,11 +76,11 @@ export default function B2BPaymentPage() {
         apiClient.get(`/b2b/operations/${operationId}`),
         apiClient.get(`/b2b/operations/${operationId}/payment-info`),
       ]);
-      setOperation(opRes.data);
-      setPaymentInfo(piRes.data);
+      setOperation(opRes?.data ?? opRes);
+      setPaymentInfo(piRes?.data ?? piRes);
     } catch (err) {
       captureException(err);
-      setError(err.response?.data?.detail || err.response?.data?.message || 'Error al cargar los datos de pago');
+      setError(err?.data?.detail || err?.message || 'Error al cargar los datos de pago');
     } finally {
       setLoading(false);
     }
