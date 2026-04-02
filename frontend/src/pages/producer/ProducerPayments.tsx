@@ -178,21 +178,27 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
     }
   };
 
+  const [requesting, setRequesting] = useState(false);
+
   const handleRequestPayout = async () => {
+    if (requesting) return;
     if (payoutMethod === 'stripe') {
       toast.info('Los pagos via Stripe se procesan automáticamente cada 15 días');
       return;
     }
+    setRequesting(true);
     try {
-      // Get pending amount from parent data
       const payments = await apiClient.get('/producer/payments');
       const pending = payments?.pending_payout || 0;
       if (pending <= 0) { toast.info('No tienes saldo pendiente'); return; }
       await apiClient.post('/producer/request-payout', { amount: pending });
-      toast.success(`Solicitud de pago enviada: ${pending.toFixed(2)}€. El admin procesará la transferencia.`);
+      toast.success(`Solicitud de pago enviada: ${pending.toFixed(2)}€`);
       onRefresh?.();
     } catch (err) {
-      toast.error(err.message || 'Error al solicitar pago');
+      const detail = err?.data?.detail || err.message || 'Error al solicitar pago';
+      toast.error(detail);
+    } finally {
+      setRequesting(false);
     }
   };
 
@@ -293,9 +299,9 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
           className="px-5 py-2 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50">
           {saving ? 'Guardando...' : 'Guardar método'}
         </button>
-        <button type="button" onClick={handleRequestPayout}
-          className="px-5 py-2 border border-stone-200 rounded-full text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors">
-          Solicitar pago
+        <button type="button" onClick={handleRequestPayout} disabled={requesting}
+          className="px-5 py-2 border border-stone-200 rounded-full text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50">
+          {requesting ? 'Solicitando...' : 'Solicitar pago'}
         </button>
       </div>
     </div>

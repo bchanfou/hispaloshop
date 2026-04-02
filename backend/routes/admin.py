@@ -1895,15 +1895,20 @@ async def process_payout(payout_id: str, request: Request, user: User = Depends(
         ).sort("created_at", 1).to_list(500)
         remaining = float(amount)
         for order in unpaid_orders:
-            if remaining <= 0:
+            if remaining <= 0.01:
                 break
             updates = {}
             for i, split in enumerate(order.get("split_details", [])):
                 if split.get("producer_id") == producer_id and not split.get("paid_out"):
-                    split_amount = split.get("seller_amount", split.get("net_earnings", 0))
-                    if remaining >= split_amount:
+                    split_amount = float(split.get("seller_amount", split.get("net_earnings", 0)) or 0)
+                    if split_amount <= 0 or remaining >= split_amount:
+                        # Mark as paid (full coverage or zero-amount split)
                         updates[f"split_details.{i}.paid_out"] = True
-                        remaining -= split_amount
+                        remaining -= max(split_amount, 0)
+                    elif remaining > 0:
+                        # Partial coverage — still mark paid (admin already transferred the money)
+                        updates[f"split_details.{i}.paid_out"] = True
+                        remaining = 0
             if updates:
                 updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 await db.orders.update_one({"order_id": order["order_id"]}, {"$set": updates})
