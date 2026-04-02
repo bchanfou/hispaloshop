@@ -418,12 +418,14 @@ async def update_cart_item(
         raise HTTPException(status_code=404, detail="Carrito no encontrado")
 
     # Encontrar item (triple match: product + variant + pack)
+    def _pnorm(v):
+        return v if v is not None and v != "" else None
     items = cart.get("items", [])
     item_idx = None
     for idx, item in enumerate(items):
         if (item.get("product_id") == product_id
-                and item.get("variant_id") == variant_id
-                and item.get("pack_id") == pack_id):
+                and _pnorm(item.get("variant_id")) == _pnorm(variant_id)
+                and _pnorm(item.get("pack_id")) == _pnorm(pack_id)):
             item_idx = idx
             break
     

@@ -8,21 +8,20 @@ import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 
 // Currency-aware formatters (no longer hardcoded EUR)
-const makeFmt = (locale, currencyCode) => {
-  const loc = locale || 'es-ES';
+const makeFmt = (currencyCode) => {
   const cur = currencyCode || 'EUR';
   return {
-    fmt: (cents) => ((cents || 0) / 100).toLocaleString(loc, { style: 'currency', currency: cur }),
-    fmtUnit: (eur) => (eur || 0).toLocaleString(loc, { style: 'currency', currency: cur }),
+    fmt: (cents) => ((cents || 0) / 100).toLocaleString(undefined, { style: 'currency', currency: cur }),
+    fmtUnit: (eur) => (eur || 0).toLocaleString(undefined, { style: 'currency', currency: cur }),
   };
 };
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading, appliedDiscount } = useCart();
-  const { currency, language } = useLocale();
+  const { currency } = useLocale();
   const { t } = useTranslation();
-  const { fmt, fmtUnit } = useMemo(() => makeFmt(language === 'en' ? 'en-US' : `${language}-${language.toUpperCase()}`, currency), [language, currency]);
+  const { fmt, fmtUnit } = useMemo(() => makeFmt(currency), [currency]);
   const [shippingData, setShippingData] = useState(null);
   const prevCountRef = useRef(cartItems.length);
 
