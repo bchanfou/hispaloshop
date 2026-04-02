@@ -31,6 +31,7 @@ function StatusBadge({ status }) {
 }
 
 export default function AdminPayouts() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState('pending');
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);

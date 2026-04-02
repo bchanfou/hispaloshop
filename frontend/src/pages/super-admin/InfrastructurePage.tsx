@@ -47,6 +47,7 @@ function StatusDot({ status }) {
 }
 
 export default function InfrastructurePage() {
+  const { t } = useTranslation();
   const [health, setHealth] = useState({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

@@ -57,6 +57,7 @@ function QuickLink({ icon: Icon, label, to }) {
 }
 
 export default function AdminOverview() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fiscalStats, setFiscalStats] = useState(null);

@@ -51,6 +51,7 @@ function DeadlineBadge({ deadline }) {
 }
 
 export default function GDPRPage() {
+  const { t } = useTranslation();
   const [requests, setRequests] = useState([]);
   const [counts, setCounts] = useState({ deletion: 0, access: 0, portability: 0 });
   const [loading, setLoading] = useState(true);

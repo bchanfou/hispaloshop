@@ -178,6 +178,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
 }
 
 export default function AdminModerationPage() {
+  const { t } = useTranslation();
   const [queue, setQueue] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

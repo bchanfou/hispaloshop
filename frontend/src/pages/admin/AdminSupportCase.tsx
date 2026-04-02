@@ -66,6 +66,7 @@ function InfoRow({ label, value }) {
 // ── Component ─────────────────────────────────────────────────────────
 
 export default function AdminSupportCase() {
+  const { t } = useTranslation();
   const { caseId } = useParams();
   const navigate = useNavigate();
 

@@ -30,6 +30,7 @@ function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
 }
 
 export default function AdminFiscalPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [influencers, setInfluencers] = useState([]);

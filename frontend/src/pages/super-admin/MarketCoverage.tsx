@@ -36,6 +36,7 @@ function ToggleSwitch({ active, onClick, disabled }) {
 }
 
 export default function MarketCoverage() {
+  const { t } = useTranslation();
   const { countries: ctxCountries } = useLocale();
   const [marketData, setMarketData] = useState(null);
   const [loading, setLoading] = useState(true);

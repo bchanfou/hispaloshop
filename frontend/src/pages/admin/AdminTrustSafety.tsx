@@ -108,6 +108,7 @@ function Pagination({ page, pages, onPrev, onNext }) {
 // ── Queue tab ─────────────────────────────────────────────────────────
 
 function QueueTab() {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
@@ -280,6 +281,7 @@ function QueueTab() {
 // ── Reports tab ───────────────────────────────────────────────────────
 
 function ReportsTab() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
@@ -397,6 +399,7 @@ function ReportsTab() {
 // ── Stats tab ─────────────────────────────────────────────────────────
 
 function StatsTab({ stats, loading }) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -451,6 +454,7 @@ const TABS = [
 ];
 
 export default function AdminTrustSafety() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('queue');
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);

@@ -59,6 +59,7 @@ function formatDate() {
 }
 
 export default function SuperAdminOverview() {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

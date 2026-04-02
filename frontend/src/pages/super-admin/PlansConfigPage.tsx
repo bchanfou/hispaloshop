@@ -65,6 +65,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
 }
 
 export default function PlansConfigPage() {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState(SELLER_PLANS);
   const [tiers, setTiers] = useState(INFLUENCER_TIERS);
   const [showConfirm, setShowConfirm] = useState(false);

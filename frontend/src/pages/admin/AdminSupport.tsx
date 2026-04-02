@@ -64,6 +64,7 @@ const PRIORITIES = ['', 'baja', 'media', 'alta', 'urgente'];
 // ── Component ─────────────────────────────────────────────────────────
 
 export default function AdminSupport() {
+  const { t } = useTranslation();
   const [cases, setCases] = useState([]);
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);

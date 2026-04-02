@@ -138,6 +138,7 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
 
 /* ── Document Viewer Modal ──────────────────────────────── */
 function DocumentModal({ doc, docType, item, onClose }) {
+  const { t } = useTranslation();
   if (!doc) return null;
   const isPdf = doc.url && doc.url.toLowerCase().endsWith('.pdf');
   const confidence = doc.confidence || doc.ai_confidence;
@@ -235,6 +236,7 @@ function InfoRow({ label, value }) {
 
 /* ── Reject Modal ───────────────────────────────────────── */
 function RejectModal({ item, onClose, onConfirm }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState('');
   const [docs, setDocs] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -311,6 +313,7 @@ function RejectModal({ item, onClose, onConfirm }) {
 
 /* ── Request Docs Modal ─────────────────────────────────── */
 function RequestDocsModal({ item, onClose, onConfirm }) {
+  const { t } = useTranslation();
   const name = item.business_name || 'Productor';
   const [message, setMessage] = useState(
     `Hola ${name}, hemos revisado tu documentación y necesitamos que nos envíes documentación adicional para completar la verificación.`
@@ -369,6 +372,7 @@ function RequestDocsModal({ item, onClose, onConfirm }) {
 
 /* ── Main Component ─────────────────────────────────────── */
 export default function AdminVerificationPage() {
+  const { t } = useTranslation();
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending');
