@@ -846,8 +846,9 @@ async def _execute_withdrawal(db, influencer, user, request, now):
         else:
             bank_holder = bank_iban = bank_bic = None
 
+        wd_id_self = f"wd_{uuid.uuid4().hex[:12]}"
         withdrawal_record = {
-            "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
+            "withdrawal_id": wd_id_self,
             "influencer_id": influencer["influencer_id"],
             "amount": gross_amount,
             "gross_amount": gross_amount,
@@ -890,31 +891,27 @@ async def _execute_withdrawal(db, influencer, user, request, now):
                 "admin_notes": "",
             })
 
+        paid_set = {
+            "commission_status": "paid",
+            "paid_at": now.isoformat(),
+            "stripe_transfer_id": transfer_id,
+            "withdrawal_id": wd_id_self,
+        }
         if gross_amount >= available_balance:
             await db.influencer_commissions.update_many(
                 {"commission_id": {"$in": eligible_commission_ids}},
-                {"$set": {
-                    "commission_status": "paid",
-                    "paid_at": now.isoformat(),
-                    "stripe_transfer_id": transfer_id
-                }}
+                {"$set": paid_set},
             )
         else:
             remaining = gross_amount
             for comm in available_commissions:
                 if comm["commission_id"] not in eligible_commission_ids or remaining <= 0:
                     continue
-                comm_amount = comm.get("commission_amount", 0)
-                # Mark as paid even if commission exceeds remaining (partial coverage)
                 await db.influencer_commissions.update_one(
                     {"commission_id": comm["commission_id"]},
-                    {"$set": {
-                        "commission_status": "paid",
-                        "paid_at": now.isoformat(),
-                        "stripe_transfer_id": transfer_id
-                    }}
+                    {"$set": paid_set},
                 )
-                remaining -= comm_amount
+                remaining -= comm.get("commission_amount", 0)
                 if remaining <= 0:
                     break
 
@@ -1335,15 +1332,14 @@ async def get_influencer_payouts(user: User = Depends(get_current_user)):
     for wd in withdrawals:
         # Count commissions in this withdrawal (works for both Stripe and SEPA)
         comm_count = 0
-        if wd.get("stripe_transfer_id"):
+        wd_id = wd.get("withdrawal_id")
+        if wd_id:
+            # Preferred: match by withdrawal_id stored on commission records
+            comm_count = await db.influencer_commissions.count_documents({"withdrawal_id": wd_id})
+        if comm_count == 0 and wd.get("stripe_transfer_id"):
+            # Fallback for legacy records: match by stripe_transfer_id
             comm_count = await db.influencer_commissions.count_documents({
                 "stripe_transfer_id": wd["stripe_transfer_id"],
-            })
-        elif wd.get("withdrawal_id"):
-            # SEPA withdrawals: count commissions paid around the same time
-            comm_count = await db.influencer_commissions.count_documents({
-                "influencer_id": wd["influencer_id"],
-                "paid_at": wd.get("created_at"),
             })
 
         payouts.append({
@@ -1491,8 +1487,9 @@ async def process_influencer_payouts():
                 }},
             )
             # Record withdrawal (with withholding details)
+            wd_id = f"wd_{uuid.uuid4().hex[:12]}"
             await db.influencer_withdrawals.insert_one({
-                "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
+                "withdrawal_id": wd_id,
                 "influencer_id": inf_id,
                 "gross_amount": round(gross_amount, 2),
                 "withholding_amount_eur": round(withholding_amount, 2),
@@ -1515,7 +1512,7 @@ async def process_influencer_payouts():
                     "gross_amount": round(gross_amount, 2),
                     "withholding_pct": withholding_pct,
                     "withholding_amount": round(withholding_amount, 2),
-                    "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
+                    "withdrawal_id": wd_id,
                     "created_at": now_iso,
                     "source": "auto_payout",
                 })
