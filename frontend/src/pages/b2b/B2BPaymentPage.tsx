@@ -4,6 +4,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, Shield, Check, AlertCircle, ShieldAlert } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { captureException } from '../../lib/sentry';
 
@@ -37,6 +38,7 @@ export default function B2BPaymentPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const paymentType = searchParams.get('type') || 'deposit';
 

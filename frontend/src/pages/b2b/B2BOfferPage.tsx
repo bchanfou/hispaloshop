@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Constants ─────────────────────────────────────────────── */
 const STEP_LABELS = ['Producto', 'Precio', 'Logística', 'Revisar'];

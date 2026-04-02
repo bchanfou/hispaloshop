@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { captureException } from '../../lib/sentry';
 
@@ -43,6 +44,7 @@ export default function B2BContractPage() {
   const { operationId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [operation, setOperation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function B2BContractPage() {
       return op;
     } catch (err) {
       captureException(err);
-      setError(err?.data?.detail || err?.message || 'No se pudo cargar la operación');
+      setError(err?.data?.detail || err?.response?.data?.detail || err?.message || 'No se pudo cargar la operación');
       return null;
     } finally {
       setLoading(false);

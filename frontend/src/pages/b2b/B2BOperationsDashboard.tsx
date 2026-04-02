@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Briefcase, CheckCircle, AlertTriangle, Loader2, ShieldAlert } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const POLL_INTERVAL = 20000; // 20 seconds
 

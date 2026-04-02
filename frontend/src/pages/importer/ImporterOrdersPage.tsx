@@ -4,7 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, Truck, ExternalLink, Search, ChevronDown, MessageCircle, PackageCheck } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
+
+const fmtPrice = (value, cur = 'EUR') =>
+  (Number(value) || 0).toLocaleString(undefined, { style: 'currency', currency: cur });
 
 const ORDER_FILTERS = [
   { id: 'all', label: 'Todos' },
@@ -131,12 +136,12 @@ function B2BOrderCard({ order, onRefresh }) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-stone-950 truncate">{order.product_name}</p>
             <p className="text-xs text-stone-500">
-              {order.quantity || '—'} {order.unit || 'uds'} × {Number(order.unit_price || 0).toFixed(2)}€
+              {order.quantity || '—'} {order.unit || 'uds'} × {fmtPrice(order.unit_price, order.currency)}
             </p>
           </div>
           <div className="text-right shrink-0">
             <p className="text-base font-extrabold text-stone-950">
-              {Number(order.total || 0).toFixed(2)}€
+              {fmtPrice(order.total, order.currency)}
             </p>
             <p className="text-[11px] text-stone-400">{formatRelativeTime(order.created_at)}</p>
           </div>
@@ -165,11 +170,11 @@ function B2BOrderCard({ order, onRefresh }) {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-stone-950 truncate">{item.name || 'Producto'}</p>
                         <p className="text-[11px] text-stone-500">
-                          {item.quantity || 1} × {Number(item.unit_price || 0).toFixed(2)}€
+                          {item.quantity || 1} × {fmtPrice(item.unit_price, order.currency)}
                         </p>
                       </div>
                       <span className="text-xs font-bold text-stone-950">
-                        {(Number(item.quantity || 1) * Number(item.unit_price || 0)).toFixed(2)}€
+                        {fmtPrice(Number(item.quantity || 1) * Number(item.unit_price || 0), order.currency)}
                       </span>
                     </div>
                   ))}
@@ -192,7 +197,7 @@ function B2BOrderCard({ order, onRefresh }) {
               {/* Total + payment status */}
               <div className="flex items-center justify-between mb-3 px-1">
                 <span className="text-xs text-stone-500">Total</span>
-                <span className="text-sm font-bold text-stone-950">{Number(order.total || 0).toFixed(2)}€</span>
+                <span className="text-sm font-bold text-stone-950">{fmtPrice(order.total, order.currency)}</span>
               </div>
               {order.payment_status && (
                 <div className="flex items-center justify-between mb-3 px-1">
@@ -258,7 +263,7 @@ function B2BOrderCard({ order, onRefresh }) {
               ✓ El productor confirmó disponibilidad
             </p>
             <p className="text-xs text-stone-500 mb-2">
-              Precio final: {Number(order.confirmed_unit_price || order.unit_price || 0).toFixed(2)}€/{order.unit || 'ud'}
+              Precio final: {fmtPrice(order.confirmed_unit_price || order.unit_price, order.currency)}/{order.unit || 'ud'}
               {order.producer_notes && (
                 <span className="block mt-1">Nota: "{order.producer_notes}"</span>
               )}
