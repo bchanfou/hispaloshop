@@ -591,6 +591,9 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         },
     })
 
+    # Manual payouts pending
+    pending_payouts = await db.manual_payouts.count_documents({"status": "pending"})
+
     # Expiring certificates (within 30 days)
     thirty_days = now + timedelta(days=30)
     expiring_cert_query: Dict[str, Any] = {
@@ -620,6 +623,7 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         "pending_verifications": pending_verifications,
         "blocked_by_expired_cert": blocked_by_expired_cert,
         "expiring_certificates": expiring_certificates,
+        "pending_payouts": pending_payouts,
     }
 
 
@@ -689,7 +693,8 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     pending_products = await db.products.count_documents({"status": {"$ne": "active"}, "approved": False})
     pending_certs = await db.certificates.count_documents({"approved": False})
     flagged_posts = await db.user_posts.count_documents({"status": "reported"})
-    
+    manual_payouts_pending = await db.manual_payouts.count_documents({"status": "pending"})
+
     # Platform commission
     commission_total = await db.orders.aggregate([
         {"$match": {"status": {"$in": paid_statuses}, "total_platform_fee": {"$exists": True}}},
@@ -774,7 +779,7 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
         "users": {"total": total_users, "by_role": users_by_role, "new_7d": new_users_7d},
         "revenue": {"total": round(total_revenue, 2), "last_30d": round(revenue_30d, 2), "platform_commission": round(platform_commission, 2)},
         "orders": {"total": total_orders, "last_30d": orders_30d},
-        "pending": {"sellers": pending_sellers, "products": pending_products, "certificates": pending_certs, "flagged_posts": flagged_posts},
+        "pending": {"sellers": pending_sellers, "products": pending_products, "certificates": pending_certs, "flagged_posts": flagged_posts, "manual_payouts": manual_payouts_pending},
         "visits": {"total": total_visits, "last_7d": visits_7d, "by_country": [{"country": v["_id"] or "Unknown", "count": v["count"]} for v in visits_by_country], "daily": [{"date": d["_id"], "count": d["count"]} for d in daily_visits]},
         "countries": countries_data,
         "top_sellers": top_sellers,

@@ -90,6 +90,7 @@ export default function FinancialDashboard() {
   const { t } = useTranslation();
   const [ledger, setLedger] = useState(null);
   const [payouts, setPayouts] = useState([]);
+  const [manualPayouts, setManualPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -103,12 +104,14 @@ export default function FinancialDashboard() {
       const ledgerParams = new URLSearchParams({ limit: '500' });
       if (dateFrom) ledgerParams.set('from', dateFrom);
       if (dateTo) ledgerParams.set('to', dateTo);
-      const [ledgerData, payoutsPayload] = await Promise.all([
+      const [ledgerData, payoutsPayload, manualData] = await Promise.all([
         apiClient.get(`/admin/financial-ledger?${ledgerParams.toString()}`),
         apiClient.get('/payments/scheduled-payouts'),
+        apiClient.get('/admin/payouts/pending').catch(() => ({ payouts: [] })),
       ]);
       setLedger(ledgerData || null);
       setPayouts(Array.isArray(payoutsPayload) ? payoutsPayload : (Array.isArray(payoutsPayload?.payouts) ? payoutsPayload.payouts : []));
+      setManualPayouts(manualData?.payouts || []);
     } catch (err) {
       toast.error('Error cargando datos financieros');
     } finally {
@@ -283,6 +286,48 @@ export default function FinancialDashboard() {
             <span className="ml-1.5">Ejecutar payouts</span>
           </button>
         </div>
+      )}
+
+      {/* Manual bank transfer payouts */}
+      {manualPayouts.length > 0 && (
+        <SACard>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[15px] font-bold text-stone-100 flex items-center gap-2">
+              <Receipt className="w-4 h-4 text-stone-500" />
+              Transferencias bancarias pendientes
+            </h2>
+            <a href="/admin/payouts" className="text-xs text-stone-400 hover:text-stone-200 underline">
+              Gestionar
+            </a>
+          </div>
+          <div className="space-y-2">
+            {manualPayouts.slice(0, 5).map(p => (
+              <div key={p.payout_id} className="flex items-center justify-between py-2 border-b border-stone-800 last:border-0">
+                <div>
+                  <p className="text-sm font-medium text-stone-200">{p.producer_name}</p>
+                  <p className="text-xs text-stone-500">{p.bank_details?.bank_name} &middot; {p.bank_details?.country}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-stone-100">{p.amount?.toFixed(2)} {p.currency}</p>
+                  <p className="text-[10px] text-stone-500">{p.requested_at?.slice(0, 10)}</p>
+                </div>
+              </div>
+            ))}
+            {manualPayouts.length > 5 && (
+              <p className="text-xs text-stone-500 pt-1">+{manualPayouts.length - 5} mas pendientes</p>
+            )}
+          </div>
+          <div className="mt-3 pt-3 border-t border-stone-800 flex justify-between items-center">
+            <span className="text-xs text-stone-400">
+              Total pendiente: <strong className="text-stone-200">
+                {manualPayouts.reduce((s, p) => s + (p.amount || 0), 0).toFixed(2)}
+              </strong>
+            </span>
+            <a href="/admin/payouts" className="px-3 py-1.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-xl text-xs font-medium transition-colors">
+              Procesar transferencias
+            </a>
+          </div>
+        </SACard>
       )}
 
       {/* Summary Cards */}

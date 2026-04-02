@@ -624,7 +624,7 @@ export default function ImporterDashboardPage() {
                         {order.producer_name || 'Productor'}
                       </p>
                       <p className="text-xs text-stone-500">
-                        Último pedido: {order.created_at ? new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        Último pedido: {(() => { const d = order.created_at ? new Date(order.created_at) : null; return d && !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'; })()}
                       </p>
                     </div>
                     {order.producer_id && (
@@ -731,7 +731,7 @@ export default function ImporterDashboardPage() {
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
-            { icon: CreditCard, label: 'Datos bancarios', sublabel: 'Stripe Connect', to: '/producer/connect' },
+            { icon: CreditCard, label: 'Método de cobro', sublabel: 'Stripe o transferencia', to: '/producer/payments' },
             { icon: KeyRound, label: 'Cambiar contraseña', sublabel: '', to: '/settings/password' },
           ].map((item, i) => (
             <Link

@@ -224,6 +224,7 @@ export default function SuperAdminOverview() {
             { label: 'Productos por revisar', count: pending.products || 0, to: '/super-admin/content' },
             { label: 'Certificados', count: pending.certificates || 0, to: '/super-admin/content' },
             { label: 'Contenido reportado', count: pending.flagged_posts || 0, to: '/super-admin/content' },
+            { label: 'Transferencias bancarias', count: pending.manual_payouts || 0, to: '/admin/payouts' },
           ].map(item => (
             <Link
               key={item.label}

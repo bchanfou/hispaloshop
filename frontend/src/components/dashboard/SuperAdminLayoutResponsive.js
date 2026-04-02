@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Shield, ArrowLeft, LogOut, Users, BarChart3,
   TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert,
-  Zap, Lock, Settings
+  Zap, Lock, Settings, Receipt
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
@@ -32,6 +32,7 @@ export default function SuperAdminLayoutResponsive() {
     { to: '/super-admin/markets', icon: Globe, label: 'Países', shortLabel: 'Países' },
     { to: '/super-admin/admins', icon: Users, label: 'Admins', shortLabel: 'Admins' },
     { to: '/super-admin/finance', icon: Wallet, label: 'Finanzas', shortLabel: 'Finanzas' },
+    { to: '/admin/payouts', icon: Receipt, label: 'Payouts', shortLabel: 'Payouts' },
     { to: '/super-admin/plans', icon: Zap, label: 'Planes', shortLabel: 'Planes' },
     { to: '/super-admin/users', icon: Users, label: 'Usuarios', shortLabel: 'Usuarios' },
     { to: '/super-admin/content', icon: Package, label: 'Contenido', shortLabel: 'Contenido' },

@@ -173,6 +173,7 @@ export default function AdminOverview() {
           <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/moderation" />
           <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
+          <PendingRow label="Payouts manuales" count={stats?.pending_payouts || 0} to="/admin/payouts" />
         </div>
       </div>
 
