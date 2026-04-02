@@ -8,6 +8,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Constants ── */
 const TOTAL_STEPS = 3;
@@ -129,12 +130,12 @@ export default function OnboardingPage() {
     if (!file) return;
     // O-04: Validate type and size before accepting
     if (!file.type.startsWith('image/')) {
-      toast.error('Solo se permiten imágenes');
+      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
       e.target.value = '';
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('La imagen no puede superar 5 MB');
+      toast.error(t('onboarding.laImagenNoPuedeSuperar5Mb', 'La imagen no puede superar 5 MB'));
       e.target.value = '';
       return;
     }
@@ -156,7 +157,7 @@ export default function OnboardingPage() {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
         } catch {
-          toast.error('No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente.');
+          toast.error(t('onboarding.noSePudoSubirLaFotoDePerfilPero', 'No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente.'));
         }
       }
 

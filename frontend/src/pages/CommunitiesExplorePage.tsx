@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const FILTERS = [
   { id: 'all',       label: 'Todas' },
@@ -109,7 +110,7 @@ export default function CommunitiesExplorePage() {
             <button
               onClick={() => setSearchInput('')}
               className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center"
-              aria-label="Limpiar búsqueda"
+              aria-label={t('search.limpiarBusqueda', 'Limpiar búsqueda')}
             >
               <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-stone-100">
                 <X size={13} className="text-stone-500" />
@@ -407,7 +408,7 @@ const CommunityCard = React.memo(({ community, onToggled }) => {
       // Rollback
       setJoined(wasJoined);
       setMemberCount(community.member_count || 0);
-      toast.error('Error al actualizar membresía');
+      toast.error(t('community.errorAlActualizarMembresia', 'Error al actualizar membresía'));
     } finally {
       setIsToggling(false);
     }

@@ -53,7 +53,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           <button
             onClick={() => onConfirm(password)}
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-[#dc2626] rounded-2xl text-stone-100 text-sm font-bold disabled:opacity-50"
+            className="flex-1 py-2.5 bg-stone-950 rounded-2xl text-white text-sm font-bold disabled:opacity-50"
           >
             {isSaving ? '...' : 'Confirmar'}
           </button>
@@ -133,7 +133,7 @@ export default function PlansConfigPage() {
       toast.success('Configuración actualizada y guardada');
       setShowConfirm(false);
     } catch (err) {
-      toast.error(err?.data?.detail || 'Error al guardar configuración');
+      toast.error(err?.response?.data?.detail || 'Error al guardar configuración');
     } finally {
       setIsSaving(false);
     }

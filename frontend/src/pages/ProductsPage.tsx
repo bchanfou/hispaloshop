@@ -339,7 +339,7 @@ export default function ProductsPage() {
                 type="button"
                 onClick={() => { setViewMode('grid'); localStorage.setItem('products_view_mode', 'grid'); }}
                 className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
-                aria-label="Vista cuadrícula"
+                aria-label={t('products.vistaCuadricula', 'Vista cuadrícula')}
                 aria-pressed={viewMode === 'grid'}
               >
                 <LayoutGrid className="h-4 w-4" />
@@ -419,7 +419,7 @@ export default function ProductsPage() {
                 value={filters.minPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, minPrice: event.target.value }))}
                 className="h-6 w-14 border-0 bg-transparent p-0 text-sm text-stone-950 placeholder:text-stone-300 focus:outline-none"
-                aria-label="Precio mínimo"
+                aria-label={t('products.precioMinimo', 'Precio mínimo')}
               />
               <div className="h-px w-3 bg-stone-300" />
               <input
@@ -428,7 +428,7 @@ export default function ProductsPage() {
                 value={filters.maxPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, maxPrice: event.target.value }))}
                 className="h-6 w-14 border-0 bg-transparent p-0 text-sm text-stone-950 placeholder:text-stone-300 focus:outline-none"
-                aria-label="Precio máximo"
+                aria-label={t('products.precioMaximo', 'Precio máximo')}
               />
               <span className="text-xs font-medium text-stone-400">{currencySymbol}</span>
             </div>
@@ -502,7 +502,7 @@ export default function ProductsPage() {
             {filters.category ? (
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {getCategoryLabel(filters.category)}
-                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de categoría">
+                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label={t('products.quitarFiltroDeCategoria', 'Quitar filtro de categoría')}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -511,7 +511,7 @@ export default function ProductsPage() {
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-xs font-medium text-white">
                 <Truck className="h-3 w-3" />
                 {t('products.freeShipping', 'Envío gratis')}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10" aria-label="Quitar filtro de envío gratis">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10" aria-label={t('products.quitarFiltroDeEnvioGratis', 'Quitar filtro de envío gratis')}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -519,7 +519,7 @@ export default function ProductsPage() {
             {filters.origin_country ? (
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {allCountries.find((item) => item.code === filters.origin_country)?.name || filters.origin_country}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de país">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label={t('products.quitarFiltroDePais', 'Quitar filtro de país')}>
                   <X className="h-3 w-3" />
                 </button>
               </span>

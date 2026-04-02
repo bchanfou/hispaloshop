@@ -5,7 +5,7 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 const TYPE_CONFIG = {
-  deletion: { label: 'Derecho al olvido', icon: Trash2, color: '#dc2626' },
+  deletion: { label: 'Derecho al olvido', icon: Trash2, color: '#44403c' },
   access: { label: 'Acceso a datos', icon: FileText, color: '#ffffff' },
   portability: { label: 'Portabilidad', icon: Download, color: '#78716c' },
 };
@@ -20,7 +20,9 @@ function SACard({ children, className = '' }) {
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const diff = Date.now() - d.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `hace ${mins}m`;
   const hours = Math.floor(mins / 60);
@@ -31,12 +33,14 @@ function formatRelativeTime(dateStr) {
 
 function DeadlineBadge({ deadline }) {
   if (!deadline) return null;
-  const daysLeft = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const deadlineDate = new Date(deadline);
+  if (isNaN(deadlineDate.getTime())) return null;
+  const daysLeft = Math.ceil((deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   const isUrgent = daysLeft <= 7;
   const isWarning = daysLeft <= 14;
   return (
     <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
-      isUrgent ? 'bg-[#dc2626]/20 text-[#dc2626]'
+      isUrgent ? 'bg-stone-200 text-stone-700'
         : isWarning ? 'bg-[#78716c]/20 text-[#78716c]'
           : 'bg-white/10 text-white/40'
     }`}>
@@ -79,8 +83,8 @@ export default function GDPRPage() {
         ? 'Solicitud procesada. Datos eliminados/exportados.'
         : 'Solicitud rechazada.');
       fetchData();
-    } catch {
-      toast.error('Error al procesar la solicitud GDPR');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al procesar la solicitud GDPR');
     }
   };
 
@@ -194,8 +198,8 @@ function ExportUserTool() {
       a.click();
       URL.revokeObjectURL(url);
       toast.success('Datos exportados');
-    } catch {
-      toast.error('Error al exportar datos');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al exportar datos');
     } finally {
       setExporting(false);
     }

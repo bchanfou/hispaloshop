@@ -11,6 +11,7 @@ import { resolveUserImage } from '../features/user/queries';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 const ALLERGEN_MAP = [
   { key: 'gluten', flag: 'is_gluten_free', label: '🌾 Gluten' },
@@ -189,7 +190,7 @@ export default function RecipeDetailPage() {
       } else if (added > 0) {
         toast.error(`${added} añadidos, ${failed} fallaron`);
       } else {
-        toast.error('Error al añadir productos al carrito');
+        toast.error(t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
       }
     } else {
       setShowShoppingList(true);
@@ -201,9 +202,9 @@ export default function RecipeDetailPage() {
     if (!productId) return;
     try {
       await addToCart(productId, 1);
-      toast.success('Añadido al carrito');
+      toast.success(t('ai.addedToCart', 'Añadido al carrito'));
     } catch {
-      toast.error('Error al añadir');
+      toast.error(t('recipe_detail.errorAlAnadir', 'Error al añadir'));
     }
   };
 
@@ -221,7 +222,7 @@ export default function RecipeDetailPage() {
         await navigator.clipboard.writeText(url);
         toast.success('Enlace copiado');
       } catch {
-        toast.error('No se pudo copiar el enlace');
+        toast.error(t('recipe_detail.noSePudoCopiarElEnlace', 'No se pudo copiar el enlace'));
       }
     }
   };
@@ -235,14 +236,14 @@ export default function RecipeDetailPage() {
         existing.push({ name: ingredient.name, display: name, added_at: Date.now() });
         localStorage.setItem('shopping_list', JSON.stringify(existing));
       }
-      toast.success('Añadido a la lista');
+      toast.success(t('recipe_detail.anadidoALaLista', 'Añadido a la lista'));
     } catch {
-      toast.error('No se pudo guardar en la lista');
+      toast.error(t('recipe_detail.noSePudoGuardarEnLaLista', 'No se pudo guardar en la lista'));
     }
   };
 
   const handleSubmitReview = async () => {
-    if (!reviewRating) { toast.error('Selecciona una valoración'); return; }
+    if (!reviewRating) { toast.error(t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración')); return; }
     setSubmittingReview(true);
     try {
       const newReview = await apiClient.post(`/recipes/${recipeId}/reviews`, {
@@ -263,7 +264,7 @@ export default function RecipeDetailPage() {
       setHasReviewed(true);
       setReviewRating(0);
       setReviewText('');
-      toast.success('Valoración publicada');
+      toast.success(t('recipe_detail.valoracionPublicada', 'Valoración publicada'));
     } catch (err: any) {
       toast.error(err?.message || 'Error al publicar la valoración');
     } finally {
@@ -438,7 +439,7 @@ export default function RecipeDetailPage() {
             <button
               type="button"
               onClick={() => setPortions(p => p + 1)}
-              aria-label="Más porciones"
+              aria-label={t('recipe_detail.masPorciones', 'Más porciones')}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer"
             >
               <Plus size={16} />

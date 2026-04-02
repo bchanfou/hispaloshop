@@ -6,6 +6,7 @@ import ReelCard from '../components/feed/ReelCard';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const REEL_TABS = [
   { key: 'foryou', label: 'Para ti' },
@@ -68,7 +69,7 @@ export default function ReelsPage() {
     } catch {
       setHasMore(false);
       // Don't show error toast on first load — just show empty state
-      if (p > 1) toast.error('Error al cargar más reels');
+      if (p > 1) toast.error(t('reels.errorAlCargarMasReels', 'Error al cargar más reels'));
     } finally {
       setLoading(false);
       fetchingRef.current = false;

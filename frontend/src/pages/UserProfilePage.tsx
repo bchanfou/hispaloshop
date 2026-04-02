@@ -17,6 +17,7 @@ import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -135,7 +136,7 @@ export default function UserProfilePage() {
       }]);
       setShowOwnStory(true);
     } catch {
-      toast.error('Error al cargar tus stories');
+      toast.error(t('user_profile.errorAlCargarTusStories', 'Error al cargar tus stories'));
     }
   }, [user?.user_id, user?.name, user?.profile_image, profileLookupKey]);
 
@@ -202,7 +203,7 @@ export default function UserProfilePage() {
       refetch();
       toast.success('Foto actualizada');
     } catch {
-      toast.error('Error al subir la foto');
+      toast.error(t('user_profile.errorAlSubirLaFoto', 'Error al subir la foto'));
     }
   }, [refetch]);
 
@@ -212,7 +213,7 @@ export default function UserProfilePage() {
       const data = await apiClient.post('/chat/conversations', { other_user_id: user.user_id });
       const convId = data?.conversation_id || data?.id;
       if (convId) navigate(`/messages/${convId}`);
-      else toast.error('No se pudo abrir la conversación');
+      else toast.error(t('user_profile.noSePudoAbrirLaConversacion', 'No se pudo abrir la conversación'));
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || 'Error al crear conversación');
     }

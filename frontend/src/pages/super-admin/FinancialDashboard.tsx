@@ -128,7 +128,7 @@ export default function FinancialDashboard() {
       toast.success(t('admin.pendingPayouts') + ' - OK');
       fetchData();
     } catch (err) {
-      toast.error('Error procesando payouts');
+      toast.error(err?.response?.data?.detail || 'Error procesando payouts');
     } finally {
       setProcessing(false);
     }
@@ -152,7 +152,7 @@ export default function FinancialDashboard() {
       window.URL.revokeObjectURL(url);
       toast.success('Reporte descargado correctamente');
     } catch (err) {
-      toast.error('Error descargando reporte');
+      toast.error(err?.response?.data?.detail || 'Error descargando reporte');
     } finally {
       setDownloading(false);
     }
@@ -308,7 +308,7 @@ export default function FinancialDashboard() {
                   <p className="text-xs text-stone-500">{p.bank_details?.bank_name} &middot; {p.bank_details?.country}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-stone-100">{p.amount?.toFixed(2)} {p.currency}</p>
+                  <p className="text-sm font-bold text-stone-100">{safeNumber(p.amount).toFixed(2)} {p.currency}</p>
                   <p className="text-[10px] text-stone-500">{p.requested_at?.slice(0, 10)}</p>
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default function FinancialDashboard() {
           <div className="mt-3 pt-3 border-t border-stone-800 flex justify-between items-center">
             <span className="text-xs text-stone-400">
               Total pendiente: <strong className="text-stone-200">
-                {manualPayouts.reduce((s, p) => s + (p.amount || 0), 0).toFixed(2)}
+                {manualPayouts.reduce((s, p) => s + safeNumber(p.amount), 0).toFixed(2)}
               </strong>
             </span>
             <a href="/admin/payouts" className="px-3 py-1.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-xl text-xs font-medium transition-colors">

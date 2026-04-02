@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
     if (!reviewComment.trim()) { toast.error('Escribe un comentario'); return; }
     try {
       await submitReview({ orderId: reviewOrderId, rating: reviewRating, comment: reviewComment });
-      toast.success('Reseña enviada');
+      toast.success(t('product_detail.resenaEnviada', 'Reseña enviada'));
       setShowReviewForm(false); setReviewComment(''); setReviewRating(5);
     } catch (error) { toast.error(error.message || 'No hemos podido enviar la reseña'); }
   };
@@ -236,7 +236,7 @@ export default function ProductDetailPage() {
   const [askingProducer, setAskingProducer] = React.useState(false);
   const handleAskProducer = async () => {
     const producerId = product?.producer_id;
-    if (!producerId) { toast.error('Chat no disponible para este producto'); return; }
+    if (!producerId) { toast.error(t('product_detail.chatNoDisponibleParaEsteProducto', 'Chat no disponible para este producto')); return; }
     if (askingProducer) return;
     setAskingProducer(true);
     try {
@@ -246,7 +246,7 @@ export default function ProductDetailPage() {
         navigate(`/messages/${conversationId}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
       }
     } catch {
-      toast.error('No se pudo abrir el chat');
+      toast.error(t('product_detail.noSePudoAbrirElChat', 'No se pudo abrir el chat'));
     } finally {
       setAskingProducer(false);
     }
@@ -1033,7 +1033,7 @@ export default function ProductDetailPage() {
             <p className="mb-3 text-sm font-semibold text-stone-950">
               {t('productDetail.yourReview', 'Tu reseña')}
             </p>
-            <div role="radiogroup" aria-label="Puntuación" className="mb-3 flex gap-1">
+            <div role="radiogroup" aria-label={t('product_detail.puntuacion', 'Puntuación')} className="mb-3 flex gap-1">
               {[1,2,3,4,5,6,7,8,9,10].map((num) => (
                 <button
                   key={num}
@@ -1056,7 +1056,7 @@ export default function ProductDetailPage() {
               value={reviewComment}
               onChange={(e) => setReviewComment(e.target.value)}
               placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
-              aria-label="Comentario de la reseña"
+              aria-label={t('product_detail.comentarioDeLaResena', 'Comentario de la reseña')}
               rows={3}
               className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-100 px-3 py-2.5 text-[13px] text-stone-950 outline-none"
             />

@@ -9,6 +9,7 @@ import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
+import { useTranslation } from 'react-i18next';
 
 /* ── Tab config ── */
 
@@ -398,7 +399,7 @@ function CollectionsGrid({ items }: { items: any[] }) {
       setCreating(false);
       queryClient.invalidateQueries({ queryKey: ['saved', 'collections'] });
     } catch {
-      toast.error('Error al crear la colección');
+      toast.error(t('saved.errorAlCrearLaColeccion', 'Error al crear la colección'));
     }
   }, [newName, queryClient]);
 
@@ -413,7 +414,7 @@ function CollectionsGrid({ items }: { items: any[] }) {
             value={newName}
             onChange={e => setNewName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-            placeholder="Nombre de la colección"
+            placeholder={t('saved.nombreDeLaColeccion', 'Nombre de la colección')}
             className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-950 placeholder:text-stone-400 outline-none"
           />
           <button onClick={handleCreate} className="h-10 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors">

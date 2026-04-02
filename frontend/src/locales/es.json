@@ -255,7 +255,10 @@
     "isInfluencer": "Eres influencer",
     "joinProgram": "Únete al programa",
     "justBuy": "Solo quieres comprar",
-    "createBuyerAccount": "Crear cuenta de comprador"
+    "createBuyerAccount": "Crear cuenta de comprador",
+    "errorAlConectarConGoogle": "Error al conectar con Google.",
+    "mariaGarcia": "María García",
+    "minimo8Caracteres": "Mínimo 8 caracteres"
   },
   "products": {
     "title": "Todos los Productos",
@@ -314,7 +317,13 @@
     "applyFilters": "Aplicar filtros",
     "notAvailableCountry": "Este producto no está disponible para entrega en tu país",
     "notAvailable": "No disponible",
-    "notAvailableRegion": "No disponible en tu región"
+    "notAvailableRegion": "No disponible en tu región",
+    "vistaCuadricula": "Vista cuadrícula",
+    "precioMinimo": "Precio mínimo",
+    "precioMaximo": "Precio máximo",
+    "quitarFiltroDeCategoria": "Quitar filtro de categoría",
+    "quitarFiltroDeEnvioGratis": "Quitar filtro de envío gratis",
+    "quitarFiltroDePais": "Quitar filtro de país"
   },
   "certifications": {
     "halal": "Halal",
@@ -419,7 +428,9 @@
     "hours": "Horario",
     "stats": "Estadísticas",
     "rating": "Valoración",
-    "product": "Producto"
+    "product": "Producto",
+    "iniciaSesionParaEnviarUnMensaje": "Inicia sesión para enviar un mensaje",
+    "seccionesDeLaTienda": "Secciones de la tienda"
   },
   "cart": {
     "title": "Carrito de Compra",
@@ -436,7 +447,8 @@
     "checkout": "Proceder al Pago",
     "itemsInCart": "itemás en tu carrito",
     "viewCart": "Ver carrito",
-    "more": "más..."
+    "more": "más...",
+    "aplicarCodigoDeDescuento": "Aplicar código de descuento"
   },
   "checkout": {
     "title": "Pago",
@@ -499,7 +511,10 @@
     "proceedToCheckout": "Proceder al Pago",
     "secureCheckout": "Pago Seguro con Stripe",
     "emailVerified": "Email verificado",
-    "emailVerifiedSuccess": "Email verificado correctamente!"
+    "emailVerifiedSuccess": "Email verificado correctamente!",
+    "direccionGuardada": "Dirección guardada",
+    "seleccionaUnaDireccion": "Selecciona una dirección",
+    "noSePudoIniciarElPagoIntentaloDe": "No se pudo iniciar el pago. Inténtalo de nuevo."
   },
   "orders": {
     "title": "Mis Pedidos",
@@ -1946,7 +1961,10 @@
     "title": "Notificaciones",
     "markRead": "Marcar leídas",
     "empty": "Sin notificaciones",
-    "newNotification": "Nueva notificación"
+    "newNotification": "Nueva notificación",
+    "eliminarNotificacion": "Eliminar notificación",
+    "noSePudieronEliminarLasNotificacion": "No se pudieron eliminar las notificaciones",
+    "marcarTodoComoLeido": "Marcar todo como leído"
   },
   "actions": {
     "newProduct": "Nuevo Producto",
@@ -2379,7 +2397,8 @@
     "by": "Por",
     "min": "min",
     "portions": "porciones",
-    "notFound": "Receta no encontrada"
+    "notFound": "Receta no encontrada",
+    "borrarBusqueda": "Borrar búsqueda"
   },
   "customerDashboard": {
     "greeting": "Hola",
@@ -2592,7 +2611,10 @@
     "placeholder": "Buscar usuarios, productos, pedidos...",
     "noResults": "Sin resultados para",
     "toSearch": "para buscar",
-    "toClose": "para cerrar"
+    "toClose": "para cerrar",
+    "elPrecioMinimoNoPuedeSerMayorQue": "El precio mínimo no puede ser mayor que el máximo",
+    "errorAlBuscarIntentaloDeNuevo": "Error al buscar. Inténtalo de nuevo.",
+    "limpiarBusqueda": "Limpiar búsqueda"
   },
   "influencerAI": {
     "inputPlaceholder": "Describe que contenido necesitas..."
@@ -2638,5 +2660,70 @@
     "firstReviewDesc": "Escribiste tu primera reseña",
     "explorer": "Explorador",
     "explorerDesc": "Seguiste a 5 tiendas"
+  },
+  "product_detail": {
+    "resenaEnviada": "Reseña enviada",
+    "chatNoDisponibleParaEsteProducto": "Chat no disponible para este producto",
+    "noSePudoAbrirElChat": "No se pudo abrir el chat",
+    "puntuacion": "Puntuación",
+    "comentarioDeLaResena": "Comentario de la reseña"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "Error al añadir productos al carrito",
+    "errorAlAnadir": "Error al añadir",
+    "noSePudoCopiarElEnlace": "No se pudo copiar el enlace",
+    "anadidoALaLista": "Añadido a la lista",
+    "noSePudoGuardarEnLaLista": "No se pudo guardar en la lista",
+    "seleccionaUnaValoracion": "Selecciona una valoración",
+    "valoracionPublicada": "Valoración publicada",
+    "masPorciones": "Más porciones"
+  },
+  "community": {
+    "configuracion": "Configuración",
+    "errorAlActualizarMembresia": "Error al actualizar membresía",
+    "escribeAlgoOAnadeUnaImagen": "Escribe algo o añade una imagen",
+    "queQuieresCompartirPuedesUsarHas": "¿Qué quieres compartir? Puedes usar #hashtags",
+    "anadirImagen": "Añadir imagen"
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "Error al cargar tus stories",
+    "errorAlSubirLaFoto": "Error al subir la foto",
+    "noSePudoAbrirLaConversacion": "No se pudo abrir la conversación"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "Error al dejar de seguir",
+    "cargarMasUsuarios": "Cargar más usuarios"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "Error al crear la colección",
+    "nombreDeLaColeccion": "Nombre de la colección"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Error al iniciar sesión con Google.",
+    "tuContrasena": "Tu contraseña"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "Reenviar email de recuperación",
+    "enviarEnlaceDeRecuperacion": "Enviar enlace de recuperación"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "La imagen no puede superar 5 MB",
+    "noSePudoSubirLaFotoDePerfilPero": "No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente."
+  },
+  "post_detail": {
+    "publicacionEditada": "Publicación editada",
+    "editarDescripcion": "Editar descripción"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "No hemos podido cargar la imagen",
+    "noHemosPodidoCargarLaImagenDelPas": "No hemos podido cargar la imagen del paso",
+    "numeroDeRaciones": "Número de raciones",
+    "anadirIngrediente": "Añadir ingrediente",
+    "cuentaQueHaceEspecialEstaReceta": "Cuenta qué hace especial esta receta...",
+    "descripcionDeLaReceta": "Descripción de la receta",
+    "anadirEtiqueta": "Añadir etiqueta..."
+  },
+  "reels": {
+    "errorAlCargarMasReels": "Error al cargar más reels"
   }
 }

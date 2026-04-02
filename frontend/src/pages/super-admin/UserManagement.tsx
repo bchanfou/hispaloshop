@@ -134,7 +134,7 @@ export default function UserManagement() {
       fetchUsers();
       fetchStats();
     } catch (error) {
-      toast.error(error.message || t('userManagement.errors.updateFailed'));
+      toast.error(error?.response?.data?.detail || error.message || t('userManagement.errors.updateFailed'));
     } finally {
       setActionLoading(null);
     }
@@ -149,7 +149,7 @@ export default function UserManagement() {
       fetchUsers();
       fetchStats();
     } catch (error) {
-      toast.error(error.message || t('userManagement.errors.deleteFailed'));
+      toast.error(error?.response?.data?.detail || error.message || t('userManagement.errors.deleteFailed'));
     } finally {
       setActionLoading(null);
     }
@@ -174,7 +174,7 @@ export default function UserManagement() {
       setNewPassword('');
       fetchUsers();
     } catch (error) {
-      toast.error(error.message || t('userManagement.errors.credentialsFailed'));
+      toast.error(error?.response?.data?.detail || error.message || t('userManagement.errors.credentialsFailed'));
     } finally {
       setActionLoading(null);
     }

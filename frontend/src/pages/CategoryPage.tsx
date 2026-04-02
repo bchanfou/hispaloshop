@@ -14,6 +14,7 @@ import {
 import { CATEGORIES } from '../components/feed/CategoryPills';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+import { useTranslation } from 'react-i18next';
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevancia' },
@@ -188,7 +189,7 @@ const CategoryPage = () => {
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                aria-label="Vista cuadrícula"
+                aria-label={t('products.vistaCuadricula', 'Vista cuadrícula')}
                 className={`flex h-11 w-11 items-center justify-center transition-colors ${
                   viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'
                 }`}

@@ -7,6 +7,7 @@ import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 const DIFFICULTY_PILLS = [
   { id: 'all', label: 'Todas' },
@@ -296,7 +297,7 @@ export default function RecipesPage() {
             <button
               type="button"
               onClick={() => setSearchInput('')}
-              aria-label="Borrar búsqueda"
+              aria-label={t('recipes.borrarBusqueda', 'Borrar búsqueda')}
               className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-none bg-stone-200 cursor-pointer text-stone-500"
             >
               <X size={13} />

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -66,7 +67,7 @@ export default function ForgotPasswordPage() {
           type="button"
           onClick={handleResend}
           disabled={cooldown > 0 || sending}
-          aria-label="Reenviar email de recuperación"
+          aria-label={t('forgot_password.reenviarEmailDeRecuperacion', 'Reenviar email de recuperación')}
           className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {sending ? <Loader2 size={18} className="animate-spin" /> : cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar email'}
@@ -110,7 +111,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          aria-label="Enviar enlace de recuperación"
+          aria-label={t('forgot_password.enviarEnlaceDeRecuperacion', 'Enviar enlace de recuperación')}
           className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enviar enlace'}

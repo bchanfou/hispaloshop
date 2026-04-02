@@ -17,6 +17,7 @@ import apiClient from '../services/api/client';
 import { useStoreFollow } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 const normalizeEntityId = (v) => (v == null ? '' : String(v));
 
@@ -102,7 +103,7 @@ export default function StorePage() {
 
   /* ── Handlers ── */
   const handleToggleFollow = async () => {
-    if (!user) { toast.error('Inicia sesión para seguir tiendas'); return; }
+    if (!user) { toast.error(t('store.loginToFollow', 'Inicia sesión para seguir tiendas')); return; }
     try {
       await handleFollowStore();
       toast.success(isFollowing ? 'Dejaste de seguir' : 'Ahora sigues esta tienda');
@@ -110,14 +111,14 @@ export default function StorePage() {
   };
 
   const handleChat = async () => {
-    if (!user) { toast.error('Inicia sesión para enviar un mensaje'); return; }
+    if (!user) { toast.error(t('store.iniciaSesionParaEnviarUnMensaje', 'Inicia sesión para enviar un mensaje')); return; }
     const storeUserId = store?.user_id || store?.producer_id;
     if (!storeUserId) { toast.error('Esta tienda no tiene chat disponible'); return; }
     try {
       const conv = await openConversation(storeUserId, 'b2c');
       const conversationId = conv?.id || conv?.conversation_id;
       if (conversationId) navigate(`/messages/${conversationId}`);
-    } catch { toast.error('No se pudo abrir el chat'); }
+    } catch { toast.error(t('product_detail.noSePudoAbrirElChat', 'No se pudo abrir el chat')); }
   };
 
   const handleShare = async () => {
@@ -334,7 +335,7 @@ export default function StorePage() {
 
       {/* ── Sticky Tab Bar ── */}
       <div className="sticky top-0 z-40 bg-stone-50 border-b border-stone-200 mt-4">
-        <div role="tablist" aria-label="Secciones de la tienda" className="flex overflow-x-auto px-4 scrollbar-hide">
+        <div role="tablist" aria-label={t('store.seccionesDeLaTienda', 'Secciones de la tienda')} className="flex overflow-x-auto px-4 scrollbar-hide">
           {tabs.map((tab) => (
             <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-3 whitespace-nowrap min-h-[44px] text-[13px] bg-transparent border-none cursor-pointer border-b-2 transition-colors ${

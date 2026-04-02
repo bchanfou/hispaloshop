@@ -36,7 +36,7 @@ function StatusDot({ status }) {
     status === 'ok' ? '#0c0a09' :
     status === 'degraded' ? '#78716c' :
     status === 'unknown' ? '#8E8E93' :
-    '#dc2626';
+    '#44403c';
   return (
     <div
       className="w-2 h-2 rounded-full shrink-0"
@@ -82,11 +82,11 @@ export default function InfrastructurePage() {
 
       setHealth(serviceHealth);
       if (showToast) toast.success('Estado actualizado');
-    } catch {
+    } catch (err) {
       const unknown = {};
       SERVICES.forEach(s => { unknown[s.key] = { status: 'unknown' }; });
       setHealth(unknown);
-      if (showToast) toast.error('Error comprobando estado');
+      if (showToast) toast.error(err?.response?.data?.detail || 'Error comprobando estado');
     } finally {
       setLoading(false);
       setRefreshing(false);

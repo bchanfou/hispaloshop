@@ -8,6 +8,7 @@ import apiClient from '../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
 import BottomSheet from '../components/motion/BottomSheet';
+import { useTranslation } from 'react-i18next';
 
 /* ── Render caption with hashtags/mentions ── */
 function renderCaption(text, navigate) {
@@ -257,7 +258,7 @@ export default function PostDetailPage() {
       await apiClient.patch(endpoint, { caption: editCaption });
       setLocalCaption(editCaption);
       setShowEditCaption(false);
-      toast.success('Publicación editada');
+      toast.success(t('post_detail.publicacionEditada', 'Publicación editada'));
     } catch (err) {
       toast.error('Error al editar');
     }
@@ -355,7 +356,7 @@ export default function PostDetailPage() {
             </Link>
             {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
           </div>
-          <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label="Más opciones" onClick={() => setShowMenu(v => !v)}>
+          <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label={t('common.moreOptions', 'Más opciones')} onClick={() => setShowMenu(v => !v)}>
             <MoreHorizontal size={20} className="text-stone-500" />
           </button>
         </div>
@@ -477,7 +478,7 @@ export default function PostDetailPage() {
               value={editCaption}
               onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
               className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
-              aria-label="Editar descripción"
+              aria-label={t('post_detail.editarDescripcion', 'Editar descripción')}
             />
             <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
             <button
@@ -631,7 +632,7 @@ export default function PostDetailPage() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); } }}
-              placeholder="Añade un comentario..."
+              placeholder={t('feed.addComment', 'Añade un comentario...')}
               className="flex-1 h-9 rounded-full bg-stone-100 px-3.5 text-[13px] text-stone-950 placeholder:text-stone-400 font-sans outline-none border-none"
               disabled={sending}
             />

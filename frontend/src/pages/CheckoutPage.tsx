@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/cart/hooks';
 import { useCartVerification } from '../features/cart/hooks/useCartVerification';
+import { useTranslation } from 'react-i18next';
 
 /* ── Stepper ── */
 function Stepper({ current, onStepClick }) {
@@ -187,7 +188,7 @@ export default function CheckoutPage() {
         setSelectedAddressId(result.id || result.address_id);
       }
       setShowNewForm(false);
-      toast.success('Dirección guardada');
+      toast.success(t('checkout.direccionGuardada', 'Dirección guardada'));
     } catch (err) {
       toast.error(err?.message || 'Error al guardar la dirección');
     }
@@ -216,14 +217,14 @@ export default function CheckoutPage() {
     payingRef.current = true;
     setPaying(true);
     if (!cartItems || cartItems.length === 0) {
-      toast.error('Tu carrito está vacío');
+      toast.error(t('cart.empty', 'Tu carrito está vacío'));
       navigate('/cart');
       payingRef.current = false;
       setPaying(false);
       return;
     }
     const addr = selectedAddress;
-    if (!addr) { toast.error('Selecciona una dirección'); payingRef.current = false; setPaying(false); return; }
+    if (!addr) { toast.error(t('checkout.seleccionaUnaDireccion', 'Selecciona una dirección')); payingRef.current = false; setPaying(false); return; }
     try {
       const response = await createCheckout({
         shippingAddress: {
@@ -237,7 +238,7 @@ export default function CheckoutPage() {
         origin: window.location.origin,
       });
       if (!response?.url) {
-        toast.error('No se pudo iniciar el pago. Inténtalo de nuevo.');
+        toast.error(t('checkout.noSePudoIniciarElPagoIntentaloDe', 'No se pudo iniciar el pago. Inténtalo de nuevo.'));
         payingRef.current = false;
         setPaying(false);
         return;
@@ -360,7 +361,7 @@ export default function CheckoutPage() {
                           value={newAddress.full_name}
                           onChange={e => setNewAddress(p => ({ ...p, full_name: e.target.value }))}
                           className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
-                          placeholder="María García"
+                          placeholder={t('register.mariaGarcia', 'María García')}
                         />
                       </div>
                       <div>
@@ -461,7 +462,7 @@ export default function CheckoutPage() {
 
             {/* Continue */}
             <button
-              onClick={() => { if (selectedAddress) setStep(2); else toast.error('Selecciona una dirección'); }}
+              onClick={() => { if (selectedAddress) setStep(2); else toast.error(t('checkout.seleccionaUnaDireccion', 'Selecciona una dirección')); }}
               disabled={!selectedAddress}
               className={`w-full h-12 mt-5 rounded-full text-[15px] font-semibold transition-colors ${
                 selectedAddress
@@ -525,7 +526,7 @@ export default function CheckoutPage() {
                       onChange={e => { setDiscountCode(e.target.value); if (discountError) setDiscountError(''); }}
                       placeholder="CODIGO10"
                       className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${discountError ? 'border-stone-400' : 'border-stone-200'}`}
-                      aria-label="Código de descuento"
+                      aria-label={t('cart.discountCode', 'Código de descuento')}
                     />
                     <button
                       onClick={handleApplyDiscount}

@@ -18,6 +18,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // ── Icon map by notification type ────────────────────────────────
 const TYPE_META = {
@@ -363,7 +364,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(notifKey); }}
           className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer"
-          aria-label="Eliminar notificación"
+          aria-label={t('notifications.eliminarNotificacion', 'Eliminar notificación')}
         >
           <Trash2 className="w-[18px] h-[18px] text-white" strokeWidth={1.8} />
           <span className="text-[10px] text-white font-medium">Eliminar</span>
@@ -556,7 +557,7 @@ export default function NotificationsPage() {
       await queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
       toast.success('Notificaciones eliminadas');
     } catch {
-      toast.error('No se pudieron eliminar las notificaciones');
+      toast.error(t('notifications.noSePudieronEliminarLasNotificacion', 'No se pudieron eliminar las notificaciones'));
     }
   };
 
@@ -622,7 +623,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => markAll()}
               className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer"
-              aria-label="Marcar todo como leído"
+              aria-label={t('notifications.marcarTodoComoLeido', 'Marcar todo como leído')}
             >
               Leído
             </button>

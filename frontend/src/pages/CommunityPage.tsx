@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
@@ -187,7 +188,7 @@ export default function CommunityPage() {
         </span>
         {isAdmin && (
           <Link to={`/communities/${slug}/settings`}
-            aria-label="Configuración"
+            aria-label={t('community.configuracion', 'Configuración')}
             className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
             <Settings size={20} />
           </Link>
@@ -342,7 +343,7 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       onToggle?.();
     } catch {
       setJoined(wasJoined);
-      toast.error('Error al actualizar membresía');
+      toast.error(t('community.errorAlActualizarMembresia', 'Error al actualizar membresía'));
     } finally {
       setLoading(false);
     }
@@ -482,7 +483,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
   const submit = async () => {
     if (!text.trim() && !imageUrl) {
-      toast.error('Escribe algo o añade una imagen');
+      toast.error(t('community.escribeAlgoOAnadeUnaImagen', 'Escribe algo o añade una imagen'));
       return;
     }
     setIsPosting(true);
@@ -507,7 +508,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       className="bg-white rounded-2xl shadow-sm p-3.5 mb-3.5">
       <textarea
         value={text} onChange={e => setText(e.target.value)}
-        placeholder="¿Qué quieres compartir? Puedes usar #hashtags"
+        placeholder={t('community.queQuieresCompartirPuedesUsarHas', '¿Qué quieres compartir? Puedes usar #hashtags')}
         rows={3} maxLength={1000}
         className="resize-none mb-2.5 leading-relaxed w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
         autoFocus
@@ -533,7 +534,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
         <button onClick={() => fileRef.current?.click()}
           className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Subir imagen"
-          title="Añadir imagen">
+          title={t('community.anadirImagen', 'Añadir imagen')}>
           📷
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />

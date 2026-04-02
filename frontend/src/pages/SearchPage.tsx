@@ -9,6 +9,7 @@ import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 /* ── Autocomplete Suggestion Item ── */
 function SuggestionItem({ item, type, onClick }) {
@@ -323,7 +324,7 @@ export default function SearchPage() {
     const validMax = !isNaN(max) && max >= 0 ? String(max) : '';
     // Ensure min <= max when both provided
     if (validMin && validMax && parseFloat(validMin) > parseFloat(validMax)) {
-      toast.error('El precio mínimo no puede ser mayor que el máximo');
+      toast.error(t('search.elPrecioMinimoNoPuedeSerMayorQue', 'El precio mínimo no puede ser mayor que el máximo'));
       return;
     }
     setAppliedFilters({ minPrice: validMin, maxPrice: validMax, certs: [...filterCerts], inStock: filterInStock, freeShipping: filterFreeShipping });
@@ -429,7 +430,7 @@ export default function SearchPage() {
       } catch (err) {
         if (reqId !== searchIdRef.current) return;
         setResults(null);
-        toast.error('Error al buscar. Inténtalo de nuevo.');
+        toast.error(t('search.errorAlBuscarIntentaloDeNuevo', 'Error al buscar. Inténtalo de nuevo.'));
       } finally {
         if (reqId === searchIdRef.current) setLoading(false);
       }
@@ -527,7 +528,7 @@ export default function SearchPage() {
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                   type="button"
-                  aria-label="Limpiar búsqueda"
+                  aria-label={t('search.limpiarBusqueda', 'Limpiar búsqueda')}
                   onClick={() => { setQuery(''); setResults(null); setSearchParams({}); inputRef.current?.focus(); }}
                   className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-300"
                 >

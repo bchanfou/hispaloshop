@@ -15,6 +15,7 @@ import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
+import { useTranslation } from 'react-i18next';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
 function ShippingProgressBar({ store, currencyCode = 'EUR' }) {
@@ -807,7 +808,7 @@ export default function CartPage() {
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
                     <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
-                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn" aria-label="Aplicar código de descuento">
+                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn" aria-label={t('cart.aplicarCodigoDeDescuento', 'Aplicar código de descuento')}>
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>
                   </div>

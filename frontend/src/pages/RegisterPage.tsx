@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Password strength helper ── */
 function getPasswordStrength(pw) {
@@ -339,7 +340,7 @@ export default function RegisterPage() {
     try {
       const data = await authApi.getGoogleAuthUrl();
       if (data.auth_url) window.location.href = data.auth_url;
-      else toast.error('Error al conectar con Google.');
+      else toast.error(t('register.errorAlConectarConGoogle', 'Error al conectar con Google.'));
     } catch (error) {
       toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
     }
@@ -442,7 +443,7 @@ export default function RegisterPage() {
           <input
             value={form.fullName}
             onChange={e => updateForm('fullName', e.target.value)}
-            placeholder="María García"
+            placeholder={t('register.mariaGarcia', 'María García')}
             autoComplete="name"
             className={inputClass(errors.fullName)}
           />
@@ -512,7 +513,7 @@ export default function RegisterPage() {
               type={showPassword ? 'text' : 'password'}
               value={form.password}
               onChange={e => updateForm('password', e.target.value)}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t('register.minimo8Caracteres', 'Mínimo 8 caracteres')}
               autoComplete="new-password"
               className={`w-full h-12 px-4 pr-12 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
                 errors.password ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'

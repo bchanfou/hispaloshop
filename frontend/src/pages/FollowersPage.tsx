@@ -5,6 +5,7 @@ import { ArrowLeft, Search, X, Loader2, UserCheck, UserPlus } from 'lucide-react
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -182,7 +183,7 @@ export default function FollowersPage() {
         const uid = u.user_id || u.id;
         return uid === targetId ? { ...u, is_following: true } : u;
       }));
-      toast.error('Error al dejar de seguir');
+      toast.error(t('followers.errorAlDejarDeSeguir', 'Error al dejar de seguir'));
     } finally {
       followInFlightRef.current.delete(targetId);
     }
@@ -248,7 +249,7 @@ export default function FollowersPage() {
           {search && (
             <button
               onClick={() => { setSearch(''); inputRef.current?.focus(); }}
-              aria-label="Borrar búsqueda"
+              aria-label={t('recipes.borrarBusqueda', 'Borrar búsqueda')}
               className="flex p-0"
             >
               <X size={16} className="text-stone-400" />
@@ -309,7 +310,7 @@ export default function FollowersPage() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  aria-label="Cargar más usuarios"
+                  aria-label={t('followers.cargarMasUsuarios', 'Cargar más usuarios')}
                   className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-7 py-2.5 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-50 disabled:opacity-50"
                 >
                   {loadingMore ? (

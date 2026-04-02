@@ -92,7 +92,7 @@ export default function ContentManagement() {
       await fetchProducts();
       await fetchProductStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
     } finally {
       setActionLoading(null);
     }
@@ -106,7 +106,7 @@ export default function ContentManagement() {
       await fetchProducts();
       await fetchProductStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
     } finally {
       setActionLoading(null);
     }
@@ -120,7 +120,7 @@ export default function ContentManagement() {
       await fetchCertificates();
       await fetchCertStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
     } finally {
       setActionLoading(null);
     }
@@ -134,7 +134,7 @@ export default function ContentManagement() {
       await fetchCertificates();
       await fetchCertStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
     } finally {
       setActionLoading(null);
     }
@@ -150,7 +150,7 @@ export default function ContentManagement() {
       await fetchProducts();
       await fetchProductStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);
     }
   };
@@ -165,7 +165,7 @@ export default function ContentManagement() {
       await fetchCertificates();
       await fetchCertStats();
     } catch (error) {
-      toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
+      toast.error(error?.response?.data?.detail || error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);
     }
   };

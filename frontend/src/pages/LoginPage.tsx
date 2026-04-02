@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
+import { useTranslation } from 'react-i18next';
 
 const ROLE_DESTINATIONS = {
   customer:    '/',
@@ -142,7 +143,7 @@ export default function LoginPage() {
       if (data.auth_url) {
         window.location.href = data.auth_url;
       } else {
-        toast.error('Error al iniciar sesión con Google.');
+        toast.error(t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.'));
       }
     } catch (error) {
       toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
@@ -251,7 +252,7 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
-              placeholder="Tu contraseña"
+              placeholder={t('login.tuContrasena', 'Tu contraseña')}
               autoComplete="current-password"
               className={`w-full h-12 px-4 pr-11 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
                 errors.password

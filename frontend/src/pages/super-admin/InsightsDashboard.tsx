@@ -243,31 +243,31 @@ export default function InsightsDashboard() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-stone-950 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              Insights Configuration
+              Configuración de Insights
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Anonymity Threshold
+                  Umbral de anonimato
                 </label>
                 <input
                   type="number"
                   min="5"
                   max="100"
                   value={configForm.anonymity_threshold}
-                  onChange={(e) => setConfigForm({...configForm, anonymity_threshold: parseInt(e.target.value)})}
+                  onChange={(e) => { const n = parseInt(e.target.value); setConfigForm({...configForm, anonymity_threshold: isNaN(n) ? 5 : n}); }}
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl"
                 />
                 <p className="text-xs text-stone-500 mt-1">
-                  Minimum users required to display sensitive aggregated data
+                  Mínimo de usuarios requeridos para mostrar datos sensibles agregados
                 </p>
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-stone-600">Fear Tracking</label>
-                  <p className="text-xs text-stone-500">Infer health concerns from AI chats</p>
+                  <label className="text-sm font-medium text-stone-600">Seguimiento de preocupaciones</label>
+                  <p className="text-xs text-stone-500">Inferir preocupaciones de salud desde chats IA</p>
                 </div>
                 <input
                   type="checkbox"
@@ -279,8 +279,8 @@ export default function InsightsDashboard() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-stone-600">Health Inference</label>
-                  <p className="text-xs text-stone-500">Detect diet goals and health objectives</p>
+                  <label className="text-sm font-medium text-stone-600">Inferencia de salud</label>
+                  <p className="text-xs text-stone-500">Detectar objetivos dietéticos y de salud</p>
                 </div>
                 <input
                   type="checkbox"
@@ -292,8 +292,8 @@ export default function InsightsDashboard() {
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowConfigModal(false)} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors">Cancel</button>
-              <button onClick={saveConfig} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">Save</button>
+              <button type="button" onClick={() => setShowConfigModal(false)} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors">Cancelar</button>
+              <button type="button" onClick={saveConfig} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">Guardar</button>
             </div>
           </div>
         </div>
@@ -988,7 +988,7 @@ function ComplianceTab({ data, config }) {
                 ) : (
                   <AlertTriangle className="w-5 h-5 text-stone-500" />
                 )}
-                Anonymity Status
+                Estado de anonimato
               </h3>
               <p className="text-3xl font-bold mb-2">
                 {anonymityCompliance.fully_compliant ? 'Compliant' : 'Review Needed'}
@@ -1079,7 +1079,7 @@ function ComplianceTab({ data, config }) {
                               </span>
                             </td>
                             <td className="py-2 text-stone-500">
-                              {consent.consent_date ? new Date(consent.consent_date).toLocaleDateString('es-ES') : '-'}
+                              {consent.consent_date && !isNaN(new Date(consent.consent_date).getTime()) ? new Date(consent.consent_date).toLocaleDateString('es-ES') : '-'}
                             </td>
                           </tr>
                         ))}
@@ -1158,7 +1158,7 @@ function ComplianceTab({ data, config }) {
 
               {/* Generated timestamp */}
               <p className="text-xs text-stone-500 text-right">
-                Generated: {gdprSummary?.generated_at ? new Date(gdprSummary.generated_at).toLocaleString() : '-'}
+                Generado: {gdprSummary?.generated_at && !isNaN(new Date(gdprSummary.generated_at).getTime()) ? new Date(gdprSummary.generated_at).toLocaleString('es-ES') : '-'}
               </p>
             </>
           ) : (

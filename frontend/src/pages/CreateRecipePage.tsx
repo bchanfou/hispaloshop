@@ -243,7 +243,7 @@ export default function CreateRecipePage() {
   const handleMainImage = async (file) => {
     if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
     if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamano maximo es 10MB')); return; }
-    try { updateRecipe('image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen'); }
+    try { updateRecipe('image_url', await fileToDataUrl(file)); } catch { toast.error(t('create_recipe.noHemosPodidoCargarLaImagen', 'No hemos podido cargar la imagen')); }
   };
 
   const handleDrop = async (e) => { e.preventDefault(); setDragActive(false); const f = e.dataTransfer.files?.[0]; if (f) await handleMainImage(f); };
@@ -280,7 +280,7 @@ export default function CreateRecipePage() {
   const handleStepImage = async (index, file) => {
     if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
     if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB')); return; }
-    try { updateStep(index, 'image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen del paso'); }
+    try { updateStep(index, 'image_url', await fileToDataUrl(file)); } catch { toast.error(t('create_recipe.noHemosPodidoCargarLaImagenDelPas', 'No hemos podido cargar la imagen del paso')); }
   };
 
   const cycleDifficulty = () => { const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty); updateRecipe('difficulty', DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length]); };
@@ -431,8 +431,8 @@ export default function CreateRecipePage() {
         <input
           value={recipe.title}
           onChange={(e) => updateRecipe('title', e.target.value)}
-          placeholder="Nombre de la receta"
-          aria-label="Nombre de la receta"
+          placeholder={t('recipes.recipeName', 'Nombre de la receta')}
+          aria-label={t('recipes.recipeName', 'Nombre de la receta')}
           data-testid="recipe-title-input"
           className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-red-500' : 'border-none'}`}
         />
@@ -458,7 +458,7 @@ export default function CreateRecipePage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
             <Users size={14} className="mx-auto mb-1 text-stone-400" />
             <div className="flex items-baseline justify-center gap-0.5">
-              <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label="Número de raciones" className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
+              <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label={t('create_recipe.numeroDeRaciones', 'Número de raciones')} className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
               <span className="text-[10px] text-stone-400">personas</span>
             </div>
           </div>
@@ -543,7 +543,7 @@ export default function CreateRecipePage() {
               value={manualIngredientInput}
               onChange={(e) => setManualIngredientInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addManualIngredient(); } }}
-              placeholder="Añadir ingrediente"
+              placeholder={t('create_recipe.anadirIngrediente', 'Añadir ingrediente')}
               aria-label="Nuevo ingrediente"
               className="flex-1 border-b border-stone-200 bg-transparent py-1.5 text-[11px] text-stone-950 outline-none placeholder:text-stone-400"
             />
@@ -635,8 +635,8 @@ export default function CreateRecipePage() {
             <textarea
               value={recipe.description}
               onChange={(e) => updateRecipe('description', e.target.value)}
-              placeholder="Cuenta qué hace especial esta receta..."
-              aria-label="Descripción de la receta"
+              placeholder={t('create_recipe.cuentaQueHaceEspecialEstaReceta', 'Cuenta qué hace especial esta receta...')}
+              aria-label={t('create_recipe.descripcionDeLaReceta', 'Descripción de la receta')}
               className="mt-2 w-full min-h-[90px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
             />
           )}
@@ -655,7 +655,7 @@ export default function CreateRecipePage() {
           </div>
           <input
             type="text"
-            placeholder="Añadir etiqueta..."
+            placeholder={t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')}
             className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:border-stone-400 outline-none box-border"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && e.target.value.trim()) {
