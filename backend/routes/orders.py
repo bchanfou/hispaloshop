@@ -246,9 +246,15 @@ async def execute_seller_transfers(order: dict):
     """
     order_id = order["order_id"]
     
+    existing_records = order.get("transfer_records", [])
     if order.get("transfers_executed"):
-        logger.info(f"[TRANSFERS] Already executed for {order_id}, skipping")
-        return {"transfer_records": order.get("transfer_records", []), "total_platform_fee": order.get("total_platform_fee", 0)}
+        # Allow retry only if there are failed transfers
+        has_failed = any(r.get("status") == "failed" for r in existing_records)
+        if not has_failed:
+            logger.info(f"[TRANSFERS] All completed for {order_id}, skipping")
+            return {"transfer_records": existing_records, "total_platform_fee": order.get("total_platform_fee", 0)}
+        logger.info(f"[TRANSFERS] Retrying failed transfers for {order_id}")
+    already_completed = {r["seller_id"] for r in existing_records if r.get("status") == "completed"}
     
     # Use the snapshot captured at checkout when available.
     commission_data = await _get_order_commission_data(order)
@@ -264,7 +270,12 @@ async def execute_seller_transfers(order: dict):
         seller_payout_cents = price_to_cents(split["seller_payout"])
         total_platform_fee += split["platform_gross"]
         total_influencer_cut += split.get("influencer_cut", 0)
-        
+
+        # Skip already-completed transfers on retry
+        if seller_id in already_completed:
+            transfer_records.append(next(r for r in existing_records if r["seller_id"] == seller_id))
+            continue
+
         # Resolve Stripe account
         resolved = await _resolve_seller_stripe(seller_id)
         stripe_account_id = resolved.get("stripe_account_id")

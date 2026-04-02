@@ -232,11 +232,11 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     all_orders = await db.orders.find(
         {"line_items.producer_id": user.user_id},
         {"_id": 0}
-    ).sort("created_at", -1).to_list(500)
-    
+    ).sort("created_at", -1).to_list(2000)
+
     seller_doc = await db.users.find_one(
         {"user_id": user.user_id},
-        {"_id": 0, "subscription.plan": 1, "stripe_account_id": 1},
+        {"_id": 0, "subscription.plan": 1, "stripe_account_id": 1, "fiscal_status": 1},
     )
     current_plan = normalize_seller_plan((seller_doc or {}).get("subscription", {}).get("plan"))
     current_commission_rate = float(COMMISSION_RATES[current_plan])
@@ -310,6 +310,10 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     if store and store.get("stripe_charges_enabled"):
         stripe_connected = True
     
+    # Tax withholding (fiscal status)
+    fiscal = (seller_doc or {}).get("fiscal_status", {})
+    tax_withholding_pct = fiscal.get("withholding_pct") if fiscal.get("certificate_verified") else None
+
     return {
         "total_gross": round(total_gross, 2),
         "total_net": round(total_net, 2),
@@ -321,7 +325,8 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         "pending_orders": pending_orders_count,
         "stripe_connected": stripe_connected,
         "recent_orders": recent_orders,
-        "monthly_summary": monthly_summary
+        "monthly_summary": monthly_summary,
+        "tax_withholding_pct": tax_withholding_pct,
     }
 
 @router.get("/producer/stats")

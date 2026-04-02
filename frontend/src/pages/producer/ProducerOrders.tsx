@@ -499,13 +499,13 @@ export default function ProducerOrders() {
                     )}
                     {order.status === 'confirmed' && (
                       <button
-                        onClick={() => handleQuickStatus(order, 'shipped')}
+                        onClick={() => handleQuickStatus(order, 'preparing')}
                         disabled={isOrderBusy(order.order_id)}
                         className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors disabled:opacity-50"
-                        data-testid={`quick-ship-inline-${order.order_id}`}
+                        data-testid={`quick-prepare-inline-${order.order_id}`}
                       >
-                        <Truck className="w-3 h-3" />
-                        Marcar enviado
+                        <Package className="w-3 h-3" />
+                        Preparar pedido
                       </button>
                     )}
 

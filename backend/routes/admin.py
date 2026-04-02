@@ -1888,16 +1888,22 @@ async def process_payout(payout_id: str, request: Request, user: User = Depends(
         producer_id = payout["producer_id"]
         amount = payout["amount"]
 
-        # Mark all unpaid splits for this producer as paid_out
+        # Mark unpaid splits as paid_out — cap by payout amount (oldest first)
         unpaid_orders = await db.orders.find(
             {"split_details": {"$elemMatch": {"producer_id": producer_id, "paid_out": {"$ne": True}}}},
-            {"_id": 0, "order_id": 1, "split_details": 1},
-        ).to_list(500)
+            {"_id": 0, "order_id": 1, "split_details": 1, "created_at": 1},
+        ).sort("created_at", 1).to_list(500)
+        remaining = float(amount)
         for order in unpaid_orders:
+            if remaining <= 0:
+                break
             updates = {}
             for i, split in enumerate(order.get("split_details", [])):
                 if split.get("producer_id") == producer_id and not split.get("paid_out"):
-                    updates[f"split_details.{i}.paid_out"] = True
+                    split_amount = split.get("seller_amount", split.get("net_earnings", 0))
+                    if remaining >= split_amount:
+                        updates[f"split_details.{i}.paid_out"] = True
+                        remaining -= split_amount
             if updates:
                 updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 await db.orders.update_one({"order_id": order["order_id"]}, {"$set": updates})
