@@ -315,7 +315,7 @@ function StepPrecio({ form, set }) {
   const price = Number(form.price_per_unit) || 0;
   const subtotalCents = Math.round(qty * price * 100);
   const commissionCents = Math.round(subtotalCents * 3 / 100);
-  const stripeCents = Math.round(subtotalCents * 14 / 1000);
+  const stripeCents = Math.round(subtotalCents * 14 / 1000) + 25; // 1.4% + 0.25€
   const netCents = subtotalCents - commissionCents - stripeCents;
   const subtotal = subtotalCents / 100;
   const commission = commissionCents / 100;
@@ -356,7 +356,7 @@ function StepPrecio({ form, set }) {
           {[
             [`Subtotal (${qty} × ${fmt(price, form.currency)})`, fmt(subtotal, form.currency)],
             ['Comisión (3%)', `−${fmt(commission, form.currency)}`],
-            ['Stripe (1,4%)', `−${fmt(stripe, form.currency)}`],
+            ['Stripe (1,4% + 0,25€)', `−${fmt(stripe, form.currency)}`],
           ].map(([l, v]) => (
             <div key={l} className="flex justify-between text-[13px] text-stone-500 mb-1.5">
               <span>{l}</span>
@@ -581,7 +581,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
             {[
               ['Subtotal', fmt(subtotal, form.currency)],
               ['Comisión (3%)', `−${fmt(commission, form.currency)}`],
-              ['Stripe (1,4%)', `−${fmt(stripe, form.currency)}`],
+              ['Stripe (1,4% + 0,25€)', `−${fmt(stripe, form.currency)}`],
             ].map(([l, v]) => (
               <div key={l} className="flex justify-between text-xs text-stone-500 mb-1">
                 <span>{l}</span>

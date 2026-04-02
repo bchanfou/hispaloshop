@@ -3,9 +3,10 @@ B2B Payments — Stripe PaymentIntent creation, capture, webhooks, and fee break
 for B2B operations (deposit / final payments).
 """
 import stripe
+import uuid
 from core.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 from core.database import get_db
-from core.auth import get_current_user
+from core.auth import get_current_user, require_role
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request
 import logging
@@ -355,7 +356,24 @@ async def stripe_b2b_webhook(request: Request):
                 )
                 logger.info("[B2B WEBHOOK] Final payment succeeded for operation %s — status -> completed", operation_id)
 
-            # FUTURE: Send notification to buyer/seller
+            # Notify buyer and seller
+            buyer_id = operation.get("buyer_id")
+            seller_id = operation.get("seller_id")
+            amount_str = f"{data_object.get('amount', 0) / 100:.2f} {data_object.get('currency', 'EUR').upper()}"
+            for uid, title, msg in [
+                (buyer_id, "Pago B2B confirmado", f"Tu pago de {amount_str} ha sido procesado correctamente."),
+                (seller_id, "Pago B2B recibido", f"Has recibido un pago de {amount_str} por la operación #{operation_id[-8:]}."),
+            ]:
+                if uid:
+                    await db.notifications.insert_one({
+                        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                        "user_id": uid,
+                        "type": "b2b_payment_confirmed",
+                        "title": title,
+                        "message": msg,
+                        "read": False,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    })
 
         # --- payment_intent.payment_failed ---
         elif event_type == "payment_intent.payment_failed":
@@ -527,3 +545,80 @@ async def confirm_delivery(
     )
 
     return {"delivered": True, "status": "delivered"}
+
+
+# ---------------------------------------------------------------------------
+# 7. POST /{operation_id}/refund — Refund a B2B payment
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/refund")
+async def refund_b2b_payment(operation_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Refund a B2B payment. Admin or seller can initiate."""
+    await require_role(user, ["admin", "super_admin", "producer", "importer"])
+
+    body = await request.json()
+    reason = (body.get("reason") or "").strip()[:500]
+
+    oid = _to_oid(operation_id)
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    # Only admin or the seller can refund
+    if user.role not in ("admin", "super_admin") and user.user_id != operation.get("seller_id"):
+        raise HTTPException(status_code=403, detail="Only admin or seller can process refunds")
+
+    # Find the succeeded payment intent
+    payments = operation.get("payments", [])
+    succeeded = [p for p in payments if p.get("status") == "succeeded" and p.get("payment_intent_id")]
+    if not succeeded:
+        raise HTTPException(status_code=400, detail="No successful payment to refund")
+
+    _ensure_stripe()
+    refunded_total = 0
+
+    for payment in succeeded:
+        pi_id = payment["payment_intent_id"]
+        try:
+            refund = stripe.Refund.create(
+                payment_intent=pi_id,
+                reason="requested_by_customer",
+                metadata={"operation_id": operation_id, "refunded_by": user.user_id},
+            )
+            refunded_total += refund.amount / 100
+
+            # Update payment status in operation
+            await db.b2b_operations.update_one(
+                {"_id": oid, "payments.payment_intent_id": pi_id},
+                {"$set": {"payments.$.status": "refunded", "payments.$.refund_id": refund.id}},
+            )
+        except stripe.error.StripeError as e:
+            logger.error(f"[B2B REFUND] Failed to refund {pi_id}: {e}")
+            raise HTTPException(status_code=400, detail=f"Stripe refund failed: {str(e)}")
+
+    # Update operation status
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {
+            "status": "refunded",
+            "refund_reason": reason,
+            "refunded_by": user.user_id,
+            "refunded_at": datetime.now(timezone.utc).isoformat(),
+            "refunded_total": round(refunded_total, 2),
+        }},
+    )
+
+    # Notify buyer
+    buyer_id = operation.get("buyer_id")
+    if buyer_id:
+        await db.notifications.insert_one({
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": buyer_id,
+            "type": "b2b_refund",
+            "title": "Reembolso B2B procesado",
+            "message": f"Se ha reembolsado {refunded_total:.2f} {operation.get('currency', 'EUR')} de la operación #{operation_id[-8:]}.",
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+    return {"refunded": True, "total_refunded": round(refunded_total, 2), "status": "refunded"}

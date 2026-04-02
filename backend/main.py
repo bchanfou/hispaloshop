@@ -352,6 +352,48 @@ async def legacy_health():
 
 
 # Startup event para validar configuracion
+async def _run_daily_cron():
+    """Background loop that runs scheduled B2B payments and influencer payouts daily."""
+    import asyncio
+    while True:
+        await asyncio.sleep(86400)  # 24 hours
+        try:
+            from core.database import db as _db
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            # B2B scheduled payments
+            pending = await _db.b2b_scheduled_payments.find(
+                {"status": "pending", "scheduled_for": {"$lte": now.isoformat()}}
+            ).to_list(100)
+            for p in pending:
+                try:
+                    import stripe as _stripe
+                    _stripe.api_key = settings.STRIPE_SECRET_KEY
+                    operation = await _db.b2b_operations.find_one({"_id": p.get("operation_id")})
+                    if not operation: continue
+                    seller = await _db.users.find_one({"user_id": operation.get("seller_id")})
+                    if not seller or not seller.get("stripe_account_id"): continue
+                    amount_cents = int(round(p.get("amount", 0) * 100))
+                    if amount_cents <= 0: continue
+                    _stripe.Transfer.create(
+                        amount=amount_cents,
+                        currency=p.get("currency", "eur"),
+                        destination=seller["stripe_account_id"],
+                        metadata={"type": "b2b_scheduled", "operation_id": str(p.get("operation_id"))},
+                    )
+                    await _db.b2b_scheduled_payments.update_one(
+                        {"_id": p["_id"]}, {"$set": {"status": "completed", "processed_at": now.isoformat()}}
+                    )
+                    logger.info(f"[CRON] B2B scheduled payment processed: {p.get('operation_id')}")
+                except Exception as exc:
+                    logger.error(f"[CRON] B2B scheduled payment failed: {exc}")
+                    await _db.b2b_scheduled_payments.update_one(
+                        {"_id": p["_id"]}, {"$set": {"status": "failed", "error": str(exc)[:200]}}
+                    )
+        except Exception as exc:
+            logger.error(f"[CRON] Daily cron error: {exc}")
+
+
 @app.on_event("startup")
 async def startup_event():
     """Validaciones adicionales en startup"""
@@ -366,6 +408,11 @@ async def startup_event():
     print(f"         Checkout Split + B2B Importer + Superadmin Enterprise")
     print(f"         Chat Real-Time + Notifications Omnichannel")
     print(f"{'='*50}\n")
+
+    # Launch daily cron background task
+    import asyncio
+    asyncio.create_task(_run_daily_cron())
+    logger.info("[STARTUP] Daily cron task launched (B2B scheduled payments)")
 
 
 @app.on_event("shutdown")
