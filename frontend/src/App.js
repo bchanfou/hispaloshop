@@ -115,6 +115,7 @@ const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportCase = lazy(() => import('./pages/admin/AdminSupportCase'));
 const AdminRefunds = lazy(() => import('./pages/admin/AdminRefunds'));
+const AdminPayouts = lazy(() => import('./pages/admin/AdminPayouts'));
 const AdminTrustSafety = lazy(() => import('./pages/admin/AdminTrustSafety'));
 const AdminGrowthAnalytics = lazy(() => import('./pages/admin/AdminGrowthAnalytics'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
@@ -560,6 +561,7 @@ function AppRouter() {
                 <Route path="support" element={<AdminSupport />} />
                 <Route path="support/:caseId" element={<AdminSupportCase />} />
                 <Route path="refunds" element={<AdminRefunds />} />
+                <Route path="payouts" element={<AdminPayouts />} />
                 <Route path="trust-safety" element={<AdminTrustSafety />} />
                 <Route path="growth" element={<AdminGrowthAnalytics />} />
                 <Route path="escalation" element={<EscalationChat />} />

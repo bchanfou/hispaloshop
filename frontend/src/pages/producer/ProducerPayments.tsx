@@ -140,6 +140,168 @@ function OrderRow({ order, expanded, onToggle }) {
   );
 }
 
+// ── Payout Method Selector ──
+function PayoutMethodSection({ stripeConnected, onRefresh }) {
+  const { t } = useTranslation();
+  const [payoutMethod, setPayoutMethod] = useState(null);
+  const [bankDetails, setBankDetails] = useState({
+    account_holder: '', bank_name: '', country: '', iban: '',
+    account_number: '', swift_bic: '', routing_number: '', currency: 'EUR', notes: ''
+  });
+  const [saving, setSaving] = useState(false);
+  const [loadingMethod, setLoadingMethod] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiClient.get('/producer/payout-method');
+        setPayoutMethod(res.payout_method || 'stripe');
+        if (res.bank_details) setBankDetails(prev => ({ ...prev, ...res.bank_details }));
+      } catch { /* use defaults */ }
+      finally { setLoadingMethod(false); }
+    })();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await apiClient.put('/producer/payout-method', {
+        payout_method: payoutMethod,
+        bank_details: payoutMethod === 'bank_transfer' ? bankDetails : undefined,
+      });
+      toast.success('Método de pago actualizado');
+      onRefresh?.();
+    } catch (err) {
+      toast.error(err.message || 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRequestPayout = async () => {
+    if (payoutMethod === 'stripe') {
+      toast.info('Los pagos via Stripe se procesan automáticamente cada 15 días');
+      return;
+    }
+    try {
+      // Get pending amount from parent data
+      const payments = await apiClient.get('/producer/payments');
+      const pending = payments?.pending_payout || 0;
+      if (pending <= 0) { toast.info('No tienes saldo pendiente'); return; }
+      await apiClient.post('/producer/request-payout', { amount: pending });
+      toast.success(`Solicitud de pago enviada: ${pending.toFixed(2)}€. El admin procesará la transferencia.`);
+      onRefresh?.();
+    } catch (err) {
+      toast.error(err.message || 'Error al solicitar pago');
+    }
+  };
+
+  if (loadingMethod) return null;
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
+      <h3 className="text-sm font-semibold text-stone-950">Método de cobro</h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => setPayoutMethod('stripe')}
+          className={`p-4 rounded-2xl border-2 text-left transition-all ${
+            payoutMethod === 'stripe' ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-300'
+          }`}
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <CreditCard className="w-4 h-4" />
+            <span className="font-semibold text-sm">Stripe Connect</span>
+          </div>
+          <p className="text-xs text-stone-500">Cobro automático cada 15 días directo a tu banco.</p>
+          {stripeConnected && <span className="inline-block mt-2 text-[10px] bg-stone-950 text-white px-2 py-0.5 rounded-full">Conectado</span>}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPayoutMethod('bank_transfer')}
+          className={`p-4 rounded-2xl border-2 text-left transition-all ${
+            payoutMethod === 'bank_transfer' ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-300'
+          }`}
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <Wallet className="w-4 h-4" />
+            <span className="font-semibold text-sm">Transferencia bancaria</span>
+          </div>
+          <p className="text-xs text-stone-500">Solicitas el pago y el equipo lo transfiere a tu cuenta.</p>
+        </button>
+      </div>
+
+      {payoutMethod === 'bank_transfer' && (
+        <div className="space-y-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">Titular de la cuenta *</label>
+              <input type="text" value={bankDetails.account_holder} onChange={e => setBankDetails(p => ({...p, account_holder: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                placeholder="Nombre completo o empresa" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">Banco *</label>
+              <input type="text" value={bankDetails.bank_name} onChange={e => setBankDetails(p => ({...p, bank_name: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                placeholder="Nombre del banco" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">País *</label>
+              <input type="text" value={bankDetails.country} onChange={e => setBankDetails(p => ({...p, country: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                placeholder="ES, US, MX..." maxLength={2} />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">Moneda</label>
+              <input type="text" value={bankDetails.currency} onChange={e => setBankDetails(p => ({...p, currency: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                placeholder="EUR, USD..." maxLength={3} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-stone-600 mb-1 block">IBAN</label>
+              <input type="text" value={bankDetails.iban} onChange={e => setBankDetails(p => ({...p, iban: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 font-mono"
+                placeholder="ES12 3456 7890 1234 5678 90" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">Nº de cuenta (si no IBAN)</label>
+              <input type="text" value={bankDetails.account_number} onChange={e => setBankDetails(p => ({...p, account_number: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 font-mono"
+                placeholder="1234567890" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-600 mb-1 block">SWIFT/BIC</label>
+              <input type="text" value={bankDetails.swift_bic} onChange={e => setBankDetails(p => ({...p, swift_bic: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 font-mono"
+                placeholder="ABCDESXX" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-stone-600 mb-1 block">Notas adicionales</label>
+              <input type="text" value={bankDetails.notes} onChange={e => setBankDetails(p => ({...p, notes: e.target.value}))}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                placeholder="Routing number, sucursal, referencia..." maxLength={200} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-3 pt-1">
+        <button type="button" onClick={handleSave} disabled={saving}
+          className="px-5 py-2 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50">
+          {saving ? 'Guardando...' : 'Guardar método'}
+        </button>
+        <button type="button" onClick={handleRequestPayout}
+          className="px-5 py-2 border border-stone-200 rounded-full text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors">
+          Solicitar pago
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ──
 export default function ProducerPayments() {
   const { t } = useTranslation();
@@ -246,15 +408,8 @@ export default function ProducerPayments() {
         )}
       </div>
 
-      {/* Solicitar pago CTA */}
-      <button
-        type="button"
-        onClick={() => toast.info('Los pagos se procesan automáticamente cada 15 días')}
-        className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
-        data-testid="request-payout-cta"
-      >
-        Solicitar pago
-      </button>
+      {/* Payout Method Selector */}
+      <PayoutMethodSection stripeConnected={data.stripe_connected} onRefresh={fetchPayments} />
 
       {/* Fiscal summary */}
       {data.tax_withholding_pct != null && (
@@ -298,7 +453,7 @@ export default function ProducerPayments() {
           icon={Wallet}
           label={t('producer.pendingPayout')}
           value={`${(data.pending_payout ?? 0).toFixed(2)}€`}
-          sublabel={data.stripe_connected ? 'Stripe conectado' : 'Conecta Stripe'}
+          sublabel={data.stripe_connected ? 'Stripe conectado' : 'Solicita tu pago'}
           color={data.pending_payout > 0 ? 'green' : 'default'}
           testId="stat-pending"
         />
