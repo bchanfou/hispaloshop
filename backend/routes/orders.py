@@ -957,8 +957,14 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                     valid = False
             
             if valid:
-                # Calculate discount
-                if discount_code["type"] == "percentage":
+                # Calculate discount — validate value first
+                disc_value = discount_code.get("value", 0)
+                if discount_code["type"] == "percentage" and (disc_value <= 0 or disc_value > 100):
+                    discount_code = None  # invalid, skip
+                elif discount_code["type"] == "fixed" and disc_value <= 0:
+                    discount_code = None
+
+                if discount_code and discount_code["type"] == "percentage":
                     applicable_products = discount_code.get("applicable_products", [])
                     if applicable_products:
                         applicable_total = sum(

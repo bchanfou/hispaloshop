@@ -48,7 +48,7 @@ async def get_cart(current_user = Depends(get_current_user)):
                 "items": [],
                 "subtotal_cents": 0,
                 "tax_cents": 0,
-                "tax_rate_display": "21%",
+                "tax_rate_display": "",
                 "shipping_cents": 0,
                 "shipping_breakdown": [],
                 "discount_cents": 0,
@@ -116,9 +116,12 @@ async def get_cart(current_user = Depends(get_current_user)):
         except Exception:
             pass  # Keep the stored discount_cents on error
 
-    # IVA calculation (Spain 21%) — informational only, prices already include IVA
-    TAX_RATE_BP = 2100  # 21% in basis points
-    # IVA is included in subtotal: tax = subtotal * 21 / 121 (matches ShippingService)
+    # Tax calculation — use country-specific rate, not hardcoded Spain 21%
+    from services.shipping_service import ShippingService
+    user_doc = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0, "locale": 1, "country": 1})
+    user_country = (user_doc or {}).get("locale", {}).get("country") or (user_doc or {}).get("country") or "ES"
+    TAX_RATE_BP = ShippingService.get_tax_rate_bp(user_country)
+    # Tax is included in subtotal: tax = subtotal * rate / (10000 + rate)
     tax_cents = int(round((subtotal_cents * TAX_RATE_BP) / (10000 + TAX_RATE_BP)))
 
     # Lookup seller names for all items in one batch query
@@ -208,7 +211,7 @@ async def get_cart(current_user = Depends(get_current_user)):
             **cart,
             "subtotal_cents": subtotal_cents,
             "tax_cents": tax_cents,
-            "tax_rate_display": "21%",
+            "tax_rate_display": f"{TAX_RATE_BP / 100:.0f}%",
             "shipping_cents": total_shipping_cents,
             "shipping_breakdown": shipping_breakdown,
             "discount_cents": discount_cents,
@@ -648,9 +651,15 @@ async def apply_coupon(
     if not coupon:
         raise HTTPException(status_code=400, detail="Código de descuento inválido o expirado")
     
-    # Verificar uso
-    if coupon.get("usage_limit") and coupon.get("usage_count", 0) >= coupon["usage_limit"]:
-        raise HTTPException(status_code=400, detail="Límite de uso del cupón alcanzado")
+    # Verificar uso — atomic check to prevent race condition
+    if coupon.get("usage_limit"):
+        # Atomic: only increment if under limit
+        result = await db.discount_codes.update_one(
+            {"_id": coupon["_id"], "usage_count": {"$lt": coupon["usage_limit"]}},
+            {"$inc": {"usage_count": 1}}
+        )
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Límite de uso del cupón alcanzado")
     
     # Obtener carrito
     cart = await db.carts.find_one({

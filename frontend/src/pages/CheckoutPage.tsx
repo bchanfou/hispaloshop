@@ -167,8 +167,8 @@ export default function CheckoutPage() {
       toast.error('Completa todos los campos obligatorios');
       return;
     }
-    if (!/^[a-zA-Z0-9\s\-]{3,10}$/.test(trimmedPostal.trim())) {
-      toast.error('Código postal no válido');
+    if (!/^[a-zA-Z0-9\s\-\.]{2,12}$/.test(trimmedPostal.trim())) {
+      toast.error(t('checkout.invalidPostalCode', 'Código postal no válido'));
       return;
     }
     try {
@@ -430,11 +430,11 @@ export default function CheckoutPage() {
                           }}
                           onBlur={() => {
                             const digits = newAddress.phone.replace(/\s/g, '');
-                            if (!digits || digits.length < 6) setPhoneWarning('Teléfono requerido para la entrega');
+                            if (!digits || digits.length < 6) setPhoneWarning(t('checkout.phoneRequired', 'Teléfono requerido para la entrega'));
                             else setPhoneWarning('');
                           }}
                           className={`w-full h-12 px-3.5 text-sm border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${phoneWarning ? 'border-stone-400' : 'border-stone-200'}`}
-                          placeholder="+34 600 000 000"
+                          placeholder={t('checkout.phonePlaceholder', '+XX XXX XXX XXX')}
                           type="tel"
                         />
                         {phoneWarning && <p className="text-xs text-stone-500 mt-1">{phoneWarning}</p>}
@@ -548,7 +548,7 @@ export default function CheckoutPage() {
             <div className="sticky bottom-0 z-30 mt-4 bg-white/80 backdrop-blur-xl pt-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:static lg:bg-transparent lg:backdrop-blur-none lg:pb-0">
               <button
                 onClick={handlePay}
-                disabled={checkoutLoading || paying || (user && !emailVerified)}
+                disabled={checkoutLoading || paying || (user && emailVerified === false)}
                 className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-live="polite"
               >
