@@ -13,6 +13,7 @@ export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [actionBusy, setActionBusy] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -21,15 +22,17 @@ export default function AdminReviews() {
   const fetchReviews = async () => {
     try {
       const data = await apiClient.get('/admin/reviews');
-      setReviews(data);
+      setReviews(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error('Error al cargar reseñas');
+      toast.error(error?.response?.data?.detail || 'Error al cargar reseñas');
     } finally {
       setLoading(false);
     }
   };
 
   const handleToggleVisibility = async (review) => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       const endpoint = review.visible
         ? `/admin/reviews/${review.review_id}/hide`
@@ -39,26 +42,35 @@ export default function AdminReviews() {
       toast.success(review.visible ? 'Reseña oculta' : 'Reseña visible');
       fetchReviews();
     } catch (error) {
-      toast.error('Error al actualizar visibilidad');
+      toast.error(error?.response?.data?.detail || 'Error al actualizar visibilidad');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const handleDelete = async (reviewId) => {
+    if (actionBusy) return;
     if (!window.confirm('¿Estás seguro de que deseas eliminar esta reseña? Esta acción no se puede deshacer.')) {
       return;
     }
 
+    setActionBusy(true);
     try {
       await apiClient.delete(`/admin/reviews/${reviewId}`);
       toast.success('Reseña eliminada');
       fetchReviews();
     } catch (error) {
-      toast.error('Error al eliminar reseña');
+      toast.error(error?.response?.data?.detail || 'Error al eliminar reseña');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -137,10 +149,11 @@ export default function AdminReviews() {
             <div>
               <p className="text-xs text-stone-500 uppercase tracking-wider">Calificación promedio</p>
               <p className="text-xl font-semibold text-stone-950">
-                {reviews.length > 0
-                  ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-                  : '—'
-                }
+                {(() => {
+                  if (reviews.length === 0) return '—';
+                  const avg = reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length;
+                  return isNaN(avg) ? '—' : avg.toFixed(1);
+                })()}
               </p>
             </div>
           </div>
@@ -233,7 +246,7 @@ export default function AdminReviews() {
                         </>
                       ) : (
                         <>
-                          <EyeOff className="w-3 h-3" /> Hidden
+                          <EyeOff className="w-3 h-3" /> Oculta
                         </>
                       )}
                     </button>

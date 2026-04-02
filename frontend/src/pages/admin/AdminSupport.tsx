@@ -50,6 +50,7 @@ function PriorityBadge({ priority }) {
 function formatDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -106,7 +107,8 @@ export default function AdminSupport() {
         <button
           type="button"
           onClick={load}
-          className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50"
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-50"
         >
           <RefreshCw className="h-4 w-4" />
           Actualizar

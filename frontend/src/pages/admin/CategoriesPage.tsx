@@ -72,9 +72,9 @@ export default function CategoriesPage() {
     setLoading(true);
     try {
       const data = await apiClient.get('/categories');
-      setCategories(data || []);
-    } catch {
-      toast.error('Error al cargar las categorías');
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al cargar las categorías');
     } finally {
       setLoading(false);
     }
@@ -88,7 +88,7 @@ export default function CategoriesPage() {
       setShowCreateForm(false);
       fetchCategories();
     } catch (e) {
-      toast.error(e.message || 'Error al crear la categoría');
+      toast.error(e?.response?.data?.detail || e.message || 'Error al crear la categoría');
     } finally {
       setSaving(false);
     }
@@ -102,20 +102,24 @@ export default function CategoriesPage() {
       setEditingId(null);
       fetchCategories();
     } catch (e) {
-      toast.error(e.message || 'Error al actualizar la categoría');
+      toast.error(e?.response?.data?.detail || e.message || 'Error al actualizar la categoría');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (categoryId, name) => {
+    if (saving) return;
     if (!window.confirm(`¿Eliminar la categoría "${name}"? Los productos asociados quedarán sin categoría.`)) return;
+    setSaving(true);
     try {
       await apiClient.delete(`/categories/${categoryId}`);
       toast.success('Categoría eliminada');
       fetchCategories();
-    } catch {
-      toast.error('Error al eliminar la categoría');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al eliminar la categoría');
+    } finally {
+      setSaving(false);
     }
   };
 

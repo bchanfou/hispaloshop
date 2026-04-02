@@ -45,7 +45,9 @@ const ADMIN_ACTIONS = [
 
 function formatTs(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleString('es-ES', {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleString('es-ES', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
@@ -71,6 +73,7 @@ export default function AdminSupportCase() {
   const [sending, setSending] = useState(false);
   const [reply, setReply] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingPriority, setUpdatingPriority] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -108,15 +111,20 @@ export default function AdminSupportCase() {
   };
 
   const handlePriorityChange = async (newPriority) => {
+    if (updatingPriority) return;
+    setUpdatingPriority(true);
+    const currentStatus = caseData?.status;
     try {
       await apiClient.patch(
         `/support/cases/${caseId}/status`,
-        { status: caseData.status, priority: newPriority }
+        { status: currentStatus, priority: newPriority }
       );
       setCaseData((prev) => ({ ...prev, priority: newPriority }));
       toast.success('Prioridad actualizada');
     } catch {
       toast.error('No se pudo actualizar la prioridad');
+    } finally {
+      setUpdatingPriority(false);
     }
   };
 
@@ -176,7 +184,7 @@ export default function AdminSupportCase() {
     );
   }
 
-  const messages = caseData.messages || [];
+  const messages = Array.isArray(caseData.messages) ? caseData.messages : [];
   const isClosed = ['resuelto', 'cerrado'].includes(caseData.status);
 
   return (
@@ -312,6 +320,7 @@ export default function AdminSupportCase() {
                 value={caseData.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={updatingStatus}
+                aria-label="Estado del caso"
                 className="w-full appearance-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 pr-8 text-sm text-stone-950 outline-none focus:border-stone-400 disabled:opacity-60"
               >
                 {STATUSES.map((s) => (
@@ -326,7 +335,9 @@ export default function AdminSupportCase() {
               <select
                 value={caseData.priority || ''}
                 onChange={(e) => handlePriorityChange(e.target.value)}
-                className="w-full appearance-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 pr-8 text-sm text-stone-950 outline-none focus:border-stone-400"
+                disabled={updatingPriority}
+                aria-label="Prioridad del caso"
+                className="w-full appearance-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-2.5 pr-8 text-sm text-stone-950 outline-none focus:border-stone-400 disabled:opacity-60"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>{p}</option>

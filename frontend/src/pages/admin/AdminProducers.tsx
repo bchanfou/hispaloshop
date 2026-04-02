@@ -1,6 +1,5 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { 
@@ -25,7 +24,6 @@ const roleLabels = {
 };
 
 export default function AdminProducers() {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [producers, setProducers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +31,8 @@ export default function AdminProducers() {
   const [filter, setFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
   const [selectedProducer, setSelectedProducer] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [savingEdits, setSavingEdits] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
 
@@ -52,27 +52,35 @@ export default function AdminProducers() {
   };
 
   const updateStatus = async (producerId, status) => {
+    if (updatingStatus) return;
+    setUpdatingStatus(true);
     try {
       await apiClient.put(`/admin/producers/${producerId}/status?status=${status}`, {});
       toast.success(t('adminProducers.messages.statusUpdated', { status }));
       fetchProducers();
-      if (selectedProducer?.user_id === producerId) {
-        setSelectedProducer({ ...selectedProducer, status, approved: status === 'approved' });
-      }
+      setSelectedProducer(prev =>
+        prev?.user_id === producerId ? { ...prev, status, approved: status === 'approved' } : prev
+      );
     } catch (error) {
-      toast.error(t('errors.generic'));
+      toast.error(error?.response?.data?.detail || t('errors.generic'));
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
   const saveEdits = async () => {
+    if (savingEdits) return;
+    setSavingEdits(true);
     try {
       await apiClient.put(`/admin/producers/${selectedProducer.user_id}`, editData);
       toast.success(t('success.updated'));
       setEditMode(false);
       fetchProducers();
-      setSelectedProducer({ ...selectedProducer, ...editData });
+      setSelectedProducer(prev => prev ? { ...prev, ...editData } : prev);
     } catch (error) {
-      toast.error(t('errors.generic'));
+      toast.error(error?.response?.data?.detail || t('errors.generic'));
+    } finally {
+      setSavingEdits(false);
     }
   };
 
@@ -129,7 +137,7 @@ export default function AdminProducers() {
             <div className="flex gap-2">
               {editMode ? (
                 <>
-                  <button type="button" onClick={saveEdits} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors">{t('common.save')}</button>
+                  <button type="button" onClick={saveEdits} disabled={savingEdits} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 disabled:opacity-50 transition-colors">{savingEdits ? t('common.processing', 'Guardando...') : t('common.save')}</button>
                   <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" onClick={() => setEditMode(false)}>{t('common.cancel')}</button>
                 </>
               ) : (
@@ -199,7 +207,8 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
+                  disabled={updatingStatus}
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                   data-testid="approve-producer"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.approve')}
@@ -209,7 +218,8 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'rejected')}
-                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
+                  disabled={updatingStatus}
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:opacity-50 rounded-2xl transition-colors"
                   data-testid="reject-producer"
                 >
                   <XCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reject')}
@@ -219,7 +229,8 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'paused')}
-                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-2xl transition-colors"
+                  disabled={updatingStatus}
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 disabled:opacity-50 rounded-2xl transition-colors"
                   data-testid="pause-producer"
                 >
                   <Pause className="w-4 h-4 mr-2" /> {t('adminProducers.detail.pause')}
@@ -229,7 +240,8 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
+                  disabled={updatingStatus}
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reactivate')}
                 </button>
@@ -339,8 +351,9 @@ export default function AdminProducers() {
                         {status === 'pending' && (
                           <button
                             type="button"
-                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
+                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             onClick={() => updateStatus(producer.user_id, 'approved')}
+                            disabled={updatingStatus}
                           >
                             <CheckCircle className="w-4 h-4 mr-1" /> {t('adminProducers.detail.approve')}
                           </button>

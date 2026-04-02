@@ -24,11 +24,9 @@ const STATUS_LABELS = {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  try {
-    return new Date(dateStr).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch {
-    return dateStr;
-  }
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 function RefundModal({ order, onClose, onRefunded }) {
@@ -37,25 +35,33 @@ function RefundModal({ order, onClose, onRefunded }) {
   const [reason, setReason] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  useEffect(() => {
+    const handle = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, [onClose]);
+
   const total = order?.total_amount || 0;
 
   const handleRefund = async () => {
-    if (type === 'partial' && (!amount || parseFloat(amount) <= 0 || parseFloat(amount) > total)) {
+    if (!order?.order_id) { toast.error('ID de pedido no válido'); return; }
+    const parsedAmount = parseFloat(amount);
+    if (type === 'partial' && (!amount || isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > total)) {
       toast.error('Introduce un importe válido');
       return;
     }
-    if (!window.confirm(`¿Confirmar reembolso ${type === 'full' ? 'total' : 'parcial'} de ${fmtPrice(type === 'full' ? total : parseFloat(amount))}?`)) return;
+    if (!window.confirm(`¿Confirmar reembolso ${type === 'full' ? 'total' : 'parcial'} de ${fmtPrice(type === 'full' ? total : parsedAmount)}?`)) return;
 
     setProcessing(true);
     try {
       const body = { type };
-      if (type === 'partial') body.amount = parseFloat(amount);
+      if (type === 'partial') body.amount = parsedAmount;
       if (reason.trim()) body.reason = reason.trim();
       await apiClient.post(`/payments/refund/${order.order_id}`, body);
       toast.success('Reembolso procesado correctamente');
       onRefunded();
     } catch (err) {
-      toast.error(err?.message || 'Error al procesar el reembolso');
+      toast.error(err?.response?.data?.detail || err?.message || 'Error al procesar el reembolso');
     } finally {
       setProcessing(false);
     }
@@ -222,8 +228,8 @@ export default function AdminRefunds() {
     try {
       const result = await apiClient.get('/admin/refunds');
       setData({
-        refunded: result?.refunded || [],
-        eligible: result?.eligible || [],
+        refunded: Array.isArray(result?.refunded) ? result.refunded : [],
+        eligible: Array.isArray(result?.eligible) ? result.eligible : [],
       });
     } catch {
       setData({ refunded: [], eligible: [] });
@@ -249,7 +255,7 @@ export default function AdminRefunds() {
   const totalRefunded = data.refunded.reduce((sum, o) => sum + (o.refund_amount || 0), 0);
 
   const exportCSV = () => {
-    const headers = ['Order ID', 'Customer', 'Amount', 'Status', 'Date'];
+    const headers = ['ID Pedido', 'Cliente', 'Importe', 'Estado', 'Fecha'];
     const rows = data.refunded.map(o => [
       o.order_id,
       o.user_name || o.user_email || 'Cliente',

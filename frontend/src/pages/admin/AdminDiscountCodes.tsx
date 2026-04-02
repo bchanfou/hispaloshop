@@ -18,6 +18,7 @@ export default function AdminDiscountCodes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingCode, setEditingCode] = useState(null);
+  const [actionBusy, setActionBusy] = useState(false);
   const [formData, setFormData] = useState({
     code: '',
     type: 'percentage',
@@ -40,10 +41,10 @@ export default function AdminDiscountCodes() {
         apiClient.get('/admin/discount-codes'),
         apiClient.get('/admin/influencer-codes/pending'),
       ]);
-      setDiscountCodes(codesData);
-      setPendingInfluencerCodes(pendingData);
+      setDiscountCodes(Array.isArray(codesData) ? codesData : []);
+      setPendingInfluencerCodes(Array.isArray(pendingData) ? pendingData : []);
     } catch (error) {
-      toast.error('Error al cargar los códigos de descuento');
+      toast.error(error?.response?.data?.detail || 'Error al cargar los códigos de descuento');
     } finally {
       setLoading(false);
     }
@@ -52,24 +53,32 @@ export default function AdminDiscountCodes() {
   const fetchDiscountCodes = fetchAll;
 
   const handleApproveInfluencerCode = async (codeId, codeName) => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/influencer-codes/${codeId}/approve`, {});
       toast.success(`Código ${codeName} aprobado y activado`);
       fetchAll();
     } catch (error) {
-      toast.error(error.message || 'Error al aprobar el código');
+      toast.error(error?.response?.data?.detail || error.message || 'Error al aprobar el código');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const handleRejectInfluencerCode = async (codeId, codeName) => {
+    if (actionBusy) return;
     const reason = window.prompt(`Motivo del rechazo del código ${codeName} (opcional):`);
-    if (reason === null) return; // Cancelled
+    if (reason === null) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/influencer-codes/${codeId}/reject?reason=${encodeURIComponent(reason || '')}`, {});
       toast.success(`Código ${codeName} rechazado`);
       fetchAll();
     } catch (error) {
-      toast.error(error.message || 'Error al rechazar el código');
+      toast.error(error?.response?.data?.detail || error.message || 'Error al rechazar el código');
+    } finally {
+      setActionBusy(false);
     }
   };
 
@@ -79,12 +88,12 @@ export default function AdminDiscountCodes() {
     const payload = {
       code: formData.code.toUpperCase(),
       type: formData.type,
-      value: parseFloat(formData.value) || 0,
+      value: isNaN(parseFloat(formData.value)) ? 0 : parseFloat(formData.value),
       active: formData.active,
       start_date: formData.start_date || null,
       end_date: formData.end_date || null,
-      usage_limit: formData.usage_limit ? parseInt(formData.usage_limit) : null,
-      min_cart_amount: formData.min_cart_amount ? parseFloat(formData.min_cart_amount) : null,
+      usage_limit: formData.usage_limit && !isNaN(parseInt(formData.usage_limit)) ? parseInt(formData.usage_limit) : null,
+      min_cart_amount: formData.min_cart_amount && !isNaN(parseFloat(formData.min_cart_amount)) ? parseFloat(formData.min_cart_amount) : null,
       applicable_products: formData.applicable_products
     };
 
@@ -99,29 +108,37 @@ export default function AdminDiscountCodes() {
       resetForm();
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error.message || 'Error al guardar código de descuento');
+      toast.error(error?.response?.data?.detail || error.message || 'Error al guardar código de descuento');
     }
   };
 
   const handleDelete = async (codeId) => {
+    if (actionBusy) return;
     if (!window.confirm('¿Estás seguro de que deseas eliminar este código?')) return;
 
+    setActionBusy(true);
     try {
       await apiClient.delete(`/admin/discount-codes/${codeId}`);
       toast.success('Código de descuento eliminado');
       fetchDiscountCodes();
     } catch (error) {
-      toast.error('Error al eliminar código de descuento');
+      toast.error(error?.response?.data?.detail || 'Error al eliminar código de descuento');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const handleToggleActive = async (code) => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/discount-codes/${code.code_id}/toggle`, {});
       toast.success(`Código ${code.active ? 'desactivado' : 'activado'}`);
       fetchDiscountCodes();
     } catch (error) {
-      toast.error('Error al cambiar estado del código');
+      toast.error(error?.response?.data?.detail || 'Error al cambiar estado del código');
+    } finally {
+      setActionBusy(false);
     }
   };
 
@@ -177,7 +194,7 @@ export default function AdminDiscountCodes() {
 
   const formatValue = (code) => {
     if (code.type === 'percentage') return `${code.value}%`;
-    if (code.type === 'fixed') return `${code.value.toFixed(2)} €`;
+    if (code.type === 'fixed') { const v = Number(code.value); return `${isNaN(v) ? '0.00' : v.toFixed(2)} €`; }
     return 'Envío gratis';
   };
 
@@ -249,7 +266,7 @@ export default function AdminDiscountCodes() {
                     <p className="text-sm text-stone-500 truncate">
                       {code.influencer_name || 'Influencer'}{code.influencer_handle ? ` · ${code.influencer_handle}` : ''} · 10% descuento · uso ilimitado
                     </p>
-                    <p className="text-xs text-stone-500">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
+                    <p className="text-xs text-stone-500">Solicitado: {code.created_at && !isNaN(new Date(code.created_at).getTime()) ? new Date(code.created_at).toLocaleDateString('es-ES') : '—'}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
@@ -285,12 +302,12 @@ export default function AdminDiscountCodes() {
               {/* Code */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Code <span className="text-stone-500">*</span>
+                  Código <span className="text-stone-500">*</span>
                 </label>
                 <input
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  placeholder="e.g., SAVE20"
+                  placeholder="Ej. SAVE20"
                   required
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 uppercase placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                   data-testid="discount-code-input"
@@ -300,7 +317,7 @@ export default function AdminDiscountCodes() {
               {/* Type */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Type <span className="text-stone-500">*</span>
+                  Tipo <span className="text-stone-500">*</span>
                 </label>
                 <select
                   value={formData.type}
@@ -318,7 +335,7 @@ export default function AdminDiscountCodes() {
               {formData.type !== 'free_shipping' && (
                 <div>
                   <label className="block text-sm font-medium text-stone-600 mb-1">
-                    Value <span className="text-stone-500">*</span>
+                    Valor <span className="text-stone-500">*</span>
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">
@@ -415,7 +432,7 @@ export default function AdminDiscountCodes() {
                   data-testid="discount-active-checkbox"
                 />
                 <label htmlFor="active" className="text-sm text-stone-600">
-                  Active
+                  Activo
                 </label>
               </div>
             </div>
@@ -426,7 +443,7 @@ export default function AdminDiscountCodes() {
                 {editingCode ? 'Actualizar código' : 'Crear código'}
               </button>
               <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
-                Cancel
+                Cancelar
               </button>
             </div>
           </form>
@@ -488,7 +505,7 @@ export default function AdminDiscountCodes() {
                       <Users className="w-4 h-4" />
                       <span>
                         {code.usage_count || 0}
-                        {code.usage_limit ? ` / ${code.usage_limit}` : ' uses'}
+                        {code.usage_limit ? ` / ${code.usage_limit}` : ' usos'}
                       </span>
                     </div>
                   </td>
@@ -504,11 +521,11 @@ export default function AdminDiscountCodes() {
                     >
                       {code.active ? (
                         <>
-                          <Check className="w-3 h-3" /> Active
+                          <Check className="w-3 h-3" /> Activo
                         </>
                       ) : (
                         <>
-                          <X className="w-3 h-3" /> Inactive
+                          <X className="w-3 h-3" /> Inactivo
                         </>
                       )}
                     </button>

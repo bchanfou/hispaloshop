@@ -45,6 +45,11 @@ export default function AdminOrders() {
     asLowerText(o.user_name).includes(searchNeedle) ||
     asLowerText(o.producer_name).includes(searchNeedle)
   );
+  const filteredPayments = (payments.payments || []).filter(p =>
+    asLowerText(p.transaction_id).includes(searchNeedle) ||
+    asLowerText(p.order_id).includes(searchNeedle) ||
+    asLowerText(p.payment_status || p.status).includes(searchNeedle)
+  );
 
   const exportCSV = () => {
     const headers = ['ID Pedido', 'Cliente', 'Artículos', 'Total', 'Estado', 'Fecha'];
@@ -54,7 +59,7 @@ export default function AdminOrders() {
       o.line_items?.length || 0,
       fmtPrice(o.total_amount),
       o.status,
-      o.created_at ? new Date(o.created_at).toLocaleDateString('es-ES') : 'N/D',
+      o.created_at && !isNaN(new Date(o.created_at).getTime()) ? new Date(o.created_at).toLocaleDateString('es-ES') : 'N/D',
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -235,7 +240,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-stone-500 text-sm">
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString('es-ES') : 'N/A'}
+                        {order.created_at && !isNaN(new Date(order.created_at).getTime()) ? new Date(order.created_at).toLocaleDateString('es-ES') : 'N/A'}
                       </p>
                     </td>
                   </tr>
@@ -244,7 +249,7 @@ export default function AdminOrders() {
             </table>
           )
         ) : (
-          payments.payments?.length === 0 ? (
+          filteredPayments.length === 0 ? (
             <div className="p-8 text-center text-stone-500">{t('adminOrders.noPayments')}</div>
           ) : (
             <table className="w-full min-w-[600px]" data-testid="payments-table">
@@ -258,7 +263,7 @@ export default function AdminOrders() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
-                {(payments.payments || []).map((payment) => (
+                {filteredPayments.map((payment) => (
                   <tr key={payment.transaction_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
                       <p className="font-mono text-sm text-stone-950">{payment.transaction_id}</p>
@@ -278,7 +283,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-stone-500 text-sm">
-                        {payment.created_at ? new Date(payment.created_at).toLocaleDateString('es-ES') : 'N/A'}
+                        {payment.created_at && !isNaN(new Date(payment.created_at).getTime()) ? new Date(payment.created_at).toLocaleDateString('es-ES') : 'N/A'}
                       </p>
                     </td>
                   </tr>

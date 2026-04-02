@@ -25,6 +25,7 @@ export default function AdminProducts() {
   const [checklistItems, setChecklistItems] = useState({});
   const [editingPrice, setEditingPrice] = useState({ productId: null, value: '' });
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [actionBusy, setActionBusy] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
@@ -82,48 +83,72 @@ export default function AdminProducts() {
   };
 
   const approveProduct = async (productId, approved) => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/products/${productId}/approve?approved=${approved}`, {});
       toast.success(approved ? t('adminProducts.messages.productApproved') : t('adminProducts.messages.productRejected'));
       setChecklistProduct(null);
       fetchProducts();
     } catch (error) {
-      toast.error(t('adminProducts.messages.updateError'));
+      toast.error(error?.response?.data?.detail || t('adminProducts.messages.updateError'));
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const deleteProduct = async (productId) => {
+    if (actionBusy) return;
     if (!window.confirm(t('adminProducts.messages.confirmDelete'))) return;
+    setActionBusy(true);
     try {
       await apiClient.delete(`/products/${productId}`);
       toast.success(t('adminProducts.messages.productDeleted'));
       fetchProducts();
     } catch (error) {
-      toast.error(t('adminProducts.messages.deleteError'));
+      toast.error(error?.response?.data?.detail || t('adminProducts.messages.deleteError'));
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const updatePrice = async (productId, price) => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/products/${productId}/price?price=${price}`, {});
       toast.success(t('adminProducts.messages.priceUpdated'));
       fetchProducts();
       setEditingPrice({ productId: null, value: '' });
     } catch (error) {
-      toast.error(t('adminProducts.messages.priceError'));
+      toast.error(error?.response?.data?.detail || t('adminProducts.messages.priceError'));
+    } finally {
+      setActionBusy(false);
     }
   };
 
+  const [bulkApproving, setBulkApproving] = useState(false);
   const approveSelected = async () => {
     if (!window.confirm(`¿Aprobar ${selectedProducts.length} producto(s) seleccionado(s)?`)) return;
-    try {
-      await Promise.all(selectedProducts.map(id => apiClient.put(`/admin/products/${id}/approve?approved=true`, {})));
-      toast.success(`${selectedProducts.length} producto(s) aprobado(s)`);
-      setSelectedProducts([]);
-      fetchProducts();
-    } catch (error) {
-      toast.error(t('adminProducts.messages.updateError'));
+    setBulkApproving(true);
+    let approved = 0;
+    let failed = 0;
+    for (const id of selectedProducts) {
+      try {
+        await apiClient.put(`/admin/products/${id}/approve?approved=true`, {});
+        approved++;
+      } catch { failed++; }
     }
+    if (failed === 0) {
+      toast.success(`${approved} producto(s) aprobado(s)`);
+    } else if (approved > 0) {
+      toast.error(`${approved} aprobados, ${failed} fallaron`);
+    } else {
+      toast.error('Error al aprobar productos');
+    }
+    setSelectedProducts([]);
+    fetchProducts();
+    setBulkApproving(false);
   };
 
   const toggleSelectProduct = (productId) => {
@@ -134,10 +159,12 @@ export default function AdminProducts() {
 
   const createProduct = async (e) => {
     e.preventDefault();
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       const data = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: isNaN(parseFloat(formData.price)) ? 0 : parseFloat(formData.price),
         images: formData.images.filter(img => img.trim()),
         ingredients: formData.ingredientsStr?.split(',').map(i => i.trim()).filter(Boolean) || [],
         allergens: formData.allergensStr?.split(',').map(a => a.trim()).filter(Boolean) || [],
@@ -163,7 +190,9 @@ export default function AdminProducts() {
       });
       fetchProducts();
     } catch (error) {
-      toast.error(t('adminProducts.messages.createError'));
+      toast.error(error?.response?.data?.detail || t('adminProducts.messages.createError'));
+    } finally {
+      setActionBusy(false);
     }
   };
 
@@ -297,7 +326,7 @@ export default function AdminProducts() {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors">{t('adminProducts.createProduct')}</button>
+              <button type="submit" disabled={actionBusy} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 disabled:opacity-50 transition-colors">{actionBusy ? t('common.processing', 'Creando...') : t('adminProducts.createProduct')}</button>
               <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" onClick={() => setShowCreateForm(false)}>{t('common.cancel')}</button>
             </div>
           </form>
@@ -353,9 +382,10 @@ export default function AdminProducts() {
           <span className="text-sm text-white flex-1">{selectedProducts.length} producto(s) seleccionado(s)</span>
           <button
             onClick={approveSelected}
-            className="px-4 py-1.5 bg-white text-stone-950 text-sm font-medium rounded-2xl hover:bg-stone-100 transition-colors"
+            disabled={bulkApproving}
+            className="px-4 py-1.5 bg-white text-stone-950 text-sm font-medium rounded-2xl hover:bg-stone-100 disabled:opacity-50 transition-colors"
           >
-            Aprobar seleccionados ({selectedProducts.length})
+            {bulkApproving ? 'Aprobando...' : `Aprobar seleccionados (${selectedProducts.length})`}
           </button>
           <button
             onClick={() => setSelectedProducts([])}
@@ -425,7 +455,7 @@ export default function AdminProducts() {
                         <button
                           type="button"
                           className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors"
-                          onClick={() => updatePrice(product.product_id, parseFloat(editingPrice.value))}
+                          onClick={() => { const p = parseFloat(editingPrice.value); if (isNaN(p) || p <= 0) { toast.error('Precio no válido'); return; } updatePrice(product.product_id, p); }}
                         >
                           {t('common.save')}
                         </button>

@@ -17,6 +17,7 @@ export default function AdminInfluencers() {
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
   const [editInfluencer, setEditInfluencer] = useState(null);
   const [editForm, setEditForm] = useState({ tier: 'hercules', followers_count: 1000 });
+  const [actionBusy, setActionBusy] = useState(false);
   const [newInfluencer, setNewInfluencer] = useState({
     full_name: '',
     email: '',
@@ -34,9 +35,9 @@ export default function AdminInfluencers() {
   const fetchInfluencers = async () => {
     try {
       const data = await apiClient.get('/admin/influencers');
-      setInfluencers(data);
+      setInfluencers(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error('Error al cargar influencers');
+      toast.error(err?.response?.data?.detail || 'Error al cargar influencers');
     } finally {
       setLoading(false);
     }
@@ -52,6 +53,8 @@ export default function AdminInfluencers() {
   };
 
   const createInfluencer = async () => {
+    if (actionBusy) return;
+    setActionBusy(true);
     try {
       const data = await apiClient.post('/admin/influencers', newInfluencer);
       toast.success(`¡Influencer creado! Código: ${data.discount_code}`);
@@ -67,37 +70,48 @@ export default function AdminInfluencers() {
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err.message || 'Error al crear influencer');
+      toast.error(err?.response?.data?.detail || err.message || 'Error al crear influencer');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const updateStatus = async (influencerId, status) => {
+    if (actionBusy || !influencerId) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/influencers/${influencerId}/status?status=${status}`, {});
       toast.success(`Influencer ${status === 'active' ? 'activado' : 'suspendido'}`);
       fetchInfluencers();
     } catch (err) {
-      toast.error('Error al actualizar estado');
+      toast.error(err?.response?.data?.detail || 'Error al actualizar estado');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const processPayout = async (influencerId) => {
+    if (actionBusy || !influencerId) return;
+    setActionBusy(true);
     try {
       const data = await apiClient.post(`/admin/influencers/${influencerId}/payout`, {});
       toast.success(data.message);
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err.message || 'Error processing payout');
+      toast.error(err?.response?.data?.detail || err.message || 'Error al procesar el pago');
+    } finally {
+      setActionBusy(false);
     }
   };
 
   const fetchInfluencerDetails = async (influencerId) => {
+    if (!influencerId) return;
     try {
       const data = await apiClient.get(`/admin/influencers/${influencerId}`);
       setSelectedInfluencer(data);
     } catch (err) {
-      toast.error('Error al cargar detalles del influencer');
+      toast.error(err?.response?.data?.detail || 'Error al cargar detalles del influencer');
     }
   };
 
@@ -107,14 +121,17 @@ export default function AdminInfluencers() {
   };
 
   const saveEdit = async () => {
-    if (!editInfluencer) return;
+    if (!editInfluencer?.influencer_id || actionBusy) return;
+    setActionBusy(true);
     try {
       await apiClient.put(`/admin/influencers/${editInfluencer.influencer_id}?tier=${editForm.tier}&followers_count=${editForm.followers_count}`, {});
       toast.success('Influencer actualizado');
       setEditInfluencer(null);
       fetchInfluencers();
     } catch (err) {
-      toast.error(err.message || 'Error al actualizar');
+      toast.error(err?.response?.data?.detail || err.message || 'Error al actualizar');
+    } finally {
+      setActionBusy(false);
     }
   };
 
@@ -149,19 +166,19 @@ export default function AdminInfluencers() {
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total influencers</p>
             <p className="text-2xl font-semibold">{stats.total_influencers}</p>
-            <p className="text-xs text-stone-700">{stats.active_influencers} active</p>
+            <p className="text-xs text-stone-700">{stats.active_influencers} activos</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Ventas totales</p>
-            <p className="text-2xl font-semibold">€{(stats.total_sales_generated || 0).toFixed(2)}</p>
+            <p className="text-2xl font-semibold">€{Number(stats.total_sales_generated || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Comisiones totales</p>
-            <p className="text-2xl font-semibold">€{(stats.total_commissions_earned || 0).toFixed(2)}</p>
+            <p className="text-2xl font-semibold">€{Number(stats.total_commissions_earned || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Pagos pendientes</p>
-            <p className="text-2xl font-semibold text-stone-700">€{(stats.total_pending_payouts || 0).toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-stone-700">€{Number(stats.total_pending_payouts || 0).toFixed(2)}</p>
           </div>
         </div>
       )}
@@ -202,10 +219,10 @@ export default function AdminInfluencers() {
                   <td className="py-3 px-4">
                     {inf.commission_type === 'percentage' ? `${inf.commission_value}%` : `€${inf.commission_value}`}
                   </td>
-                  <td className="py-3 px-4">€{(inf.total_sales_generated || 0).toFixed(2)}</td>
-                  <td className="py-3 px-4">€{(inf.total_commission_earned || 0).toFixed(2)}</td>
+                  <td className="py-3 px-4">€{Number(inf.total_sales_generated || 0).toFixed(2)}</td>
+                  <td className="py-3 px-4">€{Number(inf.total_commission_earned || 0).toFixed(2)}</td>
                   <td className="py-3 px-4 font-medium text-stone-700">
-                    €{(inf.available_balance || 0).toFixed(2)}
+                    €{Number(inf.available_balance || 0).toFixed(2)}
                   </td>
                   <td className="py-3 px-4">
                     {inf.stripe_onboarding_complete ? (
@@ -218,24 +235,24 @@ export default function AdminInfluencers() {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-1">
-                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => openEdit(inf)} title="Editar tier">
+                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => openEdit(inf)} aria-label="Editar tier" title="Editar tier">
                         <Pencil className="h-4 w-4 text-stone-500" />
                       </button>
-                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => fetchInfluencerDetails(inf.influencer_id)} title={t('admin.viewDetails')}>
+                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => fetchInfluencerDetails(inf.influencer_id)} aria-label={t('admin.viewDetails')} title={t('admin.viewDetails')}>
                         <Eye className="h-4 w-4" />
                       </button>
                       {inf.status !== 'active' && (
-                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'active')} title={t('admin.activate')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'active')} aria-label={t('admin.activate')} title={t('admin.activate')}>
                           <Play className="h-4 w-4 text-stone-700" />
                         </button>
                       )}
                       {inf.status === 'active' && (
-                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'suspended')} title={t('admin.pause')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'suspended')} aria-label={t('admin.pause')} title={t('admin.pause')}>
                           <Ban className="h-4 w-4 text-stone-600" />
                         </button>
                       )}
                       {inf.available_balance > 0 && inf.stripe_onboarding_complete && (
-                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => processPayout(inf.influencer_id)} title={t('admin.processPayout')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => processPayout(inf.influencer_id)} aria-label={t('admin.processPayout')} title={t('admin.processPayout')}>
                           <Send className="h-4 w-4 text-stone-600" />
                         </button>
                       )}
@@ -283,7 +300,7 @@ export default function AdminInfluencers() {
                   type="number"
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={editForm.followers_count}
-                  onChange={(e) => setEditForm({ ...editForm, followers_count: parseInt(e.target.value || '0', 10) })}
+                  onChange={(e) => { const n = parseInt(e.target.value || '0', 10); setEditForm({ ...editForm, followers_count: isNaN(n) ? 0 : n }); }}
                 />
               </div>
               <div className="bg-stone-50 rounded-2xl p-3 text-sm text-stone-600">
@@ -291,8 +308,8 @@ export default function AdminInfluencers() {
                   {editForm.tier === 'hercules' ? '3%' : editForm.tier === 'atenea' ? '5%' : '7%'}
                 </strong>
               </div>
-              <button type="button" onClick={saveEdit} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
-                Guardar cambios
+              <button type="button" onClick={saveEdit} disabled={actionBusy} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors">
+                {actionBusy ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
           </div>
@@ -348,8 +365,8 @@ export default function AdminInfluencers() {
                         {selectedInfluencer.recent_commissions.map((c) => (
                           <tr key={c.commission_id} className="border-b border-stone-100">
                             <td className="py-2 font-mono text-xs">{c.order_id}</td>
-                            <td className="py-2">€{asNumber(c.order_total).toFixed(2)}</td>
-                            <td className="py-2 text-stone-700">€{asNumber(c.commission_amount).toFixed(2)}</td>
+                            <td className="py-2">€{Number(asNumber(c.order_total) || 0).toFixed(2)}</td>
+                            <td className="py-2 text-stone-700">€{Number(asNumber(c.commission_amount) || 0).toFixed(2)}</td>
                             <td className="py-2">
                               <span className={`px-2 py-0.5 rounded-full text-xs ${c.commission_status === 'paid' ? 'bg-stone-950 text-white' : c.commission_status === 'pending' ? 'bg-stone-200 text-stone-700' : 'border border-stone-200 text-stone-400 bg-white'}`}>
                                 {c.commission_status}
@@ -412,7 +429,7 @@ export default function AdminInfluencers() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Followers</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">Seguidores</label>
                   <input
                     type="number"
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
@@ -438,13 +455,13 @@ export default function AdminInfluencers() {
                     type="number"
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={newInfluencer.discount_percentage}
-                    onChange={(e) => setNewInfluencer({...newInfluencer, discount_percentage: parseFloat(e.target.value)})}
+                    onChange={(e) => { const n = parseFloat(e.target.value); setNewInfluencer({...newInfluencer, discount_percentage: isNaN(n) ? 10 : n}); }}
                     placeholder="10"
                   />
                 </div>
               </div>
-              <button type="button" onClick={createInfluencer} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
-                Crear influencer
+              <button type="button" onClick={createInfluencer} disabled={actionBusy} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors">
+                {actionBusy ? 'Creando...' : 'Crear influencer'}
               </button>
             </div>
           </div>

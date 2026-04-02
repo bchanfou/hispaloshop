@@ -77,12 +77,15 @@ export default function AdminCertificates() {
       await apiClient.put(`/admin/certificates/${certificateId}/approve?approved=true`, {});
       toast.success(t('certificates.approved', 'Certificado aprobado'));
       fetchCertificates();
-      if (selectedCert?.certificate_id === certificateId) {
-        setSelectedCert({ ...selectedCert, approved: true, rejected: false });
-        fetchHistory(certificateId);
-      }
+      setSelectedCert(prev => {
+        if (prev?.certificate_id === certificateId) {
+          fetchHistory(certificateId);
+          return { ...prev, approved: true, rejected: false };
+        }
+        return prev;
+      });
     } catch (error) {
-      toast.error(t('errors.approveCertificate', 'Error al aprobar certificado'));
+      toast.error(error?.response?.data?.detail || t('errors.approveCertificate', 'Error al aprobar certificado'));
     } finally {
       setActionLoading(false);
     }
@@ -104,13 +107,18 @@ export default function AdminCertificates() {
       setShowRejectModal(false);
       setRejectReason('');
       setActionCert(null);
+      const rejectedCertId = actionCert.certificate_id;
+      const savedReason = rejectReason;
       fetchCertificates();
-      if (selectedCert?.certificate_id === actionCert.certificate_id) {
-        setSelectedCert({ ...selectedCert, approved: false, rejected: true, rejection_reason: rejectReason });
-        fetchHistory(actionCert.certificate_id);
-      }
+      setSelectedCert(prev => {
+        if (prev?.certificate_id === rejectedCertId) {
+          fetchHistory(rejectedCertId);
+          return { ...prev, approved: false, rejected: true, rejection_reason: savedReason };
+        }
+        return prev;
+      });
     } catch (error) {
-      toast.error(t('errors.rejectCertificate', 'Error al rechazar certificado'));
+      toast.error(error?.response?.data?.detail || t('errors.rejectCertificate', 'Error al rechazar certificado'));
     } finally {
       setActionLoading(false);
     }
@@ -121,14 +129,13 @@ export default function AdminCertificates() {
     try {
       await apiClient.delete(`/admin/certificates/${actionCert.certificate_id}`);
       toast.success(t('certificates.deleted', 'Certificado eliminado'));
+      const deletedCertId = actionCert.certificate_id;
       setShowDeleteModal(false);
       setActionCert(null);
       fetchCertificates();
-      if (selectedCert?.certificate_id === actionCert.certificate_id) {
-        setSelectedCert(null);
-      }
+      setSelectedCert(prev => prev?.certificate_id === deletedCertId ? null : prev);
     } catch (error) {
-      toast.error(t('errors.deleteCertificate', 'Error al eliminar certificado'));
+      toast.error(error?.response?.data?.detail || t('errors.deleteCertificate', 'Error al eliminar certificado'));
     } finally {
       setActionLoading(false);
     }
@@ -306,7 +313,7 @@ export default function AdminCertificates() {
                   <div key={idx} className="border-l-2 border-stone-200 pl-4 py-2">
                     <p className="font-medium text-stone-950 capitalize">{log.action}</p>
                     <p className="text-sm text-stone-500">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {log.timestamp && !isNaN(new Date(log.timestamp).getTime()) ? new Date(log.timestamp).toLocaleString() : '—'}
                     </p>
                     {log.reason && (
                       <p className="text-xs text-stone-500 mt-1">{log.reason}</p>
@@ -430,7 +437,7 @@ export default function AdminCertificates() {
                       </td>
                       <td className="px-4 md:px-6 py-4 hidden lg:table-cell">
                         <p className="text-stone-500 text-sm">
-                          {cert.created_at ? new Date(cert.created_at).toLocaleDateString('es-ES') : 'N/A'}
+                          {cert.created_at && !isNaN(new Date(cert.created_at).getTime()) ? new Date(cert.created_at).toLocaleDateString('es-ES') : 'N/A'}
                         </p>
                       </td>
                       <td className="px-4 md:px-6 py-4">
