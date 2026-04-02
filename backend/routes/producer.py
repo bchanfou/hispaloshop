@@ -299,7 +299,7 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     # Sort monthly data
     monthly_summary = [
         {"month": k, "gross": round(v["gross"], 2), "net": round(v["net"], 2), "orders": v["orders"]}
-        for k, v in sorted(monthly_data.items(), reverse=True)
+        for k, v in sorted(monthly_data.items())
     ]
     
     # Check Stripe Connect status
@@ -691,7 +691,7 @@ async def create_stripe_connect_account(request: Request, user: User = Depends(g
     def get_country_code(country_input):
         """Convert country name or code to ISO 3166-1 alpha-2"""
         if not country_input:
-            return "US"  # Default
+            return "ES"  # Default
         
         country_input = country_input.strip()
         
@@ -704,9 +704,9 @@ async def create_stripe_connect_account(request: Request, user: User = Depends(g
         if country_lower in COUNTRY_TO_ISO:
             return COUNTRY_TO_ISO[country_lower]
         
-        # Default to US if unknown
-        logger.warning(f"Unknown country '{country_input}', defaulting to US")
-        return "US"
+        # Default to ES if unknown
+        logger.warning(f"Unknown country '{country_input}', defaulting to ES")
+        return "ES"
     
     # Check if producer already has a Stripe account
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
@@ -924,10 +924,6 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
     """Request a manual bank transfer payout."""
     await require_role(user, ["producer", "importer"])
     body = await request.json()
-    amount = body.get("amount")
-
-    if not amount or float(amount) <= 0:
-        raise HTTPException(status_code=400, detail="Amount must be > 0")
 
     doc = await db.users.find_one(
         {"user_id": user.user_id},
@@ -938,6 +934,28 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
 
     if not doc.get("bank_details"):
         raise HTTPException(status_code=400, detail="Bank details not configured. Please set up your payout method first.")
+
+    # Prevent duplicate pending payouts
+    existing_pending = await db.manual_payouts.find_one(
+        {"producer_id": user.user_id, "status": "pending"}
+    )
+    if existing_pending:
+        raise HTTPException(status_code=400, detail="Ya tienes una solicitud de pago pendiente. Espera a que se procese.")
+
+    # Calculate actual pending balance server-side (don't trust client amount)
+    all_orders = await db.orders.find(
+        {"split_details": {"$elemMatch": {"producer_id": user.user_id, "paid_out": {"$ne": True}}}},
+        {"_id": 0, "split_details": 1},
+    ).to_list(500)
+    pending_balance = 0.0
+    for order in all_orders:
+        for split in order.get("split_details", []):
+            if split.get("producer_id") == user.user_id and not split.get("paid_out"):
+                pending_balance += split.get("seller_amount", split.get("net_earnings", 0))
+
+    amount = round(min(float(body.get("amount", 0)), pending_balance), 2)
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="No tienes saldo pendiente para retirar")
 
     import uuid
     payout_id = f"payout_{uuid.uuid4().hex[:12]}"

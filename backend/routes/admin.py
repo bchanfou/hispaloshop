@@ -1883,11 +1883,26 @@ async def process_payout(payout_id: str, request: Request, user: User = Depends(
 
     await db.manual_payouts.update_one({"payout_id": payout_id}, {"$set": update})
 
-    # If completed, mark the corresponding order splits as paid_out
+    # If completed, mark order splits as paid_out + notify producer
     if new_status == "completed":
         producer_id = payout["producer_id"]
         amount = payout["amount"]
-        # Insert notification for producer
+
+        # Mark all unpaid splits for this producer as paid_out
+        unpaid_orders = await db.orders.find(
+            {"split_details": {"$elemMatch": {"producer_id": producer_id, "paid_out": {"$ne": True}}}},
+            {"_id": 0, "order_id": 1, "split_details": 1},
+        ).to_list(500)
+        for order in unpaid_orders:
+            updates = {}
+            for i, split in enumerate(order.get("split_details", [])):
+                if split.get("producer_id") == producer_id and not split.get("paid_out"):
+                    updates[f"split_details.{i}.paid_out"] = True
+            if updates:
+                updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+                await db.orders.update_one({"order_id": order["order_id"]}, {"$set": updates})
+
+        # Notify producer
         await db.notifications.insert_one({
             "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
             "user_id": producer_id,

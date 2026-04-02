@@ -21,7 +21,7 @@ function formatDate(dateStr) {
 
 function StatusBadge({ status }) {
   const cfg = {
-    pending: { label: 'Pendiente', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+    pending: { label: 'Pendiente', cls: 'bg-stone-100 text-stone-700 border-stone-200' },
     completed: { label: 'Completado', cls: 'bg-stone-950 text-white border-stone-950' },
     rejected: { label: 'Rechazado', cls: 'bg-stone-100 text-stone-500 border-stone-200' },
   };

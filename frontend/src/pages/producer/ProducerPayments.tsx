@@ -545,7 +545,7 @@ export default function ProducerPayments() {
                     className="w-full py-3 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors border-t border-stone-100"
                     data-testid="load-more-orders"
                   >
-                    Cargar más ({(data.recent_orders.length - visibleOrders)} restantes)
+                    Cargar más ({((data.recent_orders || []).length - visibleOrders)} restantes)
                   </button>
                 )}
               </>
@@ -594,7 +594,7 @@ export default function ProducerPayments() {
                 </tr>
               </thead>
               <tbody>
-                {data.monthly_summary.map((m) => (
+                {(data.monthly_summary || []).map((m) => (
                   <tr key={m.month} className="border-t border-stone-100 hover:bg-stone-50/50">
                     <td className="px-4 py-2.5 font-medium text-stone-950">
                       {new Date(m.month + '-01').toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}

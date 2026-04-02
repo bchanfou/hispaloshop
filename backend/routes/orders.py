@@ -218,16 +218,24 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
 
 async def _resolve_seller_stripe(seller_id: str) -> dict:
     """Resolve Stripe Connect account for a seller (producer or influencer)."""
-    doc = await db.influencers.find_one({"user_id": seller_id}, {"_id": 0, "stripe_account_id": 1, "stripe_onboarding_complete": 1})
-    if not doc:
-        doc = await db.stores.find_one({"user_id": seller_id}, {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1})
-    if not doc:
-        doc = await db.users.find_one({"user_id": seller_id}, {"_id": 0, "stripe_account_id": 1})
+    # Check influencers first, then stores, then users — project all relevant fields
+    doc = await db.influencers.find_one(
+        {"user_id": seller_id},
+        {"_id": 0, "stripe_account_id": 1, "stripe_onboarding_complete": 1, "stripe_charges_enabled": 1},
+    )
+    if not doc or not doc.get("stripe_account_id"):
+        doc = await db.stores.find_one(
+            {"user_id": seller_id},
+            {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1},
+        )
+    if not doc or not doc.get("stripe_account_id"):
+        doc = await db.users.find_one(
+            {"user_id": seller_id},
+            {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1, "stripe_payouts_enabled": 1},
+        )
     if doc and doc.get("stripe_account_id"):
-        return {
-            "stripe_account_id": doc["stripe_account_id"],
-            "charges_enabled": doc.get("stripe_charges_enabled", doc.get("stripe_onboarding_complete", False))
-        }
+        enabled = doc.get("stripe_charges_enabled") or doc.get("stripe_onboarding_complete") or doc.get("stripe_payouts_enabled") or False
+        return {"stripe_account_id": doc["stripe_account_id"], "charges_enabled": bool(enabled)}
     return {"stripe_account_id": None, "charges_enabled": False}
 
 
@@ -304,18 +312,22 @@ async def execute_seller_transfers(order: dict):
                 "commission_snapshot": split,
             })
     
-    # Mark transfers as executed
-    await db.orders.update_one(
-        {"order_id": order_id},
-        {"$set": {
-            "transfers_executed": True,
-            "transfer_records": transfer_records,
-            "total_platform_fee": round(total_platform_fee, 2),
-            "total_influencer_cut": round(total_influencer_cut, 2),
-            "commission_data": commission_data,
-            "updated_at": datetime.now(timezone.utc).isoformat()
-        }}
-    )
+    # Mark transfers as executed + set paid_out on split_details
+    update_set = {
+        "transfers_executed": True,
+        "transfer_records": transfer_records,
+        "total_platform_fee": round(total_platform_fee, 2),
+        "total_influencer_cut": round(total_influencer_cut, 2),
+        "commission_data": commission_data,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    # Mark each successfully transferred split as paid_out
+    completed_sellers = {r["seller_id"] for r in transfer_records if r.get("status") == "completed"}
+    split_details = order.get("split_details", [])
+    for i, split in enumerate(split_details):
+        if split.get("producer_id") in completed_sellers:
+            update_set[f"split_details.{i}.paid_out"] = True
+    await db.orders.update_one({"order_id": order_id}, {"$set": update_set})
     
     # Write ledger events for each seller transfer
     buyer_country = order.get("country", "")

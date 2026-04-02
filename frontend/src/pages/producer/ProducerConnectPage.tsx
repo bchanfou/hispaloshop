@@ -61,8 +61,14 @@ export default function ProducerConnectPage() {
   useEffect(() => {
     loadStatus();
 
-    // Poll every 5s so the page auto-updates after Stripe redirect
+    // Poll every 5s, max 60 attempts (5 minutes) then stop
+    let pollCount = 0;
     pollRef.current = setInterval(() => {
+      pollCount++;
+      if (pollCount > 60) {
+        clearInterval(pollRef.current);
+        return;
+      }
       loadStatus();
     }, 5000);
 
