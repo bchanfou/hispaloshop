@@ -226,7 +226,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 label="País"
                 value={`${currentCountry.flag} ${currentCountry.name}`}
                 isOpen={openAccordion === 'country'}
-                onToggle={() => setOpenAccordion(openAccordion === 'country' ? null : 'country')}
+                onToggle={() => { setLocaleSearch(''); setOpenAccordion(openAccordion === 'country' ? null : 'country'); }}
               >
                 <input
                   type="text"
@@ -260,7 +260,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 label="Idioma"
                 value={currentLang.name}
                 isOpen={openAccordion === 'language'}
-                onToggle={() => setOpenAccordion(openAccordion === 'language' ? null : 'language')}
+                onToggle={() => { setLocaleSearch(''); setOpenAccordion(openAccordion === 'language' ? null : 'language'); }}
               >
                 <input
                   type="text"
@@ -294,7 +294,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 label="Divisa"
                 value={currentCurrency.code}
                 isOpen={openAccordion === 'currency'}
-                onToggle={() => setOpenAccordion(openAccordion === 'currency' ? null : 'currency')}
+                onToggle={() => { setLocaleSearch(''); setOpenAccordion(openAccordion === 'currency' ? null : 'currency'); }}
               >
                 <input
                   type="text"

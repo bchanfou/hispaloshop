@@ -33,7 +33,7 @@ export default function Footer() {
   useEffect(() => {
     if (!dropdownOpen) return;
     const close = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) { setDropdownOpen(false); setFooterSearch(''); }
     };
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
