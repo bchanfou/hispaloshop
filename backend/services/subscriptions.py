@@ -29,6 +29,19 @@ SELLER_PLANS = {
 _plans_cache = {"data": None, "fetched_at": None}
 
 
+async def warm_plans_cache():
+    """Call on startup to populate the plans cache from DB."""
+    from core.database import db
+    try:
+        config = await db.plans_config.find_one({"_id": "current"}, {"_id": 0})
+        if config and config.get("seller_plans"):
+            _plans_cache["data"] = config["seller_plans"]
+            _plans_cache["fetched_at"] = datetime.now(timezone.utc)
+            logger.info(f"[PLANS] Cache warmed from DB: {list(config['seller_plans'].keys())}")
+    except Exception as e:
+        logger.warning(f"[PLANS] Could not warm cache: {e}")
+
+
 async def get_seller_plan_config(plan_name: str) -> dict:
     """Get plan config from DB (cached), fall back to SELLER_PLANS constant."""
     from core.database import db
@@ -290,7 +303,10 @@ async def ensure_stripe_products(db):
 
 
 def get_seller_commission_rate(plan: str) -> float:
-    """Get commission rate for a seller plan."""
+    """Get commission rate for a seller plan. Reads from DB cache if available."""
+    db_plans = _plans_cache.get("data") or {}
+    if plan in db_plans:
+        return db_plans[plan].get("commission_rate", 0.20)
     return SELLER_PLANS.get(plan, SELLER_PLANS["FREE"])["commission_rate"]
 
 

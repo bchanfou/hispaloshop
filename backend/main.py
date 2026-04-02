@@ -415,6 +415,10 @@ async def startup_event():
     print(f"         Chat Real-Time + Notifications Omnichannel")
     print(f"{'='*50}\n")
 
+    # Warm plans cache from DB
+    from services.subscriptions import warm_plans_cache
+    await warm_plans_cache()
+
     # Launch daily cron background task
     import asyncio
     asyncio.create_task(_run_daily_cron())

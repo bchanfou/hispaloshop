@@ -844,6 +844,16 @@ async def update_plans_config(request: Request, user: User = Depends(get_current
     await require_role(user, ["super_admin"])
     body = await request.json()
 
+    # Verify password for sensitive operation
+    password = body.get("password", "")
+    if password:
+        user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
+        if user_doc and user_doc.get("password_hash"):
+            from passlib.context import CryptContext
+            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+            if not pwd_context.verify(password, user_doc["password_hash"]):
+                raise HTTPException(status_code=403, detail="Contraseña incorrecta")
+
     # Validate seller plans
     seller_plans = body.get("seller_plans", {})
     for plan_name, plan in seller_plans.items():
@@ -876,6 +886,14 @@ async def update_plans_config(request: Request, user: User = Depends(get_current
     }
 
     await db.plans_config.update_one({"_id": "current"}, {"$set": update}, upsert=True)
+
+    # Invalidate subscriptions cache so changes take effect immediately
+    try:
+        from services.subscriptions import _plans_cache
+        _plans_cache["data"] = seller_plans
+        _plans_cache["fetched_at"] = datetime.now(timezone.utc)
+    except Exception:
+        pass
 
     # Audit log
     await db.audit_log.insert_one({

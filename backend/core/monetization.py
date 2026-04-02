@@ -59,10 +59,22 @@ def cents_to_float(total_cents: int) -> float:
     return float(cents_to_decimal(total_cents))
 
 
+def _get_commission_rate(plan: str) -> Decimal:
+    """Read commission rate from subscriptions cache, fall back to hardcoded."""
+    try:
+        from services.subscriptions import _plans_cache
+        db_plans = _plans_cache.get("data") or {}
+        if plan in db_plans:
+            return Decimal(str(db_plans[plan].get("commission_rate", 0.20)))
+    except Exception:
+        pass
+    return COMMISSION_RATES.get(plan, COMMISSION_RATES["FREE"])
+
+
 def calculate_order_split(total_cents: int, seller_plan: str, influencer_tier: Optional[str] = None) -> dict:
     total = cents_to_decimal(total_cents)
     normalized_plan = normalize_seller_plan(seller_plan)
-    commission_rate = COMMISSION_RATES[normalized_plan]
+    commission_rate = _get_commission_rate(normalized_plan)
 
     platform_gross = _quantize(total * commission_rate)
     seller_payout = _quantize(total - platform_gross)

@@ -129,7 +129,7 @@ export default function PlansConfigPage() {
           label: t.label,
         };
       });
-      await apiClient.put('/superadmin/plans', { seller_plans, influencer_tiers });
+      await apiClient.put('/superadmin/plans', { seller_plans, influencer_tiers, password });
       toast.success('Configuración actualizada y guardada');
       setShowConfirm(false);
     } catch (err) {
@@ -153,13 +153,20 @@ export default function PlansConfigPage() {
       {/* Influencer tiers */}
       <SACard className="mb-4">
         <h3 className="text-[15px] font-bold text-stone-100 mb-4">Comisiones Influencer</h3>
-        {INFLUENCER_TIERS.map((t, i) => (
+        {tiers.map((t, i) => (
           <div
             key={t.tier}
-            className={`flex items-center gap-3 py-2.5 ${i < INFLUENCER_TIERS.length - 1 ? 'border-b border-stone-800' : ''}`}
+            className={`flex items-center gap-3 py-2.5 ${i < tiers.length - 1 ? 'border-b border-stone-800' : ''}`}
           >
             <span className="text-sm font-semibold text-stone-100 w-28">{t.label}</span>
-            <span className="text-2xl font-extrabold text-[#78716c]">{t.rate}%</span>
+            <input
+              type="number"
+              value={t.rate}
+              onChange={e => setTiers(prev => prev.map(x => x.tier === t.tier ? { ...x, rate: Number(e.target.value) } : x))}
+              className="w-16 text-2xl font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+              min={1} max={15}
+            />
+            <span className="text-xl text-stone-500">%</span>
             <span className="text-xs text-stone-500 flex-1">
               {t.threshold > 0 ? `desde ${t.threshold.toLocaleString()}€ GMV/mes` : 'nivel base'}
             </span>
@@ -182,26 +189,48 @@ export default function PlansConfigPage() {
             <div className="flex gap-3 flex-1">
               <div>
                 <p className="text-[10px] text-stone-500 mb-0.5">Precio/mes</p>
-                <p className="text-base font-extrabold text-stone-100">
-                  {plan.price === 0 ? 'Gratis' : `${plan.price}€`}
-                </p>
+                {plan.price === 0 ? (
+                  <p className="text-base font-extrabold text-stone-100">Gratis</p>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      value={plan.price}
+                      onChange={e => setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, price: Number(e.target.value) } : p))}
+                      className="w-16 text-base font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+                      min={1}
+                    />
+                    <span className="text-stone-500 text-sm">€</span>
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-[10px] text-stone-500 mb-0.5">Comisión</p>
-                <p className="text-base font-extrabold text-[#78716c]">{plan.commission_pct}%</p>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={plan.commission_pct}
+                    onChange={e => setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, commission_pct: Number(e.target.value) } : p))}
+                    className="w-12 text-base font-extrabold text-stone-400 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+                    min={1} max={50}
+                  />
+                  <span className="text-stone-500 text-sm">%</span>
+                </div>
               </div>
             </div>
-            {plan.price > 0 && (
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="bg-stone-800 rounded-2xl px-3 py-1.5 text-[11px] text-stone-400 hover:bg-stone-700 transition-colors"
-              >
-                Editar
-              </button>
-            )}
           </div>
         ))}
       </SACard>
+
+      {/* Save Button */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => setShowConfirm(true)}
+          className="px-6 py-2.5 bg-stone-100 text-stone-950 rounded-2xl text-sm font-bold hover:bg-white transition-colors"
+        >
+          Guardar cambios
+        </button>
+      </div>
 
       {showConfirm && (
         <ConfirmModal
