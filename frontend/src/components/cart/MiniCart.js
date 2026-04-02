@@ -160,7 +160,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                     <ShoppingBag className="w-10 h-10 text-stone-500" />
                   </div>
                   <h3 className="text-lg font-semibold text-stone-950 mb-2">
-                    {t('cart.title', 'Tu cesta')} está vacía
+                    {t('cart.empty', 'Tu cesta está vacía')}
                   </h3>
                   <p className="text-stone-500 mb-6">
                     ¿Buscas algo en particular?

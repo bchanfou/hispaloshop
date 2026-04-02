@@ -109,9 +109,9 @@ function SummaryRow({ label, value, bold }) {
 /* ── Main Component ── */
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { cartItems, appliedDiscount, applyDiscount, removeDiscount, loading: cartLoading } = useCart();
-  const { convertAndFormatPrice, currency } = useLocale();
+  const { convertAndFormatPrice, currency, t } = useLocale();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
   const { emailVerified } = useCartVerification();
   const { cartSummary } = useCartPricing(cartItems, appliedDiscount);
@@ -140,9 +140,10 @@ export default function CheckoutPage() {
 
   // Redirect if not logged in or no items (guard against loading state)
   useEffect(() => {
+    if (authLoading) return; // wait for auth to resolve
     if (!user) { navigate('/login', { replace: true }); return; }
     if (!cartLoading && cartItems.length === 0) { navigate('/cart', { replace: true }); }
-  }, [user, cartItems.length, cartLoading, navigate]);
+  }, [user, authLoading, cartItems.length, cartLoading, navigate]);
 
   // Auto-select default address
   useEffect(() => {

@@ -17,9 +17,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
-function ShippingProgressBar({ store }) {
+function ShippingProgressBar({ store, currencyCode = 'EUR' }) {
+  const fmtCents = (cents) => ((cents || 0) / 100).toLocaleString(undefined, { style: 'currency', currency: currencyCode });
+
   if (store.threshold_cents == null) {
-    // FREE plan — no free shipping available
     return (
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
@@ -30,12 +31,12 @@ function ShippingProgressBar({ store }) {
           )}
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
-        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })}</span>
+        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{fmtCents(store.shipping_cents)}</span>
       </div>
     );
   }
 
-  const pct = store.progress_pct;
+  const pct = store.progress_pct || 0;
   const barColor = store.is_free ? 'bg-stone-950' : pct >= 60 ? 'bg-stone-700' : 'bg-stone-400';
 
   return (
@@ -52,7 +53,7 @@ function ShippingProgressBar({ store }) {
         {store.is_free ? (
           <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envío gratis</span>
         ) : (
-          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })}</span>
+          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{fmtCents(store.shipping_cents)}</span>
         )}
       </div>
       <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
@@ -60,7 +61,7 @@ function ShippingProgressBar({ store }) {
       </div>
       {!store.is_free && store.remaining_cents > 0 && (
         <p className="text-[11px] text-stone-500 mt-0.5">
-          Faltan {((store.remaining_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })} para envío gratis
+          Faltan {fmtCents(store.remaining_cents)} para envío gratis
         </p>
       )}
     </div>
@@ -657,6 +658,7 @@ export default function CartPage() {
                     {shippingBreakdown.map((store) => (
                       <ShippingProgressBar
                         key={store.seller_id}
+                        currencyCode={currency || 'EUR'}
                         store={{
                           seller_id: store.seller_id,
                           seller_name: store.seller_name,

@@ -828,7 +828,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     for _ri in _raw_items:
         cart_items.append({
             **_ri,
-            "producer_id": _ri.get("seller_id") or _ri.get("producer_id") or "",
+            "producer_id": _ri.get("seller_id") or _ri.get("producer_id") or "unknown",
             "price": round((_ri.get("unit_price_cents", 0) or 0) / 100, 2) if _ri.get("unit_price_cents") else _ri.get("price", 0),
             "product_name": _ri.get("product_name") or _ri.get("name", ""),
         })
@@ -1072,6 +1072,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             },
         )
         if not producer_doc:
+            # Unknown producer — apply default shipping (base 490 cents = 4.90€)
+            shipping_cents += 490
             continue
         policy = ShippingPolicy(
             enabled=bool(producer_doc.get("shipping_policy_enabled", False)),

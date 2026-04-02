@@ -311,12 +311,15 @@ async def add_to_cart(
 
         if existing_idx is not None:
             # Atomic increment using $elemMatch — safe against concurrent index shifts
+            # Match null OR empty string for variant/pack (consistent with _norm())
+            vid_match = {"$in": [None, ""]} if _norm(variant_id) is None else variant_id
+            pid_match = {"$in": [None, ""]} if _norm(pack_id) is None else pack_id
             elem_filter = {
                 "_id": cart["_id"],
                 "items": {"$elemMatch": {
                     "product_id": product_id,
-                    "variant_id": variant_id,
-                    "pack_id": pack_id,
+                    "variant_id": vid_match,
+                    "pack_id": pid_match,
                 }},
             }
             result = await db.carts.update_one(
@@ -653,25 +656,24 @@ async def apply_coupon(
     if not coupon:
         raise HTTPException(status_code=400, detail="Código de descuento inválido o expirado")
     
-    # Verificar uso — atomic check to prevent race condition
+    # Obtener carrito FIRST (before incrementing coupon usage)
+    cart = await db.carts.find_one({
+        "user_id": current_user.user_id,
+        "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
+    })
+
+    if not cart or not cart.get("items"):
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+
+    # Verificar uso — atomic check to prevent race condition (after cart validation)
     if coupon.get("usage_limit"):
-        # Atomic: only increment if under limit
         result = await db.discount_codes.update_one(
             {"_id": coupon["_id"], "usage_count": {"$lt": coupon["usage_limit"]}},
             {"$inc": {"usage_count": 1}}
         )
         if result.modified_count == 0:
             raise HTTPException(status_code=400, detail="Límite de uso del cupón alcanzado")
-    
-    # Obtener carrito
-    cart = await db.carts.find_one({
-        "user_id": current_user.user_id,
-        "status": "active",
-        "expires_at": {"$gte": datetime.now(timezone.utc)}
-    })
-    
-    if not cart or not cart.get("items"):
-        raise HTTPException(status_code=400, detail="El carrito está vacío")
     
     # Calcular descuento
     subtotal = sum(item.get("total_price_cents", 0) for item in cart["items"])

@@ -80,23 +80,39 @@ export function CartProvider({ children }) {
     try {
       // Fetch current server cart to detect duplicates
       let serverKeys = new Set();
+      let serverItems = [];
       try {
         const res = await apiClient.get('/cart');
-        const serverItems = (res.data || res)?.items || [];
+        serverItems = (res.data || res)?.items || [];
         serverKeys = new Set(serverItems.map(itemKey));
       } catch { /* if fetch fails, merge everything */ }
 
       const mergedKeys = new Set();
       for (const item of guestItems) {
         try {
-          // Always POST — backend increments quantity if item exists
-          await apiClient.post('/cart/items', {
-            product_id: item.product_id,
-            quantity: item.quantity,
-            ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
-            ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
-          });
-          mergedKeys.add(itemKey(item));
+          const key = itemKey(item);
+          if (serverKeys.has(key)) {
+            // Item exists on server — use updateQuantity to SET (not add) the guest qty
+            // Take the MAX of server qty and guest qty
+            const serverItem = serverItems.find(si => itemKey(si) === key);
+            const targetQty = Math.max(item.quantity, serverItem?.quantity || 0);
+            if (targetQty !== (serverItem?.quantity || 0)) {
+              await apiClient.patch(`/cart/items/${item.product_id}`, {
+                quantity: targetQty,
+                ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
+                ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
+              });
+            }
+          } else {
+            // New item — add to server cart
+            await apiClient.post('/cart/items', {
+              product_id: item.product_id,
+              quantity: item.quantity,
+              ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
+              ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
+            });
+          }
+          mergedKeys.add(key);
         } catch (e) {
           if (process.env.NODE_ENV === 'development') console.error('Merge failed for', item.product_id, e);
         }
@@ -302,7 +318,8 @@ export function CartProvider({ children }) {
       return { success: true, data };
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error applying discount:', error);
-      return { success: false, error: error.message || 'Error al aplicar el descuento' };
+      const detail = error?.data?.detail || error?.response?.data?.detail || error.message || 'Error al aplicar el descuento';
+      return { success: false, error: detail };
     }
   }, [fetchCart]);
 
