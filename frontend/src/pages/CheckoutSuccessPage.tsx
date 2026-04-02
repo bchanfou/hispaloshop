@@ -22,7 +22,7 @@ function estimateDeliveryRange(createdAt) {
     return result;
   };
   const fmt = (d) =>
-    d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   return `${fmt(addBusinessDays(base, 3))} – ${fmt(addBusinessDays(base, 7))}`;
 }
 

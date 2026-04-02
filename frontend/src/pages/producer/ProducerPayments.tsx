@@ -7,8 +7,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const fmtMoney = (val, cur = 'EUR') => (Number(val) || 0).toLocaleString(undefined, { style: 'currency', currency: cur });
 
 // ── Status badge component ──
 function StatusBadge({ status }) {
@@ -78,10 +81,10 @@ function MonthlyChart({ data }) {
         <BarChart data={chartData} barGap={2}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
           <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-          <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${v}€`} />
+          <YAxis tick={{ fontSize: 11 }} tickFormatter={v => fmtMoney(v)} />
           <Tooltip
             contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '12px' }}
-            formatter={(val, name) => [`${val.toFixed(2)}€`, name]}
+            formatter={(val, name) => [fmtMoney(val), name]}
           />
           <Bar dataKey="Bruto" fill="#d6d3d1" radius={[4, 4, 0, 0]} />
           <Bar dataKey="Neto" fill="#1c1917" radius={[4, 4, 0, 0]} />
@@ -114,8 +117,8 @@ function OrderRow({ order, expanded, onToggle }) {
         <div className="flex items-center gap-3 flex-shrink-0">
           <StatusBadge status={order.status} />
           <div className="text-right">
-            <p className="text-sm font-semibold text-stone-700">+{(order.net_earnings ?? 0).toFixed(2)}€</p>
-            <p className="text-[10px] text-stone-500">{(order.gross_amount ?? 0).toFixed(2)}€ bruto</p>
+            <p className="text-sm font-semibold text-stone-700">+{fmtMoney(order.net_earnings)}</p>
+            <p className="text-[10px] text-stone-500">{fmtMoney(order.gross_amount)} bruto</p>
           </div>
           {expanded ? <ChevronUp className="w-4 h-4 text-stone-500" /> : <ChevronDown className="w-4 h-4 text-stone-500" />}
         </div>
@@ -126,12 +129,12 @@ function OrderRow({ order, expanded, onToggle }) {
             {(order.items || []).map((item, i) => (
               <div key={i} className="flex justify-between text-xs text-stone-600">
                 <span>{item.quantity}x {item.product_name}</span>
-                <span>{(item.subtotal ?? 0).toFixed(2)}€</span>
+                <span>{fmtMoney(item.subtotal)}</span>
               </div>
             ))}
             <div className="pt-1.5 mt-1.5 border-t border-stone-200 flex justify-between text-xs">
               <span className="text-stone-500">Comisión plataforma ({(order.gross_amount ?? 0) > 0 ? ((order.platform_fee ?? 0) / (order.gross_amount || 1) * 100).toFixed(0) : 0}%)</span>
-              <span className="text-stone-600">-{(order.platform_fee ?? 0).toFixed(2)}€</span>
+              <span className="text-stone-600">-{fmtMoney(order.platform_fee)}</span>
             </div>
           </div>
         </div>
@@ -435,7 +438,7 @@ export default function ProducerPayments() {
         <StatCard
           icon={DollarSign}
           label={t('producer.grossSales')}
-          value={`${(data.total_gross ?? 0).toFixed(2)}€`}
+          value={fmtMoney(data.total_gross)}
           sublabel={`${data.paid_orders ?? 0} pedidos completados`}
           color="blue"
           testId="stat-gross"
@@ -443,7 +446,7 @@ export default function ProducerPayments() {
         <StatCard
           icon={TrendingUp}
           label={`Tus ganancias (${100 - commissionPct}%)`}
-          value={`${(data.total_net ?? 0).toFixed(2)}€`}
+          value={fmtMoney(data.total_net)}
           sublabel={t('producer.afterCommission')}
           color="green"
           testId="stat-net"
@@ -451,14 +454,14 @@ export default function ProducerPayments() {
         <StatCard
           icon={CreditCard}
           label={`Comisión plataforma (${commissionPct}%)`}
-          value={`${(data.total_platform_fee ?? 0).toFixed(2)}€`}
+          value={fmtMoney(data.total_platform_fee)}
           color="amber"
           testId="stat-fees"
         />
         <StatCard
           icon={Wallet}
           label={t('producer.pendingPayout')}
-          value={`${(data.pending_payout ?? 0).toFixed(2)}€`}
+          value={fmtMoney(data.pending_payout)}
           sublabel={data.stripe_connected ? 'Stripe conectado' : 'Solicita tu pago'}
           color={data.pending_payout > 0 ? 'green' : 'default'}
           testId="stat-pending"
@@ -606,8 +609,8 @@ export default function ProducerPayments() {
                       {new Date(m.month + '-01').toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
                     </td>
                     <td className="text-right px-4 py-2.5 text-stone-600">{m.orders}</td>
-                    <td className="text-right px-4 py-2.5 text-stone-600">{m.gross.toFixed(2)}€</td>
-                    <td className="text-right px-4 py-2.5 font-medium text-stone-700">{m.net.toFixed(2)}€</td>
+                    <td className="text-right px-4 py-2.5 text-stone-600">{fmtMoney(m.gross)}</td>
+                    <td className="text-right px-4 py-2.5 font-medium text-stone-700">{fmtMoney(m.net)}</td>
                   </tr>
                 ))}
               </tbody>

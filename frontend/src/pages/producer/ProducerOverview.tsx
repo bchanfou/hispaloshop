@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+
+const fmtMoney = (val, cur = 'EUR') => (Number(val) || 0).toLocaleString(undefined, { style: 'currency', currency: cur });
 import {
   Package, FileCheck, ShoppingBag, CreditCard,
   AlertCircle, Users, TrendingUp, Heart, Star,
@@ -270,7 +272,7 @@ function HealthScoreCard() {
             <div className="text-[10px] uppercase tracking-wider text-stone-500">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
           <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
-            <div className="text-xl font-bold text-stone-950">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
+            <div className="text-xl font-bold text-stone-950">{fmtMoney(healthData.metrics.revenue_30d)}</div>
             <div className="text-[10px] uppercase tracking-wider text-stone-500">Ventas</div>
           </div>
           <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
@@ -339,7 +341,7 @@ function DesktopHealthScore({ healthData, t }) {
           <div className="text-xs text-stone-500">{t('producer.healthScore.orders30d')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-stone-950">€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
+          <div className="text-xl font-bold text-stone-950">{fmtMoney(healthData.metrics.revenue_30d)}</div>
           <div className="text-xs text-stone-500">{t('producer.healthScore.revenue30d')}</div>
         </div>
         <div className="text-center">
@@ -946,7 +948,7 @@ export default function ProducerOverview() {
         const kpis = [
           {
             label: t('sellerDashboard.totalSales', 'Ventas'),
-            value: `${grossCurr.toFixed(0)}€`,
+            value: fmtMoney(grossCurr),
             trend: revTrend,
           },
           {
@@ -984,7 +986,7 @@ export default function ProducerOverview() {
 
       {/* Net earnings */}
       <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
-        <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.total_net).toFixed(0)}€</p>
+        <p className="text-2xl font-bold text-stone-950">{fmtMoney(payments?.total_net)}</p>
         <p className="text-[10px] uppercase mt-1 text-stone-500">{t('sellerDashboard.earned', 'Ganado neto')}</p>
       </div>
 
@@ -1005,11 +1007,11 @@ export default function ProducerOverview() {
               <YAxis
                 tick={{ fontSize: 10, fill: '#78716c' }}
                 tickLine={false} axisLine={false}
-                tickFormatter={v => `${v}€`}
+                tickFormatter={v => fmtMoney(v)}
               />
               <Tooltip
                 contentStyle={{ background: '#0c0a09', border: 'none', borderRadius: 12, fontSize: 12, color: 'white' }}
-                formatter={(v) => [`${Number(v).toFixed(2)}€`, 'Ventas']}
+                formatter={(v) => [fmtMoney(v), 'Ventas']}
                 labelFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
               />
               <Line type="monotone" dataKey="revenue" stroke="#0c0a09" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />
@@ -1151,7 +1153,7 @@ export default function ProducerOverview() {
         <StatCardMobile
           icon={CreditCard}
           label={t('producer.totalSold')}
-          value={`€${asNumber(payments?.total_sold).toFixed(0)}`}
+          value={fmtMoney(payments?.total_sold)}
           linkTo="/producer/payments"
           color="warning"
         />
@@ -1160,7 +1162,7 @@ export default function ProducerOverview() {
           <StatCardMobile
             icon={CreditCard}
             label={t('producer.yourEarnings')}
-            value={`€${asNumber(payments?.producer_share).toFixed(0)}`}
+            value={fmtMoney(payments?.producer_share)}
             linkTo="/producer/payments"
             color="success"
           />

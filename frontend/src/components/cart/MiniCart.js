@@ -141,7 +141,7 @@ const MiniCart = ({ isOpen, onClose }) => {
               <button
                 onClick={onClose}
                 className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-full transition-colors"
-                aria-label="Cerrar carrito"
+                aria-label={t('common.close', 'Cerrar carrito')}
               >
                 <X className="w-5 h-5 text-stone-950" />
               </button>
@@ -162,13 +162,13 @@ const MiniCart = ({ isOpen, onClose }) => {
                     {t('cart.empty', 'Tu cesta está vacía')}
                   </h3>
                   <p className="text-stone-500 mb-6">
-                    ¿Buscas algo en particular?
+                    {t('cart.browsingQuestion', '¿Buscas algo en particular?')}
                   </p>
                   <button
                     onClick={() => { onClose(); navigate('/discover'); }}
                     className="px-6 py-3 bg-stone-950 text-white rounded-full font-medium"
                   >
-                    Explorar productos
+                    {t('home.shopNow', 'Explorar productos')}
                   </button>
                 </div>
               ) : (
@@ -262,13 +262,13 @@ const MiniCart = ({ isOpen, onClose }) => {
                 {/* Shipping progress */}
                 {hasMultipleStores ? (
                   <div className="bg-stone-100 rounded-2xl p-3 text-sm">
-                    <p className="text-stone-950 font-medium">Envío calculado por tienda</p>
-                    <p className="text-stone-500 text-xs mt-0.5">Revisa el detalle en el carrito</p>
+                    <p className="text-stone-950 font-medium">{t('cart.shippingPerStore', 'Envío calculado por tienda')}</p>
+                    <p className="text-stone-500 text-xs mt-0.5">{t('cart.checkCartForDetails', 'Revisa el detalle en el carrito')}</p>
                   </div>
                 ) : subtotal < freeShippingThreshold ? (
                   <div className="bg-stone-100 rounded-2xl p-3 text-sm">
                     <p className="text-stone-950">
-                      Añade <span className="font-semibold text-stone-950">{fmtUnit(freeShippingThreshold - subtotal)}</span> más para envío gratis
+                      {t('cart.addMoreForFreeShipping', 'Añade')} <span className="font-semibold text-stone-950">{fmtUnit(freeShippingThreshold - subtotal)}</span> {t('cart.moreForFreeShipping', 'más para envío gratis')}
                     </p>
                     <div className="mt-2 h-2 bg-white rounded-full overflow-hidden">
                       <div
@@ -282,26 +282,26 @@ const MiniCart = ({ isOpen, onClose }) => {
                 {/* Summary with shipping estimate */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-stone-500">
-                    <span>Subtotal</span>
+                    <span>{t('cart.subtotal', 'Subtotal')}</span>
                     <span>{fmtUnit(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-stone-500">
                     <span className="flex items-center gap-1">
                       <Truck className="w-4 h-4" />
-                      Envío
+                      {t('checkout.shipping', 'Envío')}
                     </span>
-                    <span className="text-stone-400 text-xs">Calculado en el carrito</span>
+                    <span className="text-stone-400 text-xs">{t('cart.calculatedInCart', 'Calculado en el carrito')}</span>
                   </div>
                   {discountEur > 0 && (
                     <div className="flex justify-between text-stone-500">
-                      <span>Descuento</span>
+                      <span>{t('cart.discount', 'Descuento')}</span>
                       <span>-{fmtUnit(discountEur)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <div className="flex flex-col">
-                      <span>Subtotal</span>
-                      <span className="text-[11px] text-stone-400 font-normal">Sin envío · Ver carrito para total</span>
+                      <span>{t('cart.subtotal', 'Subtotal')}</span>
+                      <span className="text-[11px] text-stone-400 font-normal">{t('cart.excludingShipping', 'Sin envío · Ver carrito para total')}</span>
                     </div>
                     <span>{fmtUnit(total)}</span>
                   </div>
@@ -312,7 +312,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                   onClick={handleDirectCheckout}
                   className="w-full h-11 bg-stone-950 text-white rounded-full font-semibold text-sm flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors"
                 >
-                  Pagar ahora
+                  {t('cart.checkout', 'Pagar ahora')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
 

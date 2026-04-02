@@ -579,11 +579,11 @@ export default function ProducerOrders() {
                             <div className="flex-1">
                               <p className="text-sm font-medium text-stone-950">{item.product_name}</p>
                               <p className="text-xs text-stone-500">
-                                {item.quantity} x {asNumber(item.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                                {item.quantity} x {asNumber(item.price).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}
                               </p>
                             </div>
                             <p className="text-sm font-semibold text-stone-950">
-                              {(asNumber(item.quantity) * asNumber(item.price)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                              {(asNumber(item.quantity) * asNumber(item.price)).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}
                             </p>
                           </div>
                         ))}
@@ -636,8 +636,8 @@ export default function ProducerOrders() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-stone-500">{t('orders.orderTotal')}</p>
-                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount ?? order.total).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
-                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share ?? ((order.total_amount ?? order.total ?? 0) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
+                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount ?? order.total).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</p>
+                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share ?? ((order.total_amount ?? order.total ?? 0) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
                     </div>
                   </div>
                 </div>
