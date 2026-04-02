@@ -79,6 +79,7 @@ function PredictionCard({ prediction, onReorder, reordering, t }) {
               </span>
             </div>
             <button
+              type="button"
               className="h-7 px-2 text-xs flex items-center text-stone-600 hover:text-stone-950 hover:bg-stone-100 rounded transition-colors disabled:opacity-50"
               onClick={() => onReorder(prediction.product_id)}
               disabled={reordering === prediction.product_id}
@@ -125,7 +126,7 @@ export default function HispaloPredictions() {
       await addToCart(productId, 1);
       toast.success(t('hispalo_predictions.productoAnadidoAlCarrito', 'Producto añadido al carrito'));
     } catch (err) {
-      toast.error(err?.message || t('hispalo_predictions.errorAlAnadirAlCarrito', 'Error al añadir al carrito'));
+      toast.error(err?.response?.data?.detail || err?.message || t('hispalo_predictions.errorAlAnadirAlCarrito', 'Error al añadir al carrito'));
     } finally {
       setReordering(null);
     }

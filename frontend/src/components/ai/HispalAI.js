@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
 
 const QUICK_SUGGESTIONS = [
   { label: '¿Qué me recomiendas hoy?', Icon: Sparkles },
-  { label: t('hispal_a_i.hazmeUnaRecetaRapida', 'Hazme una receta rápida'), Icon: ChefHat },
-  { label: t('hispal_a_i.ayudameConMiDieta', 'Ayúdame con mi dieta'), Icon: BarChart3 },
+  { label: 'Hazme una receta rápida', Icon: ChefHat },
+  { label: 'Ayúdame con mi dieta', Icon: BarChart3 },
   { label: 'Productos halal', emoji: '☪️' },
   { label: 'Opciones sin gluten', Icon: Wheat },
   { label: '¿Qué llevo en el carrito?', Icon: ShoppingCart },
@@ -52,6 +52,7 @@ function TypingIndicator() {
 }
 
 export default function HispalAI() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const {
     messages,
@@ -77,9 +78,9 @@ export default function HispalAI() {
   }, [messages, isLoading, scrollToBottom]);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+    if (!isOpen) return;
+    const timer = setTimeout(() => inputRef.current?.focus(), 300);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   // Don't render for unauthenticated users (after all hooks)

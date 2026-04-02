@@ -137,7 +137,7 @@ export default function CustomerAIPreferences() {
       const data = await apiClient.get('/ai/profile');
       setProfile(data);
     } catch (error) {
-      toast.error(t('aiPrefs.loadError', 'Error al cargar preferencias'));
+      toast.error(error?.response?.data?.detail || t('aiPrefs.loadError', 'Error al cargar preferencias'));
     } finally {
       setLoading(false);
     }
@@ -155,7 +155,7 @@ export default function CustomerAIPreferences() {
       });
       toast.success(t('aiPrefs.saved', 'Preferencias guardadas'));
     } catch (error) {
-      toast.error(t('aiPrefs.saveError', 'Error al guardar preferencias'));
+      toast.error(error?.response?.data?.detail || t('aiPrefs.saveError', 'Error al guardar preferencias'));
     } finally {
       setSaving(false);
     }
@@ -171,7 +171,7 @@ export default function CustomerAIPreferences() {
       setProfile(data.profile);
       toast.success(t('aiPrefs.resetDone', 'Preferencias reiniciadas'));
     } catch (error) {
-      toast.error(t('aiPrefs.resetError', 'Error al reiniciar preferencias'));
+      toast.error(error?.response?.data?.detail || t('aiPrefs.resetError', 'Error al reiniciar preferencias'));
     } finally {
       setSaving(false);
     }
@@ -213,7 +213,7 @@ export default function CustomerAIPreferences() {
           <SingleSelect
             options={getToneOptions(t)}
             selected={profile.tone}
-            onChange={(value) => setProfile({ ...profile, tone: value })}
+            onChange={(value) => setProfile(prev => ({ ...prev, tone: value }))}
             label={t('aiPrefs.toneLabel', 'Como prefieres que te responda?')}
           />
         </div>
@@ -225,7 +225,7 @@ export default function CustomerAIPreferences() {
           <MultiSelect
             options={getDietOptions(t)}
             selected={profile.diet || []}
-            onChange={(value) => setProfile({ ...profile, diet: value })}
+            onChange={(value) => setProfile(prev => ({ ...prev, diet: value }))}
             label={t('aiPrefs.selectDiets', 'Selecciona tus dietas')}
           />
         </div>
@@ -237,7 +237,7 @@ export default function CustomerAIPreferences() {
           <MultiSelect
             options={getAllergyOptions(t)}
             selected={profile.allergies || []}
-            onChange={(value) => setProfile({ ...profile, allergies: value })}
+            onChange={(value) => setProfile(prev => ({ ...prev, allergies: value }))}
             label={t('aiPrefs.selectAllergies', 'Selecciona tus alergias')}
           />
           <p className="text-xs text-stone-500 mt-3">
@@ -252,7 +252,7 @@ export default function CustomerAIPreferences() {
           <MultiSelect
             options={getGoalOptions(t)}
             selected={profile.goals || []}
-            onChange={(value) => setProfile({ ...profile, goals: value })}
+            onChange={(value) => setProfile(prev => ({ ...prev, goals: value }))}
             label={t('aiPrefs.selectGoals', 'Cuales son tus objetivos?')}
           />
         </div>
@@ -264,7 +264,7 @@ export default function CustomerAIPreferences() {
           <SingleSelect
             options={getBudgetOptions(t)}
             selected={profile.budget}
-            onChange={(value) => setProfile({ ...profile, budget: value })}
+            onChange={(value) => setProfile(prev => ({ ...prev, budget: value }))}
             label={t('aiPrefs.budgetLabel', 'Cual es tu preferencia de precio?')}
           />
         </div>

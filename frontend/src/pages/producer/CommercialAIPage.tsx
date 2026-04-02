@@ -23,8 +23,8 @@ const SUGGESTIONS = [
 ];
 
 const OPPORTUNITIES = [
-  { flag: '🇩🇪', country: 'Alemania', product: t('commercial_a_i.aceiteDeOlivaEcologico', 'Aceite de oliva ecológico'), trend: '+34%', period: 'Q2 2026' },
-  { flag: '🇫🇷', country: 'Francia', product: t('search.jamonIberico', 'Jamón ibérico'), trend: '+22%', period: 'Q1 2026' },
+  { flag: '🇩🇪', country: 'Alemania', product: 'Aceite de oliva ecológico', trend: '+34%', period: 'Q2 2026' },
+  { flag: '🇫🇷', country: 'Francia', product: 'Jamón ibérico', trend: '+22%', period: 'Q1 2026' },
   { flag: '🇬🇧', country: 'Reino Unido', product: 'Vino tinto D.O.', trend: '+18%', period: 'Q3 2026' },
   { flag: '🇯🇵', country: 'Japón', product: 'Aceite AOVE premium', trend: '+15%', period: 'Q4 2026' },
 ];
@@ -32,7 +32,7 @@ const OPPORTUNITIES = [
 const TOOL_LABELS = {
   search_importers: { icon: Users, label: 'Importadores', color: '#57534e' },
   analyze_market: { icon: BarChart3, label: 'Mercado', color: '#44403c' },
-  predict_demand: { icon: TrendingUp, label: t('commercial_a_i.prediccion', 'Predicción'), color: '#0c0a09' },
+  predict_demand: { icon: TrendingUp, label: 'Predicción', color: '#0c0a09' },
   generate_contract: { icon: FileText, label: 'Contrato', color: '#78716c' },
   check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
 };
@@ -121,6 +121,7 @@ function ToolCallCard({ toolCall }) {
 /* ───────── Main Page ───────── */
 
 export default function CommercialAIPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { plan } = useProducerPlan();
   const [messages, setMessages] = useState([]);
@@ -149,14 +150,14 @@ export default function CommercialAIPage() {
     if (!content || isLoading) return;
 
     const userMsg = { role: 'user', content, timestamp: new Date().toISOString() };
-    const nextMessages = [...messages, userMsg];
-    setMessages(nextMessages);
+    const allMessages = [...messages, userMsg];
+    setMessages(allMessages);
     setInput('');
     setIsLoading(true);
 
     try {
       const data = await apiClient.post('/v1/commercial-ai/chat', {
-        messages: nextMessages.map(m => ({ role: m.role, content: m.content })),
+        messages: allMessages.map(m => ({ role: m.role, content: m.content })),
       });
 
       if (data.tool_calls?.length) {
@@ -291,6 +292,7 @@ export default function CommercialAIPage() {
               <div className="flex flex-wrap justify-center gap-2 max-w-[480px]">
                 {SUGGESTIONS.map(s => (
                   <button
+                    type="button"
                     key={s.text}
                     onClick={() => handleSend(s.text)}
                     className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-black/[0.08] bg-white text-[13px] text-stone-950 cursor-pointer transition-colors duration-200 hover:bg-stone-50"
@@ -308,7 +310,7 @@ export default function CommercialAIPage() {
               const isUser = msg.role === 'user';
               return (
                 <motion.div
-                  key={i}
+                  key={msg.timestamp || i}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
@@ -319,7 +321,7 @@ export default function CommercialAIPage() {
                     {!isUser && msg.toolCalls?.length > 0 && (
                       <div className="mb-2">
                         {msg.toolCalls.map((tc, j) => (
-                          <ToolCallCard key={j} toolCall={tc} />
+                          <ToolCallCard key={`${msg.timestamp}-tc-${j}`} toolCall={tc} />
                         ))}
                       </div>
                     )}
@@ -338,7 +340,7 @@ export default function CommercialAIPage() {
                       )}
                     </div>
                     <p className={`text-[11px] text-stone-400 mt-1 mx-1 ${isUser ? 'text-right' : 'text-left'}`}>
-                      {new Date(msg.timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+                      {msg.timestamp && !isNaN(new Date(msg.timestamp).getTime()) ? new Date(msg.timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' }) : ''}
                     </p>
                   </div>
                 </motion.div>
@@ -380,9 +382,11 @@ export default function CommercialAIPage() {
               className="flex-1 border-none bg-transparent text-[15px] text-stone-950 outline-none"
             />
             <button
+              type="button"
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className={`w-9 h-9 rounded-full border-none flex items-center justify-center shrink-0 transition-all duration-200 ${
+              aria-label="Enviar"
+              className={`w-9 h-9 rounded-full border-none flex items-center justify-center shrink-0 transition-all duration-200 disabled:opacity-40 ${
                 input.trim()
                   ? 'bg-[#0A0A0A] text-white cursor-pointer'
                   : 'bg-stone-50 text-stone-400 cursor-default'
