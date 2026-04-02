@@ -761,8 +761,17 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     # MRR history (last 6 months)
     mrr_history = []
     for i in range(5, -1, -1):
-        month_start = now.replace(day=1) - timedelta(days=30 * i)
-        month_end = month_start + timedelta(days=30)
+        # Use precise month boundaries instead of 30-day approximation
+        m = now.month - i
+        y = now.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        month_start = now.replace(year=y, month=m, day=1, hour=0, minute=0, second=0, microsecond=0)
+        if m == 12:
+            month_end = month_start.replace(year=y + 1, month=1)
+        else:
+            month_end = month_start.replace(month=m + 1)
         revenue_m = await db.orders.aggregate([
             {"$match": {
                 "created_at": {"$gte": month_start.isoformat(), "$lt": month_end.isoformat()},
@@ -775,6 +784,14 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
             "revenue": revenue_m[0]["total"] if revenue_m else 0,
         })
 
+    # Plan distribution (producer subscriptions)
+    plan_pipeline = [
+        {"$match": {"role": {"$in": ["producer", "importer"]}}},
+        {"$group": {"_id": "$subscription.plan", "count": {"$sum": 1}}},
+    ]
+    plan_agg = await db.users.aggregate(plan_pipeline).to_list(10)
+    plan_distribution = {(p["_id"] or "FREE").upper(): p["count"] for p in plan_agg}
+
     return {
         "users": {"total": total_users, "by_role": users_by_role, "new_7d": new_users_7d},
         "revenue": {"total": round(total_revenue, 2), "last_30d": round(revenue_30d, 2), "platform_commission": round(platform_commission, 2)},
@@ -786,6 +803,7 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
         "recent_orders": recent_orders,
         "recent_users": recent_users,
         "mrr_history": mrr_history,
+        "plan_distribution": plan_distribution,
     }
 
 

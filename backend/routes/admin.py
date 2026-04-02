@@ -1831,7 +1831,7 @@ async def admin_dashboard_stats(user: User = Depends(get_current_user)):
 @router.get("/admin/payouts/pending")
 async def get_pending_payouts(user: User = Depends(get_current_user)):
     """List all pending manual payout requests."""
-    await require_role(user, ["admin", "superadmin"])
+    await require_role(user, ["admin", "super_admin"])
     payouts = await db.manual_payouts.find(
         {"status": "pending"}, {"_id": 0}
     ).sort("requested_at", -1).to_list(200)
@@ -1846,7 +1846,7 @@ async def get_all_payouts(
     skip: int = 0,
 ):
     """List all manual payout requests with optional status filter."""
-    await require_role(user, ["admin", "superadmin"])
+    await require_role(user, ["admin", "super_admin"])
     query = {}
     if status:
         query["status"] = status
@@ -1860,7 +1860,7 @@ async def get_all_payouts(
 @router.put("/admin/payouts/{payout_id}/process")
 async def process_payout(payout_id: str, request: Request, user: User = Depends(get_current_user)):
     """Mark a payout as processed (paid) or rejected."""
-    await require_role(user, ["admin", "superadmin"])
+    await require_role(user, ["admin", "super_admin"])
     body = await request.json()
     new_status = body.get("status")
 
@@ -1912,6 +1912,20 @@ async def process_payout(payout_id: str, request: Request, user: User = Depends(
             if updates:
                 updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 await db.orders.update_one({"order_id": order["order_id"]}, {"$set": updates})
+
+        # Write ledger event for audit trail
+        await db.ledger_events.insert_one({
+            "event_id": f"ledger_{uuid.uuid4().hex[:12]}",
+            "event_type": "manual_bank_transfer",
+            "order_id": None,
+            "payout_id": payout_id,
+            "seller_id": producer_id,
+            "amount": amount,
+            "currency": payout.get("currency", "EUR"),
+            "processed_by": user.user_id,
+            "transfer_reference": (body.get("transfer_reference") or ""),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
 
         # Notify producer
         await db.notifications.insert_one({

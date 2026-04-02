@@ -16,8 +16,8 @@ function getLastSixMonthLabels() {
   return labels;
 }
 
-const PRO_PRICE = 29;
-const ELITE_PRICE = 79;
+const PRO_PRICE = 79;
+const ELITE_PRICE = 249;
 
 function SACard({ children, className = '' }) {
   return (
@@ -162,14 +162,14 @@ export default function SuperAdminOverview() {
             return <p className="text-sm py-4 text-center text-stone-500">Sin datos de tendencia</p>;
           }
           const last6 = mrrHistory.slice(-6);
-          const maxVal = Math.max(...last6.map(m => m.value || 0), 1);
+          const maxVal = Math.max(...last6.map(m => m.revenue || 0), 1);
           const monthLabels = last6.length === 6
             ? getLastSixMonthLabels()
             : last6.map((m, i) => m.label || MONTH_LABELS[i] || `M${i + 1}`);
           return (
             <div className="flex items-end justify-between gap-2 h-28">
               {last6.map((m, i) => {
-                const val = m.value || 0;
+                const val = m.revenue || 0;
                 const heightPct = Math.max((val / maxVal) * 100, 4);
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">

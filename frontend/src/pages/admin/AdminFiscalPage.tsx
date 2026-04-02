@@ -13,10 +13,10 @@ function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">Verificado</span>
   );
   if (needsReview) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">Revisión manual</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">Revisión manual</span>
   );
   if (hasUrl && !verified) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">Rechazado</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-stone-700">Rechazado</span>
   );
   return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Pendiente</span>
@@ -114,7 +114,7 @@ export default function AdminFiscalPage() {
       {stats && (
         <div className="grid grid-cols-2 gap-3 mb-5">
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
-            <p className="text-2xl font-extrabold text-amber-600">{(stats.total_withheld_ytd || 0).toFixed(0)}€</p>
+            <p className="text-2xl font-extrabold text-stone-600">{(stats.total_withheld_ytd || 0).toFixed(0)}€</p>
             <p className="text-xs mt-0.5 text-stone-500">Total retenido YTD</p>
           </div>
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
@@ -122,7 +122,7 @@ export default function AdminFiscalPage() {
             <p className="text-xs mt-0.5 text-stone-500">Influencers ES activos</p>
           </div>
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
-            <p className={`text-2xl font-extrabold ${stats.pending_review > 0 ? 'text-red-600' : 'text-stone-950'}`}>{stats.pending_review || 0}</p>
+            <p className={`text-2xl font-extrabold ${stats.pending_review > 0 ? 'text-stone-700' : 'text-stone-950'}`}>{stats.pending_review || 0}</p>
             <p className="text-xs mt-0.5 text-stone-500">Pendientes revisión</p>
           </div>
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
@@ -139,8 +139,8 @@ export default function AdminFiscalPage() {
           <div className="space-y-2">
             {pendingReviews.map(inf => (
               <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200">
-                <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-full bg-amber-50">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-full bg-stone-100">
+                  <AlertTriangle className="w-4 h-4 text-stone-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate text-stone-950">{inf.full_name || inf.email}</p>
@@ -179,7 +179,7 @@ export default function AdminFiscalPage() {
             onChange={e => setGenYear(Number(e.target.value))}
             className="px-3 py-2 text-sm rounded-xl border border-stone-200 bg-white text-stone-950"
           >
-            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
         <button

@@ -102,8 +102,8 @@ export default function FinancialDashboard() {
   const fetchData = useCallback(async () => {
     try {
       const ledgerParams = new URLSearchParams({ limit: '500' });
-      if (dateFrom) ledgerParams.set('from', dateFrom);
-      if (dateTo) ledgerParams.set('to', dateTo);
+      if (dateFrom) ledgerParams.set('date_from', dateFrom);
+      if (dateTo) ledgerParams.set('date_to', dateTo);
       const [ledgerData, payoutsPayload, manualData] = await Promise.all([
         apiClient.get(`/admin/financial-ledger?${ledgerParams.toString()}`),
         apiClient.get('/payments/scheduled-payouts'),
