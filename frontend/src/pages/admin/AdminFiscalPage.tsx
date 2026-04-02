@@ -8,6 +8,11 @@ import {
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
+const isSafeUrl = (url) => {
+  if (!url) return false;
+  try { const u = new URL(url); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
+};
+
 function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
   if (verified) return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">Verificado</span>
@@ -16,7 +21,7 @@ function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">Revisión manual</span>
   );
   if (hasUrl && !verified) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-stone-700">Rechazado</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-200 bg-white text-stone-400">Rechazado</span>
   );
   return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Pendiente</span>
@@ -48,9 +53,9 @@ export default function AdminFiscalPage() {
         apiClient.get('/admin/tax/reports').catch(() => ({ reports: [] })),
       ]);
       setStats(s);
-      setInfluencers(inf?.influencers || []);
-      setPendingReviews(pr?.pending || []);
-      setReports(rp?.reports || []);
+      setInfluencers(Array.isArray(inf?.influencers) ? inf.influencers : []);
+      setPendingReviews(Array.isArray(pr?.pending) ? pr.pending : []);
+      setReports(Array.isArray(rp?.reports) ? rp.reports : []);
     } finally {
       setLoading(false);
     }
@@ -65,7 +70,7 @@ export default function AdminFiscalPage() {
       toast.success(`Informe Q${genQuarter} ${genYear} generado. ${res.perceptors_count} perceptores.`);
       await fetchAll();
     } catch (err) {
-      toast.error('Error generando informe');
+      toast.error(err?.response?.data?.detail || 'Error generando informe');
     } finally {
       setGenerating(false);
     }
@@ -84,8 +89,8 @@ export default function AdminFiscalPage() {
       setReviewModal(null);
       setRejectReason('');
       await fetchAll();
-    } catch {
-      toast.error('Error al procesar la revisión');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al procesar la revisión');
     } finally {
       setReviewing(false);
     }
@@ -103,7 +108,7 @@ export default function AdminFiscalPage() {
     <div className="bg-stone-50">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <button onClick={() => navigate('/admin')} className="bg-transparent border-none cursor-pointer">
+        <button type="button" onClick={() => navigate('/admin')} aria-label="Volver" className="bg-transparent border-none cursor-pointer">
           <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>
         <h1 className="text-xl font-bold text-stone-950">Gestión fiscal</h1>
@@ -203,14 +208,16 @@ export default function AdminFiscalPage() {
                     {r.perceptors_count} perceptores · {(r.total_withheld || 0).toFixed(2)}€ retenido
                   </p>
                 </div>
-                <a
-                  href={r.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors bg-stone-100 text-stone-950 rounded-2xl"
-                >
-                  <Download className="w-3.5 h-3.5" /> PDF
-                </a>
+                {isSafeUrl(r.pdf_url) && (
+                  <a
+                    href={r.pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors bg-stone-100 text-stone-950 rounded-2xl"
+                  >
+                    <Download className="w-3.5 h-3.5" /> PDF
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -291,7 +298,7 @@ export default function AdminFiscalPage() {
           <div className="mx-4 max-w-md w-full p-6 bg-white rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-stone-950">Revisar certificado</h3>
-              <button onClick={() => { setReviewModal(null); setRejectReason(''); }} className="bg-transparent border-none cursor-pointer">
+              <button type="button" onClick={() => { setReviewModal(null); setRejectReason(''); }} aria-label="Cerrar" className="bg-transparent border-none cursor-pointer">
                 <X className="w-5 h-5 text-stone-500" />
               </button>
             </div>
@@ -303,7 +310,7 @@ export default function AdminFiscalPage() {
               </p>
             </div>
 
-            {reviewModal.certificate_url && (
+            {isSafeUrl(reviewModal.certificate_url) && (
               <a
                 href={reviewModal.certificate_url}
                 target="_blank"
@@ -338,7 +345,7 @@ export default function AdminFiscalPage() {
               <button
                 onClick={() => handleReview('reject')}
                 disabled={reviewing}
-                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors bg-red-600 text-white rounded-2xl border-none cursor-pointer"
+                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors border border-stone-200 text-stone-700 bg-white hover:bg-stone-50 rounded-2xl cursor-pointer"
               >
                 {reviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                 Rechazar

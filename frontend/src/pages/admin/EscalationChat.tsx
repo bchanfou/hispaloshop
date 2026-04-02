@@ -31,6 +31,8 @@ export default function EscalationChat() {
   const [initialMessage, setInitialMessage] = useState('');
   const wsRef = useRef(null);
   const bottomRef = useRef(null);
+  const scrollTimerRef = useRef(null);
+  const activeConvIdRef = useRef(activeConvId);
 
   // ── load escalations ──────────────────────────────────────
   const fetchEscalations = useCallback(async () => {
@@ -49,6 +51,8 @@ export default function EscalationChat() {
   }, [isSuperAdmin]);
 
   useEffect(() => { fetchEscalations(); }, [fetchEscalations]);
+  useEffect(() => () => clearTimeout(scrollTimerRef.current), []);
+  useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
   // ── load messages when conversation selected ──────────────
   useEffect(() => {
@@ -59,7 +63,7 @@ export default function EscalationChat() {
           `/internal-chat/conversations/${activeConvId}/messages?limit=100`
         );
         setMessages(data);
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+        clearTimeout(scrollTimerRef.current); scrollTimerRef.current = setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
       } catch {
         toast.error('No se pudieron cargar los mensajes');
       }
@@ -76,9 +80,9 @@ export default function EscalationChat() {
       try {
         const payload = JSON.parse(e.data);
         if (payload.type === 'new_message' && payload.conv_type === 'escalation') {
-          if (payload.conversation_id === activeConvId) {
+          if (payload.conversation_id === activeConvIdRef.current) {
             setMessages(prev => [...prev, payload.message]);
-            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+            clearTimeout(scrollTimerRef.current); scrollTimerRef.current = setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
           }
           fetchEscalations();
         }
@@ -87,14 +91,12 @@ export default function EscalationChat() {
       }
     };
     return () => ws.close();
-  }, [user, activeConvId, fetchEscalations]);
+  }, [user, fetchEscalations]);
 
   // ── open escalation (admin only) ─────────────────────────
   const openEscalation = async () => {
-    if (!initialMessage.trim()) {
-      toast.error('Describe el problema antes de escalar');
-      return;
-    }
+    if (!initialMessage.trim() || sending) return;
+    setSending(true);
     try {
       const data = await apiClient.post(
         '/internal-chat/escalate',
@@ -105,7 +107,9 @@ export default function EscalationChat() {
       fetchEscalations();
       toast.success('Canal de escalación abierto. Un superadmin recibirá tu mensaje.');
     } catch (err) {
-      toast.error(err.message || 'Error al abrir escalación');
+      toast.error(err?.response?.data?.detail || err.message || 'Error al abrir escalación');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -123,7 +127,7 @@ export default function EscalationChat() {
       setMessages(prev => [...prev, msg]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     } catch (err) {
-      toast.error(err.message || 'Error al enviar');
+      toast.error(err?.response?.data?.detail || err.message || 'Error al enviar');
       setText(content);
     } finally {
       setSending(false);
@@ -210,7 +214,7 @@ export default function EscalationChat() {
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3">
           {isSuperAdmin && activeConvId && (
-            <button onClick={() => setActiveConvId(null)} className="md:hidden p-1 text-stone-500">
+            <button type="button" onClick={() => setActiveConvId(null)} aria-label="Volver" className="md:hidden p-1 text-stone-500">
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
@@ -254,7 +258,7 @@ export default function EscalationChat() {
               />
               <button
                 onClick={openEscalation}
-                disabled={!initialMessage.trim()}
+                disabled={!initialMessage.trim() || sending}
                 className="w-full bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl py-2.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 <ShieldAlert className="w-4 h-4" />
@@ -285,7 +289,7 @@ export default function EscalationChat() {
                       )}
                       <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                       <p className={`text-xs mt-1 ${isMe ? 'text-stone-300' : 'text-stone-500'}`}>
-                        {new Date(msg.created_at).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+                        {msg.created_at && !isNaN(new Date(msg.created_at).getTime()) ? new Date(msg.created_at).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </p>
                     </div>
                   </div>

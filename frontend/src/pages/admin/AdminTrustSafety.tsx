@@ -48,7 +48,9 @@ const CONTENT_TYPE_LABELS = {
 
 function formatDate(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-ES', {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('es-ES', {
     day: '2-digit', month: 'short', year: 'numeric',
   });
 }
@@ -119,11 +121,11 @@ function QueueTab() {
       const params = { page, limit: 20, status: 'pending' };
       if (contentType) params.content_type = contentType;
       const data = await apiClient.get('/moderation/queue', { params });
-      setItems(data.items || []);
+      setItems(Array.isArray(data.items) ? data.items : []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);
-    } catch {
-      toast.error('No se pudo cargar la cola de moderación');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'No se pudo cargar la cola de moderación');
     } finally {
       setLoading(false);
     }
@@ -142,8 +144,8 @@ function QueueTab() {
       toast.success(action === 'approve' ? 'Contenido aprobado' : 'Acción aplicada');
       setItems((prev) => prev.filter((i) => i.item_id !== item_id));
       setTotal((t) => Math.max(0, t - 1));
-    } catch {
-      toast.error('No se pudo aplicar la acción');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'No se pudo aplicar la acción');
     } finally {
       setActing(null);
     }
@@ -218,7 +220,7 @@ function QueueTab() {
                       </span>
                     </td>
                     <td className="px-5 py-4 capitalize text-stone-500 text-xs">
-                      {item.source === 'auto' ? '🤖 Auto' : '👤 Reporte'}
+                      {item.source === 'auto' ? '🤖 Automático' : '👤 Reporte'}
                     </td>
                     <td className="px-5 py-4 text-stone-500 text-xs">{formatDate(item.created_at)}</td>
                     <td className="px-5 py-4">
@@ -228,7 +230,7 @@ function QueueTab() {
                           disabled={acting !== null}
                           onClick={() => handleAction(item.item_id, 'approve')}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-600 transition-colors hover:bg-stone-200 disabled:opacity-40"
-                          title="Aprobar"
+                          aria-label="Aprobar" title="Aprobar"
                         >
                           <Check className="h-3.5 w-3.5" />
                         </button>
@@ -237,7 +239,7 @@ function QueueTab() {
                           disabled={acting !== null}
                           onClick={() => handleAction(item.item_id, 'remove')}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-950 text-white transition-colors hover:bg-stone-800 disabled:opacity-40"
-                          title="Eliminar"
+                          aria-label="Eliminar" title="Eliminar"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -246,7 +248,7 @@ function QueueTab() {
                           disabled={acting !== null}
                           onClick={() => handleAction(item.item_id, 'warn')}
                           className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 disabled:opacity-40"
-                          title="Avisar usuario"
+                          aria-label="Avisar usuario" title="Avisar usuario"
                         >
                           <AlertTriangle className="h-3.5 w-3.5" />
                         </button>
@@ -255,7 +257,7 @@ function QueueTab() {
                           disabled={acting !== null}
                           onClick={() => handleAction(item.item_id, 'suspend')}
                           className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 disabled:opacity-40"
-                          title="Suspender usuario"
+                          aria-label="Suspender usuario" title="Suspender usuario"
                         >
                           <UserX className="h-3.5 w-3.5" />
                         </button>
@@ -292,11 +294,11 @@ function ReportsTab() {
       if (reason) params.reason = reason;
       if (contentType) params.content_type = contentType;
       const data = await apiClient.get('/moderation/reports', { params });
-      setReports(data.reports || []);
+      setReports(Array.isArray(data.reports) ? data.reports : []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);
-    } catch {
-      toast.error('No se pudieron cargar los reportes');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'No se pudieron cargar los reportes');
     } finally {
       setLoading(false);
     }

@@ -56,11 +56,11 @@ function StatCard({ icon: Icon, value, label, color }) {
       <div className="flex items-center gap-2">
         <div
           className={`w-7 h-7 flex items-center justify-center shrink-0 rounded-xl ${
-            color === 'red' ? 'bg-red-50' : color === 'amber' ? 'bg-stone-100' : 'bg-stone-100'
+            color === 'dark' ? 'bg-stone-200' : 'bg-stone-100'
           }`}
         >
           <Icon className={`w-3.5 h-3.5 ${
-            color === 'red' ? 'text-red-600' : color === 'amber' ? 'text-stone-500' : 'text-stone-500'
+            color === 'dark' ? 'text-stone-700' : 'text-stone-500'
           }`} />
         </div>
         <span className="text-xl font-extrabold text-stone-950">{value}</span>
@@ -84,7 +84,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
           <span
             className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 ${
               item.action === 'hide' || item.action === 'blocked'
-                ? 'bg-red-50 text-red-600'
+                ? 'bg-stone-200 text-stone-700'
                 : 'bg-stone-100 text-stone-700'
             }`}
           >
@@ -120,7 +120,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
               <span className="text-[11px] text-stone-500">
                 {item.creator_name}
               </span>
-              {item.created_at && (
+              {item.created_at && !isNaN(new Date(item.created_at).getTime()) && (
                 <span className="text-[10px] text-stone-500/60">
                   {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                 </span>
@@ -192,7 +192,7 @@ export default function AdminModerationPage() {
         apiClient.get('/moderation/queue', { params }),
         apiClient.get('/moderation/stats'),
       ]);
-      setQueue(queueData?.queue || []);
+      setQueue(Array.isArray(queueData?.queue) ? queueData.queue : []);
       setStats(statsData || {});
     } catch {
       setQueue([]);
@@ -213,8 +213,8 @@ export default function AdminModerationPage() {
       await apiClient.post(`/moderation/queue/${id}/action`, { action: 'remove' });
       setQueue(q => q.filter(i => i.id !== id));
       toast.success('Contenido confirmado como infracción');
-    } catch {
-      toast.error('Error al confirmar la moderación');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al confirmar la moderación');
     }
     setBusy(false);
   };
@@ -225,8 +225,8 @@ export default function AdminModerationPage() {
       await apiClient.post(`/moderation/queue/${id}/action`, { action: 'approve' });
       setQueue(q => q.filter(i => i.id !== id));
       toast.success('Contenido restaurado');
-    } catch {
-      toast.error('Error al restaurar el contenido');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al restaurar el contenido');
     }
     setBusy(false);
   };
@@ -237,8 +237,8 @@ export default function AdminModerationPage() {
       await apiClient.post(`/moderation/queue/${id}/action`, { action: 'suspend' });
       setQueue(q => q.filter(i => i.id !== id));
       toast.success('Contenido escalado');
-    } catch {
-      toast.error('Error al escalar el contenido');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al escalar el contenido');
     }
     setBusy(false);
   };
@@ -259,14 +259,14 @@ export default function AdminModerationPage() {
     <div className="bg-stone-50">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <Link to="/admin" className="shrink-0">
+        <Link to="/admin" className="shrink-0" aria-label="Volver">
           <ArrowLeft className="w-5 h-5 text-stone-950" />
         </Link>
         <h1 className="text-xl font-bold text-stone-950">
           Moderacion de contenido
         </h1>
         {totalPending > 0 && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-950 text-white">
             {totalPending}
           </span>
         )}
@@ -277,9 +277,9 @@ export default function AdminModerationPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2.5 mb-5">
-        <StatCard icon={EyeOff} value={stats?.total_hidden || 0} label="Ocultados" color="red" />
-        <StatCard icon={ShoppingBag} value={stats?.total_blocked_products || 0} label="Productos bloq." color="red" />
-        <StatCard icon={Eye} value={stats?.total_review || 0} label="Para revisar" color="amber" />
+        <StatCard icon={EyeOff} value={stats?.total_hidden || 0} label="Ocultados" color="dark" />
+        <StatCard icon={ShoppingBag} value={stats?.total_blocked_products || 0} label="Productos bloq." color="dark" />
+        <StatCard icon={Eye} value={stats?.total_review || 0} label="Para revisar" />
       </div>
 
       {/* False positive rate */}

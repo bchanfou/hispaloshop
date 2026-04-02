@@ -9,12 +9,17 @@ import {
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
+const isSafeUrl = (url) => {
+  if (!url) return false;
+  try { const u = new URL(url); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
+};
+
 const STATUS_LABELS = {
   verified: { label: 'Verificado', bg: 'bg-stone-100', color: 'text-stone-950' },
-  rejected: { label: 'Rechazado', bg: 'bg-red-100', color: 'text-red-600' },
+  rejected: { label: 'Rechazado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
   manual_review: { label: 'Revisión', bg: 'bg-stone-50', color: 'text-stone-500' },
   pending: { label: 'Pendiente', bg: 'bg-stone-200', color: 'text-stone-500' },
-  expired: { label: 'Caducado', bg: 'bg-red-100', color: 'text-red-600' },
+  expired: { label: 'Caducado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
 };
 
 function DocBadge({ status }) {
@@ -28,7 +33,7 @@ function DocBadge({ status }) {
 
 function DocThumb({ url, label, status, onClick }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-1 group">
+    <button type="button" onClick={onClick} className="flex flex-col items-center gap-1 group">
       <div className="w-[52px] h-[52px] rounded-2xl overflow-hidden flex items-center justify-center relative border border-stone-200 bg-stone-200/50">
         {url ? (
           url.toLowerCase().endsWith('.pdf') ? (
@@ -120,7 +125,7 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
           Solicitar docs
         </button>
         <button
-          className="flex-1 py-2.5 text-xs font-bold transition-colors bg-red-600 text-white rounded-2xl"
+          className="flex-1 py-2.5 text-xs font-bold transition-colors border border-stone-200 text-stone-700 bg-white hover:bg-stone-50 rounded-2xl"
           onClick={() => onReject(item)}
         >
           Rechazar
@@ -155,13 +160,13 @@ function DocumentModal({ doc, docType, item, onClose }) {
           <h3 className="font-bold text-stone-950">
             {docType === 'cif_nif' ? 'CIF/NIF' : docType === 'facility_photo' ? 'Foto de instalación' : 'Certificado'}
           </h3>
-          <button onClick={onClose}>
+          <button type="button" onClick={onClose} aria-label="Cerrar">
             <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
 
         {/* Document viewer */}
-        {doc.url && (
+        {isSafeUrl(doc.url) && (
           <div className="mb-4 rounded-2xl overflow-hidden border border-stone-200">
             {isPdf ? (
               <div className="h-64 flex items-center justify-center bg-stone-200/50">
@@ -199,7 +204,7 @@ function DocumentModal({ doc, docType, item, onClose }) {
               className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 ${
                 confidence === 'high' ? 'bg-stone-100 text-stone-950' :
                 confidence === 'medium' ? 'bg-stone-50 text-stone-500' :
-                'bg-red-100 text-red-600'
+                'bg-stone-200 text-stone-600'
               }`}
             >
               Confianza {confidence}
@@ -240,8 +245,11 @@ function RejectModal({ item, onClose, onConfirm }) {
   const handleConfirm = async () => {
     if (!reason.trim()) return toast.error('Escribe un motivo');
     setSubmitting(true);
-    await onConfirm(item.user_id, reason, docs);
-    setSubmitting(false);
+    try {
+      await onConfirm(item.user_id, reason, docs);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -288,7 +296,7 @@ function RejectModal({ item, onClose, onConfirm }) {
             Cancelar
           </button>
           <button
-            className="flex-1 py-2.5 text-sm font-bold transition-colors disabled:opacity-50 bg-red-600 text-white rounded-2xl"
+            className="flex-1 py-2.5 text-sm font-bold transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-2xl"
             onClick={handleConfirm}
             disabled={submitting || !reason.trim()}
           >
@@ -311,8 +319,11 @@ function RequestDocsModal({ item, onClose, onConfirm }) {
   const handleConfirm = async () => {
     if (!message.trim()) return;
     setSubmitting(true);
-    await onConfirm(item.user_id, message);
-    setSubmitting(false);
+    try {
+      await onConfirm(item.user_id, message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -369,7 +380,7 @@ export default function AdminVerificationPage() {
   const fetchQueue = useCallback(async () => {
     try {
       const data = await apiClient.get(`/admin/verification/queue?status=${filter}`);
-      setQueue(data?.queue || []);
+      setQueue(Array.isArray(data?.queue) ? data.queue : []);
     } catch {
       setQueue([]);
     } finally {
@@ -383,33 +394,36 @@ export default function AdminVerificationPage() {
   }, [fetchQueue]);
 
   const handleApprove = async (item) => {
+    if (!item?.user_id) return;
     try {
       await apiClient.post(`/admin/verification/${item.user_id}/approve`, {});
       toast.success(`${item.business_name} verificado`);
       fetchQueue();
-    } catch {
-      toast.error('Error al aprobar');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al aprobar');
     }
   };
 
   const handleReject = async (userId, reason, docs) => {
+    if (!userId) return;
     try {
       await apiClient.post(`/admin/verification/${userId}/reject`, { reason, documents: docs });
       toast.success('Verificación rechazada');
       setRejectModal(null);
       fetchQueue();
-    } catch {
-      toast.error('Error al rechazar');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al rechazar');
     }
   };
 
   const handleRequestDocs = async (userId, message) => {
+    if (!userId) return;
     try {
       await apiClient.post(`/admin/verification/${userId}/request-more-docs`, { message });
       toast.success('Solicitud enviada');
       setDocsModal(null);
-    } catch {
-      toast.error('Error al enviar solicitud');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Error al enviar solicitud');
     }
   };
 
@@ -427,7 +441,7 @@ export default function AdminVerificationPage() {
       <div className="flex items-center gap-3 mb-1">
         <h1 className="text-xl font-bold text-stone-950">Verificaciones</h1>
         {pendingCount > 0 && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-950 text-white">
             {pendingCount}
           </span>
         )}
