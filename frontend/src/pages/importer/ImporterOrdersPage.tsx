@@ -76,7 +76,7 @@ function B2BOrderCard({ order, onRefresh }) {
     setProcessing(true);
     try {
       // Navigate to B2B payment page for this operation
-      navigate(`/b2b/operations/${opId}/payment`);
+      navigate(`/b2b/payment/${opId}`);
     } catch {
       toast.error('Error al procesar el pago');
     } finally {

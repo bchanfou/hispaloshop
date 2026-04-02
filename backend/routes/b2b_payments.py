@@ -7,6 +7,7 @@ import uuid
 from core.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 from core.database import get_db
 from core.auth import get_current_user, require_role
+from core.models import User
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request
 import logging
@@ -135,7 +136,13 @@ async def create_b2b_payment(
     amount, total_price = _calculate_amounts(offer, payment_type)
 
     if amount <= 0:
-        raise HTTPException(status_code=400, detail="Nothing to charge for this payment_type with the current payment_terms")
+        # Net_30/net_60 deposit = 0 — no charge needed, just confirm
+        now = datetime.now(timezone.utc).isoformat()
+        await db.b2b_operations.update_one(
+            {"_id": oid},
+            {"$set": {"status": "payment_confirmed", "updated_at": now}},
+        )
+        return {"status": "no_charge", "amount": 0, "message": "No payment required for this payment term"}
 
     stripe_fee, platform_fee, buyer_total, seller_amount = _calculate_fees(amount)
 
@@ -357,8 +364,9 @@ async def stripe_b2b_webhook(request: Request):
                 logger.info("[B2B WEBHOOK] Final payment succeeded for operation %s — status -> completed", operation_id)
 
             # Notify buyer and seller
-            buyer_id = operation.get("buyer_id")
-            seller_id = operation.get("seller_id")
+            operation = await db.b2b_operations.find_one({"_id": oid})
+            buyer_id = (operation or {}).get("buyer_id")
+            seller_id = (operation or {}).get("seller_id")
             amount_str = f"{data_object.get('amount', 0) / 100:.2f} {data_object.get('currency', 'EUR').upper()}"
             for uid, title, msg in [
                 (buyer_id, "Pago B2B confirmado", f"Tu pago de {amount_str} ha sido procesado correctamente."),
@@ -559,7 +567,11 @@ async def refund_b2b_payment(operation_id: str, request: Request, user: User = D
     body = await request.json()
     reason = (body.get("reason") or "").strip()[:500]
 
-    oid = _to_oid(operation_id)
+    db = get_db()
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid operation ID")
     operation = await db.b2b_operations.find_one({"_id": oid})
     if not operation:
         raise HTTPException(status_code=404, detail="Operation not found")
@@ -574,7 +586,9 @@ async def refund_b2b_payment(operation_id: str, request: Request, user: User = D
     if not succeeded:
         raise HTTPException(status_code=400, detail="No successful payment to refund")
 
-    _ensure_stripe()
+    if not STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=500, detail="Stripe not configured")
+    stripe.api_key = STRIPE_SECRET_KEY
     refunded_total = 0
 
     for payment in succeeded:

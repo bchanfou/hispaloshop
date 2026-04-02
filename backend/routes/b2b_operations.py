@@ -11,7 +11,8 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File, Form
 from pydantic import BaseModel, Field
 
-from core.auth import get_current_user
+from core.auth import get_current_user, require_role
+from core.models import User
 from core.database import get_db
 from services.b2b_contract_service import (
     generate_contract,
@@ -32,8 +33,10 @@ STRIPE_FEE_PCT = 1.4
 
 VALID_STATUSES = {
     "draft", "offer_sent", "offer_accepted", "offer_rejected",
-    "contract_pending", "contract_signed", "payment_pending",
-    "payment_confirmed", "in_transit", "delivered", "completed",
+    "contract_pending", "contract_signed", "contract_generated",
+    "payment_pending", "payment_confirmed",
+    "in_transit", "delivered", "completed",
+    "cancelled", "refunded", "disputed",
 }
 
 VALID_UNITS = {"kg", "units", "liters", "boxes", "pallets", "unidades", "litros", "cajas"}
@@ -431,7 +434,11 @@ async def reject_offer(
 async def cancel_operation(operation_id: str, user: User = Depends(get_current_user)):
     """Cancel a B2B operation. Only buyer or seller can cancel before payment."""
     await require_role(user, ["producer", "importer"])
-    oid = _to_oid(operation_id)
+    db = get_db()
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid operation ID")
     op = await db.b2b_operations.find_one({"_id": oid})
     if not op:
         raise HTTPException(status_code=404, detail="Operation not found")

@@ -355,8 +355,8 @@ async def legacy_health():
 async def _run_daily_cron():
     """Background loop that runs scheduled B2B payments and influencer payouts daily."""
     import asyncio
+    from bson import ObjectId as _OID
     while True:
-        await asyncio.sleep(86400)  # 24 hours
         try:
             from core.database import db as _db
             from datetime import datetime, timezone
@@ -369,7 +369,12 @@ async def _run_daily_cron():
                 try:
                     import stripe as _stripe
                     _stripe.api_key = settings.STRIPE_SECRET_KEY
-                    operation = await _db.b2b_operations.find_one({"_id": p.get("operation_id")})
+                    op_id = p.get("operation_id")
+                    try:
+                        op_id = _OID(op_id) if isinstance(op_id, str) else op_id
+                    except Exception:
+                        pass
+                    operation = await _db.b2b_operations.find_one({"_id": op_id})
                     if not operation: continue
                     seller = await _db.users.find_one({"user_id": operation.get("seller_id")})
                     if not seller or not seller.get("stripe_account_id"): continue
@@ -392,6 +397,7 @@ async def _run_daily_cron():
                     )
         except Exception as exc:
             logger.error(f"[CRON] Daily cron error: {exc}")
+        await asyncio.sleep(86400)  # Wait 24h before next run
 
 
 @app.on_event("startup")
