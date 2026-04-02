@@ -65,17 +65,40 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
 
 export default function PlansConfigPage() {
   const [plans, setPlans] = useState(SELLER_PLANS);
+  const [tiers, setTiers] = useState(INFLUENCER_TIERS);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [subs, setSubs] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/superadmin/overview').then(data => {
-      // Extract subscription counts if available
-      if (data?.users?.by_role) {
-        setSubs(data.users.by_role);
-      }
-    }).catch(() => {});
+    (async () => {
+      try {
+        const [overview, config] = await Promise.all([
+          apiClient.get('/superadmin/overview').catch(() => null),
+          apiClient.get('/superadmin/plans').catch(() => null),
+        ]);
+        if (overview?.users?.by_role) setSubs(overview.users.by_role);
+        if (overview?.plan_distribution) setSubs(prev => ({ ...prev, plan_distribution: overview.plan_distribution }));
+        // Hydrate plans from DB config
+        if (config?.seller_plans) {
+          const dbPlans = config.seller_plans;
+          setPlans(prev => prev.map(p => {
+            const key = p.id.includes('free') ? 'FREE' : p.id.includes('pro') ? 'PRO' : 'ELITE';
+            const db = dbPlans[key];
+            return db ? { ...p, price: db.price_monthly, commission_pct: Math.round(db.commission_rate * 100) } : p;
+          }));
+        }
+        if (config?.influencer_tiers) {
+          const dbTiers = config.influencer_tiers;
+          setTiers(prev => prev.map(t => {
+            const db = dbTiers[t.tier];
+            return db ? { ...t, rate: Math.round(db.rate * 100), threshold: db.min_gmv || t.threshold } : t;
+          }));
+        }
+      } catch { /* use defaults */ }
+      finally { setLoading(false); }
+    })();
   }, []);
 
   const handleConfirm = async (password) => {
@@ -85,11 +108,32 @@ export default function PlansConfigPage() {
     }
     setIsSaving(true);
     try {
-      // In a real implementation, this would call a plans update endpoint
-      toast.success('Configuración actualizada');
+      // Build config from current state
+      const seller_plans = {};
+      plans.forEach(p => {
+        const key = p.id.includes('free') ? 'FREE' : p.id.includes('pro') ? 'PRO' : 'ELITE';
+        if (!seller_plans[key]) {
+          seller_plans[key] = {
+            price_monthly: p.price,
+            commission_rate: p.commission_pct / 100,
+            label: key.charAt(0) + key.slice(1).toLowerCase(),
+          };
+        }
+      });
+      const influencer_tiers = {};
+      tiers.forEach(t => {
+        influencer_tiers[t.tier] = {
+          rate: t.rate / 100,
+          min_gmv: t.threshold,
+          min_followers: 0,
+          label: t.label,
+        };
+      });
+      await apiClient.put('/superadmin/plans', { seller_plans, influencer_tiers });
+      toast.success('Configuración actualizada y guardada');
       setShowConfirm(false);
-    } catch {
-      toast.error('Error o contraseña incorrecta');
+    } catch (err) {
+      toast.error(err?.data?.detail || 'Error al guardar configuración');
     } finally {
       setIsSaving(false);
     }

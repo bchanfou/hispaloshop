@@ -807,6 +807,87 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     }
 
 
+# ── Plans Configuration ────────────────────────────────────────
+
+# Default plan config (used to seed DB if no config exists)
+_DEFAULT_PLANS = {
+    "seller_plans": {
+        "FREE": {"price_monthly": 0, "commission_rate": 0.20, "label": "Free"},
+        "PRO": {"price_monthly": 79, "commission_rate": 0.18, "label": "Pro"},
+        "ELITE": {"price_monthly": 249, "commission_rate": 0.15, "label": "Elite"},
+    },
+    "influencer_tiers": {
+        "hercules": {"rate": 0.03, "min_gmv": 0, "min_followers": 0, "label": "Hercules"},
+        "atenea": {"rate": 0.05, "min_gmv": 5000, "min_followers": 2500, "label": "Atenea"},
+        "zeus": {"rate": 0.07, "min_gmv": 20000, "min_followers": 10000, "label": "Zeus"},
+    },
+}
+
+
+@router.get("/superadmin/plans")
+async def get_plans_config(user: User = Depends(get_current_user)):
+    """Get current plans configuration."""
+    await require_role(user, ["super_admin"])
+    config = await db.plans_config.find_one({"_id": "current"}, {"_id": 0})
+    if not config:
+        # Seed from defaults
+        config = {**_DEFAULT_PLANS, "updated_at": None, "updated_by": None}
+        await db.plans_config.update_one(
+            {"_id": "current"}, {"$set": config}, upsert=True
+        )
+    return config
+
+
+@router.put("/superadmin/plans")
+async def update_plans_config(request: Request, user: User = Depends(get_current_user)):
+    """Update plans configuration (prices, commission rates, tiers)."""
+    await require_role(user, ["super_admin"])
+    body = await request.json()
+
+    # Validate seller plans
+    seller_plans = body.get("seller_plans", {})
+    for plan_name, plan in seller_plans.items():
+        if plan_name not in ("FREE", "PRO", "ELITE"):
+            raise HTTPException(status_code=400, detail=f"Invalid plan: {plan_name}")
+        rate = plan.get("commission_rate", 0)
+        if not (0 < rate <= 0.5):
+            raise HTTPException(status_code=400, detail=f"Commission rate must be 0-50% for {plan_name}")
+        price = plan.get("price_monthly", 0)
+        if plan_name == "FREE" and price != 0:
+            raise HTTPException(status_code=400, detail="FREE plan must have price 0")
+        if price < 0:
+            raise HTTPException(status_code=400, detail=f"Price cannot be negative for {plan_name}")
+
+    # Validate influencer tiers
+    inf_tiers = body.get("influencer_tiers", {})
+    for tier_name, tier in inf_tiers.items():
+        if tier_name not in ("hercules", "atenea", "zeus"):
+            raise HTTPException(status_code=400, detail=f"Invalid tier: {tier_name}")
+        rate = tier.get("rate", 0)
+        if not (0 < rate <= 0.15):
+            raise HTTPException(status_code=400, detail=f"Influencer rate must be 0-15% for {tier_name}")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    update = {
+        "seller_plans": seller_plans,
+        "influencer_tiers": inf_tiers,
+        "updated_at": now_iso,
+        "updated_by": user.user_id,
+    }
+
+    await db.plans_config.update_one({"_id": "current"}, {"$set": update}, upsert=True)
+
+    # Audit log
+    await db.audit_log.insert_one({
+        "action": "plans_config_updated",
+        "user_id": user.user_id,
+        "changes": update,
+        "created_at": now_iso,
+    })
+
+    return {"success": True, "updated_at": now_iso}
+
+
 @router.get("/superadmin/search")
 async def global_search(q: str, user: User = Depends(get_current_user)):
     """SuperAdmin: global search across users, products, orders, posts."""

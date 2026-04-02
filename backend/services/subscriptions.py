@@ -17,13 +17,44 @@ logger = logging.getLogger(__name__)
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 
-# ── Plan definitions ──────────────────────────────────────────
+# ── Plan definitions (defaults — overridden by DB plans_config if available) ──
 
 SELLER_PLANS = {
     "FREE":  {"price_monthly": 0,   "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
     "PRO":   {"price_monthly": 79,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
     "ELITE": {"price_monthly": 249, "currency": "eur", "commission_rate": 0.15, "label": "Elite", "stripe_price_id": None},
 }
+
+# In-memory cache for DB-sourced plan config (refreshed on startup + every 5 min)
+_plans_cache = {"data": None, "fetched_at": None}
+
+
+async def get_seller_plan_config(plan_name: str) -> dict:
+    """Get plan config from DB (cached), fall back to SELLER_PLANS constant."""
+    from core.database import db
+    now = datetime.now(timezone.utc)
+
+    # Refresh cache every 5 minutes
+    if _plans_cache["data"] is None or (now - (_plans_cache["fetched_at"] or now)).total_seconds() > 300:
+        try:
+            config = await db.plans_config.find_one({"_id": "current"}, {"_id": 0})
+            if config and config.get("seller_plans"):
+                _plans_cache["data"] = config["seller_plans"]
+                _plans_cache["fetched_at"] = now
+        except Exception:
+            pass  # Use hardcoded defaults
+
+    db_plans = _plans_cache.get("data") or {}
+    if plan_name in db_plans:
+        p = db_plans[plan_name]
+        return {
+            "price_monthly": p.get("price_monthly", 0),
+            "currency": "eur",
+            "commission_rate": p.get("commission_rate", 0.20),
+            "label": p.get("label", plan_name),
+            "stripe_price_id": None,
+        }
+    return SELLER_PLANS.get(plan_name, SELLER_PLANS["FREE"])
 
 INFLUENCER_TIERS = {
     tier: {
