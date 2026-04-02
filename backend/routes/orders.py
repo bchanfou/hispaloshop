@@ -1905,7 +1905,11 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
         raise HTTPException(status_code=400, detail="El pedido ya fue reembolsado o cancelado")
     
     total_amount = order.get("total_amount", 0)
-    refund_amount = total_amount if refund_type == "full" else min(partial_amount, total_amount)
+    already_refunded = order.get("refunded_amount", 0)
+    remaining_refundable = max(0, total_amount - already_refunded)
+    refund_amount = remaining_refundable if refund_type == "full" else min(partial_amount, remaining_refundable)
+    if refund_amount <= 0:
+        raise HTTPException(status_code=400, detail="No queda importe por reembolsar")
     refund_ratio = refund_amount / total_amount if total_amount > 0 else 1
     now_iso = datetime.now(timezone.utc).isoformat()
     
@@ -1926,6 +1930,20 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
         except stripe.error.StripeError as e:
             logger.error(f"[REFUND] Stripe error: {e}")
     
+    # 1b. Reverse Stripe transfers to producers (if already transferred)
+    transfer_records = order.get("transfer_records", [])
+    for tr in transfer_records:
+        if tr.get("status") == "completed" and tr.get("transfer_id"):
+            try:
+                reversal_amount = int(round(tr.get("amount", 0) * refund_ratio * 100)) if refund_type == "partial" else None
+                reversal_params = {"id": tr["transfer_id"]}
+                if reversal_amount:
+                    reversal_params["amount"] = reversal_amount
+                stripe.Transfer.create_reversal(**reversal_params)
+                logger.info(f"[REFUND] Reversed transfer {tr['transfer_id']} for seller {tr.get('seller_id')}")
+            except stripe.error.StripeError as e:
+                logger.error(f"[REFUND] Failed to reverse transfer {tr.get('transfer_id')}: {e}")
+
     # 2. Handle influencer payouts
     cancelled_payouts = 0
     clawback_amount = 0
@@ -1984,13 +2002,44 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
                 await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"status": "cancelled", "cancel_reason": "partial_refund", "updated_at": now_iso}})
                 cancelled_payouts += 1
             else:
+                reduction = round(sp["amount"] - new_amount, 2)
                 await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"amount": new_amount, "updated_at": now_iso}})
+
+        # Adjust influencer commission + balance for partial refund
+        commission = await db.influencer_commissions.find_one({"order_id": order_id}, {"_id": 0})
+        if commission:
+            inf_id = commission.get("influencer_id")
+            reduction_amount = round(commission.get("commission_amount", 0) * refund_ratio, 2)
+            if reduction_amount > 0:
+                # Reduce commission record
+                new_comm = round(commission["commission_amount"] - reduction_amount, 2)
+                await db.influencer_commissions.update_one(
+                    {"commission_id": commission["commission_id"]},
+                    {"$set": {"commission_amount": max(0, new_comm), "partial_refund_reduction": reduction_amount, "updated_at": now_iso}},
+                )
+                # Adjust influencer balance
+                await db.influencers.update_one(
+                    {"influencer_id": inf_id},
+                    {"$inc": {"available_balance": -reduction_amount, "total_commission_earned": -reduction_amount}},
+                )
+                # If already paid, create clawback
+                if commission.get("commission_status") == "paid":
+                    await db.scheduled_payouts.insert_one({
+                        "payout_id": f"clawback_{uuid.uuid4().hex[:12]}",
+                        "influencer_id": inf_id,
+                        "order_id": order_id,
+                        "amount": -reduction_amount,
+                        "status": "clawback",
+                        "reason": "partial_refund",
+                        "created_at": now_iso,
+                    })
     
     # 3. Update order status
-    new_status = "refunded" if refund_type == "full" else "partially_refunded"
+    new_status = "refunded" if refund_type == "full" or (already_refunded + refund_amount >= total_amount) else "partially_refunded"
     await db.orders.update_one(
         {"order_id": order_id},
-        {"$set": {"status": new_status, "refund_amount": refund_amount, "refund_type": refund_type, "refunded_at": now_iso, "updated_at": now_iso}}
+        {"$set": {"status": new_status, "refund_type": refund_type, "refunded_at": now_iso, "updated_at": now_iso},
+         "$inc": {"refunded_amount": round(refund_amount, 2)}}
     )
     await db.payment_transactions.update_one(
         {"order_id": order_id},

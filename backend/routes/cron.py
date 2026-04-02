@@ -73,8 +73,12 @@ async def cron_grace_period_check(user: User = Depends(get_current_user)):
 
 @router.post("/admin/cron/influencer-payouts")
 async def cron_influencer_payouts(user: User = Depends(get_current_user)):
-    """Daily: process influencer payouts for eligible orders (D+15, ≥$50)."""
+    """DEPRECATED: Use /admin/cron/influencer-auto-payouts instead (includes IRPF withholding)."""
     await require_role(user, ["admin", "super_admin"])
+    # Delegate to the canonical implementation that includes fiscal withholding
+    from routes.influencer import process_influencer_payouts
+    await process_influencer_payouts()
+    return {"status": "completed", "note": "Delegated to influencer-auto-payouts"}
 
     now = datetime.now(timezone.utc)
     cutoff = (now - timedelta(days=INFLUENCER_PAYOUT_DELAY_DAYS)).isoformat()

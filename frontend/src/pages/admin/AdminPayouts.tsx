@@ -87,14 +87,15 @@ export default function AdminPayouts() {
     const header = 'ID,Productor,Email,Monto,Moneda,Estado,Solicitado,Banco,IBAN,SWIFT\n';
     const rows = filtered.map(p => {
       const b = p.bank_details || {};
-      return [p.payout_id, esc(p.producer_name), esc(p.producer_email), p.amount, p.currency, p.status, p.requested_at, esc(b.bank_name), esc(b.iban || b.account_number), esc(b.swift_bic)].join(',');
+      return [esc(p.payout_id), esc(p.producer_name), esc(p.producer_email), p.amount, esc(p.currency), esc(p.status), esc(p.requested_at), esc(b.bank_name), esc(b.iban || b.account_number), esc(b.swift_bic)].join(',');
     }).join('\n');
-    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `payouts_${tab}_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
