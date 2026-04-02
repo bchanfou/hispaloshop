@@ -116,10 +116,9 @@ async def get_cart(current_user = Depends(get_current_user)):
         except Exception:
             pass  # Keep the stored discount_cents on error
 
-    # Tax calculation — use country-specific rate, not hardcoded Spain 21%
+    # Tax calculation — use country-specific rate
     from services.shipping_service import ShippingService
-    user_doc = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0, "locale": 1, "country": 1})
-    user_country = (user_doc or {}).get("locale", {}).get("country") or (user_doc or {}).get("country") or "ES"
+    user_country = getattr(current_user, 'country', None) or cart.get("tenant_id") or "ES"
     TAX_RATE_BP = ShippingService.get_tax_rate_bp(user_country)
     # Tax is included in subtotal: tax = subtotal * rate / (10000 + rate)
     tax_cents = int(round((subtotal_cents * TAX_RATE_BP) / (10000 + TAX_RATE_BP)))

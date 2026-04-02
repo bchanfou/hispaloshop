@@ -222,7 +222,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   <div className="flex items-center gap-2">
                                     <motion.button
                                       whileTap={item.quantity > 1 ? { scale: 0.88 } : undefined}
-                                      onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : removeFromCart(item.product_id, item.variant_id, item.pack_id)}
+                                      onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : removeFromCart(item.product_id, item.variant_id || null, item.pack_id || null)}
                                       className={`w-11 h-11 flex items-center justify-center rounded-full border transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`}
                                       aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name || item.name || ''}` : `Disminuir cantidad de ${item.product_name || item.name || ''}`}
                                     >

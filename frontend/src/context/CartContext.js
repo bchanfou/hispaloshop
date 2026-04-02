@@ -88,11 +88,8 @@ export function CartProvider({ children }) {
 
       const mergedKeys = new Set();
       for (const item of guestItems) {
-        if (serverKeys.has(itemKey(item))) {
-          mergedKeys.add(itemKey(item));
-          continue; // already in server cart
-        }
         try {
+          // Always POST — backend increments quantity if item exists
           await apiClient.post('/cart/items', {
             product_id: item.product_id,
             quantity: item.quantity,

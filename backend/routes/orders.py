@@ -880,10 +880,18 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             current_stock = pack.get("stock", 0)
                             break
                     break
-            item_label = f"{item['product_name']} ({item.get('variant_name', '')} - {item.get('pack_label', '')})"
+            item_label = f"{item.get('product_name', '')} ({item.get('variant_name', '')} - {item.get('pack_label', '')})"
+        elif variant_id and product.get("variants"):
+            # Variant-level stock (no pack)
+            current_stock = 0
+            for variant in (product.get("variants") or []):
+                if variant.get("variant_id") == variant_id:
+                    current_stock = variant.get("stock", product.get("stock", 0))
+                    break
+            item_label = f"{item.get('product_name', '')} ({item.get('variant_name', '')})"
         else:
             current_stock = product.get("stock", 0)
-            item_label = item['product_name']
+            item_label = item.get('product_name', 'Producto')
         
         if track_stock:
             if current_stock <= 0:
@@ -966,18 +974,17 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
 
                 if discount_code and discount_code["type"] == "percentage":
                     applicable_products = discount_code.get("applicable_products", [])
+                    from decimal import Decimal
                     if applicable_products:
                         applicable_total = sum(
-                            item["price"] * item["quantity"] 
-                            for item in cart_items 
+                            item["price"] * item["quantity"]
+                            for item in cart_items
                             if item["product_id"] in applicable_products
                         )
-                        from decimal import Decimal
                         discount_amount = float((Decimal(str(applicable_total)) * Decimal(str(discount_code["value"])) / 100).quantize(Decimal("0.01")))
                     else:
-                        from decimal import Decimal
                         discount_amount = float((Decimal(str(subtotal)) * Decimal(str(discount_code["value"])) / 100).quantize(Decimal("0.01")))
-                elif discount_code["type"] == "fixed":
+                elif discount_code and discount_code["type"] == "fixed":
                     discount_amount = min(discount_code["value"], subtotal)
                 # free_shipping would be handled separately in shipping calculation
                 
@@ -1045,9 +1052,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     # Shipping policy calculation by producer
     producer_groups: dict[str, dict] = {}
     for item in cart_items:
-        pid = item.get("producer_id")
-        if not pid:
-            continue
+        pid = item.get("producer_id") or item.get("seller_id") or "platform"
+        if pid == "platform":
+            logger.warning(f"[CHECKOUT] Item {item.get('product_id')} has no producer_id — shipping may be undercharged")
         producer_groups.setdefault(pid, {"subtotal_cents": 0, "item_count": 0})
         producer_groups[pid]["subtotal_cents"] += price_to_cents(item.get("price", 0) * item.get("quantity", 0))
         producer_groups[pid]["item_count"] += int(item.get("quantity", 0) or 0)
@@ -1193,13 +1200,13 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "line_items": [{
             "price_data": {
                 "currency": base_currency.lower(),
-                "unit_amount": price_to_cents(total_amount),
+                "unit_amount": int(totals_cents.get("total_cents", price_to_cents(total_amount))),
                 "product_data": {"name": f"Pedido Hispaloshop #{order_id[-8:]}"},
             },
             "quantity": 1,
         }],
     }
-    
+
     try:
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
