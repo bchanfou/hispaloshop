@@ -259,7 +259,11 @@ async def execute_seller_transfers(order: dict):
     # Use the snapshot captured at checkout when available.
     commission_data = await _get_order_commission_data(order)
     splits = commission_data.get("splits", [])
-    
+
+    if not splits:
+        logger.warning(f"[TRANSFERS] No commission splits for {order_id} — no transfers to execute")
+        return {"transfer_records": [], "total_platform_fee": 0}
+
     currency = order.get("currency", "EUR").lower()
     transfer_records = []
     total_platform_fee = 0

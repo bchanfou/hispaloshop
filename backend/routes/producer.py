@@ -947,16 +947,17 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
     if existing_pending:
         raise HTTPException(status_code=400, detail="Ya tienes una solicitud de pago pendiente. Espera a que se procese.")
 
-    # Calculate actual pending balance server-side (don't trust client amount)
+    # Calculate actual pending balance server-side using same logic as GET /payments
+    paid_statuses = {"paid", "confirmed", "preparing", "shipped", "delivered"}
     all_orders = await db.orders.find(
-        {"split_details": {"$elemMatch": {"producer_id": user.user_id, "paid_out": {"$ne": True}}}},
-        {"_id": 0, "split_details": 1},
+        {"line_items.producer_id": user.user_id, "status": {"$in": list(paid_statuses)}},
+        {"_id": 0},
     ).to_list(2000)
     pending_balance = 0.0
     for order in all_orders:
-        for split in order.get("split_details", []):
-            if split.get("producer_id") == user.user_id and not split.get("paid_out"):
-                pending_balance += split.get("seller_amount", split.get("net_earnings", 0))
+        snapshot = _get_producer_financial_snapshot(order, user.user_id)
+        if not snapshot.get("paid_out", False):
+            pending_balance += snapshot.get("net_earnings", 0)
 
     amount = round(min(float(body.get("amount", 0)), pending_balance), 2)
     if amount <= 0:

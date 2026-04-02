@@ -83,10 +83,11 @@ export default function AdminPayouts() {
   });
 
   const exportCSV = () => {
+    const esc = (v) => `"${String(v || '').replace(/"/g, '""')}"`;
     const header = 'ID,Productor,Email,Monto,Moneda,Estado,Solicitado,Banco,IBAN,SWIFT\n';
     const rows = filtered.map(p => {
       const b = p.bank_details || {};
-      return `${p.payout_id},"${p.producer_name}",${p.producer_email},${p.amount},${p.currency},${p.status},${p.requested_at},"${b.bank_name || ''}","${b.iban || b.account_number || ''}","${b.swift_bic || ''}"`;
+      return [p.payout_id, esc(p.producer_name), esc(p.producer_email), p.amount, p.currency, p.status, p.requested_at, esc(b.bank_name), esc(b.iban || b.account_number), esc(b.swift_bic)].join(',');
     }).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
