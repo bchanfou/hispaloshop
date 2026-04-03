@@ -19,7 +19,24 @@ const isPrivateIpHost = (host) => {
 
 const normalizeUrl = (value) => {
   if (!value || typeof value !== 'string') return '';
-  return value.trim().replace(/\/+$/, '');
+  const trimmed = value.trim().replace(/\/+$/, '');
+
+  // In secure pages, avoid mixed-content API origins that CSP will block.
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    try {
+      const parsed = new URL(trimmed);
+      const host = (parsed.hostname || '').toLowerCase();
+      const isLocal = LOCAL_HOSTS.has(host) || isPrivateIpHost(host);
+      if (parsed.protocol === 'http:' && !isLocal) {
+        parsed.protocol = 'https:';
+        return parsed.toString().replace(/\/+$/, '');
+      }
+    } catch {
+      // Non-URL values are handled by existing logic.
+    }
+  }
+
+  return trimmed;
 };
 
 const buildApiUrl = (baseUrl) => {

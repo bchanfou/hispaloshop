@@ -114,6 +114,18 @@ export function useUserProfileQuery(userId: string) {
         return normalizeProfileResponse(data, userId);
       } catch (error: any) {
         if (error?.status === 404) {
+          try {
+            const me = await apiClient.get('/auth/me');
+            const myId = me?.user_id || me?.id;
+            const myUsername = me?.username;
+            if (
+              myId && (String(myId) === String(userId) || String(myUsername || '').toLowerCase() === String(userId || '').toLowerCase())
+            ) {
+              return normalizeProfileResponse(me, userId);
+            }
+          } catch {
+            // Keep null fallback for true not-found users.
+          }
           return null;
         }
 
