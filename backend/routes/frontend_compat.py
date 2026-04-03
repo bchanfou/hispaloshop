@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import logging
+import os
 from typing import Dict, List, Optional
 from urllib.parse import urlencode, urlparse
 import uuid
@@ -120,6 +121,20 @@ def _get_request_origin(request: Request) -> str:
 
 def _is_secure_request(request: Request) -> bool:
     return _get_request_origin(request).startswith("https://")
+
+
+def _resolve_google_client_id() -> Optional[str]:
+    candidates = [
+        settings.GOOGLE_CLIENT_ID,
+        os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
+        os.getenv("GOOGLE_AUTH_CLIENT_ID"),
+        os.getenv("REACT_APP_GOOGLE_CLIENT_ID"),
+    ]
+    for value in candidates:
+        value = (value or "").strip()
+        if value:
+            return value
+    return None
 
 
 def _get_public_auth_backend_url(request: Request) -> str:
@@ -523,14 +538,15 @@ async def track_visit(payload: TrackVisitIn, request: Request):
 @router.get("/auth/google/url")
 async def get_google_auth_url(request: Request):
     """Generate the Google OAuth2 authorization URL."""
-    if not settings.GOOGLE_CLIENT_ID:
+    client_id = _resolve_google_client_id()
+    if not client_id:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
 
     backend_url = _get_public_auth_backend_url(request)
     state = uuid.uuid4().hex
     params = urlencode(
         {
-            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_id": client_id,
             "redirect_uri": f"{backend_url}/api/auth/google/callback",
             "response_type": "code",
             "scope": "openid email profile",

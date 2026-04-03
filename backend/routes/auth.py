@@ -10,6 +10,7 @@ import uuid
 import logging
 import re
 import hashlib
+import os
 
 from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput
@@ -96,6 +97,33 @@ def _get_public_frontend_url(request: Request) -> str:
             return candidate
 
     return configured or _get_request_origin(request)
+
+
+def _resolve_google_client_id() -> Optional[str]:
+    candidates = [
+        settings.GOOGLE_CLIENT_ID,
+        os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
+        os.getenv("GOOGLE_AUTH_CLIENT_ID"),
+        os.getenv("REACT_APP_GOOGLE_CLIENT_ID"),
+    ]
+    for value in candidates:
+        value = (value or "").strip()
+        if value:
+            return value
+    return None
+
+
+def _resolve_google_client_secret() -> Optional[str]:
+    candidates = [
+        settings.GOOGLE_CLIENT_SECRET,
+        os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
+        os.getenv("GOOGLE_AUTH_CLIENT_SECRET"),
+    ]
+    for value in candidates:
+        value = (value or "").strip()
+        if value:
+            return value
+    return None
 
 
 def _is_email_delivery_configured() -> bool:
@@ -1093,7 +1121,7 @@ async def set_role(request: Request, user: User = Depends(get_current_user)):
 @router.get("/auth/google/url")
 async def get_google_auth_url(request: Request):
     """Get Google OAuth URL for self-managed authentication"""
-    client_id = settings.GOOGLE_CLIENT_ID
+    client_id = _resolve_google_client_id()
     if not client_id:
         logger.error("[GOOGLE_AUTH] GOOGLE_CLIENT_ID missing in environment")
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
@@ -1164,8 +1192,8 @@ async def google_auth_callback(
     if not code:
         return _build_frontend_auth_callback_response(request, error="No authorization code provided")
     
-    client_id = settings.GOOGLE_CLIENT_ID
-    client_secret = settings.GOOGLE_CLIENT_SECRET
+    client_id = _resolve_google_client_id()
+    client_secret = _resolve_google_client_secret()
     
     if not client_id or not client_secret:
         logger.error("[GOOGLE_AUTH] Google OAuth missing credentials. client_id=%s client_secret_present=%s", bool(client_id), bool(client_secret))

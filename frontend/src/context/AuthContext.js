@@ -120,16 +120,8 @@ export function AuthProvider({ children }) {
       setError(null);
     }
 
-    // Skip API call if there's no token — avoids unnecessary 401 + refresh cycle
-    if (!getToken()) {
-      checkingRef.current = false;
-      if (mountedRef.current) {
-        setUser(null);
-        setLoading(false);
-        setInitialized(true);
-      }
-      return null;
-    }
+    // Always hit /auth/me: Google OAuth establishes session via httpOnly cookie
+    // and may not have a localStorage token yet.
 
     try {
       const currentUser = await authApi.getCurrentUser();
