@@ -6,7 +6,7 @@ const CATEGORIES = [
   'Aceites',
   'Miel',
   'Conservas',
-  t('onboarding.panaderia', 'Panadería'),
+  'Panadería',
   'Quesos',
   'Embutidos',
   'Salsas',
@@ -24,6 +24,7 @@ const CATEGORIES = [
 ];
 
 export default function InterestsStep({ onNext, onError }) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
 

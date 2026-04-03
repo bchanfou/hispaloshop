@@ -14,17 +14,17 @@ import { useTranslation } from 'react-i18next';
 const TOTAL_STEPS = 3;
 
 const INTERESTS = [
-  'Aceites', 'Miel', 'Conservas', t('onboarding.panaderia', 'Panadería'), 'Quesos', 'Embutidos',
+  'Aceites', 'Miel', 'Conservas', 'Panadería', 'Quesos', 'Embutidos',
   'Salsas', 'Especias', 'Legumbres', 'Frutos secos', 'Infusiones',
-  'Vinos', 'Frutas', 'Verduras', t('onboarding.reposteria', 'Repostería'), 'Bebidas',
+  'Vinos', 'Frutas', 'Verduras', 'Repostería', 'Bebidas',
 ];
 
 const ROLE_WELCOME_SUBTITLES = {
-  consumer: t('onboarding.descubreProductosArtesanalesUnicosDe', 'Descubre productos artesanales únicos de productores locales.'),
-  customer: t('onboarding.descubreProductosArtesanalesUnicosDe', 'Descubre productos artesanales únicos de productores locales.'),
-  producer: t('onboarding.tuTiendaEstaListaEmpiezaAVenderT', 'Tu tienda está lista. Empieza a vender tus productos artesanales.'),
+  consumer: 'Descubre productos artesanales únicos de productores locales.',
+  customer: 'Descubre productos artesanales únicos de productores locales.',
+  producer: 'Tu tienda está lista. Empieza a vender tus productos artesanales.',
   influencer: 'Conecta con marcas y empieza a crear contenido que inspira.',
-  importer: t('onboarding.exploraElMarketplaceB2bYEncuentraL', 'Explora el marketplace B2B y encuentra los mejores productores.'),
+  importer: 'Explora el marketplace B2B y encuentra los mejores productores.',
 };
 
 const slideVariants = {
@@ -98,6 +98,7 @@ const PrimaryButton = ({ onClick, disabled, loading, children, className = '' })
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading, checkAuth } = useAuth();
+  const { t } = useTranslation();
 
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
