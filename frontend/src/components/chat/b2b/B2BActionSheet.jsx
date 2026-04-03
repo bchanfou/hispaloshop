@@ -111,7 +111,7 @@ export default function B2BActionSheet({
                 />
                 <ActionOption
                   icon={BookOpen}
-                  label=t('b2_b_marketplace.catalogo', 'Catálogo')
+                  label={t('b2_b_marketplace.catalogo', 'Catálogo')}
                   onClick={() => { onClose?.(); onSelectCatalog?.(); }}
                 />
                 <ActionOption

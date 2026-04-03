@@ -253,7 +253,7 @@ export default function RecipesPage() {
       <div className="mx-auto max-w-[975px] px-4">
       <SEO
         title="Recetas — Hispaloshop"
-        description=t('recipes.descubreRecetasSaludablesConProducto', 'Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.')
+        description={t('recipes.descubreRecetasSaludablesConProducto', 'Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.')}
         structuredData={recipes.length > 0 ? [{
           '@context': 'https://schema.org',
           '@type': 'ItemList',

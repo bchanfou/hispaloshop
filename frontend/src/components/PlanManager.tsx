@@ -17,6 +17,7 @@ interface PlanData {
 }
 
 export default function PlanManager() {
+  const { t } = useTranslation();
   const [plan, setPlan] = useState<PlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [changing, setChanging] = useState(false);

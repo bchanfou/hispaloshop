@@ -27,6 +27,7 @@ interface ReviewModalProps {
 }
 
 export default function ReviewModal({ open, onClose, order }: ReviewModalProps) {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [comment, setComment] = useState('');

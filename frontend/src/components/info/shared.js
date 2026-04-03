@@ -32,7 +32,7 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
       </p>
       <a
         href={ctaHref || '/registro'}
-        className="inline-flex items-center gap-2 py-[15px] px-8 rounded-full text-base font-semibold no-underline shadow-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03] hover:shadow-xl"
+        className="inline-flex items-center gap-2 py-[15px] px-8 rounded-full text-base font-semibold no-underline shadow-lg transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03] hover:shadow-xl"
         style={{
           background: ctaColor,
           color: ctaColor === '#FFFFFF' ? '#0A0A0A' : '#FFFFFF',

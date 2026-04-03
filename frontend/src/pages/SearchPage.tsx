@@ -494,7 +494,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <SEO title="Buscar — Hispaloshop" description=t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.') />
+      <SEO title="Buscar — Hispaloshop" description={t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.')} />
 
       {/* ── Search Bar (sticky) ── */}
       <div className="sticky top-0 z-40 bg-white px-3 py-2">
@@ -637,7 +637,7 @@ export default function SearchPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-stone-950">{t('common.freeShipping', 'Envío gratis')}</span>
-                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label=t('common.freeShipping', 'Envío gratis') />
+                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label={t('common.freeShipping', 'Envío gratis')} />
                   </div>
                 </div>
 

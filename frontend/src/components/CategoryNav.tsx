@@ -49,18 +49,18 @@ const isNewProduct = (product: Product): boolean => {
 };
 
 const HOME_MINIMAL_CATEGORY_CONFIG: CategoryConfig[] = [
-  { slug: 'aceites-vinagres', shortLabel: 'Aceites', label: 'Aceites', icon: Droplets, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: t('category_nav.aceitesYAlinosConOrigenClaro', 'Aceites y aliños con origen claro.'), matchTerms: ['aceite', 'aove', 'oliva'] },
+  { slug: 'aceites-vinagres', shortLabel: 'Aceites', label: 'Aceites', icon: Droplets, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Aceites y aliños con origen claro.', matchTerms: ['aceite', 'aove', 'oliva'] },
   { slug: 'lacteos', shortLabel: 'Lacteos', label: 'Lacteos', icon: Milk, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Mantequillas, yogures y elaboraciones lacteas.', matchTerms: ['leche', 'yogur', 'yogurt', 'mantequilla', 'lacteo'] },
   { slug: 'conservas-mermeladas', shortLabel: 'Conservas', label: 'Conservas', icon: Package, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Tarros, mermeladas y despensa artesana.', matchTerms: ['conserva', 'mermelada', 'tarro'] },
   { slug: 'snacks-frutos-secos', shortLabel: 'Snacks', label: 'Snacks', icon: Cookie, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Picoteo y frutos secos bien hechos.', matchTerms: ['snack', 'fruto seco', 'barrita'] },
   { slug: 'quesos', shortLabel: 'Quesos', label: 'Quesos', icon: Milk, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Curados, frescos y afinados con calma.', matchTerms: ['queso', 'manchego', 'curado', 'cabra'] },
   { slug: 'cafe-te', shortLabel: 'Cafe', label: 'Cafe', icon: Coffee, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Cafe, te e infusiones.', matchTerms: ['cafe', 'te', 'infusion'] },
-  { slug: 'panadería-dulces', shortLabel: t('onboarding.panaderia', 'Panadería'), label: 'Panadería', icon: Croissant, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Panes, galletas y obrador.', matchTerms: ['pan', 'galleta', 'bizcocho', 'obrador'] },
+  { slug: 'panadería-dulces', shortLabel: 'Panadería', label: 'Panadería', icon: Croissant, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Panes, galletas y obrador.', matchTerms: ['pan', 'galleta', 'bizcocho', 'obrador'] },
   { slug: 'frutas-verduras', shortLabel: 'Frutas', label: 'Frutas', icon: Apple, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Huerta y temporada.', matchTerms: ['fruta', 'verdura', 'huerta'] },
   { slug: 'vinos-bebidas', shortLabel: 'Bebidas', label: 'Bebidas', icon: Wine, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Vinos, kombuchas y bebidas de autor.', matchTerms: ['vino', 'bebida', 'kombucha', 'zumo'] },
   { slug: 'salsas', shortLabel: 'Salsas', label: 'Salsas', icon: Soup, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Salsas, pestos y condimentos.', matchTerms: ['salsa', 'alioli', 'pesto', 'condimento'] },
   { slug: 'congelados', shortLabel: 'Congelados', label: 'Congelados', icon: Snowflake, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Producto listo para frio y envio.', matchTerms: ['congelado'] },
-  { slug: 'orgánico-eco', shortLabel: t('home.organic', 'Orgánico'), label: 'Orgánico', icon: Leaf, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Seleccion orgánica y eco.', matchTerms: ['eco', 'orgánico', 'ecologico'] },
+  { slug: 'orgánico-eco', shortLabel: 'Orgánico', label: 'Orgánico', icon: Leaf, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Seleccion orgánica y eco.', matchTerms: ['eco', 'orgánico', 'ecologico'] },
   { slug: 'suplementos', shortLabel: 'Suplementos', label: 'Suplementos', icon: Pill, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Bienestar, proteinas y apoyo nutricional.', matchTerms: ['proteina', 'suplemento', 'colageno', 'vitamina'] },
 ];
 
@@ -72,6 +72,7 @@ export default function CategoryNav({
   title = 'Descubre por Categoria',
   variant = 'default',
 }: CategoryNavProps) {
+  const { t } = useTranslation();
   const sourceConfig: any[] = variant === 'home-minimal' ? HOME_MINIMAL_CATEGORY_CONFIG : CATEGORY_CONFIG;
   const isCatalog = variant === 'catalog';
 

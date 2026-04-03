@@ -192,7 +192,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                 {featuredRecipe.image_url ? (
                   <img
                     src={featuredRecipe.image_url}
-                    alt=t('stories_bar.recetaDelDia', 'Receta del día')
+                    alt={t('stories_bar.recetaDelDia', 'Receta del día')}
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (

@@ -32,7 +32,7 @@ const sheetVariants = cva(
         top:
           "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top data-[state=open]:duration-300 data-[state=closed]:duration-200 transition ease-out",
         bottom:
-          "inset-x-0 bottom-0 rounded-t-[28px] border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=open]:duration-[320ms] data-[state=closed]:duration-[200ms] transition [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] data-[state=closed]:[transition-timing-function:cubic-bezier(0.4,0,1,1)] pb-[env(safe-area-inset-bottom,0px)]",
+          "inset-x-0 bottom-0 rounded-t-[28px] border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=open]:duration-300 data-[state=closed]:duration-200 transition [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] data-[state=closed]:[transition-timing-function:cubic-bezier(0.4,0,1,1)] pb-[env(safe-area-inset-bottom,0px)]",
         left:
           "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm data-[state=open]:duration-300 data-[state=closed]:duration-200 transition ease-out",
         right:

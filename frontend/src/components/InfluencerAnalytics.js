@@ -207,7 +207,7 @@ export default function InfluencerAnalytics() {
                   />
                   <Legend />
                   <Bar dataKey="link_clicks" fill="#1c1917" name="Clics Enlace" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="code_uses" fill="#78716c" name=t('influencer_analytics.usosCodigo', 'Usos Código') radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="code_uses" fill="#78716c" name={t('influencer_analytics.usosCodigo', 'Usos Código')} radius={[4, 4, 0, 0]} />
                   <Bar dataKey="conversions" fill="#a8a29e" name="Conversiones" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -253,7 +253,7 @@ export default function InfluencerAnalytics() {
                     stroke="#78716c"
                     fill="#78716c"
                     fillOpacity={0.3}
-                    name=t('influencer.yourCommission', 'Tu comisión')
+                    name={t('influencer.yourCommission', 'Tu comisión')}
                   />
                 </AreaChart>
               </ResponsiveContainer>

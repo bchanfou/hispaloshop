@@ -53,6 +53,7 @@ interface PostViewerProps {
 
 export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment, isOwn = false, onDelete }: PostViewerProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentIndex] = useState(() => {
     const idx = posts.findIndex((p) => (p.post_id || p.id) === (post?.post_id || post?.id));
     return idx >= 0 ? idx : 0;
@@ -157,6 +158,7 @@ interface PostFeedCardProps {
 
 function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setShowMenu, deleting, onDelete, onLike, onComment, onClose }: PostFeedCardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [imageIndex, setImageIndex] = useState(0);
   const [liked, setLiked] = useState(currentPost.is_liked ?? currentPost.liked ?? false);
   const [saved, setSaved] = useState(currentPost.is_saved ?? currentPost.saved ?? false);

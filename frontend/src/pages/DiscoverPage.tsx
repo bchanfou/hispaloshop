@@ -487,7 +487,7 @@ export default function DiscoverPage() {
   /* ── render ── */
   return (
     <div className="min-h-screen bg-white pb-20">
-      <SEO title="Explorar — Hispaloshop" description=t('discover.descubreProductosArtesanalesTiendas', 'Descubre productos artesanales, tiendas verificadas y recetas de la comunidad.') />
+      <SEO title="Explorar — Hispaloshop" description={t('discover.descubreProductosArtesanalesTiendas', 'Descubre productos artesanales, tiendas verificadas y recetas de la comunidad.')} />
       <div className="mx-auto max-w-[1100px]">
 
       {/* ─── SEARCH BAR (sticky, P-04: inline with autocomplete) ─── */}

@@ -12,7 +12,7 @@ export default function ForInfluencers() {
 
   return (
     <div>
-      <SEO title="Soy Influencer — Hispaloshop" description=t('for_influencers.creaComunidadApoyaProductoresHonest', 'Crea comunidad, apoya productores honestos y monetiza tu esfuerzo de verdad. Comisiones recurrentes, libertad creativa y acompañamiento directo.') />
+      <SEO title="Soy Influencer — Hispaloshop" description={t('for_influencers.creaComunidadApoyaProductoresHonest', 'Crea comunidad, apoya productores honestos y monetiza tu esfuerzo de verdad. Comisiones recurrentes, libertad creativa y acompañamiento directo.')} />
 
       {/* HERO + CTA */}
       <section className="info-hero bg-[#0A0A0A] min-h-[60vh] flex items-center pt-[120px] pb-12 px-4">

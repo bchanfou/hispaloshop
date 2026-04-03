@@ -188,10 +188,10 @@ export default function SettingsPage() {
       <aside className="hidden lg:block lg:w-[240px] lg:shrink-0 lg:pt-6 lg:pb-8 lg:sticky lg:top-[60px] lg:self-start lg:max-h-[calc(100vh-60px)] lg:overflow-y-auto">
         <nav className="space-y-0.5">
           <SettingsSidebarLink icon={<User size={16} />} label="Editar perfil" to="/settings/profile" />
-          <SettingsSidebarLink icon={<Lock size={16} />} label=t('auth.password', 'Contraseña') to="/settings/password" />
+          <SettingsSidebarLink icon={<Lock size={16} />} label={t('auth.password', 'Contraseña')} to="/settings/password" />
           <SettingsSidebarLink icon={<Bell size={16} />} label="Notificaciones" to="/settings/notifications" />
           <SettingsSidebarLink icon={<Eye size={16} />} label="Privacidad" to={null} active />
-          <SettingsSidebarLink icon={<Globe size={16} />} label=t('settings.paisEIdioma', 'País e idioma') to="/settings/locale" />
+          <SettingsSidebarLink icon={<Globe size={16} />} label={t('settings.paisEIdioma', 'País e idioma')} to="/settings/locale" />
           <SettingsSidebarLink icon={<Shield size={16} />} label="Solicitudes" to="/settings/follow-requests" />
           {(isProducer || isInfluencer) && (
             <>
@@ -222,7 +222,7 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<Lock size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label=t('auth.password', 'Contraseña')
+            label={t('auth.password', 'Contraseña')}
             to="/settings/password"
           />
           <SettingsItem
@@ -239,7 +239,7 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<Globe size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label=t('settings.paisEIdioma', 'País e idioma')
+            label={t('settings.paisEIdioma', 'País e idioma')}
             sublabel={user?.country || t('admin.countries.ES', 'España')}
             to="/settings/locale"
           />
@@ -278,7 +278,7 @@ export default function SettingsPage() {
                   <SettingsItem
                     icon={<CreditCard size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label=t('settings.planDeSuscripcion', 'Plan de suscripción')
+                    label={t('settings.planDeSuscripcion', 'Plan de suscripción')}
                     to="/settings/plan"
                   />
                   <SettingsItem
@@ -294,13 +294,13 @@ export default function SettingsPage() {
                   <SettingsItem
                     icon={<Receipt size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label=t('fiscal_setup.configuracionFiscal', 'Configuración fiscal')
+                    label={t('fiscal_setup.configuracionFiscal', 'Configuración fiscal')}
                     to="/influencer/fiscal-setup"
                   />
                   <SettingsItem
                     icon={<CreditCard size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label=t('producer_payments.metodoDeCobro', 'Método de cobro')
+                    label={t('producer_payments.metodoDeCobro', 'Método de cobro')}
                     to="/settings/payout"
                   />
                   <SettingsItem
@@ -339,13 +339,13 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<FileText size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label=t('register.terminosYCondiciones', 'Términos y condiciones')
+            label={t('register.terminosYCondiciones', 'Términos y condiciones')}
             to="/legal/terminos"
           />
           <SettingsItem
             icon={<Shield size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label=t('register.politicaDePrivacidad', 'Política de privacidad')
+            label={t('register.politicaDePrivacidad', 'Política de privacidad')}
             to="/legal/privacidad"
           />
         </SettingsGroup>

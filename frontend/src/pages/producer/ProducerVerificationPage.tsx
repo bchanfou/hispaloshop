@@ -248,7 +248,7 @@ export default function ProducerVerificationPage() {
               <UploadArea
                 accept=".pdf,.jpg,.jpeg,.png"
                 maxSize="5MB"
-                hint=t('producer_verification.pdfJpgPng·Max5mb', 'PDF, JPG, PNG · Máx 5MB')
+                hint={t('producer_verification.pdfJpgPng·Max5mb', 'PDF, JPG, PNG · Máx 5MB')}
                 onFile={handleCifUpload}
                 uploading={cifUploading}
               />
@@ -320,7 +320,7 @@ export default function ProducerVerificationPage() {
               <UploadArea
                 accept=".jpg,.jpeg,.png,.heic"
                 maxSize="10MB"
-                hint=t('producer_verification.jpgPngHeic·Max10mb', 'JPG, PNG, HEIC · Máx 10MB')
+                hint={t('producer_verification.jpgPngHeic·Max10mb', 'JPG, PNG, HEIC · Máx 10MB')}
                 onFile={handleFacilityUpload}
                 uploading={facilityUploading}
               />

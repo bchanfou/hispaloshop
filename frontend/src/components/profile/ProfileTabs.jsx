@@ -255,7 +255,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (loading.posts && !items) return <SkeletonGrid />;
     if (!items || items.length === 0) {
       return isOwn ? (
-        <EmptyState icon={Camera} title="Comparte tu primera foto" buttonLabel=t('profile_tabs.crearPublicacion', 'Crear publicación') onButtonClick={() => navigate('/create/post')} />
+        <EmptyState icon={Camera} title="Comparte tu primera foto" buttonLabel={t('profile_tabs.crearPublicacion', 'Crear publicación')} onButtonClick={() => navigate('/create/post')} />
       ) : (
         <EmptyState icon={Camera} title={t('profile_tabs.sinPublicacionesTodavia', 'Sin publicaciones todavía')} />
       );
@@ -347,7 +347,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (loading.products && !items) return <SkeletonGrid count={6} columns={2} />;
     if (!items || items.length === 0) {
       return isOwn ? (
-        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel=t('importer_dashboard.anadirProducto', 'Añadir producto') onButtonClick={() => navigate('/producer/products/new')} />
+        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel={t('importer_dashboard.anadirProducto', 'Añadir producto')} onButtonClick={() => navigate('/producer/products/new')} />
       ) : (
         <EmptyState icon={Package} title="Sin productos" />
       );
@@ -479,7 +479,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               >
                 <img
                   src={src}
-                  alt=t('profile_tabs.publicacionGuardada', 'Publicación guardada')
+                  alt={t('profile_tabs.publicacionGuardada', 'Publicación guardada')}
                   loading="lazy"
                   className="w-full h-full object-cover"
                 />

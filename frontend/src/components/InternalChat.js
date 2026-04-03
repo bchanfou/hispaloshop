@@ -302,7 +302,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
             <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
               <img
                 src={message.image_url}
-                alt=t('internal_chat.imagenCompartidaEnElChat', 'Imagen compartida en el chat')
+                alt={t('internal_chat.imagenCompartidaEnElChat', 'Imagen compartida en el chat')}
                 loading="lazy"
                 onError={(e) => { e.target.alt = t('internal_chat.noSePudoCargarLaImagen', 'No se pudo cargar la imagen'); e.target.className = 'hidden'; }}
                 className="max-w-[260px] object-cover"
@@ -589,7 +589,7 @@ function ShareItemSheet({
             ) : (
               <EmptyState
                 title="Carga una vista previa"
-                description=t('internal_chat.pegaUnEnlaceValidoDeHispaloshopPar', 'Pega un enlace válido de Hispaloshop para generar una tarjeta compacta.')
+                description={t('internal_chat.pegaUnEnlaceValidoDeHispaloshopPar', 'Pega un enlace válido de Hispaloshop para generar una tarjeta compacta.')}
               />
             )}
           </div>
@@ -708,7 +708,7 @@ function DirectorySheet({
               <div className="py-8">
                 <EmptyState
                   title="No hay resultados"
-                  description=t('internal_chat.pruebaConOtroNombreOCambiaElFiltr', 'Prueba con otro nombre o cambia el filtro.')
+                  description={t('internal_chat.pruebaConOtroNombreOCambiaElFiltr', 'Prueba con otro nombre o cambia el filtro.')}
                 />
               </div>
             )}
@@ -1674,7 +1674,7 @@ export default function InternalChat({
             <div className="space-y-4 px-4 py-8">
               <EmptyState
                 title="No tienes conversaciones"
-                description=t('internal_chat.empiezaUnChatNuevoDesdeElBotonSup', 'Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio.')
+                description={t('internal_chat.empiezaUnChatNuevoDesdeElBotonSup', 'Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio.')}
               />
               <button
                 type="button"
@@ -1693,7 +1693,7 @@ export default function InternalChat({
         {!activeConversation ? (
           <EmptyState
             title="Tus mensajes"
-            description=t('internal_chat.seleccionaUnaConversacionDelPanelIz', 'Selecciona una conversación del panel izquierdo o inicia una nueva.')
+            description={t('internal_chat.seleccionaUnaConversacionDelPanelIz', 'Selecciona una conversación del panel izquierdo o inicia una nueva.')}
           />
         ) : (
           <>
@@ -1827,7 +1827,7 @@ export default function InternalChat({
               ) : (
                 <EmptyState
                   title={t('internal_chat.empiezaLaConversacion', 'Empieza la conversación')}
-                  description=t('internal_chat.escribeElPrimerMensajeYMantenLaCo', 'Escribe el primer mensaje y mantén la conversación dentro de un contexto claro.')
+                  description={t('internal_chat.escribeElPrimerMensajeYMantenLaCo', 'Escribe el primer mensaje y mantén la conversación dentro de un contexto claro.')}
                 />
               )}
             </div>
@@ -1950,7 +1950,7 @@ export default function InternalChat({
                   >
                     <img
                       src={pendingImage.previewUrl}
-                      alt=t('internal_chat.vistaPreviaDeLaImagenAdjunta', 'Vista previa de la imagen adjunta')
+                      alt={t('internal_chat.vistaPreviaDeLaImagenAdjunta', 'Vista previa de la imagen adjunta')}
                       className="h-12 w-12 rounded-[10px] object-cover"
                     />
                     <div className="min-w-0 flex-1">

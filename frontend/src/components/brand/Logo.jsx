@@ -3,10 +3,11 @@ import React from 'react';
 /**
  * Logo — centralised logo component for Hispaloshop.
  *
- * @param {'icon'|'full'} variant  icon = Atlas only, full = Atlas + wordmark
- * @param {'light'|'dark'} theme   light = black logo (for light bg), dark = white logo (for dark bg)
- * @param {number}         size    px width (defaults: 32 icon, 120 full)
- * @param {function}       onClick optional click handler
+ * @param {object} props
+ * @param {'icon'|'full'} [props.variant] icon = Atlas only, full = Atlas + wordmark
+ * @param {'light'|'dark'} [props.theme] light = black logo (for light bg), dark = white logo (for dark bg)
+ * @param {number} [props.size] px width (defaults: 32 icon, 120 full)
+ * @param {function} [props.onClick] optional click handler
  */
 export default function Logo({ variant = 'full', theme = 'light', size, onClick }) {
   const src = variant === 'icon'

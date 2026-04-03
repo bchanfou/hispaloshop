@@ -546,7 +546,7 @@ export default function ImporterDashboardPage() {
               <KPICard
                 icon={Store}
                 value="3%"
-                label=t('influencer.commissionRate', 'Comisión')
+                label={t('influencer.commissionRate', 'Comisión')}
               />
             )}
           </div>
@@ -583,7 +583,7 @@ export default function ImporterDashboardPage() {
 
           {/* Quick actions */}
           <div className="grid grid-cols-2 gap-2 mb-5">
-            <QuickAction icon={Search} label=t('importer_dashboard.catalogoB2b', 'Catálogo B2B') href="/importer/catalog" />
+            <QuickAction icon={Search} label={t('importer_dashboard.catalogoB2b', 'Catálogo B2B')} href="/importer/catalog" />
             <QuickAction icon={Package} label="Mis pedidos B2B" href="/importer/orders" />
             <QuickAction icon={Award} label="Certificados" href="/importer/certificates" />
             <QuickAction icon={FileCheck} label="Operaciones B2B" href="/b2b/operations" />

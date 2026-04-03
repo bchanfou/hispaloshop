@@ -3,6 +3,9 @@ const path = require("path");
 const webpack = require("webpack");
 require("dotenv").config();
 
+// Avoid CRA/CRACO ESLint webpack plugin resolution in CI/build environments.
+process.env.DISABLE_ESLINT_PLUGIN = "true";
+
 // Check if we're in development/preview mode (not production build)
 // Craco sets NODE_ENV=development for start, NODE_ENV=production for build
 const isDevServer = process.env.NODE_ENV !== "production";
@@ -34,8 +37,8 @@ if (config.enableHealthCheck) {
 }
 
 const webpackConfig = {
-  // Disable CRACO's default ESLint merge step to avoid plugin lookup noise in build.
-  eslint: { enable: false },
+  // Ensure CRACO skips ESLint plugin handling entirely.
+  eslint: null,
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

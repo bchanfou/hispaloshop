@@ -12,7 +12,7 @@ export default function ForProducers() {
 
   return (
     <div>
-      <SEO title="Soy Productor — Hispaloshop" description=t('for_producers.conectaTuProduccionConImportadoresY', 'Conecta tu producción con importadores y clientes de todo el mundo. Expande tu alcance, digitaliza tu catálogo y accede a nuevas oportunidades comerciales.') />
+      <SEO title="Soy Productor — Hispaloshop" description={t('for_producers.conectaTuProduccionConImportadoresY', 'Conecta tu producción con importadores y clientes de todo el mundo. Expande tu alcance, digitaliza tu catálogo y accede a nuevas oportunidades comerciales.')} />
 
       {/* HERO + CTA */}
       <section className="info-hero bg-[#0A0A0A] min-h-[60vh] flex items-center pt-[120px] pb-12 px-4">

@@ -171,7 +171,7 @@ export default function InfluencerInsights() {
           />
           <KpiCard
             icon={ShoppingCart}
-            label=t('producer_analytics.anadidosAlCarrito', 'Añadidos al carrito')
+            label={t('producer_analytics.anadidosAlCarrito', 'Añadidos al carrito')}
             value={overview.add_to_cart ?? '—'}
             prevValue={prevOverview.add_to_cart}
           />

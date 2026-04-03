@@ -279,7 +279,7 @@ export default function EditProfilePage() {
         <FormField label="Sitio web" value={form.website} type="url" placeholder="https://..."
           onChange={v => setForm(f => ({ ...f, website: v }))} />
 
-        <FormField label=t('store.location', 'Ubicación') value={form.location} placeholder={t('edit_profile.madridEspana', 'Madrid, España')}
+        <FormField label={t('store.location', 'Ubicación')} value={form.location} placeholder={t('edit_profile.madridEspana', 'Madrid, España')}
           onChange={v => setForm(f => ({ ...f, location: v }))} />
 
         {/* ── Social Links ── */}
@@ -359,7 +359,7 @@ export default function EditProfilePage() {
           <p className="mt-1 text-[11px] text-stone-400">{t('edit_profile.elEmailNoSePuedeCambiarDesdeAqui', 'El email no se puede cambiar desde aquí')}</p>
         </div>
 
-        <FormField label=t('common.phone', 'Teléfono') value={form.phone} placeholder="+34 600 000 000"
+        <FormField label={t('common.phone', 'Teléfono')} value={form.phone} placeholder="+34 600 000 000"
           onChange={v => setForm(f => ({ ...f, phone: v }))} />
 
         {/* ── Producer Fields ── */}
@@ -371,7 +371,7 @@ export default function EditProfilePage() {
               </p>
             </div>
 
-            <FormField label=t('edit_profile.nombreDeLaEmpresa', 'Nombre de la empresa') value={form.company_name}
+            <FormField label={t('edit_profile.nombreDeLaEmpresa', 'Nombre de la empresa')} value={form.company_name}
               onChange={v => setForm(f => ({ ...f, company_name: v }))} />
 
             <div className="mb-5">

@@ -400,7 +400,7 @@ export default function StorePage() {
                 ))}
               </div>
             ) : (
-              <EmptyState text=t('store.estaTiendaNoTieneProductosAun', 'Esta tienda no tiene productos aún') />
+              <EmptyState text={t('store.estaTiendaNoTieneProductosAun', 'Esta tienda no tiene productos aún')} />
             )}
           </>
         )}
@@ -442,7 +442,7 @@ export default function StorePage() {
               })}
             </div>
           ) : (
-            <EmptyState text=t('store.estaTiendaNoHaCompartidoRecetasAun', 'Esta tienda no ha compartido recetas aún') />
+            <EmptyState text={t('store.estaTiendaNoHaCompartidoRecetasAun', 'Esta tienda no ha compartido recetas aún')} />
           )
         )}
 
@@ -539,7 +539,7 @@ export default function StorePage() {
               </div>
             </div>
           ) : (
-            <EmptyState text=t('empty.reviews', 'Sin reseñas todavía') />
+            <EmptyState text={t('empty.reviews', 'Sin reseñas todavía')} />
           )
         )}
 

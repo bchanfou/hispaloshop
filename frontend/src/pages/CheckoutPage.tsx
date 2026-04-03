@@ -457,7 +457,7 @@ export default function CheckoutPage() {
 
             {/* Summary — mobile only (desktop has sticky sidebar) */}
             <div className="mt-6 lg:hidden">
-              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel=t('checkout.segunDireccion', 'Según dirección') formatPrice={formatPrice} />
+              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel={t('checkout.segunDireccion', 'Según dirección')} formatPrice={formatPrice} />
             </div>
 
             {/* Continue */}

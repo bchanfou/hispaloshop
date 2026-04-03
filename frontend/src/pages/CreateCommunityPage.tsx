@@ -323,7 +323,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Description */}
-          <FormField label=t('productDetail.description', 'Descripción')>
+          <FormField label={t('productDetail.description', 'Descripción')}>
             <div className="relative">
               <textarea
                 value={form.description}
@@ -339,7 +339,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Emoji */}
-          <FormField label=t('create_community.iconoDeLaComunidad', 'Icono de la comunidad')>
+          <FormField label={t('create_community.iconoDeLaComunidad', 'Icono de la comunidad')}>
             <div className="flex gap-1.5 flex-wrap">
               {EMOJIS.map(em => (
                 <button key={em} type="button"
@@ -359,7 +359,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Category */}
-          <FormField label=t('products.category', 'Categoría')>
+          <FormField label={t('products.category', 'Categoría')}>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => (
                 <button key={cat} type="button"
@@ -377,7 +377,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Tags */}
-          <FormField label=t('create_community.etiquetasMax5', 'Etiquetas (máx. 5)') hint="Presiona Enter para añadir">
+          <FormField label={t('create_community.etiquetasMax5', 'Etiquetas (máx. 5)')} hint="Presiona Enter para añadir">
             <div className="flex gap-1.5 mb-1.5 flex-wrap">
               {form.tags.map(tag => (
                 <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">

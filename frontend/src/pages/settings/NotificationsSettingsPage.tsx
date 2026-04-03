@@ -144,12 +144,12 @@ export default function NotificationsSettingsPage() {
           {/* PEDIDOS */}
           <SectionLabel>Pedidos</SectionLabel>
           <div className="bg-white border-t border-stone-200">
-            <ToggleRow index={4} label=t('notifications_settings.confirmacionDePedido', 'Confirmación de pedido') value={true} locked disabled />
-            <ToggleRow index={5} label=t('notifications_settings.actualizacionesDeEnvio', 'Actualizaciones de envío') sublabel="Cuando tu pedido esté en camino"
+            <ToggleRow index={4} label={t('notifications_settings.confirmacionDePedido', 'Confirmación de pedido')} value={true} locked disabled />
+            <ToggleRow index={5} label={t('notifications_settings.actualizacionesDeEnvio', 'Actualizaciones de envío')} sublabel="Cuando tu pedido esté en camino"
               value={prefs.shipping_updates} onChange={v => handleToggle('shipping_updates', v)} />
             <ToggleRow index={6} label="Pedido entregado"
               value={prefs.order_delivered} onChange={v => handleToggle('order_delivered', v)} />
-            <ToggleRow index={7} label=t('notifications_settings.solicitudesDeResena', 'Solicitudes de reseña')
+            <ToggleRow index={7} label={t('notifications_settings.solicitudesDeResena', 'Solicitudes de reseña')}
               value={prefs.review_requests} onChange={v => handleToggle('review_requests', v)} />
           </div>
 

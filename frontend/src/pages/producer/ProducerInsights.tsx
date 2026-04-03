@@ -95,7 +95,7 @@ export default function ProducerInsights() {
           <KpiCard icon={ShoppingCart} label="Compras" value={overview.total_purchases ?? '—'} />
           <KpiCard
             icon={BarChart3}
-            label=t('producer_insights.conversionDesdeContenido', 'Conversión desde contenido')
+            label={t('producer_insights.conversionDesdeContenido', 'Conversión desde contenido')}
             value={overview.content_conversion_rate != null ? `${overview.content_conversion_rate}%` : '—'}
             sub="Clics / vistas"
           />

@@ -142,7 +142,7 @@ function ImporterDashboard() {
         <KPICard
           icon={Globe}
           value={dashboardData.kpis.countries}
-          label=t('breadcrumbs.countries', 'Países')
+          label={t('breadcrumbs.countries', 'Países')}
           subtext="de origen"
           accentColor="#78716c"
         />

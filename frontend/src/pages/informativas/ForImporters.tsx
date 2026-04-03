@@ -20,7 +20,7 @@ export default function ForImporters() {
 
   return (
     <div>
-      <SEO title="Soy Importador — HispaloShop" description=t('for_importers.importaVendeYCreceAccesoDirectoA', 'Importa, vende y crece. Acceso directo a consumidores, influencers y productores globales. Descubre todas las ventajas para importadores en HispaloShop.') />
+      <SEO title="Soy Importador — HispaloShop" description={t('for_importers.importaVendeYCreceAccesoDirectoA', 'Importa, vende y crece. Acceso directo a consumidores, influencers y productores globales. Descubre todas las ventajas para importadores en HispaloShop.')} />
 
       {/* HERO — ACCESO B2C Y GLOBAL */}
       <section className="min-h-screen bg-stone-950 flex items-start pt-[120px] pb-20 px-4">

@@ -44,11 +44,13 @@ export function EmptyState({
 
 // Variantes predefinidas
 export function EmptyProducts({ onBrowse }: { onBrowse?: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="product"
       title="No hay productos"
-      description=t('empty_state.noEncontramosProductosEnEstaCategor', 'No encontramos productos en esta categoría. Prueba con otra búsqueda.')
+      description={t('empty_state.noEncontramosProductosEnEstaCategor', 'No encontramos productos en esta categoría. Prueba con otra búsqueda.')}
       action={onBrowse && (
         <button
           onClick={onBrowse}
@@ -62,11 +64,13 @@ export function EmptyProducts({ onBrowse }: { onBrowse?: () => void }) {
 }
 
 export function EmptyCart({ onBrowse }: { onBrowse?: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="cart"
       title={t('cart.empty', 'Tu carrito está vacío')}
-      description=t('empty_state.anadeAlgunosProductosArtesanalesPara', 'Añade algunos productos artesanales para comenzar tu compra.')
+      description={t('empty_state.anadeAlgunosProductosArtesanalesPara', 'Añade algunos productos artesanales para comenzar tu compra.')}
       action={onBrowse && (
         <button
           onClick={onBrowse}
@@ -80,26 +84,32 @@ export function EmptyCart({ onBrowse }: { onBrowse?: () => void }) {
 }
 
 export function EmptyOrders() {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="inbox"
       title="No tienes pedidos"
-      description=t('empty_state.tusPedidosApareceranAquiCuandoReali', 'Tus pedidos aparecerán aquí cuando realices tu primera compra.')
+      description={t('empty_state.tusPedidosApareceranAquiCuandoReali', 'Tus pedidos aparecerán aquí cuando realices tu primera compra.')}
     />
   );
 }
 
 export function EmptyFeed() {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="heart"
       title="No hay publicaciones"
-      description=t('empty_state.sigueAMasProductoresEInfluencersPa', 'Sigue a más productores e influencers para ver su contenido aquí.')
+      description={t('empty_state.sigueAMasProductoresEInfluencersPa', 'Sigue a más productores e influencers para ver su contenido aquí.')}
     />
   );
 }
 
 export function EmptySearch({ searchTerm }: { searchTerm?: string }) {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="search"
@@ -110,11 +120,13 @@ export function EmptySearch({ searchTerm }: { searchTerm?: string }) {
 }
 
 export function EmptyStores() {
+  const { t } = useTranslation();
+
   return (
     <EmptyState
       icon="users"
       title="No hay tiendas disponibles"
-      description=t('empty_state.pruebaMasTardeOCambiaLosFiltrosDe', 'Prueba más tarde o cambia los filtros de búsqueda.')
+      description={t('empty_state.pruebaMasTardeOCambiaLosFiltrosDe', 'Prueba más tarde o cambia los filtros de búsqueda.')}
     />
   );
 }
