@@ -33,19 +33,12 @@ function FeedContainer() {
     queryKey: ['products-for-you'],
     queryFn: async () => {
       try {
-        return await apiClient.get('/products/for-you?limit=10');
+        const data = await apiClient.get('/discovery/recommended?limit=10');
+        return Array.isArray(data) ? data : (data?.products || data?.items || []);
       } catch (error) {
         if (error?.status === 404) {
-          try {
-            const data = await apiClient.get('/discovery/recommended?limit=10');
-            return Array.isArray(data) ? data : (data?.products || data?.items || []);
-          } catch (fallbackError) {
-            if (fallbackError?.status === 404) {
-              const data = await apiClient.get('/products?recommended=true&limit=10');
-              return Array.isArray(data) ? data : (data?.products || data?.items || []);
-            }
-            throw fallbackError;
-          }
+          const data = await apiClient.get('/products?recommended=true&limit=10');
+          return Array.isArray(data) ? data : (data?.products || data?.items || []);
         }
         throw error;
       }
