@@ -11,26 +11,28 @@ import MentionDropdown from './MentionDropdown';
 import { useTranslation } from 'react-i18next';
 
 /* ── Single comment row (memoized) ── */
-const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked, onReply, isReply, parentUsername }) {
+import i18n from "../../locales/i18n";
+const CommentRow = memo(function CommentRow({
+  comment,
+  isOwner,
+  onDelete,
+  onLike,
+  liked,
+  onReply,
+  isReply,
+  parentUsername
+}) {
   const avatar = comment.user_profile_image || comment.avatar || comment.avatar_url;
   const name = comment.user_name || comment.username || 'Usuario';
   const text = comment.text || comment.content || '';
-
-  return (
-    <div className={`flex gap-3 py-2.5 group ${isReply ? 'ml-8' : ''}`}>
+  return <div className={`flex gap-3 py-2.5 group ${isReply ? 'ml-8' : ''}`}>
       <Link to={`/${comment.username || comment.user_id}`} className="shrink-0">
-        {avatar ? (
-          <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
-        ) : (
-          <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+        {avatar ? <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
             {name.charAt(0).toUpperCase()}
-          </div>
-        )}
+          </div>}
       </Link>
       <div className="flex-1 min-w-0">
-        {isReply && parentUsername && (
-          <p className="text-[11px] text-stone-400 mb-0.5">↳ respondiendo a @{parentUsername}</p>
-        )}
+        {isReply && parentUsername && <p className="text-[11px] text-stone-400 mb-0.5">↳ respondiendo a @{parentUsername}</p>}
         <p className="text-[13px] leading-relaxed text-stone-950">
           <Link to={`/${comment.username || comment.user_id}`} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
             {name}
@@ -39,37 +41,19 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
         </p>
         <div className="flex items-center gap-3 mt-1">
           <span className="text-[11px] text-stone-400">{timeAgo(comment.created_at)}</span>
-          <button
-            onClick={() => onLike(comment.comment_id || comment.id)}
-            className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]"
-          >
-            <Heart
-              size={14}
-              className={liked ? 'text-stone-950 fill-stone-950' : 'text-stone-400'}
-              strokeWidth={1.8}
-            />
-            {(comment.likes_count || 0) > 0 && (
-              <span className="text-[11px] text-stone-400">{comment.likes_count}</span>
-            )}
+          <button onClick={() => onLike(comment.comment_id || comment.id)} className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]">
+            <Heart size={14} className={liked ? 'text-stone-950 fill-stone-950' : 'text-stone-400'} strokeWidth={1.8} />
+            {(comment.likes_count || 0) > 0 && <span className="text-[11px] text-stone-400">{comment.likes_count}</span>}
           </button>
-          <button
-            onClick={() => onReply?.(comment.comment_id || comment.id, comment.username || comment.user_name || name)}
-            className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center"
-          >
+          <button onClick={() => onReply?.(comment.comment_id || comment.id, comment.username || comment.user_name || name)} className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center">
             Responder
           </button>
-          {isOwner && (
-            <button
-              onClick={() => onDelete(comment.comment_id || comment.id)}
-              className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-stone-950 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-            >
+          {isOwner && <button onClick={() => onDelete(comment.comment_id || comment.id)} className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-stone-950 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <Trash2 size={12} className="text-stone-950 hover:text-stone-700" />
-            </button>
-          )}
+            </button>}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 });
 
 /* ── Render caption with clickable hashtags and @mentions ── */
@@ -79,37 +63,43 @@ function renderCaption(text, navigate, onClose) {
   return parts.map((part, i) => {
     const key = `${i}-${part.slice(0, 20)}`;
     if (part.startsWith('#')) {
-      return (
-        <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => { onClose?.(); navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`); }}
-        >{part}</span>
-      );
+      return <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline" onClick={() => {
+        onClose?.();
+        navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`);
+      }}>{part}</span>;
     }
     if (part.startsWith('@')) {
-      return (
-        <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => { onClose?.(); navigate?.(`/${part.slice(1)}`); }}
-        >{part}</span>
-      );
+      return <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline" onClick={() => {
+        onClose?.();
+        navigate?.(`/${part.slice(1)}`);
+      }}>{part}</span>;
     }
     return <React.Fragment key={key}>{part}</React.Fragment>;
   });
 }
 
 /* ── Image carousel — exposes currentIndex via onIndexChange ── */
-const ModalCarousel = memo(function ModalCarousel({ images, userName, className, style, onDoubleTap, onIndexChange }) {
+const ModalCarousel = memo(function ModalCarousel({
+  images,
+  userName,
+  className,
+  style,
+  onDoubleTap,
+  onIndexChange
+}) {
   const [idx, setIdx] = useState(0);
   const scrollRef = useRef(null);
   const hasMultiple = images.length > 1;
-
-  const goTo = useCallback((i) => {
+  const goTo = useCallback(i => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+    el.scrollTo({
+      left: i * el.clientWidth,
+      behavior: 'smooth'
+    });
     setIdx(i);
     onIndexChange?.(i);
   }, [onIndexChange]);
-
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el || el.clientWidth === 0) return;
@@ -117,82 +107,58 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
     setIdx(next);
     onIndexChange?.(next);
   }, [onIndexChange]);
-
   if (!images.length) return <div className={`bg-stone-100 ${className || ''}`} />;
-
-  return (
-    <div
-      className={`relative bg-black flex items-center justify-center overflow-hidden ${className || ''}`}
-      style={style}
-      onDoubleClick={onDoubleTap}
-    >
-      <div
-        ref={scrollRef}
-        className={`w-full h-full scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto scroll-smooth' : 'overflow-hidden'}`}
-        onScroll={handleScroll}
-      >
-        {images.map((src, i) => (
-          <div key={typeof src === 'string' ? src : i} className="min-w-full snap-center flex items-center justify-center h-full">
-            <img
-              src={src}
-              alt={`${userName} imagen ${i + 1}`}
-              className="w-full h-full object-contain"
-              loading={i === 0 ? 'eager' : 'lazy'}
-              draggable={false}
-            />
-          </div>
-        ))}
+  return <div className={`relative bg-black flex items-center justify-center overflow-hidden ${className || ''}`} style={style} onDoubleClick={onDoubleTap}>
+      <div ref={scrollRef} className={`w-full h-full scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto scroll-smooth' : 'overflow-hidden'}`} onScroll={handleScroll}>
+        {images.map((src, i) => <div key={typeof src === 'string' ? src : i} className="min-w-full snap-center flex items-center justify-center h-full">
+            <img src={src} alt={`${userName} imagen ${i + 1}`} className="w-full h-full object-contain" loading={i === 0 ? 'eager' : 'lazy'} draggable={false} />
+          </div>)}
       </div>
 
       {/* Arrows — desktop only, show on hover via group */}
-      {hasMultiple && idx > 0 && (
-        <button onClick={() => goTo(idx - 1)} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Anterior">
+      {hasMultiple && idx > 0 && <button onClick={() => goTo(idx - 1)} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Anterior">
           <ChevronLeft size={18} className="text-stone-950" />
-        </button>
-      )}
-      {hasMultiple && idx < images.length - 1 && (
-        <button onClick={() => goTo(idx + 1)} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Siguiente">
+        </button>}
+      {hasMultiple && idx < images.length - 1 && <button onClick={() => goTo(idx + 1)} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Siguiente">
           <ChevronRight size={18} className="text-stone-950" />
-        </button>
-      )}
+        </button>}
 
       {/* Counter badge — mobile only */}
-      {hasMultiple && (
-        <div className="md:hidden absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[3]">
+      {hasMultiple && <div className="md:hidden absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[3]">
           <span className="text-[11px] text-white font-semibold tabular-nums">{idx + 1}/{images.length}</span>
-        </div>
-      )}
+        </div>}
 
       {/* Dot indicators — desktop, stone palette per spec I5 */}
-      {hasMultiple && (
-        <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 gap-1 z-[2]">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Imagen ${i + 1}`}
-              className="border-none cursor-pointer p-0 rounded-full transition-all duration-200"
-              style={{
-                width: i === idx ? 7 : 6,
-                height: i === idx ? 7 : 6,
-                background: i === idx ? '#0c0a09' : 'rgba(255,255,255,0.55)',
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+      {hasMultiple && <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 gap-1 z-[2]">
+          {images.map((_, i) => <button key={i} onClick={() => goTo(i)} aria-label={`Imagen ${i + 1}`} className="border-none cursor-pointer p-0 rounded-full transition-all duration-200" style={{
+        width: i === idx ? 7 : 6,
+        height: i === idx ? 7 : 6,
+        background: i === idx ? '#0c0a09' : 'rgba(255,255,255,0.55)'
+      }} />)}
+        </div>}
+    </div>;
 });
 
 /* ── Comments panel (shared between desktop and mobile) ── */
-function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike, likedComments, onReply, onClose, navigate, hasMoreComments, loadingMore, onLoadMore }) {
+function CommentsPanel({
+  post,
+  comments,
+  commentsLoading,
+  user,
+  onDelete,
+  onLike,
+  likedComments,
+  onReply,
+  onClose,
+  navigate,
+  hasMoreComments,
+  loadingMore,
+  onLoadMore
+}) {
   const userObj = post?.user || {};
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
   const userName = userObj.name || post?.user_name || 'Usuario';
-
   const [commentSort, setCommentSort] = useState('recent');
-
   const sortedComments = React.useMemo(() => {
     if (!comments || comments.length === 0) return comments;
     const copy = [...comments];
@@ -203,18 +169,11 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
     }
     return copy;
   }, [comments, commentSort]);
-
-  return (
-    <>
+  return <>
       {/* Caption as first "comment" */}
-      {(post.caption || post.content) && (
-        <div className="flex gap-3 py-2.5">
+      {(post.caption || post.content) && <div className="flex gap-3 py-2.5">
           <Link to={`/${userObj.username || post?.username || post?.user_id}`} onClick={onClose} className="shrink-0">
-            {avatarUrl ? (
-              <img loading="lazy" src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-stone-100" />
-            )}
+            {avatarUrl ? <img loading="lazy" src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-stone-100" />}
           </Link>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] leading-relaxed text-stone-950">
@@ -225,210 +184,158 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
             </p>
             <span className="text-[11px] text-stone-400 mt-0.5 block">{timeAgo(post.created_at)}</span>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Comment sort selector */}
-      {!commentsLoading && comments.length > 1 && (
-        <div className="flex items-center gap-2 pb-2">
-          <button
-            onClick={() => setCommentSort('recent')}
-            className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'recent' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}
-          >
+      {!commentsLoading && comments.length > 1 && <div className="flex items-center gap-2 pb-2">
+          <button onClick={() => setCommentSort('recent')} className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'recent' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}>
             Más recientes
           </button>
           <span className="text-stone-300 text-xs">|</span>
-          <button
-            onClick={() => setCommentSort('popular')}
-            className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'popular' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}
-          >
+          <button onClick={() => setCommentSort('popular')} className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'popular' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}>
             Más populares
           </button>
-        </div>
-      )}
+        </div>}
 
       {/* Comments */}
-      {commentsLoading ? (
-        <div className="space-y-3 py-2">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="flex gap-3 animate-pulse">
+      {commentsLoading ? <div className="space-y-3 py-2">
+          {[1, 2, 3].map(i => <div key={i} className="flex gap-3 animate-pulse">
               <div className="h-8 w-8 rounded-full bg-stone-100 shrink-0" />
               <div className="flex-1 space-y-1.5">
                 <div className="h-3 w-24 bg-stone-100 rounded" />
                 <div className="h-3 w-full bg-stone-100 rounded" />
               </div>
-            </div>
-          ))}
-        </div>
-      ) : sortedComments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-[14px] font-semibold text-stone-950">{t('feed.noComments', 'Sin comentarios aún')}</p>
-          <p className="text-[12px] text-stone-400 mt-1">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
-        </div>
-      ) : (
-        (() => {
-          // Build parent lookup for nesting (1 level max)
-          const parentMap = {};
-          for (const c of sortedComments) {
-            const cId = c.comment_id || c.id;
-            parentMap[cId] = c;
-          }
-          // Separate top-level and replies
-          const topLevel = sortedComments.filter(c => !c.reply_to && !c.parent_id);
-          const replies = sortedComments.filter(c => c.reply_to || c.parent_id);
-          // Group replies by parent
-          const replyMap = {};
-          for (const r of replies) {
-            const pid = r.reply_to || r.parent_id;
-            if (!replyMap[pid]) replyMap[pid] = [];
-            replyMap[pid].push(r);
-          }
-          return topLevel.map(comment => {
-            const cId = comment.comment_id || comment.id;
-            const childReplies = replyMap[cId] || [];
-            return (
-              <React.Fragment key={cId || comment._id}>
-                <CommentRow
-                  comment={comment}
-                  isOwner={user?.user_id === comment.user_id}
-                  onDelete={onDelete}
-                  onLike={onLike}
-                  liked={likedComments.has(cId)}
-                  onReply={onReply}
-                />
+            </div>)}
+        </div> : sortedComments.length === 0 ? <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-[14px] font-semibold text-stone-950">{i18n.t('feed.noComments', 'Sin comentarios aún')}</p>
+          <p className="text-[12px] text-stone-400 mt-1">{i18n.t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
+        </div> : (() => {
+      // Build parent lookup for nesting (1 level max)
+      const parentMap = {};
+      for (const c of sortedComments) {
+        const cId = c.comment_id || c.id;
+        parentMap[cId] = c;
+      }
+      // Separate top-level and replies
+      const topLevel = sortedComments.filter(c => !c.reply_to && !c.parent_id);
+      const replies = sortedComments.filter(c => c.reply_to || c.parent_id);
+      // Group replies by parent
+      const replyMap = {};
+      for (const r of replies) {
+        const pid = r.reply_to || r.parent_id;
+        if (!replyMap[pid]) replyMap[pid] = [];
+        replyMap[pid].push(r);
+      }
+      return topLevel.map(comment => {
+        const cId = comment.comment_id || comment.id;
+        const childReplies = replyMap[cId] || [];
+        return <React.Fragment key={cId || comment._id}>
+                <CommentRow comment={comment} isOwner={user?.user_id === comment.user_id} onDelete={onDelete} onLike={onLike} liked={likedComments.has(cId)} onReply={onReply} />
                 {childReplies.map(reply => {
-                  const rId = reply.comment_id || reply.id;
-                  const parent = parentMap[reply.reply_to || reply.parent_id];
-                  return (
-                    <CommentRow
-                      key={rId || reply._id}
-                      comment={reply}
-                      isOwner={user?.user_id === reply.user_id}
-                      onDelete={onDelete}
-                      onLike={onLike}
-                      liked={likedComments.has(rId)}
-                      onReply={onReply}
-                      isReply
-                      parentUsername={parent?.username || parent?.user_name}
-                    />
-                  );
-                })}
-              </React.Fragment>
-            );
-          });
-        })()
-      )}
+            const rId = reply.comment_id || reply.id;
+            const parent = parentMap[reply.reply_to || reply.parent_id];
+            return <CommentRow key={rId || reply._id} comment={reply} isOwner={user?.user_id === reply.user_id} onDelete={onDelete} onLike={onLike} liked={likedComments.has(rId)} onReply={onReply} isReply parentUsername={parent?.username || parent?.user_name} />;
+          })}
+              </React.Fragment>;
+      });
+    })()}
       {/* Load more comments */}
-      {hasMoreComments && !commentsLoading && (
-        <button
-          onClick={onLoadMore}
-          disabled={loadingMore}
-          className="w-full bg-transparent border-none cursor-pointer py-3 text-[12px] font-semibold text-stone-500 hover:text-stone-700 transition-colors disabled:opacity-50"
-        >
-          {loadingMore ? (
-            <Loader2 size={14} className="animate-spin mx-auto text-stone-400" />
-          ) : (
-            t('post_detail.cargarMasComentarios', 'Cargar más comentarios')
-          )}
-        </button>
-      )}
-    </>
-  );
+      {hasMoreComments && !commentsLoading && <button onClick={onLoadMore} disabled={loadingMore} className="w-full bg-transparent border-none cursor-pointer py-3 text-[12px] font-semibold text-stone-500 hover:text-stone-700 transition-colors disabled:opacity-50">
+          {loadingMore ? <Loader2 size={14} className="animate-spin mx-auto text-stone-400" /> : i18n.t('post_detail.cargarMasComentarios', 'Cargar más comentarios')}
+        </button>}
+    </>;
 }
 
 /* ── Comment input bar ── */
-function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, setNewComment, sending, onSend, inputRef }) {
-  const autocomplete = useAutocomplete(newComment, (v) => setNewComment(v.slice(0, 500)), inputRef);
-
+function CommentInput({
+  isAuthenticated,
+  user,
+  replyTo,
+  setReplyTo,
+  newComment,
+  setNewComment,
+  sending,
+  onSend,
+  inputRef
+}) {
+  const autocomplete = useAutocomplete(newComment, v => setNewComment(v.slice(0, 500)), inputRef);
   if (!isAuthenticated) return null;
-  return (
-    <div className="border-t border-stone-100 bg-white">
-      {replyTo && (
-        <div className="flex items-center justify-between bg-stone-100 rounded-xl mx-3 mt-2 px-3 py-2 text-xs text-stone-600">
+  return <div className="border-t border-stone-100 bg-white">
+      {replyTo && <div className="flex items-center justify-between bg-stone-100 rounded-xl mx-3 mt-2 px-3 py-2 text-xs text-stone-600">
           <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username || replyTo.user_name || 'usuario'}</span></span>
-          <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0 ml-2">
+          <button onClick={() => {
+        setReplyTo(null);
+        setNewComment('');
+      }} className="bg-transparent border-none cursor-pointer p-0 ml-2">
             <X size={14} className="text-stone-400" />
           </button>
-        </div>
-      )}
+        </div>}
       <div className="flex items-center gap-3 px-4 py-3">
-        {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
-          <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
-        ) : (
-          <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
+        {user?.avatar_url || user?.avatar || user?.profile_image ? <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" /> : <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
             {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
-          </div>
-        )}
+          </div>}
         <div className="relative flex-1">
-          {autocomplete.isOpen && autocomplete.trigger?.trigger === '@' && (
-            <MentionDropdown
-              suggestions={autocomplete.suggestions}
-              activeIndex={autocomplete.activeIndex}
-              onSelect={(u) => autocomplete.selectSuggestion(u)}
-            />
-          )}
-          <input
-            ref={inputRef}
-            value={newComment}
-            onChange={(e) => autocomplete.handleChange(e)}
-            onSelect={(e) => autocomplete.handleSelect(e)}
-            onKeyDown={(e) => {
-              if (autocomplete.isOpen) {
-                autocomplete.handleKeyDown(e);
-                if (e.defaultPrevented) return;
-              }
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); }
-            }}
-            placeholder={t('feed.addComment', 'Añade un comentario...')}
-            className="w-full bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
-            disabled={sending}
-          />
+          {autocomplete.isOpen && autocomplete.trigger?.trigger === '@' && <MentionDropdown suggestions={autocomplete.suggestions} activeIndex={autocomplete.activeIndex} onSelect={u => autocomplete.selectSuggestion(u)} />}
+          <input ref={inputRef} value={newComment} onChange={e => autocomplete.handleChange(e)} onSelect={e => autocomplete.handleSelect(e)} onKeyDown={e => {
+          if (autocomplete.isOpen) {
+            autocomplete.handleKeyDown(e);
+            if (e.defaultPrevented) return;
+          }
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSend();
+          }
+        }} placeholder={i18n.t('feed.addComment', 'Añade un comentario...')} className="w-full bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]" disabled={sending} />
         </div>
-        <button
-          onClick={onSend}
-          disabled={!newComment.trim() || sending}
-          className="flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30 transition-opacity px-1"
-        >
-          {sending ? (
-            <Loader2 size={16} className="text-stone-400 animate-spin" />
-          ) : (
-            <span className="text-[13px] font-semibold text-stone-950">Enviar</span>
-          )}
+        <button onClick={onSend} disabled={!newComment.trim() || sending} className="flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30 transition-opacity px-1">
+          {sending ? <Loader2 size={16} className="text-stone-400 animate-spin" /> : <span className="text-[13px] font-semibold text-stone-950">Enviar</span>}
         </button>
       </div>
-    </div>
-  );
+    </div>;
 }
 
 /* ── Double-tap heart overlay (I4) ── */
-function DoubleTapHeart({ visible }) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          className="pointer-events-none absolute inset-0 flex items-center justify-center z-10"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            initial={{ scale: 0, opacity: 1 }}
-            animate={{ scale: [0, 1.3, 1.1], opacity: [1, 1, 0] }}
-            transition={{ duration: 0.6, times: [0, 0.5, 1] }}
-          >
+function DoubleTapHeart({
+  visible
+}) {
+  return <AnimatePresence>
+      {visible && <motion.div className="pointer-events-none absolute inset-0 flex items-center justify-center z-10" initial={{
+      opacity: 1
+    }} animate={{
+      opacity: 0
+    }} exit={{
+      opacity: 0
+    }} transition={{
+      duration: 0.6
+    }}>
+          <motion.div initial={{
+        scale: 0,
+        opacity: 1
+      }} animate={{
+        scale: [0, 1.3, 1.1],
+        opacity: [1, 1, 0]
+      }} transition={{
+        duration: 0.6,
+        times: [0, 0.5, 1]
+      }}>
             <Heart size={90} className="text-white fill-white drop-shadow-xl" />
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+        </motion.div>}
+    </AnimatePresence>;
 }
 
 /* ── Main Modal ── */
-export default function PostDetailModal({ postId, post: initialPost, onClose, nextPostImageUrl }) {
+export default function PostDetailModal({
+  postId,
+  post: initialPost,
+  onClose,
+  nextPostImageUrl
+}) {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const {
+    user,
+    isAuthenticated
+  } = useAuth();
   const [post, setPost] = useState(initialPost || null);
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
@@ -445,56 +352,61 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   const [showHeart, setShowHeart] = useState(false);
   const lastTapRef = useRef(0);
   const heartTimerRef = useRef(null);
-
   const inputRef = useRef(null);
-
   useEffect(() => {
     if (initialPost) return;
     let active = true;
-    apiClient.get(`/posts/${postId}`)
-      .then((data) => { if (active) setPost(data?.post || data); })
-      .catch(() => { if (active) { toast.error('Post no encontrado'); onClose(); } });
-    return () => { active = false; };
+    apiClient.get(`/posts/${postId}`).then(data => {
+      if (active) setPost(data?.post || data);
+    }).catch(() => {
+      if (active) {
+        toast.error('Post no encontrado');
+        onClose();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [postId, initialPost, onClose]);
-
   useEffect(() => {
     if (!post) return;
     setLiked(post.liked ?? post.is_liked ?? false);
     setLikesCount(post.likes ?? post.likes_count ?? 0);
     setSaved(post.saved ?? post.is_saved ?? false);
   }, [post]);
-
   const COMMENTS_PAGE_SIZE = 50;
   const [commentsPage, setCommentsPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
   const fetchComments = useCallback((page = 0, append = false) => {
     if (!postId) return;
-    if (page === 0) setCommentsLoading(true);
-    else setLoadingMore(true);
+    if (page === 0) setCommentsLoading(true);else setLoadingMore(true);
     const skip = page * COMMENTS_PAGE_SIZE;
-    apiClient.get(`/posts/${postId}/comments?limit=${COMMENTS_PAGE_SIZE}&skip=${skip}`)
-      .then((data) => {
-        const items = Array.isArray(data) ? data : data?.comments || [];
-        if (append) {
-          setComments(prev => [...prev, ...items]);
-          setLikedComments(prev => {
-            const next = new Set(prev);
-            items.forEach(c => { const cid = c.comment_id || c.id; if (c.is_liked && cid) next.add(cid); });
-            return next;
+    apiClient.get(`/posts/${postId}/comments?limit=${COMMENTS_PAGE_SIZE}&skip=${skip}`).then(data => {
+      const items = Array.isArray(data) ? data : data?.comments || [];
+      if (append) {
+        setComments(prev => [...prev, ...items]);
+        setLikedComments(prev => {
+          const next = new Set(prev);
+          items.forEach(c => {
+            const cid = c.comment_id || c.id;
+            if (c.is_liked && cid) next.add(cid);
           });
-        } else {
-          setComments(items);
-          setLikedComments(new Set(items.filter(c => c.is_liked && (c.comment_id || c.id)).map(c => c.comment_id || c.id)));
-        }
-        setHasMoreComments(items.length >= COMMENTS_PAGE_SIZE);
-        setCommentsPage(page);
-      })
-      .catch(() => { if (!append) setComments([]); })
-      .finally(() => { setCommentsLoading(false); setLoadingMore(false); });
+          return next;
+        });
+      } else {
+        setComments(items);
+        setLikedComments(new Set(items.filter(c => c.is_liked && (c.comment_id || c.id)).map(c => c.comment_id || c.id)));
+      }
+      setHasMoreComments(items.length >= COMMENTS_PAGE_SIZE);
+      setCommentsPage(page);
+    }).catch(() => {
+      if (!append) setComments([]);
+    }).finally(() => {
+      setCommentsLoading(false);
+      setLoadingMore(false);
+    });
   }, [postId]);
-
   const loadMoreComments = useCallback(() => {
     if (loadingMore || !hasMoreComments) return;
     fetchComments(commentsPage + 1, true);
@@ -502,23 +414,29 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
 
   // Intentionally use postId (not post) so mutating post.comments_count in
   // handleSend/handleDelete doesn't trigger a full re-fetch of comments.
-  useEffect(() => { if (postId) fetchComments(0); }, [postId, fetchComments]);
-
+  useEffect(() => {
+    if (postId) fetchComments(0);
+  }, [postId, fetchComments]);
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
-
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const onKey = e => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
   // Cleanup heart timer on unmount
   useEffect(() => {
-    return () => { if (heartTimerRef.current) clearTimeout(heartTimerRef.current); };
+    return () => {
+      if (heartTimerRef.current) clearTimeout(heartTimerRef.current);
+    };
   }, []);
 
   // Preload next post's first image for faster navigation
@@ -529,43 +447,52 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     link.as = 'image';
     link.href = nextPostImageUrl;
     document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
+    return () => {
+      document.head.removeChild(link);
+    };
   }, [nextPostImageUrl]);
-
   const handleSend = async () => {
     const text = newComment.trim();
     if (!text || sending) return;
     setSending(true);
     try {
-      const payload = { text };
+      const payload = {
+        text
+      };
       if (replyTo) payload.reply_to = replyTo.commentId;
       const comment = await apiClient.post(`/posts/${postId}/comments`, payload);
       setComments(prev => [comment, ...prev]);
       setNewComment('');
       setReplyTo(null);
-      setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+      setPost(prev => prev ? {
+        ...prev,
+        comments_count: (prev.comments_count || 0) + 1
+      } : prev);
     } catch (err) {
       toast.error('Error al enviar');
     } finally {
       setSending(false);
     }
   };
-
   const deleteTimerRef = useRef(null);
 
   // Cleanup delete timer on unmount
   useEffect(() => {
-    return () => { if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current); };
+    return () => {
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    };
   }, []);
-
-  const handleDelete = useCallback((commentId) => {
+  const handleDelete = useCallback(commentId => {
     // Capture deleted comment from current state via setter callback
     let deletedComment = null;
     setComments(prev => {
       deletedComment = prev.find(c => (c.comment_id || c.id) === commentId);
       return prev.filter(c => (c.comment_id || c.id) !== commentId);
     });
-    setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
+    setPost(prev => prev ? {
+      ...prev,
+      comments_count: Math.max(0, (prev.comments_count || 1) - 1)
+    } : prev);
 
     // Undo toast — 3s before actual API call
     let undone = false;
@@ -577,11 +504,14 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
           clearTimeout(deleteTimerRef.current);
           if (deletedComment) {
             setComments(prev => [deletedComment, ...prev]);
-            setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+            setPost(prev => prev ? {
+              ...prev,
+              comments_count: (prev.comments_count || 0) + 1
+            } : prev);
           }
-        },
+        }
       },
-      duration: 3000,
+      duration: 3000
     });
     deleteTimerRef.current = setTimeout(async () => {
       if (undone) return;
@@ -590,15 +520,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       } catch (err) {
         if (deletedComment) {
           setComments(prev => [deletedComment, ...prev]);
-          setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+          setPost(prev => prev ? {
+            ...prev,
+            comments_count: (prev.comments_count || 0) + 1
+          } : prev);
         }
         toast.error('Error al eliminar');
       }
     }, 3500);
   }, [postId]);
-
   const likingCommentRef = useRef(new Set());
-  const handleLikeComment = async (commentId) => {
+  const handleLikeComment = async commentId => {
     if (likingCommentRef.current.has(commentId)) return;
     likingCommentRef.current.add(commentId);
     const wasLiked = likedComments.has(commentId);
@@ -610,7 +542,10 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     setComments(prev => prev.map(c => {
       const cId = c.comment_id || c.id;
       if (cId !== commentId) return c;
-      return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
+      return {
+        ...c,
+        likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1))
+      };
     }));
     try {
       await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
@@ -622,25 +557,31 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       });
       setComments(prev => prev.map(c => {
         if ((c.comment_id || c.id) !== commentId) return c;
-        return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
+        return {
+          ...c,
+          likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1))
+        };
       }));
       toast.error('Error al dar me gusta');
     } finally {
       likingCommentRef.current.delete(commentId);
     }
   };
-
   const handleReply = useCallback((commentId, username) => {
-    setReplyTo({ commentId, username });
+    setReplyTo({
+      commentId,
+      username
+    });
     setNewComment(`@${username} `);
     inputRef.current?.focus();
   }, []);
-
   const handleLikePost = useCallback(async () => {
     const wasLiked = liked;
     setLiked(l => !l);
     setLikesCount(c => wasLiked ? Math.max(0, c - 1) : c + 1);
-    try { await apiClient.post(`/posts/${postId}/like`); } catch (err) {
+    try {
+      await apiClient.post(`/posts/${postId}/like`);
+    } catch (err) {
       setLiked(wasLiked);
       setLikesCount(c => wasLiked ? c + 1 : Math.max(0, c - 1));
     }
@@ -662,27 +603,32 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     }
     lastTapRef.current = now;
   }, [liked, handleLikePost]);
-
   const handleSavePost = async () => {
     setSaved(s => !s);
-    try { await apiClient.post(`/posts/${postId}/save`); } catch (err) { setSaved(s => !s); }
+    try {
+      await apiClient.post(`/posts/${postId}/save`);
+    } catch (err) {
+      setSaved(s => !s);
+    }
   };
-
   const handleShare = async () => {
     const url = `${window.location.origin}/posts/${postId}`;
     try {
-      if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
-      else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch (err) { /* share cancelled or clipboard unavailable */ }
+      if (navigator.share) await navigator.share({
+        title: 'HispaloShop',
+        url
+      });else {
+        await navigator.clipboard?.writeText(url);
+        toast.success('Enlace copiado');
+      }
+    } catch (err) {/* share cancelled or clipboard unavailable */}
   };
-
   const images = (() => {
     if (Array.isArray(post?.media) && post.media.length > 0) return post.media.map(m => typeof m === 'string' ? m : m?.url).filter(Boolean);
     if (Array.isArray(post?.images) && post.images.length > 0) return post.images;
     if (post?.image_url) return [post.image_url];
     return [];
   })();
-
   const userObj = post?.user || {};
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
   const userName = userObj.name || post?.user_name || 'Usuario';
@@ -691,8 +637,12 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   // Swipe-to-close on mobile
   const [swipeY, setSwipeY] = useState(0);
   const touchStartRef = useRef(null);
-  const handleTouchStart = useCallback((e) => { touchStartRef.current = { y: e.touches[0].clientY }; }, []);
-  const handleTouchMove = useCallback((e) => {
+  const handleTouchStart = useCallback(e => {
+    touchStartRef.current = {
+      y: e.touches[0].clientY
+    };
+  }, []);
+  const handleTouchMove = useCallback(e => {
     if (!touchStartRef.current) return;
     const dy = e.touches[0].clientY - touchStartRef.current.y;
     if (dy > 0) setSwipeY(dy);
@@ -702,11 +652,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     setSwipeY(0);
     touchStartRef.current = null;
   }, [swipeY, onClose]);
-
   if (!post) return null;
-
   const commentInputProps = {
-    isAuthenticated, user, replyTo, setReplyTo, newComment, setNewComment, sending, onSend: handleSend, inputRef
+    isAuthenticated,
+    user,
+    replyTo,
+    setReplyTo,
+    newComment,
+    setNewComment,
+    sending,
+    onSend: handleSend,
+    inputRef
   };
 
   // Carousel props shared between mobile + desktop
@@ -714,50 +670,53 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     images,
     userName,
     onDoubleTap: handleDoubleTap,
-    onIndexChange: setCurrentImageIndex,
+    onIndexChange: setCurrentImageIndex
   };
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[100] flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-      >
+  return <AnimatePresence>
+      <motion.div className="fixed inset-0 z-[100] flex items-center justify-center" initial={{
+      opacity: 0
+    }} animate={{
+      opacity: 1
+    }} exit={{
+      opacity: 0
+    }} transition={{
+      duration: 0.15
+    }}>
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
         {/* Close — desktop */}
-        <button
-          onClick={onClose}
-          className="hidden md:flex absolute top-4 right-4 z-[102] items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 transition-colors border-none cursor-pointer"
-          aria-label="Cerrar"
-        >
+        <button onClick={onClose} className="hidden md:flex absolute top-4 right-4 z-[102] items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 transition-colors border-none cursor-pointer" aria-label="Cerrar">
           <X size={20} className="text-white" />
         </button>
 
         {/* ═══ MOBILE LAYOUT (<768px) — Full screen like Instagram app ═══ */}
-        <motion.div
-          className="md:hidden relative z-[101] flex flex-col bg-white w-full h-full"
-          style={{ transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined, opacity: swipeY > 0 ? Math.max(0.5, 1 - swipeY / 300) : 1 }}
-          initial={{ y: '100%', opacity: 0.5 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          onClick={(e) => e.stopPropagation()}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
+        <motion.div className="md:hidden relative z-[101] flex flex-col bg-white w-full h-full" style={{
+        transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined,
+        opacity: swipeY > 0 ? Math.max(0.5, 1 - swipeY / 300) : 1
+      }} initial={{
+        y: '100%',
+        opacity: 0.5
+      }} animate={{
+        y: 0,
+        opacity: 1
+      }} exit={{
+        y: '100%',
+        opacity: 0
+      }} transition={{
+        type: 'spring',
+        stiffness: 300,
+        damping: 30
+      }} onClick={e => e.stopPropagation()} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
           {/* Top bar */}
-          <div className="flex items-center justify-between px-4 shrink-0 border-b border-stone-100 h-12" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="flex items-center justify-between px-4 shrink-0 border-b border-stone-100 h-12" style={{
+          paddingTop: 'env(safe-area-inset-top)'
+        }}>
             <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-2 flex items-center -ml-2" aria-label="Volver">
               <ChevronLeft size={24} className="text-stone-950" />
             </button>
-            <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{t('post_detail.publicacion', 'Publicación')}</span>
-            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('post_detail.compartirPublicacion', 'Compartir publicación')}>
+            <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{i18n.t('post_detail.publicacion', 'Publicación')}</span>
+            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={i18n.t('post_detail.compartirPublicacion', 'Compartir publicación')}>
               <Send size={20} className="text-stone-950" />
             </button>
           </div>
@@ -767,13 +726,9 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             {/* Post header */}
             <div className="flex items-center gap-2.5 px-4 py-3">
               <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="shrink-0">
-                {avatarUrl ? (
-                  <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
-                ) : (
-                  <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+                {avatarUrl ? <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                     {userName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                  </div>}
               </Link>
               <div className="min-w-0 flex-1">
                 <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
@@ -790,16 +745,9 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             </div>
 
             {/* Dot indicators — mobile, stone palette (I5) */}
-            {images.length > 1 && (
-              <div className="flex items-center justify-center gap-1 py-2">
-                {images.map((_, i) => (
-                  <span
-                    key={i}
-                    className={`block rounded-full transition-all duration-200 ${i === currentImageIndex ? 'w-1.5 h-1.5 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`}
-                  />
-                ))}
-              </div>
-            )}
+            {images.length > 1 && <div className="flex items-center justify-center gap-1 py-2">
+                {images.map((_, i) => <span key={i} className={`block rounded-full transition-all duration-200 ${i === currentImageIndex ? 'w-1.5 h-1.5 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`} />)}
+              </div>}
 
             {/* Actions row */}
             <div className="flex items-center px-3 py-2">
@@ -820,62 +768,64 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             </div>
 
             {/* Likes count */}
-            {likesCount > 0 && !post?.hide_likes && (
-              <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
+            {likesCount > 0 && !post?.hide_likes && <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
                 {likesCount.toLocaleString()} Me gusta
-              </p>
-            )}
+              </p>}
 
             {/* Caption + Comments inline */}
             <div className="px-4 pb-4">
-              <CommentsPanel
-                post={post} comments={comments} commentsLoading={commentsLoading}
-                user={user} onDelete={handleDelete} onLike={handleLikeComment}
-                likedComments={likedComments} onReply={handleReply}
-                onClose={onClose} navigate={navigate}
-                hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments}
-              />
+              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} />
             </div>
           </div>
 
           {/* Sticky comment input */}
-          {!post?.disable_comments && (
-          <div className="shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          {!post?.disable_comments && <div className="shrink-0" style={{
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}>
             <CommentInput {...commentInputProps} />
-          </div>
-          )}
+          </div>}
         </motion.div>
 
         {/* ═══ DESKTOP LAYOUT (>=768px / md) — Instagram Web side-by-side ═══ */}
         {/* I1: split layout ~55% left / ~45% right, max-w-4xl, 85vh */}
-        <motion.div
-          className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-modal w-full"
-          style={{ maxWidth: 'min(960px, 90vw)', maxHeight: '85vh', height: '85vh' }}
-          initial={{ y: '100%', opacity: 0.5 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <motion.div className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-modal w-full" style={{
+        maxWidth: 'min(960px, 90vw)',
+        maxHeight: '85vh',
+        height: '85vh'
+      }} initial={{
+        y: '100%',
+        opacity: 0.5
+      }} animate={{
+        y: 0,
+        opacity: 1
+      }} exit={{
+        y: '100%',
+        opacity: 0
+      }} transition={{
+        type: 'spring',
+        stiffness: 300,
+        damping: 30
+      }} onClick={e => e.stopPropagation()}>
           {/* I1 Left pane: media, black bg, object-contain, ~55% */}
-          <div className="relative bg-stone-950 flex items-center justify-center" style={{ width: '55%', flexShrink: 0 }}>
+          <div className="relative bg-stone-950 flex items-center justify-center" style={{
+          width: '55%',
+          flexShrink: 0
+        }}>
             <ModalCarousel {...carouselProps} className="w-full h-full" />
             {/* I4 — Double-tap heart overlay on desktop too */}
             <DoubleTapHeart visible={showHeart} />
           </div>
 
           {/* I1 Right pane: white, ~45%, flex-col */}
-          <div className="flex flex-col" style={{ width: '45%' }}>
+          <div className="flex flex-col" style={{
+          width: '45%'
+        }}>
             {/* I2 — Header in right pane at TOP (desktop) */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100 shrink-0">
               <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="shrink-0">
-                {avatarUrl ? (
-                  <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
-                ) : (
-                  <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-600">
+                {avatarUrl ? <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-600">
                     {userName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                  </div>}
               </Link>
               <div className="min-w-0 flex-1">
                 <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
@@ -883,20 +833,14 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </Link>
                 {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
               </div>
-              <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('post_detail.compartirPublicacion', 'Compartir publicación')}>
+              <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={i18n.t('post_detail.compartirPublicacion', 'Compartir publicación')}>
                 <Send size={18} className="text-stone-950" />
               </button>
             </div>
 
             {/* I3 — Comments area: flex-1 + overflow-y-auto so it scrolls independently */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1">
-              <CommentsPanel
-                post={post} comments={comments} commentsLoading={commentsLoading}
-                user={user} onDelete={handleDelete} onLike={handleLikeComment}
-                likedComments={likedComments} onReply={handleReply}
-                onClose={onClose} navigate={navigate}
-                hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments}
-              />
+              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} />
             </div>
 
             {/* Actions + engagement */}
@@ -918,22 +862,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </button>
               </div>
               <div className="px-4 pb-2">
-                {likesCount > 0 && !post?.hide_likes && (
-                  <p className="text-[13px] font-semibold text-stone-950">{likesCount.toLocaleString()} Me gusta</p>
-                )}
+                {likesCount > 0 && !post?.hide_likes && <p className="text-[13px] font-semibold text-stone-950">{likesCount.toLocaleString()} Me gusta</p>}
                 <p className="text-[11px] text-stone-400 mt-0.5">{timeAgo(post.created_at)}</p>
               </div>
             </div>
 
             {/* I3 — Comment input pinned to bottom of right pane */}
-            {!post?.disable_comments && (
-            <div className="shrink-0">
+            {!post?.disable_comments && <div className="shrink-0">
               <CommentInput {...commentInputProps} />
-            </div>
-            )}
+            </div>}
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
-  );
+    </AnimatePresence>;
 }

@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 /* ── Design tokens (Tailwind stone palette) ────────────── */
-
+import i18n from "../../locales/i18n";
 const CERT_TYPES = [{
   id: 'ecological_eu',
   label: "Ecológico EU",
@@ -188,7 +188,7 @@ export default function ProducerVerificationPage() {
     label: 'CIF/NIF',
     done: cifDone
   }, {
-    label: t('producer_verification.instalacion', 'Instalación'),
+    label: i18n.t('producer_verification.instalacion', 'Instalación'),
     done: facilityDone
   }, {
     label: 'Certificado',
@@ -206,7 +206,7 @@ export default function ProducerVerificationPage() {
       await fetchStatus();
       toast.success('Documento CIF/NIF subido correctamente');
     } catch {
-      toast.error(t('producer_verification.errorAlSubirElDocumentoCifnif', 'Error al subir el documento CIF/NIF'));
+      toast.error(i18n.t('producer_verification.errorAlSubirElDocumentoCifnif', 'Error al subir el documento CIF/NIF'));
     } finally {
       setCifUploading(false);
     }
@@ -220,7 +220,7 @@ export default function ProducerVerificationPage() {
       await fetchStatus();
       toast.success('Foto de instalaciones subida correctamente');
     } catch {
-      toast.error(t('producer_verification.errorAlSubirLaFotoDeInstalaciones', 'Error al subir la foto de instalaciones'));
+      toast.error(i18n.t('producer_verification.errorAlSubirLaFotoDeInstalaciones', 'Error al subir la foto de instalaciones'));
     } finally {
       setFacilityUploading(false);
     }
@@ -235,7 +235,7 @@ export default function ProducerVerificationPage() {
       await fetchStatus();
       toast.success('Certificado subido correctamente');
     } catch {
-      toast.error(t('producer_verification.errorAlSubirElCertificado', 'Error al subir el certificado'));
+      toast.error(i18n.t('producer_verification.errorAlSubirElCertificado', 'Error al subir el certificado'));
     } finally {
       setCertUploading(false);
     }
@@ -254,7 +254,7 @@ export default function ProducerVerificationPage() {
         <button onClick={() => navigate(-1)} className="p-1.5 text-stone-950">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-bold text-stone-950">{t('producer_verification.verificacionDeCuenta', 'Verificación de cuenta')}</h1>
+        <h1 className="text-lg font-bold text-stone-950">{i18n.t('producer_verification.verificacionDeCuenta', 'Verificación de cuenta')}</h1>
       </div>
 
       <div className="max-w-[600px] mx-auto px-4 pb-8">
@@ -274,7 +274,7 @@ export default function ProducerVerificationPage() {
               <p className="text-sm mb-3 text-stone-500">
                 Sube tu CIF empresarial o NIF personal. Debe ser el documento oficial de la AEAT.
               </p>
-              <UploadArea accept=".pdf,.jpg,.jpeg,.png" maxSize="5MB" hint={t('producer_verification.pdfJpgPng·Max5mb', 'PDF, JPG, PNG · Máx 5MB')} onFile={handleCifUpload} uploading={cifUploading} />
+              <UploadArea accept=".pdf,.jpg,.jpeg,.png" maxSize="5MB" hint={i18n.t('producer_verification.pdfJpgPng·Max5mb', 'PDF, JPG, PNG · Máx 5MB')} onFile={handleCifUpload} uploading={cifUploading} />
             </>}
 
           {cifDoc.status === 'pending' && <StatusCard status="pending">
@@ -306,8 +306,8 @@ export default function ProducerVerificationPage() {
             </div>}
 
           {cifDoc.status === 'manual_review' && <StatusCard status="manual_review">
-              <p className="font-semibold">{t('producer_verification.enRevisionManual', 'En revisión manual')}</p>
-              <p className="mt-1">{t('producer_verification.nuestroEquipoRevisaraTuDocumentoEn', 'Nuestro equipo revisará tu documento en 48-72h hábiles.')}</p>
+              <p className="font-semibold">{i18n.t('producer_verification.enRevisionManual', 'En revisión manual')}</p>
+              <p className="mt-1">{i18n.t('producer_verification.nuestroEquipoRevisaraTuDocumentoEn', 'Nuestro equipo revisará tu documento en 48-72h hábiles.')}</p>
             </StatusCard>}
         </section>
 
@@ -330,7 +330,7 @@ export default function ProducerVerificationPage() {
                 <li>• Buena iluminación</li>
                 <li>• Que se vea la actividad</li>
               </ul>
-              <UploadArea accept=".jpg,.jpeg,.png,.heic" maxSize="10MB" hint={t('producer_verification.jpgPngHeic·Max10mb', 'JPG, PNG, HEIC · Máx 10MB')} onFile={handleFacilityUpload} uploading={facilityUploading} />
+              <UploadArea accept=".jpg,.jpeg,.png,.heic" maxSize="10MB" hint={i18n.t('producer_verification.jpgPngHeic·Max10mb', 'JPG, PNG, HEIC · Máx 10MB')} onFile={handleFacilityUpload} uploading={facilityUploading} />
             </>}
 
           {facilityDoc.status === 'pending' && <StatusCard status="pending">
@@ -338,7 +338,7 @@ export default function ProducerVerificationPage() {
             </StatusCard>}
 
           {facilityDoc.status === 'verified' && <StatusCard status="verified">
-              <p className="font-semibold">{t('producer_verification.instalacionVerificada', 'Instalación verificada')}</p>
+              <p className="font-semibold">{i18n.t('producer_verification.instalacionVerificada', 'Instalación verificada')}</p>
               {facilityDoc.ai_assessment && <p className="mt-1">{facilityDoc.ai_assessment}</p>}
             </StatusCard>}
 
@@ -361,8 +361,8 @@ export default function ProducerVerificationPage() {
             </div>}
 
           {facilityDoc.status === 'manual_review' && <StatusCard status="manual_review">
-              <p className="font-semibold">{t('producer_verification.enRevisionManual', 'En revisión manual')}</p>
-              <p className="mt-1">{t('producer_verification.nuestroEquipoRevisaraTuFotoEn48-72', 'Nuestro equipo revisará tu foto en 48-72h hábiles.')}</p>
+              <p className="font-semibold">{i18n.t('producer_verification.enRevisionManual', 'En revisión manual')}</p>
+              <p className="mt-1">{i18n.t('producer_verification.nuestroEquipoRevisaraTuFotoEn48-72', 'Nuestro equipo revisará tu foto en 48-72h hábiles.')}</p>
             </StatusCard>}
         </section>
 
@@ -460,7 +460,7 @@ export default function ProducerVerificationPage() {
           y: 0
         }} className="p-5 text-center bg-stone-50 rounded-2xl border border-stone-200">
               <Clock className="w-10 h-10 mx-auto mb-2 text-stone-600" />
-              <h2 className="text-base font-bold mb-1 text-stone-700">{t('producer_verification.enRevisionManual', 'En revisión manual')}</h2>
+              <h2 className="text-base font-bold mb-1 text-stone-700">{i18n.t('producer_verification.enRevisionManual', 'En revisión manual')}</h2>
               <p className="text-sm text-stone-600">
                 Nuestro equipo revisará tu documentación en 48-72h hábiles. Te avisaremos por email.
               </p>
@@ -473,7 +473,7 @@ export default function ProducerVerificationPage() {
           opacity: 1,
           y: 0
         }} className="p-5 bg-stone-50 rounded-2xl border border-stone-200">
-              <h2 className="text-sm font-bold mb-3 text-stone-950">{t('producer_verification.completaLaVerificacion', 'Completa la verificación')}</h2>
+              <h2 className="text-sm font-bold mb-3 text-stone-950">{i18n.t('producer_verification.completaLaVerificacion', 'Completa la verificación')}</h2>
               <div className="space-y-2">
                 {!cifDone && <div className="flex items-center gap-2 text-sm text-stone-600">
                     <AlertCircle className="w-4 h-4 shrink-0" /> Falta: CIF/NIF

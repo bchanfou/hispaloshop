@@ -4,22 +4,18 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Compass } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 export default function NotFoundPage() {
-  return (
-    <main
-      role="main"
-      aria-label={t('not_found.paginaNoEncontrada', 'Página no encontrada')}
-      className="min-h-screen bg-stone-50 flex items-center justify-center px-4 py-6"
-    >
+  return <main role="main" aria-label={i18n.t('not_found.paginaNoEncontrada', 'Página no encontrada')} className="min-h-screen bg-stone-50 flex items-center justify-center px-4 py-6">
       <div className="text-center max-w-[400px] w-full">
         {/* Animated icon */}
-        <motion.div
-          aria-hidden="true"
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-          className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-full bg-stone-950 mb-8"
-        >
+        <motion.div aria-hidden="true" animate={{
+        rotate: [0, 5, -5, 0]
+      }} transition={{
+        repeat: Infinity,
+        duration: 4,
+        ease: 'easeInOut'
+      }} className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-full bg-stone-950 mb-8">
           <Compass size={32} className="text-stone-50" strokeWidth={1.8} />
         </motion.div>
 
@@ -38,22 +34,13 @@ export default function NotFoundPage() {
 
         {/* CTAs */}
         <div className="flex flex-col gap-2.5">
-          <Link
-            to="/"
-            aria-label="Ir al inicio"
-            className="flex items-center justify-center h-12 bg-stone-950 text-stone-50 rounded-full text-[15px] font-semibold no-underline"
-          >
+          <Link to="/" aria-label="Ir al inicio" className="flex items-center justify-center h-12 bg-stone-950 text-stone-50 rounded-full text-[15px] font-semibold no-underline">
             Ir al inicio
           </Link>
-          <Link
-            to="/discover"
-            aria-label="Explorar productos"
-            className="flex items-center justify-center h-12 bg-transparent text-stone-950 border-[1.5px] border-stone-200 rounded-full text-[15px] font-semibold no-underline"
-          >
+          <Link to="/discover" aria-label="Explorar productos" className="flex items-center justify-center h-12 bg-transparent text-stone-950 border-[1.5px] border-stone-200 rounded-full text-[15px] font-semibold no-underline">
             Explorar
           </Link>
         </div>
       </div>
-    </main>
-  );
+    </main>;
 }

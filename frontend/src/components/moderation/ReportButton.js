@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const REASONS = [{
   key: 'spam',
   label: 'Spam o contenido repetitivo'
@@ -58,7 +59,7 @@ export default function ReportButton({
       setReason('');
       setDescription('');
     } catch (err) {
-      toast.error(err.message || t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
+      toast.error(err.message || i18n.t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
     } finally {
       setSending(false);
     }
@@ -119,7 +120,7 @@ export default function ReportButton({
                     </button>)}
                 </div>
 
-                {reason && <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t('report_button.anadeUnDetalleOpcional', 'Añade un detalle (opcional)...')} rows={2} className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400" />}
+                {reason && <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={i18n.t('report_button.anadeUnDetalleOpcional', 'Añade un detalle (opcional)...')} rows={2} className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400" />}
 
                 <button type="submit" disabled={!reason || sending} className="h-12 w-full rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-40">
                   {sending ? 'Enviando…' : 'Enviar reporte'}

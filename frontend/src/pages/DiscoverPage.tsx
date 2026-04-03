@@ -12,6 +12,7 @@ import { CATEGORY_GROUPS } from '../constants/categories';
 import { useTranslation } from 'react-i18next';
 
 /* ── constants ── */
+import i18n from "../locales/i18n";
 const ELITE_FADE_MS = 400;
 
 /* ── icon map for category groups ── */
@@ -130,7 +131,7 @@ function SelectionDelDia({
         <div className="flex flex-col justify-center px-5 py-4 flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1">
             <Sun size={11} className="text-stone-400" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{t('discover.seleccionDelDia', 'Selección del día')}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{i18n.t('discover.seleccionDelDia', 'Selección del día')}</span>
           </div>
           <p className="text-[15px] font-bold text-white leading-snug line-clamp-2">{product.name}</p>
           {product.price != null && <p className="mt-1.5 text-[13px] font-semibold text-stone-300">
@@ -589,7 +590,7 @@ export default function DiscoverPage() {
 
   /* ── render ── */
   return <div className="min-h-screen bg-white pb-20">
-      <SEO title="Explorar — Hispaloshop" description={t('discover.descubreProductosArtesanalesTiendas', 'Descubre productos artesanales, tiendas verificadas y recetas de la comunidad.')} />
+      <SEO title="Explorar — Hispaloshop" description={i18n.t('discover.descubreProductosArtesanalesTiendas', 'Descubre productos artesanales, tiendas verificadas y recetas de la comunidad.')} />
       <div className="mx-auto max-w-[1100px]">
 
       {/* ─── SEARCH BAR (sticky, P-04: inline with autocomplete) ─── */}
@@ -827,7 +828,7 @@ export default function DiscoverPage() {
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5">Editorial</p>
             <p className="text-[15px] font-bold text-white">Colecciones curadas</p>
-            <p className="text-[12px] text-stone-400 mt-0.5">{t('discover.seleccionesDeProductosConHistoria', 'Selecciones de productos con historia')}</p>
+            <p className="text-[12px] text-stone-400 mt-0.5">{i18n.t('discover.seleccionesDeProductosConHistoria', 'Selecciones de productos con historia')}</p>
           </div>
           <ArrowRight size={18} className="text-stone-400 group-hover:text-white transition-colors shrink-0" />
         </Link>
@@ -840,7 +841,7 @@ export default function DiscoverPage() {
       {fetchError && !loadingProducts && filteredExploreItems.length === 0 ? <div className="flex flex-col items-center justify-center py-20 gap-4">
           <AlertTriangle className="w-10 h-10 text-stone-300" />
           <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-          <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
+          <p className="text-sm text-stone-500">{i18n.t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
           <button onClick={fetchAllData} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors border-none cursor-pointer">
             Reintentar
           </button>

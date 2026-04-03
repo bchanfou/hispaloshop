@@ -4,6 +4,7 @@ import { Menu, X, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../brand/Logo';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const NAV_LINKS = [{
   label: "Qué es",
   to: '/about'
@@ -72,7 +73,7 @@ export default function InfoHeader() {
             </Link>
 
             {/* Hamburger */}
-            <button onClick={() => setDrawerOpen(v => !v)} className="flex items-center justify-center w-[38px] h-[38px] border-none bg-transparent cursor-pointer text-white" aria-label={drawerOpen ? t('info_header.cerrarMenu', 'Cerrar menú') : 'Abrir menú'}>
+            <button onClick={() => setDrawerOpen(v => !v)} className="flex items-center justify-center w-[38px] h-[38px] border-none bg-transparent cursor-pointer text-white" aria-label={drawerOpen ? i18n.t('info_header.cerrarMenu', 'Cerrar menú') : 'Abrir menú'}>
               {drawerOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>

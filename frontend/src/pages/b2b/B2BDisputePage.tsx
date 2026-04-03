@@ -6,6 +6,7 @@ import { ArrowLeft, AlertTriangle, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -35,7 +36,7 @@ export default function B2BDisputePage() {
     const selected = Array.from(e.target.files || []);
     const remaining = 5 - files.length;
     if (remaining <= 0) {
-      toast.error(t('b2_b_dispute.maximo5Archivos', 'Máximo 5 archivos'));
+      toast.error(i18n.t('b2_b_dispute.maximo5Archivos', 'Máximo 5 archivos'));
       return;
     }
     const validated = [];
@@ -74,7 +75,7 @@ export default function B2BDisputePage() {
       toast.success('Disputa abierta');
       navigate(-1);
     } catch (err) {
-      const msg = err?.response?.data?.detail || t('b2_b_dispute.errorAlAbrirLaDisputa', 'Error al abrir la disputa');
+      const msg = err?.response?.data?.detail || i18n.t('b2_b_dispute.errorAlAbrirLaDisputa', 'Error al abrir la disputa');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -122,7 +123,7 @@ export default function B2BDisputePage() {
         {/* Description */}
         <div className="mb-6">
           <div className="text-[10px] uppercase text-stone-500 font-semibold tracking-wider mb-2">DESCRIPCIÓN</div>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t('b2_b_dispute.describeDetalladamenteElProblemaMin', 'Describe detalladamente el problema (mínimo 50 caracteres)...')} className="w-full min-h-[120px] border border-stone-200 rounded-xl p-3 text-sm resize-y outline-none bg-white text-stone-950 box-border" />
+          <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={i18n.t('b2_b_dispute.describeDetalladamenteElProblemaMin', 'Describe detalladamente el problema (mínimo 50 caracteres)...')} className="w-full min-h-[120px] border border-stone-200 rounded-xl p-3 text-sm resize-y outline-none bg-white text-stone-950 box-border" />
           <div className={`text-[10px] mt-1 ${description.length < 50 ? 'text-red-600' : 'text-stone-500'}`}>
             {description.length}/50 mínimo
           </div>

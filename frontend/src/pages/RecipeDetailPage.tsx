@@ -12,6 +12,7 @@ import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
+import i18n from "../locales/i18n";
 const ALLERGEN_MAP = [{
   key: 'gluten',
   flag: 'is_gluten_free',
@@ -256,7 +257,7 @@ export default function RecipeDetailPage() {
       } else if (added > 0) {
         toast.error(`${added} añadidos, ${failed} fallaron`);
       } else {
-        toast.error(t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
+        toast.error(i18n.t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
       }
     } else {
       setShowShoppingList(true);
@@ -267,9 +268,9 @@ export default function RecipeDetailPage() {
     if (!productId) return;
     try {
       await addToCart(productId, 1);
-      toast.success(t('ai.addedToCart', 'Añadido al carrito'));
+      toast.success(i18n.t('ai.addedToCart', 'Añadido al carrito'));
     } catch {
-      toast.error(t('recipe_detail.errorAlAnadir', 'Error al añadir'));
+      toast.error(i18n.t('recipe_detail.errorAlAnadir', 'Error al añadir'));
     }
   };
   const handleShare = async () => {
@@ -289,7 +290,7 @@ export default function RecipeDetailPage() {
         await navigator.clipboard.writeText(url);
         toast.success('Enlace copiado');
       } catch {
-        toast.error(t('recipe_detail.noSePudoCopiarElEnlace', 'No se pudo copiar el enlace'));
+        toast.error(i18n.t('recipe_detail.noSePudoCopiarElEnlace', 'No se pudo copiar el enlace'));
       }
     }
   };
@@ -306,14 +307,14 @@ export default function RecipeDetailPage() {
         });
         localStorage.setItem('shopping_list', JSON.stringify(existing));
       }
-      toast.success(t('recipe_detail.anadidoALaLista', 'Añadido a la lista'));
+      toast.success(i18n.t('recipe_detail.anadidoALaLista', 'Añadido a la lista'));
     } catch {
-      toast.error(t('recipe_detail.noSePudoGuardarEnLaLista', 'No se pudo guardar en la lista'));
+      toast.error(i18n.t('recipe_detail.noSePudoGuardarEnLaLista', 'No se pudo guardar en la lista'));
     }
   };
   const handleSubmitReview = async () => {
     if (!reviewRating) {
-      toast.error(t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración'));
+      toast.error(i18n.t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración'));
       return;
     }
     setSubmittingReview(true);
@@ -335,9 +336,9 @@ export default function RecipeDetailPage() {
       setHasReviewed(true);
       setReviewRating(0);
       setReviewText('');
-      toast.success(t('recipe_detail.valoracionPublicada', 'Valoración publicada'));
+      toast.success(i18n.t('recipe_detail.valoracionPublicada', 'Valoración publicada'));
     } catch (err: any) {
-      toast.error(err?.message || t('recipe_detail.errorAlPublicarLaValoracion', 'Error al publicar la valoración'));
+      toast.error(err?.message || i18n.t('recipe_detail.errorAlPublicarLaValoracion', 'Error al publicar la valoración'));
     } finally {
       setSubmittingReview(false);
     }
@@ -471,7 +472,7 @@ export default function RecipeDetailPage() {
               <Minus size={16} />
             </button>
             <span className="min-w-[24px] text-center text-lg font-bold text-stone-950">{portions}</span>
-            <button type="button" onClick={() => setPortions(p => p + 1)} aria-label={t('recipe_detail.masPorciones', 'Más porciones')} className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer">
+            <button type="button" onClick={() => setPortions(p => p + 1)} aria-label={i18n.t('recipe_detail.masPorciones', 'Más porciones')} className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer">
               <Plus size={16} />
             </button>
           </div>
@@ -534,7 +535,7 @@ export default function RecipeDetailPage() {
               scale: 0.97
             }} onClick={handleAddAllToCart} disabled={addingAll} className={`mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}>
                 <ShoppingCart size={18} />
-                {addingAll ? t('productDetail.addingToCart', 'Añadiendo...') : `Comprar receta completa · ${total.toLocaleString('es-ES', {
+                {addingAll ? i18n.t('productDetail.addingToCart', 'Añadiendo...') : `Comprar receta completa · ${total.toLocaleString('es-ES', {
                 style: 'currency',
                 currency: 'EUR'
               })}`}
@@ -543,13 +544,13 @@ export default function RecipeDetailPage() {
             scale: 0.97
           }} onClick={handleAddAllToCart} disabled={addingAll} className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}>
               <ShoppingCart size={18} />
-              {addingAll ? t('productDetail.addingToCart', 'Añadiendo...') : `Añadir todos al carrito (${taggedIngredients.length})`}
+              {addingAll ? i18n.t('productDetail.addingToCart', 'Añadiendo...') : `Añadir todos al carrito (${taggedIngredients.length})`}
             </motion.button> : null}
         </section>
 
         {/* ── Steps ── */}
         <section className="mb-5">
-          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{t('recipe_detail.preparacion', 'Preparación')}</h2>
+          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('recipe_detail.preparacion', 'Preparación')}</h2>
           <div className="flex flex-col gap-3">
             {steps.map((step, i) => <motion.div key={i} initial={{
               opacity: 0,
@@ -579,16 +580,16 @@ export default function RecipeDetailPage() {
 
         {/* ── Nutritional Info ── */}
         {recipe.nutrition && <section className="mb-5">
-            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{t('recipe_detail.informacionNutricional', 'Información nutricional')}</h2>
-            <p className="mb-2 text-[11px] text-stone-400">{t('recipe_detail.porRacion', 'Por ración')}</p>
+            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('recipe_detail.informacionNutricional', 'Información nutricional')}</h2>
+            <p className="mb-2 text-[11px] text-stone-400">{i18n.t('recipe_detail.porRacion', 'Por ración')}</p>
             <div className="grid grid-cols-4 gap-2">
               {[{
             key: 'calories',
-            label: t('certificate.nutritionLabels.calories', 'Calorías'),
+            label: i18n.t('certificate.nutritionLabels.calories', 'Calorías'),
             unit: 'kcal'
           }, {
             key: 'protein',
-            label: t('recipe_detail.proteina', 'Proteína'),
+            label: i18n.t('recipe_detail.proteina', 'Proteína'),
             unit: 'g'
           }, {
             key: 'carbs',
@@ -619,7 +620,7 @@ export default function RecipeDetailPage() {
             unit: 'g'
           }, {
             key: 'sugar',
-            label: t('recipe_detail.azucar', 'Azúcar'),
+            label: i18n.t('recipe_detail.azucar', 'Azúcar'),
             unit: 'g'
           }, {
             key: 'sodium',
@@ -681,7 +682,7 @@ export default function RecipeDetailPage() {
         {/* ── Valoraciones ── */}
         <section className="mb-5">
           <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">{t('store.reviews', 'Reseñas')}</h2>
+            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('store.reviews', 'Reseñas')}</h2>
             {totalReviews > 0 && <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} className={s <= Math.round(avgRating) ? 'text-stone-950' : 'text-stone-200'} fill={s <= Math.round(avgRating) ? 'currentColor' : 'none'} />)}
@@ -717,11 +718,11 @@ export default function RecipeDetailPage() {
               {!showAllReviews && reviews.length > 10 && <button type="button" onClick={() => setShowAllReviews(true)} className="mt-3 self-start rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 cursor-pointer hover:bg-stone-50 transition-colors">
                   Ver más ({reviews.length - 10})
                 </button>}
-            </div> : <p className="text-sm text-stone-400">{t('recipe_detail.aunNoHayResenasSeElPrimero', 'Aún no hay reseñas. ¡Sé el primero!')}</p>}
+            </div> : <p className="text-sm text-stone-400">{i18n.t('recipe_detail.aunNoHayResenasSeElPrimero', 'Aún no hay reseñas. ¡Sé el primero!')}</p>}
 
           {/* Review form */}
           {user && !hasReviewed && <div className="mt-4 rounded-2xl border border-stone-200 p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-950">{t('recipe_detail.tuResena', 'Tu reseña')}</p>
+              <p className="mb-2 text-sm font-semibold text-stone-950">{i18n.t('recipe_detail.tuResena', 'Tu reseña')}</p>
               <div className="mb-3 flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(s => <button key={s} type="button" onClick={() => setReviewRating(s)} aria-label={`${s} estrella${s > 1 ? 's' : ''}`} className="border-none bg-transparent p-0.5 cursor-pointer">
                     <Star size={28} className={s <= reviewRating ? 'text-stone-950' : 'text-stone-200'} fill={s <= reviewRating ? 'currentColor' : 'none'} />
@@ -729,7 +730,7 @@ export default function RecipeDetailPage() {
               </div>
               <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Comparte tu experiencia..." maxLength={500} rows={3} className="mb-3 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 placeholder:text-stone-400 outline-none focus:border-stone-400 transition-colors" />
               <button type="button" onClick={handleSubmitReview} disabled={submittingReview || !reviewRating} className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-default">
-                {submittingReview ? 'Enviando...' : t('recipe_detail.enviarResena', 'Enviar reseña')}
+                {submittingReview ? 'Enviando...' : i18n.t('recipe_detail.enviarResena', 'Enviar reseña')}
               </button>
             </div>}
         </section>

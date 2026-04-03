@@ -8,6 +8,7 @@ import { useCreateInquiry } from '../../features/b2b/queries';
 import { useTranslation } from 'react-i18next';
 
 // ─── Schema ─────────────────────────────────────────────────────────────────
+import i18n from "../../locales/i18n";
 const rowSchema = z.object({
   product_id: z.string().min(1, 'ID de producto requerido'),
   qty_requested: z.coerce.number().int().min(1, "Mínimo 1 unidad")
@@ -87,11 +88,11 @@ export default function QuoteBuilder({
         }]
       });
     } catch (error) {
-      toast.error(error?.message || t('quote_builder.noSePudoEnviarLaRfq', 'No se pudo enviar la RFQ.'));
+      toast.error(error?.message || i18n.t('quote_builder.noSePudoEnviarLaRfq', 'No se pudo enviar la RFQ.'));
     }
   };
   return <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-2xl border border-stone-200 bg-white p-5">
-      <h3 className="font-semibold text-stone-950 text-base">{t('quote_builder.nuevaSolicitudDeCotizacionRfq', 'Nueva solicitud de cotización (RFQ)')}</h3>
+      <h3 className="font-semibold text-stone-950 text-base">{i18n.t('quote_builder.nuevaSolicitudDeCotizacionRfq', 'Nueva solicitud de cotización (RFQ)')}</h3>
 
       {/* Producer + Country */}
       <div className="grid gap-4 md:grid-cols-2">
@@ -133,7 +134,7 @@ export default function QuoteBuilder({
         <label className="block text-sm font-medium text-stone-600 mb-1">
           Descripción del pedido <span className="text-stone-600">*</span>
         </label>
-        <textarea {...register('message')} rows={4} placeholder={t('quote_builder.describeVolumenFormatosCertificacio', 'Describe volumen, formatos, certificaciones o requisitos logísticos.')} className={`w-full px-3 py-2 rounded-2xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-500 ${errors.message ? 'border-stone-400' : 'border-stone-200'}`} />
+        <textarea {...register('message')} rows={4} placeholder={i18n.t('quote_builder.describeVolumenFormatosCertificacio', 'Describe volumen, formatos, certificaciones o requisitos logísticos.')} className={`w-full px-3 py-2 rounded-2xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-500 ${errors.message ? 'border-stone-400' : 'border-stone-200'}`} />
         <FieldError message={errors.message?.message} />
       </div>
 

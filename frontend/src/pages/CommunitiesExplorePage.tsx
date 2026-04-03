@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../locales/i18n";
 const FILTERS = [{
   id: 'all',
   label: 'Todas'
@@ -115,7 +116,7 @@ export default function CommunitiesExplorePage() {
         <div className="relative">
           <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
           <input value={searchInput} onChange={e => setSearchInput(e.target.value)} placeholder="Buscar comunidades..." className="h-11 w-full rounded-full border border-stone-200 bg-white py-0 pl-10 pr-3.5 text-sm text-stone-950 outline-none" />
-          {searchInput && <button onClick={() => setSearchInput('')} className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center" aria-label={t('search.limpiarBusqueda', 'Limpiar búsqueda')}>
+          {searchInput && <button onClick={() => setSearchInput('')} className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center" aria-label={i18n.t('search.limpiarBusqueda', 'Limpiar búsqueda')}>
               <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-stone-100">
                 <X size={13} className="text-stone-500" />
               </span>
@@ -153,7 +154,7 @@ export default function CommunitiesExplorePage() {
             <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Mis comunidades</h2>
             {!user ? <div className="py-10 text-center text-stone-500">
                 <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
-                <p className="mt-3 text-[15px]">{t('communities_explore.iniciaSesionParaVerTusComunidades', 'Inicia sesión para ver tus comunidades')}</p>
+                <p className="mt-3 text-[15px]">{i18n.t('communities_explore.iniciaSesionParaVerTusComunidades', 'Inicia sesión para ver tus comunidades')}</p>
                 <button onClick={() => navigate('/login')} className="mt-3 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white border-none cursor-pointer">Entrar</button>
               </div> : myCommunities.length === 0 ? <div className="py-10 text-center text-stone-500">
                 <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
@@ -185,17 +186,17 @@ export default function CommunitiesExplorePage() {
             </div> : isError ? <div className="flex flex-col items-center justify-center py-20 gap-4">
               <AlertTriangle className="w-10 h-10 text-stone-300" />
               <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-              <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
+              <p className="text-sm text-stone-500">{i18n.t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
               <button onClick={() => refetch()} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors" aria-label="Reintentar carga">
                 Reintentar
               </button>
             </div> : communities.length === 0 ? <div className="flex flex-col items-center justify-center py-20 gap-4">
               <Users size={48} className="text-stone-300" strokeWidth={1.5} />
               <p className="text-base font-semibold text-stone-950">
-                {filter !== 'all' && !searchInput ? t('communities_explore.noHayComunidadesEnEstaCategoria', 'No hay comunidades en esta categoría') : searchInput ? t('communities_explore.sinResultadosParaTuBusqueda', 'Sin resultados para tu búsqueda') : t('communities_explore.aunNoHayComunidades', 'Aún no hay comunidades')}
+                {filter !== 'all' && !searchInput ? i18n.t('communities_explore.noHayComunidadesEnEstaCategoria', 'No hay comunidades en esta categoría') : searchInput ? i18n.t('communities_explore.sinResultadosParaTuBusqueda', 'Sin resultados para tu búsqueda') : i18n.t('communities_explore.aunNoHayComunidades', 'Aún no hay comunidades')}
               </p>
               <p className="text-sm text-stone-500">
-                {filter !== 'all' && !searchInput ? t('communities_explore.creaLaPrimeraComunidadDeEstaCatego', 'Crea la primera comunidad de esta categoría') : searchInput ? t('communities_explore.pruebaConOtrosTerminos', 'Prueba con otros términos') : t('communities_explore.seElPrimeroEnCrearUnaYConectarCo', 'Sé el primero en crear una y conectar con la comunidad')}
+                {filter !== 'all' && !searchInput ? i18n.t('communities_explore.creaLaPrimeraComunidadDeEstaCatego', 'Crea la primera comunidad de esta categoría') : searchInput ? i18n.t('communities_explore.pruebaConOtrosTerminos', 'Prueba con otros términos') : i18n.t('communities_explore.seElPrimeroEnCrearUnaYConectarCo', 'Sé el primero en crear una y conectar con la comunidad')}
               </p>
               {canCreate && <button onClick={() => navigate('/communities/new')} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
                   Crear comunidad
@@ -218,7 +219,7 @@ export default function CommunitiesExplorePage() {
         {/* ── CTA if can't create ── */}
         {!canCreate && filter !== 'joined' && communities.length > 0 && <div className="mt-5 rounded-2xl shadow-sm bg-stone-100 p-4 text-center">
             <p className="mb-1 text-sm font-bold text-stone-950">¿Quieres crear tu comunidad?</p>
-            <p className="mb-1 text-[13px] text-stone-500">{t('communities_explore.consigue100SeguidoresOVerificaTuCu', 'Consigue 100 seguidores o verifica tu cuenta de vendedor')}</p>
+            <p className="mb-1 text-[13px] text-stone-500">{i18n.t('communities_explore.consigue100SeguidoresOVerificaTuCu', 'Consigue 100 seguidores o verifica tu cuenta de vendedor')}</p>
             <p className="text-xs text-stone-500">Tienes {user?.followers_count || 0}/100 seguidores</p>
           </div>}
       </div>
@@ -323,7 +324,7 @@ const CommunityCard = React.memo(({
       // Rollback
       setJoined(wasJoined);
       setMemberCount(community.member_count || 0);
-      toast.error(t('community.errorAlActualizarMembresia', 'Error al actualizar membresía'));
+      toast.error(i18n.t('community.errorAlActualizarMembresia', 'Error al actualizar membresía'));
     } finally {
       setIsToggling(false);
     }

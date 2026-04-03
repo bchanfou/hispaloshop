@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
+import i18n from "../locales/i18n";
 const DIFFICULTY_PILLS = [{
   id: 'all',
   label: 'Todas'
@@ -247,7 +248,7 @@ export default function RecipesPage() {
   };
   return <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-[975px] px-4">
-      <SEO title="Recetas — Hispaloshop" description={t('recipes.descubreRecetasSaludablesConProducto', 'Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.')} structuredData={recipes.length > 0 ? [{
+      <SEO title="Recetas — Hispaloshop" description={i18n.t('recipes.descubreRecetasSaludablesConProducto', 'Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.')} structuredData={recipes.length > 0 ? [{
         '@context': 'https://schema.org',
         '@type': 'ItemList',
         name: 'Recetas en Hispaloshop',
@@ -275,7 +276,7 @@ export default function RecipesPage() {
           <input value={searchInput} onChange={e => setSearchInput(e.target.value)} placeholder="Buscar recetas..." aria-label="Buscar recetas" className="h-10 w-full rounded-full bg-stone-100 pl-10 pr-3.5 text-sm text-stone-950 outline-none border-none placeholder:text-stone-400" style={{
             paddingRight: searchInput ? 48 : 14
           }} />
-          {searchInput && <button type="button" onClick={() => setSearchInput('')} aria-label={t('recipes.borrarBusqueda', 'Borrar búsqueda')} className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-none bg-stone-200 cursor-pointer text-stone-500">
+          {searchInput && <button type="button" onClick={() => setSearchInput('')} aria-label={i18n.t('recipes.borrarBusqueda', 'Borrar búsqueda')} className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-none bg-stone-200 cursor-pointer text-stone-500">
               <X size={13} />
             </button>}
         </div>
@@ -317,17 +318,17 @@ export default function RecipesPage() {
           </div> : fetchError ? <div className="flex flex-col items-center justify-center py-20 gap-4">
             <AlertTriangle className="w-10 h-10 text-stone-300" />
             <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-            <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
+            <p className="text-sm text-stone-500">{i18n.t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
             <button type="button" onClick={handleRetry} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
               Reintentar
             </button>
           </div> : filtered.length === 0 ? <div className="flex flex-col items-center justify-center py-20 gap-4">
             <ChefHat size={48} className="text-stone-300" strokeWidth={1.5} />
             <p className="text-base font-semibold text-stone-950">
-              {hasFilters ? t('recipes.noHayRecetasConEstosFiltros', 'No hay recetas con estos filtros') : 'Aún no hay recetas'}
+              {hasFilters ? i18n.t('recipes.noHayRecetasConEstosFiltros', 'No hay recetas con estos filtros') : 'Aún no hay recetas'}
             </p>
             <p className="text-sm text-stone-500">
-              {hasFilters ? 'Prueba con otros criterios' : t('recipes.seElPrimeroEnCompartirUnaRecetaCo', 'Sé el primero en compartir una receta con la comunidad')}
+              {hasFilters ? 'Prueba con otros criterios' : i18n.t('recipes.seElPrimeroEnCompartirUnaRecetaCo', 'Sé el primero en compartir una receta con la comunidad')}
             </p>
             {hasFilters ? <button type="button" onClick={clearFilters} className="rounded-full border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50">
                 Limpiar filtros

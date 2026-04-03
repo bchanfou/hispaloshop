@@ -9,22 +9,23 @@ import apiClient from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { checkAuth } = useAuth();
+  const {
+    checkAuth
+  } = useAuth();
   const verificationCode = searchParams.get('code');
   const token = searchParams.get('token');
   const verificationValue = verificationCode || token;
   const verificationParam = verificationCode ? 'code' : 'token';
   const [status, setStatus] = useState('verifying'); // verifying, success, error
   const [message, setMessage] = useState('');
-
   useEffect(() => {
     if (!verificationValue) {
       setStatus('error');
-      setMessage(t('verify_email.noSeProporcionoUnCodigoDeVerificac', 'No se proporcionó un código de verificación'));
+      setMessage(i18n.t('verify_email.noSeProporcionoUnCodigoDeVerificac', 'No se proporcionó un código de verificación'));
       return;
     }
     let cancelled = false;
@@ -34,45 +35,41 @@ export default function VerifyEmailPage() {
         const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
         if (cancelled) return;
         setStatus('success');
-        setMessage(data.message || t('verify_email.emailVerificadoCorrectamente', '¡Email verificado correctamente!'));
-        toast.success(t('verify_email.emailVerificadoYaPuedesIniciarSesi', 'Email verificado. Ya puedes iniciar sesión.'));
+        setMessage(data.message || i18n.t('verify_email.emailVerificadoCorrectamente', '¡Email verificado correctamente!'));
+        toast.success(i18n.t('verify_email.emailVerificadoYaPuedesIniciarSesi', 'Email verificado. Ya puedes iniciar sesión.'));
         // Refresh auth context so user.email_verified is up to date
         if (getToken()) {
-          try { await checkAuth(); } catch { /* non-critical */ }
+          try {
+            await checkAuth();
+          } catch {/* non-critical */}
         }
         timer = setTimeout(() => {
           if (cancelled) return;
           const authToken = getToken();
-          navigate(authToken ? '/' : '/login', { replace: true });
+          navigate(authToken ? '/' : '/login', {
+            replace: true
+          });
         }, 2000);
       } catch (error) {
         if (cancelled) return;
         setStatus('error');
         const detail = error?.response?.data?.detail;
-        setMessage(typeof detail === 'string' ? detail : t('verify_email.elCodigoNoEsValidoOHaExpirado', 'El código no es válido o ha expirado'));
-        toast.error(t('verify_email.errorEnLaVerificacion', 'Error en la verificación'));
+        setMessage(typeof detail === 'string' ? detail : i18n.t('verify_email.elCodigoNoEsValidoOHaExpirado', 'El código no es válido o ha expirado'));
+        toast.error(i18n.t('verify_email.errorEnLaVerificacion', 'Error en la verificación'));
       }
     })();
-    return () => { cancelled = true; clearTimeout(timer); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verificationValue]);
-
-  const mobileTitle =
-    status === 'verifying' ? 'Verificando email' :
-    status === 'success'   ? 'Email verificado' :
-    t('verify_email.verificacionFallida', 'Verificación fallida');
-
-  return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+  const mobileTitle = status === 'verifying' ? 'Verificando email' : status === 'success' ? 'Email verificado' : i18n.t('verify_email.verificacionFallida', 'Verificación fallida');
+  return <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Mobile Header */}
       <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 safe-area-top">
         <div className="flex items-center h-14 px-4">
-          <button
-            onClick={() => navigate('/login')}
-            className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-            data-testid="mobile-back-btn"
-            aria-label="Volver al login"
-          >
+          <button onClick={() => navigate('/login')} className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" data-testid="mobile-back-btn" aria-label="Volver al login">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="flex-1 text-center font-medium text-stone-950 pr-8">
@@ -90,8 +87,7 @@ export default function VerifyEmailPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-12">
         <div className="w-full max-w-[400px]">
 
-          {status === 'verifying' && (
-            <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="verifying-card">
+          {status === 'verifying' && <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="verifying-card">
               <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Loader2 className="w-8 h-8 text-stone-950 animate-spin" />
               </div>
@@ -101,11 +97,9 @@ export default function VerifyEmailPage() {
               <p className="text-sm text-stone-500">
                 Por favor espera mientras verificamos tu dirección de email
               </p>
-            </div>
-          )}
+            </div>}
 
-          {status === 'success' && (
-            <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="success-card">
+          {status === 'success' && <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="success-card">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                 <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-950" />
               </div>
@@ -116,18 +110,12 @@ export default function VerifyEmailPage() {
               <p className="text-xs md:text-sm text-stone-500 mb-6 md:mb-8">
                 Redirigiendo al login...
               </p>
-              <Link
-                to="/login"
-                className="flex w-full items-center justify-center rounded-full bg-stone-950 h-12 md:h-11 text-base md:text-sm font-medium text-white transition-colors hover:bg-stone-800"
-                data-testid="go-to-login-btn"
-              >
+              <Link to="/login" className="flex w-full items-center justify-center rounded-full bg-stone-950 h-12 md:h-11 text-base md:text-sm font-medium text-white transition-colors hover:bg-stone-800" data-testid="go-to-login-btn">
                 Ir al Login
               </Link>
-            </div>
-          )}
+            </div>}
 
-          {status === 'error' && (
-            <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="error-card">
+          {status === 'error' && <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="error-card">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                 <AlertCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-950" />
               </div>
@@ -136,23 +124,14 @@ export default function VerifyEmailPage() {
               </h1>
               <p className="text-sm md:text-base text-stone-600 mb-6 md:mb-8">{message}</p>
               <div className="flex flex-col gap-3">
-                <Link
-                  to="/register"
-                  className="flex w-full items-center justify-center rounded-full bg-stone-950 h-12 md:h-11 text-base md:text-sm font-medium text-white transition-colors hover:bg-stone-800"
-                  data-testid="register-again-btn"
-                >
+                <Link to="/register" className="flex w-full items-center justify-center rounded-full bg-stone-950 h-12 md:h-11 text-base md:text-sm font-medium text-white transition-colors hover:bg-stone-800" data-testid="register-again-btn">
                   Registrarse de nuevo
                 </Link>
-                <Link
-                  to="/login"
-                  className="flex w-full items-center justify-center rounded-full border border-stone-200 h-12 md:h-11 text-base md:text-sm font-medium text-stone-950 transition-colors hover:bg-stone-50"
-                  data-testid="go-to-login-btn"
-                >
+                <Link to="/login" className="flex w-full items-center justify-center rounded-full border border-stone-200 h-12 md:h-11 text-base md:text-sm font-medium text-stone-950 transition-colors hover:bg-stone-50" data-testid="go-to-login-btn">
                   Ir al Login
                 </Link>
               </div>
-            </div>
-          )}
+            </div>}
 
         </div>
       </div>
@@ -161,6 +140,5 @@ export default function VerifyEmailPage() {
       <div className="hidden md:block">
         <Footer />
       </div>
-    </div>
-  );
+    </div>;
 }

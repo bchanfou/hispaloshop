@@ -9,6 +9,7 @@ import { useLocale } from '../../context/LocaleContext';
 import { redirectAfterAuth } from '../../lib/navigation';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
   free: {
@@ -131,7 +132,7 @@ function readStoredState(defaultCountry, initialPlan) {
   }
 }
 function loadStripeJs() {
-  if (typeof window === 'undefined') return Promise.reject(new Error(t('onboarding.stripeNoEstaDisponible', 'Stripe no está disponible')));
+  if (typeof window === 'undefined') return Promise.reject(new Error(i18n.t('onboarding.stripeNoEstaDisponible', 'Stripe no está disponible')));
   if (window.Stripe) return Promise.resolve(window.Stripe);
   if (!stripeLoader) {
     stripeLoader = new Promise((resolve, reject) => {
@@ -250,7 +251,7 @@ export default function OnboardingModal({
           const data = await apiClient.get(`/sellers/plans`);
           key = data?.stripe_publishable_key || '';
           if (!key) {
-            throw new Error(t('onboarding.stripeNoEstaConfiguradoTodavia', 'Stripe no está configurado todavía.'));
+            throw new Error(i18n.t('onboarding.stripeNoEstaConfiguradoTodavia', 'Stripe no está configurado todavía.'));
           }
           if (active) {
             setStripeKey(key);
@@ -284,7 +285,7 @@ export default function OnboardingModal({
         setCardReady(true);
       } catch (error) {
         if (active) {
-          setStripeError(error.message || t('onboarding.noPudimosPrepararElPago', 'No pudimos preparar el pago.'));
+          setStripeError(error.message || i18n.t('onboarding.noPudimosPrepararElPago', 'No pudimos preparar el pago.'));
         }
       } finally {
         if (active) {
@@ -347,21 +348,21 @@ export default function OnboardingModal({
     const nextErrors = {};
     if (targetStep === 1) {
       if (!validity.fullName) nextErrors.fullName = 'Necesitamos tu nombre completo.';
-      if (!validity.email) nextErrors.email = t('onboarding.introduceUnEmailValido', 'Introduce un email válido.');
-      if (!validity.password) nextErrors.password = t('onboarding.creaUnaContrasenaDeAlMenos6Caract', 'Crea una contraseña de al menos 6 caracteres.');
-      if (!validity.phoneNumber) nextErrors.phoneNumber = t('onboarding.necesitamosUnTelefonoOperativo', 'Necesitamos un teléfono operativo.');
-      if (!validity.country) nextErrors.country = t('onboarding.seleccionaElPaisDondeVasAOperar', 'Selecciona el país donde vas a operar.');
+      if (!validity.email) nextErrors.email = i18n.t('onboarding.introduceUnEmailValido', 'Introduce un email válido.');
+      if (!validity.password) nextErrors.password = i18n.t('onboarding.creaUnaContrasenaDeAlMenos6Caract', 'Crea una contraseña de al menos 6 caracteres.');
+      if (!validity.phoneNumber) nextErrors.phoneNumber = i18n.t('onboarding.necesitamosUnTelefonoOperativo', 'Necesitamos un teléfono operativo.');
+      if (!validity.country) nextErrors.country = i18n.t('onboarding.seleccionaElPaisDondeVasAOperar', 'Selecciona el país donde vas a operar.');
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['fullName', 'email', 'password', 'phoneNumber', 'country']);
       }
     }
     if (targetStep === 2) {
-      if (!formData.tradeStage) nextErrors.tradeStage = t('onboarding.seleccionaTuPuntoDePartida', 'Selecciona tu punto de partida.');
-      if (formData.productTypes.length === 0) nextErrors.productTypes = t('onboarding.eligeAlMenosUnTipoDeProducto', 'Elige al menos un tipo de producto.');
+      if (!formData.tradeStage) nextErrors.tradeStage = i18n.t('onboarding.seleccionaTuPuntoDePartida', 'Selecciona tu punto de partida.');
+      if (formData.productTypes.length === 0) nextErrors.productTypes = i18n.t('onboarding.eligeAlMenosUnTipoDeProducto', 'Elige al menos un tipo de producto.');
       if (!formData.monthlyVolume) nextErrors.monthlyVolume = 'Indica tu volumen estimado.';
       if (!validity.companyName) nextErrors.companyName = 'Necesitamos el nombre fiscal o comercial.';
-      if (!validity.fiscalAddress) nextErrors.fiscalAddress = t('onboarding.necesitamosUnaDireccionFiscalValida', 'Necesitamos una dirección fiscal válida.');
-      if (!validity.vatCif) nextErrors.vatCif = t('onboarding.necesitamosVatCifONifParaDarteDe', 'Necesitamos VAT, CIF o NIF para darte de alta.');
+      if (!validity.fiscalAddress) nextErrors.fiscalAddress = i18n.t('onboarding.necesitamosUnaDireccionFiscalValida', 'Necesitamos una dirección fiscal válida.');
+      if (!validity.vatCif) nextErrors.vatCif = i18n.t('onboarding.necesitamosVatCifONifParaDarteDe', 'Necesitamos VAT, CIF o NIF para darte de alta.');
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['companyName', 'fiscalAddress', 'vatCif']);
       }
@@ -371,7 +372,7 @@ export default function OnboardingModal({
         nextErrors.acceptCommission = 'Debes aceptar la comisión del 20% sobre ventas.';
       }
       if (isPaidPlan(selectedPlan)) {
-        if (stripeLoading) nextErrors.card = 'Estamos preparando Stripe. Espera un segundo.';else if (stripeError) nextErrors.card = stripeError;else if (!cardReady || !cardComplete) nextErrors.card = t('onboarding.completaLosDatosDeLaTarjetaParaCo', 'Completa los datos de la tarjeta para continuar.');
+        if (stripeLoading) nextErrors.card = 'Estamos preparando Stripe. Espera un segundo.';else if (stripeError) nextErrors.card = stripeError;else if (!cardReady || !cardComplete) nextErrors.card = i18n.t('onboarding.completaLosDatosDeLaTarjetaParaCo', 'Completa los datos de la tarjeta para continuar.');
       }
     }
     setErrors(current => ({
@@ -403,7 +404,7 @@ export default function OnboardingModal({
     const stripe = stripeRef.current;
     const card = cardRef.current;
     if (!stripe || !card) {
-      throw new Error(t('onboarding.stripeNoEstaListoTodavia', 'Stripe no está listo todavía.'));
+      throw new Error(i18n.t('onboarding.stripeNoEstaListoTodavia', 'Stripe no está listo todavía.'));
     }
     const paymentMethodResult = await stripe.createPaymentMethod({
       type: 'card',
@@ -415,7 +416,7 @@ export default function OnboardingModal({
       }
     });
     if (paymentMethodResult.error) {
-      throw new Error(paymentMethodResult.error.message || t('onboarding.noSePudoValidarLaTarjeta', 'No se pudo validar la tarjeta.'));
+      throw new Error(paymentMethodResult.error.message || i18n.t('onboarding.noSePudoValidarLaTarjeta', 'No se pudo validar la tarjeta.'));
     }
     const subscribeData = await apiClient.post(`/sellers/me/plan/subscribe-inline`, {
       plan: selectedPlan.toUpperCase(),
@@ -428,12 +429,12 @@ export default function OnboardingModal({
       const confirmation = await stripe.confirmCardPayment(subscribeData.client_secret);
       if (confirmation.error) {
         if (confirmation.error.type === 'card_error' || confirmation.error.type === 'validation_error') {
-          throw new Error(confirmation.error.message || t('onboarding.tuBancoRechazoLaOperacion', 'Tu banco rechazó la operación.'));
+          throw new Error(confirmation.error.message || i18n.t('onboarding.tuBancoRechazoLaOperacion', 'Tu banco rechazó la operación.'));
         }
-        throw new Error(t('onboarding.haOcurridoUnErrorConElPagoPorFa', 'Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.'));
+        throw new Error(i18n.t('onboarding.haOcurridoUnErrorConElPagoPorFa', 'Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.'));
       }
       if (confirmation.paymentIntent?.status === 'requires_payment_method') {
-        throw new Error(t('onboarding.elMetodoDePagoFueRechazadoPorFav', 'El método de pago fue rechazado. Por favor usa otra tarjeta.'));
+        throw new Error(i18n.t('onboarding.elMetodoDePagoFueRechazadoPorFav', 'El método de pago fue rechazado. Por favor usa otra tarjeta.'));
       }
       await apiClient.post(`/sellers/me/plan/subscribe-inline/confirm`, {
         subscription_id: subscribeData.subscription_id,
@@ -443,7 +444,7 @@ export default function OnboardingModal({
   };
   const submitFlow = async () => {
     if (!validateStep(3)) {
-      toast.error(t('onboarding.revisaLosDatosAntesDeContinuar', 'Revisa los datos antes de continuar.'));
+      toast.error(i18n.t('onboarding.revisaLosDatosAntesDeContinuar', 'Revisa los datos antes de continuar.'));
       return;
     }
     setSubmitting(true);
@@ -463,9 +464,9 @@ export default function OnboardingModal({
       setErrors({});
       setTouched({});
     } catch (error) {
-      const message = error.message || t('onboarding.noPudimosCompletarElAlta', 'No pudimos completar el alta.');
+      const message = error.message || i18n.t('onboarding.noPudimosCompletarElAlta', 'No pudimos completar el alta.');
       if (user?.role === 'importer' || message.toLowerCase().includes('email already registered')) {
-        setPaymentNotice(t('onboarding.tuCuentaYaEstaCreadaSoloFaltaAct', 'Tu cuenta ya está creada. Solo falta activar el plan o terminar la suscripción.'));
+        setPaymentNotice(i18n.t('onboarding.tuCuentaYaEstaCreadaSoloFaltaAct', 'Tu cuenta ya está creada. Solo falta activar el plan o terminar la suscripción.'));
       }
       toast.error(message);
     } finally {
@@ -474,7 +475,7 @@ export default function OnboardingModal({
   };
   const proceed = () => {
     if (!validateStep(step)) {
-      toast.error(t('onboarding.completaLosCamposObligatoriosParaAv', 'Completa los campos obligatorios para avanzar.'));
+      toast.error(i18n.t('onboarding.completaLosCamposObligatoriosParaAv', 'Completa los campos obligatorios para avanzar.'));
       return;
     }
     setStep(current => Math.min(current + 1, 3));
@@ -508,17 +509,17 @@ export default function OnboardingModal({
       </div>
 
       <div className="relative">
-        <label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{t('auth.password', 'Contraseña')}</label>
+        <label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{i18n.t('auth.password', 'Contraseña')}</label>
         <input id="importer-password" type="password" value={formData.password} onChange={event => updateField('password', event.target.value)} onBlur={() => setTouched(current => ({
         ...current,
         password: true
-      }))} placeholder={t('common.minCharacters', 'Mínimo 6 caracteres')} className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`} />
+      }))} placeholder={i18n.t('common.minCharacters', 'Mínimo 6 caracteres')} className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`} />
         <StatusIcon valid={touched.password && validity.password} />
         {renderError('password')}
       </div>
 
       <div>
-        <label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{t('common.phone', 'Teléfono')}</label>
+        <label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{i18n.t('common.phone', 'Teléfono')}</label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[140px_1fr]">
           <select value={formData.phonePrefix} onChange={event => updateField('phonePrefix', event.target.value)} className="h-12 rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950">
             {PHONE_PREFIXES.map(prefix => <option key={prefix.value} value={prefix.value}>{prefix.label}</option>)}
@@ -527,7 +528,7 @@ export default function OnboardingModal({
             <input id="importer-phone" inputMode="numeric" value={formData.phoneNumber} onChange={event => updateField('phoneNumber', sanitizePhone(event.target.value))} onBlur={() => setTouched(current => ({
             ...current,
             phoneNumber: true
-          }))} placeholder={t('onboarding.numeroSinEspacios', 'Número sin espacios')} className={`h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`} />
+          }))} placeholder={i18n.t('onboarding.numeroSinEspacios', 'Número sin espacios')} className={`h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`} />
             <StatusIcon valid={touched.phoneNumber && validity.phoneNumber} />
           </div>
         </div>
@@ -535,12 +536,12 @@ export default function OnboardingModal({
       </div>
 
       <div>
-        <label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{t('onboarding.paisDondeOperaras', 'País donde operarás')}</label>
+        <label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{i18n.t('onboarding.paisDondeOperaras', 'País donde operarás')}</label>
         <select id="importer-country" value={formData.country} onChange={event => updateField('country', event.target.value)} onBlur={() => setTouched(current => ({
         ...current,
         country: true
       }))} className={`mt-2 h-12 w-full rounded-2xl border bg-white px-4 text-base text-stone-950 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}>
-          <option value="">{t('onboarding.seleccionaTuPaisPrincipal', 'Selecciona tu país principal')}</option>
+          <option value="">{i18n.t('onboarding.seleccionaTuPaisPrincipal', 'Selecciona tu país principal')}</option>
           {countryOptions.map(option => <option key={option.code} value={option.code}>{option.name}</option>)}
         </select>
         {renderError('country')}
@@ -584,7 +585,7 @@ export default function OnboardingModal({
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Empresa constituida</p>
-              <p className="mt-2 text-sm text-stone-600">{t('onboarding.loUsamosParaFacturacionYAprobacion', 'Lo usamos para facturación y aprobación comercial.')}</p>
+              <p className="mt-2 text-sm text-stone-600">{i18n.t('onboarding.loUsamosParaFacturacionYAprobacion', 'Lo usamos para facturación y aprobación comercial.')}</p>
           </div>
           <div className="inline-flex rounded-full border border-stone-200 bg-white p-1">
             {[{
@@ -621,11 +622,11 @@ export default function OnboardingModal({
           </div>
 
           <div className="relative md:col-span-2">
-          <label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{t('onboarding.direccionFiscal', 'Dirección fiscal')}</label>
+          <label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">{i18n.t('onboarding.direccionFiscal', 'Dirección fiscal')}</label>
             <input id="importer-address" value={formData.fiscalAddress} onChange={event => updateField('fiscalAddress', event.target.value)} onBlur={() => setTouched(current => ({
             ...current,
             fiscalAddress: true
-          }))} placeholder={t('onboarding.direccionCompletaParaFacturacion', 'Dirección completa para facturación')} className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`} />
+          }))} placeholder={i18n.t('onboarding.direccionCompletaParaFacturacion', 'Dirección completa para facturación')} className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`} />
             <StatusIcon valid={touched.fiscalAddress && validity.fiscalAddress} />
             {renderError('fiscalAddress')}
           </div>
@@ -670,7 +671,7 @@ export default function OnboardingModal({
             <input type="checkbox" id="accept-commission" checked={formData.acceptCommission} onChange={e => updateField('acceptCommission', e.target.checked)} className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer" />
             <div>
               <label htmlFor="accept-commission" className="text-sm font-semibold text-stone-950">Acepto comisión del 20% sobre ventas</label>
-              <p className="mt-2 text-sm leading-7 text-stone-700">{t('onboarding.empezamosSinCuotaFijaSiElMercado', 'Empezamos sin cuota fija. Si el mercado responde, luego decides si subes a PRO o ELITE.')}</p>
+              <p className="mt-2 text-sm leading-7 text-stone-700">{i18n.t('onboarding.empezamosSinCuotaFijaSiElMercado', 'Empezamos sin cuota fija. Si el mercado responde, luego decides si subes a PRO o ELITE.')}</p>
               {renderError('acceptCommission')}
             </div>
           </div>
@@ -679,7 +680,7 @@ export default function OnboardingModal({
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Pago seguro</p>
               <h4 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-stone-900">Tarjeta segura inline</h4>
-              <p className="mt-2 text-sm leading-7 text-stone-600">{t('onboarding.pagoSeguroCancelaCuandoQuierasNo', 'Pago seguro. Cancela cuando quieras. No te sacamos del flujo.')}</p>
+              <p className="mt-2 text-sm leading-7 text-stone-600">{i18n.t('onboarding.pagoSeguroCancelaCuandoQuierasNo', 'Pago seguro. Cancela cuando quieras. No te sacamos del flujo.')}</p>
             </div>
             <div className="rounded-2xl bg-stone-100 p-3 text-stone-600">
               <CreditCard className="h-5 w-5" />
@@ -724,8 +725,8 @@ export default function OnboardingModal({
       </div>
       <div className="relative z-10 max-w-2xl">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 text-stone-500"><CircleCheckBig className="h-9 w-9" /></div>
-                <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-stone-900">{t('onboarding.bienvenidoALaRevolucion', 'Bienvenido a la revolución.')}</h3>
-        <p className="mt-4 text-lg leading-8 text-stone-600">{t('onboarding.revisaTuEmailParaVerificarTuCuenta', 'Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.')}</p>
+                <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-stone-900">{i18n.t('onboarding.bienvenidoALaRevolucion', 'Bienvenido a la revolución.')}</h3>
+        <p className="mt-4 text-lg leading-8 text-stone-600">{i18n.t('onboarding.revisaTuEmailParaVerificarTuCuenta', 'Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.')}</p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <button type="button" onClick={() => {
           const activeUser = successState?.user || user;
@@ -787,9 +788,9 @@ export default function OnboardingModal({
                   <p className="mt-2 text-sm text-white/70">Comisión sobre ventas: {activePlan.commission}</p>
                 </div>
                 <div className="mt-6 space-y-3 text-sm text-white/72">
-                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{t('onboarding.sinAlertsAgresivosYConGuardadoLoca', 'Sin alerts agresivos y con guardado local del progreso.')}</p></div>
-                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{t('onboarding.tuContrasenaNoSePersisteEnLocalsto', 'Tu contraseña no se persiste en localStorage.')}</p></div>
-                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{t('onboarding.proYEliteUsanStripeInlineFreeCre', 'PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.')}</p></div>
+                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{i18n.t('onboarding.sinAlertsAgresivosYConGuardadoLoca', 'Sin alerts agresivos y con guardado local del progreso.')}</p></div>
+                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{i18n.t('onboarding.tuContrasenaNoSePersisteEnLocalsto', 'Tu contraseña no se persiste en localStorage.')}</p></div>
+                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>{i18n.t('onboarding.proYEliteUsanStripeInlineFreeCre', 'PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.')}</p></div>
                 </div>
               </aside>
 
@@ -816,7 +817,7 @@ export default function OnboardingModal({
                       <div className="mt-10 flex flex-col gap-3 border-t border-stone-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
                         <div className="text-sm text-stone-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con fricción.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
                         <div className="flex flex-col gap-3 sm:flex-row">
-                          {step > 1 ? <button type="button" onClick={() => setStep(current => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />{t('user_profile.atras', 'Atrás')}</button> : null}
+                          {step > 1 ? <button type="button" onClick={() => setStep(current => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />{i18n.t('user_profile.atras', 'Atrás')}</button> : null}
                           {step < 3 ? <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-900">
                               Continuar
                               <ArrowRight className="h-4 w-4" />

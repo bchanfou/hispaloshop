@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useInquiries, useReceivedRFQs } from '../../features/b2b/queries';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const STATUS_CONFIG = {
   pending: {
     label: 'Pendiente',
@@ -241,7 +242,7 @@ export default function B2BQuotesHistoryPage() {
           {isProducer ? 'Solicitudes recibidas' : 'Mis solicitudes de oferta'}
         </h1>
         <p className="text-sm text-stone-500 mt-1">
-          {isProducer ? t('b2_b_quotes_history.rfqsDeImportadoresInteresadosEnTus', 'RFQs de importadores interesados en tus productos') : t('b2_b_quotes_history.historialDeTusSolicitudesDeCotizaci', 'Historial de tus solicitudes de cotización mayorista')}
+          {isProducer ? i18n.t('b2_b_quotes_history.rfqsDeImportadoresInteresadosEnTus', 'RFQs de importadores interesados en tus productos') : i18n.t('b2_b_quotes_history.historialDeTusSolicitudesDeCotizaci', 'Historial de tus solicitudes de cotización mayorista')}
         </p>
       </div>
 
@@ -269,14 +270,14 @@ export default function B2BQuotesHistoryPage() {
         }).map((_, i) => <div key={i} className="skeleton-shimmer rounded-2xl h-24" />)}
           </div> : activeQuery.isError ? <div className="text-center py-16 text-stone-500">
             <FileText className="w-12 h-12 mx-auto mb-3 text-stone-300" />
-            <p className="font-medium">{t('b2_b_quotes_history.noSePudieronCargarLasSolicitudes', 'No se pudieron cargar las solicitudes')}</p>
+            <p className="font-medium">{i18n.t('b2_b_quotes_history.noSePudieronCargarLasSolicitudes', 'No se pudieron cargar las solicitudes')}</p>
             <p className="text-sm mt-1">
-              {isProducer ? t('b2_b_quotes_history.soloDisponibleParaCuentasDeProducto', 'Solo disponible para cuentas de productor') : t('b2_b_quotes_history.soloDisponibleParaCuentasDeImportad', 'Solo disponible para cuentas de importador')}
+              {isProducer ? i18n.t('b2_b_quotes_history.soloDisponibleParaCuentasDeProducto', 'Solo disponible para cuentas de productor') : i18n.t('b2_b_quotes_history.soloDisponibleParaCuentasDeImportad', 'Solo disponible para cuentas de importador')}
             </p>
           </div> : filteredAndSorted.length === 0 ? <div className="text-center py-16 text-stone-500">
             <FileText className="w-12 h-12 mx-auto mb-3 text-stone-300" />
             <p className="font-medium">
-              {activeTab ? `No hay solicitudes ${TABS.find(t => t.value === activeTab)?.label.toLowerCase() || ''}` : isProducer ? 'No hay solicitudes recibidas' : t('b2_b_quotes_history.noHasEnviadoSolicitudesAun', 'No has enviado solicitudes aún')}
+              {activeTab ? `No hay solicitudes ${TABS.find(t => t.value === activeTab)?.label.toLowerCase() || ''}` : isProducer ? 'No hay solicitudes recibidas' : i18n.t('b2_b_quotes_history.noHasEnviadoSolicitudesAun', 'No has enviado solicitudes aún')}
             </p>
             {!isProducer && !activeTab && <p className="text-sm mt-1">
                 Usa el Marketplace B2B para contactar productores

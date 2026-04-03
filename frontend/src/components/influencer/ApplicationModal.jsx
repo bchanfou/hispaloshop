@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../components/ui/dialog';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const STEPS = [{
   id: 1,
   label: 'Identidad',
@@ -159,40 +160,40 @@ export default function ApplicationModal({
   const validateStep = stepId => {
     const nextErrors = {};
     if (stepId === 1) {
-      if (!form.artistName.trim()) nextErrors.artistName = t('application.necesitamosSaberComoTeConocen', 'Necesitamos saber cómo te conocen.');
+      if (!form.artistName.trim()) nextErrors.artistName = i18n.t('application.necesitamosSaberComoTeConocen', 'Necesitamos saber cómo te conocen.');
       if (!form.email.trim()) {
-        nextErrors.email = t('application.tuEmailProfesionalEsObligatorio', 'Tu email profesional es obligatorio.');
+        nextErrors.email = i18n.t('application.tuEmailProfesionalEsObligatorio', 'Tu email profesional es obligatorio.');
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-        nextErrors.email = t('application.eseEmailNoPareceValido', 'Ese email no parece válido.');
+        nextErrors.email = i18n.t('application.eseEmailNoPareceValido', 'Ese email no parece válido.');
       }
       if (!form.instagram.trim()) {
-        nextErrors.instagram = t('application.tuInstagramPrincipalEsObligatorio', 'Tu Instagram principal es obligatorio.');
+        nextErrors.instagram = i18n.t('application.tuInstagramPrincipalEsObligatorio', 'Tu Instagram principal es obligatorio.');
       } else if (!INSTAGRAM_PATTERN.test(form.instagram.trim())) {
         nextErrors.instagram = 'Usa un formato tipo @tuusuario.';
       }
-      if (!form.phone.trim()) nextErrors.phone = t('application.necesitamosUnaViaRealParaContactart', 'Necesitamos una vía real para contactarte.');
+      if (!form.phone.trim()) nextErrors.phone = i18n.t('application.necesitamosUnaViaRealParaContactart', 'Necesitamos una vía real para contactarte.');
       if (!form.residenceCity.trim()) nextErrors.residenceCity = 'Indica tu ciudad.';
-      if (!form.residenceCountry.trim()) nextErrors.residenceCountry = t('application.seleccionaTuPais', 'Selecciona tu país.');
+      if (!form.residenceCountry.trim()) nextErrors.residenceCountry = i18n.t('application.seleccionaTuPais', 'Selecciona tu país.');
     }
     if (stepId === 2) {
-      if (form.niches.length === 0) nextErrors.niches = t('application.eligeAlMenosUnNicho', 'Elige al menos un nicho.');
-      if (!form.followerRange) nextErrors.followerRange = t('application.seleccionaTuRangoDeSeguidores', 'Selecciona tu rango de seguidores.');
-      if (!form.audienceCountry) nextErrors.audienceCountry = t('application.seleccionaElPaisPrincipalDeTuAudie', 'Selecciona el país principal de tu audiencia.');
+      if (form.niches.length === 0) nextErrors.niches = i18n.t('application.eligeAlMenosUnNicho', 'Elige al menos un nicho.');
+      if (!form.followerRange) nextErrors.followerRange = i18n.t('application.seleccionaTuRangoDeSeguidores', 'Selecciona tu rango de seguidores.');
+      if (!form.audienceCountry) nextErrors.audienceCountry = i18n.t('application.seleccionaElPaisPrincipalDeTuAudie', 'Selecciona el país principal de tu audiencia.');
       if (!form.motivation.trim()) {
-        nextErrors.motivation = t('application.cuentanosPorQueQuieresEntrar', 'Cuéntanos por qué quieres entrar.');
+        nextErrors.motivation = i18n.t('application.cuentanosPorQueQuieresEntrar', 'Cuéntanos por qué quieres entrar.');
       } else if (form.motivation.trim().length < 140) {
-        nextErrors.motivation = t('application.necesitamosAlMenos140CaracteresPara', 'Necesitamos al menos 140 caracteres para filtrar humo.');
+        nextErrors.motivation = i18n.t('application.necesitamosAlMenos140CaracteresPara', 'Necesitamos al menos 140 caracteres para filtrar humo.');
       }
       if (!isValidUrl(form.bestContentUrl.trim())) {
-        nextErrors.bestContentUrl = t('application.eseEnlaceNoPareceValido', 'Ese enlace no parece válido.');
+        nextErrors.bestContentUrl = i18n.t('application.eseEnlaceNoPareceValido', 'Ese enlace no parece válido.');
       }
     }
     if (stepId === 3) {
       if (!form.desiredTier) nextErrors.desiredTier = 'Elige el tier que quieres solicitar.';
-      if (!form.agreementCommission) nextErrors.agreementCommission = t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
-      if (!form.agreementTracking) nextErrors.agreementTracking = t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
-      if (!form.agreementEthical) nextErrors.agreementEthical = t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
-      if (!form.agreementTerms) nextErrors.agreementTerms = t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
+      if (!form.agreementCommission) nextErrors.agreementCommission = i18n.t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
+      if (!form.agreementTracking) nextErrors.agreementTracking = i18n.t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
+      if (!form.agreementEthical) nextErrors.agreementEthical = i18n.t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
+      if (!form.agreementTerms) nextErrors.agreementTerms = i18n.t('application.debesAceptarEstaCondicion', 'Debes aceptar esta condición.');
     }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -249,18 +250,18 @@ export default function ApplicationModal({
     } catch (error) {
       const detail = error?.message;
       if (detail === 'Application already pending' || detail === 'Already registered or has pending application') {
-        toast.error(t('application.yaExisteUnaSolicitudOCuentaConEst', 'Ya existe una solicitud o cuenta con este email.'));
+        toast.error(i18n.t('application.yaExisteUnaSolicitudOCuentaConEst', 'Ya existe una solicitud o cuenta con este email.'));
       } else {
-        toast.error(t('application.noPudimosEnviarLaSolicitudIntental', 'No pudimos enviar la solicitud. Intentalo de nuevo.'));
+        toast.error(i18n.t('application.noPudimosEnviarLaSolicitudIntental', 'No pudimos enviar la solicitud. Intentalo de nuevo.'));
       }
     } finally {
       setSubmitting(false);
     }
   };
-  const finalButtonLabel = form.desiredTier === 'hercules' ? 'Enviar solicitud' : t('application.solicitarRevision', 'Solicitar revisión');
+  const finalButtonLabel = form.desiredTier === 'hercules' ? 'Enviar solicitud' : i18n.t('application.solicitarRevision', 'Solicitar revisión');
   return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="left-0 top-0 h-screen w-screen max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-none border-0 bg-transparent p-0 shadow-none [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-stone-200 [&>button]:bg-stone-100 [&>button]:p-2 [&>button]:text-stone-700 [&>button]:opacity-100">
-        <DialogTitle className="sr-only">{t('application.aplicacionInfluencerHispaloshop', 'Aplicación influencer Hispaloshop')}</DialogTitle>
+        <DialogTitle className="sr-only">{i18n.t('application.aplicacionInfluencerHispaloshop', 'Aplicación influencer Hispaloshop')}</DialogTitle>
         <DialogDescription className="sr-only">
           Formulario de tres pasos para aplicar al programa de influencers de Hispaloshop.
         </DialogDescription>
@@ -272,7 +273,7 @@ export default function ApplicationModal({
             </div>
 
             <div className="mt-10 max-w-md">
-              <p className="text-sm uppercase tracking-[0.28em] text-stone-400">{t('application.aplicacionReal', 'Aplicación real')}</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-stone-400">{i18n.t('application.aplicacionReal', 'Aplicación real')}</p>
               <h2 className="mt-4 text-4xl font-black leading-tight text-white">
                 No es un formulario corporativo. Es tu puerta de salida.
               </h2>
@@ -287,8 +288,8 @@ export default function ApplicationModal({
                 <p className="text-sm font-semibold text-white">Lo que miramos</p>
                 <ul className="mt-3 space-y-3 text-sm leading-6 text-stone-300">
                   <li>Engagement real, no seguidores inflados.</li>
-                  <li>{t('application.siTuVozEncajaConComidaWellnessL', 'Si tu voz encaja con comida, wellness, lifestyle o sostenibilidad.')}</li>
-                  <li>{t('application.siQuieresRecomendarCosasQueDeVerda', 'Si quieres recomendar cosas que de verdad podrías usar.')}</li>
+                  <li>{i18n.t('application.siTuVozEncajaConComidaWellnessL', 'Si tu voz encaja con comida, wellness, lifestyle o sostenibilidad.')}</li>
+                  <li>{i18n.t('application.siQuieresRecomendarCosasQueDeVerda', 'Si quieres recomendar cosas que de verdad podrías usar.')}</li>
                 </ul>
               </div>
 
@@ -308,7 +309,7 @@ export default function ApplicationModal({
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">@bchanfuah</p>
-                  <p className="text-sm text-stone-300">{t('application.siQuieresComprobarQueSoyRealAhiM', 'Si quieres comprobar que soy real, ahí me tienes.')}</p>
+                  <p className="text-sm text-stone-300">{i18n.t('application.siQuieresComprobarQueSoyRealAhiM', 'Si quieres comprobar que soy real, ahí me tienes.')}</p>
                 </div>
               </div>
             </div>
@@ -352,7 +353,7 @@ export default function ApplicationModal({
                       Bienvenido a la resistencia. Revisa tu email para acceder a tu dashboard de influencer.
                     </h3>
                     <p className="mt-5 max-w-2xl text-base leading-7 text-white/80">
-                      {submittedTier === 'hercules' ? t('application.herculesEntraPorViaRapidaHemosMar', 'Hércules entra por vía rápida. Hemos marcado tu perfil para activación inmediata y siguientes pasos.') : t('application.tuPerfilPasaARevisionHumanaSiApl', 'Tu perfil pasa a revisión humana. Si aplicaste a Atenea o Zeus, te responderemos en 24-48h con una decisión real, no automática.')}
+                      {submittedTier === 'hercules' ? i18n.t('application.herculesEntraPorViaRapidaHemosMar', 'Hércules entra por vía rápida. Hemos marcado tu perfil para activación inmediata y siguientes pasos.') : i18n.t('application.tuPerfilPasaARevisionHumanaSiApl', 'Tu perfil pasa a revisión humana. Si aplicaste a Atenea o Zeus, te responderemos en 24-48h con una decisión real, no automática.')}
                     </p>
 
                     <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -410,14 +411,14 @@ export default function ApplicationModal({
                               </label>
 
                               <label className="block">
-                                <FieldLabel>{t('common.phone', 'Teléfono')}</FieldLabel>
+                                <FieldLabel>{i18n.t('common.phone', 'Teléfono')}</FieldLabel>
                                 <input value={form.phone} onChange={event => updateField('phone', event.target.value)} placeholder="+34 600 000 000" className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950" />
                                 <FieldError>{errors.phone}</FieldError>
                               </label>
 
                               <label className="block">
                                 <FieldLabel>Ciudad donde resides</FieldLabel>
-                                <input value={form.residenceCity} onChange={event => updateField('residenceCity', event.target.value)} placeholder={t('application.reusSeulCiudadDeMexico', 'Reus, Seúl, Ciudad de México...')} className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950" />
+                                <input value={form.residenceCity} onChange={event => updateField('residenceCity', event.target.value)} placeholder={i18n.t('application.reusSeulCiudadDeMexico', 'Reus, Seúl, Ciudad de México...')} className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950" />
                                 <FieldError>{errors.residenceCity}</FieldError>
                               </label>
 
@@ -425,7 +426,7 @@ export default function ApplicationModal({
                                 <label className="block">
                                   <FieldLabel>País</FieldLabel>
                                   <select value={form.residenceCountry} onChange={e => updateField('residenceCountry', e.target.value)} className="h-12 w-full rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950">
-                                    <option value="">{t('application.seleccionaPais', 'Selecciona país')}</option>
+                                    <option value="">{i18n.t('application.seleccionaPais', 'Selecciona país')}</option>
                                     {COUNTRY_OPTIONS.map(country => <option key={country} value={country}>{country}</option>)}
                                   </select>
                                   <FieldError>{errors.residenceCountry}</FieldError>
@@ -481,9 +482,9 @@ export default function ApplicationModal({
 
                               <div className="grid gap-5 md:grid-cols-2">
                                 <label className="block">
-                                  <FieldLabel>{t('application.paisPrincipalDeTuAudiencia', 'País principal de tu audiencia')}</FieldLabel>
+                                  <FieldLabel>{i18n.t('application.paisPrincipalDeTuAudiencia', 'País principal de tu audiencia')}</FieldLabel>
                                   <select value={form.audienceCountry} onChange={e => updateField('audienceCountry', e.target.value)} className="h-12 w-full rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950">
-                                    <option value="">{t('application.seleccionaPais', 'Selecciona país')}</option>
+                                    <option value="">{i18n.t('application.seleccionaPais', 'Selecciona país')}</option>
                                     {COUNTRY_OPTIONS.map(country => <option key={country} value={country}>{country}</option>)}
                                   </select>
                                   <FieldError>{errors.audienceCountry}</FieldError>
@@ -498,7 +499,7 @@ export default function ApplicationModal({
 
                               <label className="block">
                                 <FieldLabel>¿Por qué quieres unirte?</FieldLabel>
-                                <textarea value={form.motivation} onChange={event => updateField('motivation', event.target.value)} rows={6} placeholder={t('application.cuentanosLaVerdadQueTipoDeEstabil', 'Cuéntanos la verdad: qué tipo de estabilidad buscas, por qué te quemaste de ciertas marcas y cómo tratarías a tu comunidad.')} className="w-full min-h-[180px] rounded-[24px] border border-stone-200 px-4 py-4 text-base leading-7 text-stone-950 focus:outline-none focus:border-stone-950 resize-none" />
+                                <textarea value={form.motivation} onChange={event => updateField('motivation', event.target.value)} rows={6} placeholder={i18n.t('application.cuentanosLaVerdadQueTipoDeEstabil', 'Cuéntanos la verdad: qué tipo de estabilidad buscas, por qué te quemaste de ciertas marcas y cómo tratarías a tu comunidad.')} className="w-full min-h-[180px] rounded-[24px] border border-stone-200 px-4 py-4 text-base leading-7 text-stone-950 focus:outline-none focus:border-stone-950 resize-none" />
                                 <div className="mt-2 flex items-center justify-between gap-4">
                                   <FieldError>{errors.motivation}</FieldError>
                                   <p className="text-sm text-stone-400">{form.motivation.trim().length} / 140 mínimo</p>
@@ -576,7 +577,7 @@ export default function ApplicationModal({
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-3 text-sm text-stone-500">
                         <UserRound className="h-4 w-4" aria-hidden="true" />
-                        {step === 3 ? t('application.solicitudGratuitaNingunPasoDePago', 'Solicitud gratuita. Ningún paso de pago.') : 'No tardarás más de 3 minutos.'}
+                        {step === 3 ? i18n.t('application.solicitudGratuitaNingunPasoDePago', 'Solicitud gratuita. Ningún paso de pago.') : 'No tardarás más de 3 minutos.'}
                       </div>
 
                       <div className="flex flex-col-reverse gap-3 sm:flex-row">

@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const RECOMMENDED_PRODUCERS = [{
   id: 'prod_1',
   name: 'Cortijo Andaluz',
@@ -84,7 +85,7 @@ export default function StepFollow({
   const canProceed = following.length >= 3;
   return <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-stone-950">{t('step_follow.descubreAQuienSeguir', 'Descubre a quién seguir')}</h2>
+        <h2 className="text-2xl font-bold text-stone-950">{i18n.t('step_follow.descubreAQuienSeguir', 'Descubre a quién seguir')}</h2>
         <p className="text-stone-500 mt-2">
           Sigue al menos 3 productores para empezar
         </p>

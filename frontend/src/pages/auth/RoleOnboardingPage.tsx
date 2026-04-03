@@ -17,6 +17,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const DESTINATIONS = {
   customer: '/',
   producer: '/producer',
@@ -239,7 +240,7 @@ function ProducerOnboarding({
   };
   const saveStep1 = async () => {
     if (!storeName.trim()) {
-      toast.error(t('role_onboarding.escribeElNombreDeTuTienda', 'Escribe el nombre de tu tienda'));
+      toast.error(i18n.t('role_onboarding.escribeElNombreDeTuTienda', 'Escribe el nombre de tu tienda'));
       return;
     }
     try {
@@ -276,7 +277,7 @@ function ProducerOnboarding({
         onFinish();
       }
     } catch {
-      toast.error(t('role_onboarding.errorConectandoConStripeHazloDesde', 'Error conectando con Stripe. Hazlo desde tu panel.'));
+      toast.error(i18n.t('role_onboarding.errorConectandoConStripeHazloDesde', 'Error conectando con Stripe. Hazlo desde tu panel.'));
       onFinish();
     } finally {
       setStripeLoading(false);
@@ -286,29 +287,29 @@ function ProducerOnboarding({
   return <div className="w-full max-w-[400px]">
       {step === 1 && <>
           <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Crea tu tienda</h2>
-          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{t('role_onboarding.estoEsLoPrimeroQueVeranTusCliente', 'Esto es lo primero que verán tus clientes.')}</p>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{i18n.t('role_onboarding.estoEsLoPrimeroQueVeranTusCliente', 'Esto es lo primero que verán tus clientes.')}</p>
 
           <div className="mb-6 text-center">
             <label htmlFor="logo-upload" className="cursor-pointer">
               <div className="mx-auto mb-2 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-stone-200 bg-stone-50">
                 {logoPreview ? <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" /> : <div className="text-center">
                     <div className="text-[28px]">📷</div>
-                    <div className="text-[11px] text-stone-500">{t('role_onboarding.anadirLogo', 'Añadir logo')}</div>
+                    <div className="text-[11px] text-stone-500">{i18n.t('role_onboarding.anadirLogo', 'Añadir logo')}</div>
                   </div>}
               </div>
             </label>
             <input id="logo-upload" type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
-            <p className="text-[11px] text-stone-500">{t('role_onboarding.jpgPngOWebp·Maximo5mb', 'JPG, PNG o WebP · Máximo 5MB')}</p>
+            <p className="text-[11px] text-stone-500">{i18n.t('role_onboarding.jpgPngOWebp·Maximo5mb', 'JPG, PNG o WebP · Máximo 5MB')}</p>
           </div>
 
-          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">{t('role_onboarding.nombreDeTuTienda', 'Nombre de tu tienda')}</label>
+          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">{i18n.t('role_onboarding.nombreDeTuTienda', 'Nombre de tu tienda')}</label>
           <input className={`${inputClass} mb-6`} value={storeName} onChange={e => setStoreName(e.target.value)} placeholder="Ej: Aceites Cortijo El Bosque" />
           <OnboardingNav onNext={saveStep1} nextLabel="Continuar →" />
         </>}
 
       {step === 2 && <>
           <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Tu primer producto</h2>
-          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{t('role_onboarding.puedesAnadirMasDesdeTuPanelEsteP', 'Puedes añadir más desde tu panel. Este paso es opcional.')}</p>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{i18n.t('role_onboarding.puedesAnadirMasDesdeTuPanelEsteP', 'Puedes añadir más desde tu panel. Este paso es opcional.')}</p>
           <div className="mb-6 flex flex-col gap-3">
             <div>
               <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">Nombre del producto</label>
@@ -325,18 +326,18 @@ function ProducerOnboarding({
           })} placeholder="12.90" min="0" step="0.01" />
             </div>
             <div>
-              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">{t('products.category', 'Categoría')}</label>
+              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">{i18n.t('products.category', 'Categoría')}</label>
               <select className={inputClass} value={product.category} onChange={e => setProduct({
             ...product,
             category: e.target.value
           })}>
-                <option value="">{t('producer_products.seleccionaUnaCategoria', 'Selecciona una categoría')}</option>
+                <option value="">{i18n.t('producer_products.seleccionaUnaCategoria', 'Selecciona una categoría')}</option>
                 <option value="conservas">Conservas</option>
                 <option value="aceites">Aceites</option>
                 <option value="bebidas">Bebidas sin alcohol</option>
-                <option value="carnicos">{t('importer_catalog.carnicos', 'Cárnicos')}</option>
-                <option value="lacteos">{t('home.dairy', 'Lácteos')}</option>
-                <option value="panaderia">{t('onboarding.panaderia', 'Panadería')}</option>
+                <option value="carnicos">{i18n.t('importer_catalog.carnicos', 'Cárnicos')}</option>
+                <option value="lacteos">{i18n.t('home.dairy', 'Lácteos')}</option>
+                <option value="panaderia">{i18n.t('onboarding.panaderia', 'Panadería')}</option>
                 <option value="dulces">Dulces y mermeladas</option>
                 <option value="otros">Otros</option>
               </select>
@@ -351,7 +352,7 @@ function ProducerOnboarding({
             Necesitamos verificar tu identidad para transferirte el dinero de tus ventas de forma segura.
           </p>
           <div className="mb-6 rounded-2xl bg-stone-50 p-5">
-            {['Proceso seguro gestionado por Stripe', t('role_onboarding.tusDatosBancariosNuncaPasanPorHisp', 'Tus datos bancarios nunca pasan por Hispaloshop'), t('role_onboarding.recibirasTusPagosAutomaticamente', 'Recibirás tus pagos automáticamente'), t('role_onboarding.puedesHacerloMasTardeDesdeTuPanel', 'Puedes hacerlo más tarde desde tu panel')].map((text, i) => <p key={i} className="mb-2 text-[13px] text-stone-500 last:mb-0">
+            {['Proceso seguro gestionado por Stripe', i18n.t('role_onboarding.tusDatosBancariosNuncaPasanPorHisp', 'Tus datos bancarios nunca pasan por Hispaloshop'), i18n.t('role_onboarding.recibirasTusPagosAutomaticamente', 'Recibirás tus pagos automáticamente'), i18n.t('role_onboarding.puedesHacerloMasTardeDesdeTuPanel', 'Puedes hacerlo más tarde desde tu panel')].map((text, i) => <p key={i} className="mb-2 text-[13px] text-stone-500 last:mb-0">
                 ✓ {text}
               </p>)}
           </div>
@@ -384,7 +385,7 @@ function InfluencerOnboarding({
     if (step === 2) {
       apiClient.get('/influencer/me/code').then(data => setDiscountCode(data?.code || data?.discount_code || '')).catch(() => {
         setDiscountCode('');
-        toast.error(t('role_onboarding.noSePudoObtenerTuCodigo', 'No se pudo obtener tu código'));
+        toast.error(i18n.t('role_onboarding.noSePudoObtenerTuCodigo', 'No se pudo obtener tu código'));
       });
     }
   }, [step]);
@@ -429,7 +430,7 @@ function InfluencerOnboarding({
         </>}
 
       {step === 2 && <>
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">{t('influencer.discountCode', 'Tu código de descuento')}</h2>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">{i18n.t('influencer.discountCode', 'Tu código de descuento')}</h2>
           <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Tus seguidores obtienen un 10% de descuento en su primera compra. Tú ganas comisión de por vida.
           </p>
@@ -440,7 +441,7 @@ function InfluencerOnboarding({
             </p>
             <button onClick={() => {
           navigator.clipboard.writeText(discountCode);
-          toast.success(t('influencer.codeCopied', '¡Código copiado!'));
+          toast.success(i18n.t('influencer.codeCopied', '¡Código copiado!'));
         }} className="cursor-pointer rounded-full border-none bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100">
               Copiar código
             </button>
@@ -449,7 +450,7 @@ function InfluencerOnboarding({
             <p className="mb-1.5 text-[13px] text-stone-500">
               Cómo ganas dinero:
             </p>
-            {['Alguien usa tu código → 10% de descuento para ellos', 'Quedan vinculados a ti durante 18 meses', t('role_onboarding.cadaCompraQueHaganTeGeneraComision', 'Cada compra que hagan te genera comisión'), t('role_onboarding.cobrasAutomaticamenteEnTuCuentaBanc', 'Cobras automáticamente en tu cuenta bancaria')].map((t, i) => <p key={i} className="mb-1 text-xs text-stone-500">
+            {['Alguien usa tu código → 10% de descuento para ellos', 'Quedan vinculados a ti durante 18 meses', i18n.t('role_onboarding.cadaCompraQueHaganTeGeneraComision', 'Cada compra que hagan te genera comisión'), i18n.t('role_onboarding.cobrasAutomaticamenteEnTuCuentaBanc', 'Cobras automáticamente en tu cuenta bancaria')].map((t, i) => <p key={i} className="mb-1 text-xs text-stone-500">
                 {i + 1}. {t}
               </p>)}
           </div>
@@ -457,13 +458,13 @@ function InfluencerOnboarding({
         </>}
 
       {step === 3 && <>
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">{t('role_onboarding.todoListo', '¡Todo listo!')}</h2>
-          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{t('role_onboarding.empiezaCompartiendoTuCodigoConTusS', 'Empieza compartiendo tu código con tus seguidores.')}</p>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">{i18n.t('role_onboarding.todoListo', '¡Todo listo!')}</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">{i18n.t('role_onboarding.empiezaCompartiendoTuCodigoConTusS', 'Empieza compartiendo tu código con tus seguidores.')}</p>
           <div className="mb-8 flex flex-col gap-2.5">
             {[{
           emoji: '📊',
           title: 'Tu dashboard',
-          desc: t('role_onboarding.veTusComisionesEnTiempoReal', 'Ve tus comisiones en tiempo real')
+          desc: i18n.t('role_onboarding.veTusComisionesEnTiempoReal', 'Ve tus comisiones en tiempo real')
         }, {
           emoji: '🔗',
           title: 'Tus links',
@@ -471,7 +472,7 @@ function InfluencerOnboarding({
         }, {
           emoji: '💸',
           title: 'Cobra cada mes',
-          desc: t('role_onboarding.minimo20€TransferenciaAutomatica', 'Mínimo 20€, transferencia automática')
+          desc: i18n.t('role_onboarding.minimo20€TransferenciaAutomatica', 'Mínimo 20€, transferencia automática')
         }].map(item => <div key={item.title} className="flex items-center gap-3.5 rounded-xl border border-stone-200 bg-stone-100 px-4 py-3.5">
                 <span className="text-[28px]">{item.emoji}</span>
                 <div>

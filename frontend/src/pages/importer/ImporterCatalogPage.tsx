@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const CATEGORIES = [{
   value: '',
   label: "Todas las categorías"
@@ -209,7 +210,7 @@ function ProductDetailModal({
 
           {/* Description */}
           {product.description && <div className="mb-4">
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{t('productDetail.description', 'Descripción')}</p>
+              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{i18n.t('productDetail.description', 'Descripción')}</p>
               <p className="text-sm text-stone-700 leading-relaxed">{product.description}</p>
             </div>}
 
@@ -309,7 +310,7 @@ function B2BOrderRequestModal({
       });
       onSuccess();
     } catch {
-      toast.error(t('importer_catalog.errorAlEnviarLaSolicitud', 'Error al enviar la solicitud'));
+      toast.error(i18n.t('importer_catalog.errorAlEnviarLaSolicitud', 'Error al enviar la solicitud'));
     } finally {
       setSubmitting(false);
     }
@@ -507,7 +508,7 @@ export default function ImporterCatalogPage() {
   return <div>
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-stone-950 mb-3">{t('importer_catalog.catalogoMayorista', 'Catálogo mayorista')}</h1>
+        <h1 className="text-2xl font-bold text-stone-950 mb-3">{i18n.t('importer_catalog.catalogoMayorista', 'Catálogo mayorista')}</h1>
 
         {/* Product search */}
         <div className="relative mb-2">
@@ -555,7 +556,7 @@ export default function ImporterCatalogPage() {
       {/* Products grid */}
       {error && products.length === 0 ? <div className="text-center py-16">
           <AlertTriangle className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-stone-950 mb-1">{t('importer_catalog.errorAlCargarElCatalogo', 'Error al cargar el catálogo')}</p>
+          <p className="text-sm font-semibold text-stone-950 mb-1">{i18n.t('importer_catalog.errorAlCargarElCatalogo', 'Error al cargar el catálogo')}</p>
           <button onClick={() => fetchProducts(1, false)} className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer">
             Reintentar
           </button>

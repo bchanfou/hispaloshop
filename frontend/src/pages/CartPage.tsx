@@ -17,6 +17,7 @@ import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification 
 import { useTranslation } from 'react-i18next';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
+import i18n from "../locales/i18n";
 function ShippingProgressBar({
   store,
   currencyCode = 'EUR'
@@ -42,7 +43,7 @@ function ShippingProgressBar({
           {store.seller_avatar ? <img loading="lazy" src={store.seller_avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" /> : <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />}
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
-        {store.is_free ? <span className="text-xs font-bold text-stone-950 flex-shrink-0">{t('common.freeShipping', 'Envío gratis')}</span> : <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{fmtCents(store.shipping_cents)}</span>}
+        {store.is_free ? <span className="text-xs font-bold text-stone-950 flex-shrink-0">{i18n.t('common.freeShipping', 'Envío gratis')}</span> : <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{fmtCents(store.shipping_cents)}</span>}
       </div>
       <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{

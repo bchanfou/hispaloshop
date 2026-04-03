@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 /* ────────── Date helpers ────────── */
+import i18n from "../../locales/i18n";
 function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -42,7 +43,7 @@ function formatOnlineStatus(lastSeen) {
   const seen = new Date(lastSeen);
   const diffMin = Math.floor((now - seen) / 60000);
   if (diffMin < 2) return {
-    text: t('chat.online', 'En línea'),
+    text: i18n.t('chat.online', 'En línea'),
     online: true
   };
   if (diffMin < 60) return {
@@ -150,7 +151,7 @@ function ChatHeader({
               {conversation?.name || 'Chat'}
             </p>
             <div className="mt-0.5 flex items-center gap-1">
-              {isOnline ? <span className={`font-medium text-stone-950 ${showBackButton ? 'text-xs' : 'text-[11px]'}`}>{t('chat.online', 'En línea')}</span> : <span className={`${showBackButton ? 'text-xs' : 'text-[11px]'} text-stone-500`}>{status?.text || ''}</span>}
+              {isOnline ? <span className={`font-medium text-stone-950 ${showBackButton ? 'text-xs' : 'text-[11px]'}`}>{i18n.t('chat.online', 'En línea')}</span> : <span className={`${showBackButton ? 'text-xs' : 'text-[11px]'} text-stone-500`}>{status?.text || ''}</span>}
             </div>
           </div>
         </div>
@@ -161,7 +162,7 @@ function ChatHeader({
             <Search size={20} />
           </button>
 
-          <button onClick={() => setShowMenu(s => !s)} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300" aria-label={t('common.moreOptions', 'Más opciones')}>
+          <button onClick={() => setShowMenu(s => !s)} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300" aria-label={i18n.t('common.moreOptions', 'Más opciones')}>
             <MoreVertical size={20} />
           </button>
         </div>
@@ -217,7 +218,7 @@ function ChatHeader({
       }} className="overflow-hidden">
             <div className="mt-2 flex items-center gap-2 rounded-[10px] bg-stone-100 px-3 py-2">
               <Search size={16} className="shrink-0 text-stone-500" />
-              <input type="text" value={searchQuery} onChange={e => onSearchChange(e.target.value)} placeholder={t('chat.buscarEnLaConversacion', 'Buscar en la conversación...')} autoFocus className="min-w-0 flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400" />
+              <input type="text" value={searchQuery} onChange={e => onSearchChange(e.target.value)} placeholder={i18n.t('chat.buscarEnLaConversacion', 'Buscar en la conversación...')} autoFocus className="min-w-0 flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400" />
               {searchQuery && <button onClick={() => onSearchChange('')} className="text-stone-500">
                   <X size={16} />
                 </button>}
@@ -527,7 +528,7 @@ const MessageBubble = React.memo(function MessageBubble({
           <div className={`px-3.5 py-2.5 ${isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'}`} style={{
           borderRadius: '20px'
         }}>
-            <span className="text-[11px] text-stone-400 block mb-1">{t('chat.respondioATuStory', 'Respondió a tu story')}</span>
+            <span className="text-[11px] text-stone-400 block mb-1">{i18n.t('chat.respondioATuStory', 'Respondió a tu story')}</span>
             <p className="whitespace-pre-wrap break-words text-[15px]">{message.content}</p>
           </div>
           <ReactionBar reactions={message.reactions} />
@@ -942,7 +943,7 @@ function EmptyConversation({
       {conversation?.role && <span className="mb-2 mt-1 rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-500">
           {conversation.role}
         </span>}
-      <p className="mt-2 text-[13px] text-stone-500">{t('chat.iniciaLaConversacion', 'Inicia la conversación')}</p>
+      <p className="mt-2 text-[13px] text-stone-500">{i18n.t('chat.iniciaLaConversacion', 'Inicia la conversación')}</p>
 
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         {suggestions.map(text => <button key={text} onClick={() => onSendSuggestion(text)} className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-950 active:bg-stone-200">
@@ -1021,7 +1022,7 @@ function MessageInput({
   // Voice recording
   const startRecording = async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error(t('chat.tuNavegadorNoSoportaGrabacionDeAud', 'Tu navegador no soporta grabación de audio. Usa HTTPS o un navegador compatible.'));
+      toast.error(i18n.t('chat.tuNavegadorNoSoportaGrabacionDeAud', 'Tu navegador no soporta grabación de audio. Usa HTTPS o un navegador compatible.'));
       return;
     }
     try {
@@ -1057,7 +1058,7 @@ function MessageInput({
         setRecordingSecs(recordingSecsRef.current);
       }, 1000);
     } catch (err) {
-      toast.error(t('chat.noSePudoAccederAlMicrofonoComprue', 'No se pudo acceder al micrófono. Comprueba los permisos de tu navegador.'));
+      toast.error(i18n.t('chat.noSePudoAccederAlMicrofonoComprue', 'No se pudo acceder al micrófono. Comprueba los permisos de tu navegador.'));
     }
   };
   const stopRecording = () => {
@@ -1180,7 +1181,7 @@ function MessageInput({
           type: 'spring',
           stiffness: 400,
           damping: 20
-        }} onClick={() => onSend('❤️')} className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-950 active:scale-125 active:opacity-75" aria-label={t('chat.enviarCorazon', 'Enviar corazón')}>
+        }} onClick={() => onSend('❤️')} className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-950 active:scale-125 active:opacity-75" aria-label={i18n.t('chat.enviarCorazon', 'Enviar corazón')}>
                 <span className="text-[22px] leading-none">❤️</span>
               </motion.button>}
           </AnimatePresence>
@@ -1361,7 +1362,7 @@ export default function ChatPage() {
   const handleAttachDocument = useCallback(async file => {
     if (!conversationId || !file) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast.error(t('chat.maximo10Mb', 'Máximo 10 MB'));
+      toast.error(i18n.t('chat.maximo10Mb', 'Máximo 10 MB'));
       return;
     }
     try {
@@ -1395,7 +1396,7 @@ export default function ChatPage() {
         }));
       }
     } catch {
-      toast.error(t('chat.errorAlEnviarElDocumento', 'Error al enviar el documento'));
+      toast.error(i18n.t('chat.errorAlEnviarElDocumento', 'Error al enviar el documento'));
     }
   }, [conversationId, sendMessage, user]);
 
@@ -1433,7 +1434,7 @@ export default function ChatPage() {
         }));
       }
     } catch {
-      toast.error(t('chat.noSePudoEnviarElAudio', 'No se pudo enviar el audio'));
+      toast.error(i18n.t('chat.noSePudoEnviarElAudio', 'No se pudo enviar el audio'));
     }
   }, [conversationId, sendMessage, user]);
 
@@ -1626,7 +1627,7 @@ export default function ChatPage() {
               {filteredDesktopConversations.length === 0 ? <div className="flex h-full flex-col items-center justify-center px-6 text-center">
                   <MessageCircle size={40} className="text-stone-300" />
                   <p className="mt-3 text-sm font-medium text-stone-950">Sin conversaciones</p>
-                  <p className="mt-1 text-xs text-stone-500">{t('chat.pruebaOtroTerminoDeBusqueda', 'Prueba otro término de búsqueda.')}</p>
+                  <p className="mt-1 text-xs text-stone-500">{i18n.t('chat.pruebaOtroTerminoDeBusqueda', 'Prueba otro término de búsqueda.')}</p>
                 </div> : filteredDesktopConversations.map(conv => {
               const convKey = getConversationKey(conv);
               const isActive = String(convKey) === String(conversationId);
@@ -1645,7 +1646,7 @@ export default function ChatPage() {
                           <span className="text-[11px] font-medium text-stone-500">{formatConversationListTimestamp(conv.last_message_at)}</span>
                         </div>
                         <p className={`mt-0.5 truncate text-[13px] ${isUnread ? 'font-medium text-stone-900' : 'text-stone-400'}`}>
-                          {conv.last_message || t('chat.noMessages', 'Sin mensajes aún')}
+                          {conv.last_message || i18n.t('chat.noMessages', 'Sin mensajes aún')}
                         </p>
                       </div>
                       {isUnread && <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold text-white">

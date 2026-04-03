@@ -6,6 +6,7 @@ import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-reac
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
 const FILTERS = [{
   key: 'all',
@@ -156,7 +157,7 @@ function ConversationItem({
               </span>
               Escribiendo
             </span> : <span className={`truncate text-[13px] leading-[18px] ${isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
-              {last_message || t('chat.noMessages', 'Sin mensajes aún')}
+              {last_message || i18n.t('chat.noMessages', 'Sin mensajes aún')}
             </span>}
 
           {isUnread && <motion.span animate={{
@@ -329,8 +330,8 @@ export default function ChatsPage() {
               duration: 0.25
             }} className="flex flex-col items-center justify-center gap-3 px-6 pt-28">
                   <MessageCircle size={48} className="text-stone-300" strokeWidth={1.5} />
-                  <span className="text-base font-semibold text-stone-950">{t('chats.aunNoTienesMensajes', 'Aún no tienes mensajes')}</span>
-                  <span className="text-center text-[13px] text-stone-500">{t('chats.empiezaUnaConversacionConProductores', 'Empieza una conversación con productores, influencers y más')}</span>
+                  <span className="text-base font-semibold text-stone-950">{i18n.t('chats.aunNoTienesMensajes', 'Aún no tienes mensajes')}</span>
+                  <span className="text-center text-[13px] text-stone-500">{i18n.t('chats.empiezaUnaConversacionConProductores', 'Empieza una conversación con productores, influencers y más')}</span>
                   <button onClick={() => navigate('/messages/new')} className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80">
                     Nueva conversación
                   </button>

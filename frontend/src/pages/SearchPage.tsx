@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 /* ── Autocomplete Suggestion Item ── */
+import i18n from "../locales/i18n";
 function SuggestionItem({
   item,
   type,
@@ -319,7 +320,7 @@ export default function SearchPage() {
     const validMax = !isNaN(max) && max >= 0 ? String(max) : '';
     // Ensure min <= max when both provided
     if (validMin && validMax && parseFloat(validMin) > parseFloat(validMax)) {
-      toast.error(t('search.elPrecioMinimoNoPuedeSerMayorQue', 'El precio mínimo no puede ser mayor que el máximo'));
+      toast.error(i18n.t('search.elPrecioMinimoNoPuedeSerMayorQue', 'El precio mínimo no puede ser mayor que el máximo'));
       return;
     }
     setAppliedFilters({
@@ -452,7 +453,7 @@ export default function SearchPage() {
       } catch (err) {
         if (reqId !== searchIdRef.current) return;
         setResults(null);
-        toast.error(t('search.errorAlBuscarIntentaloDeNuevo', 'Error al buscar. Inténtalo de nuevo.'));
+        toast.error(i18n.t('search.errorAlBuscarIntentaloDeNuevo', 'Error al buscar. Inténtalo de nuevo.'));
       } finally {
         if (reqId === searchIdRef.current) setLoading(false);
       }
@@ -509,7 +510,7 @@ export default function SearchPage() {
   const showStores = (activeTab === 'all' || activeTab === 'stores') && counts.stores > 0;
   const showCreators = (activeTab === 'all' || activeTab === 'creators') && counts.creators > 0;
   return <div className="min-h-screen bg-white">
-      <SEO title="Buscar — Hispaloshop" description={t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.')} />
+      <SEO title="Buscar — Hispaloshop" description={i18n.t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.')} />
 
       {/* ── Search Bar (sticky) ── */}
       <div className="sticky top-0 z-40 bg-white px-3 py-2">
@@ -530,7 +531,7 @@ export default function SearchPage() {
               scale: 1
             }} exit={{
               scale: 0
-            }} type="button" aria-label={t('search.limpiarBusqueda', 'Limpiar búsqueda')} onClick={() => {
+            }} type="button" aria-label={i18n.t('search.limpiarBusqueda', 'Limpiar búsqueda')} onClick={() => {
               setQuery('');
               setResults(null);
               setSearchParams({});
@@ -606,8 +607,8 @@ export default function SearchPage() {
                     <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-stone-950">{t('common.freeShipping', 'Envío gratis')}</span>
-                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label={t('common.freeShipping', 'Envío gratis')} />
+                    <span className="text-sm text-stone-950">{i18n.t('common.freeShipping', 'Envío gratis')}</span>
+                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label={i18n.t('common.freeShipping', 'Envío gratis')} />
                   </div>
                 </div>
 
@@ -731,7 +732,7 @@ export default function SearchPage() {
               Prueba con otros términos o revisa la ortografía
             </p>
             <div className="flex flex-wrap justify-center gap-2">
-              {['Aceite de oliva', t('search.jamonIberico', 'Jamón ibérico'), 'Vino tinto'].map(suggestion => <button key={suggestion} onClick={() => setQuery(suggestion)} className={pillCls(false)}>
+              {['Aceite de oliva', i18n.t('search.jamonIberico', 'Jamón ibérico'), 'Vino tinto'].map(suggestion => <button key={suggestion} onClick={() => setQuery(suggestion)} className={pillCls(false)}>
                   {suggestion}
                 </button>)}
             </div>
@@ -811,7 +812,7 @@ export default function SearchPage() {
               </section>}
 
             <section className="pt-6">
-              <span className="mb-3 block text-[13px] font-bold text-stone-950">{t('search.busquedasPopulares', 'Búsquedas populares')}</span>
+              <span className="mb-3 block text-[13px] font-bold text-stone-950">{i18n.t('search.busquedasPopulares', 'Búsquedas populares')}</span>
               <div className="flex flex-col">
                 {trending.map((term, i) => <button key={term} onClick={() => {
                 setQuery(term);

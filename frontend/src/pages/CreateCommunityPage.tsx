@@ -8,6 +8,7 @@ import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
 
 // Pre-declare slugify so it's available before the component body
+import i18n from "../locales/i18n";
 function slugify(text) {
   return (text || '').toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 }
@@ -48,7 +49,7 @@ const CommunityPreviewCard = ({
           <p className="text-[15px] font-bold text-white m-0" style={{
           textShadow: '0 1px 3px rgba(0,0,0,0.3)'
         }}>
-            {form.name || t('create_community.nombreDeLaComunidad', 'Nombre de la comunidad')}
+            {form.name || i18n.t('create_community.nombreDeLaComunidad', 'Nombre de la comunidad')}
           </p>
         </div>
         {/* Category badge */}
@@ -108,7 +109,7 @@ export default function CreateCommunityPage() {
         <div className="px-5 pt-10 text-center max-w-[400px] mx-auto">
           <div className="bg-stone-100 rounded-[14px] px-6 py-8">
             <p className="text-5xl">🔒</p>
-            <h2 className="text-xl font-bold text-stone-950">{t('create_community.necesitasMasSeguidores', 'Necesitas más seguidores')}</h2>
+            <h2 className="text-xl font-bold text-stone-950">{i18n.t('create_community.necesitasMasSeguidores', 'Necesitas más seguidores')}</h2>
             <p className="text-stone-500">
               Para crear una comunidad necesitas al menos 100 seguidores o ser vendedor verificado.
             </p>
@@ -188,23 +189,23 @@ export default function CreateCommunityPage() {
   };
   const create = async () => {
     if (!form.name.trim()) {
-      toast.error(t('register.elNombreEsObligatorio', 'El nombre es obligatorio'));
+      toast.error(i18n.t('register.elNombreEsObligatorio', 'El nombre es obligatorio'));
       return;
     }
     if (form.name.trim().length < 3) {
-      toast.error(t('create_community.elNombreDebeTenerAlMenos3Caracter', 'El nombre debe tener al menos 3 caracteres'));
+      toast.error(i18n.t('create_community.elNombreDebeTenerAlMenos3Caracter', 'El nombre debe tener al menos 3 caracteres'));
       return;
     }
     if (!form.slug.trim()) {
-      toast.error(t('create_community.laUrlEsObligatoria', 'La URL es obligatoria'));
+      toast.error(i18n.t('create_community.laUrlEsObligatoria', 'La URL es obligatoria'));
       return;
     }
     if (form.slug.trim().length < 3) {
-      toast.error(t('create_community.laUrlDebeTenerAlMenos3Caracteres', 'La URL debe tener al menos 3 caracteres'));
+      toast.error(i18n.t('create_community.laUrlDebeTenerAlMenos3Caracteres', 'La URL debe tener al menos 3 caracteres'));
       return;
     }
     if (!/^[a-z0-9]/.test(form.slug)) {
-      toast.error(t('create_community.laUrlDebeEmpezarConUnaLetraONume', 'La URL debe empezar con una letra o número'));
+      toast.error(i18n.t('create_community.laUrlDebeEmpezarConUnaLetraONume', 'La URL debe empezar con una letra o número'));
       return;
     }
     if (isUploadingCover) {
@@ -218,14 +219,14 @@ export default function CreateCommunityPage() {
         slug: form.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
       };
       const data = await apiClient.post('/communities', payload);
-      toast.success(t('create_community.comunidadCreada', '¡Comunidad creada!'));
+      toast.success(i18n.t('create_community.comunidadCreada', '¡Comunidad creada!'));
       navigate(`/communities/${data.slug || form.slug}`);
     } catch (err) {
       const detail = err?.response?.data?.detail || err?.detail;
       if (detail === 'slug_taken') {
-        toast.error(t('create_community.esaUrlYaEstaEnUsoPruebaOtra', 'Esa URL ya está en uso. Prueba otra.'));
+        toast.error(i18n.t('create_community.esaUrlYaEstaEnUsoPruebaOtra', 'Esa URL ya está en uso. Prueba otra.'));
       } else {
-        toast.error(t('create_community.errorAlCrearLaComunidad', 'Error al crear la comunidad'));
+        toast.error(i18n.t('create_community.errorAlCrearLaComunidad', 'Error al crear la comunidad'));
       }
     } finally {
       setIsCreating(false);
@@ -263,7 +264,7 @@ export default function CreateCommunityPage() {
           }}>
             {coverPreview ? <img src={coverPreview} alt="" className="w-full h-full object-cover" /> : <div className="text-center text-stone-500">
                 <p className="text-[32px] mb-1">{form.emoji}</p>
-                <p className="text-xs">{t('create_community.anadirFotoDePortada', 'Añadir foto de portada')}</p>
+                <p className="text-xs">{i18n.t('create_community.anadirFotoDePortada', 'Añadir foto de portada')}</p>
               </div>}
             {isUploadingCover && <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -274,17 +275,17 @@ export default function CreateCommunityPage() {
 
         <div className="flex flex-col gap-3.5">
           {/* Name */}
-          <FormField label={t('create_community.nombreDeLaComunidad1', 'Nombre de la comunidad *')}>
+          <FormField label={i18n.t('create_community.nombreDeLaComunidad1', 'Nombre de la comunidad *')}>
             <input value={form.name} onChange={e => {
               update('name', e.target.value);
               if (!form.slug || form.slug === slugify(form.name)) {
                 update('slug', slugify(e.target.value));
               }
-            }} placeholder={t('create_community.ejAceitesDeEspana', 'Ej: Aceites de España')} maxLength={60} className="w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border" />
+            }} placeholder={i18n.t('create_community.ejAceitesDeEspana', 'Ej: Aceites de España')} maxLength={60} className="w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border" />
           </FormField>
 
           {/* Slug */}
-          <FormField label={t('create_community.urlDeLaComunidad', 'URL de la comunidad *')}>
+          <FormField label={i18n.t('create_community.urlDeLaComunidad', 'URL de la comunidad *')}>
             <div className="flex items-center">
               <span className="px-2.5 py-2.5 bg-stone-100 border border-stone-200 border-r-0 rounded-l-xl text-xs text-stone-500 whitespace-nowrap">
                 /communities/
@@ -297,9 +298,9 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Description */}
-          <FormField label={t('productDetail.description', 'Descripción')}>
+          <FormField label={i18n.t('productDetail.description', 'Descripción')}>
             <div className="relative">
-              <textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder={t('create_community.deQueTrataTuComunidad', '¿De qué trata tu comunidad?')} rows={3} maxLength={300} className="resize-none w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border" />
+              <textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder={i18n.t('create_community.deQueTrataTuComunidad', '¿De qué trata tu comunidad?')} rows={3} maxLength={300} className="resize-none w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border" />
               <span className="absolute bottom-2 right-2.5 text-[11px] text-stone-500">
                 {form.description.length}/300
               </span>
@@ -307,7 +308,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Emoji */}
-          <FormField label={t('create_community.iconoDeLaComunidad', 'Icono de la comunidad')}>
+          <FormField label={i18n.t('create_community.iconoDeLaComunidad', 'Icono de la comunidad')}>
             <div className="flex gap-1.5 flex-wrap">
               {EMOJIS.map(em => <button key={em} type="button" onClick={() => update('emoji', em)} aria-label={`Seleccionar icono ${em}`} aria-pressed={form.emoji === em} className={`w-10 h-10 rounded-xl cursor-pointer text-xl transition-all duration-150 ${form.emoji === em ? 'bg-stone-100 border-2 border-stone-950 scale-110 ring-2 ring-stone-950' : 'bg-white border border-stone-200 scale-100 hover:scale-105'}`}>
                   {em}
@@ -316,7 +317,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Category */}
-          <FormField label={t('products.category', 'Categoría')}>
+          <FormField label={i18n.t('products.category', 'Categoría')}>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => <button key={cat} type="button" onClick={() => update('category', form.category === cat ? '' : cat)} className={`px-3 py-1.5 rounded-full text-[13px] cursor-pointer transition-all duration-150 ${form.category === cat ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-950 border border-stone-200'}`}>
                   {cat}
@@ -325,7 +326,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Tags */}
-          <FormField label={t('create_community.etiquetasMax5', 'Etiquetas (máx. 5)')} hint="Presiona Enter para añadir">
+          <FormField label={i18n.t('create_community.etiquetasMax5', 'Etiquetas (máx. 5)')} hint="Presiona Enter para añadir">
             <div className="flex gap-1.5 mb-1.5 flex-wrap">
               {form.tags.map(tag => <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">
                   #{tag}

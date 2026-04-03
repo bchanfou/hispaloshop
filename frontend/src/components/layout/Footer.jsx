@@ -4,44 +4,59 @@ import { Instagram } from 'lucide-react';
 import Logo from '../brand/Logo';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
-
-const LEGAL_LINKS = [
-  { label: 'Privacidad', to: '/privacy' },
-  { label: 'T\u00e9rminos', to: '/terms' },
-  { label: 'Cookies', to: '/terms' },
-  { label: 'Contacto', to: '/contact' },
-];
-
+import i18n from "../../locales/i18n";
+const LEGAL_LINKS = [{
+  label: 'Privacidad',
+  to: '/privacy'
+}, {
+  label: 'T\u00e9rminos',
+  to: '/terms'
+}, {
+  label: 'Cookies',
+  to: '/terms'
+}, {
+  label: 'Contacto',
+  to: '/contact'
+}];
 export default function Footer() {
-  const { country, countries, updateCountry } = useLocale();
+  const {
+    country,
+    countries,
+    updateCountry
+  } = useLocale();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [footerSearch, setFooterSearch] = useState('');
-
-  const COUNTRIES = useMemo(() =>
-    Object.entries(countries || {}).map(([code, data]) => ({ code, flag: data.flag || '', name: data.name || code })),
-    [countries]
-  );
-  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0] || { code: 'ES', flag: '', name: t('admin.countries.ES', 'España') };
-  const setCountry = (code) => updateCountry(code);
-
-  const selectCountry = (code) => {
+  const COUNTRIES = useMemo(() => Object.entries(countries || {}).map(([code, data]) => ({
+    code,
+    flag: data.flag || '',
+    name: data.name || code
+  })), [countries]);
+  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0] || {
+    code: 'ES',
+    flag: '',
+    name: i18n.t('admin.countries.ES', 'España')
+  };
+  const setCountry = code => updateCountry(code);
+  const selectCountry = code => {
     setCountry(code);
-    try { localStorage.setItem('hsp_country', code); } catch { /* */ }
+    try {
+      localStorage.setItem('hsp_country', code);
+    } catch {/* */}
     setDropdownOpen(false);
   };
-
   useEffect(() => {
     if (!dropdownOpen) return;
-    const close = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) { setDropdownOpen(false); setFooterSearch(''); }
+    const close = e => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+        setFooterSearch('');
+      }
     };
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [dropdownOpen]);
-
-  return (
-    <footer className="bg-stone-950 border-t border-stone-800 px-6 py-10 md:py-16">
+  return <footer className="bg-stone-950 border-t border-stone-800 px-6 py-10 md:py-16">
       <div className="max-w-6xl mx-auto">
 
         {/* Main grid: logo | legal links | country + social */}
@@ -57,82 +72,47 @@ export default function Footer() {
 
           {/* Legal links */}
           <div className="flex items-center justify-center gap-1 flex-wrap">
-            {LEGAL_LINKS.map((link, i) => (
-              <React.Fragment key={link.to + i}>
-                <Link
-                  to={link.to}
-                  className="text-sm text-stone-400 hover:text-white transition-colors"
-                >
+            {LEGAL_LINKS.map((link, i) => <React.Fragment key={link.to + i}>
+                <Link to={link.to} className="text-sm text-stone-400 hover:text-white transition-colors">
                   {link.label}
                 </Link>
-                {i < LEGAL_LINKS.length - 1 && (
-                  <span className="text-stone-700 mx-1">&middot;</span>
-                )}
-              </React.Fragment>
-            ))}
+                {i < LEGAL_LINKS.length - 1 && <span className="text-stone-700 mx-1">&middot;</span>}
+              </React.Fragment>)}
           </div>
 
           {/* Country + Social */}
           <div className="flex items-center gap-3 justify-center md:justify-end">
             {/* Country selector */}
             <div ref={dropdownRef} className="relative">
-              <button
-                onClick={() => setDropdownOpen(v => !v)}
-                className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-400 text-sm cursor-pointer flex items-center gap-1.5"
-              >
+              <button onClick={() => setDropdownOpen(v => !v)} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-400 text-sm cursor-pointer flex items-center gap-1.5">
                 {selectedCountry.flag} {selectedCountry.name} &#9660;
               </button>
 
-              {dropdownOpen && (
-                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[220px] bg-stone-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-lg">
+              {dropdownOpen && <div className="absolute bottom-[calc(100%+8px)] right-0 w-[220px] bg-stone-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-lg">
                   <div className="p-2">
-                    <input
-                      type="text"
-                      placeholder="Buscar..."
-                      value={footerSearch}
-                      onChange={e => setFooterSearch(e.target.value)}
-                      className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-white/30"
-                    />
+                    <input type="text" placeholder="Buscar..." value={footerSearch} onChange={e => setFooterSearch(e.target.value)} className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-white/30" />
                   </div>
                   <div className="max-h-52 overflow-y-auto">
-                  {COUNTRIES.filter(c => !footerSearch || c.name.toLowerCase().includes(footerSearch.toLowerCase()) || c.code.toLowerCase().includes(footerSearch.toLowerCase())).map(c => (
-                    <button
-                      key={c.code}
-                      onClick={() => { selectCountry(c.code); setFooterSearch(''); }}
-                      className={`flex items-center gap-2 w-full px-3 py-2 border-none text-left text-sm ${
-                        country === c.code ? 'bg-white/[0.08] text-white font-semibold' : 'text-stone-400 hover:bg-white/[0.04]'
-                      } cursor-pointer`}
-                    >
+                  {COUNTRIES.filter(c => !footerSearch || c.name.toLowerCase().includes(footerSearch.toLowerCase()) || c.code.toLowerCase().includes(footerSearch.toLowerCase())).map(c => <button key={c.code} onClick={() => {
+                  selectCountry(c.code);
+                  setFooterSearch('');
+                }} className={`flex items-center gap-2 w-full px-3 py-2 border-none text-left text-sm ${country === c.code ? 'bg-white/[0.08] text-white font-semibold' : 'text-stone-400 hover:bg-white/[0.04]'} cursor-pointer`}>
                       <span>{c.flag}</span>
                       <span className="flex-1 truncate">{c.name}</span>
-                    </button>
-                  ))}
+                    </button>)}
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Social icons */}
             <div className="flex gap-3 items-center">
-              <a
-                href="/"
-                aria-label="Instagram"
-                className="text-stone-400 hover:text-white transition-colors flex"
-              >
+              <a href="/" aria-label="Instagram" className="text-stone-400 hover:text-white transition-colors flex">
                 <Instagram size={18} />
               </a>
-              <a
-                href="/"
-                aria-label="TikTok"
-                className="text-stone-400 hover:text-white transition-colors flex"
-              >
+              <a href="/" aria-label="TikTok" className="text-stone-400 hover:text-white transition-colors flex">
                 <span className="text-base leading-none">TK</span>
               </a>
-              <a
-                href="/"
-                aria-label="LinkedIn"
-                className="text-stone-400 hover:text-white transition-colors flex"
-              >
+              <a href="/" aria-label="LinkedIn" className="text-stone-400 hover:text-white transition-colors flex">
                 <span className="text-base leading-none font-bold">in</span>
               </a>
             </div>
@@ -159,6 +139,5 @@ export default function Footer() {
           &copy; 2026 Hispaloshop SL &middot; Todos los derechos reservados
         </p>
       </div>
-    </footer>
-  );
+    </footer>;
 }

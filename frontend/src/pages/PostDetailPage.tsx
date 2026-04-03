@@ -11,81 +11,58 @@ import BottomSheet from '../components/motion/BottomSheet';
 import { useTranslation } from 'react-i18next';
 
 /* ── Render caption with hashtags/mentions ── */
+import i18n from "../locales/i18n";
 function renderCaption(text, navigate) {
   if (!text) return null;
   const parts = text.split(/(#[\w\u00C0-\u024F]+|@[\w\u00C0-\u024F.]+)/g);
   return parts.map((part, i) => {
     if (part.startsWith('#')) {
-      return (
-        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`)}
-        >{part}</span>
-      );
+      return <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline" onClick={() => navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`)}>{part}</span>;
     }
     if (part.startsWith('@')) {
-      return (
-        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => navigate?.(`/${part.slice(1)}`)}
-        >{part}</span>
-      );
+      return <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline" onClick={() => navigate?.(`/${part.slice(1)}`)}>{part}</span>;
     }
     return <React.Fragment key={i}>{part}</React.Fragment>;
   });
 }
 
 /* ── Image carousel ── */
-function PostCarousel({ images, userName }) {
+function PostCarousel({
+  images,
+  userName
+}) {
   const [idx, setIdx] = useState(0);
   const scrollRef = useRef(null);
   const hasMultiple = images.length > 1;
-
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     setIdx(Math.round(el.scrollLeft / el.clientWidth));
   }, []);
-
   if (!images.length) return <div className="w-full aspect-square bg-stone-100" />;
-
-  return (
-    <div className="relative w-full bg-stone-100">
-      <div
-        ref={scrollRef}
-        className={`w-full aspect-square scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`}
-        onScroll={handleScroll}
-      >
-        {images.map((src, i) => (
-          <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start flex items-center justify-center aspect-square">
-            <img
-              src={src}
-              alt={`${userName} imagen ${i + 1}`}
-              className="w-full h-full object-cover"
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
-          </div>
-        ))}
+  return <div className="relative w-full bg-stone-100">
+      <div ref={scrollRef} className={`w-full aspect-square scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`} onScroll={handleScroll}>
+        {images.map((src, i) => <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start flex items-center justify-center aspect-square">
+            <img src={src} alt={`${userName} imagen ${i + 1}`} className="w-full h-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />
+          </div>)}
       </div>
-      {hasMultiple && (
-        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[2]">
+      {hasMultiple && <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[2]">
           <span className="text-[11px] text-white font-semibold tabular-nums">{idx + 1}/{images.length}</span>
-        </div>
-      )}
-      {hasMultiple && (
-        <div className="flex justify-center gap-1.5 py-2 bg-white">
-          {images.map((_, i) => (
-            <div key={i} className={`rounded-full transition-all duration-200 ${i === idx ? 'w-2 h-2 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+      {hasMultiple && <div className="flex justify-center gap-1.5 py-2 bg-white">
+          {images.map((_, i) => <div key={i} className={`rounded-full transition-all duration-200 ${i === idx ? 'w-2 h-2 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`} />)}
+        </div>}
+    </div>;
 }
-
 export default function PostDetailPage() {
-  const { postId } = useParams();
+  const {
+    postId
+  } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-
+  const {
+    user,
+    isAuthenticated
+  } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
@@ -104,76 +81,77 @@ export default function PostDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const inputRef = useRef(null);
   const likingRef = useRef(false);
-
   useEffect(() => {
     let active = true;
-    apiClient.get(`/posts/${postId}`)
-      .then((data) => { if (active) setPost(data?.post || data); })
-      .catch(() => { if (active) setPost(null); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    apiClient.get(`/posts/${postId}`).then(data => {
+      if (active) setPost(data?.post || data);
+    }).catch(() => {
+      if (active) setPost(null);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [postId]);
-
   useEffect(() => {
     if (!post) return;
     setLiked(post.liked ?? post.is_liked ?? false);
     setLikesCount(post.likes ?? post.likes_count ?? 0);
     setSaved(post.saved ?? post.is_saved ?? false);
   }, [post]);
-
   const fetchComments = useCallback(() => {
     setCommentsLoading(true);
-    apiClient.get(`/posts/${postId}/comments?limit=50`)
-      .then((data) => {
-        const list: any[] = Array.isArray(data) ? data : data?.comments || [];
-        setComments(list);
-        // Initialize liked set from API is_liked field
-        const liked = new Set<string>(
-          list
-            .filter((c: any) => c.is_liked)
-            .map((c: any) => c.comment_id || c.id)
-            .filter(Boolean)
-        );
-        setLikedComments(liked);
-      })
-      .catch(() => setComments([]))
-      .finally(() => setCommentsLoading(false));
+    apiClient.get(`/posts/${postId}/comments?limit=50`).then(data => {
+      const list: any[] = Array.isArray(data) ? data : data?.comments || [];
+      setComments(list);
+      // Initialize liked set from API is_liked field
+      const liked = new Set<string>(list.filter((c: any) => c.is_liked).map((c: any) => c.comment_id || c.id).filter(Boolean));
+      setLikedComments(liked);
+    }).catch(() => setComments([])).finally(() => setCommentsLoading(false));
   }, [postId]);
 
   // Only re-fetch when postId changes, not on every post state update (like/save/count)
-  useEffect(() => { fetchComments(); }, [postId, fetchComments]);
-
+  useEffect(() => {
+    fetchComments();
+  }, [postId, fetchComments]);
   const handleSendComment = async () => {
     const text = newComment.trim();
     if (!text || sending) return;
     setSending(true);
     try {
-      const payload = { text };
+      const payload = {
+        text
+      };
       if (replyTo) payload.reply_to = replyTo.commentId;
       const comment = await apiClient.post(`/posts/${postId}/comments`, payload);
       setComments(prev => [comment, ...prev]);
       setNewComment('');
       setReplyTo(null);
-      setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+      setPost(prev => prev ? {
+        ...prev,
+        comments_count: (prev.comments_count || 0) + 1
+      } : prev);
     } catch (err) {
       toast.error('Error al enviar comentario');
     } finally {
       setSending(false);
     }
   };
-
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async commentId => {
     try {
       await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
-      setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
+      setPost(prev => prev ? {
+        ...prev,
+        comments_count: Math.max(0, (prev.comments_count || 1) - 1)
+      } : prev);
     } catch (err) {
       toast.error('Error al eliminar comentario');
     }
   };
-
   const likingCommentRef = React.useRef(new Set());
-  const handleLikeComment = async (commentId) => {
+  const handleLikeComment = async commentId => {
     if (likingCommentRef.current.has(commentId)) return;
     likingCommentRef.current.add(commentId);
     const wasLiked = likedComments.has(commentId);
@@ -186,7 +164,10 @@ export default function PostDetailPage() {
     setComments(prev => prev.map(c => {
       const cId = c.comment_id || c.id;
       if (cId !== commentId) return c;
-      return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
+      return {
+        ...c,
+        likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1))
+      };
     }));
     try {
       await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
@@ -200,15 +181,16 @@ export default function PostDetailPage() {
       setComments(prev => prev.map(c => {
         const cId = c.comment_id || c.id;
         if (cId !== commentId) return c;
-        return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
+        return {
+          ...c,
+          likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1))
+        };
       }));
     } finally {
       likingCommentRef.current.delete(commentId);
     }
   };
-
   const isReel = !!(post?.video_url || post?.type === 'reel' || post?.is_reel);
-
   const handleLikePost = async () => {
     if (likingRef.current) return;
     likingRef.current = true;
@@ -225,45 +207,49 @@ export default function PostDetailPage() {
       likingRef.current = false;
     }
   };
-
   const handleSavePost = async () => {
     setSaved(s => !s);
     try {
       const endpoint = isReel ? `/reels/${postId}/save` : `/posts/${postId}/save`;
       await apiClient.post(endpoint);
-    } catch (err) { setSaved(s => !s); }
+    } catch (err) {
+      setSaved(s => !s);
+    }
   };
-
   const handleShare = async () => {
     const url = `${window.location.origin}/posts/${postId}`;
     try {
-      if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
-      else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch (err) { /* share cancelled or clipboard unavailable */ }
+      if (navigator.share) await navigator.share({
+        title: 'HispaloShop',
+        url
+      });else {
+        await navigator.clipboard?.writeText(url);
+        toast.success('Enlace copiado');
+      }
+    } catch (err) {/* share cancelled or clipboard unavailable */}
   };
-
   const handleReply = useCallback((commentId, username) => {
-    setReplyTo({ commentId, username });
+    setReplyTo({
+      commentId,
+      username
+    });
     setNewComment(`@${username} `);
     inputRef.current?.focus();
   }, []);
-
-  const isOwner = user && post && (
-    (user.user_id || user.id) === (post.user?.id || post.user?.user_id || post.user_id)
-  );
-
+  const isOwner = user && post && (user.user_id || user.id) === (post.user?.id || post.user?.user_id || post.user_id);
   const handleEditSave = async () => {
     try {
       const endpoint = isReel ? `/reels/${postId}` : `/posts/${postId}`;
-      await apiClient.patch(endpoint, { caption: editCaption });
+      await apiClient.patch(endpoint, {
+        caption: editCaption
+      });
       setLocalCaption(editCaption);
       setShowEditCaption(false);
-      toast.success(t('post_detail.publicacionEditada', 'Publicación editada'));
+      toast.success(i18n.t('post_detail.publicacionEditada', 'Publicación editada'));
     } catch (err) {
       toast.error('Error al editar');
     }
   };
-
   const handleDeletePost = async () => {
     setShowDeleteConfirm(false);
     try {
@@ -278,8 +264,7 @@ export default function PostDetailPage() {
 
   /* ── Loading ── */
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white">
+    return <div className="min-h-screen bg-white">
         {/* Header skeleton */}
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="w-8 h-8 rounded-full bg-stone-100 animate-pulse" />
@@ -289,52 +274,44 @@ export default function PostDetailPage() {
         <div className="aspect-square bg-stone-100 animate-pulse" />
         {/* Actions skeleton */}
         <div className="flex gap-4 px-4 py-3">
-          {[1,2,3,4].map(i => <div key={i} className="w-6 h-6 bg-stone-100 rounded animate-pulse" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="w-6 h-6 bg-stone-100 rounded animate-pulse" />)}
         </div>
         {/* Caption skeleton */}
         <div className="px-4 space-y-2">
           <div className="w-3/4 h-3 bg-stone-100 rounded animate-pulse" />
           <div className="w-1/2 h-3 bg-stone-100 rounded animate-pulse" />
         </div>
-      </div>
-    );
+      </div>;
   }
 
   /* ── Not found ── */
   if (!post) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white">
+    return <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white">
         <p className="text-[15px] text-stone-500">Post no encontrado</p>
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-[13px] font-semibold border-none cursor-pointer"
-        >
+        <button onClick={() => navigate('/')} className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-[13px] font-semibold border-none cursor-pointer">
           Volver al feed
         </button>
-      </div>
-    );
+      </div>;
   }
-
   const images = (() => {
     if (Array.isArray(post?.media) && post.media.length > 0) return post.media.map(m => typeof m === 'string' ? m : m?.url).filter(Boolean);
     if (Array.isArray(post?.images) && post.images.length > 0) return post.images;
     if (post?.image_url) return [post.image_url];
     return [];
   })();
-
   const userObj = post?.user || {};
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
   const userName = userObj.name || post?.user_name || 'Usuario';
   const commentsCount = post.comments_count ?? comments.length;
-
-  return (
-    <div className="min-h-screen bg-white pb-20">
+  return <div className="min-h-screen bg-white pb-20">
       {/* ── Top bar ── */}
-      <header className="sticky top-0 z-40 bg-white border-b border-stone-100 h-12 flex items-center gap-3 px-4" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header className="sticky top-0 z-40 bg-white border-b border-stone-100 h-12 flex items-center gap-3 px-4" style={{
+      paddingTop: 'env(safe-area-inset-top)'
+    }}>
         <button onClick={() => navigate(-1)} aria-label="Volver" className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1">
           <ChevronLeft size={24} className="text-stone-950" />
         </button>
-        <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{t('post_detail.publicacion', 'Publicación')}</span>
+        <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{i18n.t('post_detail.publicacion', 'Publicación')}</span>
       </header>
 
       {/* ── Post content ── */}
@@ -342,13 +319,9 @@ export default function PostDetailPage() {
         {/* Header */}
         <div className="flex items-center gap-2.5 px-4 py-3">
           <Link to={`/${userObj.username || post.username || post.user_id}`} className="shrink-0">
-            {avatarUrl ? (
-              <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
-            ) : (
-              <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+            {avatarUrl ? <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                 {userName.charAt(0).toUpperCase()}
-              </div>
-            )}
+              </div>}
           </Link>
           <div className="min-w-0 flex-1">
             <Link to={`/${userObj.username || post.username || post.user_id}`} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
@@ -356,74 +329,55 @@ export default function PostDetailPage() {
             </Link>
             {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
           </div>
-          <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label={t('common.moreOptions', 'Más opciones')} onClick={() => setShowMenu(v => !v)}>
+          <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label={i18n.t('common.moreOptions', 'Más opciones')} onClick={() => setShowMenu(v => !v)}>
             <MoreHorizontal size={20} className="text-stone-500" />
           </button>
         </div>
 
         <BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)}>
           <div className="px-5 pb-6 pt-2">
-            {isOwner && (
-              <>
-                <button
-                  className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
-                  onClick={() => { setEditCaption(localCaption ?? post.caption ?? post.content ?? ''); setShowEditCaption(true); setShowMenu(false); }}
-                >
+            {isOwner && <>
+                <button className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer" onClick={() => {
+              setEditCaption(localCaption ?? post.caption ?? post.content ?? '');
+              setShowEditCaption(true);
+              setShowMenu(false);
+            }}>
                   <Pencil size={20} /> Editar
                 </button>
-                <button
-                  className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
-                  onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
-                >
+                <button className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer" onClick={() => {
+              setShowDeleteConfirm(true);
+              setShowMenu(false);
+            }}>
                   <Trash2 size={20} /> Eliminar
                 </button>
-              </>
-            )}
-            <button
-              className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
-              onClick={() => {
-                navigator.clipboard?.writeText(`${window.location.origin}/posts/${postId}`);
-                toast.success('Enlace copiado');
-                setShowMenu(false);
-              }}
-            >
+              </>}
+            <button className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer" onClick={() => {
+            navigator.clipboard?.writeText(`${window.location.origin}/posts/${postId}`);
+            toast.success('Enlace copiado');
+            setShowMenu(false);
+          }}>
               Copiar enlace
             </button>
-            {!isOwner && ['inappropriate', 'spam', 'harassment'].map(reason => (
-              <button
-                key={reason}
-                className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
-                onClick={async () => {
-                  try {
-                    await apiClient.post(`/posts/${postId}/report`, { reason });
-                    toast.success('Reporte enviado');
-                  } catch (err) { toast.error('Error al reportar'); }
-                  setShowMenu(false);
-                }}
-              >
+            {!isOwner && ['inappropriate', 'spam', 'harassment'].map(reason => <button key={reason} className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer" onClick={async () => {
+            try {
+              await apiClient.post(`/posts/${postId}/report`, {
+                reason
+              });
+              toast.success('Reporte enviado');
+            } catch (err) {
+              toast.error('Error al reportar');
+            }
+            setShowMenu(false);
+          }}>
                 <Flag size={20} /> {reason === 'inappropriate' ? 'Contenido inapropiado' : reason === 'spam' ? 'Spam' : 'Acoso'}
-              </button>
-            ))}
+              </button>)}
           </div>
         </BottomSheet>
 
         {/* Media — video for reels, carousel for posts */}
-        {(post.video_url || post.type === 'reel' || post.is_reel) ? (
-          <div className="relative w-full bg-black aspect-[9/16] max-h-[70vh] flex items-center justify-center">
-            <video
-              src={post.video_url || post.original_video_url || images[0]}
-              poster={post.thumbnail_url || post.cover_url}
-              controls
-              playsInline
-              autoPlay
-              muted
-              loop
-              className="w-full h-full object-contain"
-            />
-          </div>
-        ) : (
-          <PostCarousel images={images} userName={userName} />
-        )}
+        {post.video_url || post.type === 'reel' || post.is_reel ? <div className="relative w-full bg-black aspect-[9/16] max-h-[70vh] flex items-center justify-center">
+            <video src={post.video_url || post.original_video_url || images[0]} poster={post.thumbnail_url || post.cover_url} controls playsInline autoPlay muted loop className="w-full h-full object-contain" />
+          </div> : <PostCarousel images={images} userName={userName} />}
 
         {/* Actions row */}
         <div className="flex items-center px-3 py-2">
@@ -444,212 +398,145 @@ export default function PostDetailPage() {
         </div>
 
         {/* Likes */}
-        {likesCount > 0 && !post?.hide_likes && (
-          <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
+        {likesCount > 0 && !post?.hide_likes && <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
             {likesCount.toLocaleString()} Me gusta
-          </p>
-        )}
+          </p>}
 
         {/* Caption */}
-        {(localCaption ?? post.caption ?? post.content) && (
-          <div className="px-4 pb-2">
+        {(localCaption ?? post.caption ?? post.content) && <div className="px-4 pb-2">
             <p className="text-[13px] leading-relaxed text-stone-950">
               <Link to={`/${userObj.username || post.username || post.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
                 {userName}
               </Link>
               {renderCaption(localCaption ?? post.caption ?? post.content, navigate)}
             </p>
-          </div>
-        )}
+          </div>}
 
         {/* Time */}
         <p className="px-4 pb-3 text-[11px] text-stone-400">{timeAgo(post.created_at)}</p>
       </div>
 
       {/* ── Edit caption modal ── */}
-      {showEditCaption && (
-        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
+      {showEditCaption && <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
           <div className="bg-white w-full max-w-lg rounded-t-2xl p-4 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-stone-950">{t('post_detail.editarPublicacion', 'Editar publicación')}</span>
+              <span className="text-sm font-semibold text-stone-950">{i18n.t('post_detail.editarPublicacion', 'Editar publicación')}</span>
               <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar"><X size={18} /></button>
             </div>
-            <textarea
-              value={editCaption}
-              onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
-              className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
-              aria-label={t('post_detail.editarDescripcion', 'Editar descripción')}
-            />
-            <p className="text-[11px] text-stone-400">{t('post_detail.laImagenNoSePuedeCambiarTrasPubli', 'La imagen no se puede cambiar tras publicar.')}</p>
-            <button
-              onClick={handleEditSave}
-              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
-            >
+            <textarea value={editCaption} onChange={e => setEditCaption(e.target.value.slice(0, 2200))} className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border" aria-label={i18n.t('post_detail.editarDescripcion', 'Editar descripción')} />
+            <p className="text-[11px] text-stone-400">{i18n.t('post_detail.laImagenNoSePuedeCambiarTrasPubli', 'La imagen no se puede cambiar tras publicar.')}</p>
+            <button onClick={handleEditSave} className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">
               Guardar cambios
             </button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* ── Delete confirmation modal ── */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
+      {showDeleteConfirm && <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
           <div className="bg-white w-full max-w-lg rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={e => e.stopPropagation()}>
             <p className="text-base font-semibold text-stone-950">¿Eliminar este post?</p>
-            <p className="text-sm text-stone-500">{t('post_detail.seEliminaraPermanentementeJuntoConS', 'Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.')}</p>
+            <p className="text-sm text-stone-500">{i18n.t('post_detail.seEliminaraPermanentementeJuntoConS', 'Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.')}</p>
             <div className="flex gap-3 mt-2">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
-              >
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer">
                 Cancelar
               </button>
-              <button
-                onClick={handleDeletePost}
-                className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
-              >
+              <button onClick={handleDeletePost} className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer">
                 Eliminar
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* ── Comments section ── */}
       <div className="max-w-[600px] mx-auto mt-2 bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-100">
         {/* Label */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-stone-100">
           <span className="text-[12px] font-semibold text-stone-500 uppercase tracking-wider">Comentarios</span>
-          {commentsCount > 0 && (
-            <span className="text-[11px] font-bold text-white bg-stone-950 rounded-full px-2 py-0.5 min-w-[20px] text-center">
+          {commentsCount > 0 && <span className="text-[11px] font-bold text-white bg-stone-950 rounded-full px-2 py-0.5 min-w-[20px] text-center">
               {commentsCount}
-            </span>
-          )}
+            </span>}
         </div>
 
         {/* Comments list */}
         <div className="px-4">
-          {commentsLoading ? (
-            <div className="space-y-3 py-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex gap-3 animate-pulse">
+          {commentsLoading ? <div className="space-y-3 py-4">
+              {[1, 2, 3].map(i => <div key={i} className="flex gap-3 animate-pulse">
                   <div className="h-8 w-8 rounded-full bg-stone-100 shrink-0" />
                   <div className="flex-1 space-y-1.5">
                     <div className="h-3 w-24 bg-stone-100 rounded" />
                     <div className="h-3 w-full bg-stone-100 rounded" />
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : comments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <p className="text-[14px] font-semibold text-stone-950">{t('feed.noComments', 'Sin comentarios aún')}</p>
-              <p className="text-[12px] text-stone-400 mt-1">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-stone-50">
+                </div>)}
+            </div> : comments.length === 0 ? <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-[14px] font-semibold text-stone-950">{i18n.t('feed.noComments', 'Sin comentarios aún')}</p>
+              <p className="text-[12px] text-stone-400 mt-1">{i18n.t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
+            </div> : <div className="divide-y divide-stone-50">
               {comments.map(c => {
-                const cId = c.comment_id || c.id;
-                const isOwn = user?.user_id === c.user_id;
-                const avatar = c.user_profile_image || c.avatar || c.avatar_url;
-                const cName = c.user_name || c.username || 'usuario';
-
-                return (
-                  <div key={cId} className="flex gap-3 py-3 group">
+            const cId = c.comment_id || c.id;
+            const isOwn = user?.user_id === c.user_id;
+            const avatar = c.user_profile_image || c.avatar || c.avatar_url;
+            const cName = c.user_name || c.username || 'usuario';
+            return <div key={cId} className="flex gap-3 py-3 group">
                     <Link to={`/${c.username || c.user_id}`} className="shrink-0">
-                      {avatar ? (
-                        <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+                      {avatar ? <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                           {cName.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                        </div>}
                     </Link>
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] leading-relaxed text-stone-950">
                         <Link to={`/${c.username || c.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
                           {cName}
                         </Link>
-                        {c.user_id === post.user_id && (
-                          <span className="text-[9px] font-bold text-white bg-stone-950 rounded-full px-1.5 py-0.5 mr-1.5 align-middle">Autor</span>
-                        )}
+                        {c.user_id === post.user_id && <span className="text-[9px] font-bold text-white bg-stone-950 rounded-full px-1.5 py-0.5 mr-1.5 align-middle">Autor</span>}
                         {c.text || c.content}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-[11px] text-stone-400">{timeAgo(c.created_at)}</span>
-                        <button
-                          onClick={() => handleLikeComment(cId)}
-                          className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]"
-                        >
+                        <button onClick={() => handleLikeComment(cId)} className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]">
                           <Heart size={12} className={likedComments.has(cId) ? 'text-stone-950 fill-stone-950' : 'text-stone-400'} strokeWidth={1.8} />
                           {(c.likes_count || 0) > 0 && <span className="text-[11px] text-stone-400">{c.likes_count}</span>}
                         </button>
-                        <button
-                          onClick={() => handleReply(cId, cName)}
-                          className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center"
-                        >
+                        <button onClick={() => handleReply(cId, cName)} className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center">
                           Responder
                         </button>
-                        {isOwn && (
-                          <button
-                            onClick={() => handleDeleteComment(cId)}
-                            className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                          >
+                        {isOwn && <button onClick={() => handleDeleteComment(cId)} className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                             <Trash2 size={12} className="text-stone-400 hover:text-stone-700" />
-                          </button>
-                        )}
+                          </button>}
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  </div>;
+          })}
+            </div>}
         </div>
       </div>
 
       {/* ── Sticky comment input ── */}
-      {isAuthenticated && !post?.disable_comments && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-100" style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
-          {replyTo && (
-            <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">
+      {isAuthenticated && !post?.disable_comments && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-100" style={{
+      paddingBottom: 'max(4px, env(safe-area-inset-bottom))'
+    }}>
+          {replyTo && <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">
               <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username || replyTo.user_name || 'usuario'}</span></span>
-              <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
+              <button onClick={() => {
+          setReplyTo(null);
+          setNewComment('');
+        }} className="bg-transparent border-none cursor-pointer p-0">
                 <X size={14} className="text-stone-400" />
               </button>
-            </div>
-          )}
+            </div>}
           <div className="flex items-center gap-3 px-4 py-3">
-            {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
-              <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
+            {user?.avatar_url || user?.avatar || user?.profile_image ? <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" /> : <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
                 {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
-              </div>
-            )}
-            <input
-              ref={inputRef}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); } }}
-              placeholder={t('feed.addComment', 'Añade un comentario...')}
-              className="flex-1 h-9 rounded-full bg-stone-100 px-3.5 text-[13px] text-stone-950 placeholder:text-stone-400 font-sans outline-none border-none"
-              disabled={sending}
-            />
-            <button
-              onClick={handleSendComment}
-              disabled={!newComment.trim() || sending}
-              className="flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30 transition-opacity px-1"
-            >
-              {sending ? (
-                <Loader2 size={16} className="text-stone-400 animate-spin" />
-              ) : (
-                <span className="text-[13px] font-semibold text-stone-950">Enviar</span>
-              )}
+              </div>}
+            <input ref={inputRef} value={newComment} onChange={e => setNewComment(e.target.value.slice(0, 500))} onKeyDown={e => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendComment();
+          }
+        }} placeholder={i18n.t('feed.addComment', 'Añade un comentario...')} className="flex-1 h-9 rounded-full bg-stone-100 px-3.5 text-[13px] text-stone-950 placeholder:text-stone-400 font-sans outline-none border-none" disabled={sending} />
+            <button onClick={handleSendComment} disabled={!newComment.trim() || sending} className="flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30 transition-opacity px-1">
+              {sending ? <Loader2 size={16} className="text-stone-400 animate-spin" /> : <span className="text-[13px] font-semibold text-stone-950">Enviar</span>}
             </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 }

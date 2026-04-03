@@ -9,6 +9,7 @@ import BackButton from '../components/BackButton';
 import { useTranslation } from 'react-i18next';
 
 /* ── Static editorial collections (Apple-style curated lists) ── */
+import i18n from "../locales/i18n";
 const EDITORIAL_COLLECTIONS = [{
   id: 'aceite-oliva',
   title: "El mejor aceite de oliva",
@@ -77,7 +78,7 @@ export default function EditorialCollectionsPage() {
         }}>
               <Link to={`/products?search=${encodeURIComponent(col.tag)}`} className="block no-underline">
                 <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${col.gradient} p-5 h-[140px] flex flex-col justify-end`}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">{t('editorial_collections.coleccion', 'Colección')}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">{i18n.t('editorial_collections.coleccion', 'Colección')}</p>
                   <p className="text-[17px] font-bold text-white leading-tight">{col.title}</p>
                   <p className="text-[13px] text-white/70 mt-0.5">{col.subtitle}</p>
                   <ChevronRight size={20} className="absolute right-4 bottom-5 text-white/40" />

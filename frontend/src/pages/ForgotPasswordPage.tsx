@@ -5,20 +5,21 @@ import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
     setLoading(true);
     try {
-      await apiClient.post('/auth/forgot-password', { email });
+      await apiClient.post('/auth/forgot-password', {
+        email
+      });
     } catch {
       // Always show success to prevent email enumeration
     } finally {
@@ -27,12 +28,13 @@ export default function ForgotPasswordPage() {
       setCooldown(60);
     }
   };
-
   const handleResend = async () => {
     if (cooldown > 0) return;
     setSending(true);
     try {
-      await apiClient.post('/auth/forgot-password', { email });
+      await apiClient.post('/auth/forgot-password', {
+        email
+      });
       toast.success('Email reenviado');
       setCooldown(60);
     } catch {
@@ -41,7 +43,6 @@ export default function ForgotPasswordPage() {
       setSending(false);
     }
   };
-
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setInterval(() => setCooldown(c => c <= 1 ? 0 : c - 1), 1000);
@@ -50,8 +51,7 @@ export default function ForgotPasswordPage() {
 
   // Step 2: Confirmation
   if (sent) {
-    return (
-      <div className="text-center">
+    return <div className="text-center">
         <div className="w-16 h-16 rounded-full mx-auto mb-5 bg-stone-100 flex items-center justify-center">
           <Mail size={28} className="text-stone-950" />
         </div>
@@ -63,13 +63,7 @@ export default function ForgotPasswordPage() {
           Puede tardar unos minutos.
         </p>
 
-        <button
-          type="button"
-          onClick={handleResend}
-          disabled={cooldown > 0 || sending}
-          aria-label={t('forgot_password.reenviarEmailDeRecuperacion', 'Reenviar email de recuperación')}
-          className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
+        <button type="button" onClick={handleResend} disabled={cooldown > 0 || sending} aria-label={i18n.t('forgot_password.reenviarEmailDeRecuperacion', 'Reenviar email de recuperación')} className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           {sending ? <Loader2 size={18} className="animate-spin" /> : cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar email'}
         </button>
 
@@ -78,13 +72,11 @@ export default function ForgotPasswordPage() {
             Volver al login
           </Link>
         </p>
-      </div>
-    );
+      </div>;
   }
 
   // Step 1: Email form
-  return (
-    <>
+  return <>
       <h1 className="text-2xl font-bold text-stone-950 text-center mb-1">
         Recuperar contraseña
       </h1>
@@ -97,23 +89,10 @@ export default function ForgotPasswordPage() {
           <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">
             Email
           </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="hola@ejemplo.com"
-            required
-            autoComplete="email"
-            className="w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border border-stone-200 rounded-xl outline-none transition-colors focus:border-stone-400"
-          />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="hola@ejemplo.com" required autoComplete="email" className="w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border border-stone-200 rounded-xl outline-none transition-colors focus:border-stone-400" />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          aria-label={t('forgot_password.enviarEnlaceDeRecuperacion', 'Enviar enlace de recuperación')}
-          className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
+        <button type="submit" disabled={loading} aria-label={i18n.t('forgot_password.enviarEnlaceDeRecuperacion', 'Enviar enlace de recuperación')} className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
           {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enviar enlace'}
         </button>
       </form>
@@ -123,6 +102,5 @@ export default function ForgotPasswordPage() {
           Volver al login
         </Link>
       </p>
-    </>
-  );
+    </>;
 }

@@ -1,49 +1,36 @@
 import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 const icons = {
   success: CheckCircle,
   error: AlertCircle,
   warning: AlertTriangle,
-  info: Info,
+  info: Info
 };
-
 const styles = {
   success: 'bg-stone-700 text-white border-stone-800',
   error: 'bg-stone-950 text-white border-stone-950',
   warning: 'bg-stone-600 text-white border-stone-700',
-  info: 'bg-stone-500 text-white border-stone-600',
+  info: 'bg-stone-500 text-white border-stone-600'
 };
-
-export function ToastContainer({ toasts, onRemove }) {
+export function ToastContainer({
+  toasts,
+  onRemove
+}) {
   if (toasts.length === 0) return null;
-
-  return (
-    <div className="fixed bottom-4 right-4 z-[100] space-y-2 max-w-sm w-full px-4 md:px-0">
-      {toasts.map((toast) => {
-        const Icon = icons[toast.type];
-        return (
-          <div
-            key={toast.id}
-            className={`${styles[toast.type]} border rounded-2xl shadow-lg p-4 flex items-start gap-3 animate-slide-in`}
-            role="alert"
-          >
+  return <div className="fixed bottom-4 right-4 z-[100] space-y-2 max-w-sm w-full px-4 md:px-0">
+      {toasts.map(toast => {
+      const Icon = icons[toast.type];
+      return <div key={toast.id} className={`${styles[toast.type]} border rounded-2xl shadow-lg p-4 flex items-start gap-3 animate-slide-in`} role="alert">
             <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium">{toast.message}</p>
             </div>
-            <button
-              onClick={() => onRemove(toast.id)}
-              className="opacity-75 hover:opacity-100 transition-opacity"
-              aria-label={t('toast_container.cerrarNotificacion', 'Cerrar notificación')}
-            >
+            <button onClick={() => onRemove(toast.id)} className="opacity-75 hover:opacity-100 transition-opacity" aria-label={i18n.t('toast_container.cerrarNotificacion', 'Cerrar notificación')}>
               <X className="w-4 h-4" />
             </button>
-          </div>
-        );
-      })}
-    </div>
-  );
+          </div>;
+    })}
+    </div>;
 }
-
 export default ToastContainer;

@@ -18,13 +18,14 @@ import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 export default function UserProfilePage() {
   const params = useParams();
   const routeUserKey = params.userId || params.username;
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-
+  const {
+    user: currentUser
+  } = useAuth();
   const [selectedPost, setSelectedPost] = useState(null);
   const [allPosts, setAllPosts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -36,28 +37,23 @@ export default function UserProfilePage() {
   const [highlightStories, setHighlightStories] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const tabsRef = useRef(null);
-
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 180);
     window.addEventListener('scroll', handler);
     return () => window.removeEventListener('scroll', handler);
   }, []);
-
   const currentUserId = currentUser?.user_id || currentUser?.id || null;
   const currentUsername = currentUser?.username || null;
-
-  const isOwn = Boolean(currentUser && (
-    String(currentUser.user_id) === String(routeUserKey) ||
-    String(currentUser.id) === String(routeUserKey) ||
-    String(currentUsername || '').toLowerCase() === String(routeUserKey || '').toLowerCase()
-  ));
+  const isOwn = Boolean(currentUser && (String(currentUser.user_id) === String(routeUserKey) || String(currentUser.id) === String(routeUserKey) || String(currentUsername || '').toLowerCase() === String(routeUserKey || '').toLowerCase()));
 
   // Important: own profile must resolve by authenticated user_id to avoid
   // fallback "Usuario" state when route username and backend lookup desync.
   const profileLookupKey = isOwn && currentUserId ? String(currentUserId) : routeUserKey;
-
-  const { profile, isLoading, refetch } = useUserProfile(profileLookupKey);
-
+  const {
+    profile,
+    isLoading,
+    refetch
+  } = useUserProfile(profileLookupKey);
   const user = profile ? {
     user_id: profile.user_id || profile.id || profileLookupKey,
     username: profile.username,
@@ -83,23 +79,28 @@ export default function UserProfilePage() {
     instagram: profile.instagram,
     tiktok: profile.tiktok,
     youtube: profile.youtube,
-    mutual_followers: profile.mutual_followers,
+    mutual_followers: profile.mutual_followers
   } : null;
-
-  const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
+  const {
+    toggleFollow,
+    followLoading
+  } = useUserFollow(user?.user_id, profile);
   const highlightsLookupKey = user?.user_id || profileLookupKey;
-  const { data: highlights = [] } = useUserHighlightsQuery(highlightsLookupKey);
+  const {
+    data: highlights = []
+  } = useUserHighlightsQuery(highlightsLookupKey);
   const queryClient = useQueryClient();
-
   const handleCreateHighlight = useCallback(async (title, storyIds, coverUrl) => {
     if (!title?.trim()) return;
     try {
       await apiClient.post('/users/me/highlights', {
         title: title.trim(),
         story_ids: storyIds || [],
-        cover_url: coverUrl || null,
+        cover_url: coverUrl || null
       });
-      queryClient.invalidateQueries({ queryKey: userKeys.highlights(highlightsLookupKey) });
+      queryClient.invalidateQueries({
+        queryKey: userKeys.highlights(highlightsLookupKey)
+      });
       setShowCreateHighlight(false);
       toast.success('Destacado creado');
     } catch {
@@ -120,7 +121,13 @@ export default function UserProfilePage() {
       }
       setOwnStories([{
         user_id: ownId,
-        user: { id: ownId, name: user?.name, username: user?.username, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        user: {
+          id: ownId,
+          name: user?.name,
+          username: user?.username,
+          avatar_url: user?.profile_image,
+          profile_image: user?.profile_image
+        },
         items: items.map(s => ({
           id: s.id || s.story_id,
           story_id: s.story_id || s.id,
@@ -131,17 +138,17 @@ export default function UserProfilePage() {
           products: s.products,
           view_count: s.view_count ?? 0,
           is_liked: s.is_liked ?? false,
-          overlays: s.overlays,
-        })),
+          overlays: s.overlays
+        }))
       }]);
       setShowOwnStory(true);
     } catch {
-      toast.error(t('user_profile.errorAlCargarTusStories', 'Error al cargar tus stories'));
+      toast.error(i18n.t('user_profile.errorAlCargarTusStories', 'Error al cargar tus stories'));
     }
   }, [user?.user_id, user?.name, user?.profile_image, profileLookupKey]);
 
   /* ── View a highlight ─────────────────────────────────────────── */
-  const handleViewHighlight = useCallback(async (highlight) => {
+  const handleViewHighlight = useCallback(async highlight => {
     const hlId = highlight.highlight_id || highlight.id;
     try {
       const data = await apiClient.get(`/users/${highlightsLookupKey}/highlights/${hlId}`);
@@ -152,7 +159,13 @@ export default function UserProfilePage() {
       }
       setHighlightStories([{
         user_id: user?.user_id,
-        user: { id: user?.user_id, name: user?.name, username: user?.username, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        user: {
+          id: user?.user_id,
+          name: user?.name,
+          username: user?.username,
+          avatar_url: user?.profile_image,
+          profile_image: user?.profile_image
+        },
         items: items.map(s => ({
           id: s.id || s.story_id,
           story_id: s.story_id || s.id,
@@ -163,8 +176,8 @@ export default function UserProfilePage() {
           products: s.products,
           view_count: s.view_count ?? 0,
           is_liked: s.is_liked ?? false,
-          overlays: s.overlays,
-        })),
+          overlays: s.overlays
+        }))
       }]);
       setViewingHighlight(highlight);
     } catch {
@@ -179,13 +192,14 @@ export default function UserProfilePage() {
   }, []);
 
   /* ── Handle delete post ───────────────────────────────────── */
-  const handleDeletePost = useCallback((postId) => {
+  const handleDeletePost = useCallback(postId => {
     setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
     setSelectedPost(null);
     tabsRef.current?.removePost(postId);
-    queryClient.invalidateQueries({ queryKey: userKeys.profile(profileLookupKey) });
+    queryClient.invalidateQueries({
+      queryKey: userKeys.profile(profileLookupKey)
+    });
   }, [profileLookupKey, queryClient]);
-
   const handleFollowToggle = useCallback(async () => {
     if (!user || followLoading) return;
     try {
@@ -194,8 +208,7 @@ export default function UserProfilePage() {
       toast.error('Error al actualizar');
     }
   }, [user, followLoading, toggleFollow]);
-
-  const handleAvatarChange = useCallback(async (file) => {
+  const handleAvatarChange = useCallback(async file => {
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -203,51 +216,53 @@ export default function UserProfilePage() {
       refetch();
       toast.success('Foto actualizada');
     } catch {
-      toast.error(t('user_profile.errorAlSubirLaFoto', 'Error al subir la foto'));
+      toast.error(i18n.t('user_profile.errorAlSubirLaFoto', 'Error al subir la foto'));
     }
   }, [refetch]);
-
   const handleMessage = useCallback(async () => {
     if (!user) return;
     try {
-      const data = await apiClient.post('/chat/conversations', { other_user_id: user.user_id });
+      const data = await apiClient.post('/chat/conversations', {
+        other_user_id: user.user_id
+      });
       const convId = data?.conversation_id || data?.id;
-      if (convId) navigate(`/messages/${convId}`);
-      else toast.error(t('user_profile.noSePudoAbrirLaConversacion', 'No se pudo abrir la conversación'));
+      if (convId) navigate(`/messages/${convId}`);else toast.error(i18n.t('user_profile.noSePudoAbrirLaConversacion', 'No se pudo abrir la conversación'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t('user_profile.errorAlCrearConversacion', 'Error al crear conversación'));
+      toast.error(err?.response?.data?.detail || i18n.t('user_profile.errorAlCrearConversacion', 'Error al crear conversación'));
     }
   }, [user, navigate]);
-
   const handleShare = useCallback(async () => {
     const url = window.location.href;
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Perfil de ${user?.name || 'usuario'}`, url });
+        await navigator.share({
+          title: `Perfil de ${user?.name || 'usuario'}`,
+          url
+        });
       } catch {
         /* user cancelled */
       }
       return;
     }
-    try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* fallback silently */ }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Enlace copiado');
+    } catch {/* fallback silently */}
   }, [user]);
 
   /* ── Loading skeleton ── */
   if (isLoading) {
-    return (
-      <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-white">
+    return <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-white">
         <div className="mx-auto lg:max-w-[935px]">
         <div className="h-[52px] bg-white border-b border-stone-200" />
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-5">
             <div className="w-[86px] h-[86px] rounded-full bg-stone-100 animate-pulse shrink-0" />
             <div className="flex flex-1 justify-around">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="text-center">
+              {[1, 2, 3].map(i => <div key={i} className="text-center">
                   <div className="w-[28px] h-[17px] bg-stone-100 rounded mx-auto mb-1.5 animate-pulse" />
                   <div className="w-[52px] h-[13px] bg-stone-100 rounded animate-pulse" />
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
           <div className="mt-3 h-3.5 w-1/3 bg-stone-100 rounded animate-pulse" />
@@ -259,208 +274,138 @@ export default function UserProfilePage() {
           </div>
         </div>
         <div className="mt-2 flex border-t border-stone-200">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="flex-1 flex justify-center py-3">
+          {[1, 2, 3].map(i => <div key={i} className="flex-1 flex justify-center py-3">
               <div className="w-6 h-6 bg-stone-100 rounded animate-pulse" />
-            </div>
-          ))}
+            </div>)}
         </div>
         <div className="grid grid-cols-3 gap-1">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="aspect-square bg-stone-50 animate-pulse" />
-          ))}
+          {Array.from({
+            length: 9
+          }).map((_, i) => <div key={i} className="aspect-square bg-stone-50 animate-pulse" />)}
         </div>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   /* ── 404 state ── */
   if (!user && !isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 p-6">
+    return <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg font-semibold text-stone-950">Usuario no encontrado</p>
         <p className="text-sm text-stone-500">Este perfil no existe o ha sido eliminado.</p>
-        <button
-          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-          className="mt-2 px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold transition-all duration-150 hover:bg-stone-800 active:scale-95"
-        >
+        <button onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')} className="mt-2 px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold transition-all duration-150 hover:bg-stone-800 active:scale-95">
           Volver
         </button>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-white pb-20">
+  return <div className="min-h-screen bg-white pb-20">
       <div className="mx-auto lg:max-w-[935px]">
-      <SEO
-        title={`${user.name || user.username} — Hispaloshop`}
-        description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`}
-        image={user.profile_image}
-      />
+      <SEO title={`${user.name || user.username} — Hispaloshop`} description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`} image={user.profile_image} />
 
       {/* ── Sticky mini-header (only for other profiles, appears after scrolling 180px) ── */}
-      {!isOwn && (
-        <motion.div
-          initial={{ y: -48, opacity: 0 }}
-          animate={{ y: scrolled ? 0 : -48, opacity: scrolled ? 1 : 0 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-          className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between backdrop-blur-md bg-white/90 border-b border-stone-100 px-3"
-          aria-hidden={!scrolled}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            aria-label="Volver"
-            className="flex items-center justify-center p-2"
-          >
+      {!isOwn && <motion.div initial={{
+        y: -48,
+        opacity: 0
+      }} animate={{
+        y: scrolled ? 0 : -48,
+        opacity: scrolled ? 1 : 0
+      }} transition={{
+        type: 'spring',
+        damping: 28,
+        stiffness: 300
+      }} className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between backdrop-blur-md bg-white/90 border-b border-stone-100 px-3" aria-hidden={!scrolled}>
+          <button onClick={() => navigate(-1)} aria-label="Volver" className="flex items-center justify-center p-2">
             <ChevronLeft size={22} className="text-stone-950" />
           </button>
           <span className="text-[15px] font-semibold text-stone-950">
             @{user.username}
           </span>
           <div className="w-10" />
-        </motion.div>
-      )}
+        </motion.div>}
 
-      <ProfileHeader
-        user={user}
-        isOwn={isOwn}
-        onEditProfile={() => setShowEditProfile(true)}
-        onShare={handleShare}
-        onAvatarChange={handleAvatarChange}
-        onFollowToggle={handleFollowToggle}
-        onMessage={handleMessage}
-        highlights={highlights}
-        onCreateHighlight={() => setShowCreateHighlight(true)}
-        onHighlightDeleted={() => queryClient.invalidateQueries({ queryKey: userKeys.highlights(highlightsLookupKey) })}
-        onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
-        onViewOwnStory={handleViewOwnStory}
-        onViewHighlight={handleViewHighlight}
-        onCreateStory={() => navigate('/create/story')}
-      />
+      <ProfileHeader user={user} isOwn={isOwn} onEditProfile={() => setShowEditProfile(true)} onShare={handleShare} onAvatarChange={handleAvatarChange} onFollowToggle={handleFollowToggle} onMessage={handleMessage} highlights={highlights} onCreateHighlight={() => setShowCreateHighlight(true)} onHighlightDeleted={() => queryClient.invalidateQueries({
+        queryKey: userKeys.highlights(highlightsLookupKey)
+      })} onSwitchTab={tabId => tabsRef.current?.switchTab(tabId)} onViewOwnStory={handleViewOwnStory} onViewHighlight={handleViewHighlight} onCreateStory={() => navigate('/create/story')} />
 
       {/* ── P-11: Mutual followers ── */}
-      {!isOwn && user.mutual_followers && user.mutual_followers.length > 0 && (
-        <div className="px-4 pb-2 flex items-center gap-2">
+      {!isOwn && user.mutual_followers && user.mutual_followers.length > 0 && <div className="px-4 pb-2 flex items-center gap-2">
           <div className="flex -space-x-2">
             {user.mutual_followers.slice(0, 3).map((mf, i) => {
-              const img = mf.profile_image || mf.avatar_url || mf.avatar;
-              return img ? (
-                <img key={mf.user_id || mf.id || i} src={img} alt="" className="w-5 h-5 rounded-full border border-white object-cover" />
-              ) : (
-                <div key={mf.user_id || mf.id || i} className="w-5 h-5 rounded-full border border-white bg-stone-200 flex items-center justify-center text-[8px] font-bold text-stone-500">
+            const img = mf.profile_image || mf.avatar_url || mf.avatar;
+            return img ? <img key={mf.user_id || mf.id || i} src={img} alt="" className="w-5 h-5 rounded-full border border-white object-cover" /> : <div key={mf.user_id || mf.id || i} className="w-5 h-5 rounded-full border border-white bg-stone-200 flex items-center justify-center text-[8px] font-bold text-stone-500">
                   {(mf.name || mf.username || '?')[0].toUpperCase()}
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
           <p className="text-[12px] text-stone-500 flex-1 min-w-0 truncate">
             Seguido por{' '}
             <span className="font-semibold text-stone-700">
               {user.mutual_followers.slice(0, 2).map(mf => mf.username || mf.name).join(', ')}
             </span>
-            {user.mutual_followers.length > 2 && (
-              <span> y {user.mutual_followers.length - 2} más que sigues</span>
-            )}
+            {user.mutual_followers.length > 2 && <span> y {user.mutual_followers.length - 2} más que sigues</span>}
           </p>
-        </div>
-      )}
+        </div>}
 
       {/* ── Store link for producers/importers ── */}
-      {(user.role === 'producer' || user.role === 'importer') && (user.store_slug || user.store_id) && (
-        <div className="px-4 pb-2">
-          <a
-            href={`/store/${user.store_slug || user.store_id}`}
-            onClick={(e) => { e.preventDefault(); navigate(`/store/${user.store_slug || user.store_id}`); }}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-950 hover:underline"
-          >
+      {(user.role === 'producer' || user.role === 'importer') && (user.store_slug || user.store_id) && <div className="px-4 pb-2">
+          <a href={`/store/${user.store_slug || user.store_id}`} onClick={e => {
+          e.preventDefault();
+          navigate(`/store/${user.store_slug || user.store_id}`);
+        }} className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-950 hover:underline">
             <Store size={14} />
             Ver tienda →
           </a>
-        </div>
-      )}
+        </div>}
 
-      <ProfileTabs
-        ref={tabsRef}
-        userId={user.user_id}
-        role={user.role}
-        isOwn={isOwn}
-        isPrivate={Boolean(user.is_private)}
-        isFollowing={Boolean(user.is_following)}
-        onPostClick={(post, allPostsArr) => handlePostClick(post, allPostsArr)}
-        onProductClick={(product) => setSelectedProduct(product)}
-        onFollow={handleFollowToggle}
-      />
+      <ProfileTabs ref={tabsRef} userId={user.user_id} role={user.role} isOwn={isOwn} isPrivate={Boolean(user.is_private)} isFollowing={Boolean(user.is_following)} onPostClick={(post, allPostsArr) => handlePostClick(post, allPostsArr)} onProductClick={product => setSelectedProduct(product)} onFollow={handleFollowToggle} />
 
-      {showCreateHighlight && (
-        <CreateHighlightSheet
-          onClose={() => setShowCreateHighlight(false)}
-          onCreate={handleCreateHighlight}
-        />
-      )}
+      {showCreateHighlight && <CreateHighlightSheet onClose={() => setShowCreateHighlight(false)} onCreate={handleCreateHighlight} />}
 
-      {isOwn && (
-        <EditProfileSheet
-          isOpen={showEditProfile}
-          profile={profile}
-          userId={user.user_id}
-          onClose={() => { setShowEditProfile(false); refetch(); }}
-        />
-      )}
+      {isOwn && <EditProfileSheet isOpen={showEditProfile} profile={profile} userId={user.user_id} onClose={() => {
+        setShowEditProfile(false);
+        refetch();
+      }} />}
 
-      {selectedPost && (
-        <OverlayErrorBoundary overlayKey={selectedPost?.post_id || selectedPost?.id} onClose={() => setSelectedPost(null)}>
-          <PostViewer
-            post={selectedPost}
-            posts={allPosts.length > 0 ? allPosts : [selectedPost]}
-            profile={{ name: user.name || user.username, profile_image: user.profile_image }}
-            onClose={() => setSelectedPost(null)}
-            isOwn={isOwn}
-            onDelete={handleDeletePost}
-          />
-        </OverlayErrorBoundary>
-      )}
+      {selectedPost && <OverlayErrorBoundary overlayKey={selectedPost?.post_id || selectedPost?.id} onClose={() => setSelectedPost(null)}>
+          <PostViewer post={selectedPost} posts={allPosts.length > 0 ? allPosts : [selectedPost]} profile={{
+          name: user.name || user.username,
+          profile_image: user.profile_image
+        }} onClose={() => setSelectedPost(null)} isOwn={isOwn} onDelete={handleDeletePost} />
+        </OverlayErrorBoundary>}
 
       {/* Own story viewer */}
       <AnimatePresence>
-        {showOwnStory && ownStories && (
-          <StoryViewer
-            key="own-story-viewer"
-            stories={ownStories}
-            initialIndex={0}
-            onClose={() => { setShowOwnStory(false); setOwnStories(null); queryClient.refetchQueries({ queryKey: ['feed-stories'] }); queryClient.invalidateQueries({ queryKey: ['stories-mine'] }); refetch(); }}
-          />
-        )}
+        {showOwnStory && ownStories && <StoryViewer key="own-story-viewer" stories={ownStories} initialIndex={0} onClose={() => {
+          setShowOwnStory(false);
+          setOwnStories(null);
+          queryClient.refetchQueries({
+            queryKey: ['feed-stories']
+          });
+          queryClient.invalidateQueries({
+            queryKey: ['stories-mine']
+          });
+          refetch();
+        }} />}
       </AnimatePresence>
 
       {/* Highlight story viewer */}
       <AnimatePresence>
-        {viewingHighlight && highlightStories && (
-          <StoryViewer
-            key="highlight-story-viewer"
-            stories={highlightStories}
-            initialIndex={0}
-            readOnly
-            onClose={() => { setViewingHighlight(null); setHighlightStories(null); }}
-          />
-        )}
+        {viewingHighlight && highlightStories && <StoryViewer key="highlight-story-viewer" stories={highlightStories} initialIndex={0} readOnly onClose={() => {
+          setViewingHighlight(null);
+          setHighlightStories(null);
+        }} />}
       </AnimatePresence>
 
-      {selectedProduct && (
-        <ProductDetailOverlay
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
-      )}
+      {selectedProduct && <ProductDetailOverlay product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
       </div>
-    </div>
-  );
+    </div>;
 }
 
 /* ── Create Highlight Sheet — shows archived stories to select ─── */
 
-function CreateHighlightSheet({ onClose, onCreate }) {
+function CreateHighlightSheet({
+  onClose,
+  onCreate
+}) {
   const [title, setTitle] = useState('');
   const [archivedStories, setArchivedStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -481,18 +426,17 @@ function CreateHighlightSheet({ onClose, onCreate }) {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  const toggleStory = (storyId) => {
+  const toggleStory = storyId => {
     setSelectedIds(prev => {
       const next = new Set(prev);
-      if (next.has(storyId)) next.delete(storyId);
-      else next.add(storyId);
+      if (next.has(storyId)) next.delete(storyId);else next.add(storyId);
       return next;
     });
   };
-
   const handleNext = () => {
     if (selectedIds.size === 0) {
       toast('Selecciona al menos un story');
@@ -505,80 +449,58 @@ function CreateHighlightSheet({ onClose, onCreate }) {
     }
     setStep('name');
   };
-
   const handleCreate = () => {
     if (!title.trim()) return;
     onCreate(title, Array.from(selectedIds), coverUrl);
   };
-
-  return (
-    <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
+  return <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal px-5 pb-8 pt-4" style={{
+      maxHeight: '85vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200 shrink-0" />
 
-        {step === 'select' && (
-          <>
+        {step === 'select' && <>
             <div className="flex items-center justify-between mb-4 shrink-0">
               <button onClick={onClose} className="text-sm text-stone-500">Cancelar</button>
               <span className="text-base font-semibold text-stone-950">Seleccionar stories</span>
               <button onClick={handleNext} className="text-sm font-semibold text-stone-950">Siguiente</button>
             </div>
 
-            {loading ? (
-              <div className="flex justify-center py-12">
+            {loading ? <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
-              </div>
-            ) : archivedStories.length === 0 ? (
-              <div className="py-12 text-center">
+              </div> : archivedStories.length === 0 ? <div className="py-12 text-center">
                 <ImageIcon size={40} className="mx-auto text-stone-300 mb-3" />
                 <p className="text-sm text-stone-500">No tienes stories archivados</p>
-              </div>
-            ) : (
-              <div className="overflow-y-auto flex-1 -mx-1">
+              </div> : <div className="overflow-y-auto flex-1 -mx-1">
                 <div className="grid grid-cols-3 gap-0.5">
-                  {archivedStories.map((story) => {
-                    const sid = story.id || story.story_id;
-                    const thumb = story.image_url || story.thumbnail_url || story.media_url;
-                    const isSelected = selectedIds.has(sid);
-                    return (
-                      <div
-                        key={sid}
-                        onClick={() => toggleStory(sid)}
-                        className="relative aspect-square cursor-pointer overflow-hidden"
-                        role="checkbox"
-                        aria-checked={isSelected}
-                      >
-                        <img
-                          src={thumb}
-                          alt={story.caption || 'Story'}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
+                  {archivedStories.map(story => {
+              const sid = story.id || story.story_id;
+              const thumb = story.image_url || story.thumbnail_url || story.media_url;
+              const isSelected = selectedIds.has(sid);
+              return <div key={sid} onClick={() => toggleStory(sid)} className="relative aspect-square cursor-pointer overflow-hidden" role="checkbox" aria-checked={isSelected}>
+                        <img src={thumb} alt={story.caption || 'Story'} className="w-full h-full object-cover" loading="lazy" />
                         <div className={`absolute inset-0 transition-colors ${isSelected ? 'bg-white/30' : ''}`} />
-                        <div className={`absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${
-                          isSelected ? 'bg-stone-950 border-stone-950' : 'bg-white/60 border-white'
-                        }`}>
+                        <div className={`absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${isSelected ? 'bg-stone-950 border-stone-950' : 'bg-white/60 border-white'}`}>
                           {isSelected && <Check size={14} className="text-white" />}
                         </div>
-                        {story.created_at && (
-                          <span className="absolute bottom-1 left-1 text-[10px] text-white drop-shadow-md">
-                            {new Date(story.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                          </span>
-                        )}
-                      </div>
-                    );
+                        {story.created_at && <span className="absolute bottom-1 left-1 text-[10px] text-white drop-shadow-md">
+                            {new Date(story.created_at).toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'short'
                   })}
+                          </span>}
+                      </div>;
+            })}
                 </div>
-              </div>
-            )}
-          </>
-        )}
+              </div>}
+          </>}
 
-        {step === 'name' && (
-          <>
+        {step === 'name' && <>
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <button onClick={() => setStep('select')} className="text-sm text-stone-500">{t('user_profile.atras', 'Atrás')}</button>
+              <button onClick={() => setStep('select')} className="text-sm text-stone-500">{i18n.t('user_profile.atras', 'Atrás')}</button>
               <span className="text-base font-semibold text-stone-950">Nuevo destacado</span>
               <div className="w-12" />
             </div>
@@ -587,61 +509,36 @@ function CreateHighlightSheet({ onClose, onCreate }) {
             <div className="flex justify-center mb-4">
               <div className="relative">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
-                  {coverUrl ? (
-                    <img loading="lazy" src={coverUrl} alt="Portada" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
+                  {coverUrl ? <img loading="lazy" src={coverUrl} alt="Portada" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center">
                       <ImageIcon size={28} className="text-stone-400" />
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 {/* Cover selector */}
-                <button
-                  onClick={() => {
-                    // Cycle through selected stories as cover
-                    const selected = archivedStories.filter(s => selectedIds.has(s.id || s.story_id));
-                    const currentIdx = selected.findIndex(s => (s.image_url || s.thumbnail_url || s.media_url) === coverUrl);
-                    const nextIdx = (currentIdx + 1) % selected.length;
-                    setCoverUrl(selected[nextIdx]?.image_url || selected[nextIdx]?.thumbnail_url || selected[nextIdx]?.media_url);
-                  }}
-                  className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
-                  aria-label="Cambiar portada"
-                >
+                <button onClick={() => {
+              // Cycle through selected stories as cover
+              const selected = archivedStories.filter(s => selectedIds.has(s.id || s.story_id));
+              const currentIdx = selected.findIndex(s => (s.image_url || s.thumbnail_url || s.media_url) === coverUrl);
+              const nextIdx = (currentIdx + 1) % selected.length;
+              setCoverUrl(selected[nextIdx]?.image_url || selected[nextIdx]?.thumbnail_url || selected[nextIdx]?.media_url);
+            }} className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm" aria-label="Cambiar portada">
                   <ImageIcon size={12} className="text-white" />
                 </button>
               </div>
             </div>
 
-            <input
-              type="text"
-              placeholder="Nombre del destacado"
-              maxLength={30}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mb-4 w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
-              autoFocus
-            />
+            <input type="text" placeholder="Nombre del destacado" maxLength={30} value={title} onChange={e => setTitle(e.target.value)} className="mb-4 w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400" autoFocus />
 
             <p className="mb-4 text-xs text-stone-500 text-center">{selectedIds.size} stories seleccionados</p>
 
             <div className="flex gap-2">
-              <button
-                onClick={onClose}
-                className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950 active:scale-95 transition-all"
-              >
+              <button onClick={onClose} className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950 active:scale-95 transition-all">
                 Cancelar
               </button>
-              <button
-                onClick={handleCreate}
-                disabled={!title.trim()}
-                className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40 active:scale-95 transition-all"
-              >
+              <button onClick={handleCreate} disabled={!title.trim()} className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40 active:scale-95 transition-all">
                 Crear
               </button>
             </div>
-          </>
-        )}
+          </>}
       </div>
-    </div>
-  );
+    </div>;
 }

@@ -9,95 +9,83 @@ import ActivityList from '../../../components/dashboard/shared/ActivityList';
 import HISuggestions from '../../../components/dashboard/shared/HISuggestions';
 import { useAuth } from '../../../context/AuthContext';
 import { useLegacyConsumerDashboard } from '../../../features/dashboard/queries';
-import {
-  ShoppingBag,
-  Heart,
-  Star,
-  RefreshCw,
-  Gift,
-  Calendar,
-  MapPin,
-  Loader2
-} from 'lucide-react';
+import { ShoppingBag, Heart, Star, RefreshCw, Gift, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { asNumber, firstToken } from '../../../utils/safe';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../../../locales/i18n";
 function generateMonthlyData(orders) {
   const months = ['Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'];
   // Sep=8→0, Oct=9→1, Nov=10→2, Dec=11→3, Jan=0→4, Feb=1→5
-  const monthToIndex = { 8: 0, 9: 1, 10: 2, 11: 3, 0: 4, 1: 5 };
+  const monthToIndex = {
+    8: 0,
+    9: 1,
+    10: 2,
+    11: 3,
+    0: 4,
+    1: 5
+  };
   const data = new Array(6).fill(0);
-
-  orders.forEach((order) => {
+  orders.forEach(order => {
     const date = new Date(order.created_at);
     const index = monthToIndex[date.getMonth()];
     if (index !== undefined) {
       data[index] += order.total_amount || 0;
     }
   });
-
-  return { labels: months, data };
+  return {
+    labels: months,
+    data
+  };
 }
-
 function generateSuggestions(orders, navigate) {
   const suggestions = [];
-
   if (orders.length === 0) {
     suggestions.push({
       id: 1,
       title: 'Bienvenido a Hispaloshop',
-      description: t('consumer_dashboard.descubreProductosArtesanalesDeTuZon', 'Descubre productos artesanales de tu zona'),
+      description: i18n.t('consumer_dashboard.descubreProductosArtesanalesDeTuZon', 'Descubre productos artesanales de tu zona'),
       actionLabel: 'Explorar',
       onAction: () => navigate('/products')
     });
   } else {
     suggestions.push({
       id: 1,
-      title: t('consumer_dashboard.basadoEnTusCompras', 'Basado en tus compras'),
+      title: i18n.t('consumer_dashboard.basadoEnTusCompras', 'Basado en tus compras'),
       description: 'Descubre productos similares a los que te gustan',
       actionLabel: 'Ver recomendaciones',
       onAction: () => navigate('/discover')
     });
   }
-
   suggestions.push({
     id: 2,
     title: 'Tienes ingredientes para recetas',
-    description: t('consumer_dashboard.descubreRecetasMediterraneasConTusP', 'Descubre recetas mediterraneas con tus productos'),
+    description: i18n.t('consumer_dashboard.descubreRecetasMediterraneasConTusP', 'Descubre recetas mediterraneas con tus productos'),
     actionLabel: 'Ver recetas',
     onAction: () => navigate('/recipes')
   });
-
   return suggestions;
 }
-
 function ConsumerDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const dashboardQuery = useLegacyConsumerDashboard(Boolean(user));
-
   const dashboardData = useMemo(() => {
     const ordersData = dashboardQuery.data?.orders || {};
     const wishlistData = dashboardQuery.data?.wishlist || {};
-    const recentOrders = (ordersData?.orders || []).slice(0, 2).map((order) => ({
+    const recentOrders = (ordersData?.orders || []).slice(0, 2).map(order => ({
       id: order.order_id,
       title: `Pedido #${order.order_number || String(order.order_id || '').slice(-4)}`,
-      subtitle:
-        order.status === 'shipped'
-          ? 'En camino'
-          : order.status === 'delivered'
-            ? 'Entregado'
-            : `Pedido ${order.status}`,
-      description: order.line_items?.map((i) => i.product_name).join(' + ') || 'Productos',
+      subtitle: order.status === 'shipped' ? 'En camino' : order.status === 'delivered' ? 'Entregado' : `Pedido ${order.status}`,
+      description: order.line_items?.map(i => i.product_name).join(' + ') || 'Productos',
       amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
       status: order.status,
       actionLabel: order.status === 'delivered' ? 'Reordenar' : 'Ver',
       onAction: () => navigate(`/dashboard/orders/${order.order_id}`)
     }));
-
     const totalOrders = ordersData?.total || ordersData?.orders?.length || 0;
     const totalSpent = ordersData?.orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
-
     return {
       kpis: {
         orders: totalOrders,
@@ -110,77 +98,43 @@ function ConsumerDashboard() {
       suggestions: generateSuggestions(ordersData?.orders || [], navigate)
     };
   }, [dashboardQuery.data, navigate]);
-
-  const quickActions = [
-    {
-      id: 'reorder',
-      icon: RefreshCw,
-      label: 'Reordenar favorito',
-      color: '#0c0a09',
-      onClick: () => navigate('/dashboard/orders')
-    },
-    {
-      id: 'discover',
-      icon: Gift,
-      label: 'Descubrir novedades',
-      color: '#78716c',
-      onClick: () => navigate('/discover')
-    },
-    {
-      id: 'plan',
-      icon: Calendar,
-      label: 'Planificar semana',
-      color: '#78716c',
-      onClick: () => navigate('/recipes')
-    },
-    {
-      id: 'stores',
-      icon: MapPin,
-      label: 'Tiendas cerca',
-      color: '#0c0a09',
-      onClick: () => navigate('/stores')
-    }
-  ];
-
+  const quickActions = [{
+    id: 'reorder',
+    icon: RefreshCw,
+    label: 'Reordenar favorito',
+    color: '#0c0a09',
+    onClick: () => navigate('/dashboard/orders')
+  }, {
+    id: 'discover',
+    icon: Gift,
+    label: 'Descubrir novedades',
+    color: '#78716c',
+    onClick: () => navigate('/discover')
+  }, {
+    id: 'plan',
+    icon: Calendar,
+    label: 'Planificar semana',
+    color: '#78716c',
+    onClick: () => navigate('/recipes')
+  }, {
+    id: 'stores',
+    icon: MapPin,
+    label: 'Tiendas cerca',
+    color: '#0c0a09',
+    onClick: () => navigate('/stores')
+  }];
   if (dashboardQuery.isLoading) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+    return <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-stone-50 p-4 pb-24">
-      <DashboardHeader
-        userName={firstToken(user?.name, 'Usuario')}
-        subtitle={t('consumer_dashboard.aquiEstaTuResumenDeHoy', 'Aqui esta tu resumen de hoy')}
-        notificationCount={0}
-      />
+  return <div className="min-h-screen bg-stone-50 p-4 pb-24">
+      <DashboardHeader userName={firstToken(user?.name, 'Usuario')} subtitle={i18n.t('consumer_dashboard.aquiEstaTuResumenDeHoy', 'Aqui esta tu resumen de hoy')} notificationCount={0} />
 
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <KPICard
-          icon={ShoppingBag}
-          value={dashboardData.kpis.orders}
-          label="Pedidos"
-          subtext="totales"
-          onClick={() => navigate('/dashboard/orders')}
-        />
-        <KPICard
-          icon={Heart}
-          value={dashboardData.kpis.favorites}
-          label="Favoritos"
-          subtext="guardados"
-          accentColor="#44403c"
-          onClick={() => navigate('/dashboard/wishlist')}
-        />
-        <KPICard
-          icon={Star}
-          value={dashboardData.kpis.savings}
-          label="Ahorrado"
-          subtext="estimado"
-          accentColor="#1c1917"
-        />
+        <KPICard icon={ShoppingBag} value={dashboardData.kpis.orders} label="Pedidos" subtext="totales" onClick={() => navigate('/dashboard/orders')} />
+        <KPICard icon={Heart} value={dashboardData.kpis.favorites} label="Favoritos" subtext="guardados" accentColor="#44403c" onClick={() => navigate('/dashboard/wishlist')} />
+        <KPICard icon={Star} value={dashboardData.kpis.savings} label="Ahorrado" subtext="estimado" accentColor="#1c1917" />
       </div>
 
       <div className="bg-white rounded-2xl p-4 mb-6">
@@ -194,31 +148,24 @@ function ConsumerDashboard() {
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{i18n.t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 
-      {dashboardData.recentOrders.length > 0 && (
-        <div className="mb-6">
+      {dashboardData.recentOrders.length > 0 && <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-stone-950">Pedidos recientes</h3>
-            <button
-              onClick={() => navigate('/dashboard/orders')}
-              className="text-sm text-stone-500 font-medium"
-            >
+            <button onClick={() => navigate('/dashboard/orders')} className="text-sm text-stone-500 font-medium">
               Ver todos
             </button>
           </div>
           <ActivityList items={dashboardData.recentOrders} />
-        </div>
-      )}
+        </div>}
 
       <div>
         <h3 className="font-semibold text-stone-950 mb-3">Sugerencias de David</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
-    </div>
-  );
+    </div>;
 }
-
 export default ConsumerDashboard;

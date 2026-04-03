@@ -14,7 +14,7 @@ function walk(dir) {
   return out;
 }
 
-function findTopLevelUnboundTCalls(filePath) {
+function findUnboundTCalls(filePath) {
   const code = fs.readFileSync(filePath, 'utf8');
   let ast;
 
@@ -33,17 +33,7 @@ function findTopLevelUnboundTCalls(filePath) {
       const callee = callPath.node.callee;
       if (!callee || callee.type !== 'Identifier' || callee.name !== 't') return;
 
-      const insideFunction = Boolean(
-        callPath.findParent(
-          (p) =>
-            p.isFunction() ||
-            p.isClassMethod() ||
-            p.isObjectMethod() ||
-            p.isArrowFunctionExpression()
-        )
-      );
-
-      if (!insideFunction && !callPath.scope.hasBinding('t')) {
+      if (!callPath.scope.hasBinding('t')) {
         lines.push(callPath.node.loc && callPath.node.loc.start ? callPath.node.loc.start.line : '?');
       }
     },
@@ -57,16 +47,16 @@ const files = walk(root);
 const offenders = [];
 
 for (const filePath of files) {
-  const lines = findTopLevelUnboundTCalls(filePath);
+  const lines = findUnboundTCalls(filePath);
   if (lines.length) offenders.push({ filePath, lines });
 }
 
 if (!offenders.length) {
-  console.log('[i18n-guard] OK: no top-level unbound t() calls found.');
+  console.log('[i18n-guard] OK: no unbound t() calls found.');
   process.exit(0);
 }
 
-console.error('[i18n-guard] Found top-level unbound t() calls (runtime crash risk):');
+console.error('[i18n-guard] Found unbound t() calls (runtime crash risk):');
 for (const item of offenders) {
   const rel = path.relative(path.resolve(__dirname, '..'), item.filePath).replace(/\\/g, '/');
   console.error(`- ${rel}:${item.lines.join(',')}`);

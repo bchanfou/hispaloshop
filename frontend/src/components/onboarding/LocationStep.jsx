@@ -2,48 +2,48 @@ import React, { useState, useMemo } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
-
-export default function LocationStep({ onNext, onBack, onError }) {
-  const { countries: ctxCountries } = useLocale();
+import i18n from "../../locales/i18n";
+export default function LocationStep({
+  onNext,
+  onBack,
+  onError
+}) {
+  const {
+    countries: ctxCountries
+  } = useLocale();
   const COUNTRIES = useMemo(() => {
     const list = Object.entries(ctxCountries || {}).map(([code, data]) => data.name || code);
-    return list.length > 0 ? [...list, 'Otro'] : [t('admin.countries.ES', 'España'), 'Otro'];
+    return list.length > 0 ? [...list, 'Otro'] : [i18n.t('admin.countries.ES', 'España'), 'Otro'];
   }, [ctxCountries]);
-
   const [country, setCountry] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleContinue = async () => {
     if (!country) {
-      onError?.(t('location.seleccionaUnPais', 'Selecciona un país.'));
+      onError?.(i18n.t('location.seleccionaUnPais', 'Selecciona un país.'));
       return;
     }
     if (!postalCode.trim()) {
-      onError?.(t('location.introduceTuCodigoPostal', 'Introduce tu código postal.'));
+      onError?.(i18n.t('location.introduceTuCodigoPostal', 'Introduce tu código postal.'));
       return;
     }
-
     setLoading(true);
     try {
       await onboardingApi.saveLocation({
         country,
         postal_code: postalCode.trim(),
-        city: city.trim(),
+        city: city.trim()
       });
       onNext();
     } catch (error) {
-      onError?.(error?.response?.data?.detail || t('location.noHemosPodidoGuardarTuUbicacionTod', 'No hemos podido guardar tu ubicación todavía.'));
+      onError?.(error?.response?.data?.detail || i18n.t('location.noHemosPodidoGuardarTuUbicacionTod', 'No hemos podido guardar tu ubicación todavía.'));
     } finally {
       setLoading(false);
     }
   };
-
   const inputClass = 'mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm';
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-stone-950">¿Dónde estás?</h1>
         <p className="mt-2 text-sm leading-6 text-stone-600">
@@ -54,20 +54,20 @@ export default function LocationStep({ onNext, onBack, onError }) {
       <div className="space-y-4">
         <div>
           <label htmlFor="location-country" className="text-sm font-medium text-stone-800">País *</label>
-          <select id="location-country" value={country} onChange={(e) => setCountry(e.target.value)} className={inputClass}>
-            <option value="">{t('register.selectCountry', 'Selecciona tu país')}</option>
-            {COUNTRIES.map((item) => <option key={item} value={item}>{item}</option>)}
+          <select id="location-country" value={country} onChange={e => setCountry(e.target.value)} className={inputClass}>
+            <option value="">{i18n.t('register.selectCountry', 'Selecciona tu país')}</option>
+            {COUNTRIES.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
 
         <div>
           <label htmlFor="location-postal" className="text-sm font-medium text-stone-800">Código postal *</label>
-          <input id="location-postal" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className={inputClass} placeholder="28001" />
+          <input id="location-postal" value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClass} placeholder="28001" />
         </div>
 
         <div>
           <label htmlFor="location-city" className="text-sm font-medium text-stone-800">Ciudad</label>
-          <input id="location-city" value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} placeholder="Madrid" />
+          <input id="location-city" value={city} onChange={e => setCity(e.target.value)} className={inputClass} placeholder="Madrid" />
         </div>
       </div>
 
@@ -75,15 +75,9 @@ export default function LocationStep({ onNext, onBack, onError }) {
         <button type="button" onClick={onBack} className="px-2 py-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950">
           Atrás
         </button>
-        <button
-          type="button"
-          onClick={handleContinue}
-          disabled={!country || !postalCode.trim() || loading}
-          className="rounded-full bg-stone-950 px-6 py-3 font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300"
-        >
+        <button type="button" onClick={handleContinue} disabled={!country || !postalCode.trim() || loading} className="rounded-full bg-stone-950 px-6 py-3 font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300">
           {loading ? 'Guardando...' : 'Continuar'}
         </button>
       </div>
-    </div>
-  );
+    </div>;
 }

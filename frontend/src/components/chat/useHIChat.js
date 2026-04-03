@@ -5,9 +5,10 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 // ── Time-based greeting ────────────────────────────────────────────
+import i18n from "../../locales/i18n";
 export function getTimeGreeting() {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return t('use_h_i_chat.buenosDias', 'Buenos días');
+  if (h >= 5 && h < 12) return i18n.t('use_h_i_chat.buenosDias', 'Buenos días');
   if (h >= 12 && h < 20) return 'Buenas tardes';
   return 'Buenas noches';
 }
@@ -237,9 +238,9 @@ export function useHIChat() {
     } catch (error) {
       const detail = error?.message;
       if (error?.status === 403) {
-        toast.error(detail || t('use_h_i_chat.noTienesAccesoAEsteModoActualiza', 'No tienes acceso a este modo. Actualiza tu plan.'));
+        toast.error(detail || i18n.t('use_h_i_chat.noTienesAccesoAEsteModoActualiza', 'No tienes acceso a este modo. Actualiza tu plan.'));
       } else {
-        toast.error(t('use_h_i_chat.elAsistenteNoEstaDisponibleAhoraI', 'El asistente no está disponible ahora. Inténtalo de nuevo.'));
+        toast.error(i18n.t('use_h_i_chat.elAsistenteNoEstaDisponibleAhoraI', 'El asistente no está disponible ahora. Inténtalo de nuevo.'));
       }
       return null;
     } finally {

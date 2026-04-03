@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../locales/i18n";
 const EMOJIS = ['🌿', '🫙', '🧀', '🫒', '🍯', '👨‍🍳', '💪', '🌾', '🥗', '🌶️', '🍎', '🐟', '🌱', '🏔️', '🇪🇸'];
 const CATEGORIES = ["Alimentación", 'Recetas', 'Productores', 'Dieta', "Ecológico", 'Vegano', 'Sin gluten', 'Local', 'Internacional'];
 export default function CommunitySettingsPage() {
@@ -94,7 +95,7 @@ export default function CommunitySettingsPage() {
   const handleSave = async () => {
     if (!communityId) return;
     if (!form.name.trim()) {
-      toast.error(t('register.elNombreEsObligatorio', 'El nombre es obligatorio'));
+      toast.error(i18n.t('register.elNombreEsObligatorio', 'El nombre es obligatorio'));
       return;
     }
     if (isUploadingCover) {
@@ -147,7 +148,7 @@ export default function CommunitySettingsPage() {
   if (!isAdmin) {
     return <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg font-semibold text-stone-950">Sin permisos</p>
-        <p className="text-sm text-stone-500">{t('community_settings.soloLosAdministradoresPuedenEditarL', 'Solo los administradores pueden editar la comunidad.')}</p>
+        <p className="text-sm text-stone-500">{i18n.t('community_settings.soloLosAdministradoresPuedenEditarL', 'Solo los administradores pueden editar la comunidad.')}</p>
         <button onClick={() => navigate(-1)} className="px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold border-none cursor-pointer">
           Volver
         </button>
@@ -173,7 +174,7 @@ export default function CommunitySettingsPage() {
           <div className="h-[120px] rounded-xl overflow-hidden border-2 border-dashed border-stone-200 relative flex items-center justify-center" style={{
           background: coverPreview ? '#f5f5f4' : '#d6d3d1'
         }}>
-            {coverPreview ? <img src={coverPreview} alt="" className="w-full h-full object-cover" /> : <span className="text-stone-500 text-sm">{t('community_settings.anadirFotoDePortada', 'Añadir foto de portada')}</span>}
+            {coverPreview ? <img src={coverPreview} alt="" className="w-full h-full object-cover" /> : <span className="text-stone-500 text-sm">{i18n.t('community_settings.anadirFotoDePortada', 'Añadir foto de portada')}</span>}
             {isUploadingCover && <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               </div>}
@@ -189,7 +190,7 @@ export default function CommunitySettingsPage() {
 
         {/* Description */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('productDetail.description', 'Descripción')}</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{i18n.t('productDetail.description', 'Descripción')}</p>
           <div className="relative">
             <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={3} maxLength={300} className="resize-none w-full px-3 py-2.5 bg-white border border-stone-200 rounded-xl text-sm text-stone-950 outline-none box-border" />
             <span className="absolute bottom-2 right-2.5 text-[11px] text-stone-400">{form.description.length}/300</span>
@@ -208,7 +209,7 @@ export default function CommunitySettingsPage() {
 
         {/* Category */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('products.category', 'Categoría')}</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{i18n.t('products.category', 'Categoría')}</p>
           <div className="flex flex-wrap gap-1.5">
             {CATEGORIES.map(cat => <button key={cat} type="button" onClick={() => update('category', form.category === cat ? '' : cat)} className={`px-3 py-1.5 rounded-full text-[13px] cursor-pointer ${form.category === cat ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-950 border border-stone-200'}`}>
                 {cat}
@@ -218,7 +219,7 @@ export default function CommunitySettingsPage() {
 
         {/* Tags */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('community_settings.etiquetasMax5', 'Etiquetas (máx. 5)')}</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{i18n.t('community_settings.etiquetasMax5', 'Etiquetas (máx. 5)')}</p>
           <div className="flex gap-1.5 mb-1.5 flex-wrap">
             {form.tags.map(tag => <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">
                 #{tag}
@@ -230,13 +231,13 @@ export default function CommunitySettingsPage() {
             e.preventDefault();
             addTag();
           }
-        }} placeholder={t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')} disabled={form.tags.length >= 5} className="w-full h-9 px-3 bg-white border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none box-border" />
+        }} placeholder={i18n.t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')} disabled={form.tags.length >= 5} className="w-full h-9 px-3 bg-white border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none box-border" />
         </div>
 
         {/* C-03: Delete community (creator only) */}
         {isCreator && <div className="pt-6 border-t border-stone-200">
             <p className="text-[13px] font-semibold text-stone-950 mb-1">Zona peligrosa</p>
-            <p className="text-[12px] text-stone-500 mb-3">{t('community_settings.eliminarLaComunidadBorraraTodosLos', 'Eliminar la comunidad borrará todos los posts y miembros permanentemente.')}</p>
+            <p className="text-[12px] text-stone-500 mb-3">{i18n.t('community_settings.eliminarLaComunidadBorraraTodosLos', 'Eliminar la comunidad borrará todos los posts y miembros permanentemente.')}</p>
             <button onClick={handleDelete} disabled={deleting} className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-stone-300 bg-white text-stone-700 text-[13px] font-semibold cursor-pointer hover:bg-stone-50 transition-colors disabled:opacity-50">
               <Trash2 size={14} />
               {deleting ? 'Eliminando...' : 'Eliminar comunidad'}

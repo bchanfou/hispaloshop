@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const PLANS = [{
   id: 'free',
   name: 'FREE',
@@ -39,7 +40,7 @@ export default function PlanPage() {
       const data = await apiClient.get('/billing/portal-url');
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error(t('plan.errorAlAbrirFacturacion', 'Error al abrir facturación'));
+      toast.error(i18n.t('plan.errorAlAbrirFacturacion', 'Error al abrir facturación'));
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ export default function PlanPage() {
       });
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error(t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
+      toast.error(i18n.t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
     }
   }, [currentPlan]);
   const confirmDowngrade = useCallback(async () => {
@@ -74,7 +75,7 @@ export default function PlanPage() {
       });
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error(t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
+      toast.error(i18n.t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
     }
   }, [downgradeTarget]);
   const currentPlanData = PLANS.find(p => p.id === currentPlan) || PLANS[0];

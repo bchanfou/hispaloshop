@@ -10,68 +10,51 @@ import ActivityList from '../../../components/dashboard/shared/ActivityList';
 import HISuggestions from '../../../components/dashboard/shared/HISuggestions';
 import { useAuth } from '../../../context/AuthContext';
 import { useLegacyProducerDashboard } from '../../../features/dashboard/queries';
-import {
-  Euro,
-  Package,
-  Star,
-  Plus,
-  ShoppingCart,
-  BarChart3,
-  Tag,
-  Loader2
-} from 'lucide-react';
+import { Euro, Package, Star, Plus, ShoppingCart, BarChart3, Tag, Loader2 } from 'lucide-react';
 import { asNumber } from '../../../utils/safe';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../../../locales/i18n";
 function ProducerDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const dashboardQuery = useLegacyProducerDashboard(Boolean(user));
-
-  const { dashboardData, dataWarnings } = useMemo(() => {
+  const {
+    dashboardData,
+    dataWarnings
+  } = useMemo(() => {
     const statsData = dashboardQuery.data?.stats || {};
     const ordersData = dashboardQuery.data?.orders || {};
-    const productsData = dashboardQuery.data?.products || { products: [] };
+    const productsData = dashboardQuery.data?.products || {
+      products: []
+    };
     const warnings = [];
-
     if (!dashboardQuery.data?.stats) {
-      warnings.push(t('producer_dashboard.lasMetricasAvanzadasNoEstanDisponib', 'Las métricas avanzadas no están disponibles ahora mismo.'));
+      warnings.push(i18n.t('producer_dashboard.lasMetricasAvanzadasNoEstanDisponib', 'Las métricas avanzadas no están disponibles ahora mismo.'));
     }
     if (!dashboardQuery.data?.products) {
-      warnings.push(t('producer_dashboard.noSePudoCargarElStockDeProductos', 'No se pudo cargar el stock de productos para las alertas.'));
+      warnings.push(i18n.t('producer_dashboard.noSePudoCargarElStockDeProductos', 'No se pudo cargar el stock de productos para las alertas.'));
     }
-
-    const pendingOrders = (ordersData?.orders || []).slice(0, 3).map((order) => ({
+    const pendingOrders = (ordersData?.orders || []).slice(0, 3).map(order => ({
       id: order.id,
       title: `#${order.order_number || order.id.slice(-4)} · ${order.customer_name || 'Cliente'}`,
-      subtitle:
-        order.status === 'pending'
-          ? 'Nuevo'
-          : order.status === 'processing'
-            ? t('producer_dashboard.enPreparacion', 'En preparación')
-            : `Pedido ${order.status}`,
-      description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
+      subtitle: order.status === 'pending' ? 'Nuevo' : order.status === 'processing' ? i18n.t('producer_dashboard.enPreparacion', 'En preparación') : `Pedido ${order.status}`,
+      description: order.items?.map(item => item.product_name).join(', ') || 'Productos',
       amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
       status: order.status,
       actionLabel: order.status === 'pending' ? 'Preparar' : 'Ver',
       onAction: () => navigate('/producer/orders')
     }));
-
-    const alerts = (productsData.products || [])
-      .filter((product) => product.stock < 10)
-      .slice(0, 2)
-      .map((product) => ({
-        id: product.id,
-        type: 'warning',
-        message: `Stock bajo: ${product.name} (quedan ${product.stock} unidades)`,
-        actionLabel: 'Reponer',
-        onAction: () => navigate('/producer/products')
-      }));
-
-    const totalRevenue =
-      ordersData?.orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
+    const alerts = (productsData.products || []).filter(product => product.stock < 10).slice(0, 2).map(product => ({
+      id: product.id,
+      type: 'warning',
+      message: `Stock bajo: ${product.name} (quedan ${product.stock} unidades)`,
+      actionLabel: 'Reponer',
+      onAction: () => navigate('/producer/products')
+    }));
+    const totalRevenue = ordersData?.orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
     const totalOrders = ordersData?.total_count || ordersData?.orders?.length || 0;
-
     return {
       dataWarnings: warnings,
       dashboardData: {
@@ -87,128 +70,79 @@ function ProducerDashboard() {
           actual: statsData.weekly_revenue || [0, 0, 0, 0]
         },
         pendingOrders,
-        suggestions: [
-          {
-            id: 1,
-            title: 'Optimiza tus ventas',
-            description: t('producer_dashboard.anadeMasProductosParaAumentarTuVis', 'Añade más productos para aumentar tu visibilidad'),
-            actionLabel: t('producer_dashboard.anadirProducto', 'Añadir producto'),
-            onAction: () => navigate('/producer/products')
-          },
-          {
-            id: 2,
-            title: 'Conecta con influencers',
-            description: t('producer_dashboard.colaboraConInfluencersParaPromociona', 'Colabora con influencers para promocionar tus productos'),
-            actionLabel: 'Ver influencers',
-            onAction: () => navigate('/producer/influencers')
-          }
-        ]
+        suggestions: [{
+          id: 1,
+          title: 'Optimiza tus ventas',
+          description: i18n.t('producer_dashboard.anadeMasProductosParaAumentarTuVis', 'Añade más productos para aumentar tu visibilidad'),
+          actionLabel: i18n.t('producer_dashboard.anadirProducto', 'Añadir producto'),
+          onAction: () => navigate('/producer/products')
+        }, {
+          id: 2,
+          title: 'Conecta con influencers',
+          description: i18n.t('producer_dashboard.colaboraConInfluencersParaPromociona', 'Colabora con influencers para promocionar tus productos'),
+          actionLabel: 'Ver influencers',
+          onAction: () => navigate('/producer/influencers')
+        }]
       }
     };
   }, [dashboardQuery.data, navigate]);
-
-  const quickActions = [
-    {
-      id: 'add',
-      icon: Plus,
-      label: t('producer_dashboard.anadirProducto', 'Añadir producto'),
-      color: '#0c0a09',
-      onClick: () => navigate('/producer/products')
-    },
-    {
-      id: 'orders',
-      icon: ShoppingCart,
-      label: 'Gestionar pedidos',
-      color: '#78716c',
-      onClick: () => navigate('/producer/orders')
-    },
-    {
-      id: 'analytics',
-      icon: BarChart3,
-      label: t('producer_dashboard.analisis', 'Análisis'),
-      color: '#78716c',
-      onClick: () => navigate('/producer/payments')
-    },
-    {
-      id: 'promo',
-      icon: Tag,
-      label: 'Promociones',
-      color: '#0c0a09',
-      onClick: () => navigate('/producer/store')
-    }
-  ];
-
+  const quickActions = [{
+    id: 'add',
+    icon: Plus,
+    label: i18n.t('producer_dashboard.anadirProducto', 'Añadir producto'),
+    color: '#0c0a09',
+    onClick: () => navigate('/producer/products')
+  }, {
+    id: 'orders',
+    icon: ShoppingCart,
+    label: 'Gestionar pedidos',
+    color: '#78716c',
+    onClick: () => navigate('/producer/orders')
+  }, {
+    id: 'analytics',
+    icon: BarChart3,
+    label: i18n.t('producer_dashboard.analisis', 'Análisis'),
+    color: '#78716c',
+    onClick: () => navigate('/producer/payments')
+  }, {
+    id: 'promo',
+    icon: Tag,
+    label: 'Promociones',
+    color: '#0c0a09',
+    onClick: () => navigate('/producer/store')
+  }];
   if (dashboardQuery.isLoading) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+    return <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
-      </div>
-    );
+      </div>;
   }
+  return <div className="min-h-screen bg-stone-50 p-4 pb-24">
+      <DashboardHeader userName={user?.name || 'Productor'} subtitle={i18n.t('producer_dashboard.resumenDeTuNegocio', 'Resumen de tu negocio')} notificationCount={dashboardData.alerts.length} />
 
-  return (
-    <div className="min-h-screen bg-stone-50 p-4 pb-24">
-      <DashboardHeader
-        userName={user?.name || 'Productor'}
-        subtitle={t('producer_dashboard.resumenDeTuNegocio', 'Resumen de tu negocio')}
-        notificationCount={dashboardData.alerts.length}
-      />
-
-      {dataWarnings.length > 0 && (
-        <div className="mb-4 space-y-2">
-          {dataWarnings.map((warning) => (
-            <AlertBanner key={warning} type="warning" message={warning} />
-          ))}
-        </div>
-      )}
+      {dataWarnings.length > 0 && <div className="mb-4 space-y-2">
+          {dataWarnings.map(warning => <AlertBanner key={warning} type="warning" message={warning} />)}
+        </div>}
 
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <KPICard
-          icon={Euro}
-          value={`EUR ${dashboardData.kpis.revenue.toFixed(0)}`}
-          label="Ingresos"
-          subtext="este mes"
-          trend={`${dashboardData.kpis.growth > 0 ? '+' : ''}${dashboardData.kpis.growth}%`}
-          trendUp={dashboardData.kpis.growth >= 0}
-        />
-        <KPICard
-          icon={Package}
-          value={dashboardData.kpis.orders}
-          label="Pedidos"
-          subtext="este mes"
-          accentColor="#78716c"
-          onClick={() => navigate('/producer/orders')}
-        />
-        <KPICard
-          icon={Star}
-          value={dashboardData.kpis.rating}
-          label="Valoracion"
-          subtext="media"
-          accentColor="#0c0a09"
-        />
+        <KPICard icon={Euro} value={`EUR ${dashboardData.kpis.revenue.toFixed(0)}`} label="Ingresos" subtext="este mes" trend={`${dashboardData.kpis.growth > 0 ? '+' : ''}${dashboardData.kpis.growth}%`} trendUp={dashboardData.kpis.growth >= 0} />
+        <KPICard icon={Package} value={dashboardData.kpis.orders} label="Pedidos" subtext="este mes" accentColor="#78716c" onClick={() => navigate('/producer/orders')} />
+        <KPICard icon={Star} value={dashboardData.kpis.rating} label="Valoracion" subtext="media" accentColor="#0c0a09" />
       </div>
 
-      {dashboardData.alerts.map((alert) => (
-        <div key={alert.id} className="mb-4">
-          <AlertBanner
-            type={alert.type}
-            message={alert.message}
-            actionLabel={alert.actionLabel}
-            onAction={alert.onAction}
-          />
-        </div>
-      ))}
+      {dashboardData.alerts.map(alert => <div key={alert.id} className="mb-4">
+          <AlertBanner type={alert.type} message={alert.message} actionLabel={alert.actionLabel} onAction={alert.onAction} />
+        </div>)}
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-stone-950">{t('producer_dashboard.evolucionDeVentas', 'Evolución de ventas')}</h3>
+          <h3 className="font-semibold text-stone-950">{i18n.t('producer_dashboard.evolucionDeVentas', 'Evolución de ventas')}</h3>
           <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
         <AreaChart data={dashboardData.chart.actual} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{i18n.t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 
@@ -226,8 +160,6 @@ function ProducerDashboard() {
         <h3 className="font-semibold text-stone-950 mb-3">Sugerencias HI Ventas</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
-    </div>
-  );
+    </div>;
 }
-
 export default ProducerDashboard;

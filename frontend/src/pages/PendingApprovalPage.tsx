@@ -6,13 +6,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-
+import i18n from "../locales/i18n";
 export default function PendingApprovalPage() {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const canVerify = user?.role === 'producer' || user?.role === 'importer';
   const canFiscalSetup = user?.role === 'influencer';
-  return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+  return <div className="min-h-screen bg-stone-50 flex flex-col">
       <Header />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-[400px] bg-white border border-stone-200 rounded-[28px] p-6 md:p-8 text-center shadow-sm">
@@ -29,47 +30,30 @@ export default function PendingApprovalPage() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-stone-950 mt-0.5 shrink-0" />
               <div className="space-y-1 text-sm text-stone-600">
-                <p>{t('pending_approval.recibirasAccesoCompletoCuandoElEqui', 'Recibirás acceso completo cuando el equipo valide tu alta.')}</p>
-                <p>{t('pending_approval.mientrasTantoAlgunasFuncionesComerc', 'Mientras tanto, algunas funciones comerciales seguirán restringidas.')}</p>
+                <p>{i18n.t('pending_approval.recibirasAccesoCompletoCuandoElEqui', 'Recibirás acceso completo cuando el equipo valide tu alta.')}</p>
+                <p>{i18n.t('pending_approval.mientrasTantoAlgunasFuncionesComerc', 'Mientras tanto, algunas funciones comerciales seguirán restringidas.')}</p>
                 <p>Si tarda demasiado, usa contacto o soporte interno.</p>
               </div>
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            {canVerify && (
-              <Link
-                to="/producer/verification"
-                className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
-              >
+            {canVerify && <Link to="/producer/verification" className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800">
                 <FileCheck className="w-4 h-4" />
                 Subir documentos de verificación
-              </Link>
-            )}
-            {canFiscalSetup && (
-              <Link
-                to="/influencer/fiscal-setup"
-                className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
-              >
+              </Link>}
+            {canFiscalSetup && <Link to="/influencer/fiscal-setup" className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800">
                 <FileCheck className="w-4 h-4" />
                 Completar configuración fiscal
-              </Link>
-            )}
-            <Link
-              to="/"
-              className={`flex h-11 items-center justify-center rounded-full px-6 text-[14px] font-medium transition-colors ${(canVerify || canFiscalSetup) ? 'border border-stone-200 bg-white text-stone-700 hover:bg-stone-50' : 'bg-stone-950 text-white hover:bg-stone-800'}`}
-            >
+              </Link>}
+            <Link to="/" className={`flex h-11 items-center justify-center rounded-full px-6 text-[14px] font-medium transition-colors ${canVerify || canFiscalSetup ? 'border border-stone-200 bg-white text-stone-700 hover:bg-stone-50' : 'bg-stone-950 text-white hover:bg-stone-800'}`}>
               Volver al inicio
             </Link>
-            <Link
-              to="/contact"
-              className="flex h-11 items-center justify-center rounded-full border border-stone-200 bg-white px-6 text-[14px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
-            >
+            <Link to="/contact" className="flex h-11 items-center justify-center rounded-full border border-stone-200 bg-white px-6 text-[14px] font-medium text-stone-700 transition-colors hover:bg-stone-50">
               Contactar
             </Link>
           </div>
         </div>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 }

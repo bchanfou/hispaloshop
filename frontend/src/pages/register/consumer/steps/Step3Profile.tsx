@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../../../locales/i18n";
 const DIETARY_OPTIONS = [{
   value: 'vegetarian',
   label: 'Vegetariano'
@@ -77,7 +78,7 @@ const Step3Profile = ({
   };
   const handleSubmit = () => {
     if (!country) {
-      setCountryError(t('register.selectCountry', 'Selecciona tu país'));
+      setCountryError(i18n.t('register.selectCountry', 'Selecciona tu país'));
       return;
     }
     setCountryError('');
@@ -133,7 +134,7 @@ const Step3Profile = ({
         setCountry(e.target.value);
         setCountryError('');
       }} className={`mt-2 h-12 w-full rounded-xl border bg-white px-3 text-base md:h-11 md:text-sm ${countryError ? 'border-stone-950' : 'border-stone-200'}`}>
-          <option value="">{t('register.selectCountry', 'Selecciona tu país')}</option>
+          <option value="">{i18n.t('register.selectCountry', 'Selecciona tu país')}</option>
           {COUNTRY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
         {countryError ? <p className="mt-1 text-xs text-stone-700">{countryError}</p> : null}
@@ -144,7 +145,7 @@ const Step3Profile = ({
           Código postal
         </label>
         <input id="consumer-postal-code" type="text" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="41001" className="mt-2 h-12 w-full rounded-xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm" />
-        <p className="mt-1 text-xs text-stone-500">{t('step3_profile.nosAyudaAMostrarProductoresYEnvios', 'Nos ayuda a mostrar productores y envíos más relevantes.')}</p>
+        <p className="mt-1 text-xs text-stone-500">{i18n.t('step3_profile.nosAyudaAMostrarProductoresYEnvios', 'Nos ayuda a mostrar productores y envíos más relevantes.')}</p>
       </div>
 
       <button type="button" onClick={handleSubmit} className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 font-medium text-white transition-colors hover:bg-black">

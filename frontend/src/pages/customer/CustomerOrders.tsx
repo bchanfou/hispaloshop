@@ -11,6 +11,7 @@ import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge
 import { useLocale } from '../../context/LocaleContext';
 import { useCart } from '../../context/CartContext';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const TIMELINE_STEPS = [{
   key: 'ordered',
   label: 'Pedido'
@@ -136,7 +137,7 @@ export default function CustomerOrders() {
         setHasMore(fetched.length >= LIMIT);
       }
     } catch (error) {
-      toast.error(t('customer_orders.errorAlCargarLosPedidos', 'Error al cargar los pedidos'));
+      toast.error(i18n.t('customer_orders.errorAlCargarLosPedidos', 'Error al cargar los pedidos'));
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -157,7 +158,7 @@ export default function CustomerOrders() {
       setPage(1);
       setHasMore(data?.has_more ?? fetched.length >= LIMIT);
     } catch {
-      toast.error(t('customer_orders.errorAlActualizarLosPedidos', 'Error al actualizar los pedidos'));
+      toast.error(i18n.t('customer_orders.errorAlActualizarLosPedidos', 'Error al actualizar los pedidos'));
     } finally {
       setLoading(false);
       refreshingRef.current = false;
@@ -219,7 +220,7 @@ export default function CustomerOrders() {
           </div> : filteredOrders.length === 0 ? <div className="p-8 text-center">
             <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-4" />
             <p className="text-stone-500 mb-4">
-              {activeFilter === 'all' ? t('orders.noOrders', 'Aún no tienes pedidos') : t('customer_orders.noHayPedidosEnEstaCategoria', 'No hay pedidos en esta categoría')}
+              {activeFilter === 'all' ? i18n.t('orders.noOrders', 'Aún no tienes pedidos') : i18n.t('customer_orders.noHayPedidosEnEstaCategoria', 'No hay pedidos en esta categoría')}
             </p>
             {activeFilter === 'all' && <Link to="/discover" className="text-stone-950 hover:underline font-medium">
                 Empezar a comprar →
@@ -293,10 +294,10 @@ export default function CustomerOrders() {
                     setReorderingId(order.order_id);
                     await apiClient.post(`/customer/orders/${order.order_id}/reorder`);
                     await fetchCart();
-                    toast.success(t('customer_orders.productosAnadidosAlCarrito', 'Productos añadidos al carrito'));
+                    toast.success(i18n.t('customer_orders.productosAnadidosAlCarrito', 'Productos añadidos al carrito'));
                     navigate('/cart');
                   } catch (err: any) {
-                    toast.error(err?.message || t('customer_orders.noSePudoRepetirElPedido', 'No se pudo repetir el pedido'));
+                    toast.error(err?.message || i18n.t('customer_orders.noSePudoRepetirElPedido', 'No se pudo repetir el pedido'));
                   } finally {
                     setReorderingId(null);
                   }
@@ -309,7 +310,7 @@ export default function CustomerOrders() {
           </div>}
       </div>
       {hasMore && orders.length > 0 && <button onClick={() => setPage(p => p + 1)} disabled={loadingMore} className="w-full mt-4 py-3 min-h-[44px] text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors disabled:opacity-50">
-          {loadingMore ? 'Cargando...' : t('customer_orders.cargarMasPedidos', 'Cargar más pedidos')}
+          {loadingMore ? 'Cargando...' : i18n.t('customer_orders.cargarMasPedidos', 'Cargar más pedidos')}
         </button>}
       </div>
     </div>;

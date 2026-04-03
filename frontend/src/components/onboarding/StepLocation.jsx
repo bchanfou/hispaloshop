@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import i18n from "../../locales/i18n";
 const SPAIN_ZIP_CODES = {
   '28001': 'Madrid',
   '41001': 'Sevilla',
@@ -123,7 +124,7 @@ export default function StepLocation({
 
       <button onClick={useCurrentLocation} disabled={loadingLocation} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-100 text-stone-950 rounded-2xl font-medium hover:bg-stone-200 transition-colors">
         <Navigation className="w-5 h-5" />
-        {loadingLocation ? 'Detectando...' : t('step_location.usarMiUbicacionActual', 'Usar mi ubicación actual')}
+        {loadingLocation ? 'Detectando...' : i18n.t('step_location.usarMiUbicacionActual', 'Usar mi ubicación actual')}
       </button>
 
       <div className="relative">
@@ -131,7 +132,7 @@ export default function StepLocation({
           <div className="w-full border-t border-stone-200"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-stone-500">{t('step_location.oIntroduceCodigoPostal', 'O introduce código postal')}</span>
+          <span className="px-2 bg-white text-stone-500">{i18n.t('step_location.oIntroduceCodigoPostal', 'O introduce código postal')}</span>
         </div>
       </div>
 
