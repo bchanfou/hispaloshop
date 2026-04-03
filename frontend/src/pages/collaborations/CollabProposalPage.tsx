@@ -61,7 +61,8 @@ export default function CollabProposalPage() {
   // Set default commission when tier loads
   useEffect(() => {
     if (commissionPct === null) setCommissionPct(influencerTier.rate);
-  }, [influencerTier.rate, commissionPct]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [influencerTier.rate]);
 
   const tierRate = influencerTier.rate;
   const commissionPills = [
@@ -97,7 +98,7 @@ export default function CollabProposalPage() {
   };
 
   const previewEarning = selectedProduct
-    ? ((selectedProduct.price || 0) * (commissionPct || 0) / 100).toFixed(2)
+    ? (Number(selectedProduct.price || 0) * Number(commissionPct || 0) / 100).toFixed(2)
     : '0.00';
 
   return (
@@ -107,6 +108,7 @@ export default function CollabProposalPage() {
         <div className="mx-auto flex max-w-[600px] items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate(-1)}
               className="flex h-10 w-10 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
               aria-label="Volver"
@@ -116,6 +118,7 @@ export default function CollabProposalPage() {
             <h1 className="text-lg font-bold text-stone-950">{t('collab_proposal.nuevaColaboracion', 'Nueva colaboración')}</h1>
           </div>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || loading}
             className="rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
@@ -139,9 +142,9 @@ export default function CollabProposalPage() {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-stone-950">{selectedProduct.name}</p>
-                <p className="text-xs text-stone-500">{selectedProduct.price?.toFixed(2)}\u20AC</p>
+                <p className="text-xs text-stone-500">{Number(selectedProduct.price || 0).toFixed(2)}\u20AC</p>
               </div>
-              <button onClick={() => setSelectedProduct(null)} className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-500">
+              <button type="button" onClick={() => setSelectedProduct(null)} className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-500">
                 Cambiar
               </button>
             </div>
@@ -151,6 +154,7 @@ export default function CollabProposalPage() {
             <div className="max-h-[240px] space-y-1.5 overflow-y-auto rounded-xl border border-stone-200 bg-white">
               {products.map(p => (
                 <button
+                  type="button"
                   key={p._id || p.product_id}
                   onClick={() => setSelectedProduct(p)}
                   className="flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-stone-50"
@@ -158,7 +162,7 @@ export default function CollabProposalPage() {
                   {p.images?.[0]?.url && <img loading="lazy" src={p.images[0].url} alt="" className="h-10 w-10 rounded-2xl object-cover" />}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-stone-950">{p.name}</p>
-                    <p className="text-xs text-stone-500">{p.price?.toFixed(2)}\u20AC</p>
+                    <p className="text-xs text-stone-500">{Number(p.price || 0).toFixed(2)}\u20AC</p>
                   </div>
                 </button>
               ))}
@@ -178,6 +182,7 @@ export default function CollabProposalPage() {
           <div className="flex flex-wrap gap-2">
             {commissionPills.map(pill => (
               <button
+                type="button"
                 key={pill.value}
                 onClick={() => setCommissionPct(pill.value)}
                 className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
@@ -189,10 +194,22 @@ export default function CollabProposalPage() {
                 {pill.label}
               </button>
             ))}
+            <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white px-3 py-1.5">
+              <input
+                type="number"
+                min={tierRate}
+                max={50}
+                value={commissionPct ?? ''}
+                onChange={e => { const v = parseFloat(e.target.value); setCommissionPct(isNaN(v) ? tierRate : Math.max(tierRate, Math.min(50, v))); }}
+                className="w-12 border-none bg-transparent text-sm font-medium text-stone-950 outline-none text-center"
+                aria-label="Comisión personalizada"
+              />
+              <span className="text-xs text-stone-500">%</span>
+            </div>
           </div>
           {selectedProduct && commissionPct && (
             <div className="mt-3 rounded-xl bg-stone-100 p-3 text-xs text-stone-500">
-              El influencer ganará {commissionPct}% de comisión. Para un producto de {selectedProduct.price?.toFixed(2)}\u20AC → <strong className="text-stone-950">{previewEarning}\u20AC por venta</strong>.
+              El influencer ganará {commissionPct}% de comisión. Para un producto de {Number(selectedProduct.price || 0).toFixed(2)}\u20AC → <strong className="text-stone-950">{previewEarning}\u20AC por venta</strong>.
             </div>
           )}
         </section>
@@ -205,6 +222,7 @@ export default function CollabProposalPage() {
           <div className="flex gap-2">
             {DURATIONS.map(d => (
               <button
+                type="button"
                 key={d.days}
                 onClick={() => setDurationDays(d.days)}
                 className={`flex-1 rounded-full border py-2 text-sm font-medium transition-colors ${
@@ -227,7 +245,9 @@ export default function CollabProposalPage() {
               <p className="mt-0.5 text-xs text-stone-500">{t('collab_proposal.elCosteCorreACargoDelProductor', 'El coste corre a cargo del productor')}</p>
             </div>
             <button
+              type="button"
               onClick={() => setSendSample(!sendSample)}
+              aria-label={sendSample ? 'Desactivar envío de muestra' : 'Activar envío de muestra'}
               className={`relative h-6 w-11 rounded-full transition-colors ${sendSample ? 'bg-stone-950' : 'bg-stone-200'}`}
             >
               <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${sendSample ? 'left-[22px]' : 'left-[2px]'}`} />
@@ -238,6 +258,7 @@ export default function CollabProposalPage() {
               <span className="text-xs text-stone-500">Cantidad:</span>
               {[1, 2, 3, 5].map(n => (
                 <button
+                  type="button"
                   key={n}
                   onClick={() => setSampleQty(n)}
                   className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
@@ -278,7 +299,7 @@ export default function CollabProposalPage() {
                 {selectedProduct.images?.[0]?.url && <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="h-12 w-12 rounded-2xl object-cover" />}
                 <div>
                   <p className="text-sm font-semibold text-stone-950">{selectedProduct.name}</p>
-                  <p className="text-xs text-stone-500">{selectedProduct.price?.toFixed(2)}\u20AC</p>
+                  <p className="text-xs text-stone-500">{Number(selectedProduct.price || 0).toFixed(2)}\u20AC</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 text-xs text-stone-500">
@@ -293,6 +314,7 @@ export default function CollabProposalPage() {
 
         {/* Submit button (mobile) */}
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={!canSubmit || loading}
           className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 function Badge({ label, variant }) {
   const styles = {
@@ -30,6 +30,13 @@ export default function CollabProposalCard({
 }) {
   const { product_name, product_image, commission_percent, duration_days, include_sample, status } =
     proposal;
+  const [busy, setBusy] = useState(false);
+
+  const handleAction = async (fn) => {
+    if (busy || !fn) return;
+    setBusy(true);
+    try { await fn(); } finally { setBusy(false); }
+  };
 
   return (
     <div className="max-w-[280px] rounded-2xl overflow-hidden border border-stone-200">
@@ -66,14 +73,18 @@ export default function CollabProposalCard({
         {status === 'pending' && isReceiver && (
           <div className="flex items-center gap-2">
             <button
-              onClick={onAccept}
-              className="flex-1 flex items-center justify-center h-9 bg-stone-950 text-white border-none rounded-full text-[13px] font-semibold cursor-pointer"
+              type="button"
+              onClick={() => handleAction(onAccept)}
+              disabled={busy}
+              className="flex-1 flex items-center justify-center h-9 bg-stone-950 text-white border-none rounded-full text-[13px] font-semibold cursor-pointer disabled:opacity-40"
             >
               ✓ Aceptar
             </button>
             <button
-              onClick={onDecline}
-              className="h-9 bg-transparent text-stone-500 border-none text-[13px] font-medium cursor-pointer px-3"
+              type="button"
+              onClick={() => handleAction(onDecline)}
+              disabled={busy}
+              className="h-9 bg-transparent text-stone-500 border-none text-[13px] font-medium cursor-pointer px-3 disabled:opacity-40"
             >
               Declinar
             </button>
@@ -84,8 +95,10 @@ export default function CollabProposalCard({
           <div>
             <Badge label="Aceptada" variant="accepted" />
             <button
-              onClick={onGenerateLink}
-              className="w-full flex items-center justify-center h-9 bg-stone-950 text-white border-none rounded-full text-[13px] font-semibold cursor-pointer mt-2"
+              type="button"
+              onClick={() => handleAction(onGenerateLink)}
+              disabled={busy}
+              className="w-full flex items-center justify-center h-9 bg-stone-950 text-white border-none rounded-full text-[13px] font-semibold cursor-pointer mt-2 disabled:opacity-40"
             >
               Generar link exclusivo
             </button>

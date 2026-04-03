@@ -35,10 +35,17 @@ const shortHash = (h) => (h ? `${String(h).slice(0, 12)}\u2026` : '\u2014');
 
 /* ── Verification Modal ──────────────────────────────── */
 function VerifyModal({ operationId, onClose }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showFullHash, setShowFullHash] = useState(false);
+
+  useEffect(() => {
+    const handle = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, [onClose]);
 
   useEffect(() => {
     apiClient
@@ -75,7 +82,7 @@ function VerifyModal({ operationId, onClose }) {
             <p className="text-sm font-semibold text-stone-950">{error}</p>
             <button
               onClick={onClose}
-              className="mt-2 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
+              type="button" className="mt-2 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
             >
               Cerrar
             </button>
@@ -98,6 +105,7 @@ function VerifyModal({ operationId, onClose }) {
               </p>
               {!showFullHash && (
                 <button
+                  type="button"
                   onClick={() => setShowFullHash(true)}
                   className="mt-1 bg-transparent p-0 text-[10px] text-stone-500 underline"
                 >
@@ -110,7 +118,7 @@ function VerifyModal({ operationId, onClose }) {
             </p>
             <button
               onClick={onClose}
-              className="mt-1 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
+              type="button" className="mt-1 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
             >
               Cerrar
             </button>
@@ -142,13 +150,15 @@ function VerifyModal({ operationId, onClose }) {
             </div>
             <div className="mt-1 flex w-full gap-2">
               <button
+                type="button"
                 onClick={onClose}
                 className="flex-1 rounded-full bg-stone-100 py-2.5 text-[13px] font-semibold text-stone-950"
               >
                 Cerrar
               </button>
               <button
-                onClick={() => { window.location.href = '/support'; }}
+                type="button"
+                onClick={() => navigate('/support')}
                 className="flex-1 rounded-full bg-stone-950 py-2.5 text-[13px] font-semibold text-white"
               >
                 Contactar soporte
@@ -222,6 +232,7 @@ function ContractCard({ contract, onVerify }) {
       <div className="flex gap-2">
         {contract.pdf_url && (
           <button
+            type="button"
             onClick={() => isSafeUrl(contract.pdf_url) && window.open(contract.pdf_url, '_blank')}
             className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-950 text-xs font-semibold text-white"
           >
@@ -230,6 +241,7 @@ function ContractCard({ contract, onVerify }) {
           </button>
         )}
         <button
+          type="button"
           onClick={() => onVerify(contract.operation_id)}
           className="flex h-9 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-4 text-xs font-semibold text-stone-950"
         >
@@ -277,6 +289,7 @@ export default function SignedDocumentsPage() {
       {/* TopBar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white/90 px-4 py-3 backdrop-blur-xl">
         <button
+          type="button"
           onClick={() => navigate(-1)}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100"
           aria-label="Volver"
@@ -293,6 +306,7 @@ export default function SignedDocumentsPage() {
         <div className="mb-5 flex gap-0 rounded-full bg-stone-100 p-1">
           {tabs.map((tab) => (
             <button
+              type="button"
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-xs font-semibold transition-all ${
@@ -341,7 +355,7 @@ export default function SignedDocumentsPage() {
                 {certificates.length > 0 ? (
                   certificates.map((cert, i) => (
                     <div
-                      key={i}
+                      key={cert.certificate_id || cert.name || i}
                       className="rounded-2xl border border-stone-200 bg-white p-4"
                     >
                       <div className="mb-2 flex items-center justify-between">
@@ -367,6 +381,7 @@ export default function SignedDocumentsPage() {
                       )}
                       {cert.url && (
                         <button
+                          type="button"
                           onClick={() => isSafeUrl(cert.url) && window.open(cert.url, '_blank')}
                           className="mt-3 flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-950"
                         >
