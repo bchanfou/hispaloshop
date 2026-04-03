@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Bookmark, Star, Flame } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import i18n from '../../locales/i18n';
 
 const MILESTONES = {
-  'first_10_likes': { icon: Heart, title: t('milestone_toast.10MeGusta', '¡10 me gusta!'), subtitle: 'Tu publicación está gustando', threshold: 10 },
-  'first_save': { icon: Bookmark, title: t('milestone_toast.alguienTeGuardo', '¡Alguien te guardó!'), subtitle: 'Tu contenido inspira', threshold: 1 },
-  'first_50_likes': { icon: Star, title: t('milestone_toast.50MeGusta', '¡50 me gusta!'), subtitle: 'Estás en racha', threshold: 50 },
-  'streak_7': { icon: Flame, title: t('milestone_toast.7DiasSeguidos', '¡7 días seguidos!'), subtitle: 'Racha de publicación', threshold: 7 },
+  'first_10_likes': { icon: Heart, title: i18n.t('milestone_toast.10MeGusta', { defaultValue: '¡10 me gusta!' }), subtitle: 'Tu publicación está gustando', threshold: 10 },
+  'first_save': { icon: Bookmark, title: i18n.t('milestone_toast.alguienTeGuardo', { defaultValue: '¡Alguien te guardó!' }), subtitle: 'Tu contenido inspira', threshold: 1 },
+  'first_50_likes': { icon: Star, title: i18n.t('milestone_toast.50MeGusta', { defaultValue: '¡50 me gusta!' }), subtitle: 'Estás en racha', threshold: 50 },
+  'streak_7': { icon: Flame, title: i18n.t('milestone_toast.7DiasSeguidos', { defaultValue: '¡7 días seguidos!' }), subtitle: 'Racha de publicación', threshold: 7 },
 };
 
 export function checkMilestone(type, count) {
