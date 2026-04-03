@@ -31,7 +31,25 @@ function FeedContainer() {
   // Personalized product recommendations (graceful — hidden on error)
   const { data: forYouProducts } = useQuery({
     queryKey: ['products-for-you'],
-    queryFn: () => apiClient.get('/products/for-you?limit=10'),
+    queryFn: async () => {
+      try {
+        return await apiClient.get('/products/for-you?limit=10');
+      } catch (error) {
+        if (error?.status === 404) {
+          try {
+            const data = await apiClient.get('/discovery/recommended?limit=10');
+            return Array.isArray(data) ? data : (data?.products || data?.items || []);
+          } catch (fallbackError) {
+            if (fallbackError?.status === 404) {
+              const data = await apiClient.get('/products?recommended=true&limit=10');
+              return Array.isArray(data) ? data : (data?.products || data?.items || []);
+            }
+            throw fallbackError;
+          }
+        }
+        throw error;
+      }
+    },
     enabled: !!user,
     staleTime: 30 * 60_000,
     retry: 1,
