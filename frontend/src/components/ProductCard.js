@@ -9,7 +9,7 @@ import { useLocale } from '../context/LocaleContext';
 import { useHaptics } from '../hooks/useHaptics';
 import { useTranslation } from 'react-i18next';
 
-const CERT_LABELS = {
+const buildCertLabels = (t) => ({
   organic: t('search.ecologico', 'Ecológico'),
   dop: 'DOP',
   igp: 'IGP',
@@ -17,7 +17,7 @@ const CERT_LABELS = {
   vegan: 'Vegano',
   halal: 'Halal',
   km0: 'Km 0',
-};
+});
 
 function getPrimaryCert(product) {
   if (product.is_organic) return 'organic';
@@ -31,7 +31,7 @@ function getPrimaryCert(product) {
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
-function AddButton({ onAdd, isDisabled, testId }) {
+function AddButton({ onAdd, isDisabled, testId, t }) {
   const [confirmed, setConfirmed] = useState(false);
   const { trigger } = useHaptics();
   const timerRef = useRef(null);
@@ -77,6 +77,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
+  const certLabels = buildCertLabels(t);
   const productId = getProductId(product);
 
   const basePrice = product.display_price || product.price || 0;
@@ -153,7 +154,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
           )}
           {primaryCert && (
             <span className="absolute bottom-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950 flex items-center gap-0.5">
-              <Leaf size={10} /> {CERT_LABELS[primaryCert] || primaryCert}
+              <Leaf size={10} /> {certLabels[primaryCert] || primaryCert}
             </span>
           )}
           {!isBlocked && !primaryCert && isLowStock && (
@@ -174,6 +175,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
               onAdd={handleAddToCart}
               isDisabled={isBlocked}
               testId={`add-to-cart-${productId}`}
+              t={t}
             />
           </div>
         </div>
@@ -214,7 +216,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
 
         {primaryCert && (
           <span className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950 flex items-center gap-0.5">
-            <Leaf size={10} /> {CERT_LABELS[primaryCert] || primaryCert}
+            <Leaf size={10} /> {certLabels[primaryCert] || primaryCert}
           </span>
         )}
 
@@ -273,6 +275,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
               onAdd={handleAddToCart}
               isDisabled={isBlocked}
               testId={`add-to-cart-${productId}`}
+              t={t}
             />
           )}
         </div>
