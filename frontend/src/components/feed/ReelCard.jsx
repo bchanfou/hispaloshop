@@ -125,20 +125,8 @@ function ReelCardInner({
   const [playing, setPlaying] = useState(false);
   const reelAutocomplete = useAutocomplete(newComment, v => setNewComment(v.slice(0, 500)), commentInputRef);
 
-  // Preload next reel video when this reel is active
-  useEffect(() => {
-    if (isActive && nextVideoUrl) {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = nextVideoUrl;
-      document.head.appendChild(link);
-      return () => {
-        try {
-          document.head.removeChild(link);
-        } catch (err) {/* cleanup safe to ignore */}
-      };
-    }
-  }, [isActive, nextVideoUrl]);
+  // Intentionally disable next-video prefetch in production:
+  // cross-origin video prefetch can trigger CSP noise and cache-operation errors.
 
   // Sync local state when props change (e.g. from React Query cache update)
   useEffect(() => {
