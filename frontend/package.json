@@ -74,7 +74,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "node scripts/check-top-level-t.js && craco build",
     "test": "craco test",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",

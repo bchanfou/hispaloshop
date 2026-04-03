@@ -12,25 +12,25 @@ import Step4Preferences from './steps/Step4Preferences';
 import Step5Welcome from './steps/Step5Welcome';
 import { useAuth } from '../../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-
-const STEP_LABELS = [
-  'Acceso',
-  t('consumer_register.datosBasicos', 'Datos básicos'),
-  'Perfil alimentario',
-  'Preferencias',
-  'Cuenta lista',
-];
-
+const STEP_LABELS = ['Acceso', "Datos básicos", 'Perfil alimentario', 'Preferencias', 'Cuenta lista'];
 const ConsumerRegister = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const {
+    register
+  } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { currentStep, data, nextStep, updateData, clearProgress } = useStepProgress('consumer', 5);
-
-  const handleStepData = (stepData) => {
-    updateData({ [`step${currentStep}`]: stepData });
+  const {
+    currentStep,
+    data,
+    nextStep,
+    updateData,
+    clearProgress
+  } = useStepProgress('consumer', 5);
+  const handleStepData = stepData => {
+    updateData({
+      [`step${currentStep}`]: stepData
+    });
   };
-
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
@@ -47,10 +47,12 @@ const ConsumerRegister = () => {
         preferred_categories: data.step3?.categories || [],
         postal_code: data.step3?.postalCode || '',
         discovery_method: data.step4?.discoveryMethod || 'personalized',
-        purchase_frequency: data.step4?.frequency || 'weekly',
+        purchase_frequency: data.step4?.frequency || 'weekly'
       };
       await register(payload);
-      navigate('/onboarding', { replace: true });
+      navigate('/onboarding', {
+        replace: true
+      });
       clearProgress();
     } catch (error) {
       toast.error(error?.response?.data?.detail || t('consumer_register.errorAlCrearLaCuentaIntentaloDeN', 'Error al crear la cuenta. Inténtalo de nuevo.'));
@@ -58,13 +60,13 @@ const ConsumerRegister = () => {
       setIsSubmitting(false);
     }
   };
-
   const stepData = data[`step${currentStep}`] || {};
-
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <Step1Method onNext={nextStep} onMethodSelect={(method) => handleStepData({ method })} />;
+        return <Step1Method onNext={nextStep} onMethodSelect={method => handleStepData({
+          method
+        })} />;
       case 2:
         return <Step2Basic onNext={nextStep} data={stepData} onDataChange={handleStepData} />;
       case 3:
@@ -72,27 +74,19 @@ const ConsumerRegister = () => {
       case 4:
         return <Step4Preferences onNext={nextStep} data={stepData} onDataChange={handleStepData} />;
       case 5:
-        return (
-          <Step5Welcome
-            data={{ ...data.step2, ...data.step3, ...data.step4 }}
-            onComplete={handleComplete}
-            isSubmitting={isSubmitting}
-          />
-        );
+        return <Step5Welcome data={{
+          ...data.step2,
+          ...data.step3,
+          ...data.step4
+        }} onComplete={handleComplete} isSubmitting={isSubmitting} />;
       default:
         return null;
     }
   };
-
-  return (
-    <div className="min-h-screen bg-stone-50">
+  return <div className="min-h-screen bg-stone-50">
       <div className="mx-auto max-w-[400px] px-4 py-6 md:py-10">
         <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('/register/new')}
-            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-200 hover:text-stone-950"
-          >
+          <button type="button" onClick={() => navigate('/register/new')} className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-200 hover:text-stone-950">
             <ArrowLeft className="h-4 w-4" />
             Volver
           </button>
@@ -116,8 +110,6 @@ const ConsumerRegister = () => {
           {renderStep()}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ConsumerRegister;

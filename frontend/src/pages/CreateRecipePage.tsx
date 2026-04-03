@@ -9,7 +9,6 @@ import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 import ProductSearchModal from '../components/create/ProductSearchModal';
 import HispalAIPanel from '../components/creator/HispalAIPanel';
-
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -18,73 +17,105 @@ function fileToDataUrl(file) {
     reader.readAsDataURL(file);
   });
 }
-
 function normalizeIngredientName(value) {
   return value.trim().replace(/\s+/g, ' ');
 }
-
 const DIFFICULTY_MAP = {
-  easy: { label: 'Fácil', tw: 'text-stone-500' },
-  medium: { label: 'Media', tw: 'text-stone-700' },
-  hard: { label: t('recipes.hard', 'Difícil'), tw: 'text-stone-950' },
+  easy: {
+    label: 'Fácil',
+    tw: 'text-stone-500'
+  },
+  medium: {
+    label: 'Media',
+    tw: 'text-stone-700'
+  },
+  hard: {
+    label: "Difícil",
+    tw: 'text-stone-950'
+  }
 };
 const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
-
-const RECIPE_TEMPLATES = [
-  {
-    id: 'salad',
-    name: t('create_recipe.ensaladaRapida', 'Ensalada rápida'),
-    icon: Salad,
-    time: 10,
-    difficulty: 'easy',
-    titlePrefix: 'Ensalada de ',
-    ingredients: [
-      { name: 'Lechuga', quantity: '1', unit: 'ud' },
-      { name: 'Tomate', quantity: '2', unit: 'ud' },
-      { name: 'Aceite de oliva', quantity: '2', unit: 'cda' },
-    ],
-  },
-  {
-    id: 'stew',
-    name: 'Guiso tradicional',
-    icon: Flame,
-    time: 60,
-    difficulty: 'medium',
-    titlePrefix: 'Guiso de ',
-    ingredients: [
-      { name: 'Patatas', quantity: '3', unit: 'ud' },
-      { name: 'Cebolla', quantity: '1', unit: 'ud' },
-      { name: 'Caldo de verduras', quantity: '500', unit: 'ml' },
-    ],
-  },
-  {
-    id: 'dessert',
-    name: t('create_recipe.postreFacil', 'Postre fácil'),
-    icon: IceCreamCone,
-    time: 30,
-    difficulty: 'easy',
-    titlePrefix: 'Postre de ',
-    ingredients: [
-      { name: 'Leche', quantity: '500', unit: 'ml' },
-      { name: t('recipe_detail.azucar', 'Azúcar'), quantity: '100', unit: 'g' },
-      { name: 'Huevos', quantity: '3', unit: 'ud' },
-    ],
-  },
-  {
-    id: 'tapa',
-    name: 'Tapa andaluza',
-    icon: UtensilsCrossed,
-    time: 20,
-    difficulty: 'easy',
-    titlePrefix: 'Tapa de ',
-    ingredients: [
-      { name: 'Pan de pueblo', quantity: '4', unit: 'rebanadas' },
-      { name: 'Tomate rallado', quantity: '2', unit: 'ud' },
-      { name: 'Aceite de oliva virgen extra', quantity: '3', unit: 'cda' },
-    ],
-  },
-];
-
+const RECIPE_TEMPLATES = [{
+  id: 'salad',
+  name: "Ensalada rápida",
+  icon: Salad,
+  time: 10,
+  difficulty: 'easy',
+  titlePrefix: 'Ensalada de ',
+  ingredients: [{
+    name: 'Lechuga',
+    quantity: '1',
+    unit: 'ud'
+  }, {
+    name: 'Tomate',
+    quantity: '2',
+    unit: 'ud'
+  }, {
+    name: 'Aceite de oliva',
+    quantity: '2',
+    unit: 'cda'
+  }]
+}, {
+  id: 'stew',
+  name: 'Guiso tradicional',
+  icon: Flame,
+  time: 60,
+  difficulty: 'medium',
+  titlePrefix: 'Guiso de ',
+  ingredients: [{
+    name: 'Patatas',
+    quantity: '3',
+    unit: 'ud'
+  }, {
+    name: 'Cebolla',
+    quantity: '1',
+    unit: 'ud'
+  }, {
+    name: 'Caldo de verduras',
+    quantity: '500',
+    unit: 'ml'
+  }]
+}, {
+  id: 'dessert',
+  name: "Postre fácil",
+  icon: IceCreamCone,
+  time: 30,
+  difficulty: 'easy',
+  titlePrefix: 'Postre de ',
+  ingredients: [{
+    name: 'Leche',
+    quantity: '500',
+    unit: 'ml'
+  }, {
+    name: "Azúcar",
+    quantity: '100',
+    unit: 'g'
+  }, {
+    name: 'Huevos',
+    quantity: '3',
+    unit: 'ud'
+  }]
+}, {
+  id: 'tapa',
+  name: 'Tapa andaluza',
+  icon: UtensilsCrossed,
+  time: 20,
+  difficulty: 'easy',
+  titlePrefix: 'Tapa de ',
+  ingredients: [{
+    name: 'Pan de pueblo',
+    quantity: '4',
+    unit: 'rebanadas'
+  }, {
+    name: 'Tomate rallado',
+    quantity: '2',
+    unit: 'ud'
+  }, {
+    name: 'Aceite de oliva virgen extra',
+    quantity: '3',
+    unit: 'cda'
+  }]
+}];
 const KNOWN_ALLERGENS = {
   gluten: ['harina', 'trigo', 'pan', 'pasta', 'cebada', 'centeno', 'avena', 'sémola', 'cuscús', 'espelta'],
   lactosa: ['leche', 'queso', 'nata', 'mantequilla', 'yogur', 'crema', 'requesón'],
@@ -96,9 +127,8 @@ const KNOWN_ALLERGENS = {
   apio: ['apio'],
   mostaza: ['mostaza'],
   sésamo: ['sésamo', 'tahini'],
-  sulfitos: ['vino', 'vinagre'],
+  sulfitos: ['vino', 'vinagre']
 };
-
 function detectAllergens(ingredients) {
   const detected = new Set();
   for (const ingredient of ingredients) {
@@ -116,11 +146,14 @@ function detectAllergens(ingredients) {
   }
   return Array.from(detected);
 }
-
 export default function CreateRecipePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { t } = useTranslation();
+  const {
+    user
+  } = useAuth();
+  const {
+    t
+  } = useTranslation();
   const imageInputRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -131,7 +164,6 @@ export default function CreateRecipePage() {
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
-
   const [recipe, setRecipe] = useState({
     image_url: '',
     title: '',
@@ -141,8 +173,11 @@ export default function CreateRecipePage() {
     time_minutes: 30,
     servings: 4,
     ingredients: [],
-    steps: [{ text: '', image_url: '' }],
-    tags: [],
+    steps: [{
+      text: '',
+      image_url: ''
+    }],
+    tags: []
   });
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [draftBanner, setDraftBanner] = useState(false);
@@ -158,7 +193,7 @@ export default function CreateRecipePage() {
       if (age < 24 * 60 * 60 * 1000 && (draft.title || draft.ingredients?.length)) {
         setDraftBanner(true);
       }
-    } catch { /* ignore */ }
+    } catch {/* ignore */}
   }, []);
 
   // R-05: Auto-save draft on changes
@@ -174,46 +209,43 @@ export default function CreateRecipePage() {
             meal_type: recipe.meal_type,
             time_minutes: recipe.time_minutes,
             servings: recipe.servings,
-            ingredients: recipe.ingredients.map(({ product, ...rest }) => rest),
-            steps: recipe.steps.map(s => ({ text: s.text, image_url: '' })),
+            ingredients: recipe.ingredients.map(({
+              product,
+              ...rest
+            }) => rest),
+            steps: recipe.steps.map(s => ({
+              text: s.text,
+              image_url: ''
+            })),
             tags: recipe.tags,
-            savedAt: Date.now(),
+            savedAt: Date.now()
           }));
         }
-      } catch { /* quota exceeded */ }
+      } catch {/* quota exceeded */}
     }, 500);
-    return () => { if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current); };
+    return () => {
+      if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    };
   }, [recipe.title, recipe.description, recipe.difficulty, recipe.time_minutes, recipe.servings, recipe.ingredients, recipe.steps, recipe.tags]);
-
-  const selectedProducts = useMemo(
-    () => recipe.ingredients.filter((ingredient) => ingredient.product_id),
-    [recipe.ingredients],
-  );
-
-  const detectedAllergens = useMemo(
-    () => detectAllergens(recipe.ingredients),
-    [recipe.ingredients],
-  );
-
+  const selectedProducts = useMemo(() => recipe.ingredients.filter(ingredient => ingredient.product_id), [recipe.ingredients]);
+  const detectedAllergens = useMemo(() => detectAllergens(recipe.ingredients), [recipe.ingredients]);
   const isFormEmpty = !recipe.title.trim();
-
-  const applyTemplate = (template) => {
-    setRecipe((prev) => ({
+  const applyTemplate = template => {
+    setRecipe(prev => ({
       ...prev,
       title: template.titlePrefix,
       difficulty: template.difficulty,
       time_minutes: template.time,
-      ingredients: template.ingredients.map((ing) => ({
+      ingredients: template.ingredients.map(ing => ({
         name: ing.name,
         quantity: ing.quantity,
         unit: ing.unit,
         product_id: null,
         product: null,
-        source: 'template',
-      })),
+        source: 'template'
+      }))
     }));
   };
-
   useEffect(() => {
     if (!manualIngredientInput.trim()) {
       setIngredientSuggestions([]);
@@ -232,42 +264,86 @@ export default function CreateRecipePage() {
     }, 180);
     return () => window.clearTimeout(timeoutId);
   }, [manualIngredientInput]);
-
   if (!user) {
     navigate('/login');
     return null;
   }
-
-  const updateRecipe = (field, value) => setRecipe((c) => ({ ...c, [field]: value }));
-
-  const handleMainImage = async (file) => {
-    if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
-    if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamano maximo es 10MB')); return; }
-    try { updateRecipe('image_url', await fileToDataUrl(file)); } catch { toast.error(t('create_recipe.noHemosPodidoCargarLaImagen', 'No hemos podido cargar la imagen')); }
+  const updateRecipe = (field, value) => setRecipe(c => ({
+    ...c,
+    [field]: value
+  }));
+  const handleMainImage = async file => {
+    if (!file?.type?.startsWith('image/')) {
+      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(t('social.maxSize10', 'El tamano maximo es 10MB'));
+      return;
+    }
+    try {
+      updateRecipe('image_url', await fileToDataUrl(file));
+    } catch {
+      toast.error(t('create_recipe.noHemosPodidoCargarLaImagen', 'No hemos podido cargar la imagen'));
+    }
   };
-
-  const handleDrop = async (e) => { e.preventDefault(); setDragActive(false); const f = e.dataTransfer.files?.[0]; if (f) await handleMainImage(f); };
-
+  const handleDrop = async e => {
+    e.preventDefault();
+    setDragActive(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) await handleMainImage(f);
+  };
   const addManualIngredient = () => {
     const name = normalizeIngredientName(manualIngredientInput);
     if (!name) return;
-    if (recipe.ingredients.some((i) => i.name.toLowerCase() === name.toLowerCase())) { setManualIngredientInput(''); return; }
-    updateRecipe('ingredients', [...recipe.ingredients, { name, quantity: '', unit: '', product_id: null, product: null, source: 'manual' }]);
+    if (recipe.ingredients.some(i => i.name.toLowerCase() === name.toLowerCase())) {
+      setManualIngredientInput('');
+      return;
+    }
+    updateRecipe('ingredients', [...recipe.ingredients, {
+      name,
+      quantity: '',
+      unit: '',
+      product_id: null,
+      product: null,
+      source: 'manual'
+    }]);
     setManualIngredientInput('');
     setIngredientSuggestions([]);
   };
-
-  const removeIngredient = (index) => updateRecipe('ingredients', recipe.ingredients.filter((_, i) => i !== index));
-  const updateIngredientField = (index, field, value) => { const n = [...recipe.ingredients]; n[index] = { ...n[index], [field]: value }; updateRecipe('ingredients', n); };
-
-  const addProductIngredient = (product) => {
-    if (recipe.ingredients.some((i) => i.product_id === product.product_id)) return;
-    updateRecipe('ingredients', [...recipe.ingredients, { name: product.name, quantity: '', unit: '', product_id: product.product_id, product, source: 'catalog' }]);
+  const removeIngredient = index => updateRecipe('ingredients', recipe.ingredients.filter((_, i) => i !== index));
+  const updateIngredientField = (index, field, value) => {
+    const n = [...recipe.ingredients];
+    n[index] = {
+      ...n[index],
+      [field]: value
+    };
+    updateRecipe('ingredients', n);
   };
-
-  const updateStep = (index, field, value) => { const n = [...recipe.steps]; n[index] = { ...n[index], [field]: value }; updateRecipe('steps', n); };
-  const addStep = () => updateRecipe('steps', [...recipe.steps, { text: '', image_url: '' }]);
-  const removeStep = (index) => updateRecipe('steps', recipe.steps.filter((_, i) => i !== index));
+  const addProductIngredient = product => {
+    if (recipe.ingredients.some(i => i.product_id === product.product_id)) return;
+    updateRecipe('ingredients', [...recipe.ingredients, {
+      name: product.name,
+      quantity: '',
+      unit: '',
+      product_id: product.product_id,
+      product,
+      source: 'catalog'
+    }]);
+  };
+  const updateStep = (index, field, value) => {
+    const n = [...recipe.steps];
+    n[index] = {
+      ...n[index],
+      [field]: value
+    };
+    updateRecipe('steps', n);
+  };
+  const addStep = () => updateRecipe('steps', [...recipe.steps, {
+    text: '',
+    image_url: ''
+  }]);
+  const removeStep = index => updateRecipe('steps', recipe.steps.filter((_, i) => i !== index));
   const moveStep = (from, to) => {
     updateRecipe('steps', (() => {
       const arr = [...recipe.steps];
@@ -276,39 +352,74 @@ export default function CreateRecipePage() {
       return arr;
     })());
   };
-
   const handleStepImage = async (index, file) => {
-    if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
-    if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB')); return; }
-    try { updateStep(index, 'image_url', await fileToDataUrl(file)); } catch { toast.error(t('create_recipe.noHemosPodidoCargarLaImagenDelPas', 'No hemos podido cargar la imagen del paso')); }
+    if (!file?.type?.startsWith('image/')) {
+      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB'));
+      return;
+    }
+    try {
+      updateStep(index, 'image_url', await fileToDataUrl(file));
+    } catch {
+      toast.error(t('create_recipe.noHemosPodidoCargarLaImagenDelPas', 'No hemos podido cargar la imagen del paso'));
+    }
   };
-
-  const cycleDifficulty = () => { const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty); updateRecipe('difficulty', DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length]); };
-
+  const cycleDifficulty = () => {
+    const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty);
+    updateRecipe('difficulty', DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length]);
+  };
   const handleSubmit = async () => {
     setSubmitAttempted(true);
-    const ci = recipe.ingredients.map((i) => ({ name: normalizeIngredientName(i.name), quantity: i.quantity || '', unit: i.unit || '', product_id: i.product_id || null })).filter((i) => i.name);
-    const cs = recipe.steps.map((s) => ({ text: s.text?.trim() || '', image_url: s.image_url || '' })).filter((s) => s.text || s.image_url);
-    if (!recipe.title.trim()) { toast.error(t('recipes.missingTitle', 'Añade un título')); return; }
-    if (ci.length === 0) { toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente')); return; }
-    if (cs.length === 0 || !recipe.steps[0]?.text?.trim()) { toast.error(t('recipes.missingSteps', 'Añade al menos un paso')); return; }
+    const ci = recipe.ingredients.map(i => ({
+      name: normalizeIngredientName(i.name),
+      quantity: i.quantity || '',
+      unit: i.unit || '',
+      product_id: i.product_id || null
+    })).filter(i => i.name);
+    const cs = recipe.steps.map(s => ({
+      text: s.text?.trim() || '',
+      image_url: s.image_url || ''
+    })).filter(s => s.text || s.image_url);
+    if (!recipe.title.trim()) {
+      toast.error(t('recipes.missingTitle', 'Añade un título'));
+      return;
+    }
+    if (ci.length === 0) {
+      toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente'));
+      return;
+    }
+    if (cs.length === 0 || !recipe.steps[0]?.text?.trim()) {
+      toast.error(t('recipes.missingSteps', 'Añade al menos un paso'));
+      return;
+    }
     setSubmitting(true);
     try {
-      const data = await apiClient.post('/recipes', { ...recipe, title: recipe.title.trim(), description: recipe.description.trim(), ingredients: ci, steps: cs });
-      try { localStorage.removeItem('recipe_draft'); } catch { /* ignore */ }
+      const data = await apiClient.post('/recipes', {
+        ...recipe,
+        title: recipe.title.trim(),
+        description: recipe.description.trim(),
+        ingredients: ci,
+        steps: cs
+      });
+      try {
+        localStorage.removeItem('recipe_draft');
+      } catch {/* ignore */}
       if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success(t('recipes.published', 'Receta publicada'));
         navigate(`/recipes/${data.recipe_id}`);
       }, 1200);
-    } catch (error) { toast.error(error.message || t('create_recipe.noHemosPodidoPublicarLaReceta', 'No hemos podido publicar la receta')); setSubmitting(false); }
+    } catch (error) {
+      toast.error(error.message || t('create_recipe.noHemosPodidoPublicarLaReceta', 'No hemos podido publicar la receta'));
+      setSubmitting(false);
+    }
   };
-
   const diff = DIFFICULTY_MAP[recipe.difficulty];
-
-  return (
-    <div className="min-h-screen bg-[#fafaf9]">
+  return <div className="min-h-screen bg-[#fafaf9]">
       {/* TopBar */}
       <div className="sticky top-0 z-40 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-4">
         <button type="button" onClick={() => navigate(-1)} aria-label="Volver" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
@@ -321,121 +432,94 @@ export default function CreateRecipePage() {
       </div>
 
       {/* R-06: Publish success overlay */}
-      {publishSuccess && (
-        <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>
+      {publishSuccess && <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4" style={{
+      animation: 'fadeIn 0.3s ease'
+    }}>
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{
+        animation: 'scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1)'
+      }}>
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-stone-950">{t('create_recipe.recetaPublicada', '¡Receta publicada!')}</span>
-        </div>
-      )}
+        </div>}
       <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}`}</style>
 
       <div className="mx-auto max-w-[480px] px-4 py-4 pb-8">
         {/* R-05: Draft banner */}
-        {draftBanner && (
-          <div className="flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3 mb-4">
+        {draftBanner && <div className="flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3 mb-4">
             <span className="text-[13px] text-stone-950 font-medium">{t('create_recipe.tienesUnBorradorDeReceta', 'Tienes un borrador de receta')}</span>
             <div className="flex gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    const raw = localStorage.getItem('recipe_draft');
-                    if (raw) {
-                      const draft = JSON.parse(raw);
-                      setRecipe(prev => ({
-                        ...prev,
-                        title: draft.title || prev.title,
-                        description: draft.description || prev.description,
-                        difficulty: draft.difficulty || prev.difficulty,
-                        time_minutes: draft.time_minutes ?? prev.time_minutes,
-                        servings: draft.servings ?? prev.servings,
-                        ingredients: draft.ingredients?.length ? draft.ingredients : prev.ingredients,
-                        steps: draft.steps?.length ? draft.steps : prev.steps,
-                        tags: draft.tags?.length ? draft.tags : prev.tags,
-                      }));
-                    }
-                  } catch { /* ignore */ }
-                  setDraftBanner(false);
-                }}
-                className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
-              >
+              <button type="button" onClick={() => {
+            try {
+              const raw = localStorage.getItem('recipe_draft');
+              if (raw) {
+                const draft = JSON.parse(raw);
+                setRecipe(prev => ({
+                  ...prev,
+                  title: draft.title || prev.title,
+                  description: draft.description || prev.description,
+                  difficulty: draft.difficulty || prev.difficulty,
+                  time_minutes: draft.time_minutes ?? prev.time_minutes,
+                  servings: draft.servings ?? prev.servings,
+                  ingredients: draft.ingredients?.length ? draft.ingredients : prev.ingredients,
+                  steps: draft.steps?.length ? draft.steps : prev.steps,
+                  tags: draft.tags?.length ? draft.tags : prev.tags
+                }));
+              }
+            } catch {/* ignore */}
+            setDraftBanner(false);
+          }} className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0">
                 Restaurar
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  try { localStorage.removeItem('recipe_draft'); } catch { /* ignore */ }
-                  setDraftBanner(false);
-                }}
-                className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
-              >
+              <button type="button" onClick={() => {
+            try {
+              localStorage.removeItem('recipe_draft');
+            } catch {/* ignore */}
+            setDraftBanner(false);
+          }} className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0">
                 Descartar
               </button>
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Cover photo */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-          onDragLeave={() => setDragActive(false)}
-          onDrop={handleDrop}
-          className={`relative h-[130px] overflow-hidden rounded-2xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`}
-          style={{ background: recipe.image_url ? undefined : 'linear-gradient(135deg, #f5f5f4, #fafaf9)' }}
-        >
-          {recipe.image_url ? (
-            <>
+        <div onDragOver={e => {
+        e.preventDefault();
+        setDragActive(true);
+      }} onDragLeave={() => setDragActive(false)} onDrop={handleDrop} className={`relative h-[130px] overflow-hidden rounded-2xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`} style={{
+        background: recipe.image_url ? undefined : 'linear-gradient(135deg, #f5f5f4, #fafaf9)'
+      }}>
+          {recipe.image_url ? <>
               <img src={recipe.image_url} alt="Portada" className="h-full w-full object-cover" />
               <button type="button" onClick={() => updateRecipe('image_url', '')} aria-label="Eliminar imagen" className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">
                 <X size={14} />
               </button>
-            </>
-          ) : (
-            <button type="button" onClick={() => imageInputRef.current?.click()} className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-2xl bg-white/90 px-4 py-2.5 text-xs font-medium text-stone-950 border-none cursor-pointer">
+            </> : <button type="button" onClick={() => imageInputRef.current?.click()} className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-2xl bg-white/90 px-4 py-2.5 text-xs font-medium text-stone-950 border-none cursor-pointer">
               <Camera size={15} /> Foto de portada
-            </button>
-          )}
+            </button>}
         </div>
-        <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleMainImage(e.target.files?.[0])} />
+        <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleMainImage(e.target.files?.[0])} />
 
         {/* Templates — only when form is empty */}
-        {isFormEmpty && (
-          <div className="mt-4 mb-2">
+        {isFormEmpty && <div className="mt-4 mb-2">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-500 mb-2.5">Plantillas</p>
             <div className="grid grid-cols-2 gap-2">
-              {RECIPE_TEMPLATES.map((tpl) => {
-                const Icon = tpl.icon;
-                return (
-                  <button
-                    key={tpl.id}
-                    type="button"
-                    onClick={() => applyTemplate(tpl)}
-                    className="rounded-2xl bg-stone-50 p-3 text-left cursor-pointer border-none hover:bg-stone-100 transition-colors"
-                  >
+              {RECIPE_TEMPLATES.map(tpl => {
+            const Icon = tpl.icon;
+            return <button key={tpl.id} type="button" onClick={() => applyTemplate(tpl)} className="rounded-2xl bg-stone-50 p-3 text-left cursor-pointer border-none hover:bg-stone-100 transition-colors">
                     <Icon size={18} className="text-stone-400 mb-1.5" />
                     <p className="text-[13px] font-semibold text-stone-950 m-0">{tpl.name}</p>
                     <p className="text-[11px] text-stone-500 m-0 mt-0.5">
                       {tpl.time} min · {DIFFICULTY_MAP[tpl.difficulty].label}
                     </p>
-                  </button>
-                );
-              })}
+                  </button>;
+          })}
             </div>
             <p className="text-[11px] text-stone-400 text-center mt-2.5">O empieza desde cero</p>
-          </div>
-        )}
+          </div>}
 
         {/* Recipe name */}
-        <input
-          value={recipe.title}
-          onChange={(e) => updateRecipe('title', e.target.value)}
-          placeholder={t('recipes.recipeName', 'Nombre de la receta')}
-          aria-label={t('recipes.recipeName', 'Nombre de la receta')}
-          data-testid="recipe-title-input"
-          className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-red-500' : 'border-none'}`}
-        />
+        <input value={recipe.title} onChange={e => updateRecipe('title', e.target.value)} placeholder={t('recipes.recipeName', 'Nombre de la receta')} aria-label={t('recipes.recipeName', 'Nombre de la receta')} data-testid="recipe-title-input" className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-red-500' : 'border-none'}`} />
 
         {/* Metadata grid */}
         <div className="mb-5 grid grid-cols-3 gap-2">
@@ -443,7 +527,7 @@ export default function CreateRecipePage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
             <Clock size={14} className="mx-auto mb-1 text-stone-400" />
             <div className="flex items-baseline justify-center gap-0.5">
-              <input type="number" value={recipe.time_minutes} onChange={(e) => updateRecipe('time_minutes', Number(e.target.value) || 0)} data-testid="recipe-time" aria-label="Tiempo en minutos" className="w-9 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
+              <input type="number" value={recipe.time_minutes} onChange={e => updateRecipe('time_minutes', Number(e.target.value) || 0)} data-testid="recipe-time" aria-label="Tiempo en minutos" className="w-9 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
               <span className="text-[10px] text-stone-400">min</span>
             </div>
           </div>
@@ -458,7 +542,7 @@ export default function CreateRecipePage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
             <Users size={14} className="mx-auto mb-1 text-stone-400" />
             <div className="flex items-baseline justify-center gap-0.5">
-              <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label={t('create_recipe.numeroDeRaciones', 'Número de raciones')} className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
+              <input type="number" value={recipe.servings} onChange={e => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label={t('create_recipe.numeroDeRaciones', 'Número de raciones')} className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
               <span className="text-[10px] text-stone-400">personas</span>
             </div>
           </div>
@@ -468,26 +552,26 @@ export default function CreateRecipePage() {
         <div className="mb-6">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-500">{t('create_recipe.momentoDelDia', 'Momento del día')}</p>
           <div className="flex gap-2">
-            {[
-              { key: 'breakfast', label: 'Desayuno', icon: '🌅' },
-              { key: 'lunch', label: 'Almuerzo', icon: '☀️' },
-              { key: 'snack', label: 'Merienda', icon: '🍵' },
-              { key: 'dinner', label: 'Cena', icon: '🌙' },
-            ].map(mt => (
-              <button
-                key={mt.key}
-                type="button"
-                onClick={() => updateRecipe('meal_type', recipe.meal_type === mt.key ? null : mt.key)}
-                className={`flex-1 rounded-xl py-2 text-center cursor-pointer transition-colors ${
-                  recipe.meal_type === mt.key
-                    ? 'bg-stone-950 text-white border-none'
-                    : 'bg-white text-stone-700 border border-stone-200'
-                }`}
-              >
+            {[{
+            key: 'breakfast',
+            label: 'Desayuno',
+            icon: '🌅'
+          }, {
+            key: 'lunch',
+            label: 'Almuerzo',
+            icon: '☀️'
+          }, {
+            key: 'snack',
+            label: 'Merienda',
+            icon: '🍵'
+          }, {
+            key: 'dinner',
+            label: 'Cena',
+            icon: '🌙'
+          }].map(mt => <button key={mt.key} type="button" onClick={() => updateRecipe('meal_type', recipe.meal_type === mt.key ? null : mt.key)} className={`flex-1 rounded-xl py-2 text-center cursor-pointer transition-colors ${recipe.meal_type === mt.key ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-700 border border-stone-200'}`}>
                 <div className="text-base mb-0.5">{mt.icon}</div>
                 <div className="text-[11px] font-medium">{mt.label}</div>
-              </button>
-            ))}
+              </button>)}
           </div>
         </div>
 
@@ -495,11 +579,8 @@ export default function CreateRecipePage() {
         <div className="mb-6">
           <p className={`mb-2.5 text-[10px] font-semibold uppercase tracking-widest ${submitAttempted && recipe.ingredients.length === 0 ? 'text-red-500' : 'text-stone-500'}`}>Ingredientes {submitAttempted && recipe.ingredients.length === 0 && <span className="normal-case tracking-normal font-normal text-red-500">— requerido</span>}</p>
 
-          {recipe.ingredients.map((ingredient, index) => (
-            <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
-              {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && (
-                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-2xl object-cover" />
-              )}
+          {recipe.ingredients.map((ingredient, index) => <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
+              {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-2xl object-cover" />}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   {ingredient.quantity && <span className="text-[10px] font-medium text-stone-950">{ingredient.quantity}{ingredient.unit ? ` ${ingredient.unit}` : ''}</span>}
@@ -507,24 +588,22 @@ export default function CreateRecipePage() {
                 </div>
                 {ingredient.product_id && <p className="mt-0.5 text-[9px] text-stone-400">{ingredient.product?.seller_name || 'Tienda'} &middot; etiquetado &#10003;</p>}
               </div>
-              <input value={ingredient.quantity} onChange={(e) => updateIngredientField(index, 'quantity', e.target.value)} placeholder="Cant." aria-label={`Cantidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
-              <input value={ingredient.unit} onChange={(e) => updateIngredientField(index, 'unit', e.target.value)} placeholder="Ud." aria-label={`Unidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
+              <input value={ingredient.quantity} onChange={e => updateIngredientField(index, 'quantity', e.target.value)} placeholder="Cant." aria-label={`Cantidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
+              <input value={ingredient.unit} onChange={e => updateIngredientField(index, 'unit', e.target.value)} placeholder="Ud." aria-label={`Unidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
               <button type="button" onClick={() => removeIngredient(index)} aria-label={`Eliminar ${ingredient.name}`} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
                 <X size={13} />
               </button>
-            </div>
-          ))}
+            </div>)}
 
-          {suggestionLoading && (
-            <div className="flex items-center gap-1.5 py-2 text-[11px] text-stone-400">
+          {suggestionLoading && <div className="flex items-center gap-1.5 py-2 text-[11px] text-stone-400">
               <Loader2 size={13} className="animate-spin" /> Buscando coincidencias
-            </div>
-          )}
+            </div>}
 
-          {!suggestionLoading && ingredientSuggestions.length > 0 && (
-            <div className="my-1.5">
-              {ingredientSuggestions.map((product) => (
-                <button key={product.product_id} type="button" onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })} className="mb-1 flex w-full items-center gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-2.5 text-left cursor-pointer hover:bg-stone-100 transition-colors">
+          {!suggestionLoading && ingredientSuggestions.length > 0 && <div className="my-1.5">
+              {ingredientSuggestions.map(product => <button key={product.product_id} type="button" onClick={() => addProductIngredient({
+            ...product,
+            images: product.image ? [product.image] : []
+          })} className="mb-1 flex w-full items-center gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-2.5 text-left cursor-pointer hover:bg-stone-100 transition-colors">
                   <div className="h-7 w-7 shrink-0 overflow-hidden rounded-md bg-white">
                     {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" className="h-full w-full object-cover" /> : null}
                   </div>
@@ -532,21 +611,17 @@ export default function CreateRecipePage() {
                     <p className="truncate text-[11px] font-medium text-stone-950">{product.name}</p>
                     <p className="text-[9px] text-stone-400">Sugerencia para &ldquo;{manualIngredientInput.trim()}&rdquo;</p>
                   </div>
-                </button>
-              ))}
-            </div>
-          )}
+                </button>)}
+            </div>}
 
           {/* Add ingredient input */}
           <div className="mt-2 flex gap-1.5">
-            <input
-              value={manualIngredientInput}
-              onChange={(e) => setManualIngredientInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addManualIngredient(); } }}
-              placeholder={t('create_recipe.anadirIngrediente', 'Añadir ingrediente')}
-              aria-label="Nuevo ingrediente"
-              className="flex-1 border-b border-stone-200 bg-transparent py-1.5 text-[11px] text-stone-950 outline-none placeholder:text-stone-400"
-            />
+            <input value={manualIngredientInput} onChange={e => setManualIngredientInput(e.target.value)} onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addManualIngredient();
+            }
+          }} placeholder={t('create_recipe.anadirIngrediente', 'Añadir ingrediente')} aria-label="Nuevo ingrediente" className="flex-1 border-b border-stone-200 bg-transparent py-1.5 text-[11px] text-stone-950 outline-none placeholder:text-stone-400" />
             <button type="button" onClick={addManualIngredient} className="flex items-center gap-0.5 whitespace-nowrap border-none bg-transparent py-1.5 text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700">
               <Plus size={13} /> Añadir
             </button>
@@ -557,69 +632,51 @@ export default function CreateRecipePage() {
           </button>
 
           {/* Allergen auto-detection */}
-          {detectedAllergens.length > 0 && (
-            <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3">
+          {detectedAllergens.length > 0 && <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3">
               <AlertTriangle size={14} className="text-amber-700 shrink-0 mt-px" />
               <p className="text-xs text-amber-700 m-0">
                 Contiene: {detectedAllergens.join(', ')}
               </p>
-            </div>
-          )}
+            </div>}
         </div>
 
         {/* PASOS */}
         <div className="mb-6">
           <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Pasos</p>
 
-          {recipe.steps.map((step, index) => (
-            <div key={`step-${index}`} className="relative mb-3 flex gap-2.5">
+          {recipe.steps.map((step, index) => <div key={`step-${index}`} className="relative mb-3 flex gap-2.5">
               <div className="flex shrink-0 flex-col items-center">
                 <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-stone-950 text-[11px] font-semibold text-white">{index + 1}</div>
-                {index < recipe.steps.length - 1 && <div className="mt-1 w-0.5 flex-1 bg-stone-200" style={{ minHeight: 20 }} />}
+                {index < recipe.steps.length - 1 && <div className="mt-1 w-0.5 flex-1 bg-stone-200" style={{
+              minHeight: 20
+            }} />}
               </div>
               <div className="min-w-0 flex-1">
-                <textarea
-                  value={step.text}
-                  onChange={(e) => updateStep(index, 'text', e.target.value)}
-                  placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
-                  aria-label={`Paso ${index + 1}`}
-                  className={`w-full min-h-[70px] resize-none rounded-2xl border bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border ${submitAttempted && index === 0 && !step.text?.trim() ? 'border-red-500' : 'border-stone-200'}`}
-                />
-                {step.image_url ? (
-                  <div className="relative mt-1.5 overflow-hidden rounded-2xl">
+                <textarea value={step.text} onChange={e => updateStep(index, 'text', e.target.value)} placeholder={t('recipes.stepPlaceholder', 'Describe este paso')} aria-label={`Paso ${index + 1}`} className={`w-full min-h-[70px] resize-none rounded-2xl border bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border ${submitAttempted && index === 0 && !step.text?.trim() ? 'border-red-500' : 'border-stone-200'}`} />
+                {step.image_url ? <div className="relative mt-1.5 overflow-hidden rounded-2xl">
                     <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-[120px] w-full object-cover" />
                     <button type="button" onClick={() => updateStep(index, 'image_url', '')} aria-label={`Eliminar imagen del paso ${index + 1}`} className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">
                       <X size={14} />
                     </button>
-                  </div>
-                ) : (
-                  <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1.5 text-[10px] text-stone-400 hover:text-stone-600">
+                  </div> : <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1.5 text-[10px] text-stone-400 hover:text-stone-600">
                     <ImagePlus size={13} /> Imagen opcional
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleStepImage(index, e.target.files?.[0])} />
-                  </label>
-                )}
+                    <input type="file" accept="image/*" className="hidden" onChange={e => handleStepImage(index, e.target.files?.[0])} />
+                  </label>}
               </div>
               <div className="flex flex-col items-center gap-0.5 self-start shrink-0">
                 <div className="flex gap-1">
-                  {index > 0 && (
-                    <button type="button" onClick={() => moveStep(index, index - 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Subir paso">
+                  {index > 0 && <button type="button" onClick={() => moveStep(index, index - 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Subir paso">
                       <ChevronUp size={16} />
-                    </button>
-                  )}
-                  {index < recipe.steps.length - 1 && (
-                    <button type="button" onClick={() => moveStep(index, index + 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Bajar paso">
+                    </button>}
+                  {index < recipe.steps.length - 1 && <button type="button" onClick={() => moveStep(index, index + 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Bajar paso">
                       <ChevronDown size={16} />
-                    </button>
-                  )}
+                    </button>}
                 </div>
-                {recipe.steps.length > 1 && (
-                  <button type="button" onClick={() => removeStep(index)} aria-label={`Eliminar paso ${index + 1}`} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
+                {recipe.steps.length > 1 && <button type="button" onClick={() => removeStep(index)} aria-label={`Eliminar paso ${index + 1}`} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
                     <X size={13} />
-                  </button>
-                )}
+                  </button>}
               </div>
-            </div>
-          ))}
+            </div>)}
 
           <button type="button" onClick={addStep} className="flex items-center gap-1 border-none bg-transparent py-1 text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700">
             <Plus size={13} /> {t('recipes.addStep', 'Añadir paso')}
@@ -631,43 +688,28 @@ export default function CreateRecipePage() {
           <button type="button" onClick={() => setDescriptionOpen(!descriptionOpen)} className="flex items-center gap-1.5 border-none bg-transparent text-[11px] font-medium text-stone-500 cursor-pointer p-0 hover:text-stone-700">
             {descriptionOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />} Descripción (opcional)
           </button>
-          {descriptionOpen && (
-            <textarea
-              value={recipe.description}
-              onChange={(e) => updateRecipe('description', e.target.value)}
-              placeholder={t('create_recipe.cuentaQueHaceEspecialEstaReceta', 'Cuenta qué hace especial esta receta...')}
-              aria-label={t('create_recipe.descripcionDeLaReceta', 'Descripción de la receta')}
-              className="mt-2 w-full min-h-[90px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
-            />
-          )}
+          {descriptionOpen && <textarea value={recipe.description} onChange={e => updateRecipe('description', e.target.value)} placeholder={t('create_recipe.cuentaQueHaceEspecialEstaReceta', 'Cuenta qué hace especial esta receta...')} aria-label={t('create_recipe.descripcionDeLaReceta', 'Descripción de la receta')} className="mt-2 w-full min-h-[90px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border" />}
         </div>
 
         {/* Tags */}
         <div className="mb-6 space-y-2">
           <label className="text-sm font-semibold text-stone-950">Etiquetas</label>
           <div className="flex flex-wrap gap-2">
-            {recipe.tags.map((tag, i) => (
-              <span key={i} className="flex items-center gap-1 bg-stone-100 rounded-full px-3 py-1 text-xs text-stone-700">
+            {recipe.tags.map((tag, i) => <span key={i} className="flex items-center gap-1 bg-stone-100 rounded-full px-3 py-1 text-xs text-stone-700">
                 #{tag}
                 <button type="button" onClick={() => updateRecipe('tags', recipe.tags.filter((_, j) => j !== i))} className="text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer p-0 text-xs">&times;</button>
-              </span>
-            ))}
+              </span>)}
           </div>
-          <input
-            type="text"
-            placeholder={t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')}
-            className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:border-stone-400 outline-none box-border"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.target.value.trim()) {
-                e.preventDefault();
-                const tag = e.target.value.trim().replace(/^#/, '');
-                if (tag && !recipe.tags.includes(tag)) {
-                  updateRecipe('tags', [...recipe.tags, tag]);
-                  e.target.value = '';
-                }
-              }
-            }}
-          />
+          <input type="text" placeholder={t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')} className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:border-stone-400 outline-none box-border" onKeyDown={e => {
+          if (e.key === 'Enter' && e.target.value.trim()) {
+            e.preventDefault();
+            const tag = e.target.value.trim().replace(/^#/, '');
+            if (tag && !recipe.tags.includes(tag)) {
+              updateRecipe('tags', [...recipe.tags, tag]);
+              e.target.value = '';
+            }
+          }
+        }} />
         </div>
 
         {/* David AI card */}
@@ -683,34 +725,26 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Publish button */}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting}
-          data-testid="publish-recipe-btn"
-          className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-full border-none text-sm font-semibold text-white cursor-pointer transition-colors ${submitting ? 'bg-stone-500 opacity-50 cursor-not-allowed' : 'bg-stone-950 hover:bg-stone-800'}`}
-        >
+        <button type="button" onClick={handleSubmit} disabled={submitting} data-testid="publish-recipe-btn" className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-full border-none text-sm font-semibold text-white cursor-pointer transition-colors ${submitting ? 'bg-stone-500 opacity-50 cursor-not-allowed' : 'bg-stone-950 hover:bg-stone-800'}`}>
           {submitting && <Loader2 size={15} className="animate-spin" />}
           Publicar receta
         </button>
       </div>
 
       <ProductSearchModal isOpen={productModalOpen} onClose={() => setProductModalOpen(false)} onSelect={addProductIngredient} />
-      <HispalAIPanel
-        isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        contentType="recipe"
-        currentText={recipe.description || recipe.title}
-        productIds={selectedProducts.map(p => p.product_id)}
-        onUseCaption={(text) => { setRecipe(prev => ({ ...prev, description: text })); setShowAIPanel(false); }}
-        onAddHashtags={(tags) => {
-          const newTags = (typeof tags === 'string' ? tags.split(/\s+/) : Array.isArray(tags) ? tags : [])
-            .map(t => t.replace(/^#/, '').trim())
-            .filter(t => t.length > 0);
-          setRecipe(prev => ({ ...prev, tags: [...new Set([...prev.tags, ...newTags])] }));
-          setShowAIPanel(false);
-        }}
-      />
-    </div>
-  );
+      <HispalAIPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} contentType="recipe" currentText={recipe.description || recipe.title} productIds={selectedProducts.map(p => p.product_id)} onUseCaption={text => {
+      setRecipe(prev => ({
+        ...prev,
+        description: text
+      }));
+      setShowAIPanel(false);
+    }} onAddHashtags={tags => {
+      const newTags = (typeof tags === 'string' ? tags.split(/\s+/) : Array.isArray(tags) ? tags : []).map(t => t.replace(/^#/, '').trim()).filter(t => t.length > 0);
+      setRecipe(prev => ({
+        ...prev,
+        tags: [...new Set([...prev.tags, ...newTags])]
+      }));
+      setShowAIPanel(false);
+    }} />
+    </div>;
 }
