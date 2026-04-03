@@ -84,6 +84,11 @@ function ReelCardInner({
   nextVideoUrl,
   onExpand
 }) {
+  const isBlockedMediaUrl = useCallback((url) => {
+    if (!url || typeof url !== 'string') return false;
+    return /samplelib\.com/i.test(url);
+  }, []);
+
   const navigate = useNavigate();
   const {
     user: currentUser
@@ -124,8 +129,7 @@ function ReelCardInner({
   useEffect(() => {
     if (isActive && nextVideoUrl) {
       const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'video';
+      link.rel = 'prefetch';
       link.href = nextVideoUrl;
       document.head.appendChild(link);
       return () => {
@@ -579,8 +583,10 @@ function ReelCardInner({
       togglePlay();
     }
   }, [liked, handleLike, togglePlay, embedded, onExpand]);
-  const videoUrl = reel.video_url || reel.videoUrl;
-  const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
+  const rawVideoUrl = reel.video_url || reel.videoUrl;
+  const videoUrl = isBlockedMediaUrl(rawVideoUrl) ? null : rawVideoUrl;
+  const rawThumbnailUrl = reel.thumbnail_url || reel.thumbnail;
+  const thumbnailUrl = isBlockedMediaUrl(rawThumbnailUrl) ? null : rawThumbnailUrl;
   const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image || reel.user_profile_image;
   const reelCommentsCount = localCommentsCount;
   const allProducts = [...(reel.products || []), ...(reel.tagged_products || [])].filter(Boolean);
@@ -601,11 +607,11 @@ function ReelCardInner({
       setAddingToCart(null);
     }
   }, [addToCart]);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
   if (deleted) return null;
 
   // ─── EMBEDDED MODE: PostCard-unified layout ────────────────────────────
   // Caption expansion for embedded mode (declared outside early return for hook rules)
-  const [captionExpanded, setCaptionExpanded] = useState(false);
   if (embedded) {
     const userName = reel.user?.name || reel.user?.full_name || 'Usuario';
     const userTarget = reel.user?.username || reel.user?.id || reel.user?.user_id;
