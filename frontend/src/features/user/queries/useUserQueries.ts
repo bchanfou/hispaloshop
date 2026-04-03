@@ -106,12 +106,21 @@ export function resolveUserImage(url: string | null | undefined): string | null 
 }
 
 export function useUserProfileQuery(userId: string) {
+  const normalizedUserId = String(userId || '').trim();
+  const hasValidUserId = Boolean(
+    normalizedUserId && normalizedUserId !== 'undefined' && normalizedUserId !== 'null'
+  );
+
   return useQuery({
-    queryKey: userKeys.profile(userId),
+    queryKey: userKeys.profile(normalizedUserId || userId),
     queryFn: async (): Promise<UserProfile | null> => {
+      if (!hasValidUserId) {
+        return null;
+      }
+
       try {
-        const data = await apiClient.get(`/users/${userId}/profile`);
-        return normalizeProfileResponse(data, userId);
+        const data = await apiClient.get(`/users/${normalizedUserId}/profile`);
+        return normalizeProfileResponse(data, normalizedUserId);
       } catch (error: any) {
         if (error?.status === 404) {
           try {
@@ -119,9 +128,9 @@ export function useUserProfileQuery(userId: string) {
             const myId = me?.user_id || me?.id;
             const myUsername = me?.username;
             if (
-              myId && (String(myId) === String(userId) || String(myUsername || '').toLowerCase() === String(userId || '').toLowerCase())
+              myId && (String(myId) === normalizedUserId || String(myUsername || '').toLowerCase() === normalizedUserId.toLowerCase())
             ) {
-              return normalizeProfileResponse(me, userId);
+              return normalizeProfileResponse(me, normalizedUserId);
             }
           } catch {
             // Keep null fallback for true not-found users.
@@ -132,7 +141,7 @@ export function useUserProfileQuery(userId: string) {
         throw error;
       }
     },
-    enabled: Boolean(userId),
+    enabled: hasValidUserId,
   });
 }
 

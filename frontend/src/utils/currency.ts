@@ -1,3 +1,8 @@
+function devWarn(message: string): void {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(message);
+  }
+}
 /**
  * Currency Conversion Utilities
  *
@@ -84,8 +89,8 @@ export function convertPrice(
   let amountInBase = safeAmount;
   if (fromCurrency !== baseCurrency) {
     const fromRate = rates[fromCurrency];
-    if (!fromRate || fromRate === 0) {
-      console.warn(`Exchange rate not found for ${fromCurrency}`);
+        if (!fromRate || fromRate === 0) {
+          devWarn(`Exchange rate not found for ${fromCurrency}`);
       return safeAmount;
     }
     amountInBase = safeAmount / fromRate;
@@ -98,7 +103,7 @@ export function convertPrice(
 
   const toRate = rates[toCurrency];
   if (!toRate) {
-    console.warn(`Exchange rate not found for ${toCurrency}`);
+    devWarn(`Exchange rate not found for ${toCurrency}`);
     return safeAmount;
   }
 

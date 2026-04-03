@@ -747,9 +747,10 @@ export default function CertificatePage() {
 
   // ── QR URLs ──
   const certUrl = `${window.location.origin}/certificate/${productId}`;
-  const qrSrc = certificate?.qr_code ? `data:image/png;base64,${certificate.qr_code}` : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`;
-  const qrHiRes = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`;
-  const qrPrint = `https://api.qrserver.com/v1/create-qr-code/?size=3000x3000&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`; // CD-07
+  const hasQrCode = Boolean(certificate?.qr_code);
+  const qrSrc = hasQrCode ? `data:image/png;base64,${certificate.qr_code}` : '';
+  const qrHiRes = qrSrc;
+  const qrPrint = qrSrc; // CD-07
   const certId = certificate?.certificate_id || productId;
   const pdfUrl = certId ? `/api/certificates/${certId}/pdf` : null;
   return <div className="min-h-screen bg-stone-50 dark:bg-stone-950" data-testid="certificate-page">
@@ -963,10 +964,14 @@ export default function CertificatePage() {
         <div className="mt-4 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm dark:bg-stone-900 dark:border-stone-800">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
             <div className="flex flex-col items-center gap-2">
-              <img src={qrSrc} alt="QR" width={200} height={200} className="shrink-0 rounded-2xl" />
-              <a href={qrHiRes} download="certificado-qr.png" className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-950">
-                <Download className="h-3.5 w-3.5" /> {txt.download_qr}
-              </a>
+              {hasQrCode ? <>
+                  <img src={qrSrc} alt="QR" width={200} height={200} className="shrink-0 rounded-2xl" />
+                  <a href={qrHiRes} download="certificado-qr.png" className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-950">
+                    <Download className="h-3.5 w-3.5" /> {txt.download_qr}
+                  </a>
+                </> : <div className="flex h-[200px] w-[200px] items-center justify-center rounded-2xl bg-stone-100 text-xs text-stone-500 text-center px-4">
+                  QR no disponible para este certificado
+                </div>}
             </div>
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <p className="text-sm font-semibold text-stone-950 dark:text-white">{txt.verify}</p>
@@ -1011,10 +1016,10 @@ export default function CertificatePage() {
               <p className="text-sm font-semibold text-stone-950 dark:text-white">{txt.producer_assets}</p>
               <p className="mt-1 text-xs text-stone-500">{txt.assets_desc}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <a href={qrHiRes} download={`qr-${productId}-1000px.png`} className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300">
+                <a href={qrHiRes || undefined} download={`qr-${productId}-1000px.png`} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300 ${hasQrCode ? 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50' : 'border-stone-100 bg-stone-100 text-stone-400 pointer-events-none'}`}>
                   <Download className="h-3 w-3" /> {txt.download_qr} (1000px)
                 </a>
-                <a href={qrPrint} download={`qr-${productId}-print-300dpi.png`} className="inline-flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-stone-800 dark:bg-white dark:text-stone-950">
+                <a href={qrPrint || undefined} download={`qr-${productId}-print-300dpi.png`} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${hasQrCode ? 'bg-stone-950 text-white hover:bg-stone-800 dark:bg-white dark:text-stone-950' : 'bg-stone-200 text-stone-500 pointer-events-none'}`}>
                   <Printer className="h-3 w-3" /> {txt.download_print}
                 </a>
               </div>

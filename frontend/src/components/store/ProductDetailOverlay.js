@@ -119,7 +119,7 @@ export default function ProductDetailOverlay({
   const {
     data: certData,
     isLoading: loadingCerts
-  } = useProductCertificate(certificates.length === 0 ? productId : null);
+  } = useProductCertificate(certificates.length === 0 && (product?.has_certificate || product?.certificate_id || product?.certificate_status) ? productId : null);
   const effectiveReviews = reviews.length > 0 ? reviews : fetchedReviews ?? [];
   const fetchedCertArray = certData ? [{
     ...certData,
