@@ -20,12 +20,12 @@ const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevancia' },
   { value: 'price_asc', label: 'Precio: menor a mayor' },
   { value: 'price_desc', label: 'Precio: mayor a menor' },
-  { value: 'bestsellers', label: t('home.bestSellers', 'Más vendidos') },
+  { value: 'bestsellers', label: 'Más vendidos' },
   { value: 'rated', label: 'Mejor valorados' },
 ];
 
 const FILTER_FEATURES = [
-  t('common.freeShipping', 'Envío gratis'),
+  'Envío gratis',
   'Producto BIO',
   'De mi zona',
   'Con descuento',
@@ -42,6 +42,7 @@ const PRICE_RANGES = [
 const CategoryPage = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('relevance');
   const [showFilters, setShowFilters] = useState(false);

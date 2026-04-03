@@ -10,6 +10,7 @@ export default function AuthCallback() {
   const navigate = useNavigate();
   const location = useLocation();
   const { checkAuth } = useAuth();
+  const { t } = useTranslation();
   const hasProcessed = useRef(false);
   const [error, setError] = useState(null);
 

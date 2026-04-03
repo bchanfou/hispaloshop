@@ -2,12 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building2, Sparkles, Store, Video } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 const LANDING_ITEMS = [
   {
     id: 'que-es',
-    label: t('about.queEsHispaloshop', 'Qué es Hispaloshop'),
+    label: 'Qué es Hispaloshop',
     icon: Sparkles,
     path: '/que-es',
   },

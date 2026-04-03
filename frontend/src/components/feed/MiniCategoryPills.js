@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import {
   Baby,
   Beef,
@@ -21,12 +20,12 @@ export const MINI_CATEGORIES = [
   { id: 'aceites', label: 'Aceites', icon: Droplets },
   { id: 'quesos', label: 'Quesos', icon: Cookie },
   { id: 'embutidos', label: 'Embutidos', icon: Beef },
-  { id: 'panaderia', label: t('onboarding.panaderia', 'Panadería'), icon: Croissant },
+  { id: 'panaderia', label: 'Panadería', icon: Croissant },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda },
   { id: 'bebes', label: 'Bebés', icon: Baby },
   { id: 'mascotas', label: 'Mascotas', icon: Dog },
   { id: 'snacks', label: 'Snacks', icon: Cherry },
-  { id: 'organico', label: t('home.organic', 'Orgánico'), icon: Leaf },
+  { id: 'organico', label: 'Orgánico', icon: Leaf },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff },
   { id: 'packs', label: 'Packs', icon: Gift },
   { id: 'trending', label: 'Tendencia', icon: Flame },

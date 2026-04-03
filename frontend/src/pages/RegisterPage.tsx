@@ -146,6 +146,7 @@ const selectClass = (hasError) =>
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { t } = useTranslation();
 
   const [activeRole, setActiveRole] = useState('customer');
   const [form, setForm] = useState({
