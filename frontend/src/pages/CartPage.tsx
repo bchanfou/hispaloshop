@@ -177,6 +177,10 @@ export default function CartPage() {
     }
   });
 
+  function getSelectedAddress() {
+    return savedAddresses.find(address => address.address_id === selectedAddressId);
+  }
+
   // Allow guests to view their cart — checkout button will prompt login
   const isGuest = !authLoading && !user;
 
@@ -214,7 +218,6 @@ export default function CartPage() {
       toast.error(error?.message || t('errors.generic'));
     }
   };
-  const getSelectedAddress = () => savedAddresses.find(address => address.address_id === selectedAddressId);
   const handleVerifyEmail = async () => {
     if (!verificationToken.trim()) {
       toast.error(t('checkout.verificationCodePlaceholder'));
