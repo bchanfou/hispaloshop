@@ -21,7 +21,7 @@ import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
 import FeedLayout from './components/layout/FeedLayout';
-import InfoLayout from './components/layout/InfoLayout';
+// InfoLayout removed — replaced by InfoLandingLayout for all landing pages
 import AuthLayout from './components/layout/AuthLayout';
 import { SentryErrorBoundary } from './lib/sentry';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -43,8 +43,7 @@ import MiniCart from './components/cart/MiniCart';
 import ConsentBanner from './components/ui/ConsentBanner';
 import { initAnalyticsOnConsent } from './utils/analytics';
 
-const ProductorLandingPage = lazy(() => import('./pages/informativas/ForProducers'));
-const InfluencerLandingPage = lazy(() => import('./pages/informativas/ForInfluencers'));
+// Old landing pages removed — replaced by Aesop-style pages in Fase 2-4
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
@@ -67,7 +66,7 @@ const EditorialCollectionsPage = lazy(() => import('./pages/EditorialCollections
 const PeoplePage = lazy(() => import('./pages/PeoplePage'));
 const ReelsPage = lazy(() => import('./pages/ReelsPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const ImporterLandingPage = lazy(() => import('./pages/informativas/ForImporters'));
+// ImporterLandingPage removed — replaced by LandingDistribuidor
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const B2BChatPage = lazy(() => import('./pages/b2b/B2BChatPage'));
@@ -84,10 +83,7 @@ const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrdersPage = lazy(() => import('./pages/OrdersPage'));
 const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSettingsPage'));
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
-const TermsPage = lazy(() => import('./pages/TermsPage'));
-const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
-const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
-const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
+// TermsPage & PrivacyPage removed — /terms and /privacy redirect to /legal/*
 const ContactoPage = lazy(() => import('./pages/informativas/ContactoPage'));
 const LegalPageNew = lazy(() => import('./pages/informativas/LegalPageNew'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
@@ -192,15 +188,15 @@ const ChatToastContainer = lazy(() => import('./components/notifications/ChatToa
 
 // Role-based onboarding (REMOVED — dead code, no flow navigates here)
 
-// Landing pages
-const LandingPage = lazy(() => import('./pages/landings/Landing'));
-const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
+// Old landing pages removed — replaced by LandingGeneral
 // New Aesop-style landing pages (Fase 2)
 const InfoLandingLayout = lazy(() => import('./components/informativas/InfoLandingLayout'));
 const LandingGeneral = lazy(() => import('./pages/informativas/LandingGeneral'));
 const LandingProductor = lazy(() => import('./pages/informativas/LandingProductor'));
 const LandingInfluencer = lazy(() => import('./pages/informativas/LandingInfluencer'));
 const LandingDistribuidor = lazy(() => import('./pages/informativas/LandingDistribuidor'));
+const LangRoute = lazy(() => import('./components/informativas/LangRoute'));
+const LangDetectRedirect = lazy(() => import('./components/informativas/LangDetectRedirect'));
 const LandingConsumidor = lazy(() => import('./pages/informativas/LandingConsumidor'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
@@ -372,16 +368,28 @@ function AppRouter() {
           <LayoutGroup>
             <Routes location={location}>
               <Route path="/" element={<HomeRoute />} />
-              <Route path="/about" element={<Navigate to="/que-es" replace />} />
-              <Route path="/pricing" element={<Navigate to="/que-es" replace />} />
+              <Route path="/about" element={<Navigate to="/landing/general" replace />} />
+              <Route path="/pricing" element={<Navigate to="/productor" replace />} />
               {/* New Aesop-style landing pages */}
-              <Route path="/consumidor" element={<InfoLandingLayout><LandingConsumidor /></InfoLandingLayout>} />
+              <Route path="/consumidor" element={<LangDetectRedirect><InfoLandingLayout><LandingConsumidor /></InfoLandingLayout></LangDetectRedirect>} />
               <Route path="/informativas/consumidor" element={<Navigate to="/consumidor" replace />} />
-              <Route path="/distribuidor" element={<InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout>} />
+              <Route path="/distribuidor" element={<LangDetectRedirect><InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout></LangDetectRedirect>} />
               <Route path="/informativas/distribuidor" element={<Navigate to="/distribuidor" replace />} />
-              <Route path="/landing/general" element={<InfoLandingLayout><LandingGeneral /></InfoLandingLayout>} />
+              <Route path="/landing/general" element={<LangDetectRedirect><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangDetectRedirect>} />
+              {/* /{lang}/ prefixed landing routes — explicit lang codes to avoid capturing /login etc. */}
+              {['es','en','fr','de','it','pt','ja','ko'].map(lang => (
+                <React.Fragment key={lang}>
+                  <Route path={`/${lang}/consumidor`} element={<LangRoute><InfoLandingLayout><LandingConsumidor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/productor`} element={<LangRoute><InfoLandingLayout><LandingProductor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/influencer`} element={<LangRoute><InfoLandingLayout><LandingInfluencer /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/distribuidor`} element={<LangRoute><InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/contacto`} element={<LangRoute><InfoLandingLayout><ContactoPage /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/legal/*`} element={<LangRoute><InfoLandingLayout><LegalPageNew /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}`} element={<LangRoute><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangRoute>} />
+                </React.Fragment>
+              ))}
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
-              <Route path="/productor" element={<InfoLandingLayout><LandingProductor /></InfoLandingLayout>} />
+              <Route path="/productor" element={<LangDetectRedirect><InfoLandingLayout><LandingProductor /></InfoLandingLayout></LangDetectRedirect>} />
               <Route path="/informativas/ForProducers" element={<Navigate to="/productor" replace />} />
               <Route path="/informativas/productor" element={<Navigate to="/productor" replace />} />
               <Route path="/informativas/soy-productor" element={<Navigate to="/productor" replace />} />
@@ -392,7 +400,7 @@ function AppRouter() {
               <Route path="/vender/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
               <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
               <Route path="/influencers" element={<Navigate to="/influencer" replace />} />
-              <Route path="/influencer" element={<InfoLandingLayout><LandingInfluencer /></InfoLandingLayout>} />
+              <Route path="/influencer" element={<LangDetectRedirect><InfoLandingLayout><LandingInfluencer /></InfoLandingLayout></LangDetectRedirect>} />
               <Route path="/influencer/aplicar" element={<Navigate to="/influencer" replace />} />
               <Route path="/influencers/aplicar" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/registro" element={<Navigate to="/influencer/aplicar" replace />} />
@@ -459,9 +467,9 @@ function AppRouter() {
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificado/:productId" element={<CertificatePage />} />
 
-              <Route path="/que-es" element={<InfoLayout><QueEsPage /></InfoLayout>} />
-              <Route path="/que-es-hispaloshop" element={<InfoLayout><QueEsPage /></InfoLayout>} />
-              <Route path="/landing" element={<InfoLayout><LandingPage /></InfoLayout>} />
+              <Route path="/que-es" element={<Navigate to="/landing/general" replace />} />
+              <Route path="/que-es-hispaloshop" element={<Navigate to="/landing/general" replace />} />
+              <Route path="/landing" element={<Navigate to="/landing/general" replace />} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator/*" element={<Navigate to="/influencer" replace />} />
@@ -533,17 +541,16 @@ function AppRouter() {
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
-              <Route path="/terms" element={<Navigate to="/informativas/legal" replace />} />
-              <Route path="/legal" element={<Navigate to="/informativas/legal" replace />} />
-              <Route path="/privacy" element={<Navigate to="/informativas/legal" replace />} />
+              <Route path="/terms" element={<Navigate to="/legal/terminos" replace />} />
+              <Route path="/privacy" element={<Navigate to="/legal/privacidad" replace />} />
               <Route path="/help" element={<Navigate to="/contacto" replace />} />
               <Route path="/blog" element={<Navigate to="/" replace />} />
               <Route path="/press" element={<Navigate to="/" replace />} />
               <Route path="/careers" element={<Navigate to="/" replace />} />
               <Route path="/contact" element={<Navigate to="/contacto" replace />} />
-              <Route path="/contacto" element={<InfoLandingLayout><ContactoPage /></InfoLandingLayout>} />
-              <Route path="/precios" element={<Navigate to="/que-es" replace />} />
-              <Route path="/legal/*" element={<InfoLandingLayout><LegalPageNew /></InfoLandingLayout>} />
+              <Route path="/contacto" element={<LangDetectRedirect><InfoLandingLayout><ContactoPage /></InfoLandingLayout></LangDetectRedirect>} />
+              <Route path="/precios" element={<Navigate to="/productor" replace />} />
+              <Route path="/legal/*" element={<LangDetectRedirect><InfoLandingLayout><LegalPageNew /></InfoLandingLayout></LangDetectRedirect>} />
               <Route
                 path="/pending-approval"
                 element={(

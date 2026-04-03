@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 export default function BadgeToast({ badge, hpEarned, show, onClose }) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!show) return;
     if (navigator.vibrate) navigator.vibrate([10, 50, 100, 50, 200]);

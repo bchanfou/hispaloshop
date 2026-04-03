@@ -21,8 +21,9 @@ export default function LangRoute({ children }: { children: React.ReactNode }) {
   }, [lang, isValid, i18n]);
 
   if (!isValid) {
-    // Redirect unsupported lang to default (es)
-    return <Navigate to={`/es${window.location.pathname.replace(`/${lang}`, '')}`} replace />;
+    const safeLang = lang || '';
+    const remainingPath = window.location.pathname.replace(`/${safeLang}`, '') || '/';
+    return <Navigate to={`/es${remainingPath}`} replace />;
   }
 
   return <>{children}</>;

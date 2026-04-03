@@ -2665,33 +2665,86 @@
         "eyebrow": "Why hispaloshop",
         "title": "Everything you need in one place",
         "items": [
-          { "title": "Buy direct, no middlemen", "description": "Every product comes straight from the maker. Fair price for you, fair margin for them." },
-          { "title": "Know who makes your food", "description": "Follow producers, discover their daily life and understand the story behind every product." },
-          { "title": "Sell what you make", "description": "Your online store in minutes. No tech skills needed. You produce, we connect." },
-          { "title": "Earn by recommending", "description": "Passionate about food? Become an ambassador and earn commissions on every sale." },
-          { "title": "Import and distribute", "description": "Bring products from around the world to your local market. B2C and B2B from one platform." },
-          { "title": "A real community", "description": "It's not just a store. It's a social network where food connects people." }
+          {
+            "title": "Buy direct, no middlemen",
+            "description": "Every product comes straight from the maker. Fair price for you, fair margin for them."
+          },
+          {
+            "title": "Know who makes your food",
+            "description": "Follow producers, discover their daily life and understand the story behind every product."
+          },
+          {
+            "title": "Sell what you make",
+            "description": "Your online store in minutes. No tech skills needed. You produce, we connect."
+          },
+          {
+            "title": "Earn by recommending",
+            "description": "Passionate about food? Become an ambassador and earn commissions on every sale."
+          },
+          {
+            "title": "Import and distribute",
+            "description": "Bring products from around the world to your local market. B2C and B2B from one platform."
+          },
+          {
+            "title": "A real community",
+            "description": "It's not just a store. It's a social network where food connects people."
+          }
         ]
       },
       "roles": {
         "eyebrow": "For every type of user",
         "title": "Who are you on hispaloshop?",
         "items": [
-          { "role": "Shopper", "description": "Discover authentic products directly from the maker.", "cta": "Explore products", "to": "/consumidor" },
-          { "role": "Producer", "description": "Open your store and sell without middlemen.", "cta": "Set up my store", "to": "/productor" },
-          { "role": "Influencer", "description": "Recommend products and earn commissions.", "cta": "Become an ambassador", "to": "/influencer" },
-          { "role": "Distributor", "description": "Bring international products to your market.", "cta": "Start selling", "to": "/distribuidor" }
+          {
+            "role": "Shopper",
+            "description": "Discover authentic products directly from the maker.",
+            "cta": "Explore products",
+            "to": "/consumidor"
+          },
+          {
+            "role": "Producer",
+            "description": "Open your store and sell without middlemen.",
+            "cta": "Set up my store",
+            "to": "/productor"
+          },
+          {
+            "role": "Influencer",
+            "description": "Recommend products and earn commissions.",
+            "cta": "Become an ambassador",
+            "to": "/influencer"
+          },
+          {
+            "role": "Distributor",
+            "description": "Bring international products to your market.",
+            "cta": "Start selling",
+            "to": "/distribuidor"
+          }
         ]
       },
       "faq": {
         "eyebrow": "FAQ",
         "title": "What you need to know",
         "items": [
-          { "question": "What is hispaloshop?", "answer": "A social commerce platform where local producers and importers sell directly to consumers. No middlemen, no hidden margins." },
-          { "question": "Is it free to buy?", "answer": "Yes. Creating an account and buying is completely free. You only pay for the product and shipping." },
-          { "question": "Which countries is it available in?", "answer": "We currently operate in Spain and the EU, expanding to the US, Japan, and South Korea." },
-          { "question": "How do influencers earn?", "answer": "Influencers get a unique discount code and earn a commission on every sale made with their code." },
-          { "question": "What's the difference between a producer and distributor?", "answer": "A producer makes or grows the product. A distributor imports products from abroad and sells them locally, both B2C and B2B." }
+          {
+            "question": "What is hispaloshop?",
+            "answer": "A social commerce platform where local producers and importers sell directly to consumers. No middlemen, no hidden margins."
+          },
+          {
+            "question": "Is it free to buy?",
+            "answer": "Yes. Creating an account and buying is completely free. You only pay for the product and shipping."
+          },
+          {
+            "question": "Which countries is it available in?",
+            "answer": "We currently operate in Spain and the EU, expanding to the US, Japan, and South Korea."
+          },
+          {
+            "question": "How do influencers earn?",
+            "answer": "Influencers get a unique discount code and earn a commission on every sale made with their code."
+          },
+          {
+            "question": "What's the difference between a producer and distributor?",
+            "answer": "A producer makes or grows the product. A distributor imports products from abroad and sells them locally, both B2C and B2B."
+          }
         ]
       },
       "cta": {
@@ -2715,29 +2768,62 @@
         "eyebrow": "Benefits",
         "title": "Buying this way makes sense",
         "items": [
-          { "title": "No middlemen", "description": "The price you pay goes directly to the producer. No distributor or supermarket margins." },
-          { "title": "Full traceability", "description": "Know who makes it, where, and how. Every product has a story you can follow." },
-          { "title": "Guaranteed freshness", "description": "From farm to your table as fast as possible. No intermediate warehouses." },
-          { "title": "Follow your producers", "description": "Like a social network: follow producers, see their updates and buy when you want." }
+          {
+            "title": "No middlemen",
+            "description": "The price you pay goes directly to the producer. No distributor or supermarket margins."
+          },
+          {
+            "title": "Full traceability",
+            "description": "Know who makes it, where, and how. Every product has a story you can follow."
+          },
+          {
+            "title": "Guaranteed freshness",
+            "description": "From farm to your table as fast as possible. No intermediate warehouses."
+          },
+          {
+            "title": "Follow your producers",
+            "description": "Like a social network: follow producers, see their updates and buy when you want."
+          }
         ]
       },
       "steps": {
         "eyebrow": "How it works",
         "title": "Three steps to eat better",
         "items": [
-          { "title": "Explore", "description": "Discover local producers, browse categories or search for your favorite product." },
-          { "title": "Buy", "description": "Add to cart, pay securely. The producer prepares your order right away." },
-          { "title": "Receive", "description": "The producer ships directly to your door. Fresh, no detours, no warehouses." }
+          {
+            "title": "Explore",
+            "description": "Discover local producers, browse categories or search for your favorite product."
+          },
+          {
+            "title": "Buy",
+            "description": "Add to cart, pay securely. The producer prepares your order right away."
+          },
+          {
+            "title": "Receive",
+            "description": "The producer ships directly to your door. Fresh, no detours, no warehouses."
+          }
         ]
       },
       "faq": {
         "eyebrow": "FAQ",
         "title": "Common questions",
         "items": [
-          { "question": "How does shipping work?", "answer": "Each producer handles their own shipping. Delivery times depend on the producer and your location, usually 2-5 days." },
-          { "question": "Can I return a product?", "answer": "Yes. You have the right to return per applicable regulations. Contact the producer or our support." },
-          { "question": "Is it safe to pay?", "answer": "Absolutely. We use certified payment gateways with SSL encryption. Your banking info is never stored." },
-          { "question": "How much does an account cost?", "answer": "Nothing. Signing up and buying is completely free." }
+          {
+            "question": "How does shipping work?",
+            "answer": "Each producer handles their own shipping. Delivery times depend on the producer and your location, usually 2-5 days."
+          },
+          {
+            "question": "Can I return a product?",
+            "answer": "Yes. You have the right to return per applicable regulations. Contact the producer or our support."
+          },
+          {
+            "question": "Is it safe to pay?",
+            "answer": "Absolutely. We use certified payment gateways with SSL encryption. Your banking info is never stored."
+          },
+          {
+            "question": "How much does an account cost?",
+            "answer": "Nothing. Signing up and buying is completely free."
+          }
         ]
       },
       "cta": {
@@ -2761,41 +2847,123 @@
         "eyebrow": "Producer benefits",
         "title": "Everything you need to sell",
         "items": [
-          { "title": "Your store in minutes", "description": "Upload your products, customize your profile and start selling. No tech skills, no developers." },
-          { "title": "Fair price, your margin", "description": "You set the price. No middlemen taking a cut. Transparent commissions based on your plan." },
-          { "title": "A community that follows you", "description": "Customers follow you like on social media. Post updates, share your daily life and build loyalty." },
-          { "title": "Order management", "description": "Order dashboard, real-time notifications, complete history. All from your phone." },
-          { "title": "Store analytics", "description": "Views, sales, most viewed products. Real data to make decisions." },
-          { "title": "Collaborate with influencers", "description": "Food creators promote your products. You gain visibility, they earn commissions." }
+          {
+            "title": "Your store in minutes",
+            "description": "Upload your products, customize your profile and start selling. No tech skills, no developers."
+          },
+          {
+            "title": "Fair price, your margin",
+            "description": "You set the price. No middlemen taking a cut. Transparent commissions based on your plan."
+          },
+          {
+            "title": "A community that follows you",
+            "description": "Customers follow you like on social media. Post updates, share your daily life and build loyalty."
+          },
+          {
+            "title": "Order management",
+            "description": "Order dashboard, real-time notifications, complete history. All from your phone."
+          },
+          {
+            "title": "Store analytics",
+            "description": "Views, sales, most viewed products. Real data to make decisions."
+          },
+          {
+            "title": "Collaborate with influencers",
+            "description": "Food creators promote your products. You gain visibility, they earn commissions."
+          }
         ]
       },
       "steps": {
         "eyebrow": "How it works",
         "title": "From your farm to the customer's table",
         "items": [
-          { "title": "Sign up free", "description": "Create your producer account in less than 2 minutes. No commitment, no credit card." },
-          { "title": "Set up your store", "description": "Upload photos, describe your products, set prices and shipping zones." },
-          { "title": "Start selling", "description": "Your store is visible from day one. Receive orders, prepare them and ship directly." }
+          {
+            "title": "Sign up free",
+            "description": "Create your producer account in less than 2 minutes. No commitment, no credit card."
+          },
+          {
+            "title": "Set up your store",
+            "description": "Upload photos, describe your products, set prices and shipping zones."
+          },
+          {
+            "title": "Start selling",
+            "description": "Your store is visible from day one. Receive orders, prepare them and ship directly."
+          }
         ]
       },
       "plans": {
         "eyebrow": "Plans",
         "title": "Choose the plan that fits you",
         "items": [
-          { "name": "FREE", "price": "$0", "period": "/mo", "description": "To start with no commitment", "features": ["Up to 10 products", "Order dashboard", "Store profile", "Email support"] },
-          { "name": "PRO", "price": "$19", "period": "/mo", "description": "For growing producers", "features": ["Unlimited products", "Advanced analytics", "Influencer collaboration", "Priority support", "Visible certifications"] },
-          { "name": "ELITE", "price": "$49", "period": "/mo", "description": "For brands and cooperatives", "features": ["Everything in PRO", "B2B sales", "Custom API", "Dedicated account manager", "Search priority"] }
+          {
+            "name": "FREE",
+            "price": "$0",
+            "period": "/mo",
+            "commission": "20%",
+            "description": "To start with no commitment",
+            "features": [
+              "Unlimited products",
+              "Basic dashboard",
+              "Email support (24-48h)",
+              "20% commission"
+            ]
+          },
+          {
+            "name": "PRO",
+            "price": "$85",
+            "period": "/mo",
+            "commission": "18%",
+            "description": "For growing producers",
+            "features": [
+              "Everything in Free",
+              "Advanced analytics",
+              "AI price optimization",
+              "PRO badge in store",
+              "Influencer matching",
+              "Priority support (4-8h)",
+              "18% commission"
+            ]
+          },
+          {
+            "name": "ELITE",
+            "price": "$269",
+            "period": "/mo",
+            "commission": "15%",
+            "description": "For brands and cooperatives",
+            "features": [
+              "Everything in Pro",
+              "Commercial AI agent",
+              "International B2B",
+              "Dedicated manager",
+              "Lowest commission: 15%"
+            ]
+          }
         ]
       },
       "faq": {
         "eyebrow": "FAQ",
         "title": "We answer your questions",
         "items": [
-          { "question": "How much does it cost to sign up?", "answer": "Signing up is free. The FREE plan lets you start selling at no cost. You only pay commission per sale." },
-          { "question": "Who handles shipping?", "answer": "You handle shipping directly to the customer. You can use your own carrier or set up local pickup." },
-          { "question": "How do I get paid?", "answer": "Payments are automatically settled to your bank account. You can set up weekly or monthly payouts." },
-          { "question": "Do I need to be a company?", "answer": "You can sell as a sole proprietor or a company. We'll ask for tax info for invoicing, but the process is simple." },
-          { "question": "Can I sell in other countries?", "answer": "Yes. Depending on your plan, you can set up national and international shipping. The platform auto-translates for buyers." }
+          {
+            "question": "How much does it cost to sign up?",
+            "answer": "Signing up is free. The FREE plan lets you sell with a 20% commission. PRO costs $85/mo (18%) and ELITE $269/mo (15%)."
+          },
+          {
+            "question": "Who handles shipping?",
+            "answer": "You handle shipping directly to the customer. You can use your own carrier or set up local pickup."
+          },
+          {
+            "question": "How do I get paid?",
+            "answer": "Payments are automatically settled to your bank account. You can set up weekly or monthly payouts."
+          },
+          {
+            "question": "Do I need to be a company?",
+            "answer": "You can sell as a sole proprietor or a company. We'll ask for tax info for invoicing, but the process is simple."
+          },
+          {
+            "question": "Can I sell in other countries?",
+            "answer": "Yes. Depending on your plan, you can set up national and international shipping. The platform auto-translates for buyers."
+          }
         ]
       },
       "cta": {
@@ -2817,38 +2985,80 @@
         "eyebrow": "How you earn",
         "title": "Your influence, your income",
         "items": [
-          { "title": "Your own discount code", "description": "Get a unique code to share with your audience. Every purchase with your code earns you a commission." },
-          { "title": "Commissions per sale", "description": "Earn a percentage of every sale made with your code. No cap on earnings." },
-          { "title": "Performance dashboard", "description": "See in real time: clicks, sales, conversion and accumulated earnings." },
-          { "title": "Cash out anytime", "description": "Request withdrawal of your earnings at any time. Direct transfer to your account." }
+          {
+            "title": "Your own discount code",
+            "description": "Get a unique code to share with your audience. Every purchase with your code earns you a commission."
+          },
+          {
+            "title": "Commissions per sale",
+            "description": "Earn a percentage of every sale made with your code. No cap on earnings."
+          },
+          {
+            "title": "Performance dashboard",
+            "description": "See in real time: clicks, sales, conversion and accumulated earnings."
+          },
+          {
+            "title": "Cash out anytime",
+            "description": "Request withdrawal of your earnings at any time. Direct transfer to your account."
+          }
         ]
       },
       "steps": {
         "eyebrow": "How it works",
         "title": "Three steps to start earning",
         "items": [
-          { "title": "Apply as ambassador", "description": "Sign up free and tell us about your profile. We review your application in less than 48 hours." },
-          { "title": "Share your code", "description": "Get your discount code and share it on social media, stories, videos or wherever you connect." },
-          { "title": "Collect your commissions", "description": "Every sale with your code generates automatic commission. Check your balance and withdraw anytime." }
+          {
+            "title": "Apply as ambassador",
+            "description": "Sign up free and tell us about your profile. We review your application in less than 48 hours."
+          },
+          {
+            "title": "Share your code",
+            "description": "Get your discount code and share it on social media, stories, videos or wherever you connect."
+          },
+          {
+            "title": "Collect your commissions",
+            "description": "Every sale with your code generates automatic commission. Check your balance and withdraw anytime."
+          }
         ]
       },
       "audience": {
         "eyebrow": "Who it's for",
         "title": "Do you fit the program?",
         "items": [
-          { "title": "Foodies and food lovers", "description": "If food is your passion and your audience trusts your recommendations." },
-          { "title": "Nutritionists and coaches", "description": "If you recommend healthy eating and quality products to your clients." },
-          { "title": "Content creators", "description": "If you create recipes, reviews or food content on any platform." }
+          {
+            "title": "Foodies and food lovers",
+            "description": "If food is your passion and your audience trusts your recommendations."
+          },
+          {
+            "title": "Nutritionists and coaches",
+            "description": "If you recommend healthy eating and quality products to your clients."
+          },
+          {
+            "title": "Content creators",
+            "description": "If you create recipes, reviews or food content on any platform."
+          }
         ]
       },
       "faq": {
         "eyebrow": "FAQ",
         "title": "What you need to know",
         "items": [
-          { "question": "How much do I earn per sale?", "answer": "Commission varies by tier and product. Starts at 5% and can go up to 15% based on your performance." },
-          { "question": "Do I need lots of followers?", "answer": "No. We value audience quality and your connection with them, not just numbers. Micro-influencers welcome." },
-          { "question": "How and when do I get paid?", "answer": "You can request withdrawal of accumulated earnings anytime. Transferred via bank transfer to your account." },
-          { "question": "Do I have to buy products?", "answer": "No. You share your code and customers buy directly from the producer. You don't handle stock or shipping." }
+          {
+            "question": "How much do I earn per sale?",
+            "answer": "Commission varies by tier: Hercules 3%, Atenea 5%, Zeus 7%. Move up tiers by reaching higher sales volume and followers."
+          },
+          {
+            "question": "Do I need lots of followers?",
+            "answer": "No. We value audience quality and your connection with them, not just numbers. Micro-influencers welcome."
+          },
+          {
+            "question": "How and when do I get paid?",
+            "answer": "You can request withdrawal of accumulated earnings anytime. Transferred via bank transfer to your account."
+          },
+          {
+            "question": "Do I have to buy products?",
+            "answer": "No. You share your code and customers buy directly from the producer. You don't handle stock or shipping."
+          }
         ]
       },
       "cta": {
@@ -2872,41 +3082,92 @@
         "eyebrow": "Your complete storefront",
         "title": "B2C and B2B from one platform",
         "items": [
-          { "title": "Direct-to-consumer sales", "description": "Your online store like a supermarket. End customers discover, buy and receive your imported products." },
-          { "title": "B2B marketplace", "description": "Sell wholesale to other businesses. Quotes, contracts and tracking like Alibaba." },
-          { "title": "No infrastructure needed", "description": "No need to build e-commerce, payment gateway, or SEO. The platform is your infrastructure." },
-          { "title": "Unlimited catalog", "description": "Upload all your products with variants, packs and volume pricing. No limit." },
-          { "title": "Influencer network", "description": "Local creators can promote your imported products to their audience." },
-          { "title": "International reach", "description": "Sell in Spain, Europe, USA, Japan and South Korea. The platform adapts to the buyer's language." }
+          {
+            "title": "Direct-to-consumer sales",
+            "description": "Your online store like a supermarket. End customers discover, buy and receive your imported products."
+          },
+          {
+            "title": "B2B marketplace",
+            "description": "Sell wholesale to other businesses. Quotes, contracts and tracking like Alibaba."
+          },
+          {
+            "title": "No infrastructure needed",
+            "description": "No need to build e-commerce, payment gateway, or SEO. The platform is your infrastructure."
+          },
+          {
+            "title": "Unlimited catalog",
+            "description": "Upload all your products with variants, packs and volume pricing. No limit."
+          },
+          {
+            "title": "Influencer network",
+            "description": "Local creators can promote your imported products to their audience."
+          },
+          {
+            "title": "International reach",
+            "description": "Sell in Spain, Europe, USA, Japan and South Korea. The platform adapts to the buyer's language."
+          }
         ]
       },
       "steps": {
         "eyebrow": "How it works",
         "title": "From the world to your market in three steps",
         "items": [
-          { "title": "Register as distributor", "description": "Create your account, verify your business and set up your distributor profile." },
-          { "title": "Upload your catalog", "description": "Products with photos, certifications, B2C prices and optionally B2B volume prices." },
-          { "title": "Sell and scale", "description": "Receive orders from consumers and businesses. Manage everything from one dashboard." }
+          {
+            "title": "Register as distributor",
+            "description": "Create your account, verify your business and set up your distributor profile."
+          },
+          {
+            "title": "Upload your catalog",
+            "description": "Products with photos, certifications, B2C prices and optionally B2B volume prices."
+          },
+          {
+            "title": "Sell and scale",
+            "description": "Receive orders from consumers and businesses. Manage everything from one dashboard."
+          }
         ]
       },
       "b2b": {
         "eyebrow": "For wholesale",
         "title": "Your integrated B2B channel",
         "items": [
-          { "title": "Custom quotes", "description": "Buyers request volume pricing. You respond with a personalized offer." },
-          { "title": "Digital contracts", "description": "Sign supply contracts directly on the platform. Everything is recorded." },
-          { "title": "Operations tracking", "description": "Dashboard with status of each B2B operation: from quote to delivery." }
+          {
+            "title": "Custom quotes",
+            "description": "Buyers request volume pricing. You respond with a personalized offer."
+          },
+          {
+            "title": "Digital contracts",
+            "description": "Sign supply contracts directly on the platform. Everything is recorded."
+          },
+          {
+            "title": "Operations tracking",
+            "description": "Dashboard with status of each B2B operation: from quote to delivery."
+          }
         ]
       },
       "faq": {
         "eyebrow": "FAQ",
         "title": "We answer your questions",
         "items": [
-          { "question": "Can I sell B2C and B2B at the same time?", "answer": "Yes. Your store has a consumer storefront and a wholesale catalog for businesses. Manage both from the same dashboard." },
-          { "question": "What commission does the platform charge?", "answer": "Depends on your plan. The FREE plan has a per-sale commission. PRO and ELITE plans reduce commission and add B2B tools." },
-          { "question": "How do I manage shipping?", "answer": "You manage logistics. You can use your own carrier, courier, or even warehouse pickup for B2B." },
-          { "question": "Do I need special certifications?", "answer": "Depends on the product and country. The platform lets you upload and display certifications to build trust." },
-          { "question": "Can I sell outside my country?", "answer": "Yes. The platform operates in Spain, EU, USA, Japan and South Korea. Your catalog auto-translates." }
+          {
+            "question": "Can I sell B2C and B2B at the same time?",
+            "answer": "Yes. Your store has a consumer storefront and a wholesale catalog for businesses. Manage both from the same dashboard."
+          },
+          {
+            "question": "What commission does the platform charge?",
+            "answer": "Depends on your plan. The FREE plan has a per-sale commission. PRO and ELITE plans reduce commission and add B2B tools."
+          },
+          {
+            "question": "How do I manage shipping?",
+            "answer": "You manage logistics. You can use your own carrier, courier, or even warehouse pickup for B2B."
+          },
+          {
+            "question": "Do I need special certifications?",
+            "answer": "Depends on the product and country. The platform lets you upload and display certifications to build trust."
+          },
+          {
+            "question": "Can I sell outside my country?",
+            "answer": "Yes. The platform operates in Spain, EU, USA, Japan and South Korea. Your catalog auto-translates."
+          }
         ]
       },
       "cta": {
@@ -2932,7 +3193,13 @@
         "mensajePlaceholder": "How can we help?",
         "enviar": "Send message",
         "enviando": "Sending...",
-        "roles": ["Shopper", "Producer", "Influencer", "Distributor", "Press"],
+        "roles": [
+          "Shopper",
+          "Producer",
+          "Influencer",
+          "Distributor",
+          "Press"
+        ],
         "errorCampos": "Please fill in all fields",
         "exito": "Message sent. We'll get back to you soon.",
         "error": "Error sending. Please try again."
@@ -2948,11 +3215,26 @@
         "eyebrow": "FAQ",
         "title": "Before you write",
         "items": [
-          { "question": "How much does HispaloShop cost?", "answer": "Free for buyers. Producers have plans from $0. Influencers earn commissions." },
-          { "question": "How do I receive my orders?", "answer": "Producers handle shipping directly. Delivery times depend on each producer and destination." },
-          { "question": "Can I sell internationally?", "answer": "Yes. HispaloShop supports multiple languages and currencies for international sales." },
-          { "question": "How are producers verified?", "answer": "We verify identity, certifications and quality before approving each producer." },
-          { "question": "How does the influencer program work?", "answer": "Generate your affiliate code, share it with your audience and earn commissions on every sale." }
+          {
+            "question": "How much does HispaloShop cost?",
+            "answer": "Free for buyers. Producers have plans from $0. Influencers earn commissions."
+          },
+          {
+            "question": "How do I receive my orders?",
+            "answer": "Producers handle shipping directly. Delivery times depend on each producer and destination."
+          },
+          {
+            "question": "Can I sell internationally?",
+            "answer": "Yes. HispaloShop supports multiple languages and currencies for international sales."
+          },
+          {
+            "question": "How are producers verified?",
+            "answer": "We verify identity, certifications and quality before approving each producer."
+          },
+          {
+            "question": "How does the influencer program work?",
+            "answer": "Generate your affiliate code, share it with your audience and earn commissions on every sale."
+          }
         ]
       }
     },

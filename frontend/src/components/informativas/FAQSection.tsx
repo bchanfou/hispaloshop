@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 
@@ -106,6 +107,24 @@ export default function FAQSection({
             <FAQAccordion key={i} item={item} index={i} />
           ))}
         </div>
+
+        {/* JSON-LD FAQ Schema for Google rich results */}
+        {items.length > 0 && (
+          <Helmet>
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": items.map(item => ({
+                "@type": "Question",
+                "name": item.question,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": item.answer,
+                },
+              })),
+            })}</script>
+          </Helmet>
+        )}
       </div>
     </section>
   );

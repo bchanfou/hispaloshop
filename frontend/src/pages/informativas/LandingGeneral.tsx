@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { HeroSection, FeatureSection, FAQSection, CTASection } from '../../components/informativas';
 import { ConnectionIllustration } from '../../components/informativas';
+import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [ShoppingBag, Users, Store, TrendingUp, Globe, Heart];
 
@@ -125,6 +126,11 @@ export default function LandingGeneral() {
 
   return (
     <>
+      <SEO
+        title={t('landing.general.seo.title', 'HispaloShop — Compra directo al productor')}
+        description={t('landing.general.seo.description', 'Plataforma de social commerce donde productores locales e importadores venden directamente al consumidor. Sin intermediarios.')}
+      />
+
       <HeroSection
         {...heroData}
         illustration={<ConnectionIllustration className="w-full h-auto" />}

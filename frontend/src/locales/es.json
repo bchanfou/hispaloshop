@@ -4162,22 +4162,44 @@
             "name": "FREE",
             "price": "0€",
             "period": "/mes",
+            "commission": "20%",
             "description": "Para empezar sin compromiso",
-            "features": ["Hasta 10 productos", "Panel de pedidos", "Perfil de tienda", "Soporte por email"]
+            "features": [
+              "Productos ilimitados",
+              "Panel de control básico",
+              "Soporte por email (24-48h)",
+              "Comisión del 20%"
+            ]
           },
           {
             "name": "PRO",
-            "price": "19€",
+            "price": "79€",
             "period": "/mes",
+            "commission": "18%",
             "description": "Para productores en crecimiento",
-            "features": ["Productos ilimitados", "Analytics avanzado", "Colaboración con influencers", "Soporte prioritario", "Certificaciones visibles"]
+            "features": [
+              "Todo lo de Free",
+              "Analytics avanzados",
+              "Optimización de precios con IA",
+              "Badge PRO en tienda",
+              "Matching con influencers",
+              "Soporte prioritario (4-8h)",
+              "Comisión del 18%"
+            ]
           },
           {
             "name": "ELITE",
-            "price": "49€",
+            "price": "249€",
             "period": "/mes",
+            "commission": "15%",
             "description": "Para marcas y cooperativas",
-            "features": ["Todo lo de PRO", "Venta B2B", "API personalizada", "Account manager dedicado", "Prioridad en búsqueda"]
+            "features": [
+              "Todo lo de Pro",
+              "Agente comercial IA",
+              "B2B internacional",
+              "Manager dedicado",
+              "Comisión más baja: 15%"
+            ]
           }
         ]
       },
@@ -4187,7 +4209,7 @@
         "items": [
           {
             "question": "¿Cuánto cuesta registrarse?",
-            "answer": "Registrarse es gratis. El plan FREE te permite empezar a vender sin coste. Solo pagas comisión por venta realizada."
+            "answer": "Registrarse es gratis. El plan FREE permite vender con una comisión del 20%. PRO cuesta 79€/mes (18%) y ELITE 249€/mes (15%)."
           },
           {
             "question": "¿Quién se encarga del envío?",
@@ -4286,7 +4308,7 @@
         "items": [
           {
             "question": "¿Cuánto gano por venta?",
-            "answer": "La comisión varía según tu tier y el producto. Empieza desde un 5% y puede llegar hasta el 15% según tu rendimiento."
+            "answer": "La comisión varía según tu tier: Hercules 3%, Atenea 5%, Zeus 7%. Sube de tier alcanzando más volumen de ventas y seguidores."
           },
           {
             "question": "¿Necesito muchos seguidores?",
@@ -4434,7 +4456,13 @@
         "mensajePlaceholder": "¿En qué podemos ayudarte?",
         "enviar": "Enviar mensaje",
         "enviando": "Enviando...",
-        "roles": ["Consumidor", "Productor", "Influencer", "Distribuidor", "Prensa"],
+        "roles": [
+          "Consumidor",
+          "Productor",
+          "Influencer",
+          "Distribuidor",
+          "Prensa"
+        ],
         "errorCampos": "Completa todos los campos",
         "exito": "Mensaje enviado. Te responderemos pronto.",
         "error": "Error al enviar. Inténtalo de nuevo."

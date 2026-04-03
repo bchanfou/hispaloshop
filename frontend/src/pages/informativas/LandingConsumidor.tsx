@@ -17,6 +17,7 @@ import {
   CTASection,
   ProductIllustration,
 } from '../../components/informativas';
+import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [ShoppingBag, Eye, Leaf, Search];
 const STEP_ICONS = [Search, CreditCard, PackageCheck];
@@ -60,6 +61,11 @@ export default function LandingConsumidor() {
 
   return (
     <>
+      <SEO
+        title={t('landing.consumidor.seo.title', 'Compra directo al productor — HispaloShop')}
+        description={t('landing.consumidor.seo.description', 'Descubre productos directos del productor. Precio justo, frescura real, trazabilidad total. Sin intermediarios.')}
+      />
+
       <HeroSection
         {...heroData}
         illustration={<ProductIllustration className="w-full h-auto" />}

@@ -21,6 +21,7 @@ import {
   CTASection,
   DeviceIllustration,
 } from '../../components/informativas';
+import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [Store, Coins, Users, ClipboardList, BarChart3, Sparkles];
 const STEP_ICONS = [UserPlus, Settings, Truck];
@@ -34,6 +35,7 @@ interface PlanData {
 }
 
 function PlanCard({ plan, index, featured }: { plan: PlanData; index: number; featured: boolean; key?: React.Key }) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
@@ -51,7 +53,7 @@ function PlanCard({ plan, index, featured }: { plan: PlanData; index: number; fe
     >
       {featured && (
         <span className="absolute -top-3 left-7 px-3 py-0.5 text-[10px] uppercase tracking-[0.1em] font-semibold bg-white text-stone-950 rounded-full">
-          Popular
+          {t('landing.productor.plans.popular', 'Popular')}
         </span>
       )}
       <h3 className={`text-[13px] uppercase tracking-[0.08em] font-semibold m-0 mb-1 ${
@@ -138,27 +140,32 @@ export default function LandingProductor() {
     secondaryCtaTo: t('landing.productor.hero.secondaryCtaTo', '/productor#planes'),
   };
 
-  const featuresEyebrow = t('landing.productor.features.eyebrow', '');
-  const featuresTitle = t('landing.productor.features.title', '');
+  const featuresEyebrow = t('landing.productor.features.eyebrow', 'Producer benefits');
+  const featuresTitle = t('landing.productor.features.title', 'Everything you need to sell');
   const featuresItems = t('landing.productor.features.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const stepsEyebrow = t('landing.productor.steps.eyebrow', '');
-  const stepsTitle = t('landing.productor.steps.title', '');
+  const stepsEyebrow = t('landing.productor.steps.eyebrow', 'How it works');
+  const stepsTitle = t('landing.productor.steps.title', 'From your farm to the table');
   const stepsItems = t('landing.productor.steps.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const faqEyebrow = t('landing.productor.faq.eyebrow', '');
-  const faqTitle = t('landing.productor.faq.title', '');
+  const faqEyebrow = t('landing.productor.faq.eyebrow', 'FAQ');
+  const faqTitle = t('landing.productor.faq.title', 'Your questions answered');
   const faqItems = t('landing.productor.faq.items', { returnObjects: true, defaultValue: [] }) as { question: string; answer: string }[];
 
   const ctaData = {
-    title: t('landing.productor.cta.title', ''),
-    subtitle: t('landing.productor.cta.subtitle', ''),
-    ctaText: t('landing.productor.cta.ctaText', ''),
+    title: t('landing.productor.cta.title', 'Your story deserves to be told'),
+    subtitle: t('landing.productor.cta.subtitle', 'Open your store and start selling today.'),
+    ctaText: t('landing.productor.cta.ctaText', 'Set up my store free'),
     ctaTo: t('landing.productor.cta.ctaTo', '/register?role=producer'),
   };
 
   return (
     <>
+      <SEO
+        title={t('landing.productor.seo.title', 'Vende sin intermediarios — HispaloShop')}
+        description={t('landing.productor.seo.description', 'Abre tu tienda online y vende directamente al consumidor. Planes desde 0€. Comisiones desde 15%.')}
+      />
+
       <HeroSection
         {...heroData}
         illustration={<DeviceIllustration className="w-full h-auto" />}

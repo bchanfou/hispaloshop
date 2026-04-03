@@ -63,7 +63,7 @@ export default function InfoNav() {
             <button
               onClick={() => setDrawerOpen(v => !v)}
               className="flex items-center justify-center w-9 h-9 border-none bg-transparent cursor-pointer text-stone-950"
-              aria-label={drawerOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={drawerOpen ? t('landing.nav.closeMenu', 'Cerrar menú') : t('landing.nav.openMenu', 'Abrir menú')}
             >
               {drawerOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

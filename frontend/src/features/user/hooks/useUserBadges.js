@@ -17,6 +17,8 @@ export function useUserBadges(userId, shouldCheck) {
     badges: badgesQuery.data ?? [],
     isLoading: badgesQuery.isLoading,
     isFetching: badgesQuery.isFetching,
+    isError: badgesQuery.isError || checkBadgesMutation.isError,
+    error: badgesQuery.error || checkBadgesMutation.error,
     refetch: badgesQuery.refetch,
   };
 }

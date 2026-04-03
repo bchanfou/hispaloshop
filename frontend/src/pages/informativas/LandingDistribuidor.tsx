@@ -23,6 +23,7 @@ import {
   CTASection,
   GlobalIllustration,
 } from '../../components/informativas';
+import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [ShoppingCart, Building2, Server, Layers, Users, Globe];
 const STEP_ICONS = [UserPlus, Upload, Rocket];
@@ -107,27 +108,32 @@ export default function LandingDistribuidor() {
     secondaryCtaTo: t('landing.distribuidor.hero.secondaryCtaTo', '/distribuidor#b2b'),
   };
 
-  const featuresEyebrow = t('landing.distribuidor.features.eyebrow', '');
-  const featuresTitle = t('landing.distribuidor.features.title', '');
+  const featuresEyebrow = t('landing.distribuidor.features.eyebrow', 'Your complete storefront');
+  const featuresTitle = t('landing.distribuidor.features.title', 'B2C and B2B from one platform');
   const featuresItems = t('landing.distribuidor.features.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const stepsEyebrow = t('landing.distribuidor.steps.eyebrow', '');
-  const stepsTitle = t('landing.distribuidor.steps.title', '');
+  const stepsEyebrow = t('landing.distribuidor.steps.eyebrow', 'How it works');
+  const stepsTitle = t('landing.distribuidor.steps.title', 'From the world to your market');
   const stepsItems = t('landing.distribuidor.steps.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const faqEyebrow = t('landing.distribuidor.faq.eyebrow', '');
-  const faqTitle = t('landing.distribuidor.faq.title', '');
+  const faqEyebrow = t('landing.distribuidor.faq.eyebrow', 'FAQ');
+  const faqTitle = t('landing.distribuidor.faq.title', 'Your questions answered');
   const faqItems = t('landing.distribuidor.faq.items', { returnObjects: true, defaultValue: [] }) as { question: string; answer: string }[];
 
   const ctaData = {
-    title: t('landing.distribuidor.cta.title', ''),
-    subtitle: t('landing.distribuidor.cta.subtitle', ''),
-    ctaText: t('landing.distribuidor.cta.ctaText', ''),
+    title: t('landing.distribuidor.cta.title', 'The whole world in your local market'),
+    subtitle: t('landing.distribuidor.cta.subtitle', 'Register as a distributor and start selling today.'),
+    ctaText: t('landing.distribuidor.cta.ctaText', 'Create my distributor store'),
     ctaTo: t('landing.distribuidor.cta.ctaTo', '/register?role=importer'),
   };
 
   return (
     <>
+      <SEO
+        title={t('landing.distribuidor.seo.title', 'Distribuye productos internacionales — HispaloShop')}
+        description={t('landing.distribuidor.seo.description', 'Vende productos importados al consumidor local. B2C y B2B desde una sola plataforma.')}
+      />
+
       <HeroSection
         {...heroData}
         illustration={<GlobalIllustration className="w-full h-auto" />}

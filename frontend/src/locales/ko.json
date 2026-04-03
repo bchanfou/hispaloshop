@@ -2636,5 +2636,620 @@
     "firstReviewDesc": "ì²« ë¦¬ë·°ë¥¼ ìž‘ì„±í–ˆìŠµë‹ˆë‹¤",
     "explorer": "íƒí—˜ê°€",
     "explorerDesc": "5ê°œì˜ ìƒì ì„ íŒ”ë¡œìš°í–ˆìŠµë‹ˆë‹¤"
+  },
+  "landing": {
+    "nav": {
+      "consumidor": "쇼핑",
+      "productor": "판매",
+      "influencer": "수익",
+      "distribuidor": "유통",
+      "entrar": "로그인",
+      "empiezaGratis": "무료로 시작하기",
+      "menu": "메뉴"
+    },
+    "footer": {
+      "plataforma": "플랫폼",
+      "empresa": "회사",
+      "legal": "법적 고지",
+      "contacto": "문의",
+      "privacidad": "개인정보",
+      "terminos": "이용약관",
+      "cookies": "쿠키",
+      "tagline": "생산자에서 식탁까지. 중개인 없이."
+    },
+    "general": {
+      "hero": {
+        "eyebrow": "음식에는 이야기가 있습니다",
+        "title": "당신의 음식을 만드는 사람에게서 직접 구매하세요",
+        "subtitle": "모든 제품에 얼굴과 이름이 있는 플랫폼. 중개인 없이.",
+        "ctaText": "제품 둘러보기",
+        "ctaTo": "/discover",
+        "secondaryCtaText": "생산자입니다",
+        "secondaryCtaTo": "/productor"
+      },
+      "features": {
+        "eyebrow": "왜 hispaloshop인가",
+        "title": "필요한 모든 것을 한 곳에서",
+        "items": [
+          {
+            "title": "직거래, 중개인 없이",
+            "description": "모든 제품이 생산자에게서 직접 옵니다."
+          },
+          {
+            "title": "음식을 만드는 사람을 알아보세요",
+            "description": "생산자를 팔로우하고 이야기를 이해하세요."
+          },
+          {
+            "title": "당신이 만든 것을 판매하세요",
+            "description": "몇 분 만에 온라인 스토어를 오픈하세요."
+          },
+          {
+            "title": "추천하고 수익을 얻으세요",
+            "description": "앰배서더가 되어 판매 수수료를 받으세요."
+          },
+          {
+            "title": "수입하고 유통하세요",
+            "description": "전 세계의 제품을 현지 시장으로."
+          },
+          {
+            "title": "진정한 커뮤니티",
+            "description": "음식으로 사람을 연결하는 소셜 네트워크."
+          }
+        ]
+      },
+      "roles": {
+        "eyebrow": "모든 사용자를 위해",
+        "title": "hispaloshop에서 당신은?",
+        "items": [
+          {
+            "role": "소비자",
+            "description": "생산자에게서 직접 정품 발견.",
+            "cta": "제품 둘러보기",
+            "to": "/consumidor"
+          },
+          {
+            "role": "생산자",
+            "description": "스토어를 열고 직접 판매.",
+            "cta": "내 스토어 등록",
+            "to": "/productor"
+          },
+          {
+            "role": "인플루언서",
+            "description": "제품 추천으로 수수료.",
+            "cta": "앰배서더 되기",
+            "to": "/influencer"
+          },
+          {
+            "role": "유통업자",
+            "description": "해외 제품을 현지로.",
+            "cta": "판매 시작",
+            "to": "/distribuidor"
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "알아야 할 것들",
+        "items": [
+          {
+            "question": "hispaloshop이란?",
+            "answer": "생산자와 수입업자가 소비자에게 직접 판매하는 소셜 커머스 플랫폼."
+          },
+          {
+            "question": "구매는 무료?",
+            "answer": "네. 완전 무료."
+          },
+          {
+            "question": "어느 나라?",
+            "answer": "스페인, EU, 미국, 일본, 한국."
+          },
+          {
+            "question": "인플루언서 수익?",
+            "answer": "고유 할인 코드로 판매 수수료."
+          },
+          {
+            "question": "생산자 vs 유통업자?",
+            "answer": "생산자는 만들고, 유통업자는 수입하여 판매."
+          }
+        ]
+      },
+      "cta": {
+        "title": "오늘 시작하세요. 무료입니다.",
+        "subtitle": "생산자와 소비자를 연결하는 커뮤니티.",
+        "ctaText": "무료 계정 만들기",
+        "ctaTo": "/register"
+      }
+    },
+    "consumidor": {
+      "hero": {
+        "eyebrow": "기준이 있는 식사",
+        "title": "음식을 누가 만드는지 알아보세요",
+        "subtitle": "생산자 직송. 합리적 가격, 신선함, 추적성.",
+        "ctaText": "제품 둘러보기",
+        "ctaTo": "/discover",
+        "secondaryCtaText": "",
+        "secondaryCtaTo": ""
+      },
+      "features": {
+        "eyebrow": "장점",
+        "title": "합리적인 구매",
+        "items": [
+          {
+            "title": "중개인 없이",
+            "description": "가격이 생산자에게 직접."
+          },
+          {
+            "title": "완전한 추적성",
+            "description": "누가, 어디서, 어떻게."
+          },
+          {
+            "title": "신선도 보장",
+            "description": "농장에서 식탁까지."
+          },
+          {
+            "title": "생산자 팔로우",
+            "description": "소셜처럼 팔로우."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "이용 방법",
+        "title": "세 단계",
+        "items": [
+          {
+            "title": "탐색",
+            "description": "생산자 발견, 검색."
+          },
+          {
+            "title": "구매",
+            "description": "장바구니, 결제."
+          },
+          {
+            "title": "수령",
+            "description": "생산자 직접 배송."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "일반 질문",
+        "items": [
+          {
+            "question": "배송은?",
+            "answer": "생산자 관리. 2-5일."
+          },
+          {
+            "question": "반품?",
+            "answer": "법률에 따라 가능."
+          },
+          {
+            "question": "결제 안전?",
+            "answer": "SSL 암호화."
+          },
+          {
+            "question": "비용?",
+            "answer": "완전 무료."
+          }
+        ]
+      },
+      "cta": {
+        "title": "다음 식사, 농장에서 직접",
+        "subtitle": "진짜 음식, 진짜 사람.",
+        "ctaText": "제품 둘러보기",
+        "ctaTo": "/discover"
+      }
+    },
+    "productor": {
+      "hero": {
+        "eyebrow": "생산자를 위해",
+        "title": "중개인 없이 도달할 자격",
+        "subtitle": "몇 분 만에 스토어를 열고 판매하세요.",
+        "ctaText": "내 스토어 등록",
+        "ctaTo": "/register?role=producer",
+        "secondaryCtaText": "요금제 보기",
+        "secondaryCtaTo": "/productor#planes"
+      },
+      "features": {
+        "eyebrow": "생산자 혜택",
+        "title": "판매에 필요한 모든 것",
+        "items": [
+          {
+            "title": "빠른 스토어 오픈",
+            "description": "업로드하고 판매 시작."
+          },
+          {
+            "title": "당신의 마진",
+            "description": "투명한 수수료."
+          },
+          {
+            "title": "팔로우 커뮤니티",
+            "description": "고객이 팔로우."
+          },
+          {
+            "title": "주문 관리",
+            "description": "대시보드, 알림."
+          },
+          {
+            "title": "분석",
+            "description": "조회수, 매출 데이터."
+          },
+          {
+            "title": "인플루언서 협업",
+            "description": "크리에이터가 홍보."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "이용 방법",
+        "title": "농장에서 식탁까지",
+        "items": [
+          {
+            "title": "무료 가입",
+            "description": "2분 안에 계정 생성."
+          },
+          {
+            "title": "스토어 설정",
+            "description": "사진, 설명, 가격."
+          },
+          {
+            "title": "판매 시작",
+            "description": "첫날부터 노출."
+          }
+        ]
+      },
+      "plans": {
+        "eyebrow": "요금제",
+        "title": "맞는 요금제 선택",
+        "items": [
+          {
+            "name": "FREE",
+            "price": "₩0",
+            "period": "/월",
+            "commission": "20%",
+            "description": "부담 없이 시작",
+            "features": [
+              "무제한 제품",
+              "기본 대시보드",
+              "이메일 지원 (24-48시간)",
+              "수수료 20%"
+            ]
+          },
+          {
+            "name": "PRO",
+            "price": "₩118,000",
+            "period": "/월",
+            "commission": "18%",
+            "description": "성장하는 생산자",
+            "features": [
+              "Free 전체 포함",
+              "고급 분석",
+              "AI 가격 최적화",
+              "PRO 배지 표시",
+              "인플루언서 매칭",
+              "우선 지원 (4-8시간)",
+              "수수료 18%"
+            ]
+          },
+          {
+            "name": "ELITE",
+            "price": "₩372,000",
+            "period": "/월",
+            "commission": "15%",
+            "description": "브랜드와 협동조합",
+            "features": [
+              "Pro 전체 포함",
+              "AI 영업 에이전트",
+              "국제 B2B",
+              "전담 매니저",
+              "최저 수수료: 15%"
+            ]
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "궁금증 해결",
+        "items": [
+          {
+            "question": "가입 비용?",
+            "answer": "가입은 무료입니다. FREE 플랜은 수수료 20%로 판매 가능. PRO는 ₩118,000/월 (18%), ELITE는 ₩372,000/월 (15%)."
+          },
+          {
+            "question": "배송?",
+            "answer": "직접 관리."
+          },
+          {
+            "question": "대금?",
+            "answer": "자동 은행 정산."
+          },
+          {
+            "question": "사업자?",
+            "answer": "개인/법인 모두 가능."
+          },
+          {
+            "question": "해외?",
+            "answer": "자동 번역 지원."
+          }
+        ]
+      },
+      "cta": {
+        "title": "당신의 이야기를 전하세요",
+        "subtitle": "오늘 시작하세요.",
+        "ctaText": "무료 스토어 등록",
+        "ctaTo": "/register?role=producer"
+      }
+    },
+    "influencer": {
+      "hero": {
+        "eyebrow": "크리에이터를 위해",
+        "title": "추천하고 매 판매마다 수익",
+        "subtitle": "할인 코드, 수수료, 대시보드.",
+        "ctaText": "앰배서더 되기",
+        "ctaTo": "/register?role=influencer"
+      },
+      "features": {
+        "eyebrow": "수익 구조",
+        "title": "영향력 = 수입",
+        "items": [
+          {
+            "title": "나만의 코드",
+            "description": "고유 코드로 수수료."
+          },
+          {
+            "title": "판매당 수수료",
+            "description": "상한 없는 수익."
+          },
+          {
+            "title": "대시보드",
+            "description": "클릭, 판매, 전환, 수익."
+          },
+          {
+            "title": "언제든 출금",
+            "description": "계좌 직접 이체."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "이용 방법",
+        "title": "세 단계",
+        "items": [
+          {
+            "title": "신청",
+            "description": "무료 가입. 48시간 심사."
+          },
+          {
+            "title": "공유",
+            "description": "SNS에서 코드 공유."
+          },
+          {
+            "title": "수익",
+            "description": "자동 적립. 언제든 출금."
+          }
+        ]
+      },
+      "audience": {
+        "eyebrow": "대상",
+        "title": "맞는 분인가요?",
+        "items": [
+          {
+            "title": "푸드 러버",
+            "description": "음식 열정, 신뢰받는 추천."
+          },
+          {
+            "title": "영양 전문가",
+            "description": "건강 식단 추천."
+          },
+          {
+            "title": "콘텐츠 크리에이터",
+            "description": "음식 콘텐츠 제작."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "알아야 할 것",
+        "items": [
+          {
+            "question": "수익률?",
+            "answer": "수수료는 티어별: Hercules 3%, Atenea 5%, Zeus 7%. 판매량과 팔로워로 티어 업."
+          },
+          {
+            "question": "팔로워 수?",
+            "answer": "품질 중시."
+          },
+          {
+            "question": "수령?",
+            "answer": "은행 이체."
+          },
+          {
+            "question": "제품 구매?",
+            "answer": "불필요."
+          }
+        ]
+      },
+      "cta": {
+        "title": "목소리의 가치",
+        "subtitle": "앰배서더 프로그램.",
+        "ctaText": "앰배서더 신청",
+        "ctaTo": "/register?role=influencer"
+      }
+    },
+    "distribuidor": {
+      "hero": {
+        "eyebrow": "유통업자를 위해",
+        "title": "전 세계 제품을 현지로",
+        "subtitle": "소비자 직판 + 도매. 한 곳에서.",
+        "ctaText": "판매 시작",
+        "ctaTo": "/register?role=importer",
+        "secondaryCtaText": "B2B 혜택",
+        "secondaryCtaTo": "/distribuidor#b2b"
+      },
+      "features": {
+        "eyebrow": "스토어프론트",
+        "title": "B2C + B2B",
+        "items": [
+          {
+            "title": "소비자 직판",
+            "description": "수입 제품 발견, 구매."
+          },
+          {
+            "title": "B2B 마켓",
+            "description": "도매, 견적, 계약."
+          },
+          {
+            "title": "인프라 불필요",
+            "description": "플랫폼이 인프라."
+          },
+          {
+            "title": "무제한 카탈로그",
+            "description": "변형, 팩, 가격."
+          },
+          {
+            "title": "인플루언서",
+            "description": "크리에이터가 홍보."
+          },
+          {
+            "title": "글로벌",
+            "description": "스페인, EU, 미국, 일본, 한국."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "이용 방법",
+        "title": "세계에서 시장으로",
+        "items": [
+          {
+            "title": "등록",
+            "description": "계정, 인증, 프로필."
+          },
+          {
+            "title": "카탈로그",
+            "description": "사진, 인증, 가격."
+          },
+          {
+            "title": "판매",
+            "description": "주문 관리."
+          }
+        ]
+      },
+      "b2b": {
+        "eyebrow": "도매",
+        "title": "B2B 채널",
+        "items": [
+          {
+            "title": "맞춤 견적",
+            "description": "물량 가격."
+          },
+          {
+            "title": "디지털 계약",
+            "description": "플랫폼 내 계약."
+          },
+          {
+            "title": "운영 추적",
+            "description": "견적-배송 대시보드."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "궁금증 해결",
+        "items": [
+          {
+            "question": "B2C+B2B?",
+            "answer": "동시 가능."
+          },
+          {
+            "question": "수수료?",
+            "answer": "요금제별."
+          },
+          {
+            "question": "배송?",
+            "answer": "직접 관리."
+          },
+          {
+            "question": "인증?",
+            "answer": "제품/국가별."
+          },
+          {
+            "question": "해외?",
+            "answer": "자동 번역."
+          }
+        ]
+      },
+      "cta": {
+        "title": "전 세계를 시장으로",
+        "subtitle": "오늘 시작하세요.",
+        "ctaText": "유통업자 등록",
+        "ctaTo": "/register?role=importer"
+      }
+    },
+    "contacto": {
+      "hero": {
+        "eyebrow": "문의",
+        "title": "이야기해요.",
+        "subtitle": "24시간 내 답변."
+      },
+      "form": {
+        "nombre": "이름",
+        "nombrePlaceholder": "이름",
+        "email": "이메일",
+        "emailPlaceholder": "email@example.com",
+        "soy": "직업",
+        "mensaje": "메시지",
+        "mensajePlaceholder": "어떻게 도와드릴까요?",
+        "enviar": "보내기",
+        "enviando": "전송 중...",
+        "roles": [
+          "소비자",
+          "생산자",
+          "인플루언서",
+          "유통업자",
+          "언론"
+        ],
+        "errorCampos": "모든 항목 입력",
+        "exito": "전송 완료.",
+        "error": "오류. 다시 시도."
+      },
+      "empresa": {
+        "nombre": "Hispaloshop SL",
+        "ubicacion": "Reus, Tarragona, 스페인",
+        "email": "hola@hispaloshop.com",
+        "instagram": "@hispaloshop",
+        "fundador": "@bchanfuah (설립자)"
+      },
+      "faq": {
+        "eyebrow": "자주 묻는 질문",
+        "title": "문의 전에",
+        "items": [
+          {
+            "question": "비용?",
+            "answer": "구매자 무료."
+          },
+          {
+            "question": "배송?",
+            "answer": "생산자 직접."
+          },
+          {
+            "question": "해외?",
+            "answer": "다국어 지원."
+          },
+          {
+            "question": "인증?",
+            "answer": "승인 전 확인."
+          },
+          {
+            "question": "인플루언서?",
+            "answer": "코드로 수수료."
+          }
+        ]
+      }
+    },
+    "legal": {
+      "tabs": {
+        "privacidad": "개인정보",
+        "terminos": "이용약관",
+        "cookies": "쿠키"
+      }
+    }
   }
 }

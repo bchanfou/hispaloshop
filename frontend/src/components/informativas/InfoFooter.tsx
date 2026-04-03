@@ -43,7 +43,7 @@ export default function InfoFooter() {
   const langRef = useRef<HTMLDivElement>(null);
 
   const COUNTRIES = useMemo(
-    () => Object.entries(countries || {}).map(([code, data]: [string, any]) => ({
+    () => Object.entries(countries || {}).map(([code, data]: [string, { flag?: string; name?: string }]) => ({
       code, flag: data.flag || '', name: data.name || code,
     })),
     [countries],
@@ -177,18 +177,18 @@ export default function InfoFooter() {
             {/* Social + copyright */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <a href="/" aria-label="Instagram" className="text-stone-500 hover:text-white transition-colors">
+                <a href="https://instagram.com/hispaloshop" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-stone-500 hover:text-white transition-colors">
                   <Instagram size={16} />
                 </a>
-                <a href="/" aria-label="TikTok" className="text-stone-500 hover:text-white transition-colors text-xs font-semibold">
+                <a href="https://tiktok.com/@hispaloshop" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-stone-500 hover:text-white transition-colors text-xs font-semibold">
                   TK
                 </a>
-                <a href="/" aria-label="LinkedIn" className="text-stone-500 hover:text-white transition-colors text-xs font-bold">
+                <a href="https://linkedin.com/company/hispaloshop" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-stone-500 hover:text-white transition-colors text-xs font-bold">
                   in
                 </a>
               </div>
               <span className="text-[11px] text-stone-600">
-                © 2026 Hispaloshop SL
+                © {new Date().getFullYear()} Hispaloshop SL
               </span>
             </div>
           </div>

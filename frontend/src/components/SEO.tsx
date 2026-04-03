@@ -54,10 +54,15 @@ export default function SEO({
 
       {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-      {/* Hreflang */}
-      <link rel="alternate" hrefLang="es" href={canonical.replace(/\/(en|ko)\//, '/es/')} />
-      <link rel="alternate" hrefLang="en" href={canonical.replace(/\/(es|ko)\//, '/en/')} />
-      <link rel="alternate" hrefLang="ko" href={canonical.replace(/\/(es|en)\//, '/ko/')} />
+      {/* Hreflang — all 8 landing languages */}
+      {['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'].map(hLang => {
+        const langPattern = /\/(es|en|fr|de|it|pt|ja|ko)(\/|$)/;
+        const hasLangPrefix = langPattern.test(canonical);
+        const hrefUrl = hasLangPrefix
+          ? canonical.replace(langPattern, `/${hLang}$2`)
+          : canonical.replace(/(https?:\/\/[^/]+)(\/.*)/, `$1/${hLang}$2`);
+        return <link key={hLang} rel="alternate" hrefLang={hLang} href={hrefUrl} />;
+      })}
       <link rel="alternate" hrefLang="x-default" href={canonical} />
 
       {/* Open Graph */}
@@ -67,7 +72,7 @@ export default function SEO({
       <meta property="og:image" content={image} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Hispaloshop" />
-      <meta property="og:locale" content={lang === 'ko' ? 'ko_KR' : lang === 'en' ? 'en_US' : 'es_ES'} />
+      <meta property="og:locale" content={{ es: 'es_ES', en: 'en_US', fr: 'fr_FR', de: 'de_DE', it: 'it_IT', pt: 'pt_PT', ja: 'ja_JP', ko: 'ko_KR' }[lang] || 'es_ES'} />
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

@@ -21,6 +21,7 @@ import {
   CTASection,
   GrowthIllustration,
 } from '../../components/informativas';
+import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [Tag, TrendingUp, BarChart3, Wallet];
 const STEP_ICONS = [Send, Share2, Banknote];
@@ -103,27 +104,32 @@ export default function LandingInfluencer() {
     ctaTo: t('landing.influencer.hero.ctaTo', '/register?role=influencer'),
   };
 
-  const featuresEyebrow = t('landing.influencer.features.eyebrow', '');
-  const featuresTitle = t('landing.influencer.features.title', '');
+  const featuresEyebrow = t('landing.influencer.features.eyebrow', 'How you earn');
+  const featuresTitle = t('landing.influencer.features.title', 'Your influence, your income');
   const featuresItems = t('landing.influencer.features.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const stepsEyebrow = t('landing.influencer.steps.eyebrow', '');
-  const stepsTitle = t('landing.influencer.steps.title', '');
+  const stepsEyebrow = t('landing.influencer.steps.eyebrow', 'How it works');
+  const stepsTitle = t('landing.influencer.steps.title', 'Three steps to start earning');
   const stepsItems = t('landing.influencer.steps.items', { returnObjects: true, defaultValue: [] }) as { title: string; description: string }[];
 
-  const faqEyebrow = t('landing.influencer.faq.eyebrow', '');
-  const faqTitle = t('landing.influencer.faq.title', '');
+  const faqEyebrow = t('landing.influencer.faq.eyebrow', 'FAQ');
+  const faqTitle = t('landing.influencer.faq.title', 'What you need to know');
   const faqItems = t('landing.influencer.faq.items', { returnObjects: true, defaultValue: [] }) as { question: string; answer: string }[];
 
   const ctaData = {
-    title: t('landing.influencer.cta.title', ''),
-    subtitle: t('landing.influencer.cta.subtitle', ''),
-    ctaText: t('landing.influencer.cta.ctaText', ''),
+    title: t('landing.influencer.cta.title', 'Your voice has value. Monetize it.'),
+    subtitle: t('landing.influencer.cta.subtitle', 'Join the ambassador program and earn by recommending real food.'),
+    ctaText: t('landing.influencer.cta.ctaText', 'Apply as ambassador'),
     ctaTo: t('landing.influencer.cta.ctaTo', '/register?role=influencer'),
   };
 
   return (
     <>
+      <SEO
+        title={t('landing.influencer.seo.title', 'Gana recomendando — HispaloShop')}
+        description={t('landing.influencer.seo.description', 'Conviértete en embajador gastronómico. Comparte tu código, gana comisiones del 3% al 7% por cada venta.')}
+      />
+
       <HeroSection
         {...heroData}
         illustration={<GrowthIllustration className="w-full h-auto" />}
