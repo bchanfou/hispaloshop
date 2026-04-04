@@ -61,6 +61,7 @@ export default function InfoNav() {
               {t('landing.nav.entrar', 'Entrar')}
             </Link>
             <button
+              type="button"
               onClick={() => setDrawerOpen(v => !v)}
               className="flex items-center justify-center w-9 h-9 border-none bg-transparent cursor-pointer text-stone-950"
               aria-label={drawerOpen ? t('landing.nav.closeMenu', 'Cerrar menú') : t('landing.nav.openMenu', 'Abrir menú')}
@@ -134,7 +135,9 @@ export default function InfoNav() {
                   {t('landing.nav.menu', 'Menú')}
                 </span>
                 <button
+                  type="button"
                   onClick={() => setDrawerOpen(false)}
+                  aria-label="Cerrar menú"
                   className="flex items-center justify-center w-8 h-8 border-none bg-stone-200 rounded-full cursor-pointer"
                 >
                   <X size={14} className="text-stone-700" />

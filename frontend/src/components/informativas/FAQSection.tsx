@@ -29,6 +29,7 @@ function FAQAccordion({ item, index }: { item: FAQItem; index: number; key?: Rea
       className="border-b border-stone-200 last:border-b-0"
     >
       <button
+        type="button"
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between py-5 text-left bg-transparent border-none cursor-pointer group"
       >

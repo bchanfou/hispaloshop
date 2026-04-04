@@ -137,6 +137,7 @@ export default function LegalPageNew() {
           >
             {TABS.map(tab => (
               <button
+                type="button"
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-200 border ${

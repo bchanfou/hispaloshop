@@ -31,6 +31,7 @@ export default function ContactoPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (sending) return;
     if (!name.trim() || !email.trim() || !message.trim()) {
       toast.error(t('landing.contacto.form.errorCampos', 'Completa todos los campos'));
       return;
@@ -40,8 +41,8 @@ export default function ContactoPage() {
       await apiClient.post('/contact', { name, email, role, message });
       toast.success(t('landing.contacto.form.exito', 'Mensaje enviado. Te responderemos pronto.'));
       setName(''); setEmail(''); setMessage('');
-    } catch {
-      toast.error(t('landing.contacto.form.error', 'Error al enviar. Inténtalo de nuevo.'));
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || t('landing.contacto.form.error', 'Error al enviar. Inténtalo de nuevo.'));
     } finally {
       setSending(false);
     }
@@ -207,6 +208,7 @@ export default function ContactoPage() {
                     {t('landing.contacto.ctaCard', '¿Eres productor y quieres unirte?')}
                   </p>
                   <button
+                    type="button"
                     onClick={() => navigate('/register')}
                     className="w-full h-10 bg-stone-950 text-white rounded-full text-[13px] font-semibold cursor-pointer hover:bg-stone-800 transition-colors flex items-center justify-center gap-2 border-none"
                   >

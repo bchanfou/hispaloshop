@@ -122,6 +122,7 @@ export default function InfoFooter() {
               {/* Country selector */}
               <div ref={countryRef} className="relative">
                 <button
+                  type="button"
                   onClick={() => { setCountryOpen(v => !v); setLangOpen(false); }}
                   className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-400 text-xs cursor-pointer flex items-center gap-1.5 transition-colors hover:bg-white/10"
                 >
@@ -132,6 +133,7 @@ export default function InfoFooter() {
                     <div className="max-h-48 overflow-y-auto">
                       {COUNTRIES.map(c => (
                         <button
+                          type="button"
                           key={c.code}
                           onClick={() => { updateCountry(c.code); setCountryOpen(false); }}
                           className={`flex items-center gap-2 w-full px-3 py-2 border-none text-left text-xs cursor-pointer ${
@@ -150,6 +152,7 @@ export default function InfoFooter() {
               {/* Language selector */}
               <div ref={langRef} className="relative">
                 <button
+                  type="button"
                   onClick={() => { setLangOpen(v => !v); setCountryOpen(false); }}
                   className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-400 text-xs cursor-pointer flex items-center gap-1.5 transition-colors hover:bg-white/10"
                 >
@@ -160,6 +163,7 @@ export default function InfoFooter() {
                   <div className="absolute bottom-[calc(100%+6px)] left-0 w-[160px] bg-stone-900 border border-white/10 rounded-xl overflow-hidden z-50">
                     {LANGUAGES.map(l => (
                       <button
+                        type="button"
                         key={l.code}
                         onClick={() => { i18n.changeLanguage(l.code); setLangOpen(false); }}
                         className={`flex items-center w-full px-3 py-2 border-none text-left text-xs cursor-pointer ${
