@@ -141,7 +141,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       const data = await authApi.getGoogleAuthUrl();
-      if (data.auth_url) {
+      if (data.auth_url && (data.auth_url.startsWith('https://') || data.auth_url.startsWith('http://'))) {
         window.location.href = data.auth_url;
       } else {
         toast.error(t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.'));
@@ -266,7 +266,7 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
               tabIndex={-1}
-              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : t('login.mostrarContrasena', 'Mostrar contraseña')}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>

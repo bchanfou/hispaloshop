@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { AlertCircle, Eye, EyeOff, Loader2, Lock, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -15,6 +15,8 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const redirectTimerRef = useRef(null);
+  useEffect(() => () => clearTimeout(redirectTimerRef.current), []);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -49,7 +51,7 @@ export default function ResetPasswordPage() {
       setSuccess(true);
       toast.success(t('resetPassword.success', 'Contraseña restablecida correctamente'));
 
-      setTimeout(() => {
+      redirectTimerRef.current = setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (error) {
@@ -144,7 +146,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
-              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : t('login.mostrarContrasena', 'Mostrar contraseña')}
               data-testid="toggle-password-btn"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

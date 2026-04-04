@@ -340,7 +340,7 @@ export default function RegisterPage() {
   const handleGoogleRegister = async () => {
     try {
       const data = await authApi.getGoogleAuthUrl();
-      if (data.auth_url) window.location.href = data.auth_url;
+      if (data.auth_url && (data.auth_url.startsWith('https://') || data.auth_url.startsWith('http://'))) window.location.href = data.auth_url;
       else toast.error(t('register.errorAlConectarConGoogle', 'Error al conectar con Google.'));
     } catch (error) {
       toast.error(getAuthErrorMessage(error, t('register.errorAlConectarConGoogle', 'Error al conectar con Google.')));
