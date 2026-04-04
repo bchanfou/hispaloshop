@@ -218,6 +218,17 @@ async def get_unread_counts(request: Request):
     return {"counts": counts}
 
 
+REPORT_REASONS = {"spam", "offensive", "irrelevant", "harassment", "misinformation", "other"}
+REPORT_TYPES = {"post", "comment", "member", "community"}
+
+
+class CreateReportBody(BaseModel):
+    content_type: str  # post | comment | member | community
+    content_id: str
+    reason: str
+    details: str = ""
+
+
 @router.post("/communities/reports")
 async def create_report(body: CreateReportBody, request: Request):
     user = await get_current_user(request)
@@ -1051,17 +1062,9 @@ async def create_comment(post_id: str, body: CreateCommentBody, request: Request
     return {"id": str(result.inserted_id), "ok": True}
 
 
-# ── REPORTS (models — endpoints moved to static routes section above) ──
-
-REPORT_REASONS = {"spam", "offensive", "irrelevant", "harassment", "misinformation", "other"}
-REPORT_TYPES = {"post", "comment", "member", "community"}
 
 
-class CreateReportBody(BaseModel):
-    content_type: str  # post | comment | member | community
-    content_id: str
-    reason: str
-    details: str = ""
+# REPORT_REASONS, REPORT_TYPES, CreateReportBody — moved above create_report endpoint
 
 
 # ── MODERATION QUEUE (admin/moderator) ───────────────
