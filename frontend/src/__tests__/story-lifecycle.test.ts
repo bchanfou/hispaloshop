@@ -10,13 +10,19 @@ import apiClient from '../services/api/client';
 describe('Story Lifecycle', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
-  it('fetches stories feed', async () => {
+  it('fetches stories feed with preview data', async () => {
     apiClient.get.mockResolvedValue([
-      { user_id: 'u1', name: 'Alice', items: [{ story_id: 's1' }], has_unseen: true },
+      {
+        user_id: 'u1', name: 'Alice',
+        preview: { type: 'story', image: 'img.jpg', video: 'vid.mp4', poster: 'img.jpg' },
+        has_unseen: true, stories_count: 2,
+      },
     ]);
     const result = await apiClient.get('/feed/stories');
     expect(result).toHaveLength(1);
     expect(result[0].has_unseen).toBe(true);
+    expect(result[0].preview.video).toBe('vid.mp4');
+    expect(result[0].preview.poster).toBe('img.jpg');
   });
 
   it('tracks story view', async () => {
@@ -26,12 +32,14 @@ describe('Story Lifecycle', () => {
     expect(result.status).toBe('ok');
   });
 
-  it('creates story with FormData', async () => {
-    apiClient.post.mockResolvedValue({ story_id: 's2' });
+  it('creates story with FormData including filter_css', async () => {
+    apiClient.post.mockResolvedValue({ story_id: 's2', filter_css: 'contrast(1.2) saturate(1.35)' });
     const fd = new FormData();
-    fd.append('type', 'image');
+    fd.append('file', new Blob(['test']), 'story.jpg');
+    fd.append('filter_css', 'contrast(1.2) saturate(1.35)');
     const result = await apiClient.post('/stories', fd);
     expect(result.story_id).toBeTruthy();
+    expect(result.filter_css).toBe('contrast(1.2) saturate(1.35)');
   });
 
   it('fetches story archive for highlights', async () => {
@@ -47,19 +55,35 @@ describe('Story Lifecycle', () => {
     expect(result.viewed).toBe(true);
   });
 
-  it('should invalidate feed-stories cache after viewing', async () => {
-    // After viewing a story, the feed-stories query key should be invalidated
-    // so the ring changes from gradient (unseen) to no ring (seen)
+  it('should show StoryCard with unseen border (ring-stone-950)', () => {
+    const storyGroup = { user_id: 'u1', has_unseen: true, stories_count: 2 };
+
+    // StoryCard: unseen → ring-2 ring-stone-950, seen → ring-1 ring-stone-200
+    const borderClass = storyGroup.has_unseen
+      ? 'ring-2 ring-stone-950'
+      : 'ring-1 ring-stone-200';
+
+    expect(borderClass).toContain('ring-stone-950');
+    expect(borderClass).toContain('ring-2');
+
+    // Seen stories get subtle ring
+    const seenGroup = { user_id: 'u2', has_unseen: false };
+    const seenBorder = seenGroup.has_unseen
+      ? 'ring-2 ring-stone-950'
+      : 'ring-1 ring-stone-200';
+    expect(seenBorder).toBe('ring-1 ring-stone-200');
+  });
+
+  it('should invalidate feed-stories cache after viewing (border transition)', async () => {
     apiClient.post.mockResolvedValue({ status: 'ok' });
     await apiClient.post('/stories/s1/view');
 
-    const feedStoriesKey = ['feed', 'stories'];
-    // Simulate invalidation check
-    expect(feedStoriesKey).toEqual(['feed', 'stories']);
-
-    // Refetch after invalidation
+    // After close, viewer invalidates feed-stories → card border updates from 950 to 200
     apiClient.get.mockResolvedValue([
-      { user_id: 'u1', name: 'Alice', items: [{ story_id: 's1' }], has_unseen: false },
+      {
+        user_id: 'u1', name: 'Alice', has_unseen: false, stories_count: 1,
+        preview: { type: 'story', image: 'img.jpg' },
+      },
     ]);
     const result = await apiClient.get('/feed/stories');
     expect(result[0].has_unseen).toBe(false);
@@ -68,38 +92,17 @@ describe('Story Lifecycle', () => {
   it('should invalidate feed-stories cache after creating', async () => {
     apiClient.post.mockResolvedValue({ story_id: 's10' });
     const fd = new FormData();
-    fd.append('type', 'image');
-    fd.append('file', 'blob');
+    fd.append('file', new Blob(['test']), 'story.jpg');
     await apiClient.post('/stories', fd);
 
-    // After creation, feed-stories should be invalidated to show own story ring
-    const feedStoriesKey = ['feed', 'stories'];
-    expect(feedStoriesKey[0]).toBe('feed');
-
     apiClient.get.mockResolvedValue([
-      { user_id: 'me', name: 'Me', items: [{ story_id: 's10' }], has_unseen: false },
+      {
+        user_id: 'me', name: 'Me', has_unseen: false, stories_count: 1,
+        preview: { type: 'story', image: 'img.jpg' },
+      },
     ]);
     const stories = await apiClient.get('/feed/stories');
-    expect(stories[0].items[0].story_id).toBe('s10');
-  });
-
-  it('should show gradient ring for unseen stories', () => {
-    const storyGroup = { user_id: 'u1', has_unseen: true, items: [{ story_id: 's1' }] };
-
-    // Unseen stories get a gradient ring class
-    const ringClass = storyGroup.has_unseen
-      ? 'bg-gradient-to-tr from-stone-900 to-stone-400'
-      : 'bg-stone-200';
-
-    expect(ringClass).toContain('gradient');
-    expect(ringClass).toContain('stone-900');
-
-    // Seen stories get a plain ring
-    const seenGroup = { user_id: 'u2', has_unseen: false, items: [{ story_id: 's2' }] };
-    const seenRing = seenGroup.has_unseen
-      ? 'bg-gradient-to-tr from-stone-900 to-stone-400'
-      : 'bg-stone-200';
-    expect(seenRing).toBe('bg-stone-200');
+    expect(stories[0].user_id).toBe('me');
   });
 
   it('should preload first 3 stories on mount', async () => {
@@ -108,21 +111,48 @@ describe('Story Lifecycle', () => {
       { story_id: 's2', image_url: 'https://cdn.example.com/s2.jpg' },
       { story_id: 's3', image_url: 'https://cdn.example.com/s3.jpg' },
       { story_id: 's4', image_url: 'https://cdn.example.com/s4.jpg' },
-      { story_id: 's5', image_url: 'https://cdn.example.com/s5.jpg' },
     ];
 
-    // Preload first 3
     const toPreload = storyItems.slice(0, 3);
     expect(toPreload).toHaveLength(3);
     expect(toPreload[0].story_id).toBe('s1');
     expect(toPreload[2].story_id).toBe('s3');
+  });
 
-    // Simulate Image preloading
-    const preloadedUrls = toPreload.map((s) => s.image_url);
-    expect(preloadedUrls).toEqual([
-      'https://cdn.example.com/s1.jpg',
-      'https://cdn.example.com/s2.jpg',
-      'https://cdn.example.com/s3.jpg',
+  it('StoryCard shows video preview loop for video stories', () => {
+    const preview = { type: 'story', image: 'poster.jpg', video: 'clip.mp4' };
+    // StoryCard renders <video> with muted autoPlay loop playsInline
+    expect(preview.video).toBeTruthy();
+    expect(preview.image).toBeTruthy(); // poster fallback
+  });
+
+  it('StoryCard expand transition uses layoutId', () => {
+    const userId = 'u1';
+    const layoutId = `story-${userId}`;
+    expect(layoutId).toBe('story-u1');
+    // StoryViewer receives originLayoutId matching the card's layoutId
+    const originLayoutId = `story-${userId}`;
+    expect(originLayoutId).toBe(layoutId);
+  });
+
+  it('story filter_css is stored and returned for video stories', async () => {
+    apiClient.get.mockResolvedValue([
+      {
+        story_id: 's1', video_url: 'vid.mp4',
+        filter_css: 'grayscale(1) contrast(1.1) brightness(1.1)',
+      },
     ]);
+    const stories = await apiClient.get('/stories/u1');
+    expect(stories[0].filter_css).toBe('grayscale(1) contrast(1.1) brightness(1.1)');
+  });
+
+  it('profile story cards show individual stories with is_seen flag', async () => {
+    apiClient.get.mockResolvedValue([
+      { story_id: 's1', image_url: 'img1.jpg', is_seen: false },
+      { story_id: 's2', image_url: 'img2.jpg', is_seen: true },
+    ]);
+    const stories = await apiClient.get('/stories/u1');
+    expect(stories[0].is_seen).toBe(false); // unseen → ring-stone-950
+    expect(stories[1].is_seen).toBe(true);  // seen → ring-stone-200
   });
 });

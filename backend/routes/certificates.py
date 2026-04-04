@@ -26,9 +26,33 @@ router = APIRouter()
 
 
 def _cert_url(product_id: str) -> str:
-    """Build public certificate verification URL for QR codes (configurable via FRONTEND_URL env)."""
+    """Build smart certificate verification URL that auto-detects viewer's language via Accept-Language."""
     base = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
-    return f"{base}/certificate/{product_id}?scan=1"
+    return f"{base}/certificate/{product_id}?scan=1&auto_lang=1"
+
+
+def _generate_qr_png(data_url: str, box_size: int = 10, border: int = 4) -> bytes:
+    """Generate QR code as PNG bytes with configurable resolution."""
+    qr = qrcode.QRCode(version=1, box_size=box_size, border=border)
+    qr.add_data(data_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def _generate_qr_svg(data_url: str, box_size: int = 10, border: int = 4) -> str:
+    """Generate QR code as SVG string for vector/print use."""
+    import qrcode.image.svg
+    qr = qrcode.QRCode(version=1, box_size=box_size, border=border)
+    qr.add_data(data_url)
+    qr.make(fit=True)
+    factory = qrcode.image.svg.SvgPathImage
+    img = qr.make_image(image_factory=factory)
+    buffer = io.BytesIO()
+    img.save(buffer)
+    return buffer.getvalue().decode("utf-8")
 
 
 def _public_product_filter() -> dict:
@@ -186,14 +210,8 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     certificate_id = f"cert_{uuid.uuid4().hex[:12]}"
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr_url = _cert_url(input.product_id)
-    qr.add_data(qr_url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    buffer = io.BytesIO()
-    img.save(buffer, format='PNG')
-    qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+    qr_base64 = base64.b64encode(_generate_qr_png(qr_url)).decode()
     certificate = {
         "certificate_id": certificate_id,
         "product_id": input.product_id,
@@ -245,13 +263,7 @@ async def auto_generate_certificate(request: Request, user: User = Depends(get_c
         if "KR" in markets: requirements.append("mfds_registration")
     certificate_id = f"cert_{uuid.uuid4().hex[:12]}"
     cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(_cert_url(product_id))
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    buffer = io.BytesIO()
-    img.save(buffer, format='PNG')
-    qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+    qr_base64 = base64.b64encode(_generate_qr_png(_cert_url(product_id))).decode()
     certificate = {
         "certificate_id": certificate_id, "certificate_number": cert_number,
         "product_id": product_id, "product_name": product["name"], "seller_id": product.get("producer_id"),
@@ -268,30 +280,64 @@ async def auto_generate_certificate(request: Request, user: User = Depends(get_c
 
 
 @router.get("/certificates/{certificate_id}/qr")
-async def download_certificate_qr(certificate_id: str):
-    """Download certificate QR as PNG for printing on physical products."""
-    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "qr_code": 1, "product_id": 1})
+async def download_certificate_qr(
+    certificate_id: str,
+    format: str = "png",
+    resolution: str = "standard",
+    user: User = Depends(get_current_user),
+):
+    """
+    Download certificate QR code. Restricted to certificate owner (producer) and admins.
+
+    Query params:
+      - format: "png" (default) or "svg"
+      - resolution: "standard" (~330px) or "hires" (1200px+ for print)
+    """
+    cert = await db.certificates.find_one(
+        {"certificate_id": certificate_id},
+        {"_id": 0, "qr_code": 1, "product_id": 1, "seller_id": 1, "producer_id": 1},
+    )
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
 
-    qr_base64 = cert.get("qr_code")
-    if not qr_base64:
-        # Backfill QR when old certificates don't have it yet
-        product_id = cert.get("product_id")
-        qr_url = _cert_url(product_id)
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(qr_url)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
-        png_bytes = buffer.getvalue()
-        await db.certificates.update_one(
-            {"certificate_id": certificate_id},
-            {"$set": {"qr_code": base64.b64encode(png_bytes).decode(), "qr_url": qr_url}},
+    # --- Access control: only owner or admin ---
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required to download QR")
+    cert_owner_id = cert.get("seller_id") or cert.get("producer_id")
+    is_owner = cert_owner_id and cert_owner_id == user.user_id
+    is_admin = user.role in ("admin", "superadmin")
+    if not is_owner and not is_admin:
+        raise HTTPException(status_code=403, detail="Only the product owner or admin can download the QR")
+
+    product_id = cert.get("product_id", "")
+    if not product_id:
+        raise HTTPException(status_code=404, detail="Certificate has no linked product")
+    qr_url = _cert_url(product_id)
+
+    # --- SVG format ---
+    if format == "svg":
+        svg_content = _generate_qr_svg(qr_url, box_size=10, border=4)
+        return Response(
+            content=svg_content,
+            media_type="image/svg+xml",
+            headers={"Content-Disposition": f'attachment; filename="certificate-{certificate_id}-qr.svg"'},
         )
+
+    # --- PNG format ---
+    if resolution == "hires":
+        # High resolution for print: box_size=40 → ~1200px+
+        png_bytes = _generate_qr_png(qr_url, box_size=40, border=4)
     else:
-        png_bytes = base64.b64decode(qr_base64)
+        # Standard resolution: use cached base64 or generate fresh
+        qr_base64 = cert.get("qr_code")
+        if qr_base64:
+            png_bytes = base64.b64decode(qr_base64)
+        else:
+            png_bytes = _generate_qr_png(qr_url)
+            await db.certificates.update_one(
+                {"certificate_id": certificate_id},
+                {"$set": {"qr_code": base64.b64encode(png_bytes).decode(), "qr_url": qr_url}},
+            )
 
     return Response(
         content=png_bytes,
@@ -301,122 +347,302 @@ async def download_certificate_qr(certificate_id: str):
 
 
 @router.get("/certificates/{certificate_id}/pdf")
-async def download_certificate_pdf(certificate_id: str):
-    """Generate and download a PDF certificate with QR code."""
+async def download_certificate_pdf(
+    certificate_id: str,
+    user: User = Depends(get_current_user),
+):
+    """Generate and download a PDF certificate. Restricted to certificate owner and admins."""
     cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0})
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
 
+    # --- Access control: only owner or admin ---
+    cert_owner_id = cert.get("seller_id") or cert.get("producer_id")
+    is_owner = cert_owner_id and cert_owner_id == user.user_id
+    is_admin = user.role in ("admin", "superadmin")
+    if not is_owner and not is_admin:
+        raise HTTPException(status_code=403, detail="Only the product owner or admin can download the PDF")
+
     product_id = cert.get("product_id", "")
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
 
+    # Fetch producer + store info
+    producer_id = cert.get("seller_id") or cert.get("producer_id")
+    producer = await db.users.find_one(
+        {"user_id": producer_id},
+        {"_id": 0, "company_name": 1, "name": 1, "full_name": 1, "profile_image": 1},
+    ) if producer_id else None
+    store = await db.store_profiles.find_one(
+        {"producer_id": producer_id},
+        {"_id": 0, "name": 1, "story": 1, "tagline": 1, "logo": 1},
+    ) if producer_id else None
+
     try:
         from reportlab.lib.pagesizes import A4
-        from reportlab.lib.units import cm
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
+        from reportlab.lib.units import cm, mm
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+            Image as RLImage, HRFlowable, KeepTogether,
+        )
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib import colors
-        from reportlab.lib.enums import TA_CENTER
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     except ImportError:
         raise HTTPException(status_code=500, detail="reportlab not installed")
 
+    # --- Color palette (stone) ---
+    STONE_950 = colors.HexColor("#0c0a09")
+    STONE_700 = colors.HexColor("#44403c")
+    STONE_500 = colors.HexColor("#78716c")
+    STONE_300 = colors.HexColor("#d6d3d1")
+    STONE_200 = colors.HexColor("#e7e5e4")
+    STONE_100 = colors.HexColor("#f5f5f4")
+    STONE_50 = colors.HexColor("#fafaf9")
+
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        topMargin=1.5 * cm, bottomMargin=1.5 * cm,
+        leftMargin=2 * cm, rightMargin=2 * cm,
+    )
+    page_w = A4[0] - 4 * cm  # usable width
     styles = getSampleStyleSheet()
 
-    title_style = ParagraphStyle("CertTitle", parent=styles["Title"], fontSize=22, textColor=colors.HexColor("#0c0a09"), spaceAfter=6)
-    subtitle_style = ParagraphStyle("CertSub", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#78716c"), alignment=TA_CENTER, spaceAfter=20)
-    heading_style = ParagraphStyle("CertH2", parent=styles["Heading2"], fontSize=13, textColor=colors.HexColor("#0c0a09"), spaceBefore=16, spaceAfter=6)
-    body_style = ParagraphStyle("CertBody", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#44403c"), leading=14)
+    # --- Styles ---
+    s_eyebrow = ParagraphStyle("Eyebrow", parent=styles["Normal"], fontSize=7, textColor=STONE_500,
+                               spaceAfter=2, tracking=1.2, leading=10)
+    s_title = ParagraphStyle("PdfTitle", parent=styles["Title"], fontSize=24, textColor=STONE_950,
+                             spaceAfter=4, leading=28)
+    s_subtitle = ParagraphStyle("PdfSub", parent=styles["Normal"], fontSize=10, textColor=STONE_500,
+                                alignment=TA_CENTER, spaceAfter=14)
+    s_h2 = ParagraphStyle("PdfH2", parent=styles["Heading2"], fontSize=12, textColor=STONE_950,
+                          spaceBefore=18, spaceAfter=6, leading=16)
+    s_body = ParagraphStyle("PdfBody", parent=styles["Normal"], fontSize=9.5, textColor=STONE_700, leading=14)
+    s_small = ParagraphStyle("PdfSmall", parent=styles["Normal"], fontSize=8, textColor=STONE_500, leading=11)
+    s_badge = ParagraphStyle("PdfBadge", parent=styles["Normal"], fontSize=9, textColor=STONE_950, leading=12)
+    s_center = ParagraphStyle("PdfCenter", parent=s_body, alignment=TA_CENTER)
 
     elements = []
 
-    # Title
-    elements.append(Paragraph("CERTIFICADO DIGITAL", title_style))
-    elements.append(Paragraph("HispaloShop — Ficha de confianza y trazabilidad", subtitle_style))
+    def _hr():
+        elements.append(Spacer(1, 6))
+        elements.append(HRFlowable(width="100%", thickness=0.5, color=STONE_200, spaceAfter=6))
 
+    # ═══════════════════════════════════════════
+    # HEADER — Premium band
+    # ═══════════════════════════════════════════
+    header_data = [[
+        Paragraph("<b>HISPALOSHOP</b>", ParagraphStyle("HdrL", parent=s_body, fontSize=8, textColor=colors.white)),
+        Paragraph("CERTIFICADO DIGITAL DE PRODUCTO", ParagraphStyle("HdrR", parent=s_body, fontSize=8, textColor=colors.white, alignment=TA_RIGHT)),
+    ]]
+    header_table = Table(header_data, colWidths=[page_w * 0.5, page_w * 0.5])
+    header_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), STONE_950),
+        ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+        ("TOPPADDING", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+        ("LEFTPADDING", (0, 0), (-1, -1), 14),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+        ("ROUNDEDCORNERS", [6, 6, 0, 0]),
+    ]))
+    elements.append(header_table)
+    elements.append(Spacer(1, 16))
+
+    # ═══════════════════════════════════════════
+    # CERTIFICATE META
+    # ═══════════════════════════════════════════
     cert_number = cert.get("certificate_number", cert.get("certificate_id", ""))
     issued = cert.get("issue_date") or cert.get("created_at") or ""
-    elements.append(Paragraph(f"<b>N.º certificado:</b> {cert_number}", body_style))
-    elements.append(Paragraph(f"<b>Fecha emisión:</b> {issued[:10] if issued else '—'}", body_style))
-    elements.append(Spacer(1, 10))
-
-    # Product info
-    product_name = cert.get("product_name") or (product.get("name") if product else "—")
-    elements.append(Paragraph("Producto", heading_style))
-    elements.append(Paragraph(f"<b>{product_name}</b>", body_style))
-    origin = (product or {}).get("country_origin") or cert.get("data", {}).get("origin_country", "")
-    if origin:
-        elements.append(Paragraph(f"Origen: {origin}", body_style))
-
-    # Producer info
-    producer = await db.users.find_one(
-        {"user_id": cert.get("seller_id") or cert.get("producer_id")},
-        {"_id": 0, "company_name": 1, "name": 1},
-    )
-    if producer:
-        producer_name = producer.get("company_name") or producer.get("name", "")
-        if producer_name:
-            elements.append(Paragraph(f"Productor: {producer_name}", body_style))
-
-    # Scan count
+    issued_fmt = issued[:10] if issued else "—"
     scan_count = cert.get("scan_count", 0)
-    if scan_count > 0:
-        elements.append(Paragraph(f"Verificado {scan_count} veces", body_style))
 
-    elements.append(Spacer(1, 6))
+    meta_left = f"<b>N.º</b> {cert_number}<br/><b>Emisión</b> {issued_fmt}"
+    meta_right = f"<b>Verificaciones</b> {scan_count}"
+    meta_data = [[Paragraph(meta_left, s_small), Paragraph(meta_right, ParagraphStyle("MetaR", parent=s_small, alignment=TA_RIGHT))]]
+    meta_table = Table(meta_data, colWidths=[page_w * 0.65, page_w * 0.35])
+    meta_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), STONE_50),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("ROUNDEDCORNERS", [4, 4, 4, 4]),
+    ]))
+    elements.append(meta_table)
+    elements.append(Spacer(1, 14))
 
-    # Certifications
+    # ═══════════════════════════════════════════
+    # PRODUCT SECTION — photo + name + origin
+    # ═══════════════════════════════════════════
+    product_name = cert.get("product_name") or (product.get("name") if product else "—")
+    origin = (product or {}).get("country_origin") or cert.get("data", {}).get("origin_country", "")
+
+    # Try to fetch product image
+    product_image_url = extract_product_image(product) if product else None
+    product_img_cell = ""
+    if product_image_url:
+        try:
+            import urllib.request
+            img_data = urllib.request.urlopen(product_image_url, timeout=5).read()
+            img_buf = io.BytesIO(img_data)
+            product_img_cell = RLImage(img_buf, width=3.5 * cm, height=3.5 * cm, kind="proportional")
+        except Exception:
+            product_img_cell = ""
+
+    product_text = f"<b>{product_name}</b>"
+    if origin:
+        product_text += f"<br/><font color='#78716c'>Origen: {origin}</font>"
+
+    if product_img_cell:
+        prod_data = [[product_img_cell, Paragraph(product_text, ParagraphStyle("ProdName", parent=s_body, fontSize=14, leading=20))]]
+        prod_table = Table(prod_data, colWidths=[4 * cm, page_w - 4 * cm])
+        prod_table.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ]))
+        elements.append(prod_table)
+    else:
+        elements.append(Paragraph(product_text, ParagraphStyle("ProdNameOnly", parent=s_body, fontSize=16, leading=22)))
+
+    _hr()
+
+    # ═══════════════════════════════════════════
+    # CERTIFICATIONS — badge pills
+    # ═══════════════════════════════════════════
     certs_list = (product or {}).get("certifications") or cert.get("data", {}).get("certifications") or []
     if certs_list:
-        elements.append(Paragraph("Certificaciones", heading_style))
-        elements.append(Paragraph(", ".join(certs_list), body_style))
+        elements.append(Paragraph("CERTIFICACIONES", s_eyebrow))
+        badge_text = " &nbsp;·&nbsp; ".join(f"<b>{c}</b>" for c in certs_list)
+        elements.append(Paragraph(badge_text, s_badge))
+        _hr()
 
-    # Ingredients
-    ingredients = (product or {}).get("ingredients") or cert.get("data", {}).get("ingredients") or []
-    if ingredients:
-        elements.append(Paragraph("Ingredientes", heading_style))
-        ing_text = ", ".join(i if isinstance(i, str) else i.get("name", "") for i in ingredients)
-        elements.append(Paragraph(ing_text, body_style))
-
-    # Allergens
+    # ═══════════════════════════════════════════
+    # ALLERGENS
+    # ═══════════════════════════════════════════
     allergens = (product or {}).get("allergens") or cert.get("data", {}).get("allergens") or []
     if allergens:
-        elements.append(Paragraph("Alérgenos", heading_style))
-        elements.append(Paragraph(", ".join(allergens), body_style))
+        elements.append(Paragraph("ALÉRGENOS", s_eyebrow))
+        allergen_text = ", ".join(f"<b>{a}</b>" for a in allergens)
+        elements.append(Paragraph(allergen_text, ParagraphStyle("Allergen", parent=s_body, textColor=colors.HexColor("#991b1b"))))
+        _hr()
 
-    # Nutritional info
+    # ═══════════════════════════════════════════
+    # INGREDIENTS
+    # ═══════════════════════════════════════════
+    ingredients = (product or {}).get("ingredients") or cert.get("data", {}).get("ingredients") or []
+    if ingredients:
+        elements.append(Paragraph("INGREDIENTES", s_eyebrow))
+        ing_text = ", ".join(i if isinstance(i, str) else i.get("name", "") for i in ingredients)
+        elements.append(Paragraph(ing_text, s_body))
+
+        # Ingredient origins (traceability)
+        origins = cert.get("data", {}).get("ingredient_origins", "")
+        if origins:
+            elements.append(Spacer(1, 4))
+            elements.append(Paragraph(f"<i>Trazabilidad: {origins}</i>", s_small))
+        _hr()
+
+    # ═══════════════════════════════════════════
+    # NUTRITIONAL INFO — premium table
+    # ═══════════════════════════════════════════
     nutrition = (product or {}).get("nutritional_info") or cert.get("data", {}).get("nutritional_info") or {}
-    _PDF_UNITS = {"calories": "kcal", "energy": "kcal", "protein": "g", "carbs": "g", "carbohydrates": "g", "sugars": "g", "fat": "g", "saturated_fat": "g", "fiber": "g", "sodium": "mg", "salt": "g"}
+    _PDF_UNITS = {
+        "calories": "kcal", "energy": "kcal", "protein": "g", "carbs": "g",
+        "carbohydrates": "g", "sugars": "g", "fat": "g", "saturated_fat": "g",
+        "fiber": "g", "sodium": "mg", "salt": "g",
+    }
     if nutrition and isinstance(nutrition, dict):
-        elements.append(Paragraph("Información nutricional (por 100 g)", heading_style))
+        elements.append(Paragraph("INFORMACIÓN NUTRICIONAL (por 100 g)", s_eyebrow))
+        elements.append(Spacer(1, 4))
         table_data = [["Nutriente", "Valor"]]
         for k, v in nutrition.items():
             unit = _PDF_UNITS.get(k.lower().replace(" ", "_"), "")
-            table_data.append([k.replace("_", " ").capitalize(), f"{v} {unit}".strip()])
-        t = Table(table_data, colWidths=[8 * cm, 5 * cm])
+            label = k.replace("_", " ").capitalize()
+            # Indent sub-nutrients
+            if k.lower() in ("sugars", "saturated_fat"):
+                label = f"  — {label}"
+            table_data.append([label, f"{v} {unit}".strip()])
+        t = Table(table_data, colWidths=[page_w * 0.6, page_w * 0.4])
         t.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0c0a09")),
+            ("BACKGROUND", (0, 0), (-1, 0), STONE_950),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTSIZE", (0, 0), (-1, -1), 9),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#d6d3d1")),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#fafaf9")]),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("FONTSIZE", (0, 0), (-1, 0), 8),
+            ("FONTSIZE", (0, 1), (-1, -1), 9),
+            ("TEXTCOLOR", (0, 1), (-1, -1), STONE_700),
+            ("GRID", (0, 0), (-1, -1), 0.4, STONE_200),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, STONE_50]),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("ROUNDEDCORNERS", [4, 4, 4, 4]),
         ]))
         elements.append(t)
+        _hr()
 
-    # QR code
-    qr_b64 = cert.get("qr_code")
-    if qr_b64:
-        elements.append(Spacer(1, 20))
-        elements.append(Paragraph("Verificación", heading_style))
-        qr_bytes = base64.b64decode(qr_b64)
-        qr_buf = io.BytesIO(qr_bytes)
-        qr_image = RLImage(qr_buf, width=3 * cm, height=3 * cm)
-        elements.append(qr_image)
-        verify_url = cert.get("qr_url") or _cert_url(product_id)
-        elements.append(Paragraph(f"<font size=8 color='#78716c'>{verify_url}</font>", body_style))
+    # ═══════════════════════════════════════════
+    # PRODUCER STORY — name, tagline, story excerpt
+    # ═══════════════════════════════════════════
+    producer_name = ""
+    if producer:
+        producer_name = producer.get("company_name") or producer.get("full_name") or producer.get("name", "")
+    store_name = (store or {}).get("name", "")
+    store_tagline = (store or {}).get("tagline", "")
+    store_story = (store or {}).get("story", "")
+
+    if producer_name or store_name:
+        elements.append(Paragraph("PRODUCTOR", s_eyebrow))
+        elements.append(Paragraph(f"<b>{store_name or producer_name}</b>", ParagraphStyle("ProdName2", parent=s_body, fontSize=11, leading=15)))
+        if store_tagline:
+            elements.append(Paragraph(f"<i>{store_tagline}</i>", s_small))
+        if store_story:
+            # Show first 300 chars of story
+            story_excerpt = store_story[:300].rsplit(" ", 1)[0] + ("..." if len(store_story) > 300 else "")
+            elements.append(Spacer(1, 4))
+            elements.append(Paragraph(story_excerpt, s_body))
+        _hr()
+
+    # ═══════════════════════════════════════════
+    # QR CODE + VERIFICATION — centered block
+    # ═══════════════════════════════════════════
+    qr_url = cert.get("qr_url") or _cert_url(product_id)
+    # Generate high-quality QR for PDF (box_size=20 → ~600px, crisp in print)
+    qr_png_bytes = _generate_qr_png(qr_url, box_size=20, border=3)
+    qr_buf = io.BytesIO(qr_png_bytes)
+    qr_image = RLImage(qr_buf, width=3.5 * cm, height=3.5 * cm)
+
+    qr_block = [
+        [qr_image],
+        [Paragraph(f"<font size=7 color='#78716c'>Escanea para verificar este certificado</font>", s_center)],
+        [Paragraph(f"<font size=6 color='#a8a29e'>{qr_url}</font>", s_center)],
+    ]
+    qr_table = Table(qr_block, colWidths=[page_w])
+    qr_table.setStyle(TableStyle([
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+    ]))
+    elements.append(qr_table)
+
+    # ═══════════════════════════════════════════
+    # FOOTER — legal note
+    # ═══════════════════════════════════════════
+    elements.append(Spacer(1, 14))
+    footer_data = [[Paragraph(
+        "Este certificado ha sido generado por HispaloShop y valida la información declarada por el productor. "
+        "Los datos nutricionales y de alérgenos son responsabilidad del productor.",
+        ParagraphStyle("Footer", parent=s_small, fontSize=7, textColor=STONE_500),
+    )]]
+    footer_table = Table(footer_data, colWidths=[page_w])
+    footer_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), STONE_50),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("ROUNDEDCORNERS", [4, 4, 4, 4]),
+    ]))
+    elements.append(footer_table)
 
     doc.build(elements)
     pdf_bytes = buffer.getvalue()

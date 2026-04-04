@@ -20,7 +20,7 @@ const FILTERS = [{
   label: 'Populares'
 }, {
   id: 'food',
-  label: "Alimentación"
+  label: 'Alimentación'
 }, {
   id: 'recipes',
   label: 'Recetas'
@@ -31,8 +31,20 @@ const FILTERS = [{
   id: 'diet',
   label: 'Dieta'
 }, {
+  id: 'eco',
+  label: 'Ecológico'
+}, {
+  id: 'vegan',
+  label: 'Vegano'
+}, {
+  id: 'gluten_free',
+  label: 'Sin gluten'
+}, {
   id: 'local',
   label: 'Local'
+}, {
+  id: 'international',
+  label: 'Internacional'
 }];
 const STONE_BG = ['bg-stone-300', 'bg-stone-400', 'bg-stone-500', 'bg-stone-600', 'bg-stone-700'];
 function stoneBg(name) {
@@ -85,6 +97,15 @@ export default function CommunitiesExplorePage() {
     queryKey: ['communities-featured'],
     queryFn: () => apiClient.get('/communities?featured=true&limit=4')
   });
+  const {
+    data: unreadData
+  } = useQuery({
+    queryKey: ['communities-unread'],
+    queryFn: () => apiClient.get('/communities/unread-counts'),
+    enabled: !!user,
+    refetchInterval: 60000,
+  });
+  const unreadCounts = unreadData?.counts || {};
   const canCreate = user?.followers_count >= 100 || user?.role === 'producer' || user?.role === 'importer';
   const communities = data?.communities || [];
   const myCommunities = myData?.communities || [];
@@ -145,7 +166,7 @@ export default function CommunitiesExplorePage() {
               </button>
             </div>
             <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
-              {myCommunities.slice(0, 8).map(c => <MyCommunityPill key={c.id || c._id} community={c} />)}
+              {myCommunities.slice(0, 8).map(c => <MyCommunityPill key={c.id || c._id} community={c} unreadCount={unreadCounts[c.id || c._id] || 0} />)}
             </div>
           </section>}
 
@@ -160,7 +181,7 @@ export default function CommunitiesExplorePage() {
                 <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
                 <p className="mt-3 text-[15px]">No te has unido a ninguna comunidad</p>
               </div> : <div className="flex flex-col gap-2">
-                {myCommunities.map(c => <CommunityRow key={c.id || c._id} community={c} />)}
+                {myCommunities.map(c => <CommunityRow key={c.id || c._id} community={c} unreadCount={unreadCounts[c.id || c._id] || 0} />)}
               </div>}
           </section>}
 
@@ -228,18 +249,19 @@ export default function CommunitiesExplorePage() {
 
 /* ── My Community Pill (horizontal scroll) ── */
 const MyCommunityPill = ({
-  community
+  community,
+  unreadCount = 0
 }) => {
-  // C-10: Check if community has unread posts since last visit
   const cid = community.id || community._id;
-  const lastVisit = cid ? localStorage.getItem(`community_last_visit_${cid}`) : null;
-  const hasUnread = community.unread_posts > 0 || lastVisit && community.last_post_at && new Date(community.last_post_at).getTime() > Number(lastVisit);
+  const hasUnread = unreadCount > 0;
   return <Link to={`/communities/${community.slug || cid}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
       <div className="relative">
         <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 ${hasUnread ? 'border-stone-950' : 'border-stone-200'} ${community.cover_image ? 'bg-stone-100' : stoneBg(community.name)}`}>
           {community.cover_image ? <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" /> : <span className="text-2xl">{community.emoji || '🌿'}</span>}
         </div>
-        {hasUnread && <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-stone-950 rounded-full border-2 border-stone-50" />}
+        {hasUnread && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-stone-950 rounded-full border-2 border-stone-50 flex items-center justify-center text-[9px] text-white font-bold px-1">
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </span>}
       </div>
       <span className="max-w-[72px] truncate text-center text-[11px] font-medium text-stone-950">
         {community.name}
@@ -367,7 +389,8 @@ const CommunityCard = React.memo(({
 
 /* ── Row for "my communities" list ── */
 const CommunityRow = ({
-  community
+  community,
+  unreadCount = 0
 }) => <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex items-center gap-3 rounded-2xl shadow-sm bg-white p-3.5 no-underline">
     <div className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-[22px] ${community.cover_image ? 'bg-stone-100' : stoneBg(community.name)}`}>
       {community.cover_image ? <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" /> : community.emoji || '🌿'}
@@ -376,7 +399,7 @@ const CommunityRow = ({
       <p className="mb-0.5 text-[15px] font-semibold text-stone-950">{community.name}</p>
       <p className="text-xs text-stone-500">
         {community.member_count?.toLocaleString()} miembros
-        {community.unread_posts > 0 && <span className="ml-2 font-bold text-stone-950">· {community.unread_posts} nuevos</span>}
+        {unreadCount > 0 && <span className="ml-2 font-bold text-stone-950">· {unreadCount} nuevos</span>}
       </p>
     </div>
     <ChevronRight size={16} className="text-stone-500" />

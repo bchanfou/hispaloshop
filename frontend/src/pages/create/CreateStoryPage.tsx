@@ -1,87 +1,21 @@
 // @ts-nocheck
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2, MapPin, Link2, AtSign, HelpCircle, Trash2 } from 'lucide-react';
+import { X, Type, Tag, Check, Pencil, Undo2, Redo2, Trash2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
-const BG_OPTIONS = [{
-  id: 'camera',
-  label: '📷',
-  type: 'action'
-}, {
-  id: 'gallery',
-  label: '🖼️',
-  type: 'action'
-}, {
-  id: 'black',
-  label: '■',
-  type: 'color',
-  value: '#000000'
-}, {
-  id: 'white',
-  label: '□',
-  type: 'color',
-  value: '#ffffff'
-}, {
-  id: 'crema',
-  label: '■',
-  type: 'color',
-  value: '#fafaf9'
-}, {
-  id: 'oscuro',
-  label: '■',
-  type: 'color',
-  value: '#1c1917'
-}, {
-  id: 'verde',
-  label: '■',
-  type: 'color',
-  value: '#44403c'
-}, {
-  id: 'terracota',
-  label: '■',
-  type: 'color',
-  value: '#78716c'
-}];
-const EMOJI_CATEGORIES = {
-  Comida: ['🍕', '🍔', '🌮', '🍣', '🥗', '🍝', '🧁', '🍰', '🍩', '🥐', '🍎', '🍊', '🍋', '🍇', '🍓', '🫐', '🥑', '🥕', '🧀', '🥚', '🍯', '🫒'],
-  Bebidas: ['☕', '🍵', '🧃', '🥤', '🍺', '🍷', '🥂', '🧋'],
-  Utensilios: ['🍴', '🥄', '🔪', '🫕', '🥘', '🍳'],
-  Naturaleza: ['🌿', '🌱', '🌻', '🌾', '🌽', '🫑'],
-  Expresiones: ['❤️', '🔥', '⭐', '😍', '🤤', '👨‍🍳', '👩‍🍳', '💯', '✨', '👏'],
-  Símbolos: ['✅', '❌', '📦', '🏷️', '💰', '🛒', '🏪']
-};
-const EMOJI_CATEGORY_KEYS = Object.keys(EMOJI_CATEGORIES);
-const CERTIFICACIONES = [{
-  emoji: '🌿',
-  label: "Ecológico EU"
-}, {
-  emoji: '🏆',
-  label: 'DOP'
-}, {
-  emoji: '🥇',
-  label: 'IGP'
-}, {
-  emoji: '☪️',
-  label: 'Halal'
-}, {
-  emoji: '🌾',
-  label: 'Sin gluten'
-}, {
-  emoji: '🌱',
-  label: 'Vegano'
-}];
-const FRASES = ['Cosecha de temporada', 'Artesanal desde siempre', 'Sin conservantes', 'Directo del productor'];
-const FONTS_MAP = {
-  Sans: 'inherit',
-  Serif: 'Georgia, serif',
-  Mono: 'monospace',
-  Display: 'Impact, sans-serif'
-};
-const COLOR_DOTS = ['#000000', '#ffffff', '#a8a29e', '#78716c', '#44403c'];
+import StoryFilterSwipe from '../../components/story-editor/StoryFilterSwipe';
+import StoryTextTool from '../../components/story-editor/StoryTextTool';
+import StoryStickerTool from '../../components/story-editor/StoryStickerTool';
+import StoryDrawTool from '../../components/story-editor/StoryDrawTool';
+import StoryProductTool from '../../components/story-editor/StoryProductTool';
+import {
+  STORY_FILTERS,
+  STORY_BG_OPTIONS as BG_OPTIONS,
+  STORY_FONTS_MAP as FONTS_MAP,
+} from '../../utils/editor/constants';
 export default function CreateStoryPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -98,6 +32,8 @@ export default function CreateStoryPage() {
   const [selectedColor, setSelectedColor] = useState('#ffffff');
   const [textSize, setTextSize] = useState(24);
   const [textStyle, setTextStyle] = useState('clean');
+  const [filterIndex, setFilterIndex] = useState(0);
+  const [filterIntensity, setFilterIntensity] = useState(100);
   const [stickerTab, setStickerTab] = useState('emojis');
   const [emojiCategory, setEmojiCategory] = useState('Comida');
   const [publishing, setPublishing] = useState(false);
@@ -177,6 +113,7 @@ export default function CreateStoryPage() {
     active: false
   });
   const productSearchTimer = useRef(null);
+  const rafRef = useRef(null);
 
   // Cleanup object URLs, RAF timers, and debounces on unmount
   useEffect(() => {
@@ -189,17 +126,26 @@ export default function CreateStoryPage() {
     };
   }, [imagePreviewUrl, videoPreviewUrl]);
   const selectedBg = BG_OPTIONS.find(b => b.id === background);
+  // Compute active CSS filter string from selected story filter + intensity
+  const activeFilterCSS = filterIndex > 0 && STORY_FILTERS[filterIndex]
+    ? STORY_FILTERS[filterIndex].css
+    : 'none';
+
   const getCanvasBg = () => {
+    const filterStyle = activeFilterCSS !== 'none' ? { filter: activeFilterCSS } : {};
     if (imagePreviewUrl) return {
       backgroundImage: `url(${imagePreviewUrl})`,
       backgroundSize: 'cover',
-      backgroundPosition: 'center'
+      backgroundPosition: 'center',
+      ...filterStyle
     };
     if (selectedBg?.type === 'color') return {
-      background: selectedBg.value
+      background: selectedBg.value,
+      ...filterStyle
     };
     return {
-      background: '#000'
+      background: '#000',
+      ...filterStyle
     };
   };
   const handleFileSelect = useCallback(e => {
@@ -270,7 +216,6 @@ export default function CreateStoryPage() {
       y: 50
     }]);
   }, []);
-  const rafRef = useRef(null);
 
   // Direct DOM drag — no state updates during move, sync on end
   const handleOverlayDragDOM = useCallback((el, e) => {
@@ -437,6 +382,14 @@ export default function CreateStoryPage() {
         return;
       }
       const fd = new FormData();
+      // Include filter CSS for both video and image stories
+      const publishFilterCSS = filterIndex > 0 && STORY_FILTERS[filterIndex]
+        ? STORY_FILTERS[filterIndex].css
+        : '';
+      if (publishFilterCSS) {
+        fd.append('filter_css', publishFilterCSS);
+      }
+
       if (videoFile) {
         // Video story — send video file + overlays as JSON metadata
         fd.append('file', videoFile);
@@ -480,6 +433,11 @@ export default function CreateStoryPage() {
         const ctx = canvas.getContext('2d');
         ctx.scale(scale, scale);
 
+        // Apply story filter to the canvas before drawing background
+        if (publishFilterCSS) {
+          ctx.filter = publishFilterCSS;
+        }
+
         // Draw background
         if (imagePreviewUrl) {
           const img = new window.Image();
@@ -495,6 +453,8 @@ export default function CreateStoryPage() {
           ctx.fillStyle = bgColor;
           ctx.fillRect(0, 0, rect.width, rect.height);
         }
+        // Reset filter so overlays (text, stickers, draw) are not affected
+        ctx.filter = 'none';
 
         // Draw draw paths
         for (const path of drawPaths) {
@@ -795,7 +755,10 @@ export default function CreateStoryPage() {
       <div className="flex-1 flex items-center justify-center pt-[104px] px-4 pb-4">
         <div data-canvas ref={canvasRef} className="relative aspect-[9/16] max-h-[80vh] w-auto h-full rounded-hs-xl overflow-hidden" style={getCanvasBg()}>
           {/* Video preview */}
-          {videoPreviewUrl && <video src={videoPreviewUrl} className="absolute inset-0 w-full h-full object-cover z-[1]" autoPlay loop muted playsInline />}
+          {videoPreviewUrl && <video src={videoPreviewUrl} className="absolute inset-0 w-full h-full object-cover z-[1]" autoPlay loop muted playsInline style={activeFilterCSS !== 'none' ? { filter: activeFilterCSS } : undefined} />}
+
+          {/* Filter swipe overlay — only when media is selected and no tool panel is active */}
+          {(imagePreviewUrl || videoPreviewUrl) && !activePanel && <StoryFilterSwipe filterIndex={filterIndex} intensity={filterIntensity} onFilterChange={setFilterIndex} onIntensityChange={setFilterIntensity} enabled={!activePanel} />}
 
           {/* Text overlays — positions must be inline (dynamic %) */}
           {textOverlays.map(t => <div key={t.id} className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5] group touch-none" style={{
@@ -1065,317 +1028,52 @@ export default function CreateStoryPage() {
       </div>
 
       {/* Text panel */}
-      {activePanel === 'text' && <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-t-hs-xl z-20 flex flex-col gap-3">
-          <textarea defaultValue={textDraft} onChange={e => {
-        // B: Debounce text overlay edits — not on every keystroke
-        const val = e.target.value;
-        clearTimeout(textDraftDebounceRef.current);
-        textDraftDebounceRef.current = setTimeout(() => setTextDraft(val), 150);
-      }} onBlur={e => {
-        // Ensure final value is captured
-        clearTimeout(textDraftDebounceRef.current);
-        setTextDraft(e.target.value);
-      }} placeholder={i18n.t('create_story.escribeAqui', 'Escribe aquí...')} rows={2} aria-label={i18n.t('create_story.textoParaLaHistoria', 'Texto para la historia')} className="bg-transparent text-white border-none text-lg outline-none resize-none font-sans w-full placeholder:text-white/30" autoFocus />
-
-          {/* Font pills */}
-          <div className="flex gap-1.5">
-            {Object.keys(FONTS_MAP).map(f => <button key={f} onClick={() => setSelectedFont(f)} aria-label={`Fuente ${f}`} aria-pressed={selectedFont === f} className={`border-none rounded-full px-3.5 py-2.5 text-xs font-medium cursor-pointer min-h-[44px] ${selectedFont === f ? 'bg-white text-black' : 'bg-white/15 text-white'}`} style={{
-          fontFamily: FONTS_MAP[f]
-        }}>
-                {f}
-              </button>)}
-          </div>
-
-          {/* Color dots — background must be inline (dynamic hex) */}
-          <div className="flex gap-1 items-center">
-            {COLOR_DOTS.map(c => <button key={c} onClick={() => setSelectedColor(c)} aria-label={`Color ${c}`} className="w-11 h-11 rounded-full cursor-pointer p-0 shrink-0 flex items-center justify-center bg-transparent border-none">
-                <span className={`w-7 h-7 rounded-full shrink-0 ${selectedColor === c ? 'ring-[3px] ring-white ring-offset-2 ring-offset-black' : 'border-2 border-white/30'}`} style={{
-            background: c
-          }} />
-              </button>)}
-          </div>
-
-          {/* Text style */}
-          <div className="flex gap-1.5">
-            {[{
-          key: 'clean',
-          label: 'Limpio'
-        }, {
-          key: 'box',
-          label: 'Caja'
-        }, {
-          key: 'outline',
-          label: 'Contorno'
-        }].map(s => <button key={s.key} onClick={() => setTextStyle(s.key)} className={`flex-1 rounded-full py-2 text-xs font-semibold cursor-pointer transition-colors ${textStyle === s.key ? 'bg-white text-black' : 'bg-white/15 text-white'}`} aria-pressed={textStyle === s.key}>
-                <span style={s.key === 'outline' ? {
-            WebkitTextStroke: '1px white',
-            color: 'transparent'
-          } : s.key === 'box' ? {
-            background: 'rgba(255,255,255,0.2)',
-            padding: '1px 4px',
-            borderRadius: 3
-          } : {}}>
-                  {s.label}
-                </span>
-              </button>)}
-          </div>
-
-          {/* Size slider */}
-          <div className="flex items-center gap-2">
-            <span className="text-white/50 text-[11px]">A</span>
-            <input type="range" min={14} max={48} value={textSize} onChange={e => setTextSize(Number(e.target.value))} className="flex-1 accent-white" />
-            <span className="text-white text-base font-bold">A</span>
-          </div>
-
-          {/* Confirm button */}
-          <button onClick={addTextOverlay} className="bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-stone-800 transition-colors">
-            <Check size={16} />
-            Confirmar
-          </button>
-        </div>}
+      {activePanel === 'text' && <StoryTextTool onAddText={({ text, font, color, size, style }) => {
+        setTextOverlays(prev => [...prev, {
+          id: `t_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          text, font, color, size, style, x: 50, y: 50
+        }]);
+        setActivePanel(null);
+        pushHistory();
+      }} />}
 
       {/* Sticker panel */}
-      {activePanel === 'sticker' && <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[50vh] overflow-auto">
-          {/* Tabs */}
-          <div className="flex border-b border-white/15 overflow-x-auto" role="tablist" aria-label="Tipo de sticker">
-            {[{
-          key: 'emojis',
-          label: 'Emojis'
-        }, {
-          key: 'certificaciones',
-          label: 'Certificados'
-        }, {
-          key: 'frases',
-          label: 'Frases'
-        }, {
-          key: 'encuesta',
-          label: 'Encuesta'
-        }, {
-          key: 'mencion',
-          label: '@Mención'
-        }, {
-          key: 'enlace',
-          label: 'Enlace'
-        }, {
-          key: 'ubicacion',
-          label: i18n.t('store.location', 'Ubicación')
-        }, {
-          key: 'pregunta',
-          label: 'Pregunta'
-        }].map(tab => <button key={tab.key} role="tab" aria-selected={stickerTab === tab.key} onClick={() => setStickerTab(tab.key)} className={`bg-transparent border-none text-[13px] px-3.5 py-2 cursor-pointer border-b-2 ${stickerTab === tab.key ? 'text-white font-semibold border-white' : 'text-white/40 font-normal border-transparent'}`}>
-                {tab.label}
-              </button>)}
-          </div>
-
-          {/* Emoji grid with categories */}
-          {stickerTab === 'emojis' && <div className="flex flex-col gap-2.5">
-              {/* Category pills */}
-              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-                {EMOJI_CATEGORY_KEYS.map(cat => <button key={cat} onClick={() => setEmojiCategory(cat)} className={`rounded-full px-3 py-1.5 text-[11px] font-medium cursor-pointer whitespace-nowrap border-none transition-colors ${emojiCategory === cat ? 'bg-white text-black' : 'bg-white/10 text-white/60'}`}>
-                    {cat}
-                  </button>)}
-              </div>
-              <div className="grid grid-cols-7 gap-1.5">
-                {EMOJI_CATEGORIES[emojiCategory].map(emoji => <button key={emoji} onClick={() => addSticker(emoji, 'emoji')} className="bg-white/[0.08] border-none rounded-2xl py-2 text-[26px] cursor-pointer transition-colors hover:bg-white/15">
-                    {emoji}
-                  </button>)}
-              </div>
-            </div>}
-
-          {/* Certificaciones grid */}
-          {stickerTab === 'certificaciones' && <div className="grid grid-cols-2 gap-2 p-2">
-              {CERTIFICACIONES.map(cert => <button key={cert.label} onClick={() => addSticker(`${cert.emoji} ${cert.label}`, 'badge')} className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors border-none cursor-pointer">
-                  <span className="text-base">{cert.emoji}</span>
-                  {cert.label}
-                </button>)}
-            </div>}
-
-          {/* Frases list */}
-          {stickerTab === 'frases' && <div className="flex flex-col gap-1.5">
-              {FRASES.map(frase => <button key={frase} onClick={() => addSticker(frase, 'phrase')} className="bg-white/[0.08] text-white border-none rounded-hs-md px-3.5 py-3 text-sm text-left cursor-pointer transition-colors hover:bg-white/15">
-                  "{frase}"
-                </button>)}
-            </div>}
-
-          {/* Encuesta tab */}
-          {stickerTab === 'encuesta' && <div className="flex flex-col gap-2">
-              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value.slice(0, 80))} placeholder={i18n.t('create_story.quePrefieres', '¿Qué prefieres?')} className="bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans" />
-              <div className="flex gap-2">
-                <input value={pollOption1} onChange={e => setPollOption1(e.target.value.slice(0, 30))} placeholder={i18n.t('create_story.opcion1', 'Opción 1')} className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans" />
-                <input value={pollOption2} onChange={e => setPollOption2(e.target.value.slice(0, 30))} placeholder={i18n.t('create_story.opcion2', 'Opción 2')} className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans" />
-              </div>
-              <button onClick={() => {
-          if (!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) return;
+      {activePanel === 'sticker' && <StoryStickerTool
+        onAddSticker={(content, type) => { addSticker(content, type); pushHistory(); }}
+        onAddPoll={(question, options) => {
           setStickerOverlays(prev => [...prev, {
             id: `poll_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-            content: pollQuestion,
-            type: 'poll',
-            options: [pollOption1, pollOption2],
-            x: 50,
-            y: 50
+            content: question, type: 'poll', options, x: 50, y: 50
           }]);
-          setPollQuestion('');
-          setPollOption1('');
-          setPollOption2('');
-        }} disabled={!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()} className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim() ? 'opacity-40' : ''}`}>
-                Añadir encuesta
-              </button>
-            </div>}
-
-          {/* Mención tab */}
-          {stickerTab === 'mencion' && <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
-                <AtSign size={16} className="text-white/40 shrink-0" />
-                <input value={mentionDraft} onChange={e => setMentionDraft(e.target.value.replace(/\s/g, '').slice(0, 30))} placeholder="nombre_de_usuario" className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans" />
-              </div>
-              <button onClick={() => {
-          if (!mentionDraft.trim()) return;
-          // Strip leading @ if user typed it — stored without, displayed with
-          addSticker(`@${mentionDraft.replace(/^@/, '')}`, 'mention');
-          setMentionDraft('');
-        }} disabled={!mentionDraft.trim()} className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!mentionDraft.trim() ? 'opacity-40' : ''}`}>
-                Añadir mención
-              </button>
-            </div>}
-
-          {/* Enlace tab */}
-          {stickerTab === 'enlace' && <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
-                <Link2 size={16} className="text-white/40 shrink-0" />
-                <input value={linkDraft} onChange={e => setLinkDraft(e.target.value.slice(0, 200))} placeholder="https://..." className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans" />
-              </div>
-              <button onClick={() => {
-          if (!linkDraft.trim()) return;
-          addSticker(linkDraft.startsWith('http') ? linkDraft : `https://${linkDraft}`, 'link');
-          setLinkDraft('');
-        }} disabled={!linkDraft.trim()} className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!linkDraft.trim() ? 'opacity-40' : ''}`}>
-                Añadir enlace
-              </button>
-            </div>}
-
-          {/* Ubicación tab */}
-          {stickerTab === 'ubicacion' && <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
-                <MapPin size={16} className="text-white/40 shrink-0" />
-                <input value={locationDraft} onChange={e => setLocationDraft(e.target.value.slice(0, 60))} placeholder={i18n.t('create_story.sevillaEspana', 'Sevilla, España')} className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans" />
-              </div>
-              <button onClick={() => {
-          if (!locationDraft.trim()) return;
-          addSticker(locationDraft, 'location');
-          setLocationDraft('');
-        }} disabled={!locationDraft.trim()} className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!locationDraft.trim() ? 'opacity-40' : ''}`}>
-                Añadir ubicación
-              </button>
-            </div>}
-
-          {/* Pregunta tab */}
-          {stickerTab === 'pregunta' && <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
-                <HelpCircle size={16} className="text-white/40 shrink-0" />
-                <input value={questionDraft} onChange={e => setQuestionDraft(e.target.value.slice(0, 80))} placeholder="Hazme una pregunta..." className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans" />
-              </div>
-              <button onClick={() => {
-          if (!questionDraft.trim()) return;
+          pushHistory();
+        }}
+        onAddQuestion={(question) => {
           setStickerOverlays(prev => [...prev, {
             id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-            content: questionDraft,
-            type: 'question',
-            x: 50,
-            y: 50
+            content: question, type: 'question', x: 50, y: 50
           }]);
-          setQuestionDraft('');
-        }} disabled={!questionDraft.trim()} className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!questionDraft.trim() ? 'opacity-40' : ''}`}>
-                Añadir pregunta
-              </button>
-            </div>}
-        </div>}
-      {activePanel === 'product' && <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[55vh]">
-          <div className="flex items-center gap-2">
-            <ShoppingBag size={16} className="text-white/60 shrink-0" />
-            <span className="text-sm font-semibold text-white">Etiquetar producto</span>
-          </div>
+          pushHistory();
+        }}
+      />}
 
-          {/* Search input */}
-          <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-2">
-            <Search size={16} className="text-white/40 shrink-0" />
-            <input value={productQuery} onChange={e => setProductQuery(e.target.value)} placeholder="Buscar producto..." autoFocus aria-label={i18n.t('create_story.buscarProductoParaEtiquetarEnLaHis', 'Buscar producto para etiquetar en la historia')} className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans" />
-            {productQuery && <button onClick={() => {
-          setProductQuery('');
-          setProductResults([]);
-        }} className="bg-transparent border-none cursor-pointer p-0" aria-label={i18n.t('search.limpiarBusqueda', 'Limpiar búsqueda')}>
-                <X size={14} className="text-white/40" />
-              </button>}
-          </div>
-
-          {/* Results */}
-          <div className="flex-1 overflow-y-auto flex flex-col gap-1">
-            {productSearching && <div className="flex justify-center py-4">
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-              </div>}
-
-            {!productSearching && productQuery && productResults.length === 0 && <p className="text-center text-white/40 text-sm py-4">Sin resultados</p>}
-
-            {productResults.map(product => {
-          const name = product.name || product.title;
-          const img = product.image || product.thumbnail || product.image_url;
-          const price = product.price;
-          return <button key={product.id || product._id} onClick={() => addProductSticker(product)} className="flex items-center gap-3 w-full px-2 py-2.5 bg-transparent border-none cursor-pointer rounded-2xl hover:bg-white/10 transition-colors text-left">
-                  {img ? <img src={img} alt={name || 'Producto'} className="w-10 h-10 rounded-2xl object-cover shrink-0" /> : <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-                      <ShoppingBag size={16} className="text-white/30" />
-                    </div>}
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm text-white font-medium block truncate">{name}</span>
-                    {price != null && <span className="text-xs text-white/60 font-semibold">
-                        {new Intl.NumberFormat('es-ES', {
-                  style: 'currency',
-                  currency: 'EUR'
-                }).format(price)}
-                      </span>}
-                  </div>
-                  <Tag size={14} className="text-white/30 shrink-0" />
-                </button>;
-        })}
-
-            {!productQuery && <p className="text-center text-white/30 text-xs py-4">
-                Busca un producto de tu catálogo para añadirlo como sticker interactivo
-              </p>}
-          </div>
-        </div>}
+      {/* Product panel */}
+      {activePanel === 'product' && <StoryProductTool
+        productQuery={productQuery}
+        productResults={productResults}
+        productSearching={productSearching}
+        onQueryChange={setProductQuery}
+        onClear={() => { setProductQuery(''); setProductResults([]); }}
+        onSelectProduct={addProductSticker}
+      />}
 
       {/* Draw mode panel */}
-      {drawMode && <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl p-4 rounded-t-hs-xl z-20 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-white">Dibujar</span>
-            <div className="flex gap-2">
-              <button onClick={() => setDrawPaths(prev => prev.slice(0, -1))} className="text-white/60 text-xs bg-white/10 rounded-full px-3 py-1.5 border-none cursor-pointer">&#8617; Deshacer</button>
-              <button onClick={() => setDrawMode(false)} className="text-black text-xs bg-white rounded-full px-3 py-1.5 border-none cursor-pointer font-semibold">Listo</button>
-            </div>
-          </div>
-          {/* Colors */}
-          <div className="flex gap-2">
-            {['#1D1D1F', '#FFFFFF', '#1B6B40', '#FF3B30', '#FF9500', '#007AFF', '#AF52DE', '#FFD60A'].map(c => <button key={c} onClick={() => setDrawColor(c)} className={`w-11 h-11 rounded-full border-2 cursor-pointer p-0 shrink-0 flex items-center justify-center ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-transparent'}`} aria-label={`Color ${c}`}><span className="w-7 h-7 rounded-full shrink-0 border-2 border-white/30" style={{
-            background: c
-          }} /></button>)}
-          </div>
-          {/* Width */}
-          <div className="flex gap-3 items-center">
-            {[{
-          w: 2,
-          label: 'Fino'
-        }, {
-          w: 4,
-          label: 'Medio'
-        }, {
-          w: 8,
-          label: 'Grueso'
-        }].map(opt => <button key={opt.w} onClick={() => setDrawWidth(opt.w)} className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs cursor-pointer border-none ${drawWidth === opt.w ? 'bg-white text-black font-semibold' : 'bg-white/10 text-white'}`}>
-                <span className="rounded-full bg-current" style={{
-            width: opt.w * 2,
-            height: opt.w * 2
-          }} />
-                {opt.label}
-              </button>)}
-          </div>
-        </div>}
+      {drawMode && <StoryDrawTool
+        drawColor={drawColor}
+        drawWidth={drawWidth}
+        onColorChange={setDrawColor}
+        onWidthChange={setDrawWidth}
+        onUndo={() => setDrawPaths(prev => prev.slice(0, -1))}
+        onDone={() => setDrawMode(false)}
+      />}
     </div>;
 }

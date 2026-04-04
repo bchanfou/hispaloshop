@@ -205,6 +205,17 @@ async def _create_indexes():
     await db.community_post_likes.create_index(
         [("post_id", 1), ("user_id", 1)], unique=True
     )
+    await db.community_post_comments.create_index("post_id")
+    await db.community_reports.create_index(
+        [("community_id", 1), ("status", 1), ("created_at", -1)]
+    )
+    await db.community_reports.create_index(
+        [("reporter_id", 1), ("content_type", 1), ("content_id", 1)], unique=True
+    )
+    await db.community_flash_offers.create_index(
+        [("community_id", 1), ("is_active", 1), ("expires_at", -1)]
+    )
+    await db.community_members.create_index("user_id")
     logger.info("  OK: communities indexes")
 
     # Collaborations

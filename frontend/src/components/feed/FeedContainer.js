@@ -57,8 +57,9 @@ function FeedContainer() {
   }, []);
 
   const handleStoryClick = useCallback((stories, index) => {
-    if (stories?.length > 0) {
-      setStoryViewer({ stories, initialIndex: index });
+    if (stories?.length > 0 && index >= 0 && index < stories.length) {
+      const targetUserId = stories[index]?.user_id;
+      setStoryViewer({ stories, initialIndex: index, originUserId: targetUserId });
     }
   }, []);
 
@@ -139,6 +140,7 @@ function FeedContainer() {
             stories={storyViewer.stories}
             initialIndex={storyViewer.initialIndex}
             onClose={handleCloseStoryViewer}
+            originLayoutId={storyViewer.originUserId ? `story-${storyViewer.originUserId}` : undefined}
           />
         )}
       </AnimatePresence>

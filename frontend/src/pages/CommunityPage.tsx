@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag } from 'lucide-react';
+import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
@@ -57,13 +57,12 @@ export default function CommunityPage() {
     queryFn: () => apiClient.get(`/communities/${slug}`)
   });
 
-  /* Track last visit and show "new posts" pill on return from background */
+  /* Track last visit server-side and show "new posts" pill on return from background */
   const communityId = community?.id || community?._id;
   useEffect(() => {
     if (!communityId) return;
-    const storageKey = `community_last_visit_${communityId}`;
-    // Record visit time when page becomes visible
-    localStorage.setItem(storageKey, Date.now());
+    // Record visit server-side
+    apiClient.post(`/communities/${communityId}/visit`).catch(() => {});
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         hiddenAtRef.current = Date.now();
@@ -87,8 +86,9 @@ export default function CommunityPage() {
     queryClient.invalidateQueries({
       queryKey: ['community-feed', communityId]
     });
+    // Re-record visit server-side
     if (communityId) {
-      localStorage.setItem(`community_last_visit_${communityId}`, Date.now());
+      apiClient.post(`/communities/${communityId}/visit`).catch(() => {});
     }
   }, [communityId, queryClient]);
   if (isError) {
@@ -161,7 +161,8 @@ export default function CommunityPage() {
       </div>;
   }
   const isMember = community.is_member;
-  const isAdmin = community.is_admin || user?.id === community.creator_id;
+  const isCreator = community.role === 'creator' || (user?.user_id || user?.id) === community.creator_id;
+  const isAdmin = community.is_admin || isCreator;
   return <div className="min-h-screen bg-stone-50 pb-[100px] max-w-[975px] mx-auto">
       {/* ── Topbar ── */}
       <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
@@ -171,37 +172,48 @@ export default function CommunityPage() {
         <span className="text-[17px] font-bold text-stone-950 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
           {community.name}
         </span>
-        {isAdmin && <Link to={`/communities/${slug}/settings`} aria-label={i18n.t('community.configuracion', 'Configuración')} className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
+        {isCreator && <Link to={`/communities/${slug}/settings`} aria-label={i18n.t('community.configuracion', 'Configuración')} className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
             <Settings size={20} />
           </Link>}
       </div>
 
-      {/* ── Cover Image (16:9) ── */}
+      {/* ── Cover Image (3:1) ── */}
       <div className="relative">
-        <div className="aspect-[16/9] overflow-hidden" style={{
+        <div className="aspect-[3/1] overflow-hidden" style={{
         background: community.cover_image ? '#f5f5f4' : ['#d6d3d1', '#a8a29e', '#78716c', '#57534e', '#44403c'][(community.name || 'C').charCodeAt(0) % 5]
       }}>
           {community.cover_image ? <img loading="lazy" src={community.cover_image} alt="" className="block h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-[56px]">
               {community.emoji || '🌿'}
             </div>}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="absolute bottom-3 left-4 right-4">
-            <h1 className="text-xl font-bold text-white drop-shadow-md">
-              {community.name}
-            </h1>
-            <p className="mt-0.5 text-[13px] text-white/85">
-              {community.member_count?.toLocaleString()} miembros
-            </p>
+        </div>
+        {/* Logo overlapping cover bottom */}
+        <div className="absolute -bottom-8 left-4 max-w-[600px] mx-auto">
+          <div className="h-16 w-16 rounded-xl overflow-hidden border-[3px] border-white shadow-sm" style={{ background: '#f5f5f4' }}>
+            {community.logo_url
+              ? <img src={community.logo_url} alt={community.name} className="w-full h-full object-cover" />
+              : <div className="flex h-full w-full items-center justify-center text-[28px]" style={{ background: ['#d6d3d1', '#a8a29e', '#78716c', '#57534e', '#44403c'][(community.name || 'C').charCodeAt(0) % 5] }}>
+                  {community.emoji || '🌿'}
+                </div>}
           </div>
         </div>
       </div>
 
       {/* ── Info + Join ── */}
-      <div className="mx-auto max-w-[600px] px-4 pt-3">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          {community.description && <p className="flex-1 text-sm text-stone-600 leading-snug m-0">{community.description}</p>}
+      <div className="mx-auto max-w-[600px] px-4 pt-11">
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-bold text-stone-950 m-0 leading-tight">
+              {community.name}
+            </h1>
+            {community.category && <span className="inline-block mt-1 text-[11px] text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full">
+                {community.category}
+              </span>}
+          </div>
           <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
         </div>
+
+        {community.description && <p className="text-sm text-stone-600 leading-snug m-0 mb-2">{community.description}</p>}
 
         {community.tags?.length > 0 && <div className="scrollbar-hide flex gap-1.5 overflow-x-auto pb-1">
             {community.tags.map(tag => <span key={tag} className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] text-stone-500">
@@ -229,17 +241,7 @@ export default function CommunityPage() {
       </div>
 
       {/* ── Ofertas para miembros ── */}
-      {tab === 'about' && <div className="max-w-[600px] mx-auto px-4 pt-4">
-          <div className="bg-stone-50 rounded-2xl p-4">
-            <div className="flex items-center justify-center gap-1.5 mb-2">
-              <Tag size={14} className="text-stone-400" />
-              <span className="text-sm font-semibold text-stone-950">Ofertas para miembros</span>
-            </div>
-            <p className="text-sm text-stone-500 text-center m-0">
-              Próximamente — Los productores podrán ofrecer descuentos exclusivos para miembros de esta comunidad
-            </p>
-          </div>
-        </div>}
+      {tab === 'about' && <MemberOffersSection communityId={community.id || community._id} isMember={isMember} />}
 
       {/* ── Tab content ── */}
       <div className="max-w-[600px] mx-auto">
@@ -322,7 +324,15 @@ const CommunityFeed = ({
   isAdmin
 }) => {
   const [showPostForm, setShowPostForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const queryClient = useQueryClient();
+
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
   const {
     data,
     isLoading,
@@ -339,10 +349,19 @@ const CommunityFeed = ({
     getNextPageParam: last => last?.has_more ? (last?.page || 1) + 1 : undefined,
     enabled: !!communityId
   });
+  // Search query
+  const { data: searchData, isLoading: searchLoading } = useQuery({
+    queryKey: ['community-search', communityId, debouncedSearch],
+    queryFn: () => apiClient.get(`/communities/${communityId}/posts/search?q=${encodeURIComponent(debouncedSearch)}&limit=20`),
+    enabled: !!communityId && debouncedSearch.length >= 2,
+  });
+
   const refetchFeed = () => queryClient.invalidateQueries({
     queryKey: ['community-feed', communityId]
   });
-  const allPosts = data?.pages?.flatMap(p => p?.posts || []) ?? [];
+
+  const isSearching = debouncedSearch.length >= 2;
+  const allPosts = isSearching ? (searchData?.posts || []) : (data?.pages?.flatMap(p => p?.posts || []) ?? []);
   // Pinned posts float to top
   const posts = [...allPosts].sort((a, b) => {
     const aPinned = a.pinned || a.is_pinned;
@@ -352,7 +371,16 @@ const CommunityFeed = ({
     return 0;
   });
   return <div className="px-4 pt-3">
-      {isMember && <button onClick={() => setShowPostForm(!showPostForm)} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-full text-left cursor-pointer text-sm text-stone-500 mb-3.5 transition-all">
+      {/* Search bar */}
+      <div className="relative mb-3">
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Buscar en la comunidad..." className="h-9 w-full rounded-full border border-stone-200 bg-white pl-9 pr-8 text-[13px] text-stone-950 outline-none" />
+        {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0.5" aria-label="Limpiar búsqueda">
+          <X size={14} className="text-stone-400" />
+        </button>}
+      </div>
+
+      {isMember && !isSearching && <button onClick={() => setShowPostForm(!showPostForm)} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-full text-left cursor-pointer text-sm text-stone-500 mb-3.5 transition-all">
           Comparte algo con la comunidad...
         </button>}
 
@@ -363,7 +391,7 @@ const CommunityFeed = ({
       }} />}
       </AnimatePresence>
 
-      {isLoading ? Array(3).fill(0).map((_, i) => <div key={i} className="h-[120px] rounded-2xl mb-2.5 bg-stone-100 animate-pulse" />) : isError ? <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
+      {(isSearching ? searchLoading : isLoading) ? Array(3).fill(0).map((_, i) => <div key={i} className="h-[120px] rounded-2xl mb-2.5 bg-stone-100 animate-pulse" />) : isError && !isSearching ? <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
           <p className="text-[15px] font-semibold text-stone-950 m-0">Error al cargar posts</p>
           <button onClick={() => refetchQuery()} aria-label="Reintentar carga de posts" className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer">
             <RefreshCw size={13} /> Reintentar
@@ -376,7 +404,7 @@ const CommunityFeed = ({
           </p>
         </div> : <>
           {posts.map(post => <CommunityPostCard key={post.id || post._id} post={post} isAdmin={isAdmin} onDelete={refetchFeed} onRefresh={refetchFeed} />)}
-          {hasNextPage && <button onClick={() => fetchNextPage()} className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
+          {hasNextPage && !isSearching && <button onClick={() => fetchNextPage()} className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
               Ver más posts
             </button>}
         </>}
@@ -394,7 +422,25 @@ const CommunityPostForm = ({
   const [imageUrl, setImageUrl] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [productSearch, setProductSearch] = useState('');
+  const [productResults, setProductResults] = useState([]);
+  const [showProductPicker, setShowProductPicker] = useState(false);
   const fileRef = useRef(null);
+  const searchTimerRef = useRef(null);
+
+  // Search products by name
+  useEffect(() => {
+    clearTimeout(searchTimerRef.current);
+    if (productSearch.length < 2) { setProductResults([]); return; }
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await apiClient.get(`/products?q=${encodeURIComponent(productSearch)}&limit=6`);
+        setProductResults(res?.products || res?.items || []);
+      } catch { setProductResults([]); }
+    }, 400);
+    return () => clearTimeout(searchTimerRef.current);
+  }, [productSearch]);
 
   // Revoke blob URL on unmount to prevent memory leaks
   useEffect(() => {
@@ -433,7 +479,8 @@ const CommunityPostForm = ({
     try {
       await apiClient.post(`/communities/${communityId}/posts`, {
         text: text.trim(),
-        image_url: imageUrl
+        image_url: imageUrl,
+        product_ids: selectedProducts.map(p => p.id || p._id),
       });
       onSuccess();
     } catch {
@@ -467,9 +514,42 @@ const CommunityPostForm = ({
             </div>}
         </div>}
 
+      {/* Selected products */}
+      {selectedProducts.length > 0 && <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide">
+        {selectedProducts.map(p => <div key={p.id || p._id} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 shrink-0">
+          {(p.image || p.images?.[0]) && <img src={p.image || p.images?.[0]} alt="" className="w-8 h-8 rounded-lg object-cover" />}
+          <span className="text-[12px] font-medium text-stone-950 max-w-[120px] truncate">{p.name}</span>
+          {p.price != null && <span className="text-[11px] text-stone-500">{Number(p.price).toFixed(2)}€</span>}
+          <button onClick={() => setSelectedProducts(prev => prev.filter(sp => (sp.id || sp._id) !== (p.id || p._id)))} className="bg-transparent border-none cursor-pointer text-stone-400 text-sm p-0 leading-none">×</button>
+        </div>)}
+      </div>}
+
+      {/* Product picker */}
+      {showProductPicker && <div className="mb-2.5">
+        <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="Buscar producto para enlazar..." className="w-full h-9 px-3 bg-stone-50 border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none mb-1.5 box-border" autoFocus />
+        {productResults.length > 0 && <div className="flex flex-col gap-1 max-h-[160px] overflow-y-auto">
+          {productResults.map(p => {
+            const pid = p.id || p._id;
+            const alreadySelected = selectedProducts.some(sp => (sp.id || sp._id) === pid);
+            return <button key={pid} disabled={alreadySelected || selectedProducts.length >= 5} onClick={() => {
+              setSelectedProducts(prev => [...prev, { id: pid, name: p.name, price: p.price, image: p.images?.[0] || p.image }]);
+              setProductSearch('');
+              setProductResults([]);
+            }} className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-left cursor-pointer border-none ${alreadySelected ? 'bg-stone-100 opacity-50' : 'bg-white hover:bg-stone-50'}`}>
+              {(p.images?.[0] || p.image) && <img src={p.images?.[0] || p.image} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />}
+              <span className="flex-1 text-[13px] text-stone-950 truncate">{p.name}</span>
+              {p.price != null && <span className="text-[12px] text-stone-500 shrink-0">{Number(p.price).toFixed(2)}€</span>}
+            </button>;
+          })}
+        </div>}
+      </div>}
+
       <div className="flex gap-2 items-center">
         <button onClick={() => fileRef.current?.click()} className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Subir imagen" title={i18n.t('community.anadirImagen', 'Añadir imagen')}>
           📷
+        </button>
+        <button onClick={() => setShowProductPicker(v => !v)} className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Enlazar producto" title="Enlazar producto">
+          🏷️
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
         <span className="text-[11px] text-stone-500 flex-1">{text.length}/1000</span>
@@ -500,6 +580,7 @@ const CommunityPostCard = ({
   const [showMenu, setShowMenu] = useState(false);
   const isOwn = (user?.user_id || user?.id) === post.author_id;
   const postId = post.id || post._id;
+  const [showReportModal, setShowReportModal] = useState(false);
   const toggleLike = async () => {
     const prevLiked = liked;
     const prevLikes = likes;
@@ -561,8 +642,8 @@ const CommunityPostCard = ({
             </p>
           </div>
         </Link>
-        {/* C-09: Menu with pin + delete */}
-        {(isOwn || isAdmin) && <div className="relative">
+        {/* Menu: pin + delete (admin/owner) + report (anyone) */}
+        {user && <div className="relative">
             <button onClick={() => setShowMenu(v => !v)} aria-label="Opciones del post" className="bg-transparent border-none cursor-pointer text-base text-stone-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
               ···
             </button>
@@ -581,13 +662,18 @@ const CommunityPostCard = ({
                       <Pin size={14} />
                       {post.is_pinned || post.pinned ? 'Desfijar' : 'Fijar arriba'}
                     </button>}
-                  <button onClick={deletePost} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                  {(isOwn || isAdmin) && <button onClick={deletePost} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
                     🗑️ Eliminar
-                  </button>
+                  </button>}
+                  {!isOwn && <button onClick={() => { setShowMenu(false); setShowReportModal(true); }} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                    <Flag size={14} /> Reportar
+                  </button>}
                 </motion.div>}
             </AnimatePresence>
           </div>}
       </div>
+
+      {showReportModal && <ReportModal contentType="post" contentId={postId} onClose={() => setShowReportModal(false)} />}
 
       {post.text && <div className="px-3.5 pb-3">
           <p className="text-sm leading-relaxed text-stone-950 m-0">
@@ -596,6 +682,17 @@ const CommunityPostCard = ({
         </div>}
 
       {post.image_url && <img loading="lazy" src={post.image_url} alt="Imagen del post" className="w-full block max-h-[400px] object-cover" />}
+
+      {/* Linked products */}
+      {post.products?.length > 0 && <div className="px-3.5 py-2 flex gap-2 overflow-x-auto scrollbar-hide">
+        {post.products.map(p => <Link key={p.id} to={`/products/${p.slug || p.id}`} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-2 shrink-0 no-underline hover:bg-stone-100 transition-colors">
+          {p.image && <img src={p.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-stone-950 m-0 truncate max-w-[140px]">{p.name}</p>
+            {p.price != null && <p className="text-[11px] font-bold text-stone-950 m-0">{Number(p.price).toFixed(2)}€</p>}
+          </div>
+        </Link>)}
+      </div>}
 
       {/* Actions */}
       <div className="flex gap-4 px-3.5 py-2.5 border-t border-stone-200">
@@ -792,8 +889,9 @@ const CommunityMembers = ({
                     {member.username || 'Usuario'}
                   </p>
                   <p className="text-[11px] text-stone-500 m-0">
-                    {member.is_admin && '👑 Admin'}
-                    {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
+                    {member.role === 'creator' && '👑 Creador'}
+                    {member.role === 'moderator' && '🛡️ Moderador'}
+                    {member.is_seller && ((member.role === 'creator' || member.role === 'moderator') ? ' · ' : '') + '✓ Vendedor'}
                   </p>
                 </div>
                 {!isOwnProfile && <button onClick={e => handleFollow(e, member)} disabled={followedIds.has(member.user_id) || pendingIds.has(member.user_id)} aria-label={followedIds.has(member.user_id) ? `Ya sigues a ${member.username || 'usuario'}` : `Seguir a ${member.username || 'usuario'}`} className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold shrink-0 ${followedIds.has(member.user_id) ? 'border-stone-200 bg-white text-stone-400 cursor-default' : 'border-stone-200 bg-white text-stone-950 cursor-pointer'}`}>
@@ -853,15 +951,120 @@ const CommunityAbout = ({
         </div>
       </div>}
 
-    <div>
+    {/* Community rules — custom from DB, or empty state */}
+    {community.rules?.length > 0 ? <div>
       <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">
         Normas de la comunidad
       </h3>
       <div className="bg-white shadow-sm rounded-2xl px-3.5 py-3">
-        {[i18n.t('community.contenidoRelacionadoConAlimentacionY', 'Contenido relacionado con alimentación y gastronomía'), 'Trato respetuoso entre miembros', i18n.t('community.sinSpamNiPublicidadNoAutorizada', 'Sin spam ni publicidad no autorizada'), i18n.t('community.sinBebidasAlcoholicas', 'Sin bebidas alcohólicas'), i18n.t('community.elAdminPuedeEliminarPostsQueNoCum', 'El admin puede eliminar posts que no cumplan las normas')].map((rule, i) => <p key={i} className={`text-[13px] text-stone-950 flex gap-2 ${i < 4 ? 'mb-1.5' : 'm-0'} ${i === 0 ? 'mt-0' : ''}`}>
+        {community.rules.map((rule, i) => <p key={i} className={`text-[13px] text-stone-950 flex gap-2 ${i < community.rules.length - 1 ? 'mb-1.5' : 'm-0'} ${i === 0 ? 'mt-0' : ''}`}>
             <span className="text-stone-500 shrink-0">{i + 1}.</span>
             {rule}
           </p>)}
       </div>
+    </div> : <div>
+      <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">
+        Normas de la comunidad
+      </h3>
+      <p className="text-[13px] text-stone-500 m-0">
+        Esta comunidad aún no ha definido normas específicas. Se aplican las normas generales de HispaloShop.
+      </p>
+    </div>}
+  </div>;
+
+/* ── Member Offers Section (About tab) ── */
+const MemberOffersSection = ({ communityId, isMember }) => {
+  const { data: discountData } = useQuery({
+    queryKey: ['community-discount', communityId],
+    queryFn: () => apiClient.get(`/communities/${communityId}/discount`),
+    enabled: !!communityId,
+  });
+  const { data: flashData } = useQuery({
+    queryKey: ['community-flash-offers', communityId],
+    queryFn: () => apiClient.get(`/communities/${communityId}/flash-offers`),
+    enabled: !!communityId,
+  });
+
+  const discount = discountData?.discount;
+  const flashOffers = flashData?.offers || [];
+  const hasOffers = (discount?.is_active && discount?.value > 0) || flashOffers.length > 0;
+
+  return <div className="max-w-[600px] mx-auto px-4 pt-4">
+    <div className={`rounded-2xl p-4 ${hasOffers ? 'bg-stone-950 text-white' : 'bg-stone-100'}`}>
+      <div className="flex items-center justify-center gap-1.5 mb-2">
+        <Tag size={14} className={hasOffers ? 'text-white/60' : 'text-stone-400'} />
+        <span className={`text-sm font-semibold ${hasOffers ? 'text-white' : 'text-stone-950'}`}>Ofertas para miembros</span>
+      </div>
+
+      {discount?.is_active && discount?.value > 0 && <div className="text-center mb-3">
+        <p className="text-2xl font-bold m-0">
+          -{discount.value}{discount.type === 'percentage' ? '%' : '€'}
+        </p>
+        <p className={`text-[13px] m-0 ${hasOffers ? 'text-white/70' : 'text-stone-500'}`}>
+          Descuento automático en todos los productos del productor
+        </p>
+        {!isMember && <p className="text-[12px] mt-1 m-0 text-white/50">Únete para obtener el descuento</p>}
+      </div>}
+
+      {flashOffers.length > 0 && <div className="mt-3 space-y-2">
+        <p className={`text-[12px] font-semibold uppercase tracking-wide ${hasOffers ? 'text-white/60' : 'text-stone-400'}`}>Ofertas flash</p>
+        {flashOffers.map(o => <Link key={o.id} to={`/products/${o.product?.slug || o.product_id}`} className="flex items-center gap-2.5 bg-white/10 rounded-xl px-3 py-2 no-underline">
+          {o.product?.image && <img src={o.product.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-white m-0 truncate">{o.product?.name || 'Producto'}</p>
+            <p className="text-[11px] text-white/60 m-0">
+              -{o.discount_value}{o.discount_type === 'percentage' ? '%' : '€'} · Expira {formatRelativeTime(o.expires_at)}
+            </p>
+          </div>
+        </Link>)}
+      </div>}
+
+      {!hasOffers && <p className={`text-sm text-center m-0 ${hasOffers ? 'text-white/70' : 'text-stone-500'}`}>
+        Próximamente — El productor podrá ofrecer descuentos exclusivos para miembros
+      </p>}
     </div>
   </div>;
+};
+
+/* ── Report Modal ── */
+const ReportModal = ({ contentType, contentId, onClose }) => {
+  const REASONS = [
+    { id: 'spam', label: 'Spam' },
+    { id: 'offensive', label: 'Contenido ofensivo' },
+    { id: 'harassment', label: 'Acoso' },
+    { id: 'misinformation', label: 'Desinformación' },
+    { id: 'irrelevant', label: 'No relacionado' },
+    { id: 'other', label: 'Otro motivo' },
+  ];
+  const [reason, setReason] = useState('');
+  const [details, setDetails] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const submit = async () => {
+    if (!reason) { toast.error('Selecciona un motivo'); return; }
+    setSending(true);
+    try {
+      await apiClient.post('/communities/reports', { content_type: contentType, content_id: contentId, reason, details: details.trim() });
+      toast.success('Reporte enviado. Gracias.');
+      onClose();
+    } catch { toast.error('Error al enviar reporte'); } finally { setSending(false); }
+  };
+
+  return <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
+    <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} onClick={e => e.stopPropagation()} className="w-full max-w-[400px] bg-white rounded-t-2xl sm:rounded-2xl p-4 mx-4 mb-0 sm:mb-0">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[15px] font-bold text-stone-950 m-0">Reportar {contentType === 'post' ? 'publicación' : contentType === 'comment' ? 'comentario' : 'contenido'}</h3>
+        <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-1 text-stone-400"><X size={18} /></button>
+      </div>
+      <div className="flex flex-col gap-1.5 mb-3">
+        {REASONS.map(r => <button key={r.id} onClick={() => setReason(r.id)} className={`text-left px-3 py-2.5 rounded-xl text-[13px] cursor-pointer transition-colors ${reason === r.id ? 'bg-stone-950 text-white border-none' : 'bg-stone-50 text-stone-950 border border-stone-200'}`}>
+          {r.label}
+        </button>)}
+      </div>
+      <textarea value={details} onChange={e => setDetails(e.target.value)} placeholder="Detalles adicionales (opcional)" rows={2} maxLength={500} className="w-full resize-none px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none mb-3 box-border" />
+      <button onClick={submit} disabled={sending || !reason} className="w-full py-2.5 rounded-full bg-stone-950 text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-50">
+        {sending ? 'Enviando...' : 'Enviar reporte'}
+      </button>
+    </motion.div>
+  </div>;
+};

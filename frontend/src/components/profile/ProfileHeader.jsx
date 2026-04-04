@@ -11,6 +11,7 @@ import { getToken } from '../../lib/auth';
 import { useHaptics } from '../../hooks/useHaptics';
 import { InitialsAvatar } from '../ui/InitialsAvatar';
 import { useTranslation } from 'react-i18next';
+import StoryCard from '../feed/StoryCard';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 import i18n from "../../locales/i18n";
@@ -128,7 +129,9 @@ export default function ProfileHeader({
   onSwitchTab,
   onViewOwnStory,
   onViewHighlight,
-  onCreateStory
+  onCreateStory,
+  profileStories = [],
+  onViewProfileStory
 }) {
   const navigate = useNavigate();
   const {
@@ -822,6 +825,37 @@ export default function ProfileHeader({
             {(user.mutual_followers_count || user.mutual_followers.length) > 1 && <> y <span className="font-semibold text-stone-950">{(user.mutual_followers_count || user.mutual_followers.length) - 1} más que sigues</span></>}
           </span>
         </div>}
+
+      {/* ── 5c. ACTIVE STORIES (card row with video preview) ─────── */}
+      {(profileStories.length > 0 || (isOwn && user?.has_active_story)) && (
+        <div className="flex gap-2.5 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none scrollbar-hide snap-x">
+          {profileStories.map((story, idx) => (
+            <StoryCard
+              key={story.story_id || story.id || idx}
+              user={user}
+              preview={{
+                image: story.image_url || story.media_url || story.thumbnail_url,
+                video: story.video_url,
+              }}
+              hasUnseen={!story.is_seen}
+              storiesCount={1}
+              isLoading={false}
+              onClick={() => onViewProfileStory?.(idx)}
+              layoutId={`profile-story-${story.story_id || story.id || idx}`}
+            />
+          ))}
+          {isOwn && (
+            <StoryCard
+              user={user}
+              isSelf
+              hasActiveStory={false}
+              hasUnseen={false}
+              onClick={() => onCreateStory?.()}
+              layoutId="profile-story-create"
+            />
+          )}
+        </div>
+      )}
 
       {/* ── 6. HIGHLIGHTS (Instagram style circles) ──────────────── */}
       {(isOwn || highlights.length > 0) && <div className="flex gap-4 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none scrollbar-hide snap-x">

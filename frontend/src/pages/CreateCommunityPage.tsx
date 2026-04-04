@@ -13,7 +13,17 @@ function slugify(text) {
   return (text || '').toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 const EMOJIS = ['🌿', '🫙', '🧀', '🫒', '🍯', '👨‍🍳', '💪', '🌾', '🥗', '🌶️', '🍎', '🐟', '🌱', '🏔️', '🇪🇸'];
-const CATEGORIES = ["Alimentación", 'Recetas', 'Productores', 'Dieta', "Ecológico", 'Vegano', 'Sin gluten', 'Local', 'Internacional'];
+const CATEGORIES = [
+  { id: 'Alimentación', label: 'Alimentación' },
+  { id: 'Recetas', label: 'Recetas' },
+  { id: 'Productores', label: 'Productores' },
+  { id: 'Dieta', label: 'Dieta' },
+  { id: 'Ecológico', label: 'Ecológico' },
+  { id: 'Vegano', label: 'Vegano' },
+  { id: 'Sin gluten', label: 'Sin gluten' },
+  { id: 'Local', label: 'Local' },
+  { id: 'Internacional', label: 'Internacional' },
+];
 const FormField = ({
   label,
   hint,
@@ -30,7 +40,8 @@ const STONE_COVER_COLORS = ['#d6d3d1', '#a8a29e', '#78716c', '#57534e', '#44403c
 /* ── Live Preview Card ── */
 const CommunityPreviewCard = ({
   form,
-  coverPreview
+  coverPreview,
+  logoPreview
 }) => {
   const coverColor = STONE_COVER_COLORS[(form.name.charCodeAt(0) || 100) % 5];
   return <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
@@ -59,6 +70,15 @@ const CommunityPreviewCard = ({
       </div>
 
       <div className="px-3 py-2.5">
+        {/* Logo preview */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-8 w-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0" style={{ background: logoPreview ? '#f5f5f4' : '#e7e5e4' }}>
+            {logoPreview ? <img src={logoPreview} alt="" className="w-full h-full object-cover" /> : <span className="text-base">{form.emoji || '🌿'}</span>}
+          </div>
+          <p className="text-[13px] font-semibold text-stone-950 m-0 truncate">
+            {form.name || 'Nombre de la comunidad'}
+          </p>
+        </div>
         {form.description ? <p className="text-[11px] text-stone-500 mb-2 leading-snug m-0">
             {form.description.slice(0, 80)}{form.description.length > 80 ? '…' : ''}
           </p> : <p className="text-[11px] text-stone-200 mb-2 italic m-0">
@@ -86,12 +106,17 @@ export default function CreateCommunityPage() {
     category: '',
     emoji: '🌿',
     tags: [],
-    cover_image: null
+    cover_image: null,
+    logo_url: null,
+    rules: [],
   });
   const [tagInput, setTagInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [coverPreview, setCoverPreview] = useState(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [ruleInput, setRuleInput] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [slugStatus, setSlugStatus] = useState(null); // null | 'checking' | 'available' | 'taken'
   const slugTimerRef = React.useRef(null);
@@ -147,19 +172,39 @@ export default function CreateCommunityPage() {
       try {
         await apiClient.get(`/communities/${form.slug}`);
         setSlugStatus('taken');
-      } catch {
-        setSlugStatus('available');
+      } catch (err) {
+        const status = err?.response?.status || err?.status;
+        setSlugStatus(status === 404 ? 'available' : null);
       }
     }, 500);
     return () => clearTimeout(slugTimerRef.current);
   }, [form.slug]);
 
-  // Revoke blob URL on unmount to prevent memory leaks
+  // Revoke blob URLs on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
       if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
     };
-  }, [coverPreview]);
+  }, [coverPreview, logoPreview]);
+  const handleLogo = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoPreview(URL.createObjectURL(file));
+    setIsUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const data = await apiClient.post('/upload/product-image', formData, { timeout: 30000 });
+      update('logo_url', data.url || data.path || data.image_url);
+    } catch {
+      toast.error('Error al subir logo');
+      setLogoPreview(null);
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
   const handleCover = async e => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -208,7 +253,7 @@ export default function CreateCommunityPage() {
       toast.error(i18n.t('create_community.laUrlDebeEmpezarConUnaLetraONume', 'La URL debe empezar con una letra o número'));
       return;
     }
-    if (isUploadingCover) {
+    if (isUploadingCover || isUploadingLogo) {
       toast.error('Espera a que se suba la imagen');
       return;
     }
@@ -248,7 +293,7 @@ export default function CreateCommunityPage() {
           {showPreview ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
         {showPreview && <div className="mt-2.5">
-            <CommunityPreviewCard form={form} coverPreview={coverPreview} />
+            <CommunityPreviewCard form={form} coverPreview={coverPreview} logoPreview={logoPreview} />
           </div>}
       </div>
 
@@ -271,6 +316,24 @@ export default function CreateCommunityPage() {
               </div>}
           </div>
           <input type="file" accept="image/*" onChange={handleCover} className="hidden" aria-label="Subir foto de portada" />
+        </label>
+
+        {/* Logo */}
+        <label className="block mb-4 cursor-pointer">
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">Logo de la comunidad</p>
+          <div className="flex items-center gap-3">
+            <div className="h-16 w-16 rounded-xl overflow-hidden flex items-center justify-center border-2 border-dashed border-stone-200 relative shrink-0" style={{ background: logoPreview ? '#f5f5f4' : '#e7e5e4' }}>
+              {logoPreview ? <img src={logoPreview} alt="" className="w-full h-full object-cover" /> : <span className="text-2xl">{form.emoji}</span>}
+              {isUploadingLogo && <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>}
+            </div>
+            <div>
+              <p className="text-[12px] text-stone-500 m-0">Sube un logo cuadrado para tu comunidad</p>
+              <p className="text-[11px] text-stone-400 m-0">Si no subes uno, se usará el emoji</p>
+            </div>
+          </div>
+          <input type="file" accept="image/*" onChange={handleLogo} className="hidden" aria-label="Subir logo" />
         </label>
 
         <div className="flex flex-col gap-3.5">
@@ -319,8 +382,8 @@ export default function CreateCommunityPage() {
           {/* Category */}
           <FormField label={i18n.t('products.category', 'Categoría')}>
             <div className="flex flex-wrap gap-1.5">
-              {CATEGORIES.map(cat => <button key={cat} type="button" onClick={() => update('category', form.category === cat ? '' : cat)} className={`px-3 py-1.5 rounded-full text-[13px] cursor-pointer transition-all duration-150 ${form.category === cat ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-950 border border-stone-200'}`}>
-                  {cat}
+              {CATEGORIES.map(cat => <button key={cat.id} type="button" onClick={() => update('category', form.category === cat.id ? '' : cat.id)} className={`px-3 py-1.5 rounded-full text-[13px] cursor-pointer transition-all duration-150 ${form.category === cat.id ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-950 border border-stone-200'}`}>
+                  {cat.label}
                 </button>)}
             </div>
           </FormField>
@@ -342,11 +405,34 @@ export default function CreateCommunityPage() {
               }
             }} placeholder="aceite-de-oliva" disabled={form.tags.length >= 5} className="w-full h-[38px] px-3 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-[13px] box-border" />
           </FormField>
+
+          {/* Rules */}
+          <FormField label="Normas de la comunidad (máx. 10)" hint="Presiona Enter para añadir">
+            <div className="flex flex-col gap-1.5 mb-1.5">
+              {form.rules.map((rule, idx) => <div key={idx} className="flex items-center gap-2 text-sm bg-stone-100 px-3 py-2 rounded-xl">
+                  <span className="text-stone-400 shrink-0 text-xs">{idx + 1}.</span>
+                  <span className="flex-1 text-stone-950 text-[13px]">{rule}</span>
+                  <button type="button" onClick={() => update('rules', form.rules.filter((_, i) => i !== idx))} aria-label={`Eliminar norma ${idx + 1}`} className="bg-transparent border-none cursor-pointer text-sm text-stone-400 p-0 leading-none hover:text-stone-700">
+                    ×
+                  </button>
+                </div>)}
+            </div>
+            <input value={ruleInput} onChange={e => setRuleInput(e.target.value)} onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                const rule = ruleInput.trim();
+                if (rule && form.rules.length < 10) {
+                  update('rules', [...form.rules, rule]);
+                  setRuleInput('');
+                }
+              }
+            }} placeholder="Ej: Solo contenido relacionado con alimentación" disabled={form.rules.length >= 10} maxLength={200} className="w-full h-[38px] px-3 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-[13px] box-border" />
+          </FormField>
         </div>
 
         {/* Submit */}
         <div className="mt-6">
-          <button onClick={create} disabled={isCreating || !form.name || !form.slug || isUploadingCover} className="w-full py-3 rounded-full border-none bg-stone-950 text-white text-[15px] font-semibold cursor-pointer transition-all duration-150" style={{
+          <button onClick={create} disabled={isCreating || !form.name || !form.slug || isUploadingCover || isUploadingLogo} className="w-full py-3 rounded-full border-none bg-stone-950 text-white text-[15px] font-semibold cursor-pointer transition-all duration-150" style={{
             opacity: isCreating || !form.name || !form.slug ? 0.5 : 1
           }}>
             {isCreating ? 'Creando...' : 'Crear comunidad'}
@@ -359,7 +445,7 @@ export default function CreateCommunityPage() {
         <p className="text-[11px] font-bold text-stone-500 tracking-wide uppercase mb-2.5">
           Vista previa
         </p>
-        <CommunityPreviewCard form={form} coverPreview={coverPreview} />
+        <CommunityPreviewCard form={form} coverPreview={coverPreview} logoPreview={logoPreview} />
         <p className="text-[11px] text-stone-500 text-center mt-2">
           Así verán tu comunidad los demás
         </p>

@@ -177,6 +177,7 @@ async def get_stories(request: Request):
                 "type": "story",
                 "image": story.get("image_url"),
                 "video": story.get("video_url"),
+                "poster": story.get("image_url") or story.get("thumbnail_url"),
                 "text": (story.get("caption") or "")[:60],
             },
             "is_recent": True,

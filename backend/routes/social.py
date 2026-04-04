@@ -3185,6 +3185,7 @@ async def create_story(
     location: str = Form(""),
     overlays_json: str = Form(""),
     products_json: str = Form(""),
+    filter_css: str = Form(""),
     user: User = Depends(get_current_user)
 ):
     """Upload a story that auto-expires after 24h."""
@@ -3224,6 +3225,9 @@ async def create_story(
         "replies_count": 0,
         "is_hidden": False,
     }
+    # Store CSS filter if provided (for video stories — image stories bake the filter into the image)
+    if filter_css and isinstance(filter_css, str) and filter_css.strip():
+        story["filter_css"] = sanitize_text(filter_css.strip()[:200])
     # Parse and store overlay metadata (text, stickers, draws for video stories)
     if overlays_json:
         try:

@@ -51,6 +51,10 @@ interface StoryEditorState {
   drawWidth: number;
   isDrawing: boolean;
 
+  // Filter
+  filterIndex: number;
+  filterIntensity: number;
+
   // History
   history: any[];
   historyIndex: number;
@@ -78,6 +82,7 @@ type StoryAction =
   | { type: 'MOVE_OVERLAY'; id: string; x: number; y: number }
   | { type: 'UNDO' }
   | { type: 'REDO' }
+  | { type: 'SET_FILTER'; filterIndex: number; intensity?: number }
   | { type: 'SET_PRIVACY'; privacy: string }
   | { type: 'SET_PUBLISHING'; isPublishing: boolean; progress?: number }
   | { type: 'RESET' };
@@ -95,6 +100,8 @@ const initialState: StoryEditorState = {
   drawColor: '#ffffff',
   drawWidth: 3,
   isDrawing: false,
+  filterIndex: 0,
+  filterIntensity: 100,
   history: [],
   historyIndex: -1,
   privacy: 'public',
@@ -141,6 +148,8 @@ function storyReducer(state: StoryEditorState, action: StoryAction): StoryEditor
     case 'REDO':
       if (state.historyIndex >= state.history.length - 1) return state;
       return { ...state, ...state.history[state.historyIndex + 1], historyIndex: state.historyIndex + 1 };
+    case 'SET_FILTER':
+      return { ...state, filterIndex: action.filterIndex, filterIntensity: action.intensity ?? state.filterIntensity };
     case 'SET_PRIVACY':
       return { ...state, privacy: action.privacy };
     case 'SET_PUBLISHING':

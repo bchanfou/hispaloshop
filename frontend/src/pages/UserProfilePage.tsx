@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Store, X, Plus, Check, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -90,6 +90,52 @@ export default function UserProfilePage() {
     data: highlights = []
   } = useUserHighlightsQuery(highlightsLookupKey);
   const queryClient = useQueryClient();
+
+  // Fetch user's active stories for profile story cards
+  const { data: profileStories = [] } = useQuery({
+    queryKey: ['user-stories', user?.user_id],
+    queryFn: async () => {
+      const uid = user?.user_id;
+      if (!uid) return [];
+      const res = await apiClient.get(`/stories/${uid}`);
+      const items = Array.isArray(res) ? res : res?.items || res?.stories || [];
+      return items;
+    },
+    enabled: !!user?.user_id && !!user?.has_active_story,
+    staleTime: 30_000,
+  });
+
+  // Open story viewer from a specific story card in the profile row
+  const [profileStoryViewer, setProfileStoryViewer] = useState(null);
+  const handleViewProfileStory = useCallback((storyIndex) => {
+    if (!profileStories.length || !user) return;
+    const storyEnvelope = {
+      user_id: user.user_id,
+      user: {
+        id: user.user_id,
+        name: user.name,
+        username: user.username,
+        avatar_url: user.profile_image,
+      },
+      has_unseen: true,
+      stories_count: profileStories.length,
+      items: profileStories.map(s => ({
+        id: s.id || s.story_id,
+        story_id: s.story_id || s.id,
+        image_url: s.image_url || s.media_url,
+        video_url: s.video_url,
+        caption: s.caption || s.text,
+        created_at: s.created_at,
+        products: s.products,
+        view_count: s.view_count ?? 0,
+        is_liked: s.is_liked ?? false,
+        overlays: s.overlays,
+        filter_css: s.filter_css,
+      })),
+    };
+    setProfileStoryViewer({ stories: [storyEnvelope], initialIndex: 0, initialItemIndex: storyIndex, originStoryId: profileStories[storyIndex]?.story_id || profileStories[storyIndex]?.id });
+  }, [profileStories, user]);
+
   const handleCreateHighlight = useCallback(async (title, storyIds, coverUrl) => {
     if (!title?.trim()) return;
     try {
@@ -324,7 +370,7 @@ export default function UserProfilePage() {
 
       <ProfileHeader user={user} isOwn={isOwn} onEditProfile={() => setShowEditProfile(true)} onShare={handleShare} onAvatarChange={handleAvatarChange} onFollowToggle={handleFollowToggle} onMessage={handleMessage} highlights={highlights} onCreateHighlight={() => setShowCreateHighlight(true)} onHighlightDeleted={() => queryClient.invalidateQueries({
         queryKey: userKeys.highlights(highlightsLookupKey)
-      })} onSwitchTab={tabId => tabsRef.current?.switchTab(tabId)} onViewOwnStory={handleViewOwnStory} onViewHighlight={handleViewHighlight} onCreateStory={() => navigate('/create/story')} />
+      })} onSwitchTab={tabId => tabsRef.current?.switchTab(tabId)} onViewOwnStory={handleViewOwnStory} onViewHighlight={handleViewHighlight} onCreateStory={() => navigate('/create/story')} profileStories={profileStories} onViewProfileStory={handleViewProfileStory} />
 
       {/* ── P-11: Mutual followers ── */}
       {!isOwn && user.mutual_followers && user.mutual_followers.length > 0 && <div className="px-4 pb-2 flex items-center gap-2">
@@ -393,6 +439,16 @@ export default function UserProfilePage() {
           setViewingHighlight(null);
           setHighlightStories(null);
         }} />}
+      </AnimatePresence>
+
+      {/* Profile story card viewer */}
+      <AnimatePresence>
+        {profileStoryViewer && <StoryViewer key="profile-story-viewer" stories={profileStoryViewer.stories} initialIndex={profileStoryViewer.initialIndex} initialItemIndex={profileStoryViewer.initialItemIndex || 0} onClose={() => {
+          setProfileStoryViewer(null);
+          queryClient.invalidateQueries({ queryKey: ['user-stories', user?.user_id] });
+          queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+          refetch();
+        }} originLayoutId={profileStoryViewer.originStoryId ? `profile-story-${profileStoryViewer.originStoryId}` : undefined} />}
       </AnimatePresence>
 
       {selectedProduct && <ProductDetailOverlay product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
