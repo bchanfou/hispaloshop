@@ -98,7 +98,7 @@ class RecommendationEngine:
         # Calcular TTL segun suscripcion
         ttl_minutes = (
             self.CACHE_TTL_PRO_MINUTES 
-            if subscription in ["pro", "elite"] 
+            if (subscription or "").upper() in ["PRO", "ELITE"] 
             else self.CACHE_TTL_FREE_MINUTES
         )
         
@@ -273,17 +273,24 @@ class RecommendationEngine:
             "customer_id": user_id
         }).to_list(length=50)
         
-        user_categories = set()
         user_product_ids = set()
-        
         for order in user_orders:
             for item in order.get("items", []):
-                user_product_ids.add(item.get("product_id"))
-                # Obtener categoria de cada producto comprado
-                product = await db.products.find_one({"_id": item.get("product_id")})
-                if product:
-                    user_categories.add(product.get("category_id"))
-        
+                pid = item.get("product_id")
+                if pid:
+                    user_product_ids.add(pid)
+
+        # Batch fetch categories for all purchased products (replaces N+1 find_one loop)
+        user_categories = set()
+        if user_product_ids:
+            products = await db.products.find(
+                {"_id": {"$in": list(user_product_ids)}},
+                {"category_id": 1},
+            ).to_list(len(user_product_ids))
+            for p in products:
+                if p.get("category_id"):
+                    user_categories.add(p["category_id"])
+
         if not user_categories:
             return []  # Sin historial, no hay colaborativo
         
@@ -572,12 +579,16 @@ class RecommendationEngine:
             "customer_id": user_id
         }).sort("created_at", -1).limit(10).to_list(length=10)
         
-        purchased_products = []
+        # Batch fetch all purchased products (replaces N+1 find_one loop)
+        all_pids = []
         for order in orders:
             for item in order.get("items", []):
-                product = await db.products.find_one({"_id": item.get("product_id")})
-                if product:
-                    purchased_products.append(product)
+                pid = item.get("product_id")
+                if pid:
+                    all_pids.append(pid)
+        purchased_products = await db.products.find(
+            {"_id": {"$in": list(set(all_pids))}},
+        ).to_list(len(all_pids)) if all_pids else []
         
         # Obtener favoritos
         saved_ids = consumer_data.get("saved_products", [])
@@ -637,7 +648,7 @@ class RecommendationEngine:
         
         ttl = (
             self.CACHE_TTL_PRO_MINUTES 
-            if subscription in ["pro", "elite"] 
+            if (subscription or "").upper() in ["PRO", "ELITE"] 
             else self.CACHE_TTL_FREE_MINUTES
         )
         
@@ -744,7 +755,7 @@ class RecommendationEngine:
         """Calcula cuando expira la cache"""
         ttl = (
             self.CACHE_TTL_PRO_MINUTES 
-            if subscription in ["pro", "elite"] 
+            if (subscription or "").upper() in ["PRO", "ELITE"] 
             else self.CACHE_TTL_FREE_MINUTES
         )
         return (datetime.now(timezone.utc) + timedelta(minutes=ttl)).isoformat()

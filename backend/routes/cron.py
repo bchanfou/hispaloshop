@@ -80,92 +80,14 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
     await process_influencer_payouts()
     return {"status": "completed", "note": "Delegated to influencer-auto-payouts"}
 
-    now = datetime.now(timezone.utc)
-    cutoff = (now - timedelta(days=INFLUENCER_PAYOUT_DELAY_DAYS)).isoformat()
 
-    # Find scheduled payouts that are due
-    due_payouts = await db.scheduled_payouts.find(
-        {"status": "scheduled", "due_date": {"$lte": now.isoformat()}}
-    ).to_list(1000)
-
-    # Group by influencer
-    by_influencer = {}
-    for p in due_payouts:
-        iid = p.get("influencer_id")
-        if not iid:
-            continue
-        if iid not in by_influencer:
-            by_influencer[iid] = {"payouts": [], "total": 0}
-        by_influencer[iid]["payouts"].append(p)
-        by_influencer[iid]["total"] = round(by_influencer[iid]["total"] + (p.get("amount") or 0), 2)
-
-    paid_count = 0
-    skipped_count = 0
-
-    for iid, data in by_influencer.items():
-        if data["total"] < INFLUENCER_MIN_PAYOUT_EUR:
-            skipped_count += 1
-            logger.info(f"[PAYOUT] Skipped {iid}: ${data['total']:.2f} < ${INFLUENCER_MIN_PAYOUT_EUR} minimum")
-            continue
-
-        # Get influencer's Stripe Connect account
-        inf = await db.influencers.find_one({"influencer_id": iid}, {"_id": 0, "stripe_account_id": 1, "stripe_onboarding_complete": 1})
-        if not inf or not inf.get("stripe_account_id"):
-            logger.warning(f"[PAYOUT] No Stripe account for {iid}")
-            continue
-
-        # Verify orders are still valid (not refunded)
-        valid_payouts = []
-        for p in data["payouts"]:
-            p_order_id = p.get("order_id")
-            p_payout_id = p.get("payout_id")
-            if not p_order_id or not p_payout_id:
-                continue
-            order = await db.orders.find_one({"order_id": p_order_id}, {"_id": 0, "status": 1})
-            if order and order.get("status") not in ("cancelled", "refunded"):
-                valid_payouts.append(p)
-            else:
-                await db.scheduled_payouts.update_one(
-                    {"payout_id": p_payout_id},
-                    {"$set": {"status": "cancelled", "cancel_reason": "order_refunded", "updated_at": now.isoformat()}}
-                )
-
-        if not valid_payouts:
-            continue
-
-        total_valid = round(sum(p.get("amount", 0) for p in valid_payouts), 2)
-        if total_valid < INFLUENCER_MIN_PAYOUT_EUR:
-            continue
-
-        # Execute Stripe transfer — use EUR (platform currency), not USD
-        payout_currency = valid_payouts[0].get("currency", "eur").lower()
-        try:
-            transfer = stripe.Transfer.create(
-                amount=int(round(total_valid * 100)),
-                currency=payout_currency,
-                destination=inf["stripe_account_id"],
-                metadata={"influencer_id": iid, "payout_count": len(valid_payouts)},
-                idempotency_key=f"inf_batch_{iid}_{now.strftime('%Y%m%d')}",
-            )
-
-            for p in valid_payouts:
-                await db.scheduled_payouts.update_one(
-                    {"payout_id": p.get("payout_id")},
-                    {"$set": {"status": "paid", "transfer_id": transfer.id, "paid_at": now.isoformat()}}
-                )
-
-            paid_count += 1
-            logger.info(f"[PAYOUT] Paid {iid}: {total_valid:.2f}EUR ({len(valid_payouts)} orders) -> {transfer.id}")
-
-        except stripe.error.StripeError as e:
-            logger.error(f"[PAYOUT] Stripe error for {iid}: {e}")
-            for p in valid_payouts:
-                await db.scheduled_payouts.update_one(
-                    {"payout_id": p.get("payout_id")},
-                    {"$set": {"status": "failed", "error": str(e), "updated_at": now.isoformat()}}
-                )
-
-    return {"paid": paid_count, "skipped_below_minimum": skipped_count, "total_checked": len(by_influencer)}
+@router.post("/admin/cron/update-exchange-rates")
+async def cron_update_exchange_rates(user: User = Depends(get_current_user)):
+    """Daily: fetch latest exchange rates from ECB and store in DB."""
+    await require_role(user, ["admin", "super_admin"])
+    from services.exchange_rates import update_exchange_rates
+    doc = await update_exchange_rates()
+    return {"status": "updated", "date": doc["date"], "currencies": len(doc["rates"])}
 
 
 @router.post("/admin/cron/tier-recalculation")

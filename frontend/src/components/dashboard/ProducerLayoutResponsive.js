@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import SellerAIAssistant from '../SellerAIAssistant';
+import RebecaAI from '../ai/RebecaAI';
 import InternalChat from '../InternalChat';
 import MobileBottomNav from './MobileBottomNav';
 import BottomSheet from './BottomSheet';
@@ -23,7 +23,7 @@ import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 function PlanGatedAIAssistant() {
   const { hasAccess } = useProducerPlan();
   if (!hasAccess('PRO')) return null;
-  return <SellerAIAssistant producerData={{ store: null, products: [] }} />;
+  return <RebecaAI />;
 }
 
 export default function ProducerLayout() {
@@ -355,6 +355,7 @@ export default function ProducerLayout() {
         </div>
       </BottomSheet>
     </div>
+    <PlanGatedAIAssistant />
     </ProducerPlanProvider>
   );
 }

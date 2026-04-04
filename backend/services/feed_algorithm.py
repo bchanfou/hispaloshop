@@ -33,6 +33,14 @@ class FeedAlgorithm:
         'serendipity': 0.30,
     }
 
+    # Onboarding discovery modes — adjust initial weights
+    DISCOVERY_MODE_WEIGHTS = {
+        'personalized': None,  # use default
+        'popular': {'recency': 0.20, 'engagement': 0.50, 'personalization': 0.20, 'serendipity': 0.10},
+        'local': None,  # uses country_boost_multiplier instead
+        'rated': {'recency': 0.20, 'engagement': 0.40, 'personalization': 0.30, 'serendipity': 0.10},
+    }
+
     COLD_START_THRESHOLD = 5  # interactions (likes + comments + saves)
 
     def __init__(self):
@@ -44,15 +52,22 @@ class FeedAlgorithm:
         tenant_id: str,
         page: int = 1,
         limit: int = 20,
-        feed_type: str = "for_you"
+        feed_type: str = "for_you",
+        mode: str = "full",
     ) -> List[Dict]:
-        """Genera feed personalizado para el usuario"""
+        """
+        Genera feed personalizado para el usuario.
+
+        mode:
+          - "full": all signals (category affinity, dwell time, creator affinity, etc.)
+          - "fast": lightweight scoring (recency + engagement + following + serendipity)
+                    Used by /feed/foryou for low-latency responses.
+        """
         db = get_db()
 
-        # Obtener usuarios que sigue
-        following = await db.follows.find({
+        # Obtener usuarios que sigue — use user_follows (canonical collection)
+        following = await db.user_follows.find({
             "follower_id": user_id,
-            "tenant_id": tenant_id
         }).to_list(length=1000)
         following_ids = [f["following_id"] for f in following]
 
@@ -96,10 +111,26 @@ class FeedAlgorithm:
             "action_type": {"$in": ["like_post", "save_post", "comment_post"]},
         })
         is_cold_start = total_interactions < self.COLD_START_THRESHOLD
-        active_weights = self.COLD_START_WEIGHTS if is_cold_start else self.DEFAULT_WEIGHTS
 
-        # --- Category affinity from purchase history ---
-        category_scores = await self._build_category_affinity(user_id, db)
+        # --- Determine active weights: cold-start → discovery mode → default ---
+        if is_cold_start:
+            active_weights = dict(self.COLD_START_WEIGHTS)
+            # Apply onboarding discovery mode if set (overrides cold-start after enough interactions)
+            consumer_data = (user_doc_full or {}).get("consumer_data", {})
+            discovery_mode = consumer_data.get("feed_mode")
+            mode_weights = self.DISCOVERY_MODE_WEIGHTS.get(discovery_mode)
+            if mode_weights:
+                active_weights = dict(mode_weights)
+            # "local" mode: boost country multiplier instead of changing weights
+            if discovery_mode == "local":
+                apply_country_boost = True  # force even if < 10 local producers
+        else:
+            active_weights = dict(self.DEFAULT_WEIGHTS)
+
+        # --- Category affinity from purchase history (skip in fast mode) ---
+        category_scores = {}
+        if mode == "full":
+            category_scores = await self._build_category_affinity(user_id, db)
 
         # --- Batch fetch to eliminate N+1 queries ---
         # Batch fetch all unique author docs
@@ -118,24 +149,32 @@ class FeedAlgorithm:
             prod_docs = await db.products.find({"_id": {"$in": list(set(all_tagged_pids))}}, {"_id": 1, "category_id": 1}).to_list(500)
             product_category_cache = {str(p["_id"]): p.get("category_id") for p in prod_docs}
 
-        # --- Track recent content types for diversity scoring ---
-        recent_types = await self._get_recent_shown_types(user_id, db)
+        # --- Signals: skip expensive batch queries in fast mode ---
+        recent_types = {}
+        author_dwell_map = {}
+        category_dwell_map = {}
+        creator_affinity_map = {}
+        content_type_pref = {}
+        product_interaction_map = {}
 
-        # --- Batch: dwell time per author (signal 1) ---
-        author_dwell_map = await self._batch_author_dwell(user_id, author_ids, db)
+        if mode == "full":
+            # --- Track recent content types for diversity scoring ---
+            recent_types = await self._get_recent_shown_types(user_id, db)
 
-        # --- Batch: dwell time per category (signal 1b) ---
-        category_dwell_map = await self._batch_category_dwell(user_id, db)
+            # --- Batch: dwell time per author (signal 1) ---
+            author_dwell_map = await self._batch_author_dwell(user_id, author_ids, db)
 
-        # --- Batch: creator affinity — interactions per author in last 30d (signal 2) ---
-        creator_affinity_map = await self._batch_creator_affinity(user_id, author_ids, db)
+            # --- Batch: dwell time per category (signal 1b) ---
+            category_dwell_map = await self._batch_category_dwell(user_id, db)
 
-        # --- Batch: content type preference — posts vs reels likes in last 14d (signal 3) ---
-        content_type_pref = await self._get_content_type_preference(user_id, db)
+            # --- Batch: creator affinity — interactions per author in last 30d (signal 2) ---
+            creator_affinity_map = await self._batch_creator_affinity(user_id, author_ids, db)
+
+            # --- Batch: content type preference — posts vs reels likes in last 14d (signal 3) ---
+            content_type_pref = await self._get_content_type_preference(user_id, db)
 
         # --- Batch: product interaction counts (avoids N+1 in _calculate_score) ---
-        product_interaction_map = {}
-        if all_tagged_pids:
+        if mode == "full" and all_tagged_pids:
             try:
                 pip = [
                     {"$match": {
@@ -190,6 +229,57 @@ class FeedAlgorithm:
         end = start + limit
 
         return diversified[start:end]
+
+    async def score_candidates(
+        self,
+        candidates: List[Dict],
+        user_id: str,
+        following_ids,
+        mode: str = "fast",
+    ) -> List[Dict]:
+        """
+        Lightweight scoring for pre-fetched candidates.
+        Used by /feed/foryou to delegate scoring to a single engine.
+        Returns candidates sorted by score (highest first).
+        """
+        import random
+        from datetime import datetime, timezone
+
+        following_set = set(following_ids) if not isinstance(following_ids, set) else following_ids
+        now = datetime.now(timezone.utc)
+
+        scored = []
+        for item in candidates:
+            created = item.get("created_at", "")
+            try:
+                dt = datetime.fromisoformat(str(created).replace("Z", "+00:00")) if created else now
+            except Exception:
+                dt = now
+            age_h = max((now - dt).total_seconds() / 3600, 0.01)
+
+            recency = max(0, 100 - age_h * 1.5) if age_h < 48 else max(5, 30 - age_h * 0.05)
+            engagement = min(100, (
+                (item.get("likes_count", 0) or 0)
+                + (item.get("comments_count", 0) or 0) * 2
+                + (item.get("shares_count", 0) or 0) * 3
+                + (item.get("saves_count", 0) or 0) * 2
+            ) / 5)
+            personalization = 60 if item.get("user_id") in following_set else 30
+
+            item_id = item.get("id") or item.get("post_id") or item.get("reel_id") or ""
+            seed = hash(f"{user_id}:{item_id}") & 0xFFFFFFFF
+            serendipity = random.Random(seed).uniform(0, 15)
+
+            score = (
+                recency * self.DEFAULT_WEIGHTS['recency']
+                + engagement * self.DEFAULT_WEIGHTS['engagement']
+                + personalization * self.DEFAULT_WEIGHTS['personalization']
+                + serendipity * self.DEFAULT_WEIGHTS['serendipity']
+            )
+            scored.append((score, item))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [item for _, item in scored]
 
     async def _build_category_affinity(self, user_id: str, db) -> Dict[str, float]:
         """

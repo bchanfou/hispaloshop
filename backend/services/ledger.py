@@ -26,31 +26,36 @@ US_STATE_TAX = {
 
 KR_VAT_RATE = 0.10
 
-# ── Approximate exchange rates to USD ─
-# TODO: Replace with live rates from a config collection or external API.
-# These static rates are for fallback/estimation only and MUST NOT be used for billing.
+# ── Exchange rates — read from DB (populated by daily ECB cron) ──
 
-EXCHANGE_RATES_TO_USD = {
-    "USD": 1.0, "EUR": 1.08, "GBP": 1.27, "JPY": 0.0067,
-    "KRW": 0.00075, "CNY": 0.14, "INR": 0.012, "AED": 0.27,
-    "SAR": 0.27, "BRL": 0.17, "MXN": 0.056, "CAD": 0.74,
-    "AUD": 0.65, "NZD": 0.61, "CHF": 1.13, "SEK": 0.096,
-    "NOK": 0.094, "DKK": 0.145, "PLN": 0.25, "CZK": 0.043,
-    "HUF": 0.0027, "RON": 0.22, "TRY": 0.031, "SGD": 0.75,
-    "HKD": 0.13, "TWD": 0.031, "THB": 0.028, "MYR": 0.22,
-    "PHP": 0.018, "IDR": 0.000063, "VND": 0.00004, "ILS": 0.28,
-    "QAR": 0.27, "KWD": 3.26, "ZAR": 0.055, "NGN": 0.00065,
-    "EGP": 0.021, "MAD": 0.1, "ARS": 0.001, "CLP": 0.0011,
-    "COP": 0.00024, "PEN": 0.27, "BGN": 0.55, "ISK": 0.0072, "RUB": 0.011, "CRC": 0.002, "UYU": 0.024,
-}
+# Module-level cache to avoid hitting DB on every ledger write.
+# Refreshed on first call and when explicitly invalidated.
+_rates_cache: dict = {}
+_rates_cache_date: str = ""
 
 
-def _to_usd(amount: float, currency: str) -> float:
-    rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)
+async def _get_rates_to_usd() -> dict:
+    """Get exchange rates from DB with in-memory cache (refreshes daily)."""
+    global _rates_cache, _rates_cache_date
+    from datetime import date as _date
+    today = _date.today().isoformat()
+
+    if _rates_cache and _rates_cache_date == today:
+        return _rates_cache
+
+    from services.exchange_rates import get_all_rates_to_usd
+    _rates_cache = await get_all_rates_to_usd()
+    _rates_cache_date = today
+    return _rates_cache
+
+
+async def _to_usd(amount: float, currency: str) -> float:
+    rates = await _get_rates_to_usd()
+    rate = rates.get(currency.upper(), 1.0)
     return round(amount * rate, 2)
 
 
-def _get_tax_info(buyer_country: str, buyer_state: Optional[str], seller_country: Optional[str], amount: float):
+def _get_tax_info(buyer_country: str, buyer_state: Optional[str], seller_country: Optional[str], amount: float, buyer_vat_verified: bool = False):
     """Determine tax type, rate, and amount based on jurisdictions."""
     country = (buyer_country or "").upper()
 
@@ -67,16 +72,17 @@ def _get_tax_info(buyer_country: str, buyer_state: Optional[str], seller_country
     # EU
     if country in EU_VAT_RATES:
         rate = EU_VAT_RATES[country]
-        # B2B reverse charge: if seller is in EU but different country and buyer has VAT ID
-        # (simplified — full VAT ID validation is a future feature)
+        # B2B reverse charge: requires VIES-verified VAT ID on the buyer
+        # The caller must pass buyer_vat_verified=True after VIES check
         reverse = False
         seller_c = (seller_country or "").upper()
         if seller_c in EU_VAT_RATES and seller_c != country:
-            reverse = True  # structure ready for future VAT ID check
+            from services.vies_service import should_apply_reverse_charge
+            reverse = should_apply_reverse_charge(seller_c, country, buyer_vat_verified)
         return {
             "tax_type": "EU_VAT",
-            "vat_rate_applied": rate,
-            "product_tax_amount": int(round(amount * rate * 100)) / 100,
+            "vat_rate_applied": 0 if reverse else rate,
+            "product_tax_amount": 0 if reverse else int(round(amount * rate * 100)) / 100,
             "reverse_charge_applied": reverse,
         }
 
@@ -125,8 +131,9 @@ async def write_ledger_event(
 ):
     """Create an immutable ledger entry. NEVER update existing entries."""
     tax = _get_tax_info(buyer_country, buyer_state, seller_country, product_subtotal)
-    usd_equiv = _to_usd(product_subtotal, currency)
-    rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)
+    usd_equiv = await _to_usd(product_subtotal, currency)
+    rates = await _get_rates_to_usd()
+    rate = rates.get(currency.upper(), 1.0)
 
     platform_tax = _get_tax_info(buyer_country, buyer_state, seller_country, platform_fee)
 

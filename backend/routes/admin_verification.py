@@ -24,8 +24,12 @@ async def get_verification_queue(
     status: str = "pending",
     user: User = Depends(get_current_user),
 ):
-    """List producers pending manual verification review."""
+    """List producers pending manual verification review (scoped by admin country)."""
     await require_role(user, ["admin", "super_admin"])
+
+    # Country-scope: admin only sees producers from their assigned country
+    from routes.admin_dashboard import _get_admin_country_scope
+    admin_country = await _get_admin_country_scope(user)
 
     if status == "pending":
         query = {
@@ -51,6 +55,9 @@ async def get_verification_queue(
             "role": {"$in": ["producer", "importer"]},
             "verification_status": {"$exists": True},
         }
+
+    if admin_country:
+        query["country"] = admin_country
 
     users = await db.users.find(
         query,
@@ -110,12 +117,18 @@ async def approve_verification(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    """Manually approve a producer's verification."""
+    """Manually approve a producer's verification (country-scoped)."""
     await require_role(user, ["admin", "super_admin"])
 
     target = await db.users.find_one({"user_id": user_id})
     if not target:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # Country scope: admin can only approve producers from their country
+    from routes.admin_dashboard import _get_admin_country_scope
+    admin_country = await _get_admin_country_scope(user)
+    if admin_country and target.get("country") != admin_country:
+        raise HTTPException(status_code=403, detail="No tienes acceso a productores de este país")
 
     body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
     notes = body.get("notes", "")
@@ -179,8 +192,17 @@ async def reject_verification(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    """Reject a producer's verification with reason."""
+    """Reject a producer's verification with reason (country-scoped)."""
     await require_role(user, ["admin", "super_admin"])
+
+    # Country scope check
+    target = await db.users.find_one({"user_id": user_id}, {"country": 1})
+    if not target:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    from routes.admin_dashboard import _get_admin_country_scope
+    admin_country = await _get_admin_country_scope(user)
+    if admin_country and target.get("country") != admin_country:
+        raise HTTPException(status_code=403, detail="No tienes acceso a productores de este país")
 
     body = await request.json()
     reason = body.get("reason", "").strip()

@@ -22,6 +22,21 @@ def _sanitize_search(q: str) -> str:
 router = APIRouter()
 
 
+async def _ensure_text_index(db):
+    """Create text index on products if not already present (idempotent)."""
+    try:
+        await db.products.create_index(
+            [("name", "text"), ("description", "text"), ("tags", "text"), ("category", "text")],
+            weights={"name": 10, "tags": 5, "category": 3, "description": 1},
+            name="products_text_search",
+            default_language="spanish",
+        )
+    except Exception:
+        pass  # Index already exists or not supported
+
+_text_index_ensured = False
+
+
 async def _search_products(
     db, q: str, limit: int, country: Optional[str],
     sort: Optional[str] = None,
@@ -31,22 +46,36 @@ async def _search_products(
     in_stock: Optional[bool] = None,
     free_shipping: Optional[bool] = None,
 ):
-    match_stage = {
-        "$or": [
-            {"name": {"$regex": q, "$options": "i"}},
-            {"description": {"$regex": q, "$options": "i"}},
-            {"category": {"$regex": q, "$options": "i"}},
-        ],
-        "status": {"$in": ["active", "approved"]},
-    }
+    global _text_index_ensured
+    if not _text_index_ensured:
+        await _ensure_text_index(db)
+        _text_index_ensured = True
+
+    # Use $text search for relevance scoring when sort is default (relevance)
+    use_text_search = sort is None or sort == "relevance"
+
+    if use_text_search:
+        match_stage = {
+            "$text": {"$search": q},
+            "status": {"$in": ["active", "approved"]},
+        }
+    else:
+        # For explicit sort modes, fall back to $regex (text search doesn't allow custom sort)
+        match_stage = {
+            "$or": [
+                {"name": {"$regex": q, "$options": "i"}},
+                {"description": {"$regex": q, "$options": "i"}},
+                {"category": {"$regex": q, "$options": "i"}},
+            ],
+            "status": {"$in": ["active", "approved"]},
+        }
+
     if country:
         match_stage["target_markets"] = country
-    # S-05/S-07: Price range filters
     if min_price is not None:
         match_stage.setdefault("price", {})["$gte"] = min_price
     if max_price is not None:
         match_stage.setdefault("price", {})["$lte"] = max_price
-    # Certification filter
     if certifications:
         cert_list = [c.strip() for c in certifications.split(",") if c.strip()]
         if cert_list:
@@ -56,36 +85,58 @@ async def _search_products(
     if free_shipping:
         match_stage["free_shipping"] = True
 
-    # S-07: Sort by backend
-    sort_stage = {"$sort": {"_id": -1}}  # default: relevance (insertion order)
-    if sort == "price_asc":
+    # Sort: textScore for relevance, explicit field for other modes
+    if use_text_search:
+        sort_stage = {"$sort": {"score": {"$meta": "textScore"}, "_id": -1}}
+    elif sort == "price_asc":
         sort_stage = {"$sort": {"price": 1}}
     elif sort == "price_desc":
         sort_stage = {"$sort": {"price": -1}}
     elif sort == "newest":
         sort_stage = {"$sort": {"created_at": -1}}
+    else:
+        sort_stage = {"$sort": {"_id": -1}}
+
+    project_stage = {
+        "$project": {
+            "product_id": {"$toString": "$_id"},
+            "name": 1,
+            "price": 1,
+            "display_price": 1,
+            "currency": 1,
+            "display_currency": 1,
+            "images": 1,
+            "category": 1,
+            "country_origin": 1,
+            "created_at": 1,
+            "_id": 0,
+        }
+    }
+    if use_text_search:
+        project_stage["$project"]["relevance_score"] = {"$meta": "textScore"}
 
     pipeline = [
         {"$match": match_stage},
         sort_stage,
         {"$limit": limit},
-        {
-            "$project": {
-                "product_id": {"$toString": "$_id"},
-                "name": 1,
-                "price": 1,
-                "display_price": 1,
-                "currency": 1,
-                "display_currency": 1,
-                "images": 1,
-                "category": 1,
-                "country_origin": 1,
-                "created_at": 1,
-                "_id": 0,
-            }
-        },
+        project_stage,
     ]
-    results = await db.products.aggregate(pipeline).to_list(limit)
+
+    try:
+        results = await db.products.aggregate(pipeline).to_list(limit)
+    except Exception:
+        # Fallback to regex if text index is not available (e.g. old MongoDB)
+        match_stage = {
+            "$or": [
+                {"name": {"$regex": q, "$options": "i"}},
+                {"description": {"$regex": q, "$options": "i"}},
+                {"category": {"$regex": q, "$options": "i"}},
+            ],
+            "status": {"$in": ["active", "approved"]},
+        }
+        pipeline = [{"$match": match_stage}, {"$sort": {"_id": -1}}, {"$limit": limit}, project_stage]
+        results = await db.products.aggregate(pipeline).to_list(limit)
+
     return results
 
 

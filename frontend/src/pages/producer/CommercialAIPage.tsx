@@ -83,10 +83,32 @@ function UpgradeBanner() {
 
 /* ───────── ToolCallCard ───────── */
 
+function downloadPdfFromBase64(base64Data, filename = 'contrato_hispaloshop.pdf') {
+  const byteCharacters = atob(base64Data);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function ToolCallCard({ toolCall }) {
   const [expanded, setExpanded] = useState(false);
   const meta = TOOL_LABELS[toolCall.tool] || { icon: Globe, label: toolCall.tool, color: '#6E6E73' };
   const Icon = meta.icon;
+
+  const hasPdf = toolCall.tool === 'generate_contract'
+    && toolCall.result?.pdf_base64
+    && toolCall.result?.pdf_generated !== false;
 
   return (
     <div className="rounded-[14px] border border-black/[0.08] bg-white overflow-hidden mb-2">
@@ -110,8 +132,25 @@ function ToolCallCard({ toolCall }) {
         />
       </button>
       {expanded && (
-        <div className="px-3.5 pb-3 text-xs text-stone-500 font-mono leading-relaxed whitespace-pre-wrap break-words max-h-[200px] overflow-y-auto">
-          {JSON.stringify(toolCall.result, null, 2)}
+        <div className="px-3.5 pb-3">
+          {hasPdf && (
+            <button
+              onClick={() => downloadPdfFromBase64(toolCall.result.pdf_base64)}
+              className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <FileText size={14} />
+              Descargar contrato PDF
+              {toolCall.result.pdf_size_kb && (
+                <span className="text-stone-400 text-[11px]">({toolCall.result.pdf_size_kb} KB)</span>
+              )}
+            </button>
+          )}
+          <div className="text-xs text-stone-500 font-mono leading-relaxed whitespace-pre-wrap break-words max-h-[200px] overflow-y-auto">
+            {JSON.stringify(
+              hasPdf ? { ...toolCall.result, pdf_base64: '[PDF data]' } : toolCall.result,
+              null, 2,
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -410,7 +449,7 @@ export default function CommercialAIPage() {
             { label: 'Mercados', value: '9', sub: 'países analizados' },
             { label: 'Importadores', value: '150+', sub: 'verificados' },
             { label: 'Contratos', value: 'PDF', sub: 'generación automática' },
-            { label: 'Datos', value: '2026', sub: 'actualizados' },
+            { label: 'Datos', value: '2026', sub: 'análisis heurístico' },
           ].map((stat, i) => (
             <div key={stat.label} className="rounded-[14px] bg-white border border-black/[0.08] px-4 py-[18px] text-center">
               <p className="text-2xl font-bold text-stone-950 tracking-tight mb-0.5 m-0">

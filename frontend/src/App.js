@@ -175,7 +175,7 @@ const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
 const AdminFiscalPage = lazy(() => import('./pages/admin/AdminFiscalPage'));
 const AdminVerificationPage = lazy(() => import('./pages/admin/AdminVerificationPage'));
 const AdminModerationPage = lazy(() => import('./pages/admin/AdminModerationPage'));
-const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
+// ChatContainer removed — HI Multi-role AI consolidated into David/Rebeca/Pedro
 const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
@@ -206,6 +206,15 @@ const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPag
 
 // Registration flows
 const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
+
+/** Route guard: redirects non-ELITE producers/importers to their plan page. */
+function EliteRoute({ children }) {
+  const planCache = localStorage.getItem('hsp_plan_cache');
+  let plan = 'FREE';
+  try { plan = planCache ? JSON.parse(planCache).plan : 'FREE'; } catch {}
+  if (plan !== 'ELITE') return <Navigate to="/producer/plan" replace />;
+  return children;
+}
 
 function RouteLoader() {
   return (
@@ -528,7 +537,7 @@ function AppRouter() {
                 )}
               />
               <Route path="/importer/catalog" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterCatalogPage /></ProtectedRoute>} />
-              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><CommercialAIPage /></ProtectedRoute>} />
+              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><EliteRoute><CommercialAIPage /></EliteRoute></ProtectedRoute>} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/b2b/catalog" element={<B2BCatalogPage />} />
@@ -654,7 +663,7 @@ function AppRouter() {
                 <Route path="store" element={<ProducerStoreProfile />} />
                 <Route path="shipping" element={<ProducerShippingPolicy />} />
                 <Route path="insights" element={<ProducerInsights />} />
-                <Route path="commercial-ai" element={<CommercialAIPage />} />
+                <Route path="commercial-ai" element={<EliteRoute><CommercialAIPage /></EliteRoute>} />
                 <Route path="connect" element={<ProducerConnectPage />} />
                 <Route path="connect/success" element={<ProducerConnectSuccess />} />
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
@@ -780,7 +789,7 @@ function AppRouter() {
               <Route path="/chat" element={<Navigate to="/messages" replace />} />
               <Route path="/chat/:conversationId" element={<Navigate to="/messages" replace />} />
                             <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
-              <Route path="/ai/chat" element={<ChatContainer />} />
+              {/* /ai/chat removed — HI Multi-role consolidated into David/Rebeca/Pedro */}
               <Route path="/messages" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
               <Route path="/messages/new" element={<ProtectedRoute><NewConversationPage /></ProtectedRoute>} />
               <Route path="/messages/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />

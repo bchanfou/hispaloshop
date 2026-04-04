@@ -59,34 +59,18 @@ export {
   useB2BProductInfo 
 } from './useProducts';
 
-// Cart & Orders
+// Cart & Orders (mutations like addToCart/removeFromCart go through CartContext)
 export {
-  useAddToCart,
-  useUpdateCartItem, 
-  useRemoveFromCart,
-  useApplyCoupon, 
-  useSyncCart,
+  useApplyCoupon,
   useCreateStripeCheckout,
-  useCheckout, 
-  useConfirmPayment,
-  useOrders, 
-  useOrder, 
-  useOrderTracking, 
-  useCancelOrder, 
-  useReorder 
+  useOrders,
+  useOrder,
+  useOrderTracking,
+  useCancelOrder,
+  useReorder
 } from './useCart';
 
-// HI AI Chat
-export { 
-  useHIConversations, 
-  useHIConversation, 
-  useHISendMessage,
-  useHIDeleteConversation, 
-  useHISuggestions, 
-  useHIInsights,
-  useHIFeedback,
-  useHICreateConversation 
-} from './useHIChat';
+// HI AI Chat — removed (consolidated into David/Rebeca/Pedro)
 
 // Notifications
 export { 
@@ -102,16 +86,7 @@ export {
   useTestPushNotification 
 } from './useNotifications';
 
-// Influencer
-export { 
-  useInfluencerDashboard, 
-  useInfluencerEarnings, 
-  useAffiliateLinks,
-  useGenerateAffiliateLink, 
-  useContentPerformance, 
-  usePayoutHistory,
-  useRequestPayout 
-} from './useInfluencer';
+// Influencer — active hooks are in features/influencer/
 
 // Producer
 export { 
@@ -132,3 +107,10 @@ export {
   useCreateInquiry,
   useInquiries,
 } from './useImporter';
+
+// Plan Config — single source of truth for commissions & pricing
+export {
+  usePlanConfig,
+  useSellerPlanInfo,
+  useInfluencerTierInfo,
+} from './usePlanConfig';

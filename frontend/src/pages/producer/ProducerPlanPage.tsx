@@ -6,32 +6,45 @@ import { useProducerPlan } from '../../context/ProducerPlanContext';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
-const PLANS = [{
-  key: 'FREE',
-  name: 'Free',
-  price: 0,
-  commission: '20%',
-  icon: Star,
-  features: ['Listado de productos ilimitados', "Panel de control básico", 'Soporte por email'],
-  missing: ['Analytics avanzados', "Optimización de precios con IA", 'Matching con influencers', 'Agente comercial IA', 'B2B internacional', 'Manager dedicado']
-}, {
-  key: 'PRO',
-  name: 'Pro',
-  price: 79,
-  commission: '18%',
-  icon: Zap,
-  popular: true,
-  features: ['Todo en Free', 'Analytics avanzados', "Optimización de precios con IA", 'Badge PRO en tienda', 'Matching con influencers'],
-  missing: ['Agente comercial IA', 'B2B internacional', 'Manager dedicado']
-}, {
-  key: 'ELITE',
-  name: 'Elite',
-  price: 249,
-  commission: '15%',
-  icon: Crown,
-  features: ['Todo en Pro', 'Agente comercial IA', 'B2B internacional', 'Manager dedicado', "Comisión más baja"],
-  missing: []
-}];
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
+
+const PLAN_FEATURES = {
+  FREE: {
+    icon: Star,
+    features: ['Listado de productos ilimitados', "Panel de control básico", 'Soporte por email'],
+    missing: ['Analytics avanzados', "Optimización de precios con IA", 'Matching con influencers', 'Agente comercial IA', 'B2B internacional', 'Manager dedicado'],
+  },
+  PRO: {
+    icon: Zap,
+    popular: true,
+    features: ['Todo en Free', 'Analytics avanzados', "Optimización de precios con IA", 'Badge PRO en tienda', 'Matching con influencers'],
+    missing: ['Agente comercial IA', 'B2B internacional', 'Manager dedicado'],
+  },
+  ELITE: {
+    icon: Crown,
+    features: ['Todo en Pro', 'Agente comercial IA', 'B2B internacional', 'Manager dedicado', "Comisión más baja"],
+    missing: [],
+  },
+};
+
+function usePlans() {
+  const { data: config } = usePlanConfig();
+  const sellerPlans = config?.seller_plans || {};
+  return ['FREE', 'PRO', 'ELITE'].map(key => {
+    const api = sellerPlans[key] || {};
+    const meta = PLAN_FEATURES[key];
+    return {
+      key,
+      name: api.label || key,
+      price: api.price_monthly_eur ?? (key === 'FREE' ? 0 : key === 'PRO' ? 79 : 249),
+      commission: `${Math.round((api.commission_rate ?? 0.20) * 100)}%`,
+      icon: meta.icon,
+      popular: meta.popular || false,
+      features: meta.features,
+      missing: meta.missing,
+    };
+  });
+}
 function PlanCard({
   plan,
   currentPlan,
@@ -96,6 +109,7 @@ function PlanCard({
     </div>;
 }
 export default function ProducerPlanPage() {
+  const PLANS = usePlans();
   const {
     planData,
     currentPlan,

@@ -283,7 +283,7 @@ async def get_suggested_creators(
 
     following_ids: List[str] = []
     if user_id:
-        following = await db.follows.find({"follower_id": user_id}).to_list(length=500)
+        following = await db.user_follows.find({"follower_id": user_id}).to_list(length=500)
         following_ids = [f.get("following_id") for f in following if f.get("following_id")]
 
     query: Dict = {

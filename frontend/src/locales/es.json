@@ -4191,14 +4191,14 @@
             "name": "ELITE",
             "price": "249€",
             "period": "/mes",
-            "commission": "15%",
+            "commission": "17%",
             "description": "Para marcas y cooperativas",
             "features": [
               "Todo lo de Pro",
               "Agente comercial IA",
               "B2B internacional",
               "Manager dedicado",
-              "Comisión más baja: 15%"
+              "Comisión más baja: 17%"
             ]
           }
         ]
@@ -4209,7 +4209,7 @@
         "items": [
           {
             "question": "¿Cuánto cuesta registrarse?",
-            "answer": "Registrarse es gratis. El plan FREE permite vender con una comisión del 20%. PRO cuesta 79€/mes (18%) y ELITE 249€/mes (15%)."
+            "answer": "Registrarse es gratis. El plan FREE permite vender con una comisión del 20%. PRO cuesta 79€/mes (18%) y ELITE 249€/mes (17%)."
           },
           {
             "question": "¿Quién se encarga del envío?",

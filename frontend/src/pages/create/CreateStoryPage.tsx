@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Type, Tag, Check, Pencil, Undo2, Redo2, Trash2 } from 'lucide-react';
+import { X, Type, Tag, Check, Pencil, Undo2, Redo2, Trash2, ShoppingBag, AtSign, Link2, MapPin, Camera, Image as ImageIcon } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -256,30 +256,26 @@ export default function CreateStoryPage() {
     return () => clearTimeout(productSearchTimer.current);
   }, [productQuery, activePanel]);
 
-  // Render draw paths on canvas
+  // Render active draw path on canvas (committed paths use SVG overlay)
   useEffect(() => {
     const canvas = drawCanvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !drawMode) return;
     const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const allPaths = currentPath ? [...drawPaths, currentPath] : drawPaths;
-    for (const path of allPaths) {
-      if (path.points.length < 2) continue;
+    if (currentPath && currentPath.points.length >= 2) {
       ctx.beginPath();
-      ctx.strokeStyle = path.color;
-      ctx.lineWidth = path.width;
+      ctx.strokeStyle = currentPath.color;
+      ctx.lineWidth = currentPath.width;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.moveTo(path.points[0].x, path.points[0].y);
-      for (let i = 1; i < path.points.length; i++) {
-        ctx.lineTo(path.points[i].x, path.points[i].y);
+      ctx.moveTo(currentPath.points[0].x, currentPath.points[0].y);
+      for (let i = 1; i < currentPath.points.length; i++) {
+        ctx.lineTo(currentPath.points[i].x, currentPath.points[i].y);
       }
       ctx.stroke();
     }
-  }, [drawPaths, currentPath, drawMode]);
+  }, [currentPath, drawMode]);
   const addProductSticker = useCallback(product => {
     setStickerOverlays(prev => [...prev, {
       id: `p_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -683,30 +679,31 @@ export default function CreateStoryPage() {
         @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
       `}</style>
 
-      {/* Hidden inputs */}
+      {/* Hidden inputs — gallery + camera (separate for reliable capture) */}
       <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileSelect} className="hidden" />
-      <input ref={cameraInputRef} type="file" accept="image/*,video/*" capture="environment" onChange={handleFileSelect} className="hidden" />
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
 
-      {/* TopBar */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
+      {/* TopBar — glass morphism */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top,8px)+8px)] pb-2">
         <button onClick={() => {
         if (imageFile || videoFile || textOverlays.length > 0 || stickerOverlays.length > 0) {
           if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
         }
         navigate(-1);
-      }} aria-label="Cerrar editor de historia" className="w-11 h-11 bg-transparent border-none cursor-pointer flex items-center justify-center">
-          <X size={22} className="text-white" />
+      }} aria-label="Cerrar editor de historia" className="w-10 h-10 bg-black/30 backdrop-blur-xl rounded-xl border-none cursor-pointer flex items-center justify-center transition-colors hover:bg-black/50">
+          <X size={20} className="text-white" />
         </button>
-        <div className="flex items-center gap-1">
-          <button onClick={undo} className="w-9 h-9 bg-white/10 rounded-full border-none cursor-pointer flex items-center justify-center" aria-label="Deshacer">
-            <Undo2 size={16} className="text-white/70" />
+        <div className="flex items-center gap-1 bg-black/30 backdrop-blur-xl rounded-xl p-1">
+          <button onClick={undo} className="w-8 h-8 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="Deshacer">
+            <Undo2 size={15} className="text-white/60" />
           </button>
-          <button onClick={redo} className="w-9 h-9 bg-white/10 rounded-full border-none cursor-pointer flex items-center justify-center" aria-label="Rehacer">
-            <Redo2 size={16} className="text-white/70" />
+          <div className="w-px h-4 bg-white/10" />
+          <button onClick={redo} className="w-8 h-8 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="Rehacer">
+            <Redo2 size={15} className="text-white/60" />
           </button>
         </div>
-        <button onClick={handlePublish} disabled={publishing} className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 min-h-[48px] ${publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'}`}>
-          {publishing && <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+        <button onClick={handlePublish} disabled={publishing} className={`bg-white text-stone-950 border-none text-[13px] font-semibold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 min-h-[40px] ${publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-100 active:scale-95'}`}>
+          {publishing && <span className="inline-block w-4 h-4 border-2 border-stone-300 border-t-stone-950 rounded-full animate-spin" />}
           {publishing ? 'Publicando...' : 'Publicar'}
         </button>
       </div>
@@ -742,14 +739,46 @@ export default function CreateStoryPage() {
           </div>
         </div>}
 
-      {/* Background selector */}
-      <div className="absolute top-[52px] left-0 right-0 z-10 flex gap-2 overflow-x-auto px-4 py-2 bg-black/60 backdrop-blur-lg">
-        {BG_OPTIONS.map(bg => <button key={bg.id} onClick={() => handleBgSelect(bg)} aria-label={`Fondo: ${bg.id}`} className={`w-11 h-11 rounded-hs-sm shrink-0 flex items-center justify-center p-0 cursor-pointer border-2 ${background === bg.id ? 'border-white' : 'border-transparent'} ${bg.type === 'action' ? 'text-xl' : 'text-base'} ${bg.id === 'white' || bg.id === 'crema' ? 'text-black' : 'text-white'}`} style={{
-        background: bg.type === 'color' || bg.type === 'gradient' ? bg.value : 'rgba(255,255,255,0.1)'
-      }}>
-            {bg.label}
-          </button>)}
-      </div>
+      {/* Media selector / Background colors */}
+      {imagePreviewUrl || videoPreviewUrl ? (
+        /* When media is selected: floating change button only */
+        <div className="absolute top-[56px] left-4 z-10 flex gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Cambiar foto o vídeo"
+            className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-white text-[12px] font-medium px-3 py-2 rounded-full border-none cursor-pointer hover:bg-black/60 transition-colors"
+          >
+            <ImageIcon size={14} />
+            Cambiar
+          </button>
+          <button
+            onClick={() => cameraInputRef.current?.click()}
+            aria-label="Tomar foto"
+            className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-white text-[12px] font-medium px-3 py-2 rounded-full border-none cursor-pointer hover:bg-black/60 transition-colors"
+          >
+            <Camera size={14} />
+          </button>
+        </div>
+      ) : (
+        /* No media: show BG color options + camera/gallery */
+        <div className="absolute top-[52px] left-0 right-0 z-10 flex gap-2 overflow-x-auto px-4 py-2">
+          {BG_OPTIONS.map(bg => (
+            <button
+              key={bg.id}
+              onClick={() => handleBgSelect(bg)}
+              aria-label={bg.type === 'action' ? (bg.id === 'camera' ? 'Tomar foto' : 'Elegir de galería') : `Fondo: ${bg.id}`}
+              className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center p-0 cursor-pointer border-2 transition-all ${
+                background === bg.id ? 'border-white scale-110' : 'border-white/20'
+              } ${bg.type === 'action' ? 'bg-white/10 text-white' : ''} ${
+                bg.id === 'white' || bg.id === 'crema' ? 'text-black' : 'text-white'
+              }`}
+              style={bg.type === 'color' ? { background: bg.value } : undefined}
+            >
+              {bg.id === 'camera' ? <Camera size={16} /> : bg.id === 'gallery' ? <ImageIcon size={16} /> : null}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Canvas */}
       <div className="flex-1 flex items-center justify-center pt-[104px] px-4 pb-4">
@@ -757,8 +786,8 @@ export default function CreateStoryPage() {
           {/* Video preview */}
           {videoPreviewUrl && <video src={videoPreviewUrl} className="absolute inset-0 w-full h-full object-cover z-[1]" autoPlay loop muted playsInline style={activeFilterCSS !== 'none' ? { filter: activeFilterCSS } : undefined} />}
 
-          {/* Filter swipe overlay — only when media is selected and no tool panel is active */}
-          {(imagePreviewUrl || videoPreviewUrl) && !activePanel && <StoryFilterSwipe filterIndex={filterIndex} intensity={filterIntensity} onFilterChange={setFilterIndex} onIntensityChange={setFilterIntensity} enabled={!activePanel} />}
+          {/* Filter swipe overlay — only when media is selected, no tool panel, and not drawing */}
+          {(imagePreviewUrl || videoPreviewUrl) && !activePanel && !drawMode && <StoryFilterSwipe filterIndex={filterIndex} intensity={filterIntensity} onFilterChange={setFilterIndex} onIntensityChange={setFilterIntensity} enabled={!activePanel && !drawMode} />}
 
           {/* Text overlays — positions must be inline (dynamic %) */}
           {textOverlays.map(t => <div key={t.id} className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5] group touch-none" style={{
@@ -934,56 +963,49 @@ export default function CreateStoryPage() {
                 </div> : s.content}
             </div>)}
 
-          {/* Draw canvas overlay */}
-          {drawMode && <canvas ref={drawCanvasRef} className="absolute inset-0 z-[8] cursor-crosshair touch-none" onPointerDown={e => {
-          if (!e.isPrimary) return; // ignore secondary touch points (multi-touch)
-          const rect = e.currentTarget.getBoundingClientRect();
+          {/* Draw canvas overlay — active when drawing */}
+          {drawMode && <canvas ref={drawCanvasRef} className="absolute inset-0 z-[8] cursor-crosshair touch-none" style={{ touchAction: 'none' }} onPointerDown={e => {
+          if (!e.isPrimary) return;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          // Size canvas to match container on first draw
+          const canvas = e.currentTarget;
+          const rect = canvas.getBoundingClientRect();
+          if (canvas.width !== Math.round(rect.width) || canvas.height !== Math.round(rect.height)) {
+            canvas.width = Math.round(rect.width);
+            canvas.height = Math.round(rect.height);
+          }
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
-          drawPointsRef.current = [{
-            x,
-            y
-          }];
-          setCurrentPath({
-            points: [{
-              x,
-              y
-            }],
-            color: drawColor,
-            width: drawWidth
-          });
+          drawPointsRef.current = [{ x, y }];
+          setCurrentPath({ points: [{ x, y }], color: drawColor, width: drawWidth });
         }} onPointerMove={e => {
           if (!e.isPrimary || !currentPath) return;
           const rect = e.currentTarget.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          // B: Accumulate points in ref, sync to state via RAF
-          drawPointsRef.current.push({
-            x,
-            y
-          });
+          const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+          const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+          drawPointsRef.current.push({ x, y });
           if (drawRafRef.current) cancelAnimationFrame(drawRafRef.current);
           drawRafRef.current = requestAnimationFrame(() => {
-            setCurrentPath(prev => prev ? {
-              ...prev,
-              points: [...drawPointsRef.current]
-            } : prev);
+            setCurrentPath(prev => prev ? { ...prev, points: [...drawPointsRef.current] } : prev);
           });
         }} onPointerUp={e => {
-          if (!e.isPrimary) return; // ignore secondary touch points
+          if (!e.isPrimary) return;
           if (drawRafRef.current) cancelAnimationFrame(drawRafRef.current);
           if (currentPath && drawPointsRef.current.length > 1) {
-            setDrawPaths(prev => [...prev, {
-              ...currentPath,
-              points: [...drawPointsRef.current]
-            }]);
+            setDrawPaths(prev => [...prev, { ...currentPath, points: [...drawPointsRef.current] }]);
           }
           drawPointsRef.current = [];
           setCurrentPath(null);
         }} />}
 
-          {/* Committed draw paths (visible when not in draw mode) */}
-          {!drawMode && drawPaths.length > 0 && <canvas ref={drawCanvasRef} className="absolute inset-0 z-[8] pointer-events-none" />}
+          {/* Committed draw paths — SVG overlay (visible always, non-interactive) */}
+          {drawPaths.length > 0 && <svg className="absolute inset-0 w-full h-full z-[4] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            {drawPaths.map((path, pi) => {
+              if (path.points.length < 2) return null;
+              const d = path.points.map((pt, j) => `${j === 0 ? 'M' : 'L'}${pt.x} ${pt.y}`).join(' ');
+              return <path key={pi} d={d} stroke={path.color} strokeWidth={path.width} strokeLinecap="round" strokeLinejoin="round" fill="none" />;
+            })}
+          </svg>}
 
           {/* Empty state */}
           {!imagePreviewUrl && !videoPreviewUrl && textOverlays.length === 0 && stickerOverlays.length === 0 && <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1002,28 +1024,39 @@ export default function CreateStoryPage() {
           </span>
         </div>}
 
-      {/* Right toolbar */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-        {[{
-        key: 'text',
-        icon: <Type size={20} className="text-white" />,
-        label: 'Añadir texto'
-      }, {
-        key: 'sticker',
-        icon: <span className="text-xl">🌿</span>,
-        label: 'Añadir sticker'
-      }, {
-        key: 'product',
-        icon: <Tag size={20} className="text-white" />,
-        label: 'Etiquetar producto'
-      }].map(tool => <button key={tool.key} onClick={() => setActivePanel(activePanel === tool.key ? null : tool.key)} aria-label={tool.label} aria-pressed={activePanel === tool.key} className={`w-11 h-11 rounded-full border-none cursor-pointer flex items-center justify-center ${activePanel === tool.key ? 'bg-white/30' : 'bg-black/40'}`}>
+      {/* Right toolbar — minimal pill with glass effect */}
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 bg-black/30 backdrop-blur-xl rounded-2xl p-1.5 z-10">
+        {[
+          { key: 'text', icon: <Type size={18} />, label: 'Texto' },
+          { key: 'sticker', icon: <span className="text-base leading-none">🌿</span>, label: 'Sticker' },
+          { key: 'product', icon: <Tag size={18} />, label: 'Producto' },
+        ].map(tool => (
+          <button
+            key={tool.key}
+            onClick={() => { setActivePanel(activePanel === tool.key ? null : tool.key); setDrawMode(false); }}
+            aria-label={tool.label}
+            aria-pressed={activePanel === tool.key}
+            className={`w-10 h-10 rounded-xl border-none cursor-pointer flex items-center justify-center transition-all duration-200 ${
+              activePanel === tool.key
+                ? 'bg-white text-stone-950 scale-105'
+                : 'bg-transparent text-white hover:bg-white/10'
+            }`}
+          >
             {tool.icon}
-          </button>)}
-        <button onClick={() => {
-        setDrawMode(m => !m);
-        setActivePanel(null);
-      }} aria-label="Dibujar" aria-pressed={drawMode} className={`w-11 h-11 rounded-full border-none cursor-pointer flex items-center justify-center ${drawMode ? 'bg-white/30' : 'bg-black/40'}`}>
-          <Pencil size={20} className="text-white" />
+          </button>
+        ))}
+        <div className="h-px bg-white/10 mx-1.5" />
+        <button
+          onClick={() => { setDrawMode(m => !m); setActivePanel(null); }}
+          aria-label="Dibujar"
+          aria-pressed={drawMode}
+          className={`w-10 h-10 rounded-xl border-none cursor-pointer flex items-center justify-center transition-all duration-200 ${
+            drawMode
+              ? 'bg-white text-stone-950 scale-105'
+              : 'bg-transparent text-white hover:bg-white/10'
+          }`}
+        >
+          <Pencil size={18} />
         </button>
       </div>
 

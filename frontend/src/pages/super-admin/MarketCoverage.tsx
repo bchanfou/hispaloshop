@@ -41,6 +41,17 @@ export default function MarketCoverage() {
   const [marketData, setMarketData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(null);
+  const [countryConfigs, setCountryConfigs] = useState([]);
+  const [assigningAdmin, setAssigningAdmin] = useState(null);
+  const [adminInput, setAdminInput] = useState('');
+
+  // Fetch country configs (admin assignments)
+  const fetchCountryConfigs = useCallback(async () => {
+    try {
+      const data = await apiClient.get('/superadmin/countries');
+      setCountryConfigs(Array.isArray(data) ? data : data?.countries || []);
+    } catch { /* ignore */ }
+  }, []);
 
   // Derive ALL_COUNTRIES and COUNTRY_META from backend (135 countries)
   const ALL_COUNTRIES = useMemo(() =>
@@ -68,7 +79,7 @@ export default function MarketCoverage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); fetchCountryConfigs(); }, [fetchData, fetchCountryConfigs]);
 
   const coverage = Array.isArray(marketData?.coverage) ? marketData.coverage : [];
   const activeCountryCodes = new Set(coverage.map(c => c.country_code));
@@ -149,6 +160,42 @@ export default function MarketCoverage() {
                 ) : (
                   <p className="text-xs text-white/20">Inactivo</p>
                 )}
+                {(() => {
+                  const cc = countryConfigs.find(c => c.country_code === country.code);
+                  const adminId = cc?.admin_user_id;
+                  return adminId ? (
+                    <p className="text-[10px] text-white/25 mt-0.5">Admin: {adminId.slice(0, 8)}…</p>
+                  ) : (
+                    <button
+                      onClick={() => { setAssigningAdmin(country.code); setAdminInput(''); }}
+                      className="text-[10px] text-white/40 hover:text-white/70 mt-0.5 underline underline-offset-2"
+                    >Asignar admin</button>
+                  );
+                })()}
+                {assigningAdmin === country.code && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <input
+                      value={adminInput}
+                      onChange={e => setAdminInput(e.target.value)}
+                      placeholder="user_id del admin"
+                      className="bg-white/[0.08] text-white text-xs rounded-lg px-2 py-1 w-40 border border-white/10"
+                    />
+                    <button
+                      onClick={async () => {
+                        try {
+                          await apiClient.put(`/superadmin/countries/${country.code}/admin`, { admin_user_id: adminInput.trim() });
+                          toast.success(`Admin asignado a ${country.name}`);
+                          setAssigningAdmin(null);
+                          fetchCountryConfigs();
+                        } catch (err) {
+                          toast.error(err?.message || err?.detail || 'Error al asignar admin');
+                        }
+                      }}
+                      className="text-[10px] bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded-lg"
+                    >OK</button>
+                    <button onClick={() => setAssigningAdmin(null)} className="text-[10px] text-white/30 hover:text-white/60">✕</button>
+                  </div>
+                )}
               </div>
               {isActive && countryData && (
                 <span className="text-[11px] text-white/30">
@@ -158,12 +205,22 @@ export default function MarketCoverage() {
               <ToggleSwitch
                 active={isActive}
                 disabled={activating === country.code}
-                onClick={() => {
-                  // Toggle is informational — actual activation is done via inventory
-                  toast.info(isActive
-                    ? `${country.name}: mercado activo con ${countryData?.active_products || 0} productos`
-                    : `${country.name}: sin productos con inventario en este país`
-                  );
+                onClick={async () => {
+                  setActivating(country.code);
+                  try {
+                    if (isActive) {
+                      await apiClient.post(`/superadmin/countries/${country.code}/deactivate`);
+                      toast.success(`${country.name} desactivado`);
+                    } else {
+                      await apiClient.post(`/superadmin/countries/${country.code}/activate`);
+                      toast.success(`${country.name} activado`);
+                    }
+                    fetchData();
+                  } catch (err) {
+                    toast.error(err?.message || err?.detail || 'Error al cambiar estado del país');
+                  } finally {
+                    setActivating(null);
+                  }
                 }}
               />
             </div>

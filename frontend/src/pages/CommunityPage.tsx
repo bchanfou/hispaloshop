@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X } from 'lucide-react';
+import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X, Heart, MessageCircle, Share, MoreHorizontal, Image, PackageSearch, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
@@ -373,14 +373,14 @@ const CommunityFeed = ({
   return <div className="px-4 pt-3">
       {/* Search bar */}
       <div className="relative mb-3">
-        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Buscar en la comunidad..." className="h-9 w-full rounded-full border border-stone-200 bg-white pl-9 pr-8 text-[13px] text-stone-950 outline-none" />
-        {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0.5" aria-label="Limpiar búsqueda">
-          <X size={14} className="text-stone-400" />
+        <Search size={15} strokeWidth={1.5} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Buscar en la comunidad..." className="h-10 w-full rounded-2xl border border-stone-200 bg-white pl-10 pr-9 text-[13px] text-stone-950 outline-none placeholder:text-stone-400" />
+        {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-stone-100 border-none cursor-pointer p-1 rounded-full hover:bg-stone-200 transition-colors" aria-label="Limpiar búsqueda">
+          <X size={12} strokeWidth={2} className="text-stone-500" />
         </button>}
       </div>
 
-      {isMember && !isSearching && <button onClick={() => setShowPostForm(!showPostForm)} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-full text-left cursor-pointer text-sm text-stone-500 mb-3.5 transition-all">
+      {isMember && !isSearching && <button onClick={() => setShowPostForm(!showPostForm)} className="w-full px-4 py-3 bg-white border border-stone-200 rounded-2xl text-left cursor-pointer text-[13px] text-stone-400 mb-3 hover:border-stone-300 transition-colors">
           Comparte algo con la comunidad...
         </button>}
 
@@ -392,9 +392,9 @@ const CommunityFeed = ({
       </AnimatePresence>
 
       {(isSearching ? searchLoading : isLoading) ? Array(3).fill(0).map((_, i) => <div key={i} className="h-[120px] rounded-2xl mb-2.5 bg-stone-100 animate-pulse" />) : isError && !isSearching ? <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
-          <p className="text-[15px] font-semibold text-stone-950 m-0">Error al cargar posts</p>
-          <button onClick={() => refetchQuery()} aria-label="Reintentar carga de posts" className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer">
-            <RefreshCw size={13} /> Reintentar
+          <p className="text-[15px] font-medium text-stone-950 m-0">Error al cargar posts</p>
+          <button onClick={() => refetchQuery()} aria-label="Reintentar carga de posts" className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border border-stone-200 bg-white text-stone-950 text-[13px] font-medium cursor-pointer hover:bg-stone-50 transition-colors">
+            <RefreshCw size={13} strokeWidth={1.5} /> Reintentar
           </button>
         </div> : posts.length === 0 ? <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
           <Users size={48} strokeWidth={1} className="text-stone-500" />
@@ -404,8 +404,8 @@ const CommunityFeed = ({
           </p>
         </div> : <>
           {posts.map(post => <CommunityPostCard key={post.id || post._id} post={post} isAdmin={isAdmin} onDelete={refetchFeed} onRefresh={refetchFeed} />)}
-          {hasNextPage && !isSearching && <button onClick={() => fetchNextPage()} className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
-              Ver más posts
+          {hasNextPage && !isSearching && <button onClick={() => fetchNextPage()} className="w-full mt-2 py-2.5 rounded-2xl border border-stone-200 bg-white text-stone-500 text-[13px] font-medium cursor-pointer hover:bg-stone-50 transition-colors">
+              Ver más
             </button>}
         </>}
     </div>;
@@ -498,7 +498,7 @@ const CommunityPostForm = ({
   }} exit={{
     opacity: 0,
     y: -8
-  }} className="bg-white rounded-2xl shadow-sm p-3.5 mb-3.5">
+  }} className="bg-white rounded-2xl border border-stone-100 p-3.5 mb-3">
       <textarea value={text} onChange={e => setText(e.target.value)} placeholder={i18n.t('community.queQuieresCompartirPuedesUsarHas', '¿Qué quieres compartir? Puedes usar #hashtags')} rows={3} maxLength={1000} className="resize-none mb-2.5 leading-relaxed w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border" autoFocus />
 
       {imagePreview && <div className="relative mb-2.5">
@@ -506,8 +506,8 @@ const CommunityPostForm = ({
           <button onClick={() => {
         setImagePreview(null);
         setImageUrl(null);
-      }} className="absolute top-1.5 right-1.5 bg-black/60 text-white border-none rounded-full w-[26px] h-[26px] cursor-pointer text-base flex items-center justify-center">
-            ×
+      }} className="absolute top-2 right-2 bg-stone-950/70 text-white border-none rounded-full w-7 h-7 cursor-pointer flex items-center justify-center backdrop-blur-sm hover:bg-stone-950/90 transition-colors">
+            <X size={14} strokeWidth={2} />
           </button>
           {isUploading && <div className="absolute inset-0 rounded-xl bg-black/40 flex items-center justify-center">
               <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -516,11 +516,13 @@ const CommunityPostForm = ({
 
       {/* Selected products */}
       {selectedProducts.length > 0 && <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide">
-        {selectedProducts.map(p => <div key={p.id || p._id} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 shrink-0">
-          {(p.image || p.images?.[0]) && <img src={p.image || p.images?.[0]} alt="" className="w-8 h-8 rounded-lg object-cover" />}
+        {selectedProducts.map(p => <div key={p.id || p._id} className="flex items-center gap-2 bg-white border border-stone-200 rounded-2xl px-2.5 py-1.5 shrink-0">
+          {(p.image || p.images?.[0]) && <img src={p.image || p.images?.[0]} alt="" className="w-7 h-7 rounded-lg object-cover" />}
           <span className="text-[12px] font-medium text-stone-950 max-w-[120px] truncate">{p.name}</span>
-          {p.price != null && <span className="text-[11px] text-stone-500">{Number(p.price).toFixed(2)}€</span>}
-          <button onClick={() => setSelectedProducts(prev => prev.filter(sp => (sp.id || sp._id) !== (p.id || p._id)))} className="bg-transparent border-none cursor-pointer text-stone-400 text-sm p-0 leading-none">×</button>
+          {p.price != null && <span className="text-[11px] text-stone-500 tabular-nums">{Number(p.price).toFixed(2)} €</span>}
+          <button onClick={() => setSelectedProducts(prev => prev.filter(sp => (sp.id || sp._id) !== (p.id || p._id)))} className="bg-transparent border-none cursor-pointer text-stone-300 p-0 leading-none hover:text-stone-500 transition-colors">
+            <X size={13} strokeWidth={2} />
+          </button>
         </div>)}
       </div>}
 
@@ -544,19 +546,19 @@ const CommunityPostForm = ({
         </div>}
       </div>}
 
-      <div className="flex gap-2 items-center">
-        <button onClick={() => fileRef.current?.click()} className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Subir imagen" title={i18n.t('community.anadirImagen', 'Añadir imagen')}>
-          📷
+      <div className="flex gap-1.5 items-center">
+        <button onClick={() => fileRef.current?.click()} className="bg-transparent border-none cursor-pointer text-stone-400 p-2 rounded-full hover:bg-stone-100 transition-colors flex items-center justify-center" aria-label="Subir imagen" title={i18n.t('community.anadirImagen', 'Añadir imagen')}>
+          <Image size={18} strokeWidth={1.5} />
         </button>
-        <button onClick={() => setShowProductPicker(v => !v)} className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Enlazar producto" title="Enlazar producto">
-          🏷️
+        <button onClick={() => setShowProductPicker(v => !v)} className={`bg-transparent border-none cursor-pointer p-2 rounded-full hover:bg-stone-100 transition-colors flex items-center justify-center ${showProductPicker ? 'text-stone-950' : 'text-stone-400'}`} aria-label="Enlazar producto" title="Enlazar producto">
+          <PackageSearch size={18} strokeWidth={1.5} />
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
-        <span className="text-[11px] text-stone-500 flex-1">{text.length}/1000</span>
-        <button onClick={onClose} className="px-3 py-1.5 rounded-full border border-stone-200 bg-white text-stone-500 text-xs font-semibold cursor-pointer">
+        <span className="text-[11px] text-stone-400 flex-1 text-right tabular-nums">{text.length}/1000</span>
+        <button onClick={onClose} className="px-3.5 py-1.5 rounded-full border border-stone-200 bg-white text-stone-600 text-[12px] font-medium cursor-pointer hover:bg-stone-50 transition-colors">
           Cancelar
         </button>
-        <button onClick={submit} disabled={isPosting || isUploading} className={`px-3 py-1.5 rounded-full border-none bg-stone-950 text-white text-xs font-semibold cursor-pointer ${isPosting || isUploading ? 'opacity-50' : 'opacity-100'}`}>
+        <button onClick={submit} disabled={isPosting || isUploading} className="px-4 py-1.5 rounded-full border-none bg-stone-950 text-white text-[12px] font-medium cursor-pointer disabled:opacity-40 transition-opacity">
           {isPosting ? '...' : 'Publicar'}
         </button>
       </div>
@@ -620,11 +622,11 @@ const CommunityPostCard = ({
   };
   return <div>
       {(post.pinned || post.is_pinned) && <div className="flex items-center gap-1.5 mb-1">
-          <span className="bg-stone-100 text-stone-600 text-[11px] rounded-full px-2 py-0.5 inline-flex items-center gap-1">
-            <Pin size={10} /> Fijado
+          <span className="text-stone-400 text-[11px] inline-flex items-center gap-1 font-medium">
+            <Pin size={11} strokeWidth={1.5} /> Fijado
           </span>
         </div>}
-    <div className="bg-white rounded-2xl shadow-sm mb-2.5 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-stone-100 mb-2.5 overflow-hidden">
       <div className="flex items-center justify-between px-3.5 py-3">
         <Link to={`/${post.author_username}`} className="flex gap-2.5 items-center no-underline text-inherit">
           <img src={post.author_avatar || post.author_profile_image || post.author_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_username || 'U')}&size=36&background=e7e5e4&color=78716c`} onError={e => {
@@ -633,7 +635,7 @@ const CommunityPostCard = ({
           <div>
             <p className="text-sm font-semibold m-0 text-stone-950">
               {post.author_username}
-              {post.author_is_seller && <span className="ml-1.5 text-[9px] px-1.5 py-px rounded bg-stone-100 text-stone-500 font-semibold">
+              {post.author_is_seller && <span className="ml-1.5 text-[9px] px-1.5 py-px rounded-full bg-stone-100 text-stone-500 font-medium tracking-wide uppercase">
                   Vendedor
                 </span>}
             </p>
@@ -644,8 +646,8 @@ const CommunityPostCard = ({
         </Link>
         {/* Menu: pin + delete (admin/owner) + report (anyone) */}
         {user && <div className="relative">
-            <button onClick={() => setShowMenu(v => !v)} aria-label="Opciones del post" className="bg-transparent border-none cursor-pointer text-base text-stone-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
-              ···
+            <button onClick={() => setShowMenu(v => !v)} aria-label="Opciones del post" className="bg-transparent border-none cursor-pointer text-stone-400 p-2 rounded-full hover:bg-stone-50 transition-colors flex items-center justify-center">
+              <MoreHorizontal size={18} strokeWidth={1.5} />
             </button>
             <AnimatePresence>
               {showMenu && <motion.div initial={{
@@ -657,16 +659,16 @@ const CommunityPostCard = ({
             }} exit={{
               opacity: 0,
               scale: 0.9
-            }} className="absolute right-0 top-full z-20 bg-white rounded-xl shadow-lg border border-stone-100 overflow-hidden min-w-[160px]">
-                  {isAdmin && <button onClick={togglePin} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
-                      <Pin size={14} />
+            }} className="absolute right-0 top-full z-20 bg-white rounded-2xl shadow-lg border border-stone-100 overflow-hidden min-w-[170px] py-1">
+                  {isAdmin && <button onClick={togglePin} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                      <Pin size={15} strokeWidth={1.5} />
                       {post.is_pinned || post.pinned ? 'Desfijar' : 'Fijar arriba'}
                     </button>}
-                  {(isOwn || isAdmin) && <button onClick={deletePost} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
-                    🗑️ Eliminar
+                  {(isOwn || isAdmin) && <button onClick={deletePost} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                    <Trash2 size={15} strokeWidth={1.5} /> Eliminar
                   </button>}
-                  {!isOwn && <button onClick={() => { setShowMenu(false); setShowReportModal(true); }} className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
-                    <Flag size={14} /> Reportar
+                  {!isOwn && <button onClick={() => { setShowMenu(false); setShowReportModal(true); }} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                    <Flag size={15} strokeWidth={1.5} /> Reportar
                   </button>}
                 </motion.div>}
             </AnimatePresence>
@@ -684,29 +686,28 @@ const CommunityPostCard = ({
       {post.image_url && <img loading="lazy" src={post.image_url} alt="Imagen del post" className="w-full block max-h-[400px] object-cover" />}
 
       {/* Linked products */}
-      {post.products?.length > 0 && <div className="px-3.5 py-2 flex gap-2 overflow-x-auto scrollbar-hide">
-        {post.products.map(p => <Link key={p.id} to={`/products/${p.slug || p.id}`} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-2 shrink-0 no-underline hover:bg-stone-100 transition-colors">
-          {p.image && <img src={p.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+      {post.products?.length > 0 && <div className="px-3.5 py-2.5 flex gap-2 overflow-x-auto scrollbar-hide">
+        {post.products.map(p => <Link key={p.id} to={`/products/${p.slug || p.id}`} className="flex items-center gap-2.5 bg-white border border-stone-200 rounded-2xl px-3 py-2.5 shrink-0 no-underline hover:border-stone-300 transition-colors">
+          {p.image && <img src={p.image} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />}
           <div className="min-w-0">
-            <p className="text-[12px] font-semibold text-stone-950 m-0 truncate max-w-[140px]">{p.name}</p>
-            {p.price != null && <p className="text-[11px] font-bold text-stone-950 m-0">{Number(p.price).toFixed(2)}€</p>}
+            <p className="text-[12px] font-medium text-stone-950 m-0 truncate max-w-[140px]">{p.name}</p>
+            {p.price != null && <p className="text-[12px] font-semibold text-stone-950 m-0 mt-0.5">{Number(p.price).toFixed(2)} €</p>}
           </div>
         </Link>)}
       </div>}
 
       {/* Actions */}
-      <div className="flex gap-4 px-3.5 py-2.5 border-t border-stone-200">
+      <div className="flex items-center gap-1 px-2 py-1.5 border-t border-stone-100">
         <motion.button whileTap={{
-          scale: 0.85
-        }} onClick={toggleLike} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'} className={`bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] p-0 ${liked ? 'text-stone-950 font-bold' : 'text-stone-500 font-normal'}`}>
-          <span className="text-lg">{liked ? '❤️' : '🤍'}</span>
-          {likes > 0 && likes}
+          scale: 0.9
+        }} onClick={toggleLike} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'} className={`bg-transparent border-none cursor-pointer flex items-center gap-1.5 text-[13px] px-2.5 py-2 rounded-full transition-colors ${liked ? 'text-stone-950 font-semibold' : 'text-stone-500 font-normal hover:bg-stone-50'}`}>
+          <Heart size={17} strokeWidth={liked ? 0 : 1.5} fill={liked ? '#0c0a09' : 'none'} />
+          {likes > 0 && <span className="tabular-nums">{likes}</span>}
         </motion.button>
 
-        {/* C-01: Comment button */}
-        <button onClick={() => setShowComments(v => !v)} aria-label="Comentarios" className="bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] text-stone-500 p-0">
-          <span className="text-lg">💬</span>
-          {commentsCount > 0 && commentsCount}
+        <button onClick={() => setShowComments(v => !v)} aria-label="Comentarios" className={`bg-transparent border-none cursor-pointer flex items-center gap-1.5 text-[13px] px-2.5 py-2 rounded-full transition-colors ${showComments ? 'text-stone-950 font-semibold' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <MessageCircle size={17} strokeWidth={1.5} />
+          {commentsCount > 0 && <span className="tabular-nums">{commentsCount}</span>}
         </button>
 
         <button onClick={async () => {
@@ -724,8 +725,8 @@ const CommunityPostCard = ({
               toast.success('Enlace copiado');
             } catch {/* silent */}
           }
-        }} aria-label="Compartir post" className="bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] text-stone-500 p-0">
-          <span className="text-lg">↗️</span>
+        }} aria-label="Compartir post" className="bg-transparent border-none cursor-pointer flex items-center gap-1.5 text-[13px] text-stone-500 px-2.5 py-2 rounded-full hover:bg-stone-50 transition-colors">
+          <Share size={16} strokeWidth={1.5} />
         </button>
       </div>
 
@@ -807,7 +808,7 @@ const CommentsSection = ({
                   <p className="text-[10px] text-stone-400 m-0 mt-0.5">{formatRelativeTime(c.created_at)}</p>
                 </div>
               </div>)}
-            {hasMore && <button onClick={() => fetchComments(page + 1)} className="text-[12px] text-stone-500 font-medium bg-transparent border-none cursor-pointer p-0 hover:underline">
+            {hasMore && <button onClick={() => fetchComments(page + 1)} className="text-[12px] text-stone-400 font-medium bg-transparent border-none cursor-pointer p-0 hover:text-stone-600 transition-colors">
                 Ver más comentarios
               </button>}
           </>}
@@ -817,9 +818,9 @@ const CommentsSection = ({
       {user && <div className="flex items-center gap-2 px-3.5 py-2.5 border-t border-stone-100">
           <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => {
         if (e.key === 'Enter') submitComment();
-      }} placeholder="Escribe un comentario..." maxLength={500} className="flex-1 h-8 rounded-full bg-stone-100 border-none px-3 text-[13px] text-stone-950 outline-none placeholder:text-stone-400" />
-          <button onClick={submitComment} disabled={!text.trim() || posting} className={`text-[13px] font-semibold bg-transparent border-none cursor-pointer p-0 ${text.trim() ? 'text-stone-950' : 'text-stone-300'}`}>
-            {posting ? '...' : 'Enviar'}
+      }} placeholder="Escribe un comentario..." maxLength={500} className="flex-1 h-9 rounded-full bg-stone-50 border border-stone-200 px-3.5 text-[13px] text-stone-950 outline-none placeholder:text-stone-400" />
+          <button onClick={submitComment} disabled={!text.trim() || posting} className={`text-[13px] font-medium bg-transparent border-none cursor-pointer px-1 transition-colors ${text.trim() ? 'text-stone-950' : 'text-stone-300'}`}>
+            {posting ? '...' : 'Publicar'}
           </button>
         </div>}
     </motion.div>;
@@ -899,8 +900,8 @@ const CommunityMembers = ({
                   </button>}
               </Link>;
       })}
-          {hasMore && <button onClick={() => setPage(p => p + 1)} className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
-              Ver más miembros
+          {hasMore && <button onClick={() => setPage(p => p + 1)} className="w-full mt-2 py-2.5 rounded-2xl border border-stone-200 bg-white text-stone-500 text-[13px] font-medium cursor-pointer hover:bg-stone-50 transition-colors">
+              Ver más
             </button>}
         </>}
     </div>;
@@ -1050,19 +1051,19 @@ const ReportModal = ({ contentType, contentId, onClose }) => {
     } catch { toast.error('Error al enviar reporte'); } finally { setSending(false); }
   };
 
-  return <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
-    <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} onClick={e => e.stopPropagation()} className="w-full max-w-[400px] bg-white rounded-t-2xl sm:rounded-2xl p-4 mx-4 mb-0 sm:mb-0">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[15px] font-bold text-stone-950 m-0">Reportar {contentType === 'post' ? 'publicación' : contentType === 'comment' ? 'comentario' : 'contenido'}</h3>
-        <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-1 text-stone-400"><X size={18} /></button>
+  return <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
+    <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} onClick={e => e.stopPropagation()} className="w-full max-w-[400px] bg-white rounded-t-3xl sm:rounded-3xl p-5 mx-4 mb-0 sm:mb-0">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[16px] font-semibold text-stone-950 m-0">Reportar {contentType === 'post' ? 'publicación' : contentType === 'comment' ? 'comentario' : 'contenido'}</h3>
+        <button onClick={onClose} className="bg-stone-100 border-none cursor-pointer p-1.5 rounded-full text-stone-500 hover:bg-stone-200 transition-colors"><X size={16} strokeWidth={2} /></button>
       </div>
-      <div className="flex flex-col gap-1.5 mb-3">
-        {REASONS.map(r => <button key={r.id} onClick={() => setReason(r.id)} className={`text-left px-3 py-2.5 rounded-xl text-[13px] cursor-pointer transition-colors ${reason === r.id ? 'bg-stone-950 text-white border-none' : 'bg-stone-50 text-stone-950 border border-stone-200'}`}>
+      <div className="flex flex-col gap-1.5 mb-4">
+        {REASONS.map(r => <button key={r.id} onClick={() => setReason(r.id)} className={`text-left px-3.5 py-3 rounded-2xl text-[13px] font-medium cursor-pointer transition-all ${reason === r.id ? 'bg-stone-950 text-white border-none' : 'bg-white text-stone-700 border border-stone-200 hover:border-stone-300'}`}>
           {r.label}
         </button>)}
       </div>
-      <textarea value={details} onChange={e => setDetails(e.target.value)} placeholder="Detalles adicionales (opcional)" rows={2} maxLength={500} className="w-full resize-none px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none mb-3 box-border" />
-      <button onClick={submit} disabled={sending || !reason} className="w-full py-2.5 rounded-full bg-stone-950 text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-50">
+      <textarea value={details} onChange={e => setDetails(e.target.value)} placeholder="Detalles adicionales (opcional)" rows={2} maxLength={500} className="w-full resize-none px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-[13px] text-stone-950 outline-none mb-4 box-border placeholder:text-stone-400" />
+      <button onClick={submit} disabled={sending || !reason} className="w-full py-3 rounded-full bg-stone-950 text-white text-[13px] font-medium border-none cursor-pointer disabled:opacity-40 transition-opacity">
         {sending ? 'Enviando...' : 'Enviar reporte'}
       </button>
     </motion.div>

@@ -18,6 +18,71 @@ from core.auth import get_current_user, require_role
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+# ── Plans — Single source of truth for commissions & pricing ──
+
+# Canonical plan definitions. Admin can override via DB `plans_config` collection.
+_PLANS_DEFAULTS = {
+    "seller_plans": {
+        "FREE":  {"commission_rate": 0.20, "price_monthly_eur": 0,   "shipping_base_cents": 590, "shipping_free_threshold_cents": None, "label": "Free"},
+        "PRO":   {"commission_rate": 0.18, "price_monthly_eur": 79,  "shipping_base_cents": 390, "shipping_free_threshold_cents": 3000, "label": "Pro"},
+        "ELITE": {"commission_rate": 0.17, "price_monthly_eur": 249, "shipping_base_cents": 290, "shipping_free_threshold_cents": 2000, "label": "Elite"},
+    },
+    "influencer_tiers": {
+        "hercules": {"commission_rate": 0.03, "label": "Hercules"},
+        "atenea":   {"commission_rate": 0.05, "label": "Atenea"},
+        "zeus":     {"commission_rate": 0.07, "label": "Zeus"},
+    },
+    "first_purchase_discount_pct": 10,
+    "attribution_months": 18,
+    "influencer_coupon_stackable": False,
+}
+
+# In-memory cache (refreshed every 5 min)
+_plans_api_cache = {"data": None, "fetched_at": None}
+
+
+async def get_plans_config() -> dict:
+    """Return plans config, merging DB overrides onto defaults."""
+    now = datetime.now(timezone.utc)
+    cache = _plans_api_cache
+    if cache["data"] and cache["fetched_at"] and (now - cache["fetched_at"]).total_seconds() < 300:
+        return cache["data"]
+
+    import copy
+    result = copy.deepcopy(_PLANS_DEFAULTS)
+
+    try:
+        db_config = await db.plans_config.find_one({"_id": "current"}, {"_id": 0})
+        if db_config:
+            # Merge DB seller_plans over defaults
+            db_seller = db_config.get("seller_plans", {})
+            for plan_name, db_plan in db_seller.items():
+                if plan_name in result["seller_plans"]:
+                    result["seller_plans"][plan_name].update(db_plan)
+            # Merge DB influencer_tiers
+            db_tiers = db_config.get("influencer_tiers", {})
+            for tier_name, db_tier in db_tiers.items():
+                if tier_name in result["influencer_tiers"]:
+                    result["influencer_tiers"][tier_name].update(db_tier)
+            # Scalar overrides
+            for key in ("first_purchase_discount_pct", "attribution_months", "influencer_coupon_stackable"):
+                if key in db_config:
+                    result[key] = db_config[key]
+    except Exception as e:
+        logger.warning("[PLANS] Could not read DB config, using defaults: %s", e)
+
+    cache["data"] = result
+    cache["fetched_at"] = now
+    return result
+
+
+@router.get("/config/plans")
+async def get_plans():
+    """Public endpoint — single source of truth for plan pricing and commission rates."""
+    return await get_plans_config()
+
+
 # ── Categories ───────────────────────────────────────────────
 
 @router.get("/categories")

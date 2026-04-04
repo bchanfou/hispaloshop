@@ -181,16 +181,66 @@ async def recalculate_influencer_tier(db: AsyncSession, influencer_id: UUID) -> 
     return profile.tier
 
 
+PAYOUT_MAX_RETRIES = 3
+PAYOUT_BACKOFF_BASE = 4  # seconds: 4, 16, 64
+
+
+async def _attempt_stripe_transfer(payout) -> str:
+    """Attempt a real Stripe transfer. Returns the transfer ID or raises."""
+    import stripe as _stripe
+    transfer = _stripe.Transfer.create(
+        amount=payout.amount_cents,
+        currency=payout.currency or "eur",
+        destination=payout.stripe_account_id,
+        transfer_group=f"payout_{payout.id}",
+        metadata={"payout_id": str(payout.id), "influencer_id": str(payout.influencer_id)},
+    )
+    return transfer.id
+
+
 async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
     payout = await db.get(Payout, payout_id)
     if not payout:
         return False
 
-    payout.status = "paid"
-    payout.processed_at = datetime.now(timezone.utc)
-    payout.paid_at = datetime.now(timezone.utc)
-    payout.stripe_transfer_id = payout.stripe_transfer_id or f"mock_transfer_{payout.id}"
+    # If already has a real Stripe transfer, mark paid directly
+    if payout.stripe_transfer_id and not payout.stripe_transfer_id.startswith("mock_"):
+        payout.status = "paid"
+        payout.processed_at = datetime.now(timezone.utc)
+        payout.paid_at = datetime.now(timezone.utc)
+    else:
+        # Attempt real Stripe transfer with retries
+        last_error = None
+        for attempt in range(PAYOUT_MAX_RETRIES):
+            try:
+                transfer_id = await _attempt_stripe_transfer(payout)
+                payout.stripe_transfer_id = transfer_id
+                payout.status = "paid"
+                payout.processed_at = datetime.now(timezone.utc)
+                payout.paid_at = datetime.now(timezone.utc)
+                last_error = None
+                break
+            except Exception as e:
+                last_error = e
+                logger.warning(
+                    "Stripe transfer attempt %d/%d failed for payout %s: %s",
+                    attempt + 1, PAYOUT_MAX_RETRIES, payout_id, e,
+                )
+                if attempt < PAYOUT_MAX_RETRIES - 1:
+                    import asyncio
+                    await asyncio.sleep(PAYOUT_BACKOFF_BASE ** (attempt + 1))
 
+        if last_error:
+            payout.status = "transfer_failed"
+            payout.processed_at = datetime.now(timezone.utc)
+            payout.failure_reason = str(last_error)[:500]
+            logger.error(
+                "Payout %s FAILED after %d retries: %s", payout_id, PAYOUT_MAX_RETRIES, last_error,
+            )
+            await db.flush()
+            return False
+
+    # Mark commissions as paid
     result = await db.execute(select(Commission).where(Commission.payout_id == payout.id))
     commissions = result.scalars().all()
     for commission in commissions:

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
 
@@ -26,6 +26,22 @@ interface ProducerPlanContextValue {
 const ProducerPlanContext = createContext<ProducerPlanContextValue | undefined>(undefined);
 
 const PLAN_HIERARCHY: Record<string, number> = { FREE: 0, PRO: 1, ELITE: 2 };
+const PLAN_CACHE_KEY = 'hsp_plan_cache';
+
+function readCachedPlan(): PlanData | null {
+  try {
+    const raw = localStorage.getItem(PLAN_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedPlan(data: PlanData): void {
+  try {
+    localStorage.setItem(PLAN_CACHE_KEY, JSON.stringify(data));
+  } catch { /* quota exceeded — ignore */ }
+}
 
 interface ProducerPlanProviderProps {
   children: ReactNode;
@@ -33,27 +49,40 @@ interface ProducerPlanProviderProps {
 
 export function ProducerPlanProvider({ children }: ProducerPlanProviderProps) {
   const { user } = useAuth() as any;
-  const [planData, setPlanData] = useState<PlanData | null>(null);
+  const [planData, setPlanData] = useState<PlanData | null>(readCachedPlan);
   const [loading, setLoading] = useState(true);
+
+  const fetchPlan = useCallback(async () => {
+    try {
+      const data = await apiClient.get(`/sellers/me/plan`);
+      setPlanData(data);
+      writeCachedPlan(data);
+    } catch {
+      // Use cache if available, only fallback to FREE if no cache at all
+      const cached = readCachedPlan();
+      if (cached) {
+        setPlanData(cached);
+      } else {
+        setPlanData({ plan: 'FREE', commission_rate: 0.20, plan_status: 'active' });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (user?.role === 'producer' || user?.role === 'importer') {
+      // Show cached plan immediately, then verify in background
+      const cached = readCachedPlan();
+      if (cached) {
+        setPlanData(cached);
+        setLoading(false);
+      }
       fetchPlan();
     } else {
       setLoading(false);
     }
-  }, [user]);
-
-  const fetchPlan = async () => {
-    try {
-      const data = await apiClient.get(`/sellers/me/plan`);
-      setPlanData(data);
-    } catch {
-      setPlanData({ plan: 'FREE', commission_rate: 0.20, plan_status: 'active' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, fetchPlan]);
 
   const currentPlan: PlanName = (planData?.plan as PlanName) || 'FREE';
 

@@ -24,11 +24,21 @@ router = APIRouter()
 
 
 async def _get_admin_country_scope(user: User) -> Optional[str]:
-    """Return assigned country for admins; super_admin sees all countries."""
+    """
+    Return assigned country for admins; super_admin sees all countries (None).
+    Raises 403 if an admin has no assigned_country — prevents accidental global access.
+    """
     if user.role == "super_admin":
         return None
     admin_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "assigned_country": 1})
-    return (admin_doc or {}).get("assigned_country")
+    country = (admin_doc or {}).get("assigned_country")
+    if not country:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=403,
+            detail="Admin account has no assigned country. Contact super_admin to configure your country scope."
+        )
+    return country
 
 
 async def _build_seller_query(user: User, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -814,7 +824,7 @@ _DEFAULT_PLANS = {
     "seller_plans": {
         "FREE": {"price_monthly": 0, "commission_rate": 0.20, "label": "Free"},
         "PRO": {"price_monthly": 79, "commission_rate": 0.18, "label": "Pro"},
-        "ELITE": {"price_monthly": 249, "commission_rate": 0.15, "label": "Elite"},
+        "ELITE": {"price_monthly": 249, "commission_rate": 0.17, "label": "Elite"},
     },
     "influencer_tiers": {
         "hercules": {"rate": 0.03, "min_gmv": 0, "min_followers": 0, "label": "Hercules"},
@@ -1230,10 +1240,25 @@ async def list_countries(user: User = Depends(get_current_user)):
 async def activate_country(code: str, user: User = Depends(get_current_user)):
     """Activate a country. Requires an admin assigned."""
     await require_role(user, ["super_admin"])
+    country_code = code.upper()
 
-    cc = await db.country_configs.find_one({"country_code": code.upper()})
+    cc = await db.country_configs.find_one({"country_code": country_code})
     if not cc:
-        raise HTTPException(status_code=404, detail="Country config not found")
+        # Auto-create from SUPPORTED_COUNTRIES if not yet seeded
+        from core.constants import SUPPORTED_COUNTRIES
+        country_info = SUPPORTED_COUNTRIES.get(country_code)
+        if not country_info:
+            raise HTTPException(status_code=404, detail=f"Country {country_code} not recognized")
+        cc = {
+            "country_code": country_code,
+            "name_local": country_info.get("name", country_code),
+            "flag": country_info.get("flag", ""),
+            "language": (country_info.get("languages") or ["en"])[0],
+            "currency": country_info.get("currency", "USD"),
+            "is_active": False,
+            "admin_user_id": None,
+        }
+        await db.country_configs.insert_one(cc)
 
     if not cc.get("admin_user_id"):
         raise HTTPException(
@@ -1242,10 +1267,10 @@ async def activate_country(code: str, user: User = Depends(get_current_user)):
         )
 
     await db.country_configs.update_one(
-        {"country_code": code.upper()},
+        {"country_code": country_code},
         {"$set": {"is_active": True, "activated_at": datetime.now(timezone.utc).isoformat()}},
     )
-    return {"status": "activated", "country_code": code.upper()}
+    return {"status": "activated", "country_code": country_code}
 
 
 @router.post("/superadmin/countries/{code}/deactivate")
@@ -1262,4 +1287,46 @@ async def deactivate_country(code: str, user: User = Depends(get_current_user)):
         {"$set": {"is_active": False, "deactivated_at": datetime.now(timezone.utc).isoformat()}},
     )
     return {"status": "deactivated", "country_code": code.upper()}
+
+
+@router.put("/superadmin/countries/{code}/admin")
+async def assign_country_admin(code: str, request: Request, user: User = Depends(get_current_user)):
+    """Assign an admin user to a country. Sets both country_configs.admin_user_id and users.assigned_country."""
+    await require_role(user, ["super_admin"])
+
+    body = await request.json()
+    admin_user_id = body.get("admin_user_id")
+    if not admin_user_id:
+        raise HTTPException(status_code=400, detail="admin_user_id is required")
+
+    # Verify the target user exists and has admin role
+    admin_user = await db.users.find_one({"user_id": admin_user_id}, {"role": 1})
+    if not admin_user or admin_user.get("role") != "admin":
+        raise HTTPException(status_code=400, detail="Target user must have admin role")
+
+    country_code = code.upper()
+
+    # Ensure country_config exists (upsert)
+    await db.country_configs.update_one(
+        {"country_code": country_code},
+        {
+            "$set": {
+                "admin_user_id": admin_user_id,
+                "admin_assigned_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "$setOnInsert": {
+                "country_code": country_code,
+                "is_active": False,
+            },
+        },
+        upsert=True,
+    )
+
+    # Set assigned_country on the admin user
+    await db.users.update_one(
+        {"user_id": admin_user_id},
+        {"$set": {"assigned_country": country_code}},
+    )
+
+    return {"status": "assigned", "country_code": country_code, "admin_user_id": admin_user_id}
 

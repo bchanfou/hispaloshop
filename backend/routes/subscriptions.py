@@ -18,7 +18,7 @@ from services.subscriptions import (
     calculate_order_commissions,
     recalculate_influencer_tier, GRACE_PERIOD_DAYS,
     list_subscription_plans, has_tier_access,
-    calculate_dynamic_commission, get_user_subscription_doc,
+    get_user_subscription_doc,
     record_subscription_event, get_seller_plan_price, get_seller_plan_currency,
 )
 from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
@@ -775,16 +775,17 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
 
 @router.post('/commissions/calculate')
 async def calculate_commission_preview(request: Request, user: User = Depends(get_current_user)):
+    """Preview commission split for a given order using the centralized plan config."""
     await require_role(user, ['admin', 'producer', 'importer'])
+    from core.monetization import calculate_order_split
     payload = await request.json()
-    order_total = float(payload.get('order_total', 0))
-    base_rate = float(payload.get('base_rate', 0.2))
-    monthly_gmv = float(payload.get('monthly_gmv', 0))
-    return_rate_30d = float(payload.get('return_rate_30d', 0.05))
-    used_hi_ai = bool(payload.get('used_hi_ai_this_month', False))
+    order_total_cents = int(float(payload.get('order_total', 0)) * 100)
+    seller_plan = str(payload.get('seller_plan', 'FREE')).upper()
+    influencer_tier = payload.get('influencer_tier')
+    is_first_purchase = bool(payload.get('is_first_purchase_via_influencer', False))
 
-    if order_total <= 0:
+    if order_total_cents <= 0:
         raise HTTPException(status_code=400, detail='order_total invalido')
 
-    breakdown = calculate_dynamic_commission(base_rate, order_total, monthly_gmv, return_rate_30d, used_hi_ai)
-    return {'commission_snapshot': breakdown}
+    split = calculate_order_split(order_total_cents, seller_plan, influencer_tier, is_first_purchase)
+    return {'commission_snapshot': split}

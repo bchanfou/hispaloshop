@@ -175,6 +175,67 @@ class NotificationDispatcher:
                 })
         # Si offline, queda en DB para fetch posterior
     
+    # ── FCM HTTP v1 auth ──
+    _fcm_access_token: Optional[str] = None
+    _fcm_token_expires_at: Optional[datetime] = None
+
+    async def _get_fcm_access_token(self) -> str:
+        """Get OAuth2 access token for FCM HTTP v1 API using service account."""
+        now = datetime.now(timezone.utc)
+        if self._fcm_access_token and self._fcm_token_expires_at and now < self._fcm_token_expires_at:
+            return self._fcm_access_token
+
+        import json
+        from core.config import settings
+
+        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
+        if not sa_json:
+            raise Exception("FCM_SERVICE_ACCOUNT_JSON not configured")
+
+        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
+
+        try:
+            from google.oauth2 import service_account
+            from google.auth.transport.requests import Request
+
+            credentials = service_account.Credentials.from_service_account_info(
+                sa_info,
+                scopes=["https://www.googleapis.com/auth/firebase.messaging"],
+            )
+            credentials.refresh(Request())
+            self._fcm_access_token = credentials.token
+            self._fcm_token_expires_at = credentials.expiry.replace(tzinfo=timezone.utc) if credentials.expiry else now + timedelta(minutes=55)
+        except ImportError:
+            # Fallback: manual JWT generation if google-auth not installed
+            import jwt as pyjwt
+            import time
+
+            iat = int(time.time())
+            exp = iat + 3600
+            payload = {
+                "iss": sa_info["client_email"],
+                "sub": sa_info["client_email"],
+                "aud": "https://oauth2.googleapis.com/token",
+                "iat": iat,
+                "exp": exp,
+                "scope": "https://www.googleapis.com/auth/firebase.messaging",
+            }
+            signed_jwt = pyjwt.encode(payload, sa_info["private_key"], algorithm="RS256")
+
+            import httpx
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    "https://oauth2.googleapis.com/token",
+                    data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": signed_jwt},
+                )
+                resp.raise_for_status()
+                token_data = resp.json()
+
+            self._fcm_access_token = token_data["access_token"]
+            self._fcm_token_expires_at = now + timedelta(seconds=token_data.get("expires_in", 3500))
+
+        return self._fcm_access_token
+
     async def _send_push(
         self,
         user_id: str,
@@ -184,55 +245,81 @@ class NotificationDispatcher:
         prefs: Dict
     ):
         """
-        Enviar notificación push via FCM
+        Enviar notificación push via FCM HTTP v1 API
         """
-        # Respect quiet hours for push notifications (same as email)
         if self._is_quiet_hours(prefs):
             raise Exception("Quiet hours active — push notification deferred")
 
         tokens = prefs.get("push_tokens", [])
         if not tokens:
             raise Exception("No push tokens registered")
-        
+
         from core.config import settings
-        
-        # Usar FCM HTTP v1 API
+        import json
         import httpx
-        
-        server_key = getattr(settings, 'FCM_SERVER_KEY', None)
-        if not server_key:
-            raise Exception("FCM not configured")
-        
+
+        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
+        if not sa_json:
+            raise Exception("FCM not configured — FCM_SERVICE_ACCOUNT_JSON required")
+
+        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
+        project_id = sa_info.get("project_id")
+        if not project_id:
+            raise Exception("FCM service account missing project_id")
+
+        access_token = await self._get_fcm_access_token()
         headers = {
-            "Authorization": f"key={server_key}",
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
         }
-        
+
+        fcm_url = f"https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
+        is_high_priority = data and data.get("priority") in ["urgent", "critical"]
+
+        # Stringify data values (FCM v1 requires all data values to be strings)
+        str_data = {k: str(v) for k, v in (data or {}).items()} if data else {}
+
         async with httpx.AsyncClient() as client:
             for token_data in tokens:
                 token = token_data.get("token")
                 if not token:
                     continue
 
-                payload = {
-                    "to": token,
-                    "notification": {
-                        "title": title,
-                        "body": body,
-                        "image": data.get("image_url") if data else None
-                    },
-                    "data": data or {},
-                    "priority": "high" if data and data.get("priority") in ["urgent", "critical"] else "normal"
+                message = {
+                    "message": {
+                        "token": token,
+                        "notification": {
+                            "title": title,
+                            "body": body,
+                        },
+                        "data": str_data,
+                        "android": {
+                            "priority": "HIGH" if is_high_priority else "NORMAL",
+                        },
+                        "webpush": {
+                            "headers": {
+                                "Urgency": "high" if is_high_priority else "normal",
+                            },
+                        },
+                    }
                 }
 
-                response = await client.post(
-                    "https://fcm.googleapis.com/fcm/send",
-                    headers=headers,
-                    json=payload
-                )
+                # Add image if available
+                image_url = (data or {}).get("image_url")
+                if image_url:
+                    message["message"]["notification"]["image"] = image_url
 
-                if response.status_code != 200:
-                    raise Exception(f"FCM error: {response.text}")
+                response = await client.post(fcm_url, headers=headers, json=message)
+
+                if response.status_code == 401:
+                    # Token expired, refresh and retry once
+                    self._fcm_access_token = None
+                    access_token = await self._get_fcm_access_token()
+                    headers["Authorization"] = f"Bearer {access_token}"
+                    response = await client.post(fcm_url, headers=headers, json=message)
+
+                if response.status_code not in [200, 201]:
+                    raise Exception(f"FCM v1 error ({response.status_code}): {response.text}")
     
     async def _send_email(
         self,
@@ -293,14 +380,12 @@ class NotificationDispatcher:
         prefs: Dict
     ):
         """
-        Enviar SMS via Twilio (solo para crítico)
+        Enviar SMS via Twilio (canal no implementado).
+        Raises explicitly so the dispatcher marks this channel as not_available.
         """
-        phone = prefs.get("phone")
-        if not phone:
-            raise Exception("No phone number")
-        
-        # Implementación Twilio
-        pass
+        import logging
+        logging.getLogger(__name__).warning("[SMS] SMS channel not implemented — skipping for user %s", user_id)
+        raise Exception("SMS channel not implemented")
     
     # Maps notification_type → preference key stored in user_notification_preferences
     TYPE_PREF_KEY: Dict[str, str] = {

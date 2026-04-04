@@ -105,9 +105,12 @@ def _parse_ai_json(raw_text: str) -> dict:
 
 # ── verify_cif_nif ───────────────────────────────────────────────
 
-async def verify_cif_nif(file_url: str) -> dict:
+async def verify_cif_nif(file_url: str, country: str = "ES") -> dict:
     """
-    Extract and verify CIF/NIF from an official document using Claude Haiku vision.
+    Extract and verify business ID from an official document.
+    Step 1: AI extracts the ID from the document image.
+    Step 2: Algorithmic format/checksum validation per country.
+    Step 3: Confidence → auto-approve, flag for manual review, or reject.
     Returns: status, tax_id, entity_name, document_type, confidence
     """
     result = {
@@ -117,6 +120,7 @@ async def verify_cif_nif(file_url: str) -> dict:
         "document_type": None,
         "confidence": "low",
         "rejection_reason": None,
+        "country": country,
     }
 
     file_bytes = await _download_file(file_url)
@@ -163,17 +167,17 @@ async def verify_cif_nif(file_url: str) -> dict:
             result["rejection_reason"] = "No se pudo extraer el CIF/NIF del documento"
             return result
 
-        # Validate format with regex
-        # FUTURE: Integrar con API del Registro Mercantil cuando esté disponible.
-        # Por ahora validamos formato con regex.
-        fmt = validate_tax_id_format(extracted_id)
-        if not fmt["is_valid"]:
-            result["rejection_reason"] = f"Formato de CIF/NIF inválido: {extracted_id}"
+        # Validate format/checksum using country-specific validator
+        from services.document_formats import validate_business_id
+        fmt = validate_business_id(country, extracted_id)
+        if not fmt["valid"]:
+            result["rejection_reason"] = f"Formato inválido ({country}): {fmt.get('error', extracted_id)}"
             result["tax_id"] = extracted_id
             return result
 
-        result["tax_id"] = fmt["cleaned_id"]
-        result["document_type"] = fmt["doc_type"]
+        result["tax_id"] = fmt["formatted"]
+        result["document_type"] = fmt.get("type", ai.get("document_type"))
+        result["format_validation"] = fmt.get("validation_level", "none")
 
         if result["confidence"] == "low":
             result["status"] = "manual_review"
@@ -432,19 +436,15 @@ async def run_full_verification(user_id: str) -> dict:
             "verification_status.block_reason": cif_doc.get("rejection_reason", "CIF/NIF rechazado"),
         }
         try:
-            await db.notifications.insert_one({
-                "user_id": user_id,
-                "type": "verification_rejected",
-                "title": "Verificación rechazada",
-                "body": "Algunos documentos necesitan ser revisados. Consulta los detalles en tu panel.",
-                "action_url": "/producer/verification",
-                "data": {},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
+            from services.notifications.dispatcher_service import notification_dispatcher
+            await notification_dispatcher.send_notification(
+                user_id=user_id,
+                title="Verificación rechazada",
+                body="Algunos documentos necesitan ser revisados. Consulta los detalles en tu panel.",
+                notification_type="verification_rejected",
+                channels=["in_app", "push", "email"],
+                action_url="/producer/verification",
+            )
         except Exception as e:
             logger.warning(f"[VERIFICATION] Could not send rejection notification to {user_id}: {e}")
 
@@ -462,19 +462,15 @@ async def run_full_verification(user_id: str) -> dict:
             "verification_status.block_reason": None,
         }
         try:
-            await db.notifications.insert_one({
-                "user_id": user_id,
-                "type": "verification_approved",
-                "title": "Cuenta verificada",
-                "body": "Tu cuenta de productor ha sido verificada. Ya puedes publicar y vender productos.",
-                "action_url": "/producer/products",
-                "data": {},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
+            from services.notifications.dispatcher_service import notification_dispatcher
+            await notification_dispatcher.send_notification(
+                user_id=user_id,
+                title="Cuenta verificada",
+                body="Tu cuenta de productor ha sido verificada. Ya puedes publicar y vender productos.",
+                notification_type="verification_approved",
+                channels=["in_app", "push", "email"],
+                action_url="/producer/products",
+            )
         except Exception as e:
             logger.warning(f"[VERIFICATION] Could not send approval notification to {user_id}: {e}")
 

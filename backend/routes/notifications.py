@@ -334,6 +334,12 @@ async def notify_order_event(order_id: str, event_type: str, **kwargs):
                 f"Nuevo pedido #{short_id} recibido. Prepáralo cuando puedas.",
             ),
         },
+        "payment_confirmed": {
+            "producer": (
+                "Pago confirmado — prepara el pedido",
+                f"El pago del pedido #{short_id} se ha confirmado. Ya puedes preparar el envío.",
+            ),
+        },
         "order_preparing": {
             "consumer": (
                 "Tu pedido se está preparando",

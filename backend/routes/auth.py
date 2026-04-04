@@ -355,6 +355,7 @@ async def register(input: RegisterInput, request: Request):
             user_data["postal_code"] = input.postal_code
         if input.discovery_method:
             user_data["discovery_method"] = input.discovery_method
+            user_data.setdefault("consumer_data", {})["feed_mode"] = input.discovery_method
         if input.purchase_frequency:
             user_data["purchase_frequency"] = input.purchase_frequency
 

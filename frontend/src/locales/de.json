@@ -4049,14 +4049,14 @@
             "name": "ELITE",
             "price": "249€",
             "period": "/mes",
-            "commission": "15%",
+            "commission": "17%",
             "description": "Für Marken und Genossenschaften",
             "features": [
               "Alles aus Pro",
               "KI-Handelsagent",
               "Internationales B2B",
               "Dedizierter Manager",
-              "Niedrigste Provision: 15%"
+              "Niedrigste Provision: 17%"
             ]
           }
         ]
@@ -4067,7 +4067,7 @@
         "items": [
           {
             "question": "Was kostet die Registrierung?",
-            "answer": "Registrierung ist kostenlos. Der FREE-Plan ermöglicht Verkauf mit 20% Provision. PRO kostet 79€/Monat (18%) und ELITE 249€/Monat (15%)."
+            "answer": "Registrierung ist kostenlos. Der FREE-Plan ermöglicht Verkauf mit 20% Provision. PRO kostet 79€/Monat (18%) und ELITE 249€/Monat (17%)."
           },
           {
             "question": "Wer kümmert sich um den Versand?",

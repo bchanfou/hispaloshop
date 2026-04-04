@@ -668,6 +668,23 @@ async def apply_coupon(
     if not cart or not cart.get("items"):
         raise HTTPException(status_code=400, detail="El carrito está vacío")
 
+    # Influencer coupon NOT stackable with any other coupon
+    existing_coupon = cart.get("coupon_code")
+    existing_is_influencer = bool(cart.get("influencer_id"))
+    new_is_influencer = bool(coupon.get("influencer_id"))
+
+    if existing_coupon:
+        if existing_is_influencer:
+            raise HTTPException(
+                status_code=400,
+                detail="Ya tienes un código de influencer aplicado. Los códigos de influencer no son compatibles con otros descuentos."
+            )
+        if new_is_influencer:
+            raise HTTPException(
+                status_code=400,
+                detail="No puedes aplicar un código de influencer junto con otro cupón. Elimina el cupón actual primero."
+            )
+
     # Verificar uso — atomic check to prevent race condition (after cart validation)
     if coupon.get("usage_limit"):
         result = await db.discount_codes.update_one(

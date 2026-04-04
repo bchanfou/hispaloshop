@@ -54,9 +54,12 @@ def _serialize_influencer(doc: dict) -> dict:
 
 @router.get("/admin/discount-codes")
 async def get_all_discount_codes(user: User = Depends(get_current_user)):
-    """Get all discount codes (admin only)"""
+    """Get all discount codes (admin only, country-scoped)."""
     await require_role(user, ["admin"])
-    codes = await db.discount_codes.find({}, {"_id": 0}).to_list(500)
+    from routes.admin_dashboard import _get_admin_country_scope
+    admin_country = await _get_admin_country_scope(user)
+    query = {"country": admin_country} if admin_country else {}
+    codes = await db.discount_codes.find(query, {"_id": 0}).to_list(500)
     return codes
 
 @router.get("/admin/discount-codes/{code_id}")
@@ -206,9 +209,12 @@ async def reject_influencer_code(code_id: str, reason: str = "", user: User = De
 
 @router.get("/admin/influencers")
 async def list_influencers(user: User = Depends(get_current_user)):
-    """List all influencers (Admin only)"""
+    """List all influencers (Admin only, country-scoped)."""
     await require_role(user, ["admin"])
-    influencers = await db.influencers.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    from routes.admin_dashboard import _get_admin_country_scope
+    admin_country = await _get_admin_country_scope(user)
+    query = {"country": admin_country} if admin_country else {}
+    influencers = await db.influencers.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
     return [_serialize_influencer(inf) for inf in influencers]
 
 @router.get("/admin/influencers/{influencer_id}")

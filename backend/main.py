@@ -86,7 +86,7 @@ from routes.communities import router as communities_router
 from routes.content_moderation import router as content_moderation_router
 from routes.collaborations import router as collaborations_router
 from routes.documents import router as documents_router
-from routes.experiments import router as experiments_router
+
 from routes.gamification import router as gamification_router
 from routes.loyalty import router as loyalty_router
 from routes.invoices import router as invoices_router
@@ -242,7 +242,7 @@ app.include_router(collaborations_router, prefix="/api", tags=["collaborations"]
 app.include_router(documents_router, prefix="/api", tags=["documents"])
 
 # A/B Experiments Routes (Ciclo 4)
-app.include_router(experiments_router, prefix="/api", tags=["experiments"])
+# experiments_router removed (A/B testing — using PostHog instead)
 
 # Gamification Routes (Ciclo 8)
 app.include_router(gamification_router, prefix="/api", tags=["gamification"])
@@ -260,6 +260,10 @@ app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 # David AI — Consumer assistant (Claude Haiku)
 from routes.hispal_ai import router as hispal_ai_router
 app.include_router(hispal_ai_router, prefix="/api", tags=["hispal-ai"])
+
+# Rebeca AI — PRO+ local sales assistant (Claude Haiku)
+from routes.rebeca_ai import router as rebeca_ai_router
+app.include_router(rebeca_ai_router, prefix="/api", tags=["rebeca-ai"])
 
 # Commercial AI — ELITE producer agent (Claude Sonnet)
 from routes.commercial_ai import router as commercial_ai_router

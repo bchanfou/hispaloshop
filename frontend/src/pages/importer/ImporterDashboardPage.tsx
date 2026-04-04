@@ -85,7 +85,7 @@ function ImporterPlanCard({
         </span>
       </div>
       <div className="space-y-1.5 mb-4">
-        {['Agente Comercial IA para importadores', 'Matching con productores globales', i18n.t('importer_dashboard.contratosB2bGeneradosAutomaticamente', 'Contratos B2B generados automáticamente'), 'Comisión reducida al 15%'].map(f => <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
+        {['Agente Comercial IA para importadores', 'Matching con productores globales', i18n.t('importer_dashboard.contratosB2bGeneradosAutomaticamente', 'Contratos B2B generados automáticamente'), 'Comisión reducida al 17%'].map(f => <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
             <span className="font-bold text-stone-950">✓</span> {f}
           </p>)}
       </div>

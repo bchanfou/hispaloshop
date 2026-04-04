@@ -2928,14 +2928,14 @@
             "name": "ELITE",
             "price": "$269",
             "period": "/mo",
-            "commission": "15%",
+            "commission": "17%",
             "description": "For brands and cooperatives",
             "features": [
               "Everything in Pro",
               "Commercial AI agent",
               "International B2B",
               "Dedicated manager",
-              "Lowest commission: 15%"
+              "Lowest commission: 17%"
             ]
           }
         ]
@@ -2946,7 +2946,7 @@
         "items": [
           {
             "question": "How much does it cost to sign up?",
-            "answer": "Signing up is free. The FREE plan lets you sell with a 20% commission. PRO costs $85/mo (18%) and ELITE $269/mo (15%)."
+            "answer": "Signing up is free. The FREE plan lets you sell with a 20% commission. PRO costs $85/mo (18%) and ELITE $269/mo (17%)."
           },
           {
             "question": "Who handles shipping?",

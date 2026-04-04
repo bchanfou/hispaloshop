@@ -55,38 +55,45 @@ async def update_preferences(
         update.setdefault("$pull", {})["preferred_seller_ids"] = seller_id
 
     try:
-        await db.user_feed_preferences.update_one(
-            {"user_id": user_id},
-            update,
-            upsert=True,
-        )
+        # Write to users.consumer_data.preferences (where FeedAlgorithm reads)
+        user_update = {"$set": {"consumer_data.preferences.last_updated": now}}
+        user_inc = {}
+        for cat in (categories or []):
+            if cat:
+                user_inc[f"consumer_data.preferences.categories.{cat}"] = delta
+        if seller_id and delta > 0:
+            user_update.setdefault("$addToSet", {})["consumer_data.preferences.preferred_sellers"] = seller_id
+        if user_inc:
+            user_update["$inc"] = user_inc
+
+        await db.users.update_one({"user_id": user_id}, user_update)
     except Exception as e:
         logger.warning(f"[FeedPrefs] Failed to update for {user_id}: {e}")
 
 
 async def get_preferences(user_id: str) -> dict:
-    """Get user's preference document, or empty dict for cold-start."""
-    doc = await db.user_feed_preferences.find_one(
-        {"user_id": user_id}, {"_id": 0}
+    """Get user's preference document from users.consumer_data.preferences."""
+    user = await db.users.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "consumer_data.preferences": 1},
     )
-    return doc or {}
+    return (user or {}).get("consumer_data", {}).get("preferences", {})
 
 
 async def add_to_history(user_id: str, post_id: str):
     """Track that user saw this post (keep last 200)."""
     try:
-        await db.user_feed_preferences.update_one(
+        await db.users.update_one(
             {"user_id": user_id},
             {
                 "$push": {
-                    "interaction_history": {
+                    "consumer_data.preferences.interaction_history": {
                         "$each": [post_id],
                         "$slice": -200,
                     }
                 },
-                "$set": {"last_updated": datetime.now(timezone.utc)},
+                "$set": {"consumer_data.preferences.last_updated": datetime.now(timezone.utc)},
             },
-            upsert=True,
         )
     except Exception:
         pass

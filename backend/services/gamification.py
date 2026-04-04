@@ -35,7 +35,7 @@ class GamificationService:
             return None
         await self.db.users.update_one(
             {"user_id": user_id},
-            {"$inc": {"xp": amount}, "$set": {"last_xp_at": datetime.utcnow()}}
+            {"$inc": {"xp": amount}, "$set": {"last_xp_at": datetime.now(timezone.utc)}}
         )
         user = await self.db.users.find_one({"user_id": user_id}, {"xp": 1})
         new_xp = user.get("xp", 0) if user else 0
@@ -80,7 +80,7 @@ class GamificationService:
         )
 
         # Weekly goal progress
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         # Monday of current week
         week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
         weekly_spent = 0
@@ -99,7 +99,19 @@ class GamificationService:
         except Exception:
             pass
 
+        # Weekly goal: read from country_configs if available, fallback to default
         weekly_goal = DEFAULT_WEEKLY_GOAL_CENTS
+        try:
+            user_doc = await self.db.users.find_one({"user_id": user_id}, {"country": 1})
+            if user_doc and user_doc.get("country"):
+                cc = await self.db.country_configs.find_one(
+                    {"country_code": user_doc["country"]},
+                    {"weekly_goal_cents": 1},
+                )
+                if cc and cc.get("weekly_goal_cents"):
+                    weekly_goal = cc["weekly_goal_cents"]
+        except Exception:
+            pass
         total_purchases = await self.db.orders.count_documents({
             "user_id": user_id,
             "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
@@ -135,7 +147,7 @@ class GamificationService:
         )
         if not user:
             return
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         last = user.get("last_active_date")
         if last and hasattr(last, 'date'):
             last = last.date()
@@ -150,7 +162,7 @@ class GamificationService:
         longest = max(longest, streak)
         update = {
             "$set": {
-                "last_active_date": datetime.utcnow(),
+                "last_active_date": datetime.now(timezone.utc),
                 "streak_days": streak,
                 "longest_streak": longest,
             }
@@ -163,9 +175,9 @@ class GamificationService:
     async def get_leaderboard(self, category="overall", period="month", limit=10):
         match = {}
         if period == "week":
-            match["last_xp_at"] = {"$gte": datetime.utcnow() - timedelta(days=7)}
+            match["last_xp_at"] = {"$gte": datetime.now(timezone.utc) - timedelta(days=7)}
         elif period == "month":
-            match["last_xp_at"] = {"$gte": datetime.utcnow() - timedelta(days=30)}
+            match["last_xp_at"] = {"$gte": datetime.now(timezone.utc) - timedelta(days=30)}
         if category == "producers":
             match["roles"] = "producer"
         elif category == "influencers":

@@ -4,7 +4,7 @@ import apiClient from '../services/api/client';
 const RATE_LIMIT_FREE = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   '¿Qué me recomiendas hoy?',
   'Busco algo sin gluten para merendar',
   '¿Qué desayuno sano me propones?',
@@ -49,27 +49,95 @@ function storeMessages(messages) {
   }
 }
 
+function getStoredSessionMemory() {
+  try {
+    const raw = sessionStorage.getItem('hispal_ai_session_memory');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function storeSessionMemory(products) {
+  try {
+    sessionStorage.setItem('hispal_ai_session_memory', JSON.stringify(products.slice(-20)));
+  } catch {
+    // silently handled
+  }
+}
+
+function getStoredSessionId() {
+  try {
+    return sessionStorage.getItem('hispal_ai_session_id') || null;
+  } catch {
+    return null;
+  }
+}
+
+function storeSessionId(id) {
+  try {
+    sessionStorage.setItem('hispal_ai_session_id', id);
+  } catch {
+    // silently handled
+  }
+}
+
+/** Build contextual suggestions based on AI profile */
+function buildSuggestions(profile) {
+  if (!profile) return DEFAULT_SUGGESTIONS;
+  const suggestions = [];
+
+  if (profile.diet?.includes('vegan')) {
+    suggestions.push('Productos veganos nuevos');
+  }
+  if (profile.diet?.includes('keto')) {
+    suggestions.push('Snacks keto para hoy');
+  }
+  if (profile.allergies?.length) {
+    suggestions.push('Opciones seguras para mí');
+  }
+  if (profile.goals?.includes('weight_loss')) {
+    suggestions.push('Opciones bajas en calorías');
+  }
+
+  // Fill remaining with defaults
+  for (const s of DEFAULT_SUGGESTIONS) {
+    if (suggestions.length >= 4) break;
+    if (!suggestions.includes(s)) suggestions.push(s);
+  }
+
+  return suggestions.slice(0, 4);
+}
+
 export default function useHispalAI() {
   const [messages, setMessages] = useState(() => getStoredMessages());
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const abortRef = useRef(null);
+  const [aiProfile, setAiProfile] = useState(null);
+  const [sessionMemory, setSessionMemory] = useState(() => getStoredSessionMemory());
+  const [sessionId, setSessionId] = useState(() => getStoredSessionId());
+  const profileLoadedRef = useRef(false);
 
-  // Listen for global 'open-hispal-ai' event (e.g. from CustomerOverview card)
+  const [proactiveMessage, setProactiveMessage] = useState(null);
+
+  // Load AI profile on mount (eagerly, since button is always visible)
   useEffect(() => {
-    const handler = () => setIsOpen(true);
-    document.addEventListener('open-hispal-ai', handler);
-    return () => document.removeEventListener('open-hispal-ai', handler);
-  }, []);
-
-  const toggleOpen = useCallback(() => {
-    setIsOpen((prev) => !prev);
+    if (profileLoadedRef.current) return;
+    profileLoadedRef.current = true;
+    apiClient.get('/v1/hispal-ai/profile').then(setAiProfile).catch(() => {});
+    // Fetch proactive message for strip pulse
+    apiClient.get('/v1/hispal-ai/proactive').then((data) => {
+      if (data?.message) setProactiveMessage(data.message);
+    }).catch(() => {});
   }, []);
 
   const clearChat = useCallback(() => {
     setMessages([]);
+    setSessionMemory([]);
+    setSessionId(null);
     sessionStorage.removeItem('hispal_ai_messages');
     sessionStorage.removeItem('hispal_ai_rate');
+    sessionStorage.removeItem('hispal_ai_session_memory');
+    sessionStorage.removeItem('hispal_ai_session_id');
   }, []);
 
   const addToCartFromChat = useCallback(async (productId, quantity = 1) => {
@@ -128,13 +196,53 @@ export default function useHispalAI() {
 
       const data = await apiClient.post('/v1/hispal-ai/chat', {
         messages: allMessages,
+        session_id: sessionId,
+        session_memory: sessionMemory,
+        language: aiProfile?.language || undefined,
       });
+
+      // Track session ID
+      if (data.session_id) {
+        setSessionId(data.session_id);
+        storeSessionId(data.session_id);
+      }
+
+      // Extract recommended products from tool calls and update session memory
+      const newProducts = [];
+      for (const tc of (data.tool_calls || [])) {
+        if (tc.tool === 'search_products' && Array.isArray(tc.result)) {
+          for (const p of tc.result) {
+            if (p.id && !sessionMemory.some((sp) => sp.product_id === p.id)) {
+              newProducts.push({
+                product_id: p.id,
+                name: p.name,
+                variant_id: null,
+                pack_id: null,
+              });
+            }
+          }
+        }
+      }
+      if (newProducts.length > 0) {
+        setSessionMemory((prev) => {
+          const next = [...prev, ...newProducts];
+          storeSessionMemory(next);
+          return next;
+        });
+      }
+
+      // Update profile if preferences were detected
+      if (data.preference_updates && Object.keys(data.preference_updates).length > 0) {
+        setAiProfile((prev) => (prev ? { ...prev, ...data.preference_updates } : prev));
+      }
 
       const assistantMessage = {
         role: 'assistant',
         content: data.response || 'Lo siento, no he podido procesar tu mensaje.',
         timestamp: new Date().toISOString(),
         toolCalls: data.tool_calls || [],
+        cartAction: data.cart_action || null,
+        memoryAction: data.memory_action || null,
       };
 
       setMessages((prev) => {
@@ -160,15 +268,22 @@ export default function useHispalAI() {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, sessionId, sessionMemory, aiProfile]);
+
+  const consumeProactiveMessage = useCallback(() => {
+    const msg = proactiveMessage;
+    setProactiveMessage(null);
+    return msg;
+  }, [proactiveMessage]);
 
   return {
     messages,
     isLoading,
-    isOpen,
-    suggestions: SUGGESTIONS,
+    aiProfile,
+    proactiveMessage,
+    consumeProactiveMessage,
+    suggestions: buildSuggestions(aiProfile),
     sendMessage,
-    toggleOpen,
     clearChat,
     addToCartFromChat,
   };

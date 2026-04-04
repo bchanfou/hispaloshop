@@ -66,13 +66,15 @@ async def _get_case_or_404(case_id: str) -> dict:
 
 
 async def _assert_admin_country_access(case: dict, user: User) -> None:
-    """super_admin sees all; admin is scoped to their country."""
+    """super_admin sees all; admin is scoped to their assigned_country."""
     if user.role == "super_admin":
         return
-    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"country": 1}) or {}
-    admin_country = admin_doc.get("country")
+    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"assigned_country": 1}) or {}
+    admin_country = admin_doc.get("assigned_country")
+    if not admin_country:
+        raise HTTPException(status_code=403, detail="Admin account has no assigned country")
     case_country = case.get("country")
-    if admin_country and case_country and admin_country != case_country:
+    if case_country and admin_country != case_country:
         raise HTTPException(status_code=403, detail="No tienes acceso a casos de este país")
 
 
@@ -80,11 +82,11 @@ async def _country_query_for_admin(user: User) -> dict:
     """Return a MongoDB filter fragment that scopes the query by country for admins."""
     if user.role == "super_admin":
         return {}
-    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"country": 1}) or {}
-    admin_country = admin_doc.get("country")
-    if admin_country:
-        return {"country": admin_country}
-    return {}
+    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"assigned_country": 1}) or {}
+    admin_country = admin_doc.get("assigned_country")
+    if not admin_country:
+        raise HTTPException(status_code=403, detail="Admin account has no assigned country")
+    return {"country": admin_country}
 
 
 # ── Admin: case list ─────────────────────────────────────────────────

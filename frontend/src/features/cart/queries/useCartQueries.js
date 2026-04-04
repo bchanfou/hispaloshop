@@ -15,22 +15,8 @@ export const cartKeys = {
 // useCart() React Query hook removed — app uses CartContext.useCart() instead.
 // Cart data is managed via CartContext (context/CartContext.js).
 
-export function useAddToCart() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ productId, quantity, variantId, packId }) =>
-      apiClient.post('/cart/items', {
-        product_id: productId,
-        quantity,
-        ...(variantId ? { variant_id: variantId } : {}),
-        ...(packId ? { pack_id: packId } : {}),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-    },
-  });
-}
+// useAddToCart, useUpdateCartItem, useRemoveFromCart, useSyncCart, useCheckout,
+// useConfirmPayment — REMOVED. All cart mutations go through CartContext.
 
 export function useCartPricing(options = {}) {
   return useQuery({
@@ -123,39 +109,6 @@ export function useCreateStripeCheckout() {
   });
 }
 
-export function useUpdateCartItem() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ itemId, quantity, variant_id, pack_id }) =>
-      apiClient.patch(`/cart/items/${itemId}`, {
-        quantity,
-        ...(variant_id ? { variant_id } : {}),
-        ...(pack_id ? { pack_id } : {}),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-    },
-  });
-}
-
-export function useRemoveFromCart() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ itemId, variant_id, pack_id }) => {
-      const params = new URLSearchParams();
-      if (variant_id) params.append('variant_id', variant_id);
-      if (pack_id) params.append('pack_id', pack_id);
-      const qs = params.toString();
-      return apiClient.delete(`/cart/items/${itemId}${qs ? `?${qs}` : ''}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-    },
-  });
-}
-
 export function useApplyCoupon() {
   const queryClient = useQueryClient();
 
@@ -164,60 +117,6 @@ export function useApplyCoupon() {
       apiClient.post(`/cart/apply-coupon?code=${encodeURIComponent(couponCode)}`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-    },
-  });
-}
-
-export function useSyncCart() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (items) => {
-      try {
-        return await apiClient.post('/cart/sync', { items });
-      } catch {
-        // Legacy backends may not expose /cart/sync.
-        return { success: false };
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-    },
-  });
-}
-
-export function useCheckout(checkoutId) {
-  return useQuery({
-    queryKey: cartKeys.checkout(checkoutId),
-    queryFn: async () => {
-      try {
-        return await apiClient.get(`/checkout/${checkoutId}`);
-      } catch {
-        return { status: 'unavailable' };
-      }
-    },
-    enabled: Boolean(checkoutId),
-    refetchInterval: (query) =>
-      query.state.data?.status === 'pending' ? 5000 : false,
-  });
-}
-
-export function useConfirmPayment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ checkoutId, paymentIntentId }) => {
-      try {
-        return await apiClient.post(`/checkout/${checkoutId}/confirm`, {
-          payment_intent_id: paymentIntentId,
-        });
-      } catch {
-        return { success: false };
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartKeys.cart });
-      queryClient.invalidateQueries({ queryKey: cartKeys.orders });
     },
   });
 }

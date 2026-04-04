@@ -708,9 +708,9 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         logger.error(f"[EMAIL] Failed customer confirmation for order {order_id}: {e}")
 
     # 10. Create commission_transaction record for audit trail
-    from services.ledger import EXCHANGE_RATES_TO_USD
+    from services.exchange_rates import get_rate_to_usd
     currency = order.get("currency", "EUR")
-    usd_rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)
+    usd_rate = await get_rate_to_usd(currency)
     
     commission_splits = transfer_result.get("transfer_records", []) if transfer_result else []
     for rec in commission_splits:
@@ -2160,12 +2160,13 @@ async def export_commission_audit(
         "Influencer Cut", "Platform Net", "USD Equivalent", "Refund Amount"
     ])
     
-    from services.ledger import EXCHANGE_RATES_TO_USD
-    
+    from services.exchange_rates import get_all_rates_to_usd
+    rates_to_usd = await get_all_rates_to_usd()
+
     for order in orders:
         cd = order.get("commission_data", {})
         currency = order.get("currency", "EUR")
-        usd_rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)
+        usd_rate = rates_to_usd.get(currency.upper(), 1.0)
         refund_amt = order.get("refund_amount", 0)
         
         for split in cd.get("splits", []):

@@ -6,7 +6,6 @@ import os
 import stripe
 import logging
 from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from core.monetization import calculate_order_split, cents_to_float
@@ -22,7 +21,7 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 SELLER_PLANS = {
     "FREE":  {"price_monthly": 0,   "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
     "PRO":   {"price_monthly": 79,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
-    "ELITE": {"price_monthly": 249, "currency": "eur", "commission_rate": 0.15, "label": "Elite", "stripe_price_id": None},
+    "ELITE": {"price_monthly": 249, "currency": "eur", "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
 }
 
 # In-memory cache for DB-sourced plan config (refreshed on startup + every 5 min)
@@ -85,7 +84,6 @@ ATTRIBUTION_LOCK_MONTHS = 18
 INFLUENCER_PAYOUT_DELAY_DAYS = 15
 INFLUENCER_MIN_PAYOUT_EUR = 20
 INFLUENCER_PAYOUT_CURRENCY = "eur"
-INFLUENCER_DISCOUNT_PCT = 10  # 10% first-purchase discount with influencer code
 B2B_INTERMEDIARY_COMMISSION_BPS = 300  # 3% on B2B international transactions
 PLATFORM_COMMISSION_DEFAULT_BPS = 2000  # 20% for FREE plan
 GRACE_PERIOD_DAYS = 3
@@ -135,7 +133,7 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "user_type": "producer",
         "price_monthly": 249,
         "price_yearly": 2688.12,
-        "commission_rate": 0.15,
+        "commission_rate": 0.17,
         "features": ["advanced_analytics", "hi_ai_price_optimization", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
         "limits": {"products": -1},
     },
@@ -168,7 +166,7 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "user_type": "importer",
         "price_monthly": 249,
         "price_yearly": 2688.12,
-        "commission_rate": 0.15,
+        "commission_rate": 0.17,
         "features": ["advanced_analytics", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
         "limits": {"products": -1},
     },
@@ -194,43 +192,6 @@ def get_seller_plan_currency(plan: str) -> str:
 
 def has_tier_access(current_tier: str, min_tier: str) -> bool:
     return SUBSCRIPTION_TIER_ORDER.get(current_tier, 0) >= SUBSCRIPTION_TIER_ORDER.get(min_tier, 10)
-
-
-@dataclass
-class CommissionModifier:
-    type: str
-    description: str
-    delta: float
-
-
-def calculate_dynamic_commission(
-    base_rate: float,
-    order_total: float,
-    monthly_gmv: float,
-    return_rate_30d: float,
-    used_hi_ai_this_month: bool,
-) -> Dict[str, Any]:
-    modifiers: List[CommissionModifier] = []
-
-    if monthly_gmv > 50000:
-        modifiers.append(CommissionModifier(type="volume_bonus", description="Alto volumen mensual", delta=-0.005))
-    if return_rate_30d < 0.02:
-        modifiers.append(CommissionModifier(type="quality_bonus", description="Calidad premium", delta=-0.003))
-    if used_hi_ai_this_month:
-        modifiers.append(CommissionModifier(type="ai_adoption", description="Adopcion de HI AI", delta=-0.002))
-
-    final_rate = max(base_rate + sum(m.delta for m in modifiers), 0.10)
-    platform_fee_cents = int(round(order_total * final_rate * 100))
-    platform_fee = round(platform_fee_cents / 100, 2)
-    seller_amount = round(order_total - platform_fee, 2)
-    return {
-        "base_rate": base_rate,
-        "final_rate": round(final_rate, 4),
-        "modifiers": [m.__dict__ for m in modifiers],
-        "platform_fee": platform_fee,
-        "seller_amount": seller_amount,
-        "applied_at": datetime.now(timezone.utc).isoformat(),
-    }
 
 
 async def get_user_subscription_doc(db, user_id: str) -> Dict[str, Any]:

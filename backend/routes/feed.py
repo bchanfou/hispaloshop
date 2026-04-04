@@ -474,42 +474,25 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
         ).to_list(500)
         following_ids = {f["following_id"] for f in follows}
 
-    # Score each item (Q2: algorithmic feed)
-    now = datetime.now(timezone.utc)
-    scored = []
-    for item in candidates:
-        created = item.get("created_at", "")
-        try:
-            dt = datetime.fromisoformat(str(created).replace("Z", "+00:00")) if created else now
-        except Exception:
-            dt = now
-        age_h = max((now - dt).total_seconds() / 3600, 0.01)
+    # Delegate scoring to FeedAlgorithm in "fast" mode (single engine, no divergence)
+    from services.feed_algorithm import FeedAlgorithm
+    algo = FeedAlgorithm()
 
-        recency = max(0, 100 - age_h * 1.5) if age_h < 48 else max(5, 30 - age_h * 0.05)
-        engagement = min(100, (
-            (item.get("likes_count", 0) or 0)
-            + (item.get("comments_count", 0) or 0) * 2
-            + (item.get("shares_count", 0) or 0) * 3
-            + (item.get("saves_count", 0) or 0) * 2
-        ) / 5)
-        personalization = 60 if item.get("user_id") in following_ids else 30
-        item_id = item.get("id") or item.get("post_id") or item.get("reel_id") or ""
-        viewer_id = current_user.user_id if current_user else "anon"
-        seed = hash(f"{viewer_id}:{item_id}") & 0xFFFFFFFF
-        serendipity = random.Random(seed).uniform(0, 15)
-
-        score = recency * 0.25 + engagement * 0.30 + personalization * 0.35 + serendipity * 0.10
-        scored.append((score, item))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
+    user_id = current_user.user_id if current_user else f"anon_{hash(str(candidates[:1]))}"
+    # Pass pre-fetched candidates to avoid re-querying
+    scored_items = await algo.score_candidates(
+        candidates=candidates,
+        user_id=user_id,
+        following_ids=following_ids,
+        mode="fast",
+    )
 
     # Diversify: max 2 consecutive from same author
     result = []
     seen_ids = set()
     author_count = {}
-    for _, item in scored:
+    for item in scored_items:
         item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
-        # Deduplicate items
         if item_id and item_id in seen_ids:
             continue
         uid = item.get("user_id", "")

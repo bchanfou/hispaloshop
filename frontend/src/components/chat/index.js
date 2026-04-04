@@ -1,7 +1,2 @@
-export { default as ChatContainer } from './ChatContainer';
-export { default as useHIChat } from './useHIChat';
-export { default as MessageBubble } from './MessageBubble';
-export { default as SuggestionChips } from './SuggestionChips';
-export { default as ChatInput } from './ChatInput';
-export { default as RoleSelector } from './RoleSelector';
-export { default as TypingIndicator } from './TypingIndicator';
+// HI Multi-role chat components removed — AI consolidated into David/Rebeca/Pedro.
+// Remaining files in this directory are for internal (DM) user-to-user messaging.

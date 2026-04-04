@@ -163,7 +163,7 @@ export default function LandingProductor() {
     <>
       <SEO
         title={t('landing.productor.seo.title', 'Vende sin intermediarios — HispaloShop')}
-        description={t('landing.productor.seo.description', 'Abre tu tienda online y vende directamente al consumidor. Planes desde 0€. Comisiones desde 15%.')}
+        description={t('landing.productor.seo.description', 'Abre tu tienda online y vende directamente al consumidor. Planes desde 0€. Comisiones desde 17%.')}
       />
 
       <HeroSection

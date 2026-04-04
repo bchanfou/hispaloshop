@@ -7,23 +7,31 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
-const PLANS = [{
-  id: 'free',
-  name: 'FREE',
-  price: '0€/mes',
-  features: ['Hasta 10 productos', "Perfil de tienda básico", 'Soporte por email', "Analíticas básicas", 'Comisión 20%']
-}, {
-  id: 'pro',
-  name: 'PRO',
-  price: '79€/mes',
-  features: ['Productos ilimitados', 'Perfil de tienda completo', 'Soporte prioritario', "Analíticas avanzadas", 'Envío gratis desde 30€', 'Certificados digitales', 'Comisión 18%']
-}, {
-  id: 'elite',
-  name: 'ELITE',
-  price: '249€/mes',
-  features: ['Todo lo de PRO', 'Tienda destacada', 'IA comercial avanzada', "Generación de contratos", 'B2B marketplace', 'Firma digital ilimitada', 'Comisión 15%']
-}];
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
+
+const PLAN_STATIC = {
+  FREE: { features: ['Hasta 10 productos', "Perfil de tienda básico", 'Soporte por email', "Analíticas básicas"] },
+  PRO: { features: ['Productos ilimitados', 'Perfil de tienda completo', 'Soporte prioritario', "Analíticas avanzadas", 'Envío gratis desde 30€', 'Certificados digitales'] },
+  ELITE: { features: ['Todo lo de PRO', 'Tienda destacada', 'IA comercial avanzada', "Generación de contratos", 'B2B marketplace', 'Firma digital ilimitada'] },
+};
+
+function usePlansList() {
+  const { data: config } = usePlanConfig();
+  const sp = config?.seller_plans || {};
+  return ['FREE', 'PRO', 'ELITE'].map(key => {
+    const api = sp[key] || {};
+    const commPct = Math.round((api.commission_rate ?? 0.20) * 100);
+    const price = api.price_monthly_eur ?? 0;
+    return {
+      id: key.toLowerCase(),
+      name: key,
+      price: `${price}€/mes`,
+      features: [...(PLAN_STATIC[key]?.features || []), `Comisión ${commPct}%`],
+    };
+  });
+}
 export default function PlanPage() {
+  const PLANS = usePlansList();
   const navigate = useNavigate();
   const {
     user

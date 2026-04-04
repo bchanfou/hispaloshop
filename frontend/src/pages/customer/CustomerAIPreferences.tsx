@@ -134,7 +134,7 @@ export default function CustomerAIPreferences() {
 
   const fetchProfile = async () => {
     try {
-      const data = await apiClient.get('/ai/profile');
+      const data = await apiClient.get('/v1/hispal-ai/profile');
       setProfile(data);
     } catch (error) {
       toast.error(error?.response?.data?.detail || t('aiPrefs.loadError', 'Error al cargar preferencias'));
@@ -146,7 +146,7 @@ export default function CustomerAIPreferences() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await apiClient.put('/ai/profile', {
+      await apiClient.put('/v1/hispal-ai/profile', {
         tone: profile.tone,
         diet: profile.diet,
         allergies: profile.allergies,
@@ -167,7 +167,7 @@ export default function CustomerAIPreferences() {
     }
     setSaving(true);
     try {
-      const data = await apiClient.post('/ai/profile/reset', {});
+      const data = await apiClient.post('/v1/hispal-ai/profile/reset', {});
       setProfile(data.profile);
       toast.success(t('aiPrefs.resetDone', 'Preferencias reiniciadas'));
     } catch (error) {
