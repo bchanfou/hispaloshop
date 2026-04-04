@@ -255,10 +255,10 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
               <Star
                 key={i}
                 size={12}
-                className={i < Math.round(rating) ? 'fill-stone-950 text-stone-950' : 'fill-stone-200 text-stone-200'}
+                className={i < Math.round(Number(rating) || 0) ? 'fill-stone-950 text-stone-950' : 'fill-stone-200 text-stone-200'}
               />
             ))}
-            <span className="ml-0.5 text-[10px] text-stone-400">{Number(rating).toFixed(1)}</span>
+            <span className="ml-0.5 text-[10px] text-stone-400">{isNaN(Number(rating)) ? '—' : Number(rating).toFixed(1)}</span>
           </div>
         )}
 

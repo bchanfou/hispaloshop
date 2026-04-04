@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useTranslation } from 'react-i18next';
-import i18n from "../../locales/i18n";
 const getProductId = product => product?.product_id || product?.id || null;
 const AddToCartButton = ({
   product,
@@ -16,6 +15,7 @@ const AddToCartButton = ({
   onAdd,
   className = ''
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     addToCart,
@@ -90,7 +90,7 @@ const AddToCartButton = ({
     } catch (error) {
       if (mountedRef.current) setState('idle');
       addingRef.current = false;
-      toast.error(i18n.t('add_to_cart_button.errorAlAnadirElProductoAlCarrito', 'Error al añadir el producto al carrito'));
+      toast.error(t('add_to_cart_button.errorAlAnadirElProductoAlCarrito', 'Error al añadir el producto al carrito'));
       return false;
     }
   };
@@ -102,7 +102,7 @@ const AddToCartButton = ({
     'default': {
       button: 'flex-1 py-3 px-4 bg-stone-950 text-white rounded-2xl font-medium',
       icon: 'w-5 h-5',
-      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : i18n.t('add_to_cart_button.anadirAlCarrito', 'Añadir al carrito')
+      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : t('add_to_cart_button.anadirAlCarrito', 'Añadir al carrito')
     },
     'small': {
       button: 'p-2 bg-stone-950 text-white rounded-2xl',
@@ -112,7 +112,7 @@ const AddToCartButton = ({
     'quick': {
       button: 'w-full py-2 bg-stone-950 text-white rounded-2xl text-sm font-medium',
       icon: 'w-4 h-4',
-      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : i18n.t('common.add', 'Añadir')
+      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : t('common.add', 'Añadir')
     },
     'buy-now': {
       button: 'w-full py-3 bg-stone-950 text-white rounded-2xl font-semibold hover:bg-stone-800',
@@ -146,7 +146,7 @@ const AddToCartButton = ({
           </motion.button>
         </div>}
       
-      <motion.button onClick={handleAdd} disabled={state === 'loading' || !productId} aria-label={state === 'success' ? i18n.t('add_to_cart_button.productoAnadido', 'Producto añadido') : state === 'loading' ? 'Añadiendo al carrito' : 'Añadir al carrito'} className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${state === 'success' ? '!bg-stone-950 !text-white' : ''} ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`} animate={state === 'success' ? {
+      <motion.button onClick={handleAdd} disabled={state === 'loading' || !productId} aria-label={state === 'success' ? t('add_to_cart_button.productoAnadido', 'Producto añadido') : state === 'loading' ? 'Añadiendo al carrito' : 'Añadir al carrito'} className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${state === 'success' ? '!bg-stone-950 !text-white' : ''} ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`} animate={state === 'success' ? {
       scale: [1, 1.15, 1]
     } : {}} transition={state === 'success' ? {
       duration: 0.35,
@@ -192,7 +192,7 @@ const AddToCartButton = ({
         </AnimatePresence>
         
         {style.text && <span>
-            {state === 'loading' ? i18n.t('productDetail.addingToCart', 'Añadiendo...') : state === 'success' ? i18n.t('add_to_cart_button.anadido', '¡Añadido!') : style.text}
+            {state === 'loading' ? t('productDetail.addingToCart', 'Añadiendo...') : state === 'success' ? t('add_to_cart_button.anadido', '¡Añadido!') : style.text}
           </span>}
       </motion.button>
     </div>;

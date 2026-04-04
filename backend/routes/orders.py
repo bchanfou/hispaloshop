@@ -1387,9 +1387,11 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             current_stock = variant.get("stock", product.get("stock", 0))
         else:
             current_stock = product.get("stock", 0)
+        if not isinstance(input.quantity, int) or input.quantity < 1:
+            raise HTTPException(status_code=400, detail="Cantidad debe ser al menos 1")
         if current_stock < input.quantity:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Stock insuficiente. Solo {current_stock} unidades disponibles"
             )
     

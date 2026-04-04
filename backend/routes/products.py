@@ -102,9 +102,9 @@ async def get_products(
     if min_price is not None or max_price is not None:
         query["price"] = {}
         if min_price is not None:
-            query["price"]["$gte"] = min_price
+            query["price"]["$gte"] = max(0, min_price)
         if max_price is not None:
-            query["price"]["$lte"] = max_price
+            query["price"]["$lte"] = max(0, max_price)
     if country:
         # Filter by country availability (products available in this country)
         and_conditions.append({
