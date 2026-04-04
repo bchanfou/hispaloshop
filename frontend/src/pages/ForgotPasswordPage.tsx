@@ -5,8 +5,8 @@ import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
-import i18n from "../locales/i18n";
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
           Puede tardar unos minutos.
         </p>
 
-        <button type="button" onClick={handleResend} disabled={cooldown > 0 || sending} aria-label={i18n.t('forgot_password.reenviarEmailDeRecuperacion', 'Reenviar email de recuperación')} className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <button type="button" onClick={handleResend} disabled={cooldown > 0 || sending} aria-label={t('forgot_password.reenviarEmailDeRecuperacion', 'Reenviar email de recuperación')} className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           {sending ? <Loader2 size={18} className="animate-spin" /> : cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar email'}
         </button>
 
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="hola@ejemplo.com" required autoComplete="email" className="w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border border-stone-200 rounded-xl outline-none transition-colors focus:border-stone-400" />
         </div>
 
-        <button type="submit" disabled={loading} aria-label={i18n.t('forgot_password.enviarEnlaceDeRecuperacion', 'Enviar enlace de recuperación')} className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+        <button type="submit" disabled={loading} aria-label={t('forgot_password.enviarEnlaceDeRecuperacion', 'Enviar enlace de recuperación')} className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
           {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enviar enlace'}
         </button>
       </form>

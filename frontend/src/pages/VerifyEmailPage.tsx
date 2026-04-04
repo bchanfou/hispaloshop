@@ -9,8 +9,8 @@ import apiClient from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import i18n from "../locales/i18n";
 export default function VerifyEmailPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const {
@@ -25,7 +25,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!verificationValue) {
       setStatus('error');
-      setMessage(i18n.t('verify_email.noSeProporcionoUnCodigoDeVerificac', 'No se proporcionó un código de verificación'));
+      setMessage(t('verify_email.noSeProporcionoUnCodigoDeVerificac', 'No se proporcionó un código de verificación'));
       return;
     }
     let cancelled = false;
@@ -35,8 +35,8 @@ export default function VerifyEmailPage() {
         const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
         if (cancelled) return;
         setStatus('success');
-        setMessage(data.message || i18n.t('verify_email.emailVerificadoCorrectamente', '¡Email verificado correctamente!'));
-        toast.success(i18n.t('verify_email.emailVerificadoYaPuedesIniciarSesi', 'Email verificado. Ya puedes iniciar sesión.'));
+        setMessage(data.message || t('verify_email.emailVerificadoCorrectamente', '¡Email verificado correctamente!'));
+        toast.success(t('verify_email.emailVerificadoYaPuedesIniciarSesi', 'Email verificado. Ya puedes iniciar sesión.'));
         // Refresh auth context so user.email_verified is up to date
         if (getToken()) {
           try {
@@ -54,8 +54,8 @@ export default function VerifyEmailPage() {
         if (cancelled) return;
         setStatus('error');
         const detail = error?.response?.data?.detail;
-        setMessage(typeof detail === 'string' ? detail : i18n.t('verify_email.elCodigoNoEsValidoOHaExpirado', 'El código no es válido o ha expirado'));
-        toast.error(i18n.t('verify_email.errorEnLaVerificacion', 'Error en la verificación'));
+        setMessage(typeof detail === 'string' ? detail : t('verify_email.elCodigoNoEsValidoOHaExpirado', 'El código no es válido o ha expirado'));
+        toast.error(t('verify_email.errorEnLaVerificacion', 'Error en la verificación'));
       }
     })();
     return () => {
@@ -64,12 +64,12 @@ export default function VerifyEmailPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verificationValue]);
-  const mobileTitle = status === 'verifying' ? 'Verificando email' : status === 'success' ? 'Email verificado' : i18n.t('verify_email.verificacionFallida', 'Verificación fallida');
+  const mobileTitle = status === 'verifying' ? 'Verificando email' : status === 'success' ? 'Email verificado' : t('verify_email.verificacionFallida', 'Verificación fallida');
   return <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Mobile Header */}
       <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 safe-area-top">
         <div className="flex items-center h-14 px-4">
-          <button onClick={() => navigate('/login')} className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" data-testid="mobile-back-btn" aria-label="Volver al login">
+          <button type="button" onClick={() => navigate('/login')} className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" data-testid="mobile-back-btn" aria-label="Volver al login">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="flex-1 text-center font-medium text-stone-950 pr-8">

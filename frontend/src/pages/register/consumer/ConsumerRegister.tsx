@@ -12,9 +12,9 @@ import Step4Preferences from './steps/Step4Preferences';
 import Step5Welcome from './steps/Step5Welcome';
 import { useAuth } from '../../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import i18n from "../../../locales/i18n";
 const STEP_LABELS = ['Acceso', "Datos básicos", 'Perfil alimentario', 'Preferencias', 'Cuenta lista'];
 const ConsumerRegister = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     register
@@ -56,7 +56,7 @@ const ConsumerRegister = () => {
       });
       clearProgress();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || i18n.t('consumer_register.errorAlCrearLaCuentaIntentaloDeN', 'Error al crear la cuenta. Inténtalo de nuevo.'));
+      toast.error(error?.response?.data?.detail || t('consumer_register.errorAlCrearLaCuentaIntentaloDeN', 'Error al crear la cuenta. Inténtalo de nuevo.'));
     } finally {
       setIsSubmitting(false);
     }

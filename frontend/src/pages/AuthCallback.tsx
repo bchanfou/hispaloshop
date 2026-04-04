@@ -12,7 +12,9 @@ export default function AuthCallback() {
   const { checkAuth } = useAuth();
   const { t } = useTranslation();
   const hasProcessed = useRef(false);
+  const timerRef = useRef(null);
   const [error, setError] = useState(null);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   useEffect(() => {
     // Prevent double execution in StrictMode
@@ -28,7 +30,7 @@ export default function AuthCallback() {
 
         if (authError) {
           setError(authError);
-          setTimeout(() => navigate('/login', { replace: true }), 3000);
+          timerRef.current = setTimeout(() => navigate('/login', { replace: true }), 3000);
           return;
         }
 
@@ -67,7 +69,7 @@ export default function AuthCallback() {
 
       } catch (error) {
         setError('Authentication failed');
-        setTimeout(() => navigate('/login', { replace: true }), 2000);
+        timerRef.current = setTimeout(() => navigate('/login', { replace: true }), 2000);
       }
     };
 

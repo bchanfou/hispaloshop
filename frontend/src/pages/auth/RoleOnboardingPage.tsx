@@ -270,8 +270,9 @@ function ProducerOnboarding({
     setStripeLoading(true);
     try {
       const data = await apiClient.post('/sellers/me/stripe/connect');
-      if (data?.onboarding_url || data?.url) {
-        window.location.href = data.onboarding_url || data.url;
+      const stripeUrl = data?.onboarding_url || data?.url;
+      if (stripeUrl && (stripeUrl.startsWith('https://') || stripeUrl.startsWith('http://'))) {
+        window.location.href = stripeUrl;
       } else {
         toast.error('Error conectando con Stripe');
         onFinish();

@@ -84,6 +84,7 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
 
 const PrimaryButton = ({ onClick, disabled, loading, children, className = '' }) => (
   <button
+    type="button"
     onClick={onClick}
     disabled={disabled || loading}
     aria-disabled={disabled || loading}
@@ -147,6 +148,7 @@ export default function OnboardingPage() {
   }, []);
 
   const handleFinish = useCallback(async () => {
+    if (saving) return;
     setSaving(true);
     try {
       // Upload photo if selected
@@ -185,10 +187,10 @@ export default function OnboardingPage() {
       navigate(roleDestinations[role] || '/', { replace: true });
     } catch (err) {
       toast.error(typeof err?.response?.data?.detail === 'string' ? err.response.data.detail : t('onboarding.errorAlGuardarTuPerfilIntentaloDe', 'Error al guardar tu perfil. Inténtalo de nuevo.'));
+    } finally {
       setSaving(false);
-      return;
     }
-  }, [profilePhoto, displayName, bio, location, selectedInterests, checkAuth, navigate, user]);
+  }, [saving, profilePhoto, displayName, bio, location, selectedInterests, checkAuth, navigate, user, t]);
 
   const handleSkip = useCallback(() => {
     if (step < TOTAL_STEPS) {
@@ -235,6 +237,7 @@ export default function OnboardingPage() {
 
         {profilePhotoPreview && (
           <button
+            type="button"
             onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }}
             aria-label="Eliminar foto de perfil"
             className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4 py-2 px-3 min-h-[44px] flex items-center"
