@@ -2404,6 +2404,41 @@ Pedro AI usa esta data como tool:
 
 ---
 
+## 4.9 — Legacy code cleanup (housekeeping tech debt)
+**Objetivo:** Limpiar deuda técnica detectada durante Fase 0-3 que no bloquea launch pero debería resolverse antes de invitar a primeros devs o escalar el equipo.
+
+**Origen:** Issues documentados fuera de scope en secciones previas (principalmente 0.2 Infrastructure).
+
+**Archivos clave:**
+- `backend/config.py` (legacy duplicado)
+- `backend/core/config.py` (activo)
+- `backend/routes/auth.py` (naming OAuth inconsistente)
+- `backend/DEPLOYMENT.md` (legacy duplicado)
+- `backend/scripts/*.py` (~1758 prints)
+- `frontend/src/components/feed/README.md`, `frontend/src/components/chat/README.md` (docs desactualizadas)
+- Componentes legacy `.hs-btn-*`, `.btn-*`, `.info-*`, `.reveal-*`, `.health-score-*`, `.quick-action-*`
+
+**Tareas:**
+1. Consolidar `backend/config.py` + `backend/core/config.py` → un solo archivo canónico
+2. Unificar naming OAuth: elegir `GOOGLE_CLIENT_ID` (o el que tenga mejor fit) y eliminar aliases
+3. Eliminar `backend/DEPLOYMENT.md` legacy (la raíz ya tiene la versión autoritativa)
+4. Migrar `print()` de scripts CLI a `logger` (opcional, baja prioridad — funcionan)
+5. Actualizar READMEs desactualizados con paleta actual stone B&W
+6. Migrar clases CSS legacy `.hs-btn-*` etc a componentes Tailwind directos donde se usen
+7. Deduplicar hooks/componentes con múltiples implementaciones identificadas en audits previos
+
+**Done cuando:**
+- Un solo `config.py` en el backend
+- Naming OAuth consistente
+- READMEs actualizados
+- Tests pasan después del cleanup
+- Zero regresiones en funcionalidad
+
+**Dependencias:** Todas las fases previas
+**Estimación:** 2-3 días
+
+---
+
 # FASE 5 — LAUNCH PREP (semana 16)
 
 ## 5.1 — Content seeding
