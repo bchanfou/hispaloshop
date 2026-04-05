@@ -12,6 +12,28 @@ logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════
+# HELPERS
+# ═══════════════════════════════════════════════════════
+
+async def _find_product(db, product_id: str) -> Optional[dict]:
+    """Find a product by product_id or ObjectId. Returns None if invalid/missing."""
+    if not product_id:
+        return None
+    # Try product_id field first (most common)
+    result = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if result:
+        return result
+    # Fallback to ObjectId
+    try:
+        from bson import ObjectId
+        if ObjectId.is_valid(product_id):
+            return await db.products.find_one({"_id": ObjectId(product_id)}, {"_id": 0})
+    except Exception:
+        logger.warning("ObjectId conversion failed for product_id=%s", product_id)
+    return None
+
+
+# ═══════════════════════════════════════════════════════
 # CART HELPERS — operate on db.carts (embedded items[])
 # ═══════════════════════════════════════════════════════
 
@@ -317,14 +339,7 @@ async def search_products_db(db, query, certifications=None, max_price=None, lim
 
 async def get_product_detail_db(db, product_id):
     """Return full product details by product_id field."""
-    p = await db.products.find_one({"product_id": product_id}, {"_id": 0})
-    if not p:
-        # Fallback to ObjectId
-        try:
-            from bson import ObjectId
-            p = await db.products.find_one({"_id": ObjectId(product_id)}, {"_id": 0})
-        except Exception:
-            pass
+    p = await _find_product(db, product_id)
     if not p:
         return {"error": "Producto no encontrado"}
 
@@ -363,14 +378,7 @@ async def add_to_cart_db(db, user_id, product_id, quantity=1, user_country="ES")
     if not user_id:
         return {"error": "Usuario no autenticado"}
 
-    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
-    if not product:
-        # Fallback to ObjectId
-        try:
-            from bson import ObjectId
-            product = await db.products.find_one({"_id": ObjectId(product_id)}, {"_id": 0})
-        except Exception:
-            pass
+    product = await _find_product(db, product_id)
     if not product:
         return {"error": "Producto no encontrado"}
 
@@ -624,10 +632,30 @@ async def execute_smart_cart(db, user_id: str, action: str,
                 "product_id": {"$ne": item["product_id"]},
             }, {"_id": 0}).to_list(50)
 
+            # Batch fetch reviews for all alternatives in one aggregation (N+1 fix)
+            alt_ids = [alt.get("product_id") for alt in alternatives if alt.get("product_id")]
+            review_stats: dict[str, dict] = {}
+            if alt_ids:
+                pipeline = [
+                    {"$match": {"product_id": {"$in": alt_ids}}},
+                    {"$group": {
+                        "_id": "$product_id",
+                        "avg_rating": {"$avg": "$rating"},
+                        "count": {"$sum": 1},
+                    }},
+                ]
+                try:
+                    async for doc in db.reviews.aggregate(pipeline):
+                        review_stats[doc["_id"]] = {
+                            "avg": doc.get("avg_rating", 0) or 0,
+                            "count": doc.get("count", 0),
+                        }
+                except Exception:
+                    pass
             for alt in alternatives:
-                reviews = await db.reviews.find({"product_id": alt["product_id"]}, {"_id": 0}).to_list(100)
-                alt["average_rating"] = sum(r["rating"] for r in reviews) / len(reviews) if reviews else 0
-                alt["review_count"] = len(reviews)
+                stat = review_stats.get(alt.get("product_id"), {"avg": 0, "count": 0})
+                alt["average_rating"] = stat["avg"]
+                alt["review_count"] = stat["count"]
 
             valid = _filter_by_diet_allergies(alternatives, user_allergies, user_diet)
             if valid:
@@ -773,12 +801,25 @@ DIET_PATTERNS = {
 }
 
 ALLERGY_PATTERNS = {
-    "nuts": ["alergia a los frutos secos", "alergia a nueces", "allergic to nuts", "nut allergy", "sin frutos secos"],
-    "dairy": ["alergia a lácteos", "intolerancia a la lactosa", "intolerante a la lactosa",
-              "lactose intolerant", "dairy free", "sin lactosa"],
-    "gluten": ["alergia al gluten", "celíaco", "celiaco", "gluten allergy", "celiac"],
-    "shellfish": ["alergia a mariscos", "shellfish allergy", "sin mariscos"],
-    "soy": ["alergia a la soja", "soy allergy", "sin soja"],
+    "nuts": [
+        "alergia a los frutos secos", "alergia a nueces", "allergic to nuts",
+        "nut allergy", "sin frutos secos", "no puedo comer frutos secos",
+    ],
+    "dairy": [
+        "alergia a lácteos", "alergia a lacteos", "intolerancia a la lactosa",
+        "intolerante a la lactosa", "lactose intolerant", "dairy free",
+        "sin lactosa", "sin lácteos", "sin lacteos", "no puedo lácteos", "no puedo lacteos",
+    ],
+    "gluten": [
+        "alergia al gluten", "celíaco", "celiaco", "gluten allergy", "celiac",
+        "sin gluten", "no tolero el gluten",
+    ],
+    "shellfish": [
+        "alergia a mariscos", "shellfish allergy", "sin mariscos", "no puedo mariscos",
+    ],
+    "soy": [
+        "alergia a la soja", "soy allergy", "sin soja", "no tolero la soja",
+    ],
 }
 
 GOAL_PATTERNS = {
@@ -872,12 +913,14 @@ CART_PATTERNS = {
 SMART_CART_PATTERNS = {
     "optimize_price": [
         "optimiza mi carrito para precio", "optimizar precio", "hazlo más barato",
-        "busca opciones más baratas", "ahorra dinero", "reduce el precio",
+        "hazlo mas barato", "busca opciones más baratas", "busca opciones mas baratas",
+        "ahorra dinero", "reduce el precio",
         "optimize for price", "make it cheaper", "find cheaper options", "save money",
     ],
     "optimize_health": [
-        "optimiza para salud", "hazlo más saludable", "opciones más sanas",
-        "busca alternativas saludables", "más healthy",
+        "optimiza para salud", "hazlo más saludable", "hazlo mas saludable",
+        "opciones más sanas", "opciones mas sanas",
+        "busca alternativas saludables", "más healthy", "mas healthy",
         "optimize for health", "make it healthier", "healthier options",
     ],
     "optimize_quality": [
@@ -886,16 +929,17 @@ SMART_CART_PATTERNS = {
         "optimize for quality", "best quality", "best rated products",
     ],
     "switch_pack": [
-        "cambia a pack grande", "pack más grande", "packs grandes",
+        "cambia a pack grande", "pack más grande", "pack mas grande", "packs grandes",
         "switch to bigger pack", "bigger packs", "larger packs",
     ],
     "upgrade": [
-        "mejorar a premium", "versión premium", "opciones premium",
+        "mejorar a premium", "versión premium", "version premium", "opciones premium",
         "lo mejor de lo mejor",
         "upgrade to premium", "premium version", "premium options",
     ],
     "remove_expensive": [
-        "quita el más caro", "elimina el más caro", "borra el más caro",
+        "quita el más caro", "quita el mas caro", "elimina el más caro",
+        "elimina el mas caro", "borra el más caro", "borra el mas caro",
         "remove the most expensive", "remove most expensive",
     ],
     "remove_allergen_nuts": [
@@ -904,7 +948,8 @@ SMART_CART_PATTERNS = {
         "remove anything with nuts", "remove products with nuts", "no nuts",
     ],
     "remove_allergen_dairy": [
-        "quita los lácteos", "sin lácteos del carrito", "elimina productos con lactosa",
+        "quita los lácteos", "quita los lacteos", "sin lácteos del carrito",
+        "sin lacteos del carrito", "elimina productos con lactosa",
         "remove dairy products", "remove anything with dairy", "no dairy",
     ],
     "remove_allergen_gluten": [
@@ -1036,6 +1081,12 @@ async def build_bundle_db(db, user_id: str, bundle_type: str,
                 budget_items.append(p)
                 running += p["_bundle_price"]
         selected = budget_items
+        if not selected:
+            return {
+                "success": False,
+                "message": f"No hay productos que quepan en tu presupuesto de {max_budget}€.",
+                "items": [],
+            }
 
     total = sum(p["_bundle_price"] for p in selected)
     items = []
@@ -1072,20 +1123,34 @@ FEAR_PATTERNS = {
         "too expensive", "can't afford", "demasiado", "presupuesto", "no llego",
     ],
     "quality": [
-        "no me fío", "será bueno", "calidad", "es de verdad", "real", "fiable",
+        "no me fío", "no me fio", "será bueno", "sera bueno", "calidad",
+        "es de verdad", "real", "fiable",
         "is it good", "quality", "trustworthy", "worth it", "merece la pena",
     ],
     "trust": [
-        "estafa", "seguro", "de confianza", "quién lo hace", "de dónde viene",
+        "estafa", "seguro", "de confianza", "quién lo hace", "quien lo hace",
+        "de dónde viene", "de donde viene",
         "scam", "safe", "reliable", "who makes", "where from",
     ],
     "choice_paralysis": [
-        "no sé cuál elegir", "hay mucho", "no me aclaro", "cuál me recomiendas",
+        "no sé cuál elegir", "no se cual elegir", "hay mucho", "no me aclaro",
+        "cuál me recomiendas", "cual me recomiendas",
         "too many options", "can't decide", "which one", "confused",
     ],
     "health_anxiety": [
-        "es sano", "tiene químicos", "aditivos", "procesado", "natural",
-        "is it healthy", "chemicals", "additives", "processed", "artificial",
+        "es sano", "tiene químicos", "tiene quimicos", "aditivos", "procesado",
+        "natural", "is it healthy", "chemicals", "additives", "processed", "artificial",
+        "conservantes", "sin aditivos",
+    ],
+    "fomo": [
+        "me lo pierdo", "se agota", "última oportunidad", "ultima oportunidad",
+        "solo hoy", "oferta limitada",
+        "run out", "last chance", "limited offer", "only today",
+    ],
+    "dietary_guilt": [
+        "me siento culpable", "he comido mal", "no sigo la dieta",
+        "he roto la dieta", "he fallado", "failed my diet", "feel guilty",
+        "cheating on my diet",
     ],
 }
 
@@ -1161,6 +1226,22 @@ def compute_tone_level(interaction_count: int, humor_receptive: bool) -> int:
     return 3
 
 
+HUMOR_SIGNALS = [
+    "jaja", "jeje", "jiji", "haha", "hehe", "lol", "lmao", "xd",
+    "😂", "🤣", "😅", "😆",
+    "me encantó", "me encanto", "me parto", "qué bueno", "que bueno",
+    "genial", "genial!", "qué gracioso", "que gracioso", "divertido",
+]
+
+
+def detect_humor_receptive(message: str) -> bool:
+    """Detect if the user shows positive reaction to humor/close tone."""
+    if not message:
+        return False
+    msg = message.lower()
+    return any(signal in msg for signal in HUMOR_SIGNALS)
+
+
 # ═══════════════════════════════════════════════════════
 # PROACTIVE MESSAGE GENERATION
 # ═══════════════════════════════════════════════════════
@@ -1198,3 +1279,415 @@ async def generate_proactive_message(db, user_id: str) -> str | None:
             return "Hace tiempo que no pasas por aquí. ¿Necesitas reponer algo?"
 
     return None
+
+
+# ═══════════════════════════════════════════════════════
+# CONSUMER WELLNESS SCORE — Diet compliance + variety
+# ═══════════════════════════════════════════════════════
+
+async def compute_wellness_score(db, user_id: str) -> dict:
+    """Compute a wellness/diet score for the consumer (0-100).
+    Dimensions: diet compliance, variety, allergen safety, nutrition, budget.
+    """
+    profile = await db.ai_profiles.find_one({"user_id": user_id}, {"_id": 0}) or {}
+    user_diet = set(d.lower() for d in profile.get("diet", []))
+    user_allergies = set(a.lower() for a in profile.get("allergies", []))
+    user_goals = set(g.lower() for g in profile.get("goals", []))
+
+    # Fetch last 30 days of orders
+    since = datetime.now(timezone.utc) - timedelta(days=30)
+    orders = await db.orders.find(
+        {"user_id": user_id, "created_at": {"$gte": since}},
+        {"_id": 0, "items": 1, "line_items": 1, "total_amount": 1, "created_at": 1},
+    ).to_list(200)
+
+    dimensions = {}
+    insights = []
+
+    # Dimension 1: Variety (distinct categories in last 30d)
+    categories_bought: dict[str, int] = {}
+    total_items = 0
+    for order in orders:
+        items = order.get("items") or order.get("line_items") or []
+        for item in items:
+            cat = item.get("category") or item.get("category_id")
+            if cat:
+                categories_bought[cat] = categories_bought.get(cat, 0) + item.get("quantity", 1)
+                total_items += item.get("quantity", 1)
+
+    variety_count = len(categories_bought)
+    variety_score = min(100, variety_count * 14)  # 7 categories = 98
+    dimensions["variety"] = {
+        "score": variety_score,
+        "label": "Variedad",
+        "detail": f"{variety_count} categorías distintas en 30 días",
+    }
+    if variety_count < 3 and total_items > 5:
+        insights.append({
+            "dimension": "variety",
+            "severity": "medium",
+            "message": "Poca variedad en tus compras. Prueba nuevas categorías para una dieta más equilibrada.",
+        })
+
+    # Dimension 2: Diet compliance (% of products matching user's diet)
+    compliance_score = 100
+    if user_diet and orders:
+        compliant_items = 0
+        total_diet_items = 0
+        for order in orders:
+            items = order.get("items") or order.get("line_items") or []
+            for item in items:
+                pid = item.get("product_id")
+                if not pid:
+                    continue
+                total_diet_items += 1
+                product = await db.products.find_one(
+                    {"product_id": pid}, {"_id": 0, "certifications": 1, "allergens": 1},
+                )
+                if not product:
+                    continue
+                certs = [str(c).lower() for c in (product.get("certifications") or [])]
+                # Simple heuristic: vegan product if vegan cert, etc.
+                is_compliant = True
+                for diet in user_diet:
+                    diet_key = diet.replace("_", "-")
+                    if diet in ("vegan", "vegetarian", "halal", "gluten_free", "gluten-free"):
+                        if not any(diet_key in c or diet in c for c in certs):
+                            is_compliant = False
+                            break
+                if is_compliant:
+                    compliant_items += 1
+        if total_diet_items > 0:
+            compliance_score = round(100 * compliant_items / total_diet_items)
+    dimensions["diet_compliance"] = {
+        "score": compliance_score,
+        "label": "Cumplimiento dieta",
+        "detail": f"{compliance_score}% de tus compras cumplen tu dieta" if user_diet else "Sin dieta establecida",
+    }
+    if user_diet and compliance_score < 70:
+        insights.append({
+            "dimension": "diet_compliance",
+            "severity": "high",
+            "message": f"Solo {compliance_score}% de tus compras cumplen tu dieta. Déjame ayudarte a encontrar mejores opciones.",
+        })
+
+    # Dimension 3: Allergen safety (should always be 100 if allergies set correctly)
+    allergen_score = 100
+    if user_allergies and orders:
+        risky_items = 0
+        total_items_checked = 0
+        for order in orders[:20]:  # limit to 20 recent orders
+            items = order.get("items") or order.get("line_items") or []
+            for item in items:
+                pid = item.get("product_id")
+                if not pid:
+                    continue
+                total_items_checked += 1
+                product = await db.products.find_one(
+                    {"product_id": pid}, {"_id": 0, "allergens": 1},
+                )
+                if product:
+                    p_allergens = set(str(a).lower() for a in (product.get("allergens") or []))
+                    if p_allergens & user_allergies:
+                        risky_items += 1
+        if total_items_checked > 0:
+            allergen_score = round(100 * (1 - risky_items / total_items_checked))
+    dimensions["allergen_safety"] = {
+        "score": allergen_score,
+        "label": "Seguridad alérgenos",
+        "detail": "100% seguro" if allergen_score == 100 else f"{100 - allergen_score}% productos con alérgenos",
+    }
+    if allergen_score < 100:
+        insights.append({
+            "dimension": "allergen_safety",
+            "severity": "high",
+            "message": "Has comprado productos con alérgenos registrados. Déjame filtrarte mejor las recomendaciones.",
+        })
+
+    # Dimension 4: Engagement (active user)
+    interaction_count = profile.get("interaction_count", 0)
+    engagement_score = min(100, interaction_count * 5)
+    dimensions["engagement"] = {
+        "score": engagement_score,
+        "label": "Actividad",
+        "detail": f"{interaction_count} conversaciones conmigo",
+    }
+
+    # Dimension 5: Goals progress (if any goals set)
+    goals_score = 50
+    if user_goals:
+        # Heuristic: if healthy_eating goal, needs high compliance + variety
+        if "healthy_eating" in user_goals:
+            goals_score = round((compliance_score + variety_score) / 2)
+        else:
+            goals_score = 70  # generic positive if goals exist
+    dimensions["goals"] = {
+        "score": goals_score,
+        "label": "Objetivos",
+        "detail": f"{len(user_goals)} objetivos activos" if user_goals else "Sin objetivos",
+    }
+
+    # Overall score — weighted average
+    weights = {
+        "variety": 0.20,
+        "diet_compliance": 0.30,
+        "allergen_safety": 0.25,
+        "engagement": 0.10,
+        "goals": 0.15,
+    }
+    overall = round(sum(dimensions[k]["score"] * w for k, w in weights.items()))
+
+    return {
+        "overall_score": overall,
+        "dimensions": dimensions,
+        "insights": insights,
+        "period_days": 30,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+# ═══════════════════════════════════════════════════════
+# ANALYZE MY PURCHASES — Consumer spending analysis
+# ═══════════════════════════════════════════════════════
+
+async def analyze_my_purchases(db, user_id: str, period_days: int = 90) -> dict:
+    """Analyze consumer's purchase history: spend by category, frequency, trends."""
+    since = datetime.now(timezone.utc) - timedelta(days=period_days)
+    orders = await db.orders.find(
+        {"user_id": user_id, "created_at": {"$gte": since}},
+        {"_id": 0, "items": 1, "line_items": 1, "total_amount": 1, "created_at": 1},
+    ).to_list(500)
+
+    if not orders:
+        return {
+            "period_days": period_days,
+            "total_orders": 0,
+            "total_spend": 0,
+            "categories": [],
+            "message": f"No tienes compras en los últimos {period_days} días.",
+        }
+
+    total_spend = 0
+    category_spend: dict[str, float] = {}
+    category_units: dict[str, int] = {}
+    products_bought: dict[str, int] = {}
+
+    for order in orders:
+        total_spend += order.get("total_amount", 0)
+        items = order.get("items") or order.get("line_items") or []
+        for item in items:
+            cat = item.get("category") or item.get("category_id") or "otros"
+            qty = item.get("quantity", 1)
+            price = item.get("price", 0)
+            category_spend[cat] = category_spend.get(cat, 0) + qty * price
+            category_units[cat] = category_units.get(cat, 0) + qty
+            pname = item.get("product_name") or item.get("name", "")
+            if pname:
+                products_bought[pname] = products_bought.get(pname, 0) + qty
+
+    top_categories = sorted(
+        category_spend.items(), key=lambda x: -x[1]
+    )[:8]
+    top_products = sorted(
+        products_bought.items(), key=lambda x: -x[1]
+    )[:10]
+
+    return {
+        "period_days": period_days,
+        "total_orders": len(orders),
+        "total_spend": round(total_spend, 2),
+        "avg_order": round(total_spend / len(orders), 2),
+        "categories": [
+            {
+                "name": cat,
+                "spend": round(spend, 2),
+                "units": category_units[cat],
+                "pct": round(100 * spend / max(total_spend, 1), 1),
+            }
+            for cat, spend in top_categories
+        ],
+        "top_products": [
+            {"name": name, "times_bought": count}
+            for name, count in top_products
+        ],
+    }
+
+
+# ═══════════════════════════════════════════════════════
+# RECIPE + MEAL PLAN GENERATORS
+# ═══════════════════════════════════════════════════════
+
+async def generate_recipe_context(db, user_id: str,
+                                   recipe_type: str = "meal",
+                                   servings: int = 2) -> dict:
+    """Generate structured context for the LLM to compose a recipe.
+    Uses user's cart items + profile to personalize."""
+    profile = await db.ai_profiles.find_one({"user_id": user_id}, {"_id": 0}) or {}
+    cart_items = await _get_cart_items(db, user_id)
+
+    # Enrich cart items with product details
+    enriched = []
+    for item in cart_items[:15]:
+        pid = item.get("product_id")
+        if not pid:
+            continue
+        product = await _find_product(db, pid)
+        if product:
+            enriched.append({
+                "name": product.get("name"),
+                "category": product.get("category_id"),
+                "quantity": item.get("quantity", 1),
+            })
+
+    return {
+        "recipe_type": recipe_type,
+        "servings": servings,
+        "user_profile": {
+            "diet": profile.get("diet", []),
+            "allergies": profile.get("allergies", []),
+            "goals": profile.get("goals", []),
+            "taste_profile": profile.get("taste_profile", {}),
+        },
+        "available_ingredients": enriched,
+        "instructions": (
+            f"Genera una receta de {recipe_type} para {servings} persona(s) usando SOLO los ingredientes disponibles "
+            "del carrito del usuario. Respeta las alergias (crítico) y la dieta. "
+            "Estructura: (1) nombre del plato, (2) lista de ingredientes con cantidades, "
+            "(3) pasos numerados, (4) tiempo total, (5) valor nutricional aproximado. "
+            "Máximo 250 palabras."
+        ),
+    }
+
+
+async def generate_meal_plan_context(db, user_id: str, days: int = 3) -> dict:
+    """Generate structured context for LLM to compose a meal plan."""
+    profile = await db.ai_profiles.find_one({"user_id": user_id}, {"_id": 0}) or {}
+
+    # Fetch user's common categories from past orders
+    since = datetime.now(timezone.utc) - timedelta(days=60)
+    orders = await db.orders.find(
+        {"user_id": user_id, "created_at": {"$gte": since}},
+        {"_id": 0, "items": 1, "line_items": 1},
+    ).to_list(50)
+
+    common_products: dict[str, int] = {}
+    for order in orders:
+        items = order.get("items") or order.get("line_items") or []
+        for item in items:
+            name = item.get("product_name") or item.get("name", "")
+            if name:
+                common_products[name] = common_products.get(name, 0) + item.get("quantity", 1)
+
+    favorites = [name for name, _ in sorted(common_products.items(), key=lambda x: -x[1])[:10]]
+
+    return {
+        "days": max(1, min(7, days)),
+        "user_profile": {
+            "diet": profile.get("diet", []),
+            "allergies": profile.get("allergies", []),
+            "goals": profile.get("goals", []),
+            "budget": profile.get("budget", "medium"),
+        },
+        "favorite_products": favorites,
+        "instructions": (
+            f"Genera un meal plan de {days} días (desayuno + comida + cena). "
+            "Respeta alergias y dieta del usuario. Prioriza productos disponibles en Hispaloshop "
+            "cuando sea posible. Estructura: tabla día/comida. "
+            "Al final, genera una lista de la compra consolidada. Máximo 500 palabras."
+        ),
+    }
+
+
+# ═══════════════════════════════════════════════════════
+# CONSUMER ALERTS — Proactive notifications
+# ═══════════════════════════════════════════════════════
+
+async def generate_consumer_alerts(db, user_id: str) -> list[dict]:
+    """Generate alerts for the David AI strip pulse."""
+    alerts = []
+    profile = await db.ai_profiles.find_one({"user_id": user_id}, {"_id": 0}) or {}
+
+    # Alert 1: New products in preferred categories (last 7 days)
+    preferred_cats = profile.get("preferred_categories", [])
+    if preferred_cats:
+        since = datetime.now(timezone.utc) - timedelta(days=7)
+        new_products = await db.products.find(
+            {"approved": True, "created_at": {"$gte": since}, "category_id": {"$in": preferred_cats}},
+            {"_id": 0, "name": 1},
+        ).to_list(5)
+        if new_products:
+            alerts.append({
+                "severity": "low",
+                "type": "new_products",
+                "message": f"{len(new_products)} productos nuevos en tus categorías favoritas",
+                "action": "Ver novedades",
+            })
+
+    # Alert 2: Low stock in previously bought products
+    since_month = datetime.now(timezone.utc) - timedelta(days=60)
+    past_orders = await db.orders.find(
+        {"user_id": user_id, "created_at": {"$gte": since_month}},
+        {"_id": 0, "items": 1, "line_items": 1},
+    ).to_list(30)
+    bought_pids = set()
+    for order in past_orders:
+        items = order.get("items") or order.get("line_items") or []
+        for item in items:
+            pid = item.get("product_id")
+            if pid:
+                bought_pids.add(pid)
+    if bought_pids:
+        low_stock_count = await db.products.count_documents({
+            "product_id": {"$in": list(bought_pids)},
+            "approved": True,
+            "stock": {"$gt": 0, "$lt": 5},
+        })
+        if low_stock_count > 0:
+            alerts.append({
+                "severity": "medium",
+                "type": "low_stock_favorites",
+                "message": f"{low_stock_count} productos que sueles comprar con stock bajo",
+                "action": "Reponer antes de que se agoten",
+            })
+
+    # Alert 3: Cart abandoned (items in cart but no checkout in 48h)
+    cart = await db.carts.find_one({"user_id": user_id, "status": "active"}, {"_id": 0, "items": 1, "updated_at": 1})
+    if cart and cart.get("items"):
+        updated = cart.get("updated_at")
+        if updated:
+            try:
+                if isinstance(updated, str):
+                    updated = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+                hours = (datetime.now(timezone.utc) - updated).total_seconds() / 3600
+                if hours > 48:
+                    alerts.append({
+                        "severity": "low",
+                        "type": "cart_abandoned",
+                        "message": f"Tienes {len(cart['items'])} productos en tu carrito desde hace {int(hours/24)}d",
+                        "action": "Completar pedido",
+                    })
+            except Exception:
+                pass
+
+    # Alert 4: Proactive new products (same as generate_proactive_message but aligned)
+    last_order = await db.orders.find_one(
+        {"user_id": user_id}, {"_id": 0, "created_at": 1},
+        sort=[("created_at", -1)],
+    )
+    if last_order and last_order.get("created_at"):
+        try:
+            created = last_order["created_at"]
+            if isinstance(created, str):
+                created = datetime.fromisoformat(created.replace("Z", "+00:00"))
+            days = (datetime.now(timezone.utc) - created).days
+            if days > 14:
+                alerts.append({
+                    "severity": "low",
+                    "type": "inactive_user",
+                    "message": f"Hace {days} días que no compras",
+                    "action": "Ver recomendaciones",
+                })
+        except Exception:
+            pass
+
+    return alerts

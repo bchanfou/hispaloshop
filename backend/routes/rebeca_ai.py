@@ -23,8 +23,8 @@ Endpoints:
   GET  /v1/rebeca-ai/goals                 — List goals + progress
 """
 from fastapi import APIRouter, Depends, Request, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional, Any
+from pydantic import BaseModel, Field
+from typing import List, Optional, Any, Literal
 import json
 import os
 import time
@@ -281,6 +281,11 @@ TOOLS = [
         "description": "Detecta las 3 mayores oportunidades del productor. Úsalo en el primer contacto.",
         "input_schema": {"type": "object", "properties": {}},
     },
+    {
+        "name": "compute_store_health",
+        "description": "Calcula el score de salud de la tienda (0-100) con 5 dimensiones: catálogo, reseñas, precios, stock, packs. Devuelve insights accionables.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
     # ── Content ──
     {
         "name": "generate_content",
@@ -391,19 +396,19 @@ TOOLS = [
 # ═══════════════════════════════════════════════════════
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: Literal["user", "assistant"]
+    content: str = Field(..., max_length=4000)
 
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage]
+    messages: List[ChatMessage] = Field(..., max_length=50)
 
 
 class OnboardingAnswers(BaseModel):
-    category_focus: Optional[str] = None
-    stage: Optional[str] = None      # "new" | "growing" | "consolidated"
-    main_goal: Optional[str] = None   # "more_sales" | "higher_margin" | "scale" | "brand"
-    main_pain: Optional[str] = None   # "low_sales" | "pricing" | "marketing" | "scaling" | "tech"
+    category_focus: Optional[str] = Field(None, max_length=100)
+    stage: Optional[Literal["new", "growing", "consolidated"]] = None
+    main_goal: Optional[Literal["more_sales", "higher_margin", "scale", "brand"]] = None
+    main_pain: Optional[Literal["low_sales", "pricing", "marketing", "scaling", "tech"]] = None
 
 
 # ═══════════════════════════════════════════════════════
@@ -428,6 +433,8 @@ async def execute_tool(name: str, inp: dict, producer_id: str, country: str) -> 
         return await rt.analyze_customers(db, producer_id, inp.get("period_days", 90))
     if name == "detect_opportunities":
         return await rt.detect_opportunities(db, producer_id, country)
+    if name == "compute_store_health":
+        return await rt.compute_store_health(db, producer_id, country)
 
     # Content
     if name == "generate_content":
@@ -591,7 +598,10 @@ async def rebeca_ai_chat(request_body: ChatRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Rebeca AI error: %s", e)
+        logger.error(
+            "Rebeca AI error for user %s: %s", user.user_id, e,
+            exc_info=True,
+        )
         return {"response": "Lo siento, no puedo responder en este momento.", "tool_calls": []}
 
     return {"response": text, "tool_calls": all_tool_calls}
@@ -610,7 +620,7 @@ async def _verify_pro_producer(user) -> str:
     """Verify user is PRO+ producer. Returns country. Raises 403 otherwise."""
     user_doc = await db.users.find_one(
         {"user_id": user.user_id},
-        {"_id": 0, "subscription": 1, "country": 1, "role": 1},
+        {"_id": 0, "subscription": 1, "country": 1, "locale": 1, "role": 1},
     )
     role = (user_doc or {}).get("role", "consumer")
     if role not in ("producer", "importer"):
@@ -618,13 +628,33 @@ async def _verify_pro_producer(user) -> str:
     plan = ((user_doc or {}).get("subscription") or {}).get("plan", "FREE")
     if plan == "FREE":
         raise HTTPException(status_code=403, detail="Rebeca AI requiere plan PRO o ELITE.")
-    return (user_doc or {}).get("country", "ES")
+    # Country: try locale.country first (canonical), fallback to top-level country, default ES
+    return (
+        ((user_doc or {}).get("locale") or {}).get("country")
+        or (user_doc or {}).get("country")
+        or "ES"
+    )
+
+
+# Lightweight rate limit for read-only endpoints (higher limit than /chat)
+_READ_RATE_LIMIT_RPM = 60
+_read_rate_store: dict = defaultdict(list)
+
+
+def _check_read_rate_limit(user_id: str):
+    now = time.time()
+    window = now - 60
+    _read_rate_store[user_id] = [t for t in _read_rate_store[user_id] if t > window]
+    if len(_read_rate_store[user_id]) >= _READ_RATE_LIMIT_RPM:
+        raise HTTPException(status_code=429, detail="Demasiadas solicitudes. Espera un momento.")
+    _read_rate_store[user_id].append(now)
 
 
 @router.get("/profile")
 async def get_rebeca_profile(user=Depends(get_current_user)):
     """Get the producer's Rebeca profile."""
     await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     from services import rebeca_ai_tools as rt
     return await rt.get_or_create_producer_profile(db, user.user_id)
 
@@ -633,31 +663,44 @@ async def get_rebeca_profile(user=Depends(get_current_user)):
 async def get_rebeca_alerts(user=Depends(get_current_user)):
     """Get active alerts for the Rebeca button pulse."""
     country = await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     from services import rebeca_ai_tools as rt
     alerts = await rt.generate_alerts(db, user.user_id, country)
     return {"alerts": alerts, "has_urgent": any(a["severity"] == "high" for a in alerts)}
+
+
+@router.get("/health")
+async def get_store_health(user=Depends(get_current_user)):
+    """Compute store health score (0-100) across 5 dimensions."""
+    country = await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
+    from services import rebeca_ai_tools as rt
+    return await rt.compute_store_health(db, user.user_id, country)
 
 
 @router.get("/briefing")
 async def get_weekly_briefing(user=Depends(get_current_user)):
     """Generate or return the weekly briefing."""
     country = await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     from services import rebeca_ai_tools as rt
     briefing = await rt.generate_weekly_briefing(db, user.user_id, country)
 
-    # Store briefing history
-    await db.rebeca_briefings.insert_one({
-        **briefing,
-        "user_id": user.user_id,
-        "created_at": datetime.now(timezone.utc),
-    })
+    # Store briefing history (best-effort, non-critical)
+    try:
+        await db.rebeca_briefings.insert_one({
+            **briefing,
+            "user_id": user.user_id,
+            "created_at": datetime.now(timezone.utc),
+        })
+        await db.rebeca_profiles.update_one(
+            {"user_id": user.user_id},
+            {"$set": {"last_briefing_date": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+    except Exception as e:
+        logger.warning("Could not persist briefing history for %s: %s", user.user_id, e)
 
-    # Update last briefing date in profile
-    await db.rebeca_profiles.update_one(
-        {"user_id": user.user_id},
-        {"$set": {"last_briefing_date": datetime.now(timezone.utc).isoformat()}},
-        upsert=True,
-    )
     return briefing
 
 
@@ -665,6 +708,7 @@ async def get_weekly_briefing(user=Depends(get_current_user)):
 async def get_onboarding_diagnosis(user=Depends(get_current_user)):
     """Generate initial diagnosis: 3 opportunities for new producers."""
     country = await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     from services import rebeca_ai_tools as rt
     return await rt.detect_opportunities(db, user.user_id, country)
 
@@ -673,6 +717,7 @@ async def get_onboarding_diagnosis(user=Depends(get_current_user)):
 async def save_onboarding(answers: OnboardingAnswers, user=Depends(get_current_user)):
     """Save business profile from onboarding quiz."""
     await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     update = {
         "onboarding_completed": True,
         "business_profile": {k: v for k, v in answers.model_dump().items() if v},
@@ -688,5 +733,6 @@ async def save_onboarding(answers: OnboardingAnswers, user=Depends(get_current_u
 async def list_goals(user=Depends(get_current_user)):
     """List producer's active goals with progress."""
     await _verify_pro_producer(user)
+    _check_read_rate_limit(user.user_id)
     from services import rebeca_ai_tools as rt
     return await rt.manage_goals(db, user.user_id, "list")

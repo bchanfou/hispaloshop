@@ -60,38 +60,58 @@ async def get_or_create_producer_profile(db, user_id: str) -> dict:
 
 PRODUCER_FEAR_PATTERNS = {
     "price_fear": [
-        "no puedo subir", "perderé clientes", "muy caro para la gente",
-        "can't raise", "lose customers", "too expensive",
-        "miedo a subir", "se me van los clientes",
+        "no puedo subir", "perderé clientes", "perdere clientes",
+        "muy caro para la gente", "can't raise", "lose customers", "too expensive",
+        "miedo a subir", "se me van los clientes", "no puedo subir precios",
     ],
     "invest_fear": [
-        "no tengo presupuesto", "es mucha inversión", "arriesgar dinero",
-        "no budget", "risky investment", "no puedo invertir",
+        "no tengo presupuesto", "es mucha inversión", "es mucha inversion",
+        "arriesgar dinero", "no budget", "risky investment", "no puedo invertir",
+        "no tengo dinero para", "muy arriesgado",
     ],
     "new_product_fear": [
-        "no sé si funcionará", "nadie lo ha probado", "es arriesgado lanzar",
-        "won't work", "unknown product", "miedo a lanzar",
+        "no sé si funcionará", "no se si funcionara", "nadie lo ha probado",
+        "es arriesgado lanzar", "won't work", "unknown product", "miedo a lanzar",
+        "y si no se vende", "y si no funciona",
     ],
     "low_sales_anxiety": [
         "no vendo nada", "ventas bajas", "sin ventas",
         "no sales", "sales down", "no se vende", "llevo sin vender",
+        "racha mala", "mes flojo", "no facturo",
     ],
     "scale_fear": [
-        "no puedo con más", "ya voy saturado", "no me da la vida",
-        "can't handle more", "overwhelmed", "sin tiempo",
+        "no puedo con más", "no puedo con mas", "ya voy saturado",
+        "no me da la vida", "can't handle more", "overwhelmed", "sin tiempo",
+        "no tengo tiempo", "ya estoy al límite", "ya estoy al limite",
     ],
     "tech_overwhelm": [
-        "no entiendo los números", "demasiados datos", "muy complicado",
-        "don't understand", "too much data", "no entiendo",
+        "no entiendo los números", "no entiendo los numeros", "demasiados datos",
+        "muy complicado", "don't understand", "too much data", "no entiendo",
+        "me abruma", "me pierdo con",
     ],
 }
 
 PRODUCER_MOTIVATION_PATTERNS = {
-    "legacy": ["tradición", "familia", "heredé", "mi abuelo", "generaciones", "family business"],
-    "quality": ["calidad", "mejor producto", "artesanal", "premium", "handmade"],
-    "independence": ["ser mi jefe", "independencia", "no depender", "independence"],
-    "growth": ["crecer", "expandir", "más mercados", "exportar", "scale", "grow"],
-    "impact": ["salud", "ecología", "sostenibilidad", "comunidad", "sustainable", "impact"],
+    "legacy": [
+        "tradición", "tradicion", "familia", "heredé", "heredé el negocio",
+        "herede", "mi abuelo", "generaciones", "family business", "legado familiar",
+    ],
+    "quality": [
+        "calidad", "mejor producto", "artesanal", "premium", "handmade",
+        "hecho a mano", "calidad superior",
+    ],
+    "independence": [
+        "ser mi jefe", "independencia", "no depender", "independence",
+        "trabajar para mí", "trabajar para mi",
+    ],
+    "growth": [
+        "crecer", "expandir", "más mercados", "mas mercados",
+        "exportar", "scale", "grow", "ampliar",
+    ],
+    "impact": [
+        "salud", "ecología", "ecologia", "sostenibilidad", "comunidad",
+        "sustainable", "impact", "medio ambiente", "planeta",
+    ],
 }
 
 
@@ -434,6 +454,22 @@ async def analyze_customers(db, producer_id: str, period_days: int = 90):
 
 async def detect_opportunities(db, producer_id: str, country: str):
     """Detect top 3 opportunities for this producer. Used in onboarding diagnosis."""
+    # Short-circuit for producers with no products
+    any_products = await db.products.find_one(
+        {"producer_id": producer_id}, {"_id": 0, "product_id": 1},
+    )
+    if not any_products:
+        return {
+            "opportunities": [{
+                "type": "catalog",
+                "priority": 1,
+                "title": "Aún no tienes productos",
+                "action": "Crea tu primer producto para empezar a vender",
+                "impact": "Es el primer paso imprescindible",
+            }],
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
     opportunities = []
 
     # 1. Pricing opportunity
@@ -487,6 +523,122 @@ async def detect_opportunities(db, producer_id: str, country: str):
         })
 
     return {"opportunities": opportunities[:3], "generated_at": datetime.now(timezone.utc).isoformat()}
+
+
+# ═══════════════════════════════════════════════════════
+# STORE HEALTH SCORE — Composite diagnostic dashboard
+# ═══════════════════════════════════════════════════════
+
+async def compute_store_health(db, producer_id: str, country: str) -> dict:
+    """Compute a composite health score for the producer's store.
+    Returns: overall score (0-100), dimension scores, and actionable insights.
+    """
+    dimensions = {}
+    insights = []
+
+    # 1. Catalog dimension (0-100)
+    products = await db.products.find(
+        {"producer_id": producer_id}, {"_id": 0, "approved": 1, "variants": 1, "stock": 1, "price": 1},
+    ).to_list(200)
+    approved_count = sum(1 for p in products if p.get("approved"))
+    catalog_score = min(100, approved_count * 12)  # 8+ products = 96+
+    dimensions["catalog"] = {
+        "score": catalog_score,
+        "label": "Catálogo",
+        "detail": f"{approved_count} productos aprobados",
+    }
+    if approved_count < 5:
+        insights.append({
+            "dimension": "catalog",
+            "severity": "high",
+            "message": f"Solo {approved_count} productos. Los productores con 8+ facturan 2.5x más.",
+        })
+
+    # 2. Reviews dimension (0-100)
+    reviews_data = await get_my_reviews(db, producer_id)
+    total_reviews = reviews_data.get("total_reviews", 0)
+    avg_rating = reviews_data.get("average_rating", 0)
+    # 100 points: 10 reviews + 5-star = 100. Weight = 60% count + 40% rating
+    review_count_score = min(100, total_reviews * 10)  # 10+ reviews = 100
+    rating_score = (avg_rating / 5) * 100 if avg_rating > 0 else 0
+    reviews_score = round(0.6 * review_count_score + 0.4 * rating_score)
+    dimensions["reviews"] = {
+        "score": reviews_score,
+        "label": "Reseñas",
+        "detail": f"{total_reviews} reseñas, {avg_rating}★ promedio",
+    }
+    if total_reviews < 5 and avg_rating >= 4:
+        insights.append({
+            "dimension": "reviews",
+            "severity": "high",
+            "message": f"Rating excelente ({avg_rating}★) pero solo {total_reviews} reseñas — pide más a clientes recientes.",
+        })
+
+    # 3. Pricing competitiveness (0-100)
+    pricing_data = await suggest_pricing(db, producer_id, country, None)
+    suggestions = pricing_data.get("suggestions", [])
+    if suggestions:
+        competitive = sum(1 for s in suggestions if s["status"] == "competitivo")
+        pricing_score = round(100 * competitive / len(suggestions))
+        dimensions["pricing"] = {
+            "score": pricing_score,
+            "label": "Precios",
+            "detail": f"{competitive}/{len(suggestions)} productos en rango competitivo",
+        }
+        below_market = [s for s in suggestions if s["status"] == "por debajo del mercado"]
+        if below_market:
+            insights.append({
+                "dimension": "pricing",
+                "severity": "medium",
+                "message": f"{len(below_market)} productos bajo el precio de mercado — oportunidad de subir margen.",
+            })
+    else:
+        dimensions["pricing"] = {"score": 50, "label": "Precios", "detail": "Sin datos suficientes"}
+
+    # 4. Stock health (0-100) — % of products with stock > 0
+    if products:
+        in_stock = sum(1 for p in products if (p.get("stock") or 0) > 0)
+        stock_score = round(100 * in_stock / len(products))
+        dimensions["stock"] = {
+            "score": stock_score,
+            "label": "Stock",
+            "detail": f"{in_stock}/{len(products)} productos con stock",
+        }
+        low_stock = sum(1 for p in products if 0 < (p.get("stock") or 0) < 10)
+        if low_stock > 0:
+            insights.append({
+                "dimension": "stock",
+                "severity": "medium",
+                "message": f"{low_stock} productos con stock bajo (<10). Reponer pronto.",
+            })
+    else:
+        dimensions["stock"] = {"score": 0, "label": "Stock", "detail": "Sin productos"}
+
+    # 5. Engagement / packs
+    has_packs = any(p.get("variants") for p in products)
+    packs_score = 80 if has_packs else 30
+    dimensions["packs"] = {
+        "score": packs_score,
+        "label": "Packs",
+        "detail": "Configurados" if has_packs else "Sin packs — oportunidad",
+    }
+    if not has_packs and approved_count >= 3:
+        insights.append({
+            "dimension": "packs",
+            "severity": "low",
+            "message": "Sin packs configurados. Los packs generan 40% más ticket medio.",
+        })
+
+    # Overall score = weighted average
+    weights = {"catalog": 0.25, "reviews": 0.25, "pricing": 0.20, "stock": 0.15, "packs": 0.15}
+    overall = round(sum(dimensions[k]["score"] * w for k, w in weights.items()))
+
+    return {
+        "overall_score": overall,
+        "dimensions": dimensions,
+        "insights": insights,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 # ═══════════════════════════════════════════════════════
@@ -565,31 +717,43 @@ async def generate_content(db, producer_id: str, content_type: str,
 async def action_create_discount(db, producer_id: str, code: str, percentage: int,
                                   product_ids: Optional[list] = None,
                                   valid_days: int = 30) -> dict:
-    """Create a discount code for the producer. Requires user confirmation."""
+    """Create a discount code for the producer. Requires user confirmation.
+    Uses atomic find_one_and_update upsert to prevent race condition on duplicate codes."""
     if percentage < 1 or percentage > 50:
         return {"success": False, "error": "Descuento debe estar entre 1% y 50%"}
+    if not code or not code.strip():
+        return {"success": False, "error": "Código requerido"}
+    if valid_days < 1 or valid_days > 365:
+        return {"success": False, "error": "Días de validez fuera de rango (1-365)"}
 
     code = code.upper().strip()
-    # Check if code already exists
-    existing = await db.discount_codes.find_one({"code": code})
-    if existing:
-        return {"success": False, "error": f"El código {code} ya existe"}
-
+    now = datetime.now(timezone.utc)
     discount = {
         "discount_id": f"disc_{uuid.uuid4().hex[:12]}",
         "code": code,
         "producer_id": producer_id,
         "percentage": percentage,
-        "product_ids": product_ids or [],  # empty = all products of this producer
-        "valid_from": datetime.now(timezone.utc),
-        "valid_until": datetime.now(timezone.utc) + timedelta(days=valid_days),
+        "product_ids": product_ids or [],
+        "valid_from": now,
+        "valid_until": now + timedelta(days=valid_days),
         "uses": 0,
         "max_uses": None,
         "active": True,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": now,
         "created_by": "rebeca_ai",
     }
-    await db.discount_codes.insert_one(discount)
+
+    # Atomic upsert: only insert if no doc with this code exists.
+    # setOnInsert ensures we never overwrite an existing code.
+    result = await db.discount_codes.update_one(
+        {"code": code},
+        {"$setOnInsert": discount},
+        upsert=True,
+    )
+    if result.upserted_id is None:
+        # Code already existed — update_one matched without inserting
+        return {"success": False, "error": f"El código {code} ya existe"}
+
     return {
         "success": True,
         "code": code,
@@ -601,7 +765,10 @@ async def action_create_discount(db, producer_id: str, code: str, percentage: in
 
 async def action_update_product(db, producer_id: str, product_id: str,
                                   updates: dict) -> dict:
-    """Update product fields (price, description, stock). Requires confirmation."""
+    """Update product fields (price, description, stock, name). Requires confirmation."""
+    if not product_id:
+        return {"success": False, "error": "product_id requerido"}
+
     product = await db.products.find_one({"product_id": product_id, "producer_id": producer_id})
     if not product:
         return {"success": False, "error": "Producto no encontrado o no te pertenece"}
@@ -611,11 +778,29 @@ async def action_update_product(db, producer_id: str, product_id: str,
     if not filtered:
         return {"success": False, "error": "No hay campos válidos para actualizar"}
 
-    # Validate
-    if "price" in filtered and (filtered["price"] < 0 or filtered["price"] > 10000):
-        return {"success": False, "error": "Precio fuera de rango (0-10000)"}
-    if "stock" in filtered and filtered["stock"] < 0:
-        return {"success": False, "error": "Stock no puede ser negativo"}
+    # Validate bounds
+    if "price" in filtered:
+        try:
+            filtered["price"] = float(filtered["price"])
+        except (TypeError, ValueError):
+            return {"success": False, "error": "price debe ser un número"}
+        if filtered["price"] < 0 or filtered["price"] > 10000:
+            return {"success": False, "error": "Precio fuera de rango (0-10000)"}
+    if "stock" in filtered:
+        try:
+            filtered["stock"] = int(filtered["stock"])
+        except (TypeError, ValueError):
+            return {"success": False, "error": "stock debe ser un entero"}
+        if filtered["stock"] < 0:
+            return {"success": False, "error": "Stock no puede ser negativo"}
+    if "name" in filtered:
+        filtered["name"] = str(filtered["name"]).strip()
+        if not filtered["name"] or len(filtered["name"]) > 200:
+            return {"success": False, "error": "Nombre debe tener entre 1 y 200 caracteres"}
+    if "description" in filtered:
+        filtered["description"] = str(filtered["description"]).strip()
+        if len(filtered["description"]) > 5000:
+            return {"success": False, "error": "Descripción muy larga (max 5000 caracteres)"}
 
     filtered["updated_at"] = datetime.now(timezone.utc)
     await db.products.update_one({"product_id": product_id}, {"$set": filtered})
@@ -630,19 +815,41 @@ async def action_update_product(db, producer_id: str, product_id: str,
 
 async def action_create_pack(db, producer_id: str, pack_name: str,
                               product_ids: list, discount_percentage: int = 10) -> dict:
-    """Create a bundle/pack from existing products. Requires confirmation."""
+    """Create a bundle/pack from existing APPROVED products. Requires confirmation."""
+    if not pack_name or not pack_name.strip():
+        return {"success": False, "error": "Nombre del pack requerido"}
     if not product_ids or len(product_ids) < 2:
         return {"success": False, "error": "Un pack necesita al menos 2 productos"}
+    if discount_percentage < 0 or discount_percentage > 50:
+        return {"success": False, "error": "Descuento fuera de rango (0-50%)"}
 
+    # Only include APPROVED products owned by this producer
     products = await db.products.find(
-        {"product_id": {"$in": product_ids}, "producer_id": producer_id},
+        {
+            "product_id": {"$in": product_ids},
+            "producer_id": producer_id,
+            "approved": True,
+        },
         {"_id": 0},
     ).to_list(20)
 
     if len(products) != len(product_ids):
-        return {"success": False, "error": "Algunos productos no te pertenecen o no existen"}
+        return {
+            "success": False,
+            "error": "Algunos productos no te pertenecen, no existen, o no están aprobados",
+        }
 
-    total_price = sum(p.get("price", 0) for p in products)
+    # Verify all products have a valid price
+    total_price = 0.0
+    for p in products:
+        price = p.get("price", 0) or 0
+        if price <= 0:
+            return {
+                "success": False,
+                "error": f"Producto '{p.get('name', 'desconocido')}' no tiene precio válido",
+            }
+        total_price += price
+
     pack_price = round(total_price * (1 - discount_percentage / 100), 2)
 
     pack = {
@@ -708,7 +915,9 @@ async def manage_goals(db, producer_id: str, operation: str,
                        target: Optional[float] = None,
                        period: str = "monthly") -> dict:
     """
-    Operations: 'list', 'set', 'progress', 'celebrate_check'
+    Operations: 'list', 'set', 'celebrate_check'
+    Goal types: revenue, units, new_customers, rating, reviews
+    Periods: monthly, quarterly
     """
     if operation == "list":
         goals = await db.producer_goals.find(
@@ -717,21 +926,30 @@ async def manage_goals(db, producer_id: str, operation: str,
         # Compute current progress for each
         for g in goals:
             g["current_progress"] = await _compute_goal_progress(db, producer_id, g)
-            g["progress_pct"] = round(100 * g["current_progress"] / max(g["target"], 1), 1)
+            g["progress_pct"] = round(100 * g["current_progress"] / max(g.get("target", 1), 1), 1)
         return {"goals": goals, "count": len(goals)}
 
     if operation == "set":
         if not goal_type or target is None:
             return {"error": "goal_type y target son requeridos"}
+        if target <= 0:
+            return {"error": "target debe ser mayor que 0"}
         valid_types = {"revenue", "units", "new_customers", "rating", "reviews"}
         if goal_type not in valid_types:
             return {"error": f"goal_type debe ser uno de: {', '.join(valid_types)}"}
 
         now = datetime.now(timezone.utc)
         if period == "monthly":
-            period_end = (now.replace(day=1) + timedelta(days=32)).replace(day=1)
+            # End of current month (first day of next month)
+            next_month = now.replace(day=28) + timedelta(days=4)
+            period_end = next_month.replace(day=1)
         elif period == "quarterly":
-            period_end = now + timedelta(days=90)
+            # End of current quarter
+            quarter_end_month = ((now.month - 1) // 3 + 1) * 3
+            if quarter_end_month == 12:
+                period_end = now.replace(year=now.year + 1, month=1, day=1)
+            else:
+                period_end = now.replace(month=quarter_end_month + 1, day=1)
         else:
             period_end = now + timedelta(days=30)
 
@@ -977,7 +1195,7 @@ async def generate_alerts(db, producer_id: str, country: str) -> list[dict]:
     my_products = await db.products.find(
         {"producer_id": producer_id}, {"product_id": 1, "name": 1},
     ).to_list(200)
-    pids = [p["product_id"] for p in my_products]
+    pids = [p["product_id"] for p in my_products if p.get("product_id")]
     if pids:
         since = datetime.now(timezone.utc) - timedelta(days=7)
         negative_review = await db.reviews.find_one({

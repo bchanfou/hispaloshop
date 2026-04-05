@@ -118,16 +118,43 @@ export default function useHispalAI() {
   const profileLoadedRef = useRef(false);
 
   const [proactiveMessage, setProactiveMessage] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+  const [wellness, setWellness] = useState(null);
+  const [purchases, setPurchases] = useState(null);
 
-  // Load AI profile on mount (eagerly, since button is always visible)
+  // Load AI profile + alerts on mount (eagerly, since button is always visible)
   useEffect(() => {
     if (profileLoadedRef.current) return;
     profileLoadedRef.current = true;
     apiClient.get('/v1/hispal-ai/profile').then(setAiProfile).catch(() => {});
-    // Fetch proactive message for strip pulse
     apiClient.get('/v1/hispal-ai/proactive').then((data) => {
       if (data?.message) setProactiveMessage(data.message);
     }).catch(() => {});
+    apiClient.get('/v1/hispal-ai/alerts').then((data) => {
+      if (data?.alerts) setAlerts(data.alerts);
+    }).catch(() => {});
+  }, []);
+
+  const loadWellness = useCallback(async () => {
+    try {
+      const data = await apiClient.get('/v1/hispal-ai/wellness');
+      setWellness(data);
+      return data;
+    } catch {
+      setWellness(null);
+      return null;
+    }
+  }, []);
+
+  const loadPurchases = useCallback(async () => {
+    try {
+      const data = await apiClient.get('/v1/hispal-ai/analyze-purchases');
+      setPurchases(data);
+      return data;
+    } catch {
+      setPurchases(null);
+      return null;
+    }
   }, []);
 
   const clearChat = useCallback(() => {
@@ -251,14 +278,25 @@ export default function useHispalAI() {
         return next;
       });
     } catch (err) {
-      const is429 = err?.response?.status === 429 || err?.status === 429;
+      const status = err?.response?.status ?? err?.status;
+      const is429 = status === 429;
+      const is403 = status === 403;
+      const isNetwork = !status;
+      const is5xx = status >= 500 && status < 600;
+      const isRetryable = is429 || isNetwork || is5xx;
       const errorMessage = {
         role: 'assistant',
         content: is429
           ? 'Demasiadas solicitudes. Espera un momento antes de volver a preguntar.'
+          : is403
+          ? 'Acceso denegado.'
+          : isNetwork
+          ? 'Sin conexión. Comprueba tu red.'
           : 'Lo siento, ha ocurrido un error. Inténtalo de nuevo.',
         timestamp: new Date().toISOString(),
         toolCalls: [],
+        failed: isRetryable,
+        originalText: isRetryable ? text : undefined,
       };
       setMessages((prev) => {
         const next = [...prev, errorMessage];
@@ -269,6 +307,16 @@ export default function useHispalAI() {
       setIsLoading(false);
     }
   }, [messages, isLoading, sessionId, sessionMemory, aiProfile]);
+
+  const retryMessage = useCallback((failedMessage) => {
+    if (!failedMessage?.originalText) return;
+    setMessages((prev) => {
+      const next = prev.filter((m) => m !== failedMessage);
+      storeMessages(next);
+      return next;
+    });
+    sendMessage(failedMessage.originalText);
+  }, [sendMessage]);
 
   const consumeProactiveMessage = useCallback(() => {
     const msg = proactiveMessage;
@@ -282,6 +330,12 @@ export default function useHispalAI() {
     aiProfile,
     proactiveMessage,
     consumeProactiveMessage,
+    alerts,
+    wellness,
+    purchases,
+    loadWellness,
+    loadPurchases,
+    retryMessage,
     suggestions: buildSuggestions(aiProfile),
     sendMessage,
     clearChat,

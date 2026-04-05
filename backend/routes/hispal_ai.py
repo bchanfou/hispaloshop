@@ -14,8 +14,8 @@ Endpoints:
   GET  /api/v1/hispal-ai/history       — Chat history by session
 """
 from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
-from pydantic import BaseModel
-from typing import List, Optional, Dict
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Literal
 import json
 import os
 import time
@@ -61,6 +61,20 @@ def check_rate_limit(user_key: str):
     if len(_rate_store[user_key]) >= RATE_LIMIT_RPM:
         raise HTTPException(status_code=429, detail="Demasiadas solicitudes. Espera un momento.")
     _rate_store[user_key].append(now)
+
+
+# Lighter rate limit for read endpoints (profile, memory, history, proactive, health)
+_READ_RATE_LIMIT_RPM = 60
+_read_rate_store = defaultdict(list)
+
+
+def check_read_rate_limit(user_key: str):
+    now = time.time()
+    window = now - 60
+    _read_rate_store[user_key] = [t for t in _read_rate_store[user_key] if t > window]
+    if len(_read_rate_store[user_key]) >= _READ_RATE_LIMIT_RPM:
+        raise HTTPException(status_code=429, detail="Demasiadas solicitudes. Espera un momento.")
+    _read_rate_store[user_key].append(now)
 
 
 # ── Language support ──────────────────────────────────
@@ -332,37 +346,80 @@ TOOLS = [
             "required": ["bundle_type"],
         },
     },
+    {
+        "name": "compute_wellness_score",
+        "description": "Calcula el score de bienestar del usuario (0-100) con 5 dimensiones: variedad, cumplimiento de dieta, seguridad de alérgenos, engagement, objetivos. Devuelve insights accionables.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "analyze_my_purchases",
+        "description": "Análisis del historial de compras del consumidor: gasto por categoría, productos más comprados, tendencias",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "period_days": {"type": "integer", "default": 90, "description": "Días hacia atrás"},
+            },
+        },
+    },
+    {
+        "name": "generate_recipe",
+        "description": "Genera una receta personalizada usando los productos del carrito del usuario, respetando dieta y alergias",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "recipe_type": {
+                    "type": "string",
+                    "enum": ["meal", "breakfast", "snack", "dessert", "dinner"],
+                    "default": "meal",
+                },
+                "servings": {"type": "integer", "default": 2},
+            },
+        },
+    },
+    {
+        "name": "generate_meal_plan",
+        "description": "Genera un plan de comidas de varios días adaptado al usuario",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "days": {"type": "integer", "default": 3, "description": "Número de días del plan (1-7)"},
+            },
+        },
+    },
 ]
 
 
 # ── Pydantic models ──────────────────────────────────
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: Literal["user", "assistant"]
+    content: str = Field(..., max_length=2000)
 
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage]
+    messages: List[ChatMessage] = Field(..., max_length=50)
     user_id: Optional[str] = None
     session_id: Optional[str] = None
     session_memory: Optional[List[dict]] = None
-    language: Optional[str] = None
+    language: Optional[str] = Field(None, max_length=5)
 
 
 class AIProfileUpdate(BaseModel):
     language: Optional[str] = None
-    tone: Optional[str] = None
+    tone: Optional[Literal["short_direct", "friendly", "explanatory"]] = None
     diet: Optional[List[str]] = None
     allergies: Optional[List[str]] = None
     goals: Optional[List[str]] = None
     restrictions: Optional[List[str]] = None
-    budget: Optional[str] = None
+    budget: Optional[Literal["low", "medium", "premium"]] = None
     preferred_categories: Optional[List[str]] = None
 
 
 class SmartCartRequest(BaseModel):
-    action: str
+    action: Literal[
+        "optimize_price", "optimize_health", "optimize_quality",
+        "switch_pack", "upgrade", "remove_expensive", "remove_allergen",
+    ]
     allergen_to_remove: Optional[str] = None
 
 
@@ -403,6 +460,20 @@ async def execute_tool(name: str, inp: dict, user_id: str, user_country: str):
             inp.get("max_budget"), inp.get("num_items", 5),
             user_country=user_country,
         )
+    if name == "compute_wellness_score":
+        from services.hispal_ai_tools import compute_wellness_score
+        return await compute_wellness_score(db, user_id)
+    if name == "analyze_my_purchases":
+        from services.hispal_ai_tools import analyze_my_purchases
+        return await analyze_my_purchases(db, user_id, inp.get("period_days", 90))
+    if name == "generate_recipe":
+        from services.hispal_ai_tools import generate_recipe_context
+        return await generate_recipe_context(
+            db, user_id, inp.get("recipe_type", "meal"), inp.get("servings", 2),
+        )
+    if name == "generate_meal_plan":
+        from services.hispal_ai_tools import generate_meal_plan_context
+        return await generate_meal_plan_context(db, user_id, inp.get("days", 3))
     return {"error": "Tool not found"}
 
 
@@ -536,13 +607,17 @@ async def hispal_ai_chat(request_body: ChatRequest, request: Request,
             )
             ai_profile = await _get_or_create_profile(user_id)
 
-    # ── PHASE 2b: Emotional signal detection + tone escalation ──
+    # ── PHASE 2b: Emotional signal detection + tone escalation + humor detection ──
     if user_id:
-        from services.hispal_ai_tools import detect_emotional_signals, compute_tone_level
+        from services.hispal_ai_tools import detect_emotional_signals, compute_tone_level, detect_humor_receptive
         emo_updates = detect_emotional_signals(last_message, ai_profile)
-        # Increment interaction count and recompute tone
+        # Detect positive humor signals in user message
+        if not ai_profile.get("humor_receptive", False) and detect_humor_receptive(last_message):
+            emo_updates["humor_receptive"] = True
+        # Increment interaction count and recompute tone (respecting new humor_receptive if set this turn)
         new_count = ai_profile.get("interaction_count", 0) + 1
-        new_tone = compute_tone_level(new_count, ai_profile.get("humor_receptive", False))
+        humor_ok = emo_updates.get("humor_receptive", ai_profile.get("humor_receptive", False))
+        new_tone = compute_tone_level(new_count, humor_ok)
         emo_updates["interaction_count"] = new_count
         if new_tone != ai_profile.get("tone_level", 1):
             emo_updates["tone_level"] = new_tone
@@ -673,7 +748,9 @@ async def hispal_ai_chat(request_body: ChatRequest, request: Request,
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("David AI error: %s", e)
+        logger.error(
+            "David AI error for user %s: %s", user_id, e, exc_info=True,
+        )
         return {"response": "Lo siento, no puedo responder en este momento.",
                 "tool_calls": [], "session_id": session_id}
 
@@ -734,7 +811,9 @@ async def _save_messages(user_id: str, session_id: str, user_text: str,
     try:
         await db.chat_messages.insert_many([user_msg, assistant_msg])
     except Exception as e:
-        logger.error("Failed to save chat messages: %s", e)
+        logger.error(
+            "Failed to save chat messages for user %s: %s", user_id, e, exc_info=True,
+        )
 
 
 def _build_memory_summary(profile: dict) -> list:
@@ -786,12 +865,14 @@ async def _reset_profile(user_id: str):
 @router.get("/profile")
 async def get_ai_profile(user=Depends(get_current_user)):
     """Get the user's AI profile for personalization."""
+    check_read_rate_limit(user.user_id)
     return await _get_or_create_profile(user.user_id)
 
 
 @router.put("/profile")
 async def update_ai_profile(update: AIProfileUpdate, user=Depends(get_current_user)):
     """Update the user's AI profile."""
+    check_read_rate_limit(user.user_id)
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     update_data["last_updated"] = datetime.now(timezone.utc).isoformat()
     await db.ai_profiles.update_one(
@@ -803,6 +884,7 @@ async def update_ai_profile(update: AIProfileUpdate, user=Depends(get_current_us
 @router.post("/profile/reset")
 async def reset_ai_profile(user=Depends(get_current_user)):
     """Reset the user's AI profile to defaults."""
+    check_read_rate_limit(user.user_id)
     await _reset_profile(user.user_id)
     return {"message": "AI profile reset successfully"}
 
@@ -814,6 +896,7 @@ async def reset_ai_profile(user=Depends(get_current_user)):
 @router.get("/memory")
 async def get_ai_memory(user=Depends(get_current_user)):
     """Get human-readable memory summary."""
+    check_read_rate_limit(user.user_id)
     profile = await _get_or_create_profile(user.user_id)
     items = _build_memory_summary(profile)
     if not items:
@@ -837,6 +920,7 @@ async def get_ai_memory(user=Depends(get_current_user)):
 @router.put("/memory")
 async def update_ai_memory(update: AIProfileUpdate, user=Depends(get_current_user)):
     """Update specific AI memory fields."""
+    check_read_rate_limit(user.user_id)
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     if not update_data:
         return {"message": "No hay cambios que guardar."}
@@ -850,6 +934,7 @@ async def update_ai_memory(update: AIProfileUpdate, user=Depends(get_current_use
 @router.delete("/memory")
 async def delete_ai_memory(user=Depends(get_current_user)):
     """Reset all AI memory."""
+    check_read_rate_limit(user.user_id)
     await _reset_profile(user.user_id)
     return {"message": "Listo. He olvidado tus preferencias."}
 
@@ -861,6 +946,7 @@ async def delete_ai_memory(user=Depends(get_current_user)):
 @router.post("/smart-cart")
 async def smart_cart_endpoint(req: SmartCartRequest, user=Depends(get_current_user)):
     """Execute a smart cart optimization action."""
+    check_rate_limit(user.user_id)  # smart cart uses LLM rate limit (20 RPM)
     from services.hispal_ai_tools import execute_smart_cart
     return await execute_smart_cart(db, user.user_id, req.action, req.allergen_to_remove)
 
@@ -870,11 +956,18 @@ async def smart_cart_endpoint(req: SmartCartRequest, user=Depends(get_current_us
 # ══════════════════════════════════════════════════════
 
 @router.get("/history")
-async def get_chat_history(session_id: str, user=Depends(get_current_user)):
-    """Get chat history for a session."""
+async def get_chat_history(
+    session_id: str,
+    skip: int = 0,
+    limit: int = 100,
+    user=Depends(get_current_user),
+):
+    """Get chat history for a session with pagination."""
+    check_read_rate_limit(user.user_id)
+    limit = max(1, min(500, limit))
     messages = await db.chat_messages.find(
         {"user_id": user.user_id, "session_id": session_id}, {"_id": 0},
-    ).to_list(1000)
+    ).skip(max(0, skip)).to_list(limit)
     return messages
 
 
@@ -885,9 +978,40 @@ async def get_chat_history(session_id: str, user=Depends(get_current_user)):
 @router.get("/proactive")
 async def get_proactive_message(user=Depends(get_current_user)):
     """Get a contextual proactive message for David's strip pulse."""
+    check_read_rate_limit(user.user_id)
     from services.hispal_ai_tools import generate_proactive_message
     message = await generate_proactive_message(db, user.user_id)
     return {"message": message}
+
+
+# ══════════════════════════════════════════════════════
+# WELLNESS / ANALYZE / ALERTS ENDPOINTS
+# ══════════════════════════════════════════════════════
+
+@router.get("/wellness")
+async def get_wellness_score(user=Depends(get_current_user)):
+    """Compute consumer wellness score (0-100) across 5 dimensions."""
+    check_read_rate_limit(user.user_id)
+    from services.hispal_ai_tools import compute_wellness_score
+    return await compute_wellness_score(db, user.user_id)
+
+
+@router.get("/analyze-purchases")
+async def analyze_purchases(period_days: int = 90, user=Depends(get_current_user)):
+    """Analyze consumer's purchase history."""
+    check_read_rate_limit(user.user_id)
+    period_days = max(7, min(365, period_days))
+    from services.hispal_ai_tools import analyze_my_purchases
+    return await analyze_my_purchases(db, user.user_id, period_days)
+
+
+@router.get("/alerts")
+async def get_consumer_alerts(user=Depends(get_current_user)):
+    """Get contextual alerts for the David strip pulse + badge."""
+    check_read_rate_limit(user.user_id)
+    from services.hispal_ai_tools import generate_consumer_alerts
+    alerts = await generate_consumer_alerts(db, user.user_id)
+    return {"alerts": alerts, "has_urgent": any(a["severity"] == "high" for a in alerts)}
 
 
 # ══════════════════════════════════════════════════════
@@ -895,13 +1019,14 @@ async def get_proactive_message(user=Depends(get_current_user)):
 # ══════════════════════════════════════════════════════
 
 class OnboardingAnswers(BaseModel):
-    sweet_salty: Optional[str] = None
-    cook_or_buy: Optional[str] = None
-    priority: Optional[str] = None
+    sweet_salty: Optional[Literal["sweet", "salty", "both"]] = None
+    cook_or_buy: Optional[Literal["cook", "buy", "mix"]] = None
+    priority: Optional[Literal["precio", "calidad", "salud"]] = None
 
 @router.post("/onboarding")
 async def save_onboarding(answers: OnboardingAnswers, user=Depends(get_current_user)):
     """Save onboarding quiz answers and mark onboarding as completed."""
+    check_read_rate_limit(user.user_id)
     taste = {k: v for k, v in answers.model_dump().items() if v}
     update = {
         "onboarding_completed": True,

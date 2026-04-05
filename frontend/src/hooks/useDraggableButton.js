@@ -134,13 +134,31 @@ export default function useDraggableButton() {
     window.addEventListener('mouseup', endHandler);
     window.addEventListener('touchmove', moveHandler, { passive: false });
     window.addEventListener('touchend', endHandler);
+    window.addEventListener('touchcancel', endHandler);
     return () => {
       window.removeEventListener('mousemove', moveHandler);
       window.removeEventListener('mouseup', endHandler);
       window.removeEventListener('touchmove', moveHandler);
       window.removeEventListener('touchend', endHandler);
+      window.removeEventListener('touchcancel', endHandler);
     };
   }, [isDragging, onDragMove, onDragEnd]);
+
+  // Keep button within viewport on orientation change / resize
+  useEffect(() => {
+    const handler = () => {
+      setButtonY((prev) => {
+        if (prev === null) return window.innerHeight - 160;
+        return Math.max(40, Math.min(window.innerHeight - 56 - 40, prev));
+      });
+    };
+    window.addEventListener('orientationchange', handler);
+    window.addEventListener('resize', handler);
+    return () => {
+      window.removeEventListener('orientationchange', handler);
+      window.removeEventListener('resize', handler);
+    };
+  }, []);
 
   // ── Actions ──
 
