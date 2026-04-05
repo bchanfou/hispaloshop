@@ -196,6 +196,30 @@ export default function MarketCoverage() {
                     <button onClick={() => setAssigningAdmin(null)} className="text-[10px] text-white/30 hover:text-white/60">✕</button>
                   </div>
                 )}
+                {(() => {
+                  const cc = countryConfigs.find(c => c.country_code === country.code);
+                  const currentGoal = cc?.weekly_goal_cents;
+                  return (
+                    <button
+                      onClick={async () => {
+                        const input = window.prompt(`Objetivo semanal de gamificación para ${country.name} (en céntimos de moneda local, ej: 2000 = €20):`, String(currentGoal ?? 2000));
+                        if (input == null) return;
+                        const val = parseInt(input, 10);
+                        if (isNaN(val) || val < 0) { toast.error('Valor inválido'); return; }
+                        try {
+                          await apiClient.put(`/superadmin/countries/${country.code}/weekly-goal`, { weekly_goal_cents: val });
+                          toast.success(`Objetivo actualizado: ${val / 100}`);
+                          fetchCountryConfigs();
+                        } catch (err) {
+                          toast.error(err?.message || err?.detail || 'Error');
+                        }
+                      }}
+                      className="text-[10px] text-white/30 hover:text-white/60 mt-0.5 underline underline-offset-2 block"
+                    >
+                      Meta semanal: {currentGoal != null ? `${(currentGoal / 100).toLocaleString()}` : 'sin configurar'}
+                    </button>
+                  );
+                })()}
               </div>
               {isActive && countryData && (
                 <span className="text-[11px] text-white/30">

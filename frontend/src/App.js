@@ -33,6 +33,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ChatProvider } from './context/chat/ChatProvider';
 import { FeedTabProvider } from './context/FeedTabContext';
 import { UploadQueueProvider } from './context/UploadQueueContext';
+import { ProducerPlanProvider } from './context/ProducerPlanContext';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import { useNavigationDirection } from './hooks/useNavigationDirection';
 
@@ -207,12 +208,16 @@ const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPag
 // Registration flows
 const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 
-/** Route guard: redirects non-ELITE producers/importers to their plan page. */
+/** Route guard: redirects non-ELITE producers/importers to the plan/pricing page.
+ * Reads from localStorage cache (set by ProducerPlanContext when mounted).
+ * If no cache exists, waits for the inner component's own plan check (CommercialAIPage has its own UpgradeBanner). */
 function EliteRoute({ children }) {
   const planCache = localStorage.getItem('hsp_plan_cache');
+  // If no cache at all, let the child component handle the check (avoids redirect loop on first visit)
+  if (!planCache) return children;
   let plan = 'FREE';
-  try { plan = planCache ? JSON.parse(planCache).plan : 'FREE'; } catch {}
-  if (plan !== 'ELITE') return <Navigate to="/producer/plan" replace />;
+  try { plan = JSON.parse(planCache).plan || 'FREE'; } catch { return children; }
+  if (plan !== 'ELITE') return <Navigate to="/settings/plan" replace />;
   return children;
 }
 
@@ -537,7 +542,7 @@ function AppRouter() {
                 )}
               />
               <Route path="/importer/catalog" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterCatalogPage /></ProtectedRoute>} />
-              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><EliteRoute><CommercialAIPage /></EliteRoute></ProtectedRoute>} />
+              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ProducerPlanProvider><EliteRoute><CommercialAIPage /></EliteRoute></ProducerPlanProvider></ProtectedRoute>} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/b2b/catalog" element={<B2BCatalogPage />} />

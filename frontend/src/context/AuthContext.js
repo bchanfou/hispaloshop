@@ -245,6 +245,8 @@ export function AuthProvider({ children }) {
       queryClient.clear();
       // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
       removeToken();
+      // Clear producer plan cache so next user doesn't see previous user's plan
+      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
       if (mountedRef.current) {
         setUser(null);
         setError(null);

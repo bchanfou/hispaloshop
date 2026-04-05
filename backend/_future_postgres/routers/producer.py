@@ -356,7 +356,7 @@ async def producer_affiliate_stats(db: AsyncSession = Depends(get_db), user: Use
             "conversion_rate": round((conversions / clicks) * 100, 2) if clicks else 0,
             "gmv_cents": gmv,
             "commission_paid_cents": commissions,
-            "platform_earnings_cents": int(gmv * 0.15),
+            "platform_earnings_cents": int(gmv * 0.17),  # ELITE default — dormant until postgres stack activates
         },
         "top_affiliates": [],
     }

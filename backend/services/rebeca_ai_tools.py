@@ -673,7 +673,6 @@ async def action_respond_review(db, producer_id: str, review_id: str, response: 
     """Post a producer response to a review."""
     review = await db.reviews.find_one({"review_id": review_id})
     if not review:
-        # Try by _id
         return {"success": False, "error": "Reseña no encontrada"}
 
     # Verify the review is for a product of this producer
@@ -831,7 +830,9 @@ async def _compute_goal_progress(db, producer_id: str, goal: dict) -> float:
         products = await db.products.find(
             {"producer_id": producer_id}, {"product_id": 1},
         ).to_list(200)
-        pids = [p["product_id"] for p in products]
+        pids = [p["product_id"] for p in products if p.get("product_id")]
+        if not pids:
+            return 0
         return await db.reviews.count_documents({
             "product_id": {"$in": pids},
             "created_at": {"$gte": period_start},
@@ -841,7 +842,9 @@ async def _compute_goal_progress(db, producer_id: str, goal: dict) -> float:
         products = await db.products.find(
             {"producer_id": producer_id}, {"product_id": 1},
         ).to_list(200)
-        pids = [p["product_id"] for p in products]
+        pids = [p["product_id"] for p in products if p.get("product_id")]
+        if not pids:
+            return 0
         reviews = await db.reviews.find(
             {"product_id": {"$in": pids}},
             {"rating": 1},

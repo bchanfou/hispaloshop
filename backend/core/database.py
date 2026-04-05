@@ -312,6 +312,18 @@ async def _create_indexes():
         logger.info("  OK: country_configs seeded")
     logger.info("  OK: country_configs index")
 
+    # Products text search index (for /search relevance scoring)
+    try:
+        await db.products.create_index(
+            [("name", "text"), ("description", "text"), ("tags", "text"), ("category", "text")],
+            weights={"name": 10, "tags": 5, "category": 3, "description": 1},
+            name="products_text_search",
+            default_language="spanish",
+        )
+        logger.info("  OK: products text search index")
+    except Exception as e:
+        logger.warning(f"  SKIP: products text search index ({e})")
+
     logger.info("All indexes created successfully")
 
 

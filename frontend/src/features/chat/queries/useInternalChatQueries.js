@@ -85,3 +85,24 @@ export function useInternalChatDeleteConversation() {
     },
   });
 }
+
+export function useInternalChatMessages() {
+  return useMutation({
+    mutationFn: (conversationId) =>
+      apiClient.get(`/internal-chat/conversations/${conversationId}/messages`),
+  });
+}
+
+export function useInternalChatInfluencerProfile() {
+  return useMutation({
+    mutationFn: (influencerId) =>
+      apiClient.get(`/directory/influencers/${influencerId}`),
+  });
+}
+
+export function useInternalChatProducerProfile() {
+  return useMutation({
+    mutationFn: (storeId) =>
+      apiClient.get(`/directory/producers/${storeId}`),
+  });
+}

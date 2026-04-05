@@ -348,6 +348,14 @@ async def execute_seller_transfers(order: dict):
     # Write ledger events for each seller transfer
     buyer_country = order.get("country", "")
     buyer_id = order.get("user_id", "")
+    # Look up buyer VAT verification status (for EU B2B reverse charge)
+    buyer_vat_verified = False
+    if buyer_id:
+        buyer_doc = await db.users.find_one({"user_id": buyer_id}, {"_id": 0, "vat_id_verified": 1, "vat_verification": 1})
+        buyer_vat_verified = bool(
+            (buyer_doc or {}).get("vat_id_verified")
+            or (buyer_doc or {}).get("vat_verification", {}).get("valid")
+        )
     order_split_details = order.get("split_details", [])
     for rec in transfer_records:
         seller_split = next((s for s in order_split_details if s.get("producer_id") == rec["seller_id"]), {})
@@ -362,6 +370,8 @@ async def execute_seller_transfers(order: dict):
             seller_id=rec["seller_id"],
             buyer_id=buyer_id,
             buyer_country=buyer_country,
+            seller_country=seller_split.get("seller_country", ""),
+            buyer_vat_verified=buyer_vat_verified,
             transfer_id=rec.get("transfer_id", ""),
             status=rec["status"],
         )
@@ -656,14 +666,27 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         await db.stock_holds.delete_many({"user_id": user_id})
 
     # 4b. Write order_paid ledger event
+    # Look up buyer VAT verification for EU B2B reverse charge
+    _buyer_id = order.get("user_id", "")
+    _buyer_vat_verified = False
+    if _buyer_id:
+        _buyer_doc = await db.users.find_one(
+            {"user_id": _buyer_id},
+            {"_id": 0, "vat_id_verified": 1, "vat_verification": 1},
+        )
+        _buyer_vat_verified = bool(
+            (_buyer_doc or {}).get("vat_id_verified")
+            or (_buyer_doc or {}).get("vat_verification", {}).get("valid")
+        )
     await write_ledger_event(
         db,
         event_type="order_paid",
         order_id=order_id,
         currency=order.get("currency", "EUR"),
         product_subtotal=order.get("total_amount", 0),
-        buyer_id=order.get("user_id", ""),
+        buyer_id=_buyer_id,
         buyer_country=order.get("country", ""),
+        buyer_vat_verified=_buyer_vat_verified,
         status="completed",
     )
     

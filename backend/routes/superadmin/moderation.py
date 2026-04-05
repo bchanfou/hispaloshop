@@ -16,10 +16,15 @@ router = APIRouter(prefix="/superadmin/moderation", tags=["superadmin-moderation
 
 
 async def require_superadmin(current_user: dict = Depends(get_current_user)):
-    """Verificar que el usuario es superadmin o moderator"""
+    """Only super_admin can access the global moderation queue.
+    Country-scoped moderation will be added in a future iteration
+    once moderation_service supports country filtering."""
     role = current_user.get("role", "")
-    if role not in ["superadmin", "admin", "moderator"]:
-        raise HTTPException(status_code=403, detail="Moderator access required")
+    if role not in ["super_admin", "superadmin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Global moderation queue is super_admin only. Country-scoped moderation coming soon."
+        )
     return current_user
 
 

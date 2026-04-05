@@ -22,21 +22,6 @@ def _sanitize_search(q: str) -> str:
 router = APIRouter()
 
 
-async def _ensure_text_index(db):
-    """Create text index on products if not already present (idempotent)."""
-    try:
-        await db.products.create_index(
-            [("name", "text"), ("description", "text"), ("tags", "text"), ("category", "text")],
-            weights={"name": 10, "tags": 5, "category": 3, "description": 1},
-            name="products_text_search",
-            default_language="spanish",
-        )
-    except Exception:
-        pass  # Index already exists or not supported
-
-_text_index_ensured = False
-
-
 async def _search_products(
     db, q: str, limit: int, country: Optional[str],
     sort: Optional[str] = None,
@@ -46,11 +31,7 @@ async def _search_products(
     in_stock: Optional[bool] = None,
     free_shipping: Optional[bool] = None,
 ):
-    global _text_index_ensured
-    if not _text_index_ensured:
-        await _ensure_text_index(db)
-        _text_index_ensured = True
-
+    # Text index is created at startup in core/database.py
     # Use $text search for relevance scoring when sort is default (relevance)
     use_text_search = sort is None or sort == "relevance"
 

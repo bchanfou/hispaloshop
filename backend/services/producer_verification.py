@@ -4,7 +4,6 @@ Uses Claude Haiku vision to verify CIF/NIF documents,
 facility photos, and product certificates.
 """
 import os
-import re
 import json
 import logging
 import base64
@@ -17,41 +16,7 @@ from core.database import db
 
 logger = logging.getLogger(__name__)
 
-# ── CIF/NIF format validation ────────────────────────────────────
-
-# CIF: letter + 7 digits + digit/letter
-CIF_LETTERS = set("ABCDEFGHJNPQRSUVW")
-CIF_RE = re.compile(r"^[A-Z]\d{7}[A-Z0-9]$")
-
-# NIF: 8 digits + letter (excluding I, Ñ, O, U)
-NIF_RE = re.compile(r"^\d{8}[A-HJ-NP-TV-Z]$")
-
-# NIE: X/Y/Z + 7 digits + letter
-NIE_RE = re.compile(r"^[XYZ]\d{7}[A-HJ-NP-TV-Z]$")
-
-
-def validate_tax_id_format(tax_id: str) -> dict:
-    """Validate Spanish CIF/NIF/NIE format.
-    Returns dict with is_valid, doc_type, cleaned_id.
-    """
-    if not tax_id:
-        return {"is_valid": False, "doc_type": None, "cleaned_id": None}
-
-    cleaned = tax_id.upper().replace(" ", "").replace("-", "").replace(".", "")
-
-    # CIF empresarial
-    if CIF_RE.match(cleaned) and cleaned[0] in CIF_LETTERS:
-        return {"is_valid": True, "doc_type": "cif", "cleaned_id": cleaned}
-
-    # NIF personal
-    if NIF_RE.match(cleaned):
-        return {"is_valid": True, "doc_type": "nif", "cleaned_id": cleaned}
-
-    # NIE extranjero
-    if NIE_RE.match(cleaned):
-        return {"is_valid": True, "doc_type": "nie", "cleaned_id": cleaned}
-
-    return {"is_valid": False, "doc_type": None, "cleaned_id": cleaned}
+# Business ID format validation is now in services/document_formats.py (multi-country).
 
 
 # ── Helpers ───────────────────────────────────────────────────────

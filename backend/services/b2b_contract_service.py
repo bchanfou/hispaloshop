@@ -34,7 +34,7 @@ from reportlab.platypus import (
     Image as RLImage,
 )
 
-from app.core.email import send_email
+from services.auth_helpers import send_email
 
 logger = logging.getLogger(__name__)
 

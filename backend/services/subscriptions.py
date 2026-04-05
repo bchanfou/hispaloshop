@@ -324,6 +324,7 @@ async def calculate_order_commissions(db, order: dict) -> dict:
         # Influencer attribution
         influencer_id = order.get("influencer_id")
         influencer_tier = None
+        is_first_purchase_via_influencer = False
         if influencer_id:
             inf_doc = await db.influencers.find_one(
                 {"influencer_id": influencer_id},
@@ -333,11 +334,25 @@ async def calculate_order_commissions(db, order: dict) -> dict:
                 (inf_doc or {}).get("current_tier", "hercules"),
                 (inf_doc or {}).get("commission_rate"),
             )
+            # Detect first purchase: consumer used an influencer code and has no prior paid orders
+            consumer_id = order.get("user_id")
+            if consumer_id:
+                prior_count = await db.orders.count_documents({
+                    "user_id": consumer_id,
+                    "_id": {"$ne": order.get("_id")},
+                    "order_id": {"$ne": order.get("order_id")},
+                    "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered", "completed"]},
+                })
+                is_first_purchase_via_influencer = (prior_count == 0)
 
+        # When first-purchase via influencer: pass GROSS (undiscounted) amount so seller
+        # cobra sobre precio original; platform absorbs the 10% discount internally.
+        total_cents_for_split = int(round(seller_gmv_gross * 100)) if is_first_purchase_via_influencer else seller_gmv_cents
         split_cents = calculate_order_split(
-            total_cents=seller_gmv_cents,
+            total_cents=total_cents_for_split,
             seller_plan=seller_plan,
             influencer_tier=influencer_tier,
+            is_first_purchase_via_influencer=is_first_purchase_via_influencer,
         )
         split_snapshot = split_cents["snapshot"]
         platform_gross = cents_to_float(split_cents["platform_gross_cents"])

@@ -15,12 +15,27 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+async def _require_es_or_super_admin(user: User) -> None:
+    """Modelo 190 and IRPF endpoints are Spain-specific.
+    Only super_admin or ES country-admin can access."""
+    await _require_es_or_super_admin(user)
+    if user.role == "super_admin":
+        return
+    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "assigned_country": 1})
+    country = (admin_doc or {}).get("assigned_country")
+    if country != "ES":
+        raise HTTPException(
+            status_code=403,
+            detail="Fiscal endpoints (Modelo 190) are restricted to Spanish admins."
+        )
+
+
 # ── POST /admin/tax/generate-190 ──────────────────────────────
 
 @router.post("/admin/tax/generate-190")
 async def generate_modelo_190(request: Request, user: User = Depends(get_current_user)):
     """Generate quarterly Modelo 190 report PDF."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     body = await request.json()
     year = body.get("year")
@@ -39,7 +54,7 @@ async def generate_modelo_190(request: Request, user: User = Depends(get_current
 @router.get("/admin/tax/reports")
 async def list_tax_reports(user: User = Depends(get_current_user)):
     """List generated tax reports."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     reports = await db.tax_reports.find(
         {}, {"_id": 0}
@@ -53,7 +68,7 @@ async def list_tax_reports(user: User = Depends(get_current_user)):
 @router.get("/admin/tax/fiscal-stats")
 async def get_fiscal_stats(user: User = Depends(get_current_user)):
     """Get fiscal KPIs for the admin dashboard."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     current_year = datetime.now(timezone.utc).year
     current_month = datetime.now(timezone.utc).month
@@ -95,7 +110,7 @@ async def get_fiscal_stats(user: User = Depends(get_current_user)):
 @router.get("/admin/tax/pending-reviews")
 async def get_pending_reviews(user: User = Depends(get_current_user)):
     """List influencers pending manual certificate review."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     influencers = await db.influencers.find(
         {
@@ -127,7 +142,7 @@ async def get_pending_reviews(user: User = Depends(get_current_user)):
 @router.post("/admin/tax/review-certificate")
 async def review_certificate(request: Request, user: User = Depends(get_current_user)):
     """Admin manually approves or rejects a certificate."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     body = await request.json()
     influencer_id = body.get("influencer_id")
@@ -202,7 +217,7 @@ async def list_fiscal_influencers(
     user: User = Depends(get_current_user),
 ):
     """List influencers with fiscal data. Filters: all, verified, pending, rejected, manual."""
-    await require_role(user, ["admin", "super_admin"])
+    await _require_es_or_super_admin(user)
 
     query = {}
     if status == "verified":

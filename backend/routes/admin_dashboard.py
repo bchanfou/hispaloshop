@@ -1330,3 +1330,24 @@ async def assign_country_admin(code: str, request: Request, user: User = Depends
 
     return {"status": "assigned", "country_code": country_code, "admin_user_id": admin_user_id}
 
+
+@router.put("/superadmin/countries/{code}/weekly-goal")
+async def set_country_weekly_goal(code: str, request: Request, user: User = Depends(get_current_user)):
+    """Set the gamification weekly goal (in cents of local currency) for a country."""
+    await require_role(user, ["super_admin"])
+
+    body = await request.json()
+    weekly_goal_cents = body.get("weekly_goal_cents")
+    if not isinstance(weekly_goal_cents, int) or weekly_goal_cents < 0:
+        raise HTTPException(status_code=400, detail="weekly_goal_cents must be a non-negative integer")
+
+    country_code = code.upper()
+    result = await db.country_configs.update_one(
+        {"country_code": country_code},
+        {"$set": {"weekly_goal_cents": weekly_goal_cents}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail=f"Country config not found for {country_code}")
+
+    return {"status": "updated", "country_code": country_code, "weekly_goal_cents": weekly_goal_cents}
+

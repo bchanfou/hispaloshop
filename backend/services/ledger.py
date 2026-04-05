@@ -125,17 +125,18 @@ async def write_ledger_event(
     buyer_state: str = "",
     seller_country: str = "",
     seller_tax_id: str = "",
+    buyer_vat_verified: bool = False,
     transfer_id: str = "",
     status: str = "completed",
     extra: dict = None,
 ):
     """Create an immutable ledger entry. NEVER update existing entries."""
-    tax = _get_tax_info(buyer_country, buyer_state, seller_country, product_subtotal)
+    tax = _get_tax_info(buyer_country, buyer_state, seller_country, product_subtotal, buyer_vat_verified)
     usd_equiv = await _to_usd(product_subtotal, currency)
     rates = await _get_rates_to_usd()
     rate = rates.get(currency.upper(), 1.0)
 
-    platform_tax = _get_tax_info(buyer_country, buyer_state, seller_country, platform_fee)
+    platform_tax = _get_tax_info(buyer_country, buyer_state, seller_country, platform_fee, buyer_vat_verified)
 
     entry = {
         "ledger_id": f"led_{uuid.uuid4().hex[:12]}",
