@@ -18,6 +18,13 @@ node_modules/
 
 # Testing
 /coverage
+.coverage
+backend/.coverage
+htmlcov/
+.pytest_cache/
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
 
 # Next.js
 /.next/
