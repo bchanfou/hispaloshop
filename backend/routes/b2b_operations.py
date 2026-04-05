@@ -83,7 +83,14 @@ def _build_offer_doc(
     now = datetime.now(timezone.utc)
     total_price = round(data.quantity * data.price_per_unit, 2)
     fee_pct = PLATFORM_FEE_PCT + STRIPE_FEE_PCT
-    net_total = float((Decimal(str(total_price)) * (100 - fee_pct) / 100).quantize(Decimal("0.01")))
+    # NOTE: PLATFORM_FEE_PCT and STRIPE_FEE_PCT are floats; wrap the factor in
+    # Decimal(str(...)) before multiplying to avoid "unsupported operand type(s)
+    # for *: 'decimal.Decimal' and 'float'" at runtime (would crash any offer creation).
+    net_total = float((
+        Decimal(str(total_price))
+        * Decimal(str(100 - fee_pct))
+        / Decimal("100")
+    ).quantize(Decimal("0.01")))
     expires_at = now + timedelta(days=data.validity_days)
 
     return {

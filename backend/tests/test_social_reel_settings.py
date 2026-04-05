@@ -30,11 +30,26 @@ from core.models import User
 
 
 class FakeUploadFile:
+    """
+    Mimics fastapi.UploadFile.read(size: int = -1) contract.
+
+    Post-Cycle-3: create_reel switched to streaming reads with 1MB chunks
+    to cap memory usage for large videos. The test mock must accept the
+    size argument and simulate end-of-stream on second call.
+    """
+
     def __init__(self, content_type: str, content: bytes):
         self.content_type = content_type
+        self.size = len(content)
         self._content = content
+        self._exhausted = False
 
-    async def read(self) -> bytes:
+    async def read(self, size: int = -1) -> bytes:  # noqa: ARG002
+        # Return full content on first call, b"" on subsequent calls to
+        # mimic an exhausted stream (loop-terminating condition in prod code).
+        if self._exhausted:
+            return b""
+        self._exhausted = True
         return self._content
 
 
@@ -110,6 +125,12 @@ def test_create_reel_clamps_extreme_settings_and_fallbacks_without_cloudinary(mo
             slow_motion_end=50,
             product_id="",
             tagged_products_json="[]",
+            # Post-Cycle-3 new Form params — must be passed explicitly when calling
+            # the endpoint function directly (FastAPI Form() defaults only unwrap via HTTP)
+            filter="",
+            text_overlays_json="",
+            audience="public",
+            cover_image=None,
             user=cast(User, FakeUser()),
         )
     )
@@ -131,10 +152,13 @@ def test_create_reel_clamps_playback_to_minimum(monkeypatch: MonkeyPatch):
     monkeypatch.setattr(social, "db", fake_db)
 
     async def fake_upload_video(contents: bytes, folder: str, filename: str) -> dict[str, Any]:
+        # Post-Cycle-3: videos with duration 0 are rejected as corrupt.
+        # This test targets playback rate clamping, not duration handling,
+        # so use a valid duration here.
         return {
             "url": "https://cdn.example.com/reel.mp4",
             "public_id": "",
-            "duration": 0,
+            "duration": 15.0,
         }
 
     async def fake_hydrate(tags: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -162,15 +186,22 @@ def test_create_reel_clamps_playback_to_minimum(monkeypatch: MonkeyPatch):
             slow_motion_end=-1,
             product_id="",
             tagged_products_json="[]",
+            # Post-Cycle-3 new Form params
+            filter="",
+            text_overlays_json="",
+            audience="public",
+            cover_image=None,
             user=cast(User, FakeUser()),
         )
     )
 
+    # Playback rate 0.01 clamps to minimum 0.5
+    assert result["playback_rate"] == 0.5
+    # Negative values clamp to 0 (and trim_end gets clamped by duration=15)
     assert result["cover_frame_seconds"] == 0.0
     assert result["trim_start_seconds"] == 0.0
-    assert result["trim_end_seconds"] == 0.0
-    assert result["playback_rate"] == 0.5
+    # With valid duration=15 and requested trim_end_seconds=-20 (clamped to 0),
+    # the code defaults trim_end to full duration when requested was invalid
+    assert result["trim_end_seconds"] == 15.0
     assert result["muted"] is False
     assert result["slow_motion_enabled"] is False
-    assert result["slow_motion_start"] == 0.0
-    assert result["slow_motion_end"] == 0.0

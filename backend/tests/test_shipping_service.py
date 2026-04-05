@@ -31,11 +31,21 @@ def test_shipping_policy_disabled_is_zero():
 
 
 def test_order_totals_including_shipping_and_tax():
+    """
+    Spain B2C: prices INCLUDE IVA. Tax is informational (extracted from the
+    IVA-inclusive subtotal), NOT added on top. Cycle 2 of the platform audit
+    changed this behavior to match EU consumer law — displayed prices must be
+    the final amount the consumer pays.
+
+    For subtotal=€100 (IVA-inclusive) + shipping=€5 at 21% IVA:
+      tax_extracted = 10000 * 2100 / (10000 + 2100) ≈ 1736 cents (€17.36 IVA inside)
+      total         = 10000 + 500 = 10500 cents   (IVA not added on top)
+    """
     totals = ShippingService.calculate_order_totals(subtotal_cents=100_00, shipping_cents=5_00, tax_rate_bp=2100)
     assert totals["subtotal_cents"] == 100_00
     assert totals["shipping_cents"] == 5_00
-    assert totals["tax_cents"] == 22_05
-    assert totals["total_cents"] == 127_05
+    assert totals["tax_cents"] == 1736         # IVA extracted from IVA-inclusive subtotal
+    assert totals["total_cents"] == 10500      # subtotal + shipping (no IVA added on top)
 
 
 def test_policy_from_user_adapter():

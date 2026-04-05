@@ -1,22 +1,11 @@
 """
 Security & endpoint smoke tests.
 These tests use httpx + ASGITransport against the FastAPI app directly (no live server needed).
+
+Env vars are set centrally in conftest.py — this file must NOT redefine them.
 """
-import os
 import pytest
-import sys
-from pathlib import Path
 from httpx import AsyncClient, ASGITransport
-
-backend_dir = Path(__file__).resolve().parents[1]
-if str(backend_dir) not in sys.path:
-    sys.path.insert(0, str(backend_dir))
-
-# Minimal env vars so the app can be imported without a real .env
-os.environ.setdefault("JWT_SECRET", "test-secret-for-ci-hispaloshop-32chars!")
-os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017/hispaloshop_test")
-os.environ.setdefault("FRONTEND_URL", "http://localhost:3000")
-os.environ.setdefault("AUTH_BACKEND_URL", "http://localhost:8000")
 
 from main import app
 
@@ -34,11 +23,15 @@ class TestHealthEndpoints:
 
     @pytest.mark.asyncio
     async def test_health_returns_200(self, client):
-        """GET /health must always respond."""
+        """GET /health must always respond 200. Status may be 'ok' or 'degraded'."""
         response = await client.get("/health")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "ok"
+        # Post-0.2: health endpoint reports DB connectivity. "ok" if DB reachable,
+        # "degraded" if DB unreachable (test env has no Mongo). Both are valid 200 responses.
+        assert data["status"] in ("ok", "degraded")
+        assert "db" in data
+        assert "timestamp" in data
 
     @pytest.mark.asyncio
     async def test_api_health_returns_200(self, client):
@@ -101,14 +94,35 @@ class TestProtectedEndpoints:
         assert response.status_code in [401, 403, 422, 500]
 
     @pytest.mark.asyncio
-    async def test_csrf_blocks_post_without_token(self, client):
-        """POST without CSRF token must be rejected (403 or 500 from middleware)."""
+    async def test_csrf_blocks_post_with_auth_but_no_token(self, client):
+        """
+        POST with an Authorization header but WITHOUT CSRF token must be rejected (403).
+        An unauthenticated POST with no credentials bypasses CSRF (auth layer returns 401 instead).
+        This is the documented behavior of middleware/csrf.py — CSRF attacks require a session.
+        """
         response = await client.post(
             "/api/v1/hispal-ai/chat",
             json={"messages": [{"role": "user", "content": "test"}]},
+            headers={"Authorization": "Bearer fake-token-for-csrf-check"},
         )
-        # CSRF middleware raises HTTPException which may surface as 403 or 500
-        assert response.status_code in [403, 500]
+        # With Authorization header but no CSRF cookie/header → middleware returns 403
+        assert response.status_code == 403
+        assert "CSRF" in response.json().get("detail", "")
+
+    @pytest.mark.asyncio
+    async def test_unauthenticated_post_to_auth_gated_endpoint_returns_401(self, client):
+        """
+        POST without credentials to an auth-gated endpoint (cart) must return 401.
+        CSRF middleware intentionally skips requests with no bearer/session,
+        so the auth layer handles it and returns 401 — the correct status for
+        "unauthenticated". /api/v1/hispal-ai/chat is NOT suitable for this test
+        because it accepts guest users (get_optional_user) by design.
+        """
+        response = await client.post(
+            "/api/cart/items",
+            json={"product_id": "p1", "quantity": 1},
+        )
+        assert response.status_code in [401, 403, 422]
 
     @pytest.mark.asyncio
     async def test_404_returns_json(self, client):

@@ -170,6 +170,8 @@ def test_get_stories_feed_batches_user_lookup(monkeypatch: MonkeyPatch) -> None:
         {
             "hispalostories": FakeStoriesCollection(stories),
             "users": users_collection,
+            # Post-Cycle-3: stories feed filters blocked users via db.blocked_users.find(...).to_list()
+            "blocked_users": FakeStoriesCollection([]),  # empty = no blocks
         },
     )()
 

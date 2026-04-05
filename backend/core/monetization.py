@@ -102,7 +102,22 @@ def calculate_order_split(
     platform_gross = _quantize(original_total * commission_rate)
     seller_payout = _quantize(original_total - platform_gross)
 
-    # Influencer cut comes from the platform's gross share
+    # ═══════════════════════════════════════════════════════════════════════
+    # INFLUENCER CUT — canonical interpretation (confirmed founder 2026-04-06)
+    # -----------------------------------------------------------------------
+    # Influencer tier % applies to the ORIGINAL price, then is SUBTRACTED from
+    # the platform's gross share. It is NOT a percentage of platform gross.
+    #
+    #   ELITE 17% + Zeus 7%, €100:
+    #     platform_gross = 100 × 0.17 = €17
+    #     influencer_cut = 100 × 0.07 = €7    ← 7% of ORIGINAL, not of €17
+    #     platform_net   = 17 − 7 = €10
+    #
+    # If you're tempted to change this formula, read memory/commission_interpretation.md
+    # FIRST — the 8 canonical scenarios there are the single source of truth.
+    # The safety cap below prevents influencer_cut > platform_gross when a
+    # particularly generous tier × low-margin plan combination would go negative.
+    # ═══════════════════════════════════════════════════════════════════════
     normalized_tier = normalize_influencer_tier(influencer_tier)
     influencer_rate = INFLUENCER_TIER_RATES.get(normalized_tier, Decimal("0"))
     influencer_cut = _quantize(original_total * influencer_rate) if normalized_tier else Decimal("0")

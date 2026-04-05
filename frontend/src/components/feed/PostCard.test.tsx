@@ -28,7 +28,9 @@ vi.mock('../../context/LocaleContext', () => ({
   useLocale: () => ({ convertAndFormatPrice: (p) => `€${p}`, t: (k, f) => f }),
 }));
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (k, f) => f || k }),
+  useTranslation: () => ({ t: (k, f) => f || k, i18n: { changeLanguage: vi.fn() } }),
+  initReactI18next: { type: '3rdParty', init: vi.fn() },
+  Trans: ({ children }: { children?: any }) => children,
 }));
 vi.mock('framer-motion', () => ({
   motion: new Proxy({}, { get: (_, tag) => tag === '__esModule' ? false : (props) => React.createElement(tag, props) }),

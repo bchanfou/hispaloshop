@@ -39,9 +39,23 @@ class FakeUsersCollection:
         return self.doc
 
 
+class FakeCountCollection:
+    """Minimal stub for collections where the code only calls count_documents."""
+
+    def __init__(self, count: int = 0):
+        self._count = count
+
+    async def count_documents(self, query):  # noqa: ARG002
+        return self._count
+
+
 class FakeDb:
     def __init__(self, doc):
         self.users = FakeUsersCollection(doc)
+        # Post-Cycle-3: get_user_by_username computes live posts_count from
+        # user_posts + reels collections instead of the stale stored field.
+        self.user_posts = FakeCountCollection(count=5)
+        self.reels = FakeCountCollection(count=0)
 
 
 def test_get_user_by_username_returns_public_contract(monkeypatch):
