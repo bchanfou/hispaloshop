@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, TrendingUp, Trash2, FileText, Target, Bell, RotateCw, ChevronLeft } from 'lucide-react';
+import { X, Send, TrendingUp, Trash2, FileText, Target, Bell, RotateCw, ChevronLeft, Activity } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import apiClient from '../../services/api/client';
 
@@ -54,7 +54,13 @@ interface RebecaBriefing {
   recommended_actions: Array<{ priority: number; title: string; action: string; why: string }>;
 }
 
-type PanelView = null | 'alerts' | 'briefing' | 'goals';
+interface RebecaHealth {
+  overall_score: number;
+  dimensions: Record<string, { score: number; label: string; detail: string }>;
+  insights: Array<{ dimension: string; severity: 'high' | 'medium' | 'low'; message: string }>;
+}
+
+type PanelView = null | 'alerts' | 'briefing' | 'goals' | 'health';
 
 const QUICK_PROMPTS_ONBOARDED = [
   { label: 'Resumen semanal', icon: FileText, prompt: 'Hazme el resumen semanal de mi negocio y propón 3 acciones' },
@@ -127,7 +133,9 @@ export default function RebecaAI() {
   const [panelView, setPanelView] = useState<PanelView>(null);
   const [briefing, setBriefing] = useState<RebecaBriefing | null>(null);
   const [goals, setGoals] = useState<RebecaGoal[]>([]);
+  const [health, setHealth] = useState<RebecaHealth | null>(null);
   const [panelLoading, setPanelLoading] = useState(false);
+  const [panelError, setPanelError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -256,6 +264,7 @@ export default function RebecaAI() {
 
   const openPanel = useCallback(async (view: Exclude<PanelView, null>) => {
     setPanelView(view);
+    setPanelError(null);
     if (view === 'alerts') return; // already loaded on mount
     setPanelLoading(true);
     try {
@@ -265,15 +274,43 @@ export default function RebecaAI() {
       } else if (view === 'goals') {
         const data = await apiClient.get('/v1/rebeca-ai/goals');
         setGoals(data?.goals || []);
+      } else if (view === 'health') {
+        const data = await apiClient.get('/v1/rebeca-ai/health');
+        setHealth(data);
       }
-    } catch {
-      // silently handled — panel shows empty state
+    } catch (err: any) {
+      const status = err?.response?.status ?? err?.status;
+      if (status === 429) {
+        setPanelError('Demasiadas peticiones. Espera un momento.');
+      } else if (status >= 500) {
+        setPanelError('Error del servidor. Inténtalo de nuevo.');
+      } else if (!status) {
+        setPanelError('Sin conexión. Comprueba tu red.');
+      } else {
+        setPanelError('No pudimos cargar los datos.');
+      }
     } finally {
       setPanelLoading(false);
     }
   }, []);
 
-  const closePanel = useCallback(() => setPanelView(null), []);
+  const closePanel = useCallback(() => {
+    setPanelView(null);
+    setPanelError(null);
+  }, []);
+
+  // ESC key closes panel (nested) or chat (if no panel open)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (panelView) closePanel();
+        else setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen, panelView, closePanel]);
 
   return (
     <>
@@ -327,6 +364,9 @@ export default function RebecaAI() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="rebeca-dialog-title"
               className="fixed inset-x-0 bottom-0 z-50 flex h-[85vh] flex-col rounded-t-[20px] bg-white shadow-lg md:inset-x-auto md:bottom-4 md:right-4 md:h-[600px] md:w-[380px] md:rounded-2xl"
             >
               {/* Header */}
@@ -337,7 +377,7 @@ export default function RebecaAI() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-semibold text-stone-950">Rebeca</span>
+                      <span id="rebeca-dialog-title" className="text-[15px] font-semibold text-stone-950">Rebeca</span>
                       <span className="h-2 w-2 rounded-full bg-stone-950" />
                     </div>
                     <p className="truncate text-[11px] text-stone-500">Tu asesora comercial</p>
@@ -373,6 +413,14 @@ export default function RebecaAI() {
                   >
                     <Target className="h-4 w-4" />
                   </button>
+                  {/* Store Health */}
+                  <button
+                    onClick={() => openPanel('health')}
+                    className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
+                    aria-label="Salud de la tienda"
+                  >
+                    <Activity className="h-4 w-4" />
+                  </button>
                   {messages.length > 0 && (
                     <button
                       onClick={clearChat}
@@ -392,7 +440,25 @@ export default function RebecaAI() {
                 </div>
               </div>
 
-              {/* ── Action Panel overlay (alerts / briefing / goals) ── */}
+              {/* ── Onboarding CTA banner (new users) ── */}
+              {profile && !isOnboarded && messages.length === 0 && (
+                <div className="border-b border-stone-100 bg-stone-50 px-4 py-3">
+                  <p className="text-[12px] font-semibold text-stone-950">
+                    Completa tu perfil de negocio
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-stone-500">
+                    30 segundos para que personalice cada análisis a tu tienda.
+                  </p>
+                  <button
+                    onClick={() => sendMessage('Hola Rebeca, hagamos mi diagnóstico inicial. Analiza mi tienda y pregúntame lo que necesites para mi perfil de negocio.')}
+                    className="mt-2 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-medium text-white hover:scale-105 transition-transform"
+                  >
+                    Empezar
+                  </button>
+                </div>
+              )}
+
+              {/* ── Action Panel overlay (alerts / briefing / goals / health) ── */}
               <AnimatePresence>
                 {panelView && (
                   <motion.div
@@ -415,6 +481,7 @@ export default function RebecaAI() {
                         {panelView === 'alerts' && 'Alertas'}
                         {panelView === 'briefing' && 'Resumen semanal'}
                         {panelView === 'goals' && 'Mis objetivos'}
+                        {panelView === 'health' && 'Salud de la tienda'}
                       </h3>
                     </div>
 
@@ -426,8 +493,23 @@ export default function RebecaAI() {
                         </div>
                       )}
 
+                      {!panelLoading && panelError && (
+                        <div className="flex h-full flex-col items-center justify-center text-center">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
+                            <RotateCw className="h-5 w-5 text-stone-400" />
+                          </div>
+                          <p className="mt-3 text-[13px] text-stone-500">{panelError}</p>
+                          <button
+                            onClick={() => panelView && openPanel(panelView)}
+                            className="mt-3 flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-[12px] font-medium text-white hover:scale-105 transition-transform"
+                          >
+                            <RotateCw className="h-3 w-3" /> Reintentar
+                          </button>
+                        </div>
+                      )}
+
                       {/* Alerts panel */}
-                      {!panelLoading && panelView === 'alerts' && (
+                      {!panelLoading && !panelError && panelView === 'alerts' && (
                         <>
                           {alerts.length === 0 ? (
                             <div className="flex h-full flex-col items-center justify-center text-center">
@@ -467,7 +549,7 @@ export default function RebecaAI() {
                       )}
 
                       {/* Briefing panel */}
-                      {!panelLoading && panelView === 'briefing' && (
+                      {!panelLoading && !panelError && panelView === "briefing" && (
                         <>
                           {!briefing ? (
                             <div className="flex h-full flex-col items-center justify-center text-center">
@@ -536,7 +618,7 @@ export default function RebecaAI() {
                       )}
 
                       {/* Goals panel */}
-                      {!panelLoading && panelView === 'goals' && (
+                      {!panelLoading && !panelError && panelView === "goals" && (
                         <>
                           {goals.length === 0 ? (
                             <div className="flex h-full flex-col items-center justify-center text-center">
@@ -594,6 +676,76 @@ export default function RebecaAI() {
                             </div>
                           )}
                         </>
+                      )}
+
+                      {/* Health panel */}
+                      {!panelLoading && !panelError && panelView === 'health' && health && (
+                        <div className="space-y-4">
+                          {/* Overall score ring */}
+                          <div className="flex flex-col items-center rounded-xl border border-stone-200 bg-white p-4">
+                            <div className="relative flex h-20 w-20 items-center justify-center">
+                              <svg className="absolute inset-0 -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" stroke="#e7e5e4" strokeWidth="3" />
+                                <circle
+                                  cx="18" cy="18" r="16" fill="none" stroke="#0c0a09" strokeWidth="3"
+                                  strokeDasharray={`${(health.overall_score / 100) * 100.53} 100.53`}
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                              <span className="text-[20px] font-bold text-stone-950">{health.overall_score}</span>
+                            </div>
+                            <p className="mt-2 text-[11px] uppercase tracking-wide text-stone-500">Salud general</p>
+                          </div>
+
+                          {/* Dimension scores */}
+                          <div className="space-y-2">
+                            {(Object.entries(health.dimensions) as [string, { label: string; score: number; detail: string }][]).map(([key, dim]) => (
+                              <div key={key} className="rounded-xl border border-stone-200 bg-white p-3">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[13px] font-medium text-stone-950">{dim.label}</p>
+                                  <span className={`text-[12px] font-bold ${dim.score >= 70 ? 'text-stone-950' : dim.score >= 40 ? 'text-stone-600' : 'text-stone-400'}`}>
+                                    {dim.score}
+                                  </span>
+                                </div>
+                                <p className="mt-0.5 text-[11px] text-stone-500">{dim.detail}</p>
+                                <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-100">
+                                  <div className="h-full rounded-full bg-stone-950 transition-all" style={{ width: `${dim.score}%` }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Insights */}
+                          {health.insights.length > 0 && (
+                            <div>
+                              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+                                {health.insights.length} insight{health.insights.length > 1 ? 's' : ''} accionable{health.insights.length > 1 ? 's' : ''}
+                              </p>
+                              <div className="space-y-2">
+                                {health.insights.map((insight, i) => (
+                                  <button
+                                    key={`insight-${insight.dimension}-${i}`}
+                                    onClick={() => {
+                                      closePanel();
+                                      sendMessage(insight.message);
+                                    }}
+                                    className="flex w-full items-start gap-2 rounded-xl border border-stone-200 bg-white p-3 text-left hover:border-stone-300 hover:shadow-sm transition-all"
+                                  >
+                                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${insight.severity === 'high' ? 'bg-stone-950' : insight.severity === 'medium' ? 'bg-stone-600' : 'bg-stone-400'}`} />
+                                    <p className="text-[12px] text-stone-700 flex-1 min-w-0">{insight.message}</p>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {!panelLoading && !panelError && panelView === 'health' && !health && (
+                        <div className="flex h-full flex-col items-center justify-center text-center">
+                          <Activity className="h-8 w-8 text-stone-300" />
+                          <p className="mt-3 text-[13px] text-stone-500">Sin datos suficientes.</p>
+                        </div>
                       )}
                     </div>
                   </motion.div>

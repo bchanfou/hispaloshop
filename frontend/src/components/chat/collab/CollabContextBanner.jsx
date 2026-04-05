@@ -1,15 +1,17 @@
 import React from 'react';
 
 const V2 = {
-  black: '#0A0A0A',
-  stone: '#8A8881',
+  black: '#0c0a09',
+  stone: '#78716c',
   fontSans: 'Inter, sans-serif',
 };
 
+// Context banner alineado al palette stone B&W. Antes usaba púrpuras
+// decorativos para marcar contexto "collab" — ahora diferencia por tipografía.
 const COLLAB = {
-  bg: '#F5F0F8',
-  text: '#8060B0',
-  border: '#D0C0E8',
+  bg: '#f5f5f4',      // stone-100
+  text: '#0c0a09',    // stone-950
+  border: '#e7e5e4',  // stone-200
 };
 
 export default function CollabContextBanner({ collab, onViewDetails }) {

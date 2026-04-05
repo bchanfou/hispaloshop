@@ -419,7 +419,7 @@ export default function CreateRecipePage() {
     }
   };
   const diff = DIFFICULTY_MAP[recipe.difficulty];
-  return <div className="min-h-screen bg-[#fafaf9]">
+  return <div className="min-h-screen bg-stone-50">
       {/* TopBar */}
       <div className="sticky top-0 z-40 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-4">
         <button type="button" onClick={() => navigate(-1)} aria-label="Volver" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
@@ -519,7 +519,7 @@ export default function CreateRecipePage() {
           </div>}
 
         {/* Recipe name */}
-        <input value={recipe.title} onChange={e => updateRecipe('title', e.target.value)} placeholder={t('recipes.recipeName', 'Nombre de la receta')} aria-label={t('recipes.recipeName', 'Nombre de la receta')} data-testid="recipe-title-input" className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-red-500' : 'border-none'}`} />
+        <input value={recipe.title} onChange={e => updateRecipe('title', e.target.value)} placeholder={t('recipes.recipeName', 'Nombre de la receta')} aria-label={t('recipes.recipeName', 'Nombre de la receta')} data-testid="recipe-title-input" className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-stone-950' : 'border-none'}`} />
 
         {/* Metadata grid */}
         <div className="mb-5 grid grid-cols-3 gap-2">
@@ -577,7 +577,7 @@ export default function CreateRecipePage() {
 
         {/* INGREDIENTES */}
         <div className="mb-6">
-          <p className={`mb-2.5 text-[10px] font-semibold uppercase tracking-widest ${submitAttempted && recipe.ingredients.length === 0 ? 'text-red-500' : 'text-stone-500'}`}>Ingredientes {submitAttempted && recipe.ingredients.length === 0 && <span className="normal-case tracking-normal font-normal text-red-500">— requerido</span>}</p>
+          <p className={`mb-2.5 text-[10px] font-semibold uppercase tracking-widest ${submitAttempted && recipe.ingredients.length === 0 ? 'text-stone-950' : 'text-stone-500'}`}>Ingredientes {submitAttempted && recipe.ingredients.length === 0 && <span className="normal-case tracking-normal font-normal text-stone-950">— requerido</span>}</p>
 
           {recipe.ingredients.map((ingredient, index) => <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
               {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-2xl object-cover" />}
@@ -632,9 +632,9 @@ export default function CreateRecipePage() {
           </button>
 
           {/* Allergen auto-detection */}
-          {detectedAllergens.length > 0 && <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3">
-              <AlertTriangle size={14} className="text-amber-700 shrink-0 mt-px" />
-              <p className="text-xs text-amber-700 m-0">
+          {detectedAllergens.length > 0 && <div className="mt-3 flex items-start gap-2 rounded-xl bg-stone-100 border border-stone-200 p-3">
+              <AlertTriangle size={14} className="text-stone-950 shrink-0 mt-px" />
+              <p className="text-xs text-stone-950 font-medium m-0">
                 Contiene: {detectedAllergens.join(', ')}
               </p>
             </div>}
@@ -652,7 +652,7 @@ export default function CreateRecipePage() {
             }} />}
               </div>
               <div className="min-w-0 flex-1">
-                <textarea value={step.text} onChange={e => updateStep(index, 'text', e.target.value)} placeholder={t('recipes.stepPlaceholder', 'Describe este paso')} aria-label={`Paso ${index + 1}`} className={`w-full min-h-[70px] resize-none rounded-2xl border bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border ${submitAttempted && index === 0 && !step.text?.trim() ? 'border-red-500' : 'border-stone-200'}`} />
+                <textarea value={step.text} onChange={e => updateStep(index, 'text', e.target.value)} placeholder={t('recipes.stepPlaceholder', 'Describe este paso')} aria-label={`Paso ${index + 1}`} className={`w-full min-h-[70px] resize-none rounded-2xl border bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border ${submitAttempted && index === 0 && !step.text?.trim() ? 'border-stone-950' : 'border-stone-200'}`} />
                 {step.image_url ? <div className="relative mt-1.5 overflow-hidden rounded-2xl">
                     <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-[120px] w-full object-cover" />
                     <button type="button" onClick={() => updateStep(index, 'image_url', '')} aria-label={`Eliminar imagen del paso ${index + 1}`} className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">

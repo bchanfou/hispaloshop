@@ -219,7 +219,7 @@ function B2BProductModal({
                 {saving ? 'Guardando...' : product?.b2b_enabled ? 'Guardar cambios' : i18n.t('b2_b_product.publicarEnCatalogoB2b', 'Publicar en catálogo B2B')}
               </button>
 
-              {product?.b2b_enabled && <button onClick={handleRemove} disabled={removing} className={`w-full py-3 mt-2.5 rounded-full bg-transparent text-red-600 text-sm font-medium border-none ${removing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer opacity-100'}`}>
+              {product?.b2b_enabled && <button onClick={handleRemove} disabled={removing} className={`w-full py-3 mt-2.5 rounded-full bg-transparent text-stone-950 underline underline-offset-2 text-sm font-medium border-none ${removing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer opacity-100'}`}>
                   {removing ? 'Eliminando...' : i18n.t('b2_b_product.quitarDelCatalogoB2b', 'Quitar del catálogo B2B')}
                 </button>}
             </div>

@@ -3,11 +3,11 @@ import { ShoppingCart, ArrowRight } from 'lucide-react';
 
 const V2 = {
   cream: '#ffffff',
-  black: '#0A0A0A',
+  black: '#0c0a09',
   green: '#0c0a09',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
+  stone: '#78716c',
+  border: '#e7e5e4',
+  surface: '#f5f5f4',
   white: '#fff',
   fontSans: 'Inter, sans-serif',
   radiusMd: 12,

@@ -127,7 +127,7 @@ export default function B2BPaymentPage() {
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: '#0A0A0A',
+              colorPrimary: '#0c0a09',
               fontFamily: 'Inter, sans-serif',
               borderRadius: '12px',
             },

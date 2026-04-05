@@ -17,13 +17,13 @@ const TYPE_BADGES = {
   },
   b2b: {
     label: 'B2B',
-    bg: '#E8EEF6',
-    color: '#3060A0'
+    bg: '#f5f5f4',
+    color: '#0c0a09'
   },
   collab: {
     label: 'Collab',
-    bg: '#F5F0F8',
-    color: '#8060B0'
+    bg: '#f5f5f4',
+    color: '#0c0a09'
   },
   story_reply: {
     label: 'Historia',

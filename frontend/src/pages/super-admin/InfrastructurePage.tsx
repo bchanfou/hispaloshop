@@ -36,7 +36,7 @@ function StatusDot({ status }) {
   const color =
     status === 'ok' ? '#0c0a09' :
     status === 'degraded' ? '#78716c' :
-    status === 'unknown' ? '#8E8E93' :
+    status === 'unknown' ? '#a8a29e' :
     '#44403c';
   return (
     <div

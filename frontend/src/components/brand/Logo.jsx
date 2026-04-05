@@ -29,7 +29,7 @@ export default function Logo({ variant = 'full', theme = 'light', size, onClick 
       fontWeight: '600',
       fontSize: '17px',
       letterSpacing: '-0.02em',
-      color: theme === 'dark' ? '#FFF' : '#0A0A0A',
+      color: theme === 'dark' ? '#FFF' : '#0c0a09',
     });
     e.target.parentElement.appendChild(fallback);
   };

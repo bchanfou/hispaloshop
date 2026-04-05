@@ -256,7 +256,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
                   <button
                     onClick={() => onDelete?.(postId)}
                     disabled={deleting}
-                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 font-medium hover:bg-stone-100 disabled:opacity-50"
                   >
                     <Trash2 size={16} /> {deleting ? 'Eliminando...' : 'Eliminar'}
                   </button>
@@ -329,7 +329,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
           aria-label={saved ? 'Quitar guardado' : 'Guardar'}
           className="bg-transparent border-none cursor-pointer p-0 flex ml-auto"
         >
-          <Bookmark size={24} fill={saved ? '#0A0A0A' : 'none'} className={saved ? 'text-stone-950' : 'text-stone-600'} />
+          <Bookmark size={24} fill={saved ? '#0c0a09' : 'none'} className={saved ? 'text-stone-950' : 'text-stone-600'} />
         </button>
       </div>
 

@@ -129,7 +129,7 @@ function MonthlyChart({
   return <div className="h-56">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} barGap={2}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
           <XAxis dataKey="month" tick={{
           fontSize: 11
         }} />
@@ -138,7 +138,7 @@ function MonthlyChart({
         }} tickFormatter={v => fmtMoney(v)} />
           <Tooltip contentStyle={{
           borderRadius: '8px',
-          border: '1px solid #e5e5e5',
+          border: '1px solid #e7e5e4',
           fontSize: '12px'
         }} formatter={(val, name) => [fmtMoney(val), name]} />
           <Bar dataKey="Bruto" fill="#d6d3d1" radius={[4, 4, 0, 0]} />

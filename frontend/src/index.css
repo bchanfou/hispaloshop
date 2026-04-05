@@ -86,16 +86,8 @@
   animation: fade-in-up var(--duration-normal, 250ms) var(--ease-smooth, ease) forwards;
 }
 
-/* ── Card Elevated Utility ── */
-.card-elevated {
-  @apply bg-white rounded-2xl shadow-card transition-shadow;
-}
-.card-elevated:hover {
-  @apply shadow-card-hover;
-}
-
 /* ── Focus Visible — keyboard navigation indicator ── */
 *:focus-visible {
-  outline: 2px solid #0c0a09;
+  outline: 2px solid var(--color-stone-950);
   outline-offset: 2px;
 }

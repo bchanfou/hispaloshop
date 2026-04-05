@@ -27,10 +27,10 @@ const InputField = ({
   const inputType = type === 'password' && showPassword ? 'text' : type;
 
   const getBorderColor = () => {
-    if (error && touched) return '#DC2626';
-    if (valid) return '#16A34A';
-    if (isFocused) return '#2D5A3D';
-    return '#E5E7EB';
+    if (error && touched) return '#0c0a09';
+    if (valid) return '#0c0a09';
+    if (isFocused) return '#0c0a09';
+    return '#e7e5e4';
   };
 
   return (

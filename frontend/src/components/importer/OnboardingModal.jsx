@@ -264,9 +264,9 @@ export default function OnboardingModal({
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: '#2563eb',
+              colorPrimary: '#0c0a09',
               colorText: '#0c0a09',
-              colorDanger: '#dc2626',
+              colorDanger: '#0c0a09',
               borderRadius: '12px'
             }
           }

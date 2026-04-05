@@ -124,7 +124,7 @@ export default function StoryStickerTool({
             <button
               key={frase}
               onClick={() => onAddSticker(frase, 'phrase')}
-              className="bg-white/[0.08] text-white border-none rounded-hs-md px-3.5 py-3 text-sm text-left cursor-pointer transition-colors hover:bg-white/15"
+              className="bg-white/[0.08] text-white border-none rounded-xl px-3.5 py-3 text-sm text-left cursor-pointer transition-colors hover:bg-white/15"
             >
               "{frase}"
             </button>

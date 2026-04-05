@@ -1,9 +1,9 @@
 import React from 'react';
 
 const V2 = {
-  black: '#0A0A0A',
-  stone: '#8A8881',
-  border: '#E5E2DA',
+  black: '#0c0a09',
+  stone: '#78716c',
+  border: '#e7e5e4',
   white: '#fff',
   fontSans: 'Inter, system-ui, sans-serif',
   radiusXl: 20,

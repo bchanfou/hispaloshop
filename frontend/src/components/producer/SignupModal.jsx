@@ -104,14 +104,14 @@ function getPasswordStrength(password) {
   if (score <= 1) {
     return {
       label: 'Baja',
-      color: '#dc2626',
+      color: '#a8a29e',
       width: '33%'
     };
   }
   if (score === 2 || score === 3) {
     return {
       label: 'Media',
-      color: '#d97706',
+      color: '#57534e',
       width: '66%'
     };
   }
@@ -373,7 +373,7 @@ export default function SignupModal({
             variables: {
               colorPrimary: '#0c0a09',
               colorText: '#0c0a09',
-              colorDanger: '#dc2626',
+              colorDanger: '#0c0a09',
               borderRadius: '12px'
             }
           }
@@ -922,9 +922,9 @@ export default function SignupModal({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-hs-bg">
+          <div className="flex-1 overflow-y-auto bg-stone-50">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
-              <aside className="w-full rounded-[28px] bg-hs-black p-6 text-white shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
+              <aside className="w-full rounded-[28px] bg-stone-950 p-6 text-white shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Lo que te llevas</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-white">
                   {successState ? 'Ya tienes la escalera construida.' : activePlan.name}

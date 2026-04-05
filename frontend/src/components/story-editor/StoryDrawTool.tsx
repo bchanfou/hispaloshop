@@ -9,15 +9,17 @@ interface StoryDrawToolProps {
   onDone: () => void;
 }
 
+// Paleta stone-only alineada con DNA (B&W). Herramienta creativa limitada
+// a gris/negro/blanco para mantener consistencia visual en stories.
 const DRAW_COLORS = [
-  '#1D1D1F',
-  '#FFFFFF',
-  '#1B6B40',
-  '#FF3B30',
-  '#FF9500',
-  '#007AFF',
-  '#AF52DE',
-  '#FFD60A',
+  '#0c0a09', // stone-950
+  '#44403c', // stone-700
+  '#78716c', // stone-500
+  '#a8a29e', // stone-400
+  '#d6d3d1', // stone-300
+  '#e7e5e4', // stone-200
+  '#f5f5f4', // stone-100
+  '#ffffff',
 ];
 
 const WIDTH_OPTIONS = [

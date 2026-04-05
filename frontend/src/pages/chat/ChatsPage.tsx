@@ -92,7 +92,7 @@ function ConversationItem({
   const deleteOpacity = useTransform(dragX, [-120, -60], [1, 0]);
   return <div className="relative overflow-hidden">
       {/* Delete backdrop */}
-      <motion.div className="absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-red-500" style={{
+      <motion.div className="absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-stone-950" style={{
       opacity: deleteOpacity
     }}>
         <Trash2 size={18} className="text-white" />

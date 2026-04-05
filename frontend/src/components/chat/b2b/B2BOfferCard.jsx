@@ -10,8 +10,8 @@ const STATUS_CONFIG = {
     label: 'Borrador'
   },
   sent: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    bg: 'bg-stone-100',
+    text: 'text-stone-700',
     label: 'Enviada'
   },
   accepted: {
@@ -20,13 +20,13 @@ const STATUS_CONFIG = {
     label: 'Aceptada'
   },
   rejected: {
-    bg: 'bg-red-50',
-    text: 'text-red-600',
+    bg: 'bg-stone-100',
+    text: 'text-stone-950',
     label: 'Rechazada'
   },
   offer_sent: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    bg: 'bg-stone-100',
+    text: 'text-stone-700',
     label: 'Enviada'
   },
   offer_accepted: {
@@ -35,13 +35,13 @@ const STATUS_CONFIG = {
     label: 'Aceptada'
   },
   offer_rejected: {
-    bg: 'bg-red-50',
-    text: 'text-red-600',
+    bg: 'bg-stone-100',
+    text: 'text-stone-950',
     label: 'Rechazada'
   },
   contract_pending: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    bg: 'bg-stone-100',
+    text: 'text-stone-700',
     label: 'Contrato pendiente'
   },
   contract_signed: {
@@ -60,8 +60,8 @@ const STATUS_CONFIG = {
     label: 'Pago confirmado'
   },
   in_transit: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    bg: 'bg-stone-100',
+    text: 'text-stone-700',
     label: "En tránsito"
   },
   delivered: {
@@ -188,7 +188,7 @@ export default function B2BOfferCard({
               </button>
             </>}
 
-          {showSenderActions && <button onClick={() => onCancel?.(offer)} className="flex items-center justify-center h-9 bg-transparent text-red-600 border-none text-[13px] font-medium cursor-pointer p-0">
+          {showSenderActions && <button onClick={() => onCancel?.(offer)} className="flex items-center justify-center h-9 bg-transparent text-stone-950 underline underline-offset-2 border-none text-[13px] font-medium cursor-pointer p-0">
               Cancelar oferta
             </button>}
 

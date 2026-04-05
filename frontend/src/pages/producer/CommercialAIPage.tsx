@@ -44,7 +44,7 @@ const TOOL_LABELS = {
   // Pipeline/goals
   manage_pipeline: { icon: Users, label: 'Pipeline', color: '#44403c' },
   manage_export_goals: { icon: Target, label: 'Objetivos', color: '#44403c' },
-  check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
+  check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#78716c' },
 };
 
 /* ───────── helpers ───────── */
@@ -113,7 +113,7 @@ function downloadPdfFromBase64(base64Data, filename = 'contrato_hispaloshop.pdf'
 
 function ToolCallCard({ toolCall }) {
   const [expanded, setExpanded] = useState(false);
-  const meta = TOOL_LABELS[toolCall.tool] || { icon: Globe, label: toolCall.tool, color: '#6E6E73' };
+  const meta = TOOL_LABELS[toolCall.tool] || { icon: Globe, label: toolCall.tool, color: '#78716c' };
   const Icon = meta.icon;
 
   const hasPdf = toolCall.tool === 'generate_contract'
@@ -747,7 +747,7 @@ export default function CommercialAIPage() {
                       </div>
                     )}
                     <div
-                      className={`px-4 py-3 ${isUser ? 'bg-[#0A0A0A] text-white rounded-[18px_18px_4px_18px]' : 'bg-stone-50 text-stone-950 rounded-[18px_18px_18px_4px]'}`}
+                      className={`px-4 py-3 ${isUser ? 'bg-[#0c0a09] text-white rounded-[18px_18px_4px_18px]' : 'bg-stone-50 text-stone-950 rounded-[18px_18px_18px_4px]'}`}
                     >
                       {isUser ? (
                         <p className="text-[15px] leading-relaxed m-0">
@@ -809,7 +809,7 @@ export default function CommercialAIPage() {
               aria-label="Enviar"
               className={`w-9 h-9 rounded-full border-none flex items-center justify-center shrink-0 transition-all duration-200 disabled:opacity-40 ${
                 input.trim()
-                  ? 'bg-[#0A0A0A] text-white cursor-pointer'
+                  ? 'bg-[#0c0a09] text-white cursor-pointer'
                   : 'bg-stone-50 text-stone-400 cursor-default'
               }`}
             >

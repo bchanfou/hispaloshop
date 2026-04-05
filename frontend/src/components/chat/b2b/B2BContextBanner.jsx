@@ -2,12 +2,14 @@ import React from 'react';
 import { FileText, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+// Context banner alineado al palette stone B&W. Antes usaba azules
+// decorativos para marcar contexto "B2B" — ahora diferencia por tipografía.
 const V2 = {
-  black: '#0A0A0A',
-  blue: '#3060A0',
-  blueLight: '#EBF0F8',
-  blueBorder: '#B0C8E8',
-  stone: '#8A8881',
+  black: '#0c0a09',
+  blue: '#0c0a09',     // stone-950 (antes #3060A0)
+  blueLight: '#f5f5f4', // stone-100
+  blueBorder: '#e7e5e4', // stone-200
+  stone: '#78716c',
   fontSans: 'Inter, sans-serif',
 };
 

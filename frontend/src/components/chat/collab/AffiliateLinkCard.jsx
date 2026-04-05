@@ -1,9 +1,9 @@
 import React from 'react';
 
 const V2 = {
-  black: '#0A0A0A',
+  black: '#0c0a09',
   green: '#0c0a09',
-  stone: '#8A8881',
+  stone: '#78716c',
   white: '#fff',
   greenLight: '#f5f5f4',
   greenBorder: '#d6d3d1',

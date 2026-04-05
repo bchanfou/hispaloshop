@@ -2,9 +2,9 @@ import React from 'react';
 import { FileText } from 'lucide-react';
 
 const V2 = {
-  black: '#0A0A0A',
-  surface: '#F0EDE8',
-  surfaceHover: '#E5E2DA',
+  black: '#0c0a09',
+  surface: '#f5f5f4',
+  surfaceHover: '#e7e5e4',
   fontSans: 'Inter, sans-serif',
 };
 

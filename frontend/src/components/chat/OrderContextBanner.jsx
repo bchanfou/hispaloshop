@@ -2,12 +2,12 @@ import React from 'react';
 import { Package, ChevronRight } from 'lucide-react';
 
 const V2 = {
-  black: '#0A0A0A',
+  black: '#0c0a09',
   green: '#0c0a09',
   greenLight: '#f5f5f4',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
+  stone: '#78716c',
+  border: '#e7e5e4',
+  surface: '#f5f5f4',
   fontSans: 'Inter, sans-serif',
 };
 

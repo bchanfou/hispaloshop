@@ -1442,7 +1442,7 @@ export default function ProducerProducts() {
       {/* Bulk actions bar */}
       {selectedIds.size > 0 && <div className="flex items-center gap-3 mb-3">
           <span className="text-sm text-stone-500">{selectedIds.size} seleccionado{selectedIds.size > 1 ? 's' : ''}</span>
-          <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors" data-testid="bulk-delete-btn">
+          <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-stone-950 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-stone-800 transition-colors" data-testid="bulk-delete-btn">
             <Trash2 className="w-3.5 h-3.5 inline mr-1" />
             Eliminar seleccionados ({selectedIds.size})
           </button>
@@ -1475,7 +1475,7 @@ export default function ProducerProducts() {
                 <button type="button" onClick={() => setShowDeleteModal(false)} disabled={bulkDeleting} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-full hover:bg-stone-50 transition-colors">
                   Cancelar
                 </button>
-                <button type="button" onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2" data-testid="confirm-bulk-delete">
+                <button type="button" onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-stone-950 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-stone-800 disabled:opacity-50 transition-colors flex items-center gap-2" data-testid="confirm-bulk-delete">
                   {bulkDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
                   Eliminar
                 </button>

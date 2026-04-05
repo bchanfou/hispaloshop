@@ -124,7 +124,7 @@ export default function B2BDisputePage() {
         <div className="mb-6">
           <div className="text-[10px] uppercase text-stone-500 font-semibold tracking-wider mb-2">DESCRIPCIÓN</div>
           <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={i18n.t('b2_b_dispute.describeDetalladamenteElProblemaMin', 'Describe detalladamente el problema (mínimo 50 caracteres)...')} className="w-full min-h-[120px] border border-stone-200 rounded-xl p-3 text-sm resize-y outline-none bg-white text-stone-950 box-border" />
-          <div className={`text-[10px] mt-1 ${description.length < 50 ? 'text-red-600' : 'text-stone-500'}`}>
+          <div className={`text-[10px] mt-1 ${description.length < 50 ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}>
             {description.length}/50 mínimo
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function B2BDisputePage() {
 
       {/* Submit button */}
       <div className="shrink-0 px-4 pb-5 pt-3 bg-white border-t border-stone-200">
-        <button onClick={handleSubmit} disabled={!isValid || loading} className={`w-full h-11 rounded-full border-none text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-150 ${isValid && !loading ? 'bg-red-600 text-white cursor-pointer' : 'bg-stone-200 text-stone-500 cursor-not-allowed'}`}>
+        <button onClick={handleSubmit} disabled={!isValid || loading} className={`w-full h-11 rounded-full border-none text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-150 ${isValid && !loading ? 'bg-stone-950 text-white cursor-pointer' : 'bg-stone-200 text-stone-500 cursor-not-allowed'}`}>
           {loading ? <>
               <Loader2 size={18} className="animate-spin" />
               Abriendo...
@@ -200,7 +200,7 @@ export default function B2BDisputePage() {
           opacity: 0
         }}>
               <div className="flex justify-center mb-3">
-                <AlertTriangle size={32} className="text-red-600" />
+                <AlertTriangle size={32} className="text-stone-950" />
               </div>
               <div className="text-[15px] font-semibold text-center text-stone-950 mb-2">
                 ¿Confirmas que quieres abrir una disputa formal?
@@ -212,7 +212,7 @@ export default function B2BDisputePage() {
                 <button onClick={() => setShowConfirm(false)} className="flex-1 h-11 rounded-full bg-white text-stone-950 border border-stone-200 text-sm font-medium cursor-pointer">
                   Cancelar
                 </button>
-                <button onClick={handleConfirm} className="flex-1 h-11 rounded-full bg-red-600 text-white border-none text-sm font-medium cursor-pointer">
+                <button onClick={handleConfirm} className="flex-1 h-11 rounded-full bg-stone-950 text-white border-none text-sm font-medium cursor-pointer">
                   Confirmar
                 </button>
               </div>

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
-const CHECKERBOARD_BG = 'repeating-conic-gradient(#d4d4d4 0% 25%, transparent 0% 50%) 0 0 / 12px 12px';
+const CHECKERBOARD_BG = 'repeating-conic-gradient(#d6d3d1 0% 25%, transparent 0% 50%) 0 0 / 12px 12px';
 function dataURLtoBlob(dataURL) {
   const [header, base64] = dataURL.split(',');
   const mime = header.match(/:(.*?);/)[1];

@@ -1,8 +1,8 @@
 import React from 'react';
 
 const V2 = {
-  black: '#0A0A0A',
-  surface: '#F0EDE8',
+  black: '#0c0a09',
+  surface: '#f5f5f4',
   fontSans: 'Inter, sans-serif',
 };
 

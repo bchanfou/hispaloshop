@@ -147,7 +147,7 @@ export default function InfluencerAnalytics() {
             <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={formattedChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
                   <XAxis dataKey="date" tick={{
                   fontSize: 11
                 }} />
@@ -156,7 +156,7 @@ export default function InfluencerAnalytics() {
                 }} />
                   <Tooltip contentStyle={{
                   backgroundColor: 'white',
-                  border: '1px solid #E6DFD6',
+                  border: '1px solid #e7e5e4',
                   borderRadius: '8px'
                 }} />
                   <Legend />
@@ -181,7 +181,7 @@ export default function InfluencerAnalytics() {
             <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={formattedChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
                   <XAxis dataKey="date" tick={{
                   fontSize: 11
                 }} />
@@ -190,7 +190,7 @@ export default function InfluencerAnalytics() {
                 }} tickFormatter={val => `€${val}`} />
                   <Tooltip contentStyle={{
                   backgroundColor: 'white',
-                  border: '1px solid #E6DFD6',
+                  border: '1px solid #e7e5e4',
                   borderRadius: '8px'
                 }} formatter={value => [`€${value.toFixed(2)}`, '']} />
                   <Legend />

@@ -89,7 +89,7 @@ export default function OverlayRenderer({ overlays, onMove, onRemove, onTap, sho
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full transition-colors ${
-            nearTrash ? 'bg-red-500 text-white scale-110' : 'bg-black/60 text-white/80'
+            nearTrash ? 'bg-stone-950 text-white scale-110 ring-2 ring-white/40' : 'bg-black/60 text-white/80'
           }`}
         >
           <span className="text-sm font-medium">{nearTrash ? 'Soltar para eliminar' : 'Arrastra aqui para eliminar'}</span>

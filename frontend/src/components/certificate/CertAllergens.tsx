@@ -26,7 +26,7 @@ export default function CertAllergens({ txt, allergens, certifications }: CertAl
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">{txt.contains}</p>
           <div className="flex flex-wrap gap-2">
             {allergens.map(a => (
-              <span key={a} className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-medium text-red-800">
+              <span key={a} className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-950">
                 <span className="text-sm">{getAllergenIcon(a)}</span> {a}
               </span>
             ))}
@@ -40,7 +40,7 @@ export default function CertAllergens({ txt, allergens, certifications }: CertAl
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">{txt.free_from}</p>
           <div className="flex flex-wrap gap-2">
             {freeFrom.map(f => (
-              <span key={f} className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 px-3 py-1.5 text-xs font-medium text-green-800">
+              <span key={f} className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-950">
                 <Check className="h-3 w-3" /> {f}
               </span>
             ))}

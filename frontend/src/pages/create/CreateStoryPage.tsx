@@ -782,7 +782,7 @@ export default function CreateStoryPage() {
 
       {/* Canvas */}
       <div className="flex-1 flex items-center justify-center pt-[104px] px-4 pb-4">
-        <div data-canvas ref={canvasRef} className="relative aspect-[9/16] max-h-[80vh] w-auto h-full rounded-hs-xl overflow-hidden" style={getCanvasBg()}>
+        <div data-canvas ref={canvasRef} className="relative aspect-[9/16] max-h-[80vh] w-auto h-full rounded-2xl overflow-hidden" style={getCanvasBg()}>
           {/* Video preview */}
           {videoPreviewUrl && <video src={videoPreviewUrl} className="absolute inset-0 w-full h-full object-cover z-[1]" autoPlay loop muted playsInline style={activeFilterCSS !== 'none' ? { filter: activeFilterCSS } : undefined} />}
 

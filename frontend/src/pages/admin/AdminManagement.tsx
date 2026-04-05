@@ -152,7 +152,7 @@ export default function AdminManagement() {
         );
       case 'suspended':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#dc2626]/20 text-[#dc2626]">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#0c0a09]/20 text-[#0c0a09]">
             <Ban className="w-3 h-3" />
             Suspended
           </span>
@@ -265,7 +265,7 @@ export default function AdminManagement() {
                         )}
                         <button
                           onClick={() => setShowDeleteConfirm(admin)}
-                          className="p-1.5 text-white/40 hover:text-[#dc2626] hover:bg-white/[0.06] rounded-2xl transition-colors"
+                          className="p-1.5 text-white/40 hover:text-[#0c0a09] hover:bg-white/[0.06] rounded-2xl transition-colors"
                           title="Delete"
                           data-testid={`delete-admin-${admin.user_id}`}
                         >
@@ -313,7 +313,7 @@ export default function AdminManagement() {
 
             <form onSubmit={handleCreateAdmin} className="space-y-4">
               {formError && (
-                <div className="p-3 bg-[#dc2626]/10 border border-[#dc2626]/20 rounded-2xl text-[#dc2626] text-sm">
+                <div className="p-3 bg-[#0c0a09]/10 border border-[#0c0a09]/20 rounded-2xl text-[#0c0a09] text-sm">
                   {formError}
                 </div>
               )}
@@ -432,8 +432,8 @@ export default function AdminManagement() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-[#ffffff] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
             <div className="text-center">
-              <div className="w-12 h-12 bg-[#dc2626]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-6 h-6 text-[#dc2626]" />
+              <div className="w-12 h-12 bg-[#0c0a09]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6 text-[#0c0a09]" />
               </div>
               <h3 className="text-lg font-bold text-white mb-2">
                 Eliminar cuenta admin
@@ -453,7 +453,7 @@ export default function AdminManagement() {
                 </button>
                 <button
                   onClick={() => handleDeleteAdmin(showDeleteConfirm.user_id)}
-                  className="flex-1 px-4 py-2.5 bg-[#dc2626] text-white rounded-2xl hover:bg-[#dc2626] transition-colors text-sm font-semibold"
+                  className="flex-1 px-4 py-2.5 bg-[#0c0a09] text-white rounded-2xl hover:bg-[#0c0a09] transition-colors text-sm font-semibold"
                   data-testid="confirm-delete-admin"
                 >
                   {t('common.delete')}

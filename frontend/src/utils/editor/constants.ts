@@ -32,8 +32,8 @@ export const EDITOR_FONTS = [
   { key: 'display', label: 'Display', family: '"Playfair Display", Georgia, serif' },
 ];
 
-// Colors for text/draw
-export const EDITOR_COLORS = ['#ffffff', '#0c0a09', '#78716c', '#dc2626', '#2563eb'];
+// Colors for text/draw — stone palette only (B&W DNA)
+export const EDITOR_COLORS = ['#ffffff', '#0c0a09', '#44403c', '#78716c', '#a8a29e'];
 
 // Text styles
 export const TEXT_STYLES = ['clean', 'box', 'outline'] as const;
