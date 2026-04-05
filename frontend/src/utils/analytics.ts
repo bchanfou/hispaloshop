@@ -10,6 +10,7 @@ declare global {
   interface Window {
     gtag?: (...args: any[]) => void;
     fbq?: (...args: any[]) => void;
+    posthog?: { capture?: (event: string, props?: Record<string, any>) => void };
     __posthogInit?: () => void;
   }
 }
@@ -89,6 +90,42 @@ export const initAnalyticsOnConsent = (): void => {
   }
 };
 
+/**
+ * Generic structured event tracker — consent-gated.
+ *
+ * Use this for product events (signup flow, onboarding steps, feature usage).
+ * Gated behind GDPR analytics consent from ConsentBanner.
+ *
+ * Future providers (PostHog / Mixpanel / GA4) can be wired by adding their
+ * script to index.html — calls below will start flowing automatically.
+ */
+export const trackEvent = (
+  eventName: string,
+  properties: Record<string, any> = {},
+): void => {
+  try {
+    if (typeof window === 'undefined') return;
+    if (!hasAnalyticsConsent()) return;
+
+    // In development, log the event to the console for visibility while
+    // providers are not yet wired. Noop in production builds.
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('[ANALYTICS]', eventName, properties);
+    }
+
+    // Fire to any provider that happens to be loaded.
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, properties);
+    }
+    if (typeof window.posthog?.capture === 'function') {
+      window.posthog.capture(eventName, properties);
+    }
+  } catch {
+    // Never throw from analytics.
+  }
+};
+
 export { hasAnalyticsConsent };
 
-export default { trackPageVisit, trackMarketingEvent, usePageTracking, initAnalyticsOnConsent };
+export default { trackPageVisit, trackMarketingEvent, trackEvent, usePageTracking, initAnalyticsOnConsent };

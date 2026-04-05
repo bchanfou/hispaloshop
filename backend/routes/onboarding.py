@@ -81,7 +81,21 @@ async def _save_interests_for_user(user_id: str, data: dict) -> Dict[str, Any]:
     return {"success": True, "step": 2, "interests": interests}
 
 
-async def _save_location_for_user(user_id: str, data: dict) -> Dict[str, Any]:
+async def _save_location_for_user(
+    user_id: str,
+    data: dict,
+    *,
+    require_postal_code: bool = False,
+) -> Dict[str, Any]:
+    """
+    Save the user's onboarding location.
+
+    Consumer onboarding (section 1.1) asks only for country (required) and
+    city (optional). Postal code is accepted when provided but NOT required
+    by default — shipping flows prompt for it at checkout time when actually
+    needed. Callers that need stricter validation can pass
+    require_postal_code=True (no existing caller does — reserved for future).
+    """
     country = str(data.get("country", "")).strip().upper()
     postal_code = str(data.get("postal_code", "")).strip()
     city = str(data.get("city", "")).strip()
@@ -89,7 +103,7 @@ async def _save_location_for_user(user_id: str, data: dict) -> Dict[str, Any]:
 
     if not country:
         raise HTTPException(status_code=400, detail="Country is required")
-    if not postal_code:
+    if require_postal_code and not postal_code:
         raise HTTPException(status_code=400, detail="Postal code is required")
 
     location = {
@@ -99,18 +113,16 @@ async def _save_location_for_user(user_id: str, data: dict) -> Dict[str, Any]:
         "coordinates": coordinates,
     }
 
-    await db.users.update_one(
-        {"user_id": user_id},
-        {
-            "$set": {
-                "country": country,
-                "postal_code": postal_code,
-                "location": location,
-                "onboarding_step": 3,
-                "updated_at": _now_iso(),
-            }
-        },
-    )
+    update_set = {
+        "country": country,
+        "location": location,
+        "onboarding_step": 3,
+        "updated_at": _now_iso(),
+    }
+    if postal_code:
+        update_set["postal_code"] = postal_code
+
+    await db.users.update_one({"user_id": user_id}, {"$set": update_set})
 
     return {"success": True, "step": 3, "location": location}
 

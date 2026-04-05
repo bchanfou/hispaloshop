@@ -206,7 +206,9 @@ const ImporterCatalogPage = lazy(() => import('./pages/importer/ImporterCatalogP
 const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPage'));
 
 // Registration flows
-const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
+// Consumer multi-step register (5 pre-verify steps) archived in section 1.1
+// of the launch roadmap. Flow consolidated into RegisterPage. Route kept as
+// redirect to preserve any shared URL or SEO value.
 
 /** Route guard: redirects non-ELITE producers/importers to the plan/pricing page.
  * Reads from localStorage cache (set by ProducerPlanContext when mounted).
@@ -504,7 +506,7 @@ function AppRouter() {
               <Route path="/auth/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
               <Route path="/register" element={<AuthRedirect><AuthLayout><RegisterPage /></AuthLayout></AuthRedirect>} />
               <Route path="/register/new" element={<Navigate to="/register" replace />} />
-              <Route path="/register/consumer" element={<ConsumerRegister />} />
+              <Route path="/register/consumer" element={<Navigate to="/register" replace />} />
               <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/register/producer" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />

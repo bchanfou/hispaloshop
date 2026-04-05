@@ -1,7 +1,9 @@
 """
 Config, Locale, Categories, Regions, Exchange Rates routes.
 """
-from fastapi import APIRouter, HTTPException, Depends
+import hashlib
+import httpx
+from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -146,6 +148,113 @@ async def delete_category(category_id: str, user: User = Depends(get_current_use
 
 
 # ── Locale & Configuration ───────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════════════════
+# IP geo-detection — used by consumer onboarding (1.1) to pre-fill country
+# ───────────────────────────────────────────────────────────────────────────
+# Provider: ipapi.co (1000 req/day free, HTTPS).
+# Cache: db.ip_geo_cache with TTL 24h to protect the free quota.
+# Graceful degradation: any failure → {country: null, city: null, source: "fallback"}.
+#   Frontend detects country: null and shows the country dropdown without pre-selection.
+# Privacy: IPs are stored as SHA-256 hashes (cache key), never logged in cleartext.
+# V2 upgrade path: if we ever put Cloudflare in front of the backend,
+#   request.headers.get("CF-IPCountry") is instant + unlimited + free —
+#   replace the ipapi.co call with that header read.
+# ═══════════════════════════════════════════════════════════════════════════
+def _client_ip(request: Request) -> str:
+    """Extract the client IP, honoring X-Forwarded-For (Railway sets this)."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else ""
+
+
+def _hash_ip(ip: str) -> str:
+    """Return a SHA-256 hex digest of the IP — stable cache key, no cleartext IP stored."""
+    return hashlib.sha256(ip.encode("utf-8")).hexdigest()
+
+
+@router.get("/config/geo")
+async def get_client_geo(request: Request):
+    """
+    Best-effort IP geo-location. Returns country + city when available.
+    Never raises — on any failure returns {"country": null, "city": null, "source": "fallback"}.
+    """
+    ip = _client_ip(request)
+    if not ip:
+        return {"country": None, "city": None, "source": "fallback"}
+
+    # Localhost / private ranges → no geo possible
+    if ip in ("127.0.0.1", "::1") or ip.startswith(("10.", "172.16.", "192.168.")):
+        return {"country": None, "city": None, "source": "localhost"}
+
+    ip_key = _hash_ip(ip)
+    now = datetime.now(timezone.utc)
+
+    # Cache lookup (24h TTL)
+    try:
+        cached = await db.ip_geo_cache.find_one({"ip_hash": ip_key}, {"_id": 0})
+        if cached:
+            cached_at = cached.get("cached_at")
+            if isinstance(cached_at, str):
+                cached_at = datetime.fromisoformat(cached_at)
+            if cached_at and cached_at.tzinfo is None:
+                cached_at = cached_at.replace(tzinfo=timezone.utc)
+            if cached_at and (now - cached_at).total_seconds() < 86400:
+                return {
+                    "country": cached.get("country"),
+                    "city": cached.get("city"),
+                    "source": "cache",
+                }
+    except Exception as exc:
+        logger.debug("[GEO] cache lookup failed (non-fatal): %s", exc)
+
+    # Cache miss → query ipapi.co
+    country: Optional[str] = None
+    city: Optional[str] = None
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as http:
+            resp = await http.get(f"https://ipapi.co/{ip}/json/")
+        if resp.status_code == 200:
+            data = resp.json()
+            raw_country = (data.get("country_code") or "").strip().upper() or None
+            raw_city = (data.get("city") or "").strip() or None
+            # ipapi.co returns error envelopes with 200 status sometimes
+            if not data.get("error"):
+                country = raw_country
+                city = raw_city
+        elif resp.status_code == 429:
+            logger.warning("[GEO] ipapi.co rate limit reached, falling back")
+        else:
+            logger.info("[GEO] ipapi.co returned status=%d, falling back", resp.status_code)
+    except Exception as exc:
+        # Network error, timeout, DNS — graceful fallback
+        logger.info("[GEO] ipapi.co unreachable (%s), falling back", type(exc).__name__)
+
+    # Cache the result (even nulls — avoids hammering on repeat misses)
+    try:
+        await db.ip_geo_cache.update_one(
+            {"ip_hash": ip_key},
+            {
+                "$set": {
+                    "ip_hash": ip_key,
+                    "country": country,
+                    "city": city,
+                    "cached_at": now,
+                }
+            },
+            upsert=True,
+        )
+    except Exception as exc:
+        logger.debug("[GEO] cache write failed (non-fatal): %s", exc)
+
+    logger.info("[GEO] ipapi.co resolved country=%s", country or "none")
+    return {
+        "country": country,
+        "city": city,
+        "source": "ipapi" if country else "fallback",
+    }
+
 
 @router.get("/config/countries")
 async def get_countries():

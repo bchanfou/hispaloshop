@@ -394,10 +394,7 @@ export default function RegisterPage() {
           <button
             key={role.key}
             type="button"
-            onClick={() => {
-              if (role.key === 'customer') { navigate('/register/consumer'); return; }
-              setActiveRole(role.key);
-            }}
+            onClick={() => setActiveRole(role.key)}
             aria-label={`Registrarse como ${role.label}`}
             aria-pressed={activeRole === role.key}
             className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors ${
@@ -701,7 +698,7 @@ export default function RegisterPage() {
         )}
 
         {/* Terms checkbox */}
-        <label className="flex items-start gap-2.5 cursor-pointer text-[13px] text-stone-500 leading-relaxed mt-1">
+        <label className="flex items-start gap-2.5 cursor-pointer text-[13px] text-stone-600 leading-relaxed mt-1">
           <input
             type="checkbox"
             checked={termsAccepted}
@@ -712,14 +709,17 @@ export default function RegisterPage() {
             className="w-[18px] h-[18px] mt-0.5 accent-stone-950 cursor-pointer flex-shrink-0"
           />
           <span>
-            {t('register.acceptThe', 'Acepto los')}{' '}
+            {t('register.consentCopy', 'Acepto los')}{' '}
             <Link to="/terms" className="text-stone-950 underline">
-              {t('register.termsAndConditions', 'Términos y condiciones')}
+              {t('register.termsShort', 'términos')}
             </Link>
             {' '}{t('register.andThe', 'y la')}{' '}
             <Link to="/privacy" className="text-stone-950 underline">
-              {t('register.privacyPolicy', 'Política de privacidad')}
-            </Link>
+              {t('register.privacyShort', 'política de privacidad')}
+            </Link>.{' '}
+            <span className="text-stone-400">
+              {t('register.consentWithdraw', 'Puedes retirar este consentimiento cuando quieras desde tu perfil.')}
+            </span>
           </span>
         </label>
         {errors.terms && <p className="text-xs text-stone-600 -mt-1.5">{errors.terms}</p>}
