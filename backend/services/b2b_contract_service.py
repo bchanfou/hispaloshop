@@ -36,6 +36,8 @@ from reportlab.platypus import (
 
 from services.auth_helpers import send_email
 
+_FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -369,7 +371,7 @@ async def notify_contract_ready(operation: dict, db):
   <p><strong>Producto:</strong> {offer.get('product_name', '')}<br>
   <strong>Cantidad:</strong> {offer.get('quantity', '')} {offer.get('unit', '')}<br>
   <strong>Total:</strong> €{offer.get('total_price', 0):.2f}</p>
-  <a href="https://www.hispaloshop.com/b2b/contract/{operation_id}"
+  <a href="{_FRONTEND_URL}/b2b/contract/{operation_id}"
      style="display:inline-block; background:#0A0A0A; color:#fff; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:500;">
     Ver contrato →
   </a>
@@ -435,7 +437,7 @@ async def notify_contract_signed(operation: dict, db):
   <strong>Producto:</strong> {offer.get('product_name', '')}<br>
   <strong>Total:</strong> €{offer.get('total_price', 0):.2f}</p>
   <p>El contrato sellado está disponible en tu panel de operaciones B2B.</p>
-  <a href="https://www.hispaloshop.com/b2b/contract/{operation_id}"
+  <a href="{_FRONTEND_URL}/b2b/contract/{operation_id}"
      style="display:inline-block; background:#0A0A0A; color:#fff; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:500;">
     Ver contrato firmado →
   </a>

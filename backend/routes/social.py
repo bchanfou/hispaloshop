@@ -1570,6 +1570,12 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     # Keep followers_count in sync
     await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": 1}})
     await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": 1}})
+    # Feed preference signal: boost affinity toward this seller/creator
+    try:
+        from services.feed_preferences import update_preferences
+        await update_preferences(user_id=user.user_id, action="follow", seller_id=user_id)
+    except Exception:
+        pass
     # Notify followed user (fire-and-forget)
     try:
         now = datetime.now(timezone.utc)

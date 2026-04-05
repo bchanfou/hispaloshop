@@ -42,18 +42,18 @@ class GamificationService:
         old_level = self._get_level_for_xp(new_xp - amount)
         new_level = self._get_level_for_xp(new_xp)
         if new_level["level"] > old_level["level"]:
-            await self.db.notifications.insert_one({
-                "user_id": user_id,
-                "type": "level_up",
-                "title": f"¡Has subido al nivel {new_level['level']}!",
-                "body": f"Enhorabuena, ahora eres {new_level['name']}.",
-                "data": {"level": new_level["level"], "name": new_level["name"]},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
+            try:
+                from services.notifications.dispatcher_service import notification_dispatcher
+                await notification_dispatcher.send_notification(
+                    user_id=user_id,
+                    title=f"¡Has subido al nivel {new_level['level']}!",
+                    body=f"Enhorabuena, ahora eres {new_level['name']}.",
+                    notification_type="level_up",
+                    channels=["in_app", "push"],
+                    data={"level": new_level["level"], "name": new_level["name"]},
+                )
+            except Exception as e:
+                logger.warning(f"[GAMIFICATION] Level-up notification failed for {user_id}: {e}")
         return {"xp_gained": amount, "total_xp": new_xp, "level": new_level}
 
     def _get_level_for_xp(self, xp):
@@ -96,10 +96,11 @@ class GamificationService:
             result = await self.db.orders.aggregate(pipeline).to_list(1)
             if result:
                 weekly_spent = result[0].get("total", 0)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[GAMIFICATION] weekly_spent aggregation failed for {user_id}: {e}")
 
-        # Weekly goal: read from country_configs if available, fallback to default
+        # Weekly goal: read from country_configs if available, fallback to default.
+        # `is not None` check so an explicit 0 (no goal) is respected.
         weekly_goal = DEFAULT_WEEKLY_GOAL_CENTS
         try:
             user_doc = await self.db.users.find_one({"user_id": user_id}, {"country": 1})
@@ -108,10 +109,10 @@ class GamificationService:
                     {"country_code": user_doc["country"]},
                     {"weekly_goal_cents": 1},
                 )
-                if cc and cc.get("weekly_goal_cents"):
+                if cc and cc.get("weekly_goal_cents") is not None:
                     weekly_goal = cc["weekly_goal_cents"]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[GAMIFICATION] Failed to read weekly_goal for {user_id}: {e}")
         total_purchases = await self.db.orders.count_documents({
             "user_id": user_id,
             "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},

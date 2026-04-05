@@ -170,24 +170,18 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
     }
     await db.influencer_commissions.insert_one(commission_record)
 
-    # Notify influencer about new commission (B-09)
-    # NOTE: total_commission_earned is incremented below alongside total_sales_generated
+    # Notify influencer about new commission (via dispatcher → respects quiet hours + push)
     try:
-        influencer_user = await db.users.find_one({"user_id": influencer_id})
-        if influencer_user:
-            await db.notifications.insert_one({
-                "user_id": influencer_id,
-                "type": "commission_earned",
-                "title": "Nueva comisión generada",
-                "body": f"Has ganado {influencer_amount:.2f}€ de comisión por un pedido de {_round_money(order_value)}€",
-                "action_url": "/influencer/dashboard",
-                "data": {"order_id": order_id},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
+        from services.notifications.dispatcher_service import notification_dispatcher
+        await notification_dispatcher.send_notification(
+            user_id=influencer_id,
+            title="Nueva comisión generada",
+            body=f"Has ganado {influencer_amount:.2f}€ de comisión por un pedido de {_round_money(order_value)}€",
+            notification_type="commission_earned",
+            channels=["in_app", "push"],
+            data={"order_id": order_id},
+            action_url="/influencer/dashboard",
+        )
     except Exception as e:
         logger.warning(f"[COMMISSION] Non-critical notification error for order {order_id}: {e}")
 
@@ -614,19 +608,16 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
             if pid and pid not in producer_ids_seen:
                 producer_ids_seen.add(pid)
                 item_count = sum(1 for li in order.get("line_items", []) if (li.get("producer_id") or li.get("seller_id")) == pid)
-                await db.notifications.insert_one({
-                    "user_id": pid,
-                    "type": "order_confirmed",
-                    "title": "Nuevo pedido recibido",
-                    "body": f"Tienes un nuevo pedido con {item_count} producto(s). Prepáralo cuanto antes.",
-                    "action_url": "/producer/orders",
-                    "data": {"order_id": order_id},
-                    "channels": ["in_app"],
-                    "status_by_channel": {"in_app": "sent"},
-                    "read_at": None,
-                    "created_at": datetime.now(timezone.utc),
-                    "sent_at": datetime.now(timezone.utc),
-                })
+                from services.notifications.dispatcher_service import notification_dispatcher
+                await notification_dispatcher.send_notification(
+                    user_id=pid,
+                    title="Nuevo pedido recibido",
+                    body=f"Tienes un nuevo pedido con {item_count} producto(s). Prepáralo cuanto antes.",
+                    notification_type="order_confirmed",
+                    channels=["in_app", "push"],
+                    data={"order_id": order_id},
+                    action_url="/producer/orders",
+                )
     except Exception as e:
         logger.warning(f"[PAYMENT] Non-critical producer notification error for {order_id}: {e}")
 
@@ -1741,19 +1732,16 @@ async def stripe_webhook(request: Request):
                     await db.stock_holds.delete_many({"user_id": user_id})
             if user_id and order_id:
                 try:
-                    await db.notifications.insert_one({
-                        "user_id": user_id,
-                        "type": "order_payment_failed",
-                        "title": "Pago fallido",
-                        "body": f"El pago de tu pedido #{str(order_id)[-4:].upper()} no se ha completado.",
-                        "action_url": f"/orders/{order_id}",
-                        "data": {"order_id": order_id},
-                        "channels": ["in_app"],
-                        "status_by_channel": {"in_app": "sent"},
-                        "read_at": None,
-                        "created_at": datetime.now(timezone.utc),
-                        "sent_at": datetime.now(timezone.utc),
-                    })
+                    from services.notifications.dispatcher_service import notification_dispatcher
+                    await notification_dispatcher.send_notification(
+                        user_id=user_id,
+                        title="Pago fallido",
+                        body=f"El pago de tu pedido #{str(order_id)[-4:].upper()} no se ha completado.",
+                        notification_type="order_payment_failed",
+                        channels=["in_app", "push", "email"],
+                        data={"order_id": order_id},
+                        action_url=f"/orders/{order_id}",
+                    )
                 except Exception as notif_err:
                     logger.error(f"[WEBHOOK] Failed to create payment_failed notification for {user_id}: {notif_err}")
 
@@ -2082,23 +2070,20 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
                     {"$inc": {"stock": qty, "stock_quantity": qty}}
                 )
 
-    # 3c. Notify customer about refund
+    # 3c. Notify customer about refund (via dispatcher)
     try:
         customer_id = order.get("user_id")
         if customer_id:
-            await db.notifications.insert_one({
-                "user_id": customer_id,
-                "type": "order_update",
-                "title": "Pedido reembolsado",
-                "body": f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
-                "action_url": f"/orders/{order_id}",
-                "data": {"order_id": order_id},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
+            from services.notifications.dispatcher_service import notification_dispatcher
+            await notification_dispatcher.send_notification(
+                user_id=customer_id,
+                title="Pedido reembolsado",
+                body=f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
+                notification_type="order_refunded",
+                channels=["in_app", "push", "email"],
+                data={"order_id": order_id},
+                action_url=f"/orders/{order_id}",
+            )
     except Exception as e:
         logger.warning(f"[REFUND] Failed to send refund notification: {e}")
     
@@ -2140,14 +2125,22 @@ async def get_commission_audit(
     date_to: Optional[str] = None,
     limit: int = 500,
 ):
-    """Admin: get all commission transactions for audit trail."""
+    """Admin: get commission transactions for audit trail (country-scoped)."""
     await require_role(user, ["admin", "super_admin"])
     query = {}
     if date_from:
         query["created_at"] = {"$gte": date_from}
     if date_to:
         query.setdefault("created_at", {})["$lte"] = date_to
-    
+
+    # Country scope: admins only see their own country's transactions
+    if user.role == "admin":
+        from routes.admin_dashboard import _get_scoped_seller_ids
+        scoped_sellers = await _get_scoped_seller_ids(user)
+        if not scoped_sellers:
+            return {"transactions": [], "count": 0}
+        query["seller_id"] = {"$in": scoped_sellers}
+
     txns = await db.commission_transactions.find(query, {"_id": 0}).sort("created_at", -1).to_list(limit)
     return {"transactions": txns, "count": len(txns)}
 
@@ -2158,20 +2151,33 @@ async def export_commission_audit(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
 ):
-    """Admin: export commission audit trail as CSV."""
+    """Admin: export commission audit trail as CSV (country-scoped)."""
     await require_role(user, ["admin", "super_admin"])
-    
+
     query = {}
     if date_from:
         query["created_at"] = {"$gte": date_from}
     if date_to:
         query.setdefault("created_at", {})["$lte"] = date_to
-    
-    # Get all commission-related data: orders with commission_data
-    orders = await db.orders.find(
-        {**query, "commission_data": {"$exists": True}},
-        {"_id": 0}
-    ).sort("created_at", -1).to_list(2000)
+
+    # Country scope: admins only see their own country's orders
+    if user.role == "admin":
+        from routes.admin_dashboard import _get_scoped_seller_ids
+        scoped_sellers = await _get_scoped_seller_ids(user)
+        if not scoped_sellers:
+            orders = []
+        else:
+            query["line_items.producer_id"] = {"$in": scoped_sellers}
+            orders = await db.orders.find(
+                {**query, "commission_data": {"$exists": True}},
+                {"_id": 0}
+            ).sort("created_at", -1).to_list(2000)
+    else:
+        # Get all commission-related data: orders with commission_data
+        orders = await db.orders.find(
+            {**query, "commission_data": {"$exists": True}},
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(2000)
     
     import csv
     output = io.StringIO()
@@ -3368,7 +3374,7 @@ async def check_and_notify_influencer_withdrawal_available(influencer_id: str, d
                     </div>
                     <p>Hola {full_name}, has alcanzado <strong>&euro;{available_balance:.2f}</strong> en comisiones disponibles.</p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://www.hispaloshop.com/influencer/dashboard" 
+                        <a href="{FRONTEND_URL}/influencer/dashboard"
                            style="display: inline-block; background: #1C1C1C; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                             Ir a mi panel de influencer
                         </a>

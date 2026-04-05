@@ -440,26 +440,42 @@ async def get_growth_analytics(
     days: int = Query(30, le=90),
     user: User = Depends(get_current_user),
 ):
-    """Growth analytics for admin panel (admin/super_admin only)."""
+    """Growth analytics for admin panel (country-scoped for admins, global for super_admin)."""
     if user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Admin access required")
 
     db = get_db()
     since = datetime.now(timezone.utc) - timedelta(days=days)
 
+    # Country scope: admins only see interactions from their country
+    country_match: dict = {}
+    if user.role == "admin":
+        admin_doc = await db.users.find_one(
+            {"user_id": user.user_id}, {"_id": 0, "assigned_country": 1}
+        )
+        admin_country = (admin_doc or {}).get("assigned_country")
+        if not admin_country:
+            raise HTTPException(
+                status_code=403,
+                detail="Admin account has no assigned country",
+            )
+        country_match = {"country": admin_country}
+
     # Run heavy queries in parallel
     top_content, total_interactions, content_driven_carts, content_driven_purchases = await asyncio.gather(
         get_top_converting_content(limit=10, days=days),
-        db.growth_interactions.count_documents({"created_at": {"$gte": since}}),
+        db.growth_interactions.count_documents({"created_at": {"$gte": since}, **country_match}),
         db.growth_interactions.count_documents({
             "interaction_type": "add_to_cart",
             "context_id": {"$ne": None},
             "created_at": {"$gte": since},
+            **country_match,
         }),
         db.growth_interactions.count_documents({
             "interaction_type": "purchase",
             "context_id": {"$ne": None},
             "created_at": {"$gte": since},
+            **country_match,
         }),
     )
 
@@ -470,6 +486,7 @@ async def get_growth_analytics(
             "interaction_type": {"$in": ["product_click", "add_to_cart", "purchase"]},
             "created_at": {"$gte": since},
             "context_id": {"$ne": None},
+            **country_match,
         }},
         {"$group": {
             "_id": "$entity_id",
@@ -488,6 +505,7 @@ async def get_growth_analytics(
             "context_id": {"$ne": None},
             "interaction_type": {"$in": ["product_click", "add_to_cart", "purchase"]},
             "created_at": {"$gte": since},
+            **country_match,
         }},
         {"$group": {
             "_id": "$context_id",

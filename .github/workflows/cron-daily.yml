@@ -1,0 +1,65 @@
+name: Daily cron tasks
+
+# Run daily at 06:00 UTC (07:00 CET winter, 08:00 CEST summer)
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  update-exchange-rates:
+    name: Update ECB exchange rates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call update-exchange-rates endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CRON_ADMIN_TOKEN: ${{ secrets.CRON_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ] || [ -z "$CRON_ADMIN_TOKEN" ]; then
+            echo "Missing BACKEND_URL or CRON_ADMIN_TOKEN secret"
+            exit 1
+          fi
+          curl -sS -X POST "$BACKEND_URL/api/admin/cron/update-exchange-rates" \
+            -H "Authorization: Bearer $CRON_ADMIN_TOKEN" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
+
+  grace-period-check:
+    name: Grace period check (subscription downgrades)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call grace-period-check endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CRON_ADMIN_TOKEN: ${{ secrets.CRON_ADMIN_TOKEN }}
+        run: |
+          curl -sS -X POST "$BACKEND_URL/api/admin/cron/grace-period-check" \
+            -H "Authorization: Bearer $CRON_ADMIN_TOKEN" \
+            --fail-with-body
+
+  influencer-auto-payouts:
+    name: Influencer auto-payouts (D+15, >=20€)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call influencer-auto-payouts endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CRON_ADMIN_TOKEN: ${{ secrets.CRON_ADMIN_TOKEN }}
+        run: |
+          curl -sS -X POST "$BACKEND_URL/api/admin/cron/influencer-auto-payouts" \
+            -H "Authorization: Bearer $CRON_ADMIN_TOKEN" \
+            --fail-with-body
+
+  attribution-expiry:
+    name: Expire old attributions (18 months)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call attribution-expiry endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CRON_ADMIN_TOKEN: ${{ secrets.CRON_ADMIN_TOKEN }}
+        run: |
+          curl -sS -X POST "$BACKEND_URL/api/admin/cron/attribution-expiry" \
+            -H "Authorization: Bearer $CRON_ADMIN_TOKEN" \
+            --fail-with-body

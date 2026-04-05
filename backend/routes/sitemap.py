@@ -22,7 +22,8 @@ STATIC_PAGES = [
     {"loc": "/soy-importador", "changefreq": "monthly", "priority": "0.6"},
 ]
 
-BASE_URL = "https://www.hispaloshop.com"
+import os
+BASE_URL = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
 
 
 def _escape_xml(text: str) -> str:

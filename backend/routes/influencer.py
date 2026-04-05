@@ -253,8 +253,11 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
     if existing:
         raise HTTPException(status_code=400, detail="Este código ya está en uso. Elige otro.")
     
-    # Validate discount_percent (allowed: 5, 10, 15, 20)
-    discount_pct = input.discount_percent if input.discount_percent in (5, 10, 15, 20) else 10
+    # Platform rule: influencer codes always offer 10% first-purchase discount.
+    # The influencer's requested value is ignored — rate is fixed at platform level.
+    # This keeps the buyer's discount in sync with what calculate_order_split
+    # absorbs internally (FIRST_PURCHASE_DISCOUNT_PCT = 10).
+    discount_pct = 10
 
     # Create the discount code (inactive until admin approves)
     code_id = f"code_{uuid.uuid4().hex[:12]}"
@@ -273,6 +276,7 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
         "start_date": None,
         "end_date": None,
         "is_influencer_code": True,
+        "first_purchase_only": True,  # Platform enforces first-purchase only for influencer codes
         "influencer_id": influencer["influencer_id"],
         "creator_id": user.user_id,
         "influencer_name": influencer.get("full_name", ""),

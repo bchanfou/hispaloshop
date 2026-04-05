@@ -3,7 +3,9 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Globe, TrendingUp, ArrowRight, Lock, FileText,
-  BarChart3, Users, Sparkles, ChevronRight,
+  BarChart3, Users, Sparkles, ChevronRight, Bell, Target,
+  Calendar, DollarSign, Mail, ClipboardList, Briefcase,
+  RotateCw, X,
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../../context/AuthContext';
@@ -14,26 +16,34 @@ import { useTranslation } from 'react-i18next';
 
 /* ───────── constants ───────── */
 
-const SUGGESTIONS = [
-  { icon: '🇩🇪', text: 'Analiza Alemania para aceite' },
-  { icon: '📊', text: '¿Qué mercados me recomiendas?' },
-  { icon: '📝', text: 'Genera un contrato B2B' },
-  { icon: '🇫🇷', text: 'Regulaciones Francia' },
-  { icon: '📈', text: 'Predice demanda 6 meses' },
-];
-
-const OPPORTUNITIES = [
-  { flag: '🇩🇪', country: 'Alemania', product: 'Aceite de oliva ecológico', trend: '+34%', period: 'Q2 2026' },
-  { flag: '🇫🇷', country: 'Francia', product: 'Jamón ibérico', trend: '+22%', period: 'Q1 2026' },
-  { flag: '🇬🇧', country: 'Reino Unido', product: 'Vino tinto D.O.', trend: '+18%', period: 'Q3 2026' },
-  { flag: '🇯🇵', country: 'Japón', product: 'Aceite AOVE premium', trend: '+15%', period: 'Q4 2026' },
+const DEFAULT_SUGGESTIONS = [
+  { icon: '🔍', text: 'Detecta mis oportunidades de exportación' },
+  { icon: '📋', text: 'Requisitos para exportar a Alemania' },
+  { icon: '💰', text: 'Calcula costes Incoterm FOB vs DDP' },
+  { icon: '📧', text: 'Crea un email de contacto para importador' },
+  { icon: '📅', text: 'Ferias B2B próximas para mi producto' },
 ];
 
 const TOOL_LABELS = {
+  // Analytical
   search_importers: { icon: Users, label: 'Importadores', color: '#57534e' },
+  smart_importer_match: { icon: Users, label: 'Matching IA', color: '#44403c' },
   analyze_market: { icon: BarChart3, label: 'Mercado', color: '#44403c' },
   predict_demand: { icon: TrendingUp, label: 'Predicción', color: '#0c0a09' },
+  detect_export_opportunities: { icon: Sparkles, label: 'Oportunidades', color: '#0c0a09' },
+  // Requirements & costs
+  get_market_entry_requirements: { icon: ClipboardList, label: 'Requisitos', color: '#57534e' },
+  calculate_incoterm_costs: { icon: DollarSign, label: 'Costes', color: '#44403c' },
+  get_trade_shows: { icon: Calendar, label: 'Ferias', color: '#78716c' },
+  // Content
+  generate_pitch: { icon: Mail, label: 'Pitch email', color: '#57534e' },
   generate_contract: { icon: FileText, label: 'Contrato', color: '#78716c' },
+  // Actions
+  create_b2b_offer_draft: { icon: Briefcase, label: 'Oferta B2B', color: '#0c0a09' },
+  send_offer_to_importer: { icon: Send, label: 'Enviar oferta', color: '#0c0a09' },
+  // Pipeline/goals
+  manage_pipeline: { icon: Users, label: 'Pipeline', color: '#44403c' },
+  manage_export_goals: { icon: Target, label: 'Objetivos', color: '#44403c' },
   check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
 };
 
@@ -166,7 +176,15 @@ export default function CommercialAIPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [toolCalls, setToolCalls] = useState([]);
+  const [dynamicOpportunities, setDynamicOpportunities] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [pedroProfile, setPedroProfile] = useState(null);
+  const [briefing, setBriefing] = useState(null);
+  const [pipeline, setPipeline] = useState(null);
+  const [goals, setGoals] = useState([]);
+  const [panelView, setPanelView] = useState(null);
+  const [panelLoading, setPanelLoading] = useState(false);
+  const [panelError, setPanelError] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -179,6 +197,69 @@ export default function CommercialAIPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
+
+  // Load dynamic data (opportunities + alerts + profile) on mount for ELITE users
+  useEffect(() => {
+    if (!isElite) return;
+    apiClient.get('/v1/commercial-ai/opportunities').then((data) => {
+      if (data?.opportunities) setDynamicOpportunities(data.opportunities);
+    }).catch(() => {});
+    apiClient.get('/v1/commercial-ai/alerts').then((data) => {
+      if (data?.alerts) setAlerts(data.alerts);
+    }).catch(() => {});
+    apiClient.get('/v1/commercial-ai/profile').then(setPedroProfile).catch(() => {});
+  }, [isElite]);
+
+  const alertCount = alerts.length;
+  const hasUrgentAlerts = alerts.some((a) => a.severity === 'high');
+  const isOnboarded = pedroProfile?.onboarding_completed ?? false;
+
+  const openPanel = useCallback(async (view) => {
+    setPanelView(view);
+    setPanelError(null);
+    if (view === 'alerts') return;
+    setPanelLoading(true);
+    try {
+      if (view === 'briefing') {
+        const data = await apiClient.get('/v1/commercial-ai/briefing');
+        setBriefing(data);
+      } else if (view === 'pipeline') {
+        const data = await apiClient.get('/v1/commercial-ai/pipeline');
+        setPipeline(data);
+      } else if (view === 'goals') {
+        const data = await apiClient.get('/v1/commercial-ai/goals');
+        setGoals(data?.goals || []);
+      }
+    } catch (err) {
+      const status = err?.response?.status ?? err?.status;
+      if (status === 429) {
+        setPanelError('Demasiadas peticiones. Espera un momento.');
+      } else if (status >= 500) {
+        setPanelError('Error del servidor. Inténtalo de nuevo.');
+      } else if (!status) {
+        setPanelError('Sin conexión. Comprueba tu red.');
+      } else {
+        setPanelError('No pudimos cargar los datos.');
+      }
+    } finally {
+      setPanelLoading(false);
+    }
+  }, []);
+
+  const closePanel = useCallback(() => {
+    setPanelView(null);
+    setPanelError(null);
+  }, []);
+
+  // ESC key closes panel
+  useEffect(() => {
+    if (!panelView) return;
+    const handler = (e) => {
+      if (e.key === 'Escape') closePanel();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [panelView, closePanel]);
 
   if (!isElite) {
     return <UpgradeBanner />;
@@ -198,10 +279,6 @@ export default function CommercialAIPage() {
       const data = await apiClient.post('/v1/commercial-ai/chat', {
         messages: allMessages.map(m => ({ role: m.role, content: m.content })),
       });
-
-      if (data.tool_calls?.length) {
-        setToolCalls(prev => [...prev, ...data.tool_calls]);
-      }
 
       setMessages(prev => [
         ...prev,
@@ -252,41 +329,119 @@ export default function CommercialAIPage() {
         </p>
       </div>
 
-      {/* ── Opportunity Cards ── */}
-      {!hasMessages && (
+      {/* ── Action buttons: Alerts, Briefing, Pipeline, Goals ── */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => openPanel('alerts')}
+          aria-label={`Alertas (${alertCount})`}
+          className="relative flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[13px] font-medium text-stone-950 transition-all hover:border-stone-300 hover:shadow-sm"
+        >
+          <Bell size={14} />
+          Alertas
+          {alertCount > 0 && (
+            <span className={`ml-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${hasUrgentAlerts ? 'bg-stone-950' : 'bg-stone-600'}`}>
+              {alertCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => openPanel('briefing')}
+          aria-label="Briefing mensual de exportación"
+          className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[13px] font-medium text-stone-950 transition-all hover:border-stone-300 hover:shadow-sm"
+        >
+          <FileText size={14} />
+          Briefing mensual
+        </button>
+        <button
+          onClick={() => openPanel('pipeline')}
+          aria-label="Pipeline de leads"
+          className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[13px] font-medium text-stone-950 transition-all hover:border-stone-300 hover:shadow-sm"
+        >
+          <Users size={14} />
+          Pipeline
+        </button>
+        <button
+          onClick={() => openPanel('goals')}
+          aria-label="Objetivos de exportación"
+          className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2 text-[13px] font-medium text-stone-950 transition-all hover:border-stone-300 hover:shadow-sm"
+        >
+          <Target size={14} />
+          Objetivos
+        </button>
+      </div>
+
+      {/* ── Onboarding CTA (if not onboarded yet) ── */}
+      {isElite && pedroProfile && !isOnboarded && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 flex items-start justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3"
+        >
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <Sparkles size={18} className="mt-0.5 shrink-0 text-stone-950" />
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-stone-950">
+                Completa tu perfil de exportación
+              </p>
+              <p className="mt-0.5 text-[12px] text-stone-500">
+                Déjame 30 segundos para conocer tu negocio y personalizar cada análisis.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleSend('Hola Pedro, hagamos mi diagnóstico inicial. Analiza mi tienda y pregúntame lo que necesites para mi perfil de exportación.')}
+            className="shrink-0 rounded-full bg-stone-950 px-4 py-1.5 text-[12px] font-medium text-white transition-transform hover:scale-105"
+          >
+            Empezar
+          </button>
+        </motion.div>
+      )}
+
+      {/* ── Opportunity Cards (dynamic) ── */}
+      {!hasMessages && dynamicOpportunities.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="mb-8"
         >
-          <h2 className="text-[17px] font-semibold text-stone-950 mb-4">
-            Oportunidades detectadas
-          </h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[17px] font-semibold text-stone-950">
+              Tus oportunidades de exportación
+            </h2>
+            <span className="text-[11px] text-stone-400">Personalizadas por Pedro</span>
+          </div>
           <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
-            {OPPORTUNITIES.map((opp, i) => (
+            {dynamicOpportunities.map((opp, i) => (
               <motion.div
-                key={opp.country}
+                key={opp.country_code}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className="min-w-[220px] shrink-0 snap-start rounded-2xl border border-black/[0.08] bg-white px-[18px] py-5 shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                onClick={() => handleSend(`Analiza el mercado de ${opp.product} en ${opp.country}`)}
+                className="min-w-[240px] shrink-0 snap-start rounded-2xl border border-black/[0.08] bg-white px-[18px] py-5 shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                onClick={() => handleSend(`Analiza ${opp.country_name} para ${opp.category}, dame precios, importadores y requisitos`)}
               >
-                <span className="text-[28px]">{opp.flag}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[28px]">{opp.flag}</span>
+                  <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-700">
+                    Score {opp.score}
+                  </span>
+                </div>
                 <p className="text-[15px] font-semibold text-stone-950 mt-2.5 mb-1">
-                  {opp.country}
+                  {opp.country_name}
                 </p>
-                <p className="text-[13px] text-stone-500 m-0 mb-2.5">
-                  {opp.product}
+                <p className="text-[13px] text-stone-500 m-0 mb-2.5 capitalize">
+                  {opp.category}
                 </p>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 mb-1">
                   <TrendingUp size={13} className="text-stone-950" />
                   <span className="text-[13px] font-semibold text-stone-950">
-                    {opp.trend}
+                    +{opp.growth_yoy_pct}% YoY
                   </span>
-                  <span className="text-[11px] text-stone-400">{opp.period}</span>
                 </div>
+                <p className="text-[11px] text-stone-400 m-0">
+                  {opp.avg_price_eur_kg ? `${opp.avg_price_eur_kg}€/kg · ` : ''}{opp.importers_on_platform} importadores · arancel {opp.tariff_pct}%
+                </p>
                 <div className="flex items-center gap-1 mt-2.5 text-[13px] font-medium text-stone-950">
                   Ver análisis <ArrowRight size={13} />
                 </div>
@@ -295,6 +450,233 @@ export default function CommercialAIPage() {
           </div>
         </motion.div>
       )}
+
+      {/* ── Panel Overlay (alerts / briefing / pipeline / goals) ── */}
+      <AnimatePresence>
+        {panelView && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-start justify-center pt-[80px] px-4"
+            onClick={closePanel}
+          >
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pedro-panel-title"
+              className="w-full max-w-[600px] max-h-[80vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col"
+            >
+              <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+                <h3 id="pedro-panel-title" className="text-[16px] font-semibold text-stone-950">
+                  {panelView === 'alerts' && 'Alertas'}
+                  {panelView === 'briefing' && 'Briefing mensual'}
+                  {panelView === 'pipeline' && 'Pipeline de leads'}
+                  {panelView === 'goals' && 'Objetivos de exportación'}
+                </h3>
+                <button
+                  onClick={closePanel}
+                  className="p-1 rounded-full hover:bg-stone-100"
+                  aria-label={`Cerrar panel de ${panelView}`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5">
+                {panelLoading && (
+                  <div className="flex justify-center py-12">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
+                  </div>
+                )}
+
+                {!panelLoading && panelError && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
+                      <Lock size={20} className="text-stone-400" />
+                    </div>
+                    <p className="text-[13px] text-stone-500">{panelError}</p>
+                    <button
+                      onClick={() => openPanel(panelView)}
+                      className="mt-3 flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-[12px] font-medium text-white hover:scale-105 transition-transform"
+                    >
+                      <RotateCw size={12} /> Reintentar
+                    </button>
+                  </div>
+                )}
+
+                {/* Alerts panel */}
+                {!panelLoading && !panelError && panelView === "alerts" && (
+                  <div className="space-y-2">
+                    {alerts.length === 0 ? (
+                      <p className="text-center text-[14px] text-stone-500 py-8">Sin alertas ahora mismo.</p>
+                    ) : alerts.map((alert, i) => (
+                      <button
+                        key={`${alert.type}-${alert.severity}-${i}`}
+                        onClick={() => { closePanel(); handleSend(`${alert.message}. ${alert.action}.`); }}
+                        className="flex w-full items-start gap-3 rounded-xl border border-stone-200 bg-white p-4 text-left hover:border-stone-300 hover:shadow-sm transition-all"
+                      >
+                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${alert.severity === 'high' ? 'bg-stone-950' : alert.severity === 'medium' ? 'bg-stone-600' : 'bg-stone-400'}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-medium text-stone-950">{alert.message}</p>
+                          <p className="mt-1 text-[12px] text-stone-500">→ {alert.action}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Briefing panel */}
+                {!panelLoading && !panelError && panelView === "briefing" && !briefing && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <FileText size={32} className="mb-3 text-stone-300" />
+                    <p className="text-[13px] text-stone-500">Aún no hay datos suficientes para generar el briefing.</p>
+                  </div>
+                )}
+                {!panelLoading && !panelError && panelView === "briefing" && briefing && (
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-stone-200 bg-white p-4">
+                        <p className="text-[10px] uppercase tracking-wide text-stone-500">Ofertas enviadas 30d</p>
+                        <p className="mt-1 text-[22px] font-bold text-stone-950">{briefing.summary?.offers_sent || 0}</p>
+                        {briefing.summary?.change_pct_vs_prev_month !== 0 && (
+                          <p className="mt-0.5 text-[11px] text-stone-500">
+                            {briefing.summary.change_pct_vs_prev_month > 0 ? '↑' : '↓'} {Math.abs(briefing.summary.change_pct_vs_prev_month)}% vs mes previo
+                          </p>
+                        )}
+                      </div>
+                      <div className="rounded-xl border border-stone-200 bg-white p-4">
+                        <p className="text-[10px] uppercase tracking-wide text-stone-500">Aceptadas</p>
+                        <p className="mt-1 text-[22px] font-bold text-stone-950">{briefing.summary?.offers_accepted || 0}</p>
+                        <p className="mt-0.5 text-[11px] text-stone-500">
+                          Conv. {briefing.summary?.conversion_rate || 0}%
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 bg-white p-4">
+                        <p className="text-[10px] uppercase tracking-wide text-stone-500">Ingresos B2B</p>
+                        <p className="mt-1 text-[22px] font-bold text-stone-950">{briefing.summary?.total_revenue_eur || 0}€</p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 bg-white p-4">
+                        <p className="text-[10px] uppercase tracking-wide text-stone-500">Pipeline activo</p>
+                        <p className="mt-1 text-[22px] font-bold text-stone-950">{briefing.summary?.active_pipeline_leads || 0}</p>
+                      </div>
+                    </div>
+
+                    {briefing.recommended_actions?.length > 0 && (
+                      <div>
+                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-stone-500">Acciones recomendadas</p>
+                        <div className="space-y-2">
+                          {briefing.recommended_actions.map((action, i) => (
+                            <button
+                              key={`action-${i}`}
+                              onClick={() => { closePanel(); handleSend(`${action.title}. ${action.action}.`); }}
+                              className="flex w-full items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 text-left hover:border-stone-300 transition-all"
+                            >
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-950 text-[11px] font-bold text-white">{action.priority}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[13px] font-medium text-stone-950">{action.title}</p>
+                                <p className="mt-0.5 text-[11px] text-stone-500">{action.why}</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {briefing.upcoming_trade_shows?.length > 0 && (
+                      <div>
+                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-stone-500">Próximas ferias</p>
+                        <div className="space-y-2">
+                          {briefing.upcoming_trade_shows.map((show, i) => (
+                            <div key={`show-${i}`} className="rounded-xl border border-stone-200 bg-white p-3">
+                              <p className="text-[13px] font-medium text-stone-950">{show.name} — {show.city}</p>
+                              <p className="mt-0.5 text-[11px] text-stone-500">En {show.days_until} días · {show.date}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Pipeline panel */}
+                {!panelLoading && !panelError && panelView === "pipeline" && (
+                  <div className="space-y-4">
+                    {!pipeline || pipeline.total === 0 ? (
+                      <p className="text-center text-[14px] text-stone-500 py-8">Sin leads en el pipeline aún.</p>
+                    ) : (
+                      Object.entries(pipeline.by_stage || {}).map(([stage, leads]) => (
+                        <div key={stage}>
+                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">{stage} ({leads.length})</p>
+                          <div className="space-y-2">
+                            {leads.map((lead) => (
+                              <div key={lead.lead_id} className="rounded-xl border border-stone-200 bg-white p-3">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[13px] font-medium text-stone-950">{lead.importer_name || 'Importador'}</p>
+                                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${lead.heat === 'hot' ? 'bg-stone-950 text-white' : lead.heat === 'warm' ? 'bg-stone-200 text-stone-950' : 'bg-stone-100 text-stone-500'}`}>
+                                    {lead.heat}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-[11px] text-stone-500">{lead.importer_country} · {lead.days_since_update}d sin update</p>
+                                {lead.notes && <p className="mt-1 text-[11px] text-stone-400">{lead.notes}</p>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {/* Goals panel */}
+                {!panelLoading && !panelError && panelView === "goals" && (
+                  <div className="space-y-3">
+                    {goals.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Target size={32} className="mx-auto mb-3 text-stone-300" />
+                        <p className="text-[14px] text-stone-500">Aún no tienes objetivos de exportación.</p>
+                        <button
+                          onClick={() => { closePanel(); handleSend('Ayúdame a crear mi primer objetivo de exportación'); }}
+                          className="mt-4 rounded-full bg-stone-950 px-4 py-2 text-[12px] font-medium text-white hover:scale-105 transition-transform"
+                        >
+                          Crear mi primer objetivo
+                        </button>
+                      </div>
+                    ) : goals.map((goal) => {
+                      const pct = Math.min(100, goal.progress_pct ?? 0);
+                      const typeLabels = {
+                        first_contract: 'Primer contrato',
+                        new_market_entry: 'Entrada a nuevo mercado',
+                        export_revenue: 'Ingresos exportación',
+                        new_importers: 'Nuevos importadores',
+                      };
+                      return (
+                        <div key={goal.goal_id} className="rounded-xl border border-stone-200 bg-white p-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[13px] font-medium text-stone-950">{typeLabels[goal.type] || goal.type}</p>
+                            {goal.target_market && <span className="text-[11px] text-stone-500">{goal.target_market}</span>}
+                          </div>
+                          <div className="mt-2 flex items-center justify-between text-[12px]">
+                            <span className="text-stone-950 font-semibold">{goal.current_progress ?? 0} / {goal.target}</span>
+                            <span className={`font-bold ${pct >= 100 ? 'text-stone-950' : 'text-stone-500'}`}>{pct.toFixed(0)}%</span>
+                          </div>
+                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-stone-100">
+                            <div className="h-full rounded-full bg-stone-950 transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Chat Container ── */}
       <div className="rounded-[18px] border border-black/[0.08] bg-white shadow-md overflow-hidden">
@@ -329,7 +711,7 @@ export default function CommercialAIPage() {
                 Pregunta sobre mercados, regulaciones o importadores
               </p>
               <div className="flex flex-wrap justify-center gap-2 max-w-[480px]">
-                {SUGGESTIONS.map(s => (
+                {DEFAULT_SUGGESTIONS.map(s => (
                   <button
                     type="button"
                     key={s.text}
@@ -349,7 +731,7 @@ export default function CommercialAIPage() {
               const isUser = msg.role === 'user';
               return (
                 <motion.div
-                  key={msg.timestamp || i}
+                  key={`${msg.timestamp || 'nt'}-${msg.role}-${i}`}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
@@ -446,10 +828,10 @@ export default function CommercialAIPage() {
           className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mt-6"
         >
           {[
-            { label: 'Mercados', value: '9', sub: 'países analizados' },
-            { label: 'Importadores', value: '150+', sub: 'verificados' },
-            { label: 'Contratos', value: 'PDF', sub: 'generación automática' },
-            { label: 'Datos', value: '2026', sub: 'análisis heurístico' },
+            { label: 'Herramientas', value: '15', sub: 'análisis, acciones, coaching' },
+            { label: 'Mercados', value: '9', sub: 'con checklists detallados' },
+            { label: 'Ferias B2B', value: '10+', sub: 'calendario 2026' },
+            { label: 'Acciones', value: 'live', sub: 'ofertas, pipeline, pitches' },
           ].map((stat, i) => (
             <div key={stat.label} className="rounded-[14px] bg-white border border-black/[0.08] px-4 py-[18px] text-center">
               <p className="text-2xl font-bold text-stone-950 tracking-tight mb-0.5 m-0">

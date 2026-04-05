@@ -292,6 +292,8 @@ export function AuthProvider({ children }) {
 
       // Clear all cached data from previous account
       queryClient.clear();
+      // Clear plan cache so the new account's plan gate doesn't inherit ELITE access
+      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
 
       // Re-authenticate deterministically with the new token
       const newUser = await resolveUserFromActiveToken();
@@ -359,6 +361,9 @@ export function AuthProvider({ children }) {
       } catch {
         // silently handled
       }
+
+      // Clear plan cache on any active-account logout (prevent stale plan gate for next user)
+      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
 
       removeStoredAccountById(currentId);
       const remaining = readStoredAccounts().filter((a) => a?.token);

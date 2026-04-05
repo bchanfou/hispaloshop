@@ -2,7 +2,7 @@
 Importer dashboard: products, orders, stats, profile.
 Similar to producer routes but tailored for importers.
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -268,6 +268,47 @@ async def get_importer_profile(user: User = Depends(get_current_user)):
         {"_id": 0, "password_hash": 0}
     )
     return importer
+
+
+@router.post("/importer/verify-vat")
+async def verify_importer_vat(request: Request, user: User = Depends(get_current_user)):
+    """
+    Verify the importer's VAT ID against the EU VIES API.
+    Writes vat_id, vat_id_verified flag, and full verification result to the user doc.
+    Required for EU B2B reverse charge to apply at checkout.
+    """
+    await require_role(user, ["importer", "producer"])
+    body = await request.json()
+    vat_number = (body.get("vat_number") or "").strip()
+    if not vat_number:
+        raise HTTPException(status_code=400, detail="vat_number is required")
+
+    from services.vies_service import verify_vat_vies
+    result = await verify_vat_vies(vat_number)
+
+    # Persist on the user document
+    update = {
+        "vat_id": result.get("vat_number"),
+        "vat_id_verified": bool(result.get("valid")),
+        "vat_verification": {
+            "valid": bool(result.get("valid")),
+            "country_code": result.get("country_code"),
+            "company_name": result.get("company_name", ""),
+            "company_address": result.get("company_address", ""),
+            "source": result.get("source"),
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "error": result.get("error"),
+        },
+    }
+    await db.users.update_one({"user_id": user.user_id}, {"$set": update})
+
+    return {
+        "valid": bool(result.get("valid")),
+        "vat_number": result.get("vat_number"),
+        "company_name": result.get("company_name", ""),
+        "country_code": result.get("country_code"),
+        "error": result.get("error"),
+    }
 
 
 @router.get("/importer/payments")

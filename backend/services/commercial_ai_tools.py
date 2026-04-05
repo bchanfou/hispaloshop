@@ -538,4 +538,52 @@ async def execute_tool(name: str, inputs: dict, producer_id: str) -> dict | list
     if name == "check_producer_plan":
         return await check_producer_plan(producer_id=producer_id)
 
+    # ── Pedro v2 tools ──
+    from services import pedro_ai_v2 as v2
+    if name == "smart_importer_match":
+        return await v2.smart_importer_match(db, producer_id, inputs.get("country", ""),
+                                              inputs.get("product_category"), inputs.get("limit", 5))
+    if name == "get_market_entry_requirements":
+        return v2.get_market_entry_requirements(inputs.get("country", ""), inputs.get("product_category"))
+    if name == "calculate_incoterm_costs":
+        return v2.calculate_incoterm_costs(
+            inputs.get("country", ""), inputs.get("volume_kg", 0),
+            inputs.get("price_eur_kg", 0), inputs.get("weight_kg", 0) or inputs.get("volume_kg", 0),
+        )
+    if name == "generate_pitch":
+        return await v2.generate_pitch(db, producer_id, inputs.get("importer_id", ""),
+                                       inputs.get("target_language", "en"), inputs.get("pitch_type", "first_contact"))
+    if name == "get_trade_shows":
+        return v2.get_trade_shows(inputs.get("countries", []), inputs.get("category"))
+    if name == "detect_export_opportunities":
+        return await v2.detect_export_opportunities(db, producer_id)
+    if name == "analyze_importers":
+        return await v2.analyze_importers(db, producer_id)
+    if name == "manage_pipeline":
+        return await v2.manage_pipeline(
+            db, producer_id, inputs.get("operation", "list"),
+            importer_id=inputs.get("importer_id"),
+            stage=inputs.get("stage"),
+            notes=inputs.get("notes"),
+            lead_id=inputs.get("lead_id"),
+        )
+    if name == "manage_export_goals":
+        return await v2.manage_export_goals(
+            db, producer_id, inputs.get("operation", "list"),
+            goal_type=inputs.get("goal_type"), target=inputs.get("target"),
+            target_market=inputs.get("target_market"),
+        )
+    if name == "create_b2b_offer_draft":
+        return await v2.create_b2b_offer_draft(
+            db, producer_id,
+            importer_id=inputs.get("importer_id", ""),
+            product_id=inputs.get("product_id"),
+            volume_kg=inputs.get("volume_kg", 0),
+            price_eur_kg=inputs.get("price_eur_kg", 0),
+            incoterm=inputs.get("incoterm", "FOB"),
+            notes=inputs.get("notes", ""),
+        )
+    if name == "send_offer_to_importer":
+        return await v2.send_offer_to_importer(db, producer_id, inputs.get("offer_id", ""))
+
     return {"error": f"Herramienta '{name}' no encontrada"}

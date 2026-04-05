@@ -106,8 +106,7 @@ async def _create_indexes():
     await db.products.create_index([("approved", 1), ("created_at", -1)])
     await db.products.create_index([("producer_id", 1), ("approved", 1)])
     await db.products.create_index([("category_id", 1), ("approved", 1), ("price", 1)])
-    # Text search
-    await db.products.create_index([("name", "text"), ("description", "text")])
+    # Text search index is created later with full weights (name, description, tags, category)
     logger.info("  OK: products indexes")
 
     # Product signals - social proof (daily reset via cron, not TTL)

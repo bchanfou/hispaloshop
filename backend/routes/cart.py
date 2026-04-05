@@ -2,11 +2,14 @@
 Endpoints de carrito persistente y checkout completo.
 Fase 4: Checkout + B2B Importer
 """
+import logging
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from core.database import get_db
 from core.auth import get_current_user
@@ -113,8 +116,8 @@ async def get_cart(current_user = Depends(get_current_user)):
                         {"_id": cart["_id"]},
                         {"$set": {"discount_cents": discount_cents}}
                     )
-        except Exception:
-            pass  # Keep the stored discount_cents on error
+        except Exception as e:
+            logger.warning(f"[CART] Coupon recalc failed, keeping stored discount_cents: {e}")
 
     # Tax calculation — use country-specific rate
     from services.shipping_service import ShippingService

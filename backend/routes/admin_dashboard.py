@@ -473,17 +473,44 @@ async def get_all_payments_admin(user: User = Depends(get_current_user)):
             payment_query["order_id"] = "__none__"
 
     payments = await db.payment_transactions.find(payment_query, {"_id": 0}).sort("created_at", -1).to_list(500)
-    # Calculate totals
-    total_amount = sum(p.get("amount", 0) for p in payments if p.get("status") == "completed")
-    platform_commission = total_amount * PLATFORM_COMMISSION
-    producer_share = total_amount * (1 - PLATFORM_COMMISSION)
+
+    # Calculate totals per-payment using each order's actual commission rate.
+    total_amount = 0.0
+    platform_commission = 0.0
+    completed = [p for p in payments if p.get("status") == "completed"]
+    for p in completed:
+        amt = float(p.get("amount", 0) or 0)
+        total_amount += amt
+        # Read actual rate from the associated order's commission_data
+        order_id = p.get("order_id")
+        rate = None
+        if order_id:
+            order_doc = await db.orders.find_one(
+                {"order_id": order_id},
+                {"_id": 0, "commission_data.splits": 1, "commission_rate": 1},
+            )
+            if order_doc:
+                # Try commission_data.splits first (newer schema), then flat commission_rate
+                splits = (order_doc.get("commission_data") or {}).get("splits") or []
+                if splits:
+                    # Weighted avg across sellers in this order
+                    rate = sum(float(s.get("platform_rate_snapshot", 0) or 0) for s in splits) / len(splits)
+                elif order_doc.get("commission_rate"):
+                    rate = float(order_doc["commission_rate"])
+        if rate is None:
+            rate = 0.18  # PRO default if no commission_data
+        platform_commission += amt * rate
+
+    producer_share = total_amount - platform_commission
+    avg_rate = (platform_commission / total_amount) if total_amount > 0 else 0
+
     return {
         "payments": payments,
         "summary": {
-            "total_amount": total_amount,
-            "platform_commission": platform_commission,
-            "producer_share": producer_share,
-            "commission_rate": PLATFORM_COMMISSION
+            "total_amount": round(total_amount, 2),
+            "platform_commission": round(platform_commission, 2),
+            "producer_share": round(producer_share, 2),
+            "commission_rate": round(avg_rate, 4),
         }
     }
 
@@ -996,8 +1023,9 @@ async def detect_country(request: Request):
 
 @router.get("/admin/market-coverage")
 async def get_market_coverage(user: User = Depends(get_current_user)):
-    """SuperAdmin: Get multi-market coverage stats by country."""
-    await require_role(user, ["admin", "super_admin"])
+    """SuperAdmin only: Global multi-market coverage stats by country.
+    Country-scoped admins should use their own dashboard endpoints."""
+    await require_super_admin(user)
     
     pipeline = [
         {"$unwind": "$inventory_by_country"},
@@ -1103,9 +1131,14 @@ async def get_admin_analytics(
     # Determine country filter
     country_filter = None
     if user.role == "admin":
-        # Admin only sees their assigned country
+        # Admin only sees their assigned country — must have one
         admin_data = await db.users.find_one({"user_id": user.user_id}, {"assigned_country": 1})
-        country_filter = admin_data.get("assigned_country") if admin_data else None
+        country_filter = (admin_data or {}).get("assigned_country")
+        if not country_filter:
+            raise HTTPException(
+                status_code=403,
+                detail="Admin account has no assigned country. Contact super_admin to configure your country scope.",
+            )
     elif user.role == "super_admin" and country:
         # Super admin can filter by country (or see global if no country specified)
         country_filter = country if country != "all" else None

@@ -1679,28 +1679,8 @@ async def admin_list_products(
     return {"products": products, "total": total, "has_more": total > 200}
 
 
-@router.get("/admin/orders")
-async def admin_list_orders(
-    response: Response,
-    status: Optional[str] = None,
-    limit: int = 100,
-    user: User = Depends(get_current_user)
-):
-    """List orders for admin dashboard"""
-    await require_role(user, ["admin", "super_admin"])
-
-    query = {}
-    if status:
-        query["status"] = status
-
-    total = await db.orders.count_documents(query)
-    orders = await db.orders.find(
-        query,
-        {"_id": 0}
-    ).sort("created_at", -1).limit(limit).to_list(limit)
-
-    response.headers["X-Total-Count"] = str(total)
-    return {"orders": orders, "total": total, "has_more": total > limit}
+# /admin/orders is defined in routes/admin_dashboard.py with country scoping.
+# The duplicate unscoped version was removed to prevent data leaks between countries.
 
 
 @router.put("/admin/products/{product_id}/approve")
@@ -1763,71 +1743,8 @@ async def admin_reject_product(
     return {"message": "Product rejected"}
 
 
-@router.get("/admin/stats")
-async def admin_dashboard_stats(user: User = Depends(get_current_user)):
-    """Get stats for admin dashboard"""
-    await require_role(user, ["admin", "super_admin"])
-    
-    # User counts
-    total_users = await db.users.count_documents({})
-    total_customers = await db.users.count_documents({"role": "customer"})
-    total_producers = await db.users.count_documents({"role": "producer"})
-    total_importers = await db.users.count_documents({"role": "importer"})
-    
-    # Product counts
-    total_products = await db.products.count_documents({})
-    pending_products = await db.products.count_documents({
-        "$or": [{"approved": False}, {"status": "pending"}]
-    })
-    
-    # Order stats
-    today = datetime.now(timezone.utc).isoformat()[:10]
-    total_orders_today = await db.orders.count_documents({
-        "created_at": {"$gte": today}
-    })
-    
-    # Revenue today
-    pipeline = [
-        {"$match": {"created_at": {"$gte": today}}},
-        {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}
-    ]
-    revenue_result = await db.orders.aggregate(pipeline).to_list(1)
-    revenue_today = revenue_result[0]["total"] if revenue_result else 0
-    
-    # Expiring certificates (within 30 days)
-    thirty_days = datetime.now(timezone.utc) + timedelta(days=30)
-    expiring_certs = await db.certificates.count_documents({
-        "expiry_date": {"$lte": thirty_days.isoformat(), "$gte": datetime.now(timezone.utc).isoformat()},
-        "status": "approved"
-    })
-
-    # Top 5 products by sales this month
-    first_of_month = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    top_products_pipeline = [
-        {"$match": {"created_at": {"$gte": first_of_month.isoformat()}, "status": {"$in": ["paid", "delivered", "shipped"]}}},
-        {"$unwind": "$items"},
-        {"$group": {"_id": "$items.product_id", "total_sold": {"$sum": "$items.quantity"}, "name": {"$first": "$items.product_name"}}},
-        {"$sort": {"total_sold": -1}},
-        {"$limit": 5}
-    ]
-    top_products = await db.orders.aggregate(top_products_pipeline).to_list(5)
-
-    return {
-        "total_users": total_users,
-        "total_customers": total_customers,
-        "total_producers": total_producers,
-        "total_importers": total_importers,
-        "total_products": total_products,
-        "pending_products": pending_products,
-        "total_orders_today": total_orders_today,
-        "revenue_today": revenue_today,
-        "pending_moderation": {
-            "products": pending_products,
-            "users": await db.users.count_documents({"approved": False})
-        },
-        "expiring_certificates": expiring_certs,
-        "top_products": top_products,
-    }
+# /admin/stats is defined in routes/admin_dashboard.py with country scoping.
+# The duplicate unscoped version was removed to prevent cross-country data leaks.
 
 
 # ============================================

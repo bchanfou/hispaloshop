@@ -1,0 +1,21 @@
+name: Weekly cron tasks
+
+# Run Mondays at 07:00 UTC
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  influencer-tier-sweep:
+    name: Recalculate influencer tiers (30-day GMV)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call influencer-tier-sweep endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CRON_ADMIN_TOKEN: ${{ secrets.CRON_ADMIN_TOKEN }}
+        run: |
+          curl -sS -X POST "$BACKEND_URL/api/admin/cron/influencer-tier-sweep" \
+            -H "Authorization: Bearer $CRON_ADMIN_TOKEN" \
+            --fail-with-body

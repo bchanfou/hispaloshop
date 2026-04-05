@@ -6,10 +6,13 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFi
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 import html as html_module
+import os
 import re
 import uuid
 import logging
 import asyncio
+
+_FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
 
 from core.database import db
 from core.models import User, NewConversationInput, MessageInput
@@ -261,7 +264,7 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
                     </div>
                     
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="https://www.hispaloshop.com/messages/{conversation_id}"
+                        <a href="{_FRONTEND_URL}/messages/{conversation_id}"
                            style="display: inline-block; background-color: #1C1C1C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: 500;">
                             Ver mensaje
                         </a>
@@ -443,7 +446,7 @@ async def reply_to_story(request: Request, background_tasks: BackgroundTasks, us
                             </p>
                         </div>
                         <div style="text-align: center; margin-top: 20px;">
-                            <a href="https://www.hispaloshop.com/messages/{conversation_id}"
+                            <a href="{_FRONTEND_URL}/messages/{conversation_id}"
                                style="display: inline-block; background-color: #1C1C1C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: 500;">
                                 Ver mensaje
                             </a>

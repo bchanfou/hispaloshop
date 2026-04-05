@@ -2,6 +2,7 @@
 Collab Influencer–Productor endpoints.
 Fase 28: Propuestas, aceptación, links de afiliado, muestras.
 """
+import os
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
@@ -167,7 +168,8 @@ async def accept_collaboration(collab_id: str, current_user=Depends(get_current_
     slug = product.get("slug") or product.get("name", "product")
 
     code = _gen_collab_code(username, slug)
-    url = f"https://hispaloshop.com/r/{code}"
+    _frontend = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
+    url = f"{_frontend}/r/{code}"
 
     now = datetime.now(timezone.utc)
 
