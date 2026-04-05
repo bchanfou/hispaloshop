@@ -99,6 +99,72 @@ class Settings(BaseSettings):
     # GOOGLE CLOUD TRANSLATION
     # ============================================
     GOOGLE_TRANSLATE_API_KEY: Optional[str] = Field(default=None)
+
+    # ============================================
+    # ANTHROPIC (Claude — AI assistants David/Rebeca/Pedro/Commercial)
+    # ============================================
+    ANTHROPIC_API_KEY: Optional[str] = Field(default=None)
+    HISPAL_AI_MODEL: str = Field(default="claude-haiku-4-5-20251001")
+    HISPAL_AI_RATE_LIMIT_RPM: int = Field(default=20)
+    COMMERCIAL_AI_MODEL: str = Field(default="claude-sonnet-4-6")
+    REBECA_AI_MODEL: str = Field(default="claude-haiku-4-5-20251001")
+
+    # ============================================
+    # FCM (Firebase Cloud Messaging — push notifications)
+    # JSON-encoded service account credentials.
+    # ============================================
+    FCM_SERVICE_ACCOUNT_JSON: Optional[str] = Field(default=None)
+
+    # ============================================
+    # WEB PUSH (VAPID keys — generate with `npx web-push generate-vapid-keys`)
+    # VAPID_PUBLIC_KEY must also be exposed to frontend as REACT_APP_VAPID_PUBLIC_KEY.
+    # VAPID_PRIVATE_KEY must stay backend-only.
+    # ============================================
+    VAPID_PUBLIC_KEY: Optional[str] = Field(default=None)
+    VAPID_PRIVATE_KEY: Optional[str] = Field(default=None)
+    VAPID_EMAIL: str = Field(default="mailto:admin@hispaloshop.com")
+
+    # ============================================
+    # CHAT ENCRYPTION (AES-256-GCM, 32-byte hex key)
+    # Generate with: openssl rand -hex 32
+    # ============================================
+    CHAT_ENCRYPTION_KEY: Optional[str] = Field(default=None)
+
+    # ============================================
+    # STRIPE BILLING (separate webhook for subscription events)
+    # ============================================
+    STRIPE_BILLING_WEBHOOK_SECRET: Optional[str] = Field(default=None)
+
+    # ============================================
+    # BACKEND URL (public URL of this API — used in emails and webhooks)
+    # Alias: AUTH_BACKEND_URL (legacy name, still accepted for backward compat)
+    # Priority: BACKEND_URL → AUTH_BACKEND_URL → default
+    # ============================================
+    BACKEND_URL: Optional[str] = Field(default=None)
+
+    # ============================================
+    # MONITORING — Sentry error tracking
+    # ============================================
+    SENTRY_DSN: Optional[str] = Field(default=None)
+    SENTRY_RELEASE: Optional[str] = Field(default=None)  # git SHA preferred
+    SENTRY_TRACES_RATE: float = Field(default=0.1)
+
+    # ============================================
+    # OBSERVABILITY — structured logging
+    # Values: DEBUG | INFO | WARNING | ERROR | CRITICAL
+    # ============================================
+    LOG_LEVEL: str = Field(default="INFO")
+
+    # ============================================
+    # CRON ADMIN TOKEN (long-lived admin JWT for GitHub Actions crons)
+    # Stored as GH Actions secret, passed as Bearer token to /api/admin/cron/*
+    # ============================================
+    CRON_ADMIN_TOKEN: Optional[str] = Field(default=None)
+
+    # ============================================
+    # CSRF
+    # ============================================
+    CSRF_ENABLED: bool = Field(default=True)
     
     # ============================================
     # VALIDADORES
@@ -171,6 +237,30 @@ class Settings(BaseSettings):
         if not v.startswith(("http://", "https://")):
             raise ValueError("La URL debe empezar con http:// o https://")
         return v.rstrip("/")
+
+    @field_validator('BACKEND_URL')
+    @classmethod
+    def validate_backend_url(cls, v):
+        """BACKEND_URL es opcional; si viene, debe ser URL valida."""
+        if not v:
+            return None
+        if not v.startswith(("http://", "https://")):
+            raise ValueError("BACKEND_URL debe empezar con http:// o https://")
+        return v.rstrip("/")
+
+    @field_validator('LOG_LEVEL')
+    @classmethod
+    def validate_log_level(cls, v):
+        valid = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+        normalized = (v or "INFO").upper()
+        if normalized not in valid:
+            raise ValueError(f"LOG_LEVEL debe ser uno de {valid}, recibido: {v}")
+        return normalized
+
+    @property
+    def effective_backend_url(self) -> str:
+        """BACKEND_URL si esta seteada, sino AUTH_BACKEND_URL (legacy)."""
+        return self.BACKEND_URL or self.AUTH_BACKEND_URL
 
 
 # Instancia global - falla en import si vars obligatorias no estan

@@ -23,11 +23,19 @@ def init_sentry():
         return
 
     env = os.getenv("ENV", os.getenv("ENVIRONMENT", "production"))
+    # SENTRY_RELEASE preferido (git SHA, convencional).
+    # APP_VERSION y RAILWAY_GIT_COMMIT_SHA son fallbacks.
+    release = (
+        os.getenv("SENTRY_RELEASE")
+        or os.getenv("RAILWAY_GIT_COMMIT_SHA")
+        or os.getenv("APP_VERSION")
+        or "unknown"
+    )
 
     sentry_sdk.init(
         dsn=dsn,
         environment=env,
-        release=os.getenv("APP_VERSION", "1.0.0"),
+        release=release,
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_RATE", "0.1")),
         integrations=[
             FastApiIntegration(transaction_style="endpoint"),
@@ -37,7 +45,7 @@ def init_sentry():
         # Don't send PII (emails, IPs) by default
         send_default_pii=False,
     )
-    logger.info("[SENTRY] Initialized (env=%s)", env)
+    logger.info("[SENTRY] Initialized (env=%s, release=%s)", env, release)
 
 
 def _before_send(event, hint):

@@ -9,6 +9,10 @@ _BACKEND_DIR = Path(__file__).resolve().parent
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
+# === LOGGING — configurar PRIMERO (antes de cualquier otro import que logee) ===
+from core.logging_config import configure_logging
+configure_logging()
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -138,9 +142,9 @@ for candidate in [
 if settings.ENV == "production":
     if "*" in origins:
         raise ValueError("Wildcard '*' not allowed in ALLOWED_ORIGINS in production")
-    print(f"[SECURITY] CORS origins (production): {origins}")
+    logger.info("[SECURITY] CORS origins (production): %d configured", len(origins))
 else:
-    print(f"[SECURITY] CORS origins (development): {origins}")
+    logger.info("[SECURITY] CORS origins (development): %s", origins)
 
 app.add_middleware(
     CORSMiddleware,
@@ -337,22 +341,45 @@ async def internal_error_handler(request: Request, exc: Exception):
     )
 
 
+async def _health_payload() -> dict:
+    """
+    Build health payload with a real MongoDB ping. Used by both /health
+    and /api/health. No auth required — callable by external monitors.
+    """
+    from datetime import datetime, timezone
+    from core.database import client as _mongo_client
+
+    db_status = "connected"
+    db_latency_ms: float | None = None
+    try:
+        import time
+        t0 = time.perf_counter()
+        await _mongo_client.admin.command("ping")
+        db_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+    except Exception as exc:  # noqa: BLE001 — health must never raise
+        logger.warning("[HEALTH] MongoDB ping failed: %s", exc)
+        db_status = "unreachable"
+
+    return {
+        "status": "ok" if db_status == "connected" else "degraded",
+        "version": "1.0.0",
+        "environment": settings.ENV,
+        "db": db_status,
+        "db_latency_ms": db_latency_ms,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @app.get("/health")
 async def health():
-    """Health check basico"""
-    return {
-        "status": "ok",
-        "version": "1.0.0"
-    }
+    """Health check con ping real a MongoDB. Callable sin autenticacion."""
+    return await _health_payload()
 
 
 @app.get("/api/health")
 async def legacy_health():
-    """Health check legacy"""
-    return {
-        "status": "ok",
-        "version": "1.0.0"
-    }
+    """Health check legacy (misma implementacion, path /api/health)."""
+    return await _health_payload()
 
 
 # Startup event para validar configuracion
@@ -406,24 +433,31 @@ async def _run_daily_cron():
 
 @app.on_event("startup")
 async def startup_event():
-    """Validaciones adicionales en startup"""
-    await connect_db()
-    print(f"\n{'='*50}")
-    print(f"[STARTUP] Hispaloshop API v1.0.0")
-    print(f"Environment: {settings.ENV}")
-    print(f"Database: MongoDB ({settings.DB_NAME})")
-    print(f"CORS Origins: {len(origins)} configured")
-    print(f"Security: Rate limiting + Security headers active")
-    print(f"Features: AI Recommendations + Affiliate Engine + Social Feed")
-    print(f"         Checkout Split + B2B Importer + Superadmin Enterprise")
-    print(f"         Chat Real-Time + Notifications Omnichannel")
-    print(f"{'='*50}\n")
+    """Validaciones, conexion DB, arranque de background tasks."""
+    # 1. Validate env vars per environment (raises in staging/prod if critical missing)
+    from core.env_validation import validate_environment, log_optional_capabilities
+    validate_environment(settings)
+    log_optional_capabilities(settings)
 
-    # Warm plans cache from DB
+    # 2. Connect to MongoDB and create indexes
+    await connect_db()
+
+    # 3. Banner log (one structured event, not 10 print lines)
+    logger.info(
+        "[STARTUP] Hispaloshop API ready",
+        extra={
+            "version": "1.0.0",
+            "environment": settings.ENV,
+            "db_name": settings.DB_NAME,
+            "cors_origins": len(origins),
+        },
+    )
+
+    # 4. Warm plans cache from DB
     from services.subscriptions import warm_plans_cache
     await warm_plans_cache()
 
-    # Launch daily cron background task
+    # 5. Launch daily cron background task
     import asyncio
     asyncio.create_task(_run_daily_cron())
     logger.info("[STARTUP] Daily cron task launched (B2B scheduled payments)")

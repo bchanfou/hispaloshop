@@ -188,7 +188,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         
         # Log all requests in development
         if os.getenv("ENV") == "development" or os.getenv("DEBUG") == "true":
-            print(f"[{request.method}] {request.url.path} - {response.status_code} ({duration:.3f}s)")
+            logger.debug(
+                "[%s] %s - %d (%.3fs)",
+                request.method, request.url.path, response.status_code, duration,
+            )
 
         # Log slow requests (>2s) in all environments
         if duration > 2.0:
