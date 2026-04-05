@@ -550,10 +550,20 @@ async def stripe_billing_webhook(request: Request):
     data = event.get("data", {}).get("object", {})
     logger.info(f"[BILLING WEBHOOK] {event_type} (id={event_id})")
 
-    # Idempotency: skip already-processed events
+    # Idempotency: atomic insert-first with unique index on event_id.
+    # See orders.py webhook handler for full rationale.
     if event_id:
-        existing = await db.processed_webhook_events.find_one({"event_id": event_id})
-        if existing:
+        from pymongo.errors import DuplicateKeyError
+        try:
+            await db.processed_webhook_events.insert_one({
+                "event_id": event_id,
+                "event_type": event_type,
+                "source": "billing",
+                "status": "processing",
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+            })
+        except DuplicateKeyError:
+            logger.info(f"[BILLING WEBHOOK] Event {event_id} already processed, skipping")
             return {"status": "already_processed"}
 
     if event_type in ("invoice.paid", "invoice.payment_succeeded"):
@@ -613,14 +623,15 @@ async def stripe_billing_webhook(request: Request):
             logger.info(f"[BILLING] Seller {user_id} downgraded to FREE")
             await record_subscription_event(db, user_id, "downgraded", {"to": "FREE", "subscription_id": sub_id})
 
-    # Mark event as processed (idempotency)
+    # Mark event as completed (slot was reserved at top)
     if event_id:
-        await db.processed_webhook_events.insert_one({
-            "event_id": event_id,
-            "event_type": event_type,
-            "source": "billing",
-            "processed_at": datetime.now(timezone.utc).isoformat(),
-        })
+        await db.processed_webhook_events.update_one(
+            {"event_id": event_id},
+            {"$set": {
+                "status": "completed",
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+            }},
+        )
 
     return {"status": "ok"}
 

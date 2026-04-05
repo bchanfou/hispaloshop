@@ -314,10 +314,19 @@ async def stripe_b2b_webhook(request: Request):
         event_id = event.get("id")
         logger.info("[B2B WEBHOOK] Event: %s (id=%s)", event_type, event_id)
 
-        # Idempotency: reject events already processed
+        # Idempotency: atomic insert-first with unique index on event_id.
+        # See orders.py webhook handler for full rationale.
         if event_id:
-            existing = await db.processed_webhook_events.find_one({"event_id": event_id})
-            if existing:
+            from pymongo.errors import DuplicateKeyError
+            try:
+                await db.processed_webhook_events.insert_one({
+                    "event_id": event_id,
+                    "event_type": event_type,
+                    "source": "b2b",
+                    "status": "processing",
+                    "processed_at": datetime.now(timezone.utc).isoformat(),
+                })
+            except DuplicateKeyError:
                 logger.info("[B2B WEBHOOK] Event %s already processed, skipping", event_id)
                 return {"status": "already_processed"}
 
@@ -392,14 +401,15 @@ async def stripe_b2b_webhook(request: Request):
             failure_message = data_object.get("last_payment_error", {}).get("message", "Unknown")
             logger.error("[B2B WEBHOOK] Payment failed for operation %s: %s", operation_id, failure_message)
 
-        # Mark event as processed (idempotency)
+        # Mark event as completed (slot was reserved at top)
         if event_id:
-            await db.processed_webhook_events.insert_one({
-                "event_id": event_id,
-                "event_type": event_type,
-                "source": "b2b",
-                "processed_at": datetime.now(timezone.utc).isoformat(),
-            })
+            await db.processed_webhook_events.update_one(
+                {"event_id": event_id},
+                {"$set": {
+                    "status": "completed",
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
+                }},
+            )
 
         return {"status": "success"}
 

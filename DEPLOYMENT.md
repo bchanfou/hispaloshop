@@ -320,6 +320,31 @@ Recommended (not configured yet — future section of roadmap):
 
 ---
 
+## 9.5. Backups & disaster recovery
+
+**Full runbook**: see [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md) at repo root.
+
+**Summary**:
+- Daily MongoDB backup to Cloudflare R2 via `.github/workflows/backup-daily.yml` (03:00 UTC)
+- Weekly verification drill via `.github/workflows/backup-verify-weekly.yml` (Mondays 04:00 UTC)
+- Retention: last 30 daily backups + first-of-month for 12 months, with a safety guard that refuses to prune if fewer than 7 backups exist
+- RTO 2h / RPO 24h (V1 targets — can be reduced with Atlas M10+ continuous backups)
+- Scripts: `backend/scripts/backup_mongo.py`, `backend/scripts/restore_mongo.py`, `backend/scripts/verify_backup.py`
+
+**First-run setup** (one-time, by founder): see [`DISASTER_RECOVERY.md §9`](DISASTER_RECOVERY.md#9-first-run-setup-one-time-when-the-founder-configures-r2).
+
+**GitHub Actions secrets required** (add via Settings → Secrets and variables → Actions):
+- `MONGO_URL` (if not already set from CI)
+- `BACKUP_STORAGE_BUCKET`
+- `BACKUP_STORAGE_ACCESS_KEY`
+- `BACKUP_STORAGE_SECRET_KEY`
+- `BACKUP_STORAGE_REGION` (`auto` for R2)
+- `BACKUP_STORAGE_ENDPOINT` (R2 endpoint URL, leave empty for AWS S3)
+
+See `backend/.env.example` for full variable descriptions.
+
+---
+
 ## 10. Rollback procedure
 
 ### 10.1 Backend (Railway)

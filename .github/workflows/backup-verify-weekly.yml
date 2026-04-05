@@ -1,0 +1,95 @@
+name: Backup · weekly verification
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'  # Mondays 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Verify latest backup is restorable
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      # Scratch MongoDB for the restore target. The verify script creates
+      # a temp DB, counts, and drops it.
+      mongodb:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping:1})' --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mongodb-database-tools
+        run: |
+          wget -q https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.10.0.deb
+          sudo apt-get install -y ./mongodb-database-tools-*.deb
+          mongodump --version
+          mongorestore --version
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          pip install boto3 pymongo sentry-sdk
+
+      - name: Wait for MongoDB service
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 27017; then
+              echo "MongoDB up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MongoDB did not start in time"
+          exit 1
+
+      - name: Run verify_backup.py
+        env:
+          # Use the local scratch MongoDB for the restore target — never touch prod.
+          MONGO_URL: mongodb://localhost:27017/hispaloshop
+          BACKUP_STORAGE_BUCKET: ${{ secrets.BACKUP_STORAGE_BUCKET }}
+          BACKUP_STORAGE_ACCESS_KEY: ${{ secrets.BACKUP_STORAGE_ACCESS_KEY }}
+          BACKUP_STORAGE_SECRET_KEY: ${{ secrets.BACKUP_STORAGE_SECRET_KEY }}
+          BACKUP_STORAGE_REGION: ${{ secrets.BACKUP_STORAGE_REGION }}
+          BACKUP_STORAGE_ENDPOINT: ${{ secrets.BACKUP_STORAGE_ENDPOINT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          # Comparison with prod is OFF by default — enabling it requires
+          # giving this workflow read access to prod MONGO_URL, which we
+          # don't want without explicit founder decision.
+          VERIFY_COMPARE_WITH_PROD: '0'
+          LOG_LEVEL: INFO
+        run: |
+          cd backend
+          python scripts/verify_backup.py
+
+      - name: Report success to GitHub summary
+        if: success()
+        run: |
+          echo "## ✅ Weekly backup verification PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- Time: $(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- Backup was restored to a scratch MongoDB and validated." >> $GITHUB_STEP_SUMMARY
+
+      - name: Report failure to GitHub summary
+        if: failure()
+        run: |
+          echo "## ❌ Weekly backup verification FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "- Time: $(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- Check Sentry for stacktrace (tag: script=verify_backup)" >> $GITHUB_STEP_SUMMARY
+          echo "- Runbook: DISASTER_RECOVERY.md §1" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action required**: the backup system is in an UNVERIFIED state." >> $GITHUB_STEP_SUMMARY
+          echo "Do not wait until a real incident to investigate." >> $GITHUB_STEP_SUMMARY

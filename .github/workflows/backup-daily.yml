@@ -1,0 +1,56 @@
+name: Backup · daily MongoDB
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup MongoDB to R2
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mongodb-database-tools
+        run: |
+          wget -q https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.10.0.deb
+          sudo apt-get install -y ./mongodb-database-tools-*.deb
+          mongodump --version
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          pip install boto3 pymongo sentry-sdk
+
+      - name: Run backup_mongo.py
+        env:
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+          BACKUP_STORAGE_BUCKET: ${{ secrets.BACKUP_STORAGE_BUCKET }}
+          BACKUP_STORAGE_ACCESS_KEY: ${{ secrets.BACKUP_STORAGE_ACCESS_KEY }}
+          BACKUP_STORAGE_SECRET_KEY: ${{ secrets.BACKUP_STORAGE_SECRET_KEY }}
+          BACKUP_STORAGE_REGION: ${{ secrets.BACKUP_STORAGE_REGION }}
+          BACKUP_STORAGE_ENDPOINT: ${{ secrets.BACKUP_STORAGE_ENDPOINT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          ENV: production
+          LOG_LEVEL: INFO
+        run: |
+          cd backend
+          python scripts/backup_mongo.py
+
+      - name: Report failure to GitHub summary
+        if: failure()
+        run: |
+          echo "## ❌ Daily backup FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Time: $(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- Check Sentry for stacktrace (tag: script=backup_mongo)" >> $GITHUB_STEP_SUMMARY
+          echo "- Runbook: DISASTER_RECOVERY.md §1" >> $GITHUB_STEP_SUMMARY

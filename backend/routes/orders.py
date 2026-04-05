@@ -1694,10 +1694,22 @@ async def stripe_webhook(request: Request):
         event_id = event.get("id")
         logger.info(f"[WEBHOOK] Event: {event_type} (id={event_id})")
 
-        # Idempotency: reject events already processed
+        # Idempotency: atomic insert-first with unique index on event_id.
+        # Racing handlers (Stripe retries, LB duplicates) both try to insert;
+        # only one succeeds, the other catches DuplicateKeyError and bails.
+        # Status 'processing' allows detecting stuck/crashed handlers via
+        # monitoring queries (see DISASTER_RECOVERY.md).
         if event_id:
-            existing = await db.processed_webhook_events.find_one({"event_id": event_id})
-            if existing:
+            from pymongo.errors import DuplicateKeyError
+            try:
+                await db.processed_webhook_events.insert_one({
+                    "event_id": event_id,
+                    "event_type": event_type,
+                    "source": "orders",
+                    "status": "processing",
+                    "processed_at": datetime.now(timezone.utc),
+                })
+            except DuplicateKeyError:
                 logger.info(f"[WEBHOOK] Event {event_id} already processed, skipping")
                 return {"status": "already_processed"}
 
@@ -1865,13 +1877,15 @@ async def stripe_webhook(request: Request):
                     {"$set": {"subscription_plan": "free", "plan": "free", "updated_at": datetime.now(timezone.utc)}}
                 )
 
-        # Mark event as processed (idempotency)
+        # Mark event as completed (idempotency slot was reserved at top)
         if event_id:
-            await db.processed_webhook_events.insert_one({
-                "event_id": event_id,
-                "event_type": event_type,
-                "processed_at": datetime.now(timezone.utc),
-            })
+            await db.processed_webhook_events.update_one(
+                {"event_id": event_id},
+                {"$set": {
+                    "status": "completed",
+                    "completed_at": datetime.now(timezone.utc),
+                }},
+            )
 
         # Return 200 for all events (including unhandled ones)
         return {"status": "success"}
