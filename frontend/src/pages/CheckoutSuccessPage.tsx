@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 import i18n from "../locales/i18n";
 function estimateDeliveryRange(createdAt) {
   const base = createdAt ? new Date(createdAt) : new Date();
@@ -78,6 +79,7 @@ export default function CheckoutSuccessPage() {
               await fetchCart();
             } catch {/* cart refresh is best-effort */}
             setStatus('success');
+            trackEvent('checkout_completed', { order_id: data?.order_id, total: data?.total_amount });
           }
         } else if (!cancelled) {
           setTimeout(poll, getDelay(attempt));

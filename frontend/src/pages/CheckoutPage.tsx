@@ -10,6 +10,7 @@ import { useLocale } from '../context/LocaleContext';
 import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/cart/hooks';
 import { useCartVerification } from '../features/cart/hooks/useCartVerification';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 
 /* ── Stepper ── */
 import i18n from "../locales/i18n";
@@ -133,6 +134,11 @@ export default function CheckoutPage() {
   } = useCartCheckout();
   const formatPrice = useCallback(euros => convertAndFormatPrice(euros, 'EUR', currency), [convertAndFormatPrice, currency]);
   const [step, setStep] = useState(1);
+  // Track checkout start once
+  useEffect(() => {
+    trackEvent('checkout_started', { items_count: cartItems?.length || 0, total: cartSummary?.total_cents });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewForm, setShowNewForm] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -273,13 +279,26 @@ export default function CheckoutPage() {
         setPaying(false);
         return;
       }
+      trackEvent('checkout_payment_redirect', { total: cartSummary?.total_cents, payment_method: 'stripe' });
       window.location.href = response.url;
     } catch (error) {
-      if (error?.data?.detail?.issues) {
-        error.data.detail.issues.forEach(issue => toast.error(issue));
+      const detail = error?.data?.detail || error?.response?.data?.detail;
+      const msg = typeof detail === 'string' ? detail : '';
+      // Map Stripe/backend error codes to consumer-friendly messages
+      if (msg.includes('card_declined') || msg.includes('rechazada')) {
+        toast.error(t('checkout.cardDeclined', 'Tu tarjeta ha sido rechazada. Prueba con otra tarjeta.'));
+      } else if (msg.includes('insufficient_funds') || msg.includes('fondos')) {
+        toast.error(t('checkout.insufficientFunds', 'Fondos insuficientes. Prueba con otra tarjeta.'));
+      } else if (msg.includes('3ds') || msg.includes('authentication')) {
+        toast.error(t('checkout.authFailed', 'La autenticación no se completó. Inténtalo de nuevo.'));
+      } else if (msg.includes('stock') || msg.includes('agotado')) {
+        toast.error(t('checkout.stockOut', 'Un producto se ha agotado mientras completabas el pago.'));
+      } else if (detail?.issues && Array.isArray(detail.issues)) {
+        detail.issues.forEach(issue => toast.error(issue));
       } else {
         toast.error(error?.message || t('checkout.errorAlProcesarElPago', 'Error al procesar el pago'));
       }
+      trackEvent('checkout_failed', { error_type: msg.slice(0, 50) || 'unknown' });
     } finally {
       payingRef.current = false;
       setPaying(false);
@@ -450,7 +469,7 @@ export default function CheckoutPage() {
 
             {/* Continue */}
             <button onClick={() => {
-              if (selectedAddress) setStep(2);else toast.error(t('checkout.seleccionaUnaDireccion', 'Selecciona una dirección'));
+              if (selectedAddress) { setStep(2); trackEvent('checkout_step_completed', { step: 'address' }); } else toast.error(t('checkout.seleccionaUnaDireccion', 'Selecciona una dirección'));
             }} disabled={!selectedAddress} className={`w-full h-12 mt-5 rounded-full text-[15px] font-semibold transition-colors ${selectedAddress ? 'bg-stone-950 text-white cursor-pointer hover:bg-stone-800' : 'bg-stone-200 text-stone-500 cursor-not-allowed'}`}>
               Continuar al pago →
             </button>
