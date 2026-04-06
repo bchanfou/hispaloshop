@@ -5369,5 +5369,33 @@
     "banner_cancelled": "Pedido cancelado",
     "refund_timeline": "El importe se reflejará en tu cuenta en 5-10 días hábiles",
     "cancelled_message": "Este pedido fue cancelado"
+  },
+  "reviews": {
+    "title": "Reseñas",
+    "write": "Escribir reseña",
+    "your_review": "Tu reseña",
+    "how_rate": "¿Cómo valorarías este producto?",
+    "rating": "Puntuación",
+    "select_rating": "Selecciona una puntuación",
+    "title_placeholder": "Título (opcional)",
+    "comment_placeholder": "Comparte tu experiencia...",
+    "comment_label": "Comentario de la reseña",
+    "min_chars": "Cuéntanos un poco más sobre tu experiencia (mín. 10 caracteres)",
+    "min_hint": "Mín. 10 caracteres",
+    "verified_badge": "Compra verificada",
+    "submit": "Publicar reseña",
+    "submitting": "Publicando...",
+    "submitted": "Reseña publicada",
+    "submit_error": "No hemos podido enviar la reseña",
+    "sort_recent": "Más recientes",
+    "sort_helpful": "Más útiles",
+    "sort_highest": "Mayor puntuación",
+    "sort_lowest": "Menor puntuación",
+    "helpful": "Útil",
+    "producer_response": "Respuesta del productor",
+    "anonymous": "Cliente",
+    "empty_can_review": "Aún no hay reseñas. ¡Sé el primero!",
+    "empty_no_purchase": "Aún no hay reseñas",
+    "buy_to_review": "Compra este producto para dejar tu reseña"
   }
 }

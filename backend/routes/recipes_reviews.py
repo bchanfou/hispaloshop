@@ -737,210 +737,508 @@ async def create_recipe_review(recipe_id: str, request: Request, user: User = De
     return review
 
 
-@router.get("/products/{product_id}/reviews")
-async def get_product_reviews(product_id: str, lang: Optional[str] = None):
-    """Get visible reviews and average rating for a product (public)"""
-    # Get visible reviews for the product
-    reviews = await db.reviews.find(
-        {"product_id": product_id, "visible": True},
-        {"_id": 0}
-    ).sort("created_at", -1).to_list(100)
+# ── Helpers ───────────────────────────────────────────────────────
 
-    # Calculate average rating
-    total_reviews = len(reviews)
+REVIEWABLE_STATUSES = {"delivered", "completed"}
+
+
+async def _recalculate_product_rating(product_id: str):
+    """Recalculate rating_avg and reviews_count from approved reviews."""
+    pipeline = [
+        {"$match": {"product_id": product_id, "moderation_status": "approved", "deleted": {"$ne": True}}},
+        {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}},
+    ]
+    result = await db.reviews.aggregate(pipeline).to_list(1)
+    if result:
+        await db.products.update_one(
+            {"product_id": product_id},
+            {"$set": {"rating_avg": round(result[0]["avg"], 1), "reviews_count": result[0]["count"]}},
+        )
+    else:
+        await db.products.update_one(
+            {"product_id": product_id},
+            {"$set": {"rating_avg": 0, "reviews_count": 0}},
+        )
+
+
+async def _enrich_reviews_with_authors(reviews: list):
+    """Add author username + avatar to each review."""
+    user_ids = list({r.get("user_id") for r in reviews if r.get("user_id")})
+    if not user_ids:
+        return
+    users = await db.users.find(
+        {"user_id": {"$in": user_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "avatar_url": 1},
+    ).to_list(len(user_ids))
+    user_map = {u["user_id"]: u for u in users}
+    for r in reviews:
+        u = user_map.get(r.get("user_id"), {})
+        r["user_name"] = r.get("user_name") or u.get("name", "")
+        r["user_username"] = u.get("username", "")
+        r["user_avatar"] = u.get("profile_image") or u.get("avatar_url", "")
+
+
+# ── GET reviews ──────────────────────────────────────────────────
+
+@router.get("/products/{product_id}/reviews")
+async def get_product_reviews(
+    product_id: str,
+    sort: str = Query("recent", regex="^(recent|helpful|highest|lowest)$"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=50),
+    lang: Optional[str] = None,
+):
+    """Get approved reviews for a product (public). Includes rating distribution."""
+    query = {"product_id": product_id, "moderation_status": "approved", "deleted": {"$ne": True}}
+
+    # Sort
+    sort_field = {
+        "recent": [("created_at", -1)],
+        "helpful": [("helpful_count", -1), ("created_at", -1)],
+        "highest": [("rating", -1), ("created_at", -1)],
+        "lowest": [("rating", 1), ("created_at", -1)],
+    }.get(sort, [("created_at", -1)])
+
+    total = await db.reviews.count_documents(query)
+    skip = (page - 1) * limit
+    reviews = await db.reviews.find(query, {"_id": 0}).sort(sort_field).skip(skip).limit(limit).to_list(limit)
+
+    # Also include legacy reviews that use visible=True but no moderation_status
+    if total == 0:
+        legacy_query = {"product_id": product_id, "visible": True, "deleted": {"$ne": True}}
+        total = await db.reviews.count_documents(legacy_query)
+        reviews = await db.reviews.find(legacy_query, {"_id": 0}).sort(sort_field).skip(skip).limit(limit).to_list(limit)
+
+    await _enrich_reviews_with_authors(reviews)
+
+    # Calculate average rating + distribution from ALL approved reviews
+    all_approved = await db.reviews.find(
+        {"product_id": product_id, "$or": [{"moderation_status": "approved"}, {"visible": True}], "deleted": {"$ne": True}},
+        {"_id": 0, "rating": 1},
+    ).to_list(10000)
+
     average_rating = 0
-    if total_reviews > 0:
-        average_rating = round(sum(r["rating"] for r in reviews) / total_reviews, 1)
+    distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    if all_approved:
+        for r in all_approved:
+            rating = int(r.get("rating", 0))
+            if 1 <= rating <= 5:
+                distribution[rating] += 1
+        total_rated = sum(distribution.values())
+        average_rating = round(sum(k * v for k, v in distribution.items()) / total_rated, 1) if total_rated > 0 else 0
 
     # Translate review texts if requested
     if lang:
         for review in reviews:
-            if review.get("text"):
+            text = review.get("comment") or review.get("text", "")
+            if text:
                 source_lang = review.get("source_language", "es")
                 if lang != source_lang:
                     translated = await TranslationService.translate_document_fields(
                         collection_name="reviews",
                         doc_id_field="review_id",
                         doc_id=review.get("review_id", ""),
-                        fields_to_translate=["text"],
+                        fields_to_translate=["comment"],
                         target_lang=lang,
                         document=review,
                     )
                     if translated:
-                        review["original_text"] = review["text"]
-                        review["text"] = translated.get("text", review["text"])
+                        review["original_comment"] = review.get("comment", "")
+                        review["comment"] = translated.get("comment", review.get("comment", ""))
                         review["translated_from"] = source_lang
 
     return {
         "reviews": reviews,
         "average_rating": average_rating,
-        "total_reviews": total_reviews
+        "total_reviews": total,
+        "distribution": distribution,
+        "has_more": skip + limit < total,
+        "page": page,
     }
 
-@router.post("/reviews/create")
-async def create_review(input: ReviewCreateInput, user: User = Depends(get_current_user)):
-    """Create a review for a product (verified buyers only)"""
-    # Validate order exists and belongs to user
-    order = await db.orders.find_one(
-        {"order_id": input.order_id, "user_id": user.user_id},
-        {"_id": 0}
-    )
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    
-    # Validate order status is COMPLETED
-    if order.get("status", "").lower() != "completed":
-        raise HTTPException(
-            status_code=400, 
-            detail="You can only review products from completed orders"
-        )
-    
-    # Validate product exists in order
-    product_in_order = any(
-        item["product_id"] == input.product_id 
-        for item in order.get("line_items", [])
-    )
-    if not product_in_order:
-        raise HTTPException(
-            status_code=400, 
-            detail="This product was not in your order"
-        )
-    
-    # Check product exists
-    product = await db.products.find_one({"product_id": input.product_id}, {"_id": 0})
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
+
+# ── POST create review ───────────────────────────────────────────
+
+@router.post("/products/{product_id}/reviews")
+async def create_product_review(product_id: str, input: ReviewCreateInput, user: User = Depends(get_current_user)):
+    """Create a review for a product. Requires verified purchase (delivered/completed order)."""
     # Check if user already reviewed this product
-    existing_review = await db.reviews.find_one(
-        {"product_id": input.product_id, "user_id": user.user_id},
-        {"_id": 0}
+    existing = await db.reviews.find_one(
+        {"product_id": product_id, "user_id": user.user_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1},
     )
-    if existing_review:
-        raise HTTPException(
-            status_code=400, 
-            detail="You have already reviewed this product"
+    if existing:
+        raise HTTPException(status_code=400, detail="Ya has dejado una reseña para este producto")
+
+    # Find a delivered/completed order containing this product
+    order = None
+    if input.order_id:
+        order = await db.orders.find_one(
+            {"order_id": input.order_id, "user_id": user.user_id},
+            {"_id": 0, "order_id": 1, "status": 1, "line_items": 1, "items": 1},
         )
-    
-    # Create the review
+    if not order:
+        order = await db.orders.find_one(
+            {
+                "user_id": user.user_id,
+                "status": {"$in": list(REVIEWABLE_STATUSES)},
+                "$or": [
+                    {"line_items.product_id": product_id},
+                    {"items.product_id": product_id},
+                ],
+            },
+            {"_id": 0, "order_id": 1, "status": 1, "line_items": 1, "items": 1},
+        )
+    if not order:
+        raise HTTPException(
+            status_code=403,
+            detail="Debes haber comprado y recibido este producto para dejar una reseña",
+        )
+
+    order_status = (order.get("status") or "").lower()
+    if order_status not in REVIEWABLE_STATUSES:
+        raise HTTPException(
+            status_code=403,
+            detail="Debes haber comprado y recibido este producto para dejar una reseña",
+        )
+
+    # Verify product is in the order
+    items = order.get("line_items") or order.get("items") or []
+    product_in_order = any(item.get("product_id") == product_id for item in items)
+    if not product_in_order:
+        raise HTTPException(status_code=400, detail="Este producto no estaba en tu pedido")
+
+    # Verify product exists
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "product_id": 1, "producer_id": 1})
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    # Validate comment length
+    comment = (input.comment or "").strip()
+    if len(comment) < 10:
+        raise HTTPException(status_code=400, detail="La reseña debe tener al menos 10 caracteres")
+
+    # Validate images
+    images = (input.images or [])[:3]
+
+    # IA moderation
+    moderation_status = "approved"
+    moderation_reason = None
+    try:
+        from services.content_moderation import moderate_review
+        mod_result = await moderate_review(comment, input.rating)
+        moderation_status = mod_result.get("status", "approved")
+        moderation_reason = mod_result.get("reason")
+    except Exception as e:
+        logger.warning("[REVIEWS] Moderation error, defaulting to pending: %s", e)
+        moderation_status = "pending"
+        moderation_reason = "Moderation service unavailable"
+
     review_id = f"rev_{uuid.uuid4().hex[:12]}"
     review = {
         "review_id": review_id,
-        "product_id": input.product_id,
+        "product_id": product_id,
         "user_id": user.user_id,
-        "order_id": input.order_id,
+        "order_id": order.get("order_id", ""),
         "rating": input.rating,
-        "comment": input.comment[:500],  # Enforce max length
-        "verified": True,
-        "visible": True,
+        "title": (input.title or "").strip()[:100] or None,
+        "comment": comment[:2000],
+        "images": images,
+        "is_verified_purchase": True,
+        "moderation_status": moderation_status,
+        "moderation_reason": moderation_reason,
+        "visible": moderation_status == "approved",
+        "producer_response": None,
+        "producer_response_at": None,
+        "helpful_count": 0,
+        "helpful_users": [],
+        "deleted": False,
         "user_name": user.name,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.reviews.insert_one(review)
     review.pop("_id", None)
 
-    # Trigger badge check after review creation
+    # Recalculate product rating if approved
+    if moderation_status == "approved":
+        await _recalculate_product_rating(product_id)
+
+    # Badge check
     try:
         from routes.badges import check_and_award_badges
         await check_and_award_badges(user.user_id)
     except Exception:
-        pass  # Badge failure should never block review creation
+        pass
 
-    return review
+    return {
+        **review,
+        "moderation_message": (
+            "Tu reseña necesita revisión. Te notificaremos." if moderation_status != "approved" else None
+        ),
+    }
+
+
+# Legacy endpoint — keep for backward compat
+@router.post("/reviews/create")
+async def create_review_legacy(input: ReviewCreateInput, user: User = Depends(get_current_user)):
+    """Legacy create review endpoint. Redirects to new product-scoped endpoint."""
+    return await create_product_review(input.product_id, input, user)
+
+
+# ── GET can-review ───────────────────────────────────────────────
 
 @router.get("/reviews/can-review/{product_id}")
 async def can_review_product(product_id: str, user: User = Depends(get_current_user)):
-    """Check if user can review a product"""
-    # Check if user already reviewed
-    existing_review = await db.reviews.find_one(
-        {"product_id": product_id, "user_id": user.user_id},
-        {"_id": 0}
+    """Check if user can review a product."""
+    existing = await db.reviews.find_one(
+        {"product_id": product_id, "user_id": user.user_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1},
     )
-    if existing_review:
+    if existing:
         return {"can_review": False, "reason": "already_reviewed"}
-    
-    # Check if user has a completed order with this product
-    completed_order = await db.orders.find_one(
+
+    order = await db.orders.find_one(
         {
             "user_id": user.user_id,
-            "status": "completed",
-            "line_items.product_id": product_id
+            "status": {"$in": list(REVIEWABLE_STATUSES)},
+            "$or": [
+                {"line_items.product_id": product_id},
+                {"items.product_id": product_id},
+            ],
         },
-        {"_id": 0, "order_id": 1}
+        {"_id": 0, "order_id": 1},
     )
-    
-    if not completed_order:
-        return {"can_review": False, "reason": "no_completed_order"}
-    
-    return {
-        "can_review": True, 
-        "order_id": completed_order["order_id"]
-    }
+    if not order:
+        return {"can_review": False, "reason": "no_delivered_order"}
+
+    return {"can_review": True, "order_id": order["order_id"]}
+
+
+# ── POST producer response ───────────────────────────────────────
+
+@router.post("/products/{product_id}/reviews/{review_id}/respond")
+async def respond_to_review(
+    product_id: str, review_id: str, request: Request, user: User = Depends(get_current_user),
+):
+    """Producer responds to a review on their product. One response per review, moderated."""
+    body = await request.json()
+    response_text = (body.get("response") or body.get("text") or "").strip()
+    if not response_text or len(response_text) > 1000:
+        raise HTTPException(status_code=400, detail="La respuesta debe tener entre 1 y 1000 caracteres")
+
+    review = await db.reviews.find_one(
+        {"review_id": review_id, "product_id": product_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1, "producer_response": 1, "product_id": 1},
+    )
+    if not review:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+
+    if review.get("producer_response"):
+        raise HTTPException(status_code=400, detail="Ya has respondido a esta reseña")
+
+    # Verify user is the producer of the product
+    product = await db.products.find_one(
+        {"product_id": product_id},
+        {"_id": 0, "producer_id": 1, "seller_id": 1},
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    producer_id = product.get("producer_id") or product.get("seller_id")
+    if producer_id != user.user_id:
+        raise HTTPException(status_code=403, detail="Solo el productor puede responder a reseñas de sus productos")
+
+    # IA moderation on response
+    moderation_status = "approved"
+    try:
+        from services.content_moderation import moderate_review
+        mod_result = await moderate_review(response_text)
+        moderation_status = mod_result.get("status", "approved")
+        if moderation_status == "rejected":
+            raise HTTPException(status_code=400, detail="Tu respuesta no cumple las normas de la comunidad")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning("[REVIEWS] Response moderation error: %s", e)
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.reviews.update_one(
+        {"review_id": review_id},
+        {"$set": {
+            "producer_response": response_text[:1000],
+            "producer_response_at": now,
+            "producer_response_moderation": moderation_status,
+            "updated_at": now,
+        }},
+    )
+
+    return {"success": True, "producer_response": response_text[:1000]}
+
+
+# ── POST helpful vote toggle ─────────────────────────────────────
+
+@router.post("/products/{product_id}/reviews/{review_id}/helpful")
+async def toggle_helpful(
+    product_id: str, review_id: str, user: User = Depends(get_current_user),
+):
+    """Toggle 'helpful' vote on a review. Cannot vote on own review."""
+    review = await db.reviews.find_one(
+        {"review_id": review_id, "product_id": product_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1, "user_id": 1, "helpful_users": 1, "helpful_count": 1},
+    )
+    if not review:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+
+    if review.get("user_id") == user.user_id:
+        raise HTTPException(status_code=400, detail="No puedes votar tu propia reseña")
+
+    helpful_users = review.get("helpful_users") or []
+    if user.user_id in helpful_users:
+        # Remove vote
+        await db.reviews.update_one(
+            {"review_id": review_id},
+            {"$pull": {"helpful_users": user.user_id}, "$inc": {"helpful_count": -1}},
+        )
+        return {"helpful": False, "helpful_count": max((review.get("helpful_count") or 0) - 1, 0)}
+    else:
+        # Add vote
+        await db.reviews.update_one(
+            {"review_id": review_id},
+            {"$addToSet": {"helpful_users": user.user_id}, "$inc": {"helpful_count": 1}},
+        )
+        return {"helpful": True, "helpful_count": (review.get("helpful_count") or 0) + 1}
+
+
+# ── DELETE review (soft) ─────────────────────────────────────────
+
+@router.delete("/products/{product_id}/reviews/{review_id}")
+async def delete_product_review(
+    product_id: str, review_id: str, user: User = Depends(get_current_user),
+):
+    """Soft-delete a review. Author or admin can delete."""
+    review = await db.reviews.find_one(
+        {"review_id": review_id, "product_id": product_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1, "user_id": 1},
+    )
+    if not review:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+
+    is_author = review.get("user_id") == user.user_id
+    is_admin = getattr(user, "role", None) in ("admin", "super_admin")
+    if not is_author and not is_admin:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    await db.reviews.update_one(
+        {"review_id": review_id},
+        {"$set": {"deleted": True, "visible": False, "updated_at": datetime.now(timezone.utc).isoformat()}},
+    )
+
+    # Recalculate product rating
+    await _recalculate_product_rating(product_id)
+
+    return {"success": True}
+
+
+# ── Customer reviews list ─────────────────────────────────────────
 
 @router.get("/customer/reviews")
 async def get_customer_reviews(user: User = Depends(get_current_user)):
-    """Get all reviews by the current customer"""
+    """Get all reviews by the current customer."""
     reviews = await db.reviews.find(
-        {"user_id": user.user_id},
-        {"_id": 0}
+        {"user_id": user.user_id, "deleted": {"$ne": True}},
+        {"_id": 0},
     ).sort("created_at", -1).to_list(50)
     return reviews
 
-# Admin Review Moderation
+
+# ── Admin Review Moderation ───────────────────────────────────────
+
 @router.get("/admin/reviews")
-async def get_all_reviews(user: User = Depends(get_current_user)):
-    """Get all reviews for admin moderation"""
-    await require_role(user, ["admin"])
-    
-    reviews = await db.reviews.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
-    
-    # Enrich with product names
+async def get_all_reviews(
+    user: User = Depends(get_current_user),
+    status: Optional[str] = Query(None),
+):
+    """Get reviews for admin moderation. Filter by moderation_status."""
+    await require_role(user, ["admin", "super_admin"])
+
+    query: dict = {"deleted": {"$ne": True}}
+    if status:
+        query["moderation_status"] = status
+
+    reviews = await db.reviews.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
+
     for review in reviews:
         product = await db.products.find_one(
-            {"product_id": review["product_id"]},
-            {"_id": 0, "name": 1}
+            {"product_id": review.get("product_id")},
+            {"_id": 0, "name": 1},
         )
         review["product_name"] = product["name"] if product else "Unknown Product"
-    
+
     return reviews
+
+
+@router.put("/admin/reviews/{review_id}/moderate")
+async def moderate_review_admin(review_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Admin approves or rejects a review."""
+    await require_role(user, ["admin", "super_admin"])
+    body = await request.json()
+    new_status = body.get("status")
+    if new_status not in ("approved", "rejected"):
+        raise HTTPException(status_code=400, detail="Status must be 'approved' or 'rejected'")
+
+    review = await db.reviews.find_one({"review_id": review_id}, {"_id": 0, "product_id": 1})
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    await db.reviews.update_one(
+        {"review_id": review_id},
+        {"$set": {
+            "moderation_status": new_status,
+            "visible": new_status == "approved",
+            "moderation_reason": body.get("reason"),
+            "moderated_by": user.user_id,
+            "moderated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+
+    await _recalculate_product_rating(review["product_id"])
+    return {"success": True, "status": new_status}
+
 
 @router.put("/admin/reviews/{review_id}/hide")
 async def hide_review(review_id: str, user: User = Depends(get_current_user)):
-    """Hide a review (admin only)"""
-    await require_role(user, ["admin"])
-    
+    """Hide a review (admin only)."""
+    await require_role(user, ["admin", "super_admin"])
     result = await db.reviews.update_one(
         {"review_id": review_id},
-        {"$set": {"visible": False}}
+        {"$set": {"visible": False, "moderation_status": "rejected"}},
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
-    
     return {"message": "Review hidden"}
+
 
 @router.put("/admin/reviews/{review_id}/show")
 async def show_review(review_id: str, user: User = Depends(get_current_user)):
-    """Show a hidden review (admin only)"""
-    await require_role(user, ["admin"])
-    
+    """Show a hidden review (admin only)."""
+    await require_role(user, ["admin", "super_admin"])
     result = await db.reviews.update_one(
         {"review_id": review_id},
-        {"$set": {"visible": True}}
+        {"$set": {"visible": True, "moderation_status": "approved"}},
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
-    
     return {"message": "Review visible"}
 
+
 @router.delete("/admin/reviews/{review_id}")
-async def delete_review(review_id: str, user: User = Depends(get_current_user)):
-    """Delete a review (admin only)"""
-    await require_role(user, ["admin"])
-    
+async def admin_delete_review(review_id: str, user: User = Depends(get_current_user)):
+    """Hard-delete a review (admin only)."""
+    await require_role(user, ["admin", "super_admin"])
     result = await db.reviews.delete_one({"review_id": review_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
-    
     return {"message": "Review deleted"}
 
 # Seed Data

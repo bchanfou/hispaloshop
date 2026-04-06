@@ -3502,5 +3502,33 @@
     "banner_cancelled": "Order cancelled",
     "refund_timeline": "The amount will appear in your account within 5-10 business days",
     "cancelled_message": "This order was cancelled"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "write": "Write a review",
+    "your_review": "Your review",
+    "how_rate": "How would you rate this product?",
+    "rating": "Rating",
+    "select_rating": "Select a rating",
+    "title_placeholder": "Title (optional)",
+    "comment_placeholder": "Share your experience...",
+    "comment_label": "Review comment",
+    "min_chars": "Tell us a bit more about your experience (min. 10 characters)",
+    "min_hint": "Min. 10 characters",
+    "verified_badge": "Verified purchase",
+    "submit": "Publish review",
+    "submitting": "Publishing...",
+    "submitted": "Review published",
+    "submit_error": "We couldn't submit your review",
+    "sort_recent": "Most recent",
+    "sort_helpful": "Most helpful",
+    "sort_highest": "Highest rated",
+    "sort_lowest": "Lowest rated",
+    "helpful": "Helpful",
+    "producer_response": "Producer's response",
+    "anonymous": "Customer",
+    "empty_can_review": "No reviews yet. Be the first!",
+    "empty_no_purchase": "No reviews yet",
+    "buy_to_review": "Buy this product to leave a review"
   }
 }

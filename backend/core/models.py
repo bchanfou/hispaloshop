@@ -457,9 +457,11 @@ class Review(BaseModel):
 
 class ReviewCreateInput(BaseModel):
     product_id: str
-    order_id: str
+    order_id: Optional[str] = None
     rating: int = Field(ge=1, le=5)
-    comment: str = Field(max_length=500)
+    title: Optional[str] = Field(default=None, max_length=100)
+    comment: str = Field(max_length=2000)
+    images: Optional[List[str]] = Field(default=None)
 
 
 class RejectCertificateInput(BaseModel):

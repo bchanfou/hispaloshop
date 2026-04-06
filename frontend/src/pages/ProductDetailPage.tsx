@@ -6,7 +6,7 @@ import {
   ChevronLeft, Send, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
-  ShoppingBag, Lock, Clock3, ChefHat, Wheat,
+  ShoppingBag, Lock, Clock3, ChefHat, Wheat, ThumbsUp,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -92,18 +92,20 @@ export default function ProductDetailPage() {
     maxQuantity, handleVariantChange, calculateSavings,
   } = useProductPurchaseOptions(productId);
 
+  const [reviewSort, setReviewSort] = useState('recent');
   const {
-    reviews, averageRating, totalReviews, canReview, reviewOrderId,
-    isSubmitting: submittingReview, submitReview,
-  } = useProductReviewsHook(productId);
+    reviews, averageRating, totalReviews, distribution,
+    canReview, canReviewReason, reviewOrderId,
+    isSubmitting: submittingReview, submitReview, toggleHelpful,
+  } = useProductReviewsHook(productId, reviewSort);
 
   const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
   const normalizedAverageRating = Number(averageRating || 0);
   const normalizedStoreRating = Number(storeInfo?.rating || 0);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState('');
   const [reviewComment, setReviewComment] = useState('');
-  const [reviewSort, setReviewSort] = useState('recent');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
@@ -138,7 +140,8 @@ export default function ProductDetailPage() {
     setQuantity(1);
     setShowReviewForm(false);
     setReviewComment('');
-    setReviewRating(5);
+    setReviewTitle('');
+    setReviewRating(0);
     setReviewSort('recent');
     window.scrollTo(0, 0);
   }, [productId, setQuantity]);
@@ -196,12 +199,18 @@ export default function ProductDetailPage() {
   }, []);
 
   const handleSubmitReview = async () => {
-    if (!reviewComment.trim()) { toast.error('Escribe un comentario'); return; }
+    if (reviewRating === 0) { toast.error(t('reviews.select_rating', 'Selecciona una puntuacion')); return; }
+    if (reviewComment.trim().length < 10) { toast.error(t('reviews.min_chars', 'Cuentanos un poco mas sobre tu experiencia (min. 10 caracteres)')); return; }
     try {
-      await submitReview({ orderId: reviewOrderId, rating: reviewRating, comment: reviewComment });
-      toast.success(t('product_detail.resenaEnviada', 'Reseña enviada'));
-      setShowReviewForm(false); setReviewComment(''); setReviewRating(5);
-    } catch (error) { toast.error(error.message || t('product_detail.noHemosPodidoEnviarLaResena', 'No hemos podido enviar la reseña')); }
+      trackEvent('review_submitted', { product_id: productId, rating: reviewRating });
+      const result = await submitReview({ orderId: reviewOrderId, rating: reviewRating, title: reviewTitle, comment: reviewComment });
+      if (result?.moderation_message) {
+        toast(result.moderation_message);
+      } else {
+        toast.success(t('reviews.submitted', 'Resena publicada'));
+      }
+      setShowReviewForm(false); setReviewComment(''); setReviewTitle(''); setReviewRating(0);
+    } catch (error) { toast.error(error?.detail || error?.message || t('reviews.submit_error', 'No hemos podido enviar la resena')); }
   };
 
   const toggleWishlist = async () => {
@@ -1014,31 +1023,64 @@ export default function ProductDetailPage() {
         {/* Header row: title + write review button */}
         <div className="mb-3.5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-stone-950">
-            {t('productDetail.customerReviews', 'Reseñas')} ({totalReviews})
+            {t('reviews.title', 'Resenas')} ({totalReviews})
           </h2>
           {canReview && !showReviewForm && (
             <button
               type="button"
-              onClick={() => setShowReviewForm(true)}
+              onClick={() => { setShowReviewForm(true); trackEvent('review_form_opened', { product_id: productId }); }}
               className="min-h-[44px] rounded-full border border-stone-200 px-3.5 py-2.5 text-[13px] font-medium text-stone-950"
             >
-              {t('productDetail.writeReview', 'Escribir reseña')}
+              {t('reviews.write', 'Escribir resena')}
             </button>
           )}
         </div>
+
+        {/* Rating summary + distribution */}
+        {totalReviews > 0 && (
+          <div className="mb-4 rounded-2xl shadow-sm bg-white p-4">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-stone-950">{normalizedAverageRating.toFixed(1)}</p>
+                <div className="flex gap-0.5 mt-1 justify-center">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} size={14} className={s <= Math.round(normalizedAverageRating) ? 'fill-stone-950 text-stone-950' : 'text-stone-200'} />
+                  ))}
+                </div>
+                <p className="text-[11px] text-stone-500 mt-1">{totalReviews} {t('reviews.title', 'resenas')}</p>
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                {[5,4,3,2,1].map(star => {
+                  const count = distribution[star] || 0;
+                  const pct = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2">
+                      <span className="text-[11px] font-medium text-stone-500 w-3 text-right">{star}</span>
+                      <Star size={10} className="fill-stone-950 text-stone-950 shrink-0" />
+                      <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-stone-950 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-[11px] text-stone-400 w-8">{pct}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Sort selector */}
         {reviews.length > 1 && (
           <div className="mb-3">
             <select
               value={reviewSort}
-              onChange={(e) => setReviewSort(e.target.value)}
+              onChange={(e) => { setReviewSort(e.target.value); trackEvent('review_sort_changed', { sort: e.target.value }); }}
               className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none"
             >
-              <option value="recent">{t('productDetail.sortRecent', 'Más recientes')}</option>
-              <option value="helpful">{t('productDetail.sortHelpful', 'Más útiles')}</option>
-              <option value="highest">{t('productDetail.sortHighest', 'Mayor puntuación')}</option>
-              <option value="lowest">{t('productDetail.sortLowest', 'Menor puntuación')}</option>
+              <option value="recent">{t('reviews.sort_recent', 'Mas recientes')}</option>
+              <option value="helpful">{t('reviews.sort_helpful', 'Mas utiles')}</option>
+              <option value="highest">{t('reviews.sort_highest', 'Mayor puntuacion')}</option>
+              <option value="lowest">{t('reviews.sort_lowest', 'Menor puntuacion')}</option>
             </select>
           </div>
         )}
@@ -1047,48 +1089,66 @@ export default function ProductDetailPage() {
         {showReviewForm && (
           <div className="mb-4 rounded-2xl shadow-sm bg-white p-4">
             <p className="mb-3 text-sm font-semibold text-stone-950">
-              {t('productDetail.yourReview', 'Tu reseña')}
+              {t('reviews.your_review', 'Tu resena')}
             </p>
-            <div role="radiogroup" aria-label={t('product_detail.puntuacion', 'Puntuación')} className="mb-3 flex gap-1">
-              {[1,2,3,4,5,6,7,8,9,10].map((num) => (
+            {/* Star rating 1-5 */}
+            <p className="text-[13px] text-stone-500 mb-1.5">{t('reviews.how_rate', 'Como valorarias este producto?')}</p>
+            <div role="radiogroup" aria-label={t('reviews.rating', 'Puntuacion')} className="mb-3 flex gap-1">
+              {[1,2,3,4,5].map((s) => (
                 <button
-                  key={num}
+                  key={s}
                   type="button"
-                  onClick={() => setReviewRating(num)}
+                  onClick={() => setReviewRating(s)}
                   role="radio"
-                  aria-checked={num === reviewRating}
-                  aria-label={`${num} de 10`}
-                  className={`flex h-[30px] w-[30px] items-center justify-center rounded-full text-xs font-semibold ${
-                    num <= reviewRating
-                      ? 'bg-stone-950 text-white'
-                      : 'bg-stone-100 text-stone-500'
-                  }`}
+                  aria-checked={s === reviewRating}
+                  aria-label={`${s} ${s === 1 ? 'estrella' : 'estrellas'}`}
+                  className="bg-transparent border-none cursor-pointer p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
-                  {num}
+                  <Star size={28} fill={s <= reviewRating ? '#0c0a09' : 'none'} color={s <= reviewRating ? '#0c0a09' : '#e7e5e4'} />
                 </button>
               ))}
             </div>
+            {/* Title (optional) */}
+            <input
+              value={reviewTitle}
+              onChange={(e) => setReviewTitle(e.target.value.slice(0, 100))}
+              placeholder={t('reviews.title_placeholder', 'Titulo (opcional)')}
+              className="w-full mb-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] text-stone-950 outline-none"
+              maxLength={100}
+            />
+            {/* Comment */}
             <textarea
               value={reviewComment}
-              onChange={(e) => setReviewComment(e.target.value)}
-              placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
-              aria-label={t('product_detail.comentarioDeLaResena', 'Comentario de la reseña')}
-              rows={3}
-              className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-100 px-3 py-2.5 text-[13px] text-stone-950 outline-none"
+              onChange={(e) => setReviewComment(e.target.value.slice(0, 2000))}
+              placeholder={t('reviews.comment_placeholder', 'Comparte tu experiencia...')}
+              aria-label={t('reviews.comment_label', 'Comentario de la resena')}
+              rows={4}
+              className="w-full resize-y rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] text-stone-950 outline-none"
             />
-            <div className="mt-3 flex gap-2">
+            <div className="flex justify-between items-center mt-1 mb-2">
+              <span className="text-[11px] text-stone-400">
+                {reviewComment.length < 10 ? t('reviews.min_hint', 'Min. 10 caracteres') : ''}
+              </span>
+              <span className="text-[11px] text-stone-400">{reviewComment.length}/2000</span>
+            </div>
+            {/* Verified badge */}
+            <div className="flex items-center gap-1 mb-3 text-[11px] text-stone-500 font-medium">
+              <Check size={12} strokeWidth={2.5} />
+              {t('reviews.verified_badge', 'Compra verificada')}
+            </div>
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleSubmitReview}
                 disabled={submittingReview}
-                className="min-h-[44px] rounded-2xl bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
+                className="min-h-[44px] rounded-full bg-stone-950 px-6 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
               >
-                {submittingReview ? 'Enviando...' : t('productDetail.submitReview', 'Enviar')}
+                {submittingReview ? t('reviews.submitting', 'Publicando...') : t('reviews.submit', 'Publicar resena')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowReviewForm(false)}
-                className="min-h-[44px] rounded-2xl border border-stone-200 px-5 py-2 text-[13px] font-medium text-stone-500"
+                className="min-h-[44px] rounded-full border border-stone-200 px-5 py-2 text-[13px] font-medium text-stone-500"
               >
                 {t('common.cancel', 'Cancelar')}
               </button>
@@ -1099,44 +1159,79 @@ export default function ProductDetailPage() {
         {/* Reviews List */}
         {reviews.length > 0 ? (
           <div className="flex flex-col gap-2.5">
-            {[...reviews]
-              .sort((a, b) => {
-                if (reviewSort === 'highest') return Number(b.rating) - Number(a.rating);
-                if (reviewSort === 'lowest') return Number(a.rating) - Number(b.rating);
-                if (reviewSort === 'helpful') return (b.helpful_count || 0) - (a.helpful_count || 0);
-                // 'recent' default
-                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-              })
-              .slice(0, 3).map((review) => (
+            {reviews.map((review) => (
               <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl shadow-sm bg-white p-3.5">
+                {/* Header */}
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
-                      <User size={16} className="text-stone-500" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 overflow-hidden shrink-0">
+                      {review.user_avatar ? (
+                        <img src={review.user_avatar} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <User size={16} className="text-stone-500" />
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-[13px] font-semibold text-stone-950">
-                          {review.user_name || 'Cliente'}
+                          {review.user_name || review.user_username || t('reviews.anonymous', 'Cliente')}
                         </p>
-                        {review.verified_purchase && (
+                        {(review.is_verified_purchase || review.verified || review.verified_purchase) && (
                           <span className="text-[11px] text-stone-500 font-medium flex items-center gap-0.5">
-                            <Check size={10} strokeWidth={2.5} /> Compra verificada
+                            <Check size={10} strokeWidth={2.5} /> {t('reviews.verified_badge', 'Compra verificada')}
                           </span>
                         )}
                       </div>
+                      <p className="text-[11px] text-stone-400">
+                        {review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5">
-                    <Star size={12} className="fill-stone-950 text-stone-950" />
-                    <span className="text-xs font-semibold text-stone-950">
-                      {review.rating}
-                    </span>
+                  <div className="flex items-center gap-0.5">
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} size={12} className={s <= review.rating ? 'fill-stone-950 text-stone-950' : 'text-stone-200'} />
+                    ))}
                   </div>
                 </div>
+                {/* Title */}
+                {review.title && (
+                  <p className="text-sm font-semibold text-stone-950 mb-1">{review.title}</p>
+                )}
+                {/* Comment */}
                 <p className="text-[13px] leading-relaxed text-stone-500">
-                  {review.comment}
+                  {review.comment || review.text}
                 </p>
+                {/* Images */}
+                {review.images && review.images.length > 0 && (
+                  <div className="flex gap-2 mt-2">
+                    {review.images.map((img, idx) => (
+                      <div key={idx} className="w-16 h-16 rounded-xl bg-stone-100 overflow-hidden">
+                        <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Helpful */}
+                <div className="mt-2.5 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => { toggleHelpful(review.review_id); trackEvent('review_helpful_voted', { review_id: review.review_id }); }}
+                    className="flex items-center gap-1 text-[12px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
+                  >
+                    <ThumbsUp size={13} /> {t('reviews.helpful', 'Util')} {review.helpful_count > 0 ? `(${review.helpful_count})` : ''}
+                  </button>
+                </div>
+                {/* Producer response */}
+                {review.producer_response && (
+                  <div className="mt-3 pt-3 border-t border-stone-100">
+                    <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
+                      {t('reviews.producer_response', 'Respuesta del productor')}
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-stone-500">
+                      {review.producer_response}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -1144,8 +1239,15 @@ export default function ProductDetailPage() {
           <div className="rounded-2xl shadow-sm bg-white p-8 text-center">
             <Star size={32} className="mx-auto mb-3 text-stone-200" />
             <p className="text-sm text-stone-500">
-              {t('productDetail.noReviews', 'Aún no hay reseñas')}
+              {canReview
+                ? t('reviews.empty_can_review', 'Aun no hay resenas. Se el primero!')
+                : t('reviews.empty_no_purchase', 'Aun no hay resenas')}
             </p>
+            {!canReview && canReviewReason === 'no_delivered_order' && (
+              <p className="text-xs text-stone-400 mt-1">
+                {t('reviews.buy_to_review', 'Compra este producto para dejar tu resena')}
+              </p>
+            )}
           </div>
         )}
       </div>

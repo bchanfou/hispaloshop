@@ -157,18 +157,13 @@ export function useSearchSuggestions(query) {
   });
 }
 
-export function useProductReviews(productId) {
-  return useInfiniteQuery({
-    queryKey: productKeys.reviews(productId),
-    queryFn: ({ pageParam = null }) =>
+export function useProductReviews(productId, sort = 'recent') {
+  return useQuery({
+    queryKey: [...productKeys.reviews(productId), sort],
+    queryFn: () =>
       apiClient.get(`/products/${productId}/reviews`, {
-        params: {
-          cursor: pageParam,
-          limit: 10,
-        },
+        params: { sort, page: 1, limit: 10 },
       }),
-    initialPageParam: null,
-    getNextPageParam: getNextCursor,
     enabled: Boolean(productId),
     staleTime: 5 * 60 * 1000,
   });
@@ -178,10 +173,11 @@ export function useAddReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, rating, comment, images }) =>
-      apiClient.post('/reviews/create', {
+    mutationFn: ({ productId, rating, title, comment, images }) =>
+      apiClient.post(`/products/${productId}/reviews`, {
         product_id: productId,
         rating,
+        title: title || undefined,
         comment,
         images: images || [],
       }),
@@ -190,7 +186,38 @@ export function useAddReview() {
         queryKey: productKeys.reviews(variables.productId),
       });
       queryClient.invalidateQueries({
+        queryKey: productKeys.canReview(variables.productId),
+      });
+      queryClient.invalidateQueries({
         queryKey: ['product', variables.productId],
+      });
+    },
+  });
+}
+
+export function useHelpfulVote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ productId, reviewId }) =>
+      apiClient.post(`/products/${productId}/reviews/${reviewId}/helpful`, {}),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: productKeys.reviews(variables.productId),
+      });
+    },
+  });
+}
+
+export function useProducerResponse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ productId, reviewId, response }) =>
+      apiClient.post(`/products/${productId}/reviews/${reviewId}/respond`, { response }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: productKeys.reviews(variables.productId),
       });
     },
   });
@@ -265,12 +292,14 @@ export function useSubmitProductReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, orderId, rating, comment }) =>
-      apiClient.post('/reviews/create', {
+    mutationFn: ({ productId, orderId, rating, title, comment, images }) =>
+      apiClient.post(`/products/${productId}/reviews`, {
         product_id: productId,
         order_id: orderId,
         rating,
+        title: title || undefined,
         comment,
+        images: images || [],
       }),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({

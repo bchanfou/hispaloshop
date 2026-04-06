@@ -3506,5 +3506,33 @@
     "banner_cancelled": "주문 취소됨",
     "refund_timeline": "환불 금액은 5-10 영업일 이내에 계좌에 반영됩니다",
     "cancelled_message": "이 주문은 취소되었습니다"
+  },
+  "reviews": {
+    "title": "리뷰",
+    "write": "리뷰 작성",
+    "your_review": "내 리뷰",
+    "how_rate": "이 상품을 어떻게 평가하시겠습니까?",
+    "rating": "평점",
+    "select_rating": "평점을 선택하세요",
+    "title_placeholder": "제목 (선택사항)",
+    "comment_placeholder": "경험을 공유해 주세요...",
+    "comment_label": "리뷰 내용",
+    "min_chars": "경험에 대해 조금 더 알려주세요 (최소 10자)",
+    "min_hint": "최소 10자",
+    "verified_badge": "구매 인증",
+    "submit": "리뷰 게시",
+    "submitting": "게시 중...",
+    "submitted": "리뷰가 게시되었습니다",
+    "submit_error": "리뷰를 제출할 수 없습니다",
+    "sort_recent": "최신순",
+    "sort_helpful": "유용한순",
+    "sort_highest": "높은 평점순",
+    "sort_lowest": "낮은 평점순",
+    "helpful": "유용해요",
+    "producer_response": "생산자 답변",
+    "anonymous": "고객",
+    "empty_can_review": "아직 리뷰가 없습니다. 첫 번째 리뷰를 남겨보세요!",
+    "empty_no_purchase": "아직 리뷰가 없습니다",
+    "buy_to_review": "이 상품을 구매하면 리뷰를 남길 수 있습니다"
   }
 }

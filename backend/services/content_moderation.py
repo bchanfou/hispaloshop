@@ -374,3 +374,59 @@ async def moderate_product(product: dict) -> dict:
         logger.error("Product moderation error: %s", e)
         return {"decision": "review", "reason": "Error del sistema — revisión manual",
                 "violation_type": None, "confidence": "low"}
+
+
+# ── moderate_review ──────────────────────────────────────────────
+
+async def moderate_review(text: str, rating: int = 0) -> dict:
+    """
+    Moderate a product review or producer response before publishing.
+    Returns: { status: 'approved'|'pending'|'rejected', reason: str|None }
+    """
+    if not text or not text.strip():
+        return {"status": "approved", "reason": None}
+
+    try:
+        client = AsyncAnthropic()
+
+        prompt = (
+            "You are a content moderator for a food marketplace called HispaloShop.\n"
+            "Review the following product review and determine if it should be:\n"
+            '- "approved": legitimate review, constructive feedback\n'
+            '- "pending": ambiguous, needs human review\n'
+            '- "rejected": spam, hate speech, profanity, fake review, irrelevant\n\n'
+            "Rejection criteria:\n"
+            "- Profanity, hate speech, threats against the producer\n"
+            "- Spam (links, repeated text, gibberish, all caps)\n"
+            "- Content completely unrelated to the product\n"
+            "- Obvious fake (mentions competitors, clearly hasn't tried the product)\n\n"
+            "Pending criteria:\n"
+            "- Low confidence\n"
+            "- Extremely negative (1 star) with very short text\n\n"
+            "Be lenient — most reviews are legitimate. Only reject clearly bad content.\n\n"
+            f"Rating: {rating}/5\n"
+            f"Text: {text[:2000]}\n\n"
+            'Respond ONLY with JSON: {"status": "approved"|"pending"|"rejected", "reason": null or brief reason}'
+        )
+
+        resp = await client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        if not resp.content:
+            return {"status": "pending", "reason": "Empty moderation response"}
+
+        result = _parse_ai_json(resp.content[0].text)
+        return {
+            "status": result.get("status", "pending"),
+            "reason": result.get("reason"),
+        }
+
+    except json.JSONDecodeError:
+        logger.error("Failed to parse AI review moderation response")
+        return {"status": "pending", "reason": "Parse error — manual review"}
+    except Exception as e:
+        logger.error("Review moderation error: %s", e)
+        return {"status": "pending", "reason": "System error — manual review"}
