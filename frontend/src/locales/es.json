@@ -5556,5 +5556,20 @@
     "select_new_admin": "Selecciona un nuevo administrador",
     "member_removed": "Miembro eliminado",
     "group_reported": "Grupo reportado"
+  },
+  "david": {
+    "panel_alerts": "Alertas",
+    "panel_wellness": "Mi bienestar",
+    "panel_purchases": "Mis compras",
+    "onboarding_title": "Cuéntame un poco sobre ti",
+    "no_alerts": "Sin alertas ahora mismo.",
+    "no_data": "Sin datos suficientes aún.",
+    "greeting": "Hola, soy David",
+    "retry": "Reintentar",
+    "total_spend": "Gasto total",
+    "orders": "Pedidos",
+    "avg_order": "medio",
+    "wellness_label": "Bienestar",
+    "error_loading": "No pudimos cargar los datos."
   }
 }

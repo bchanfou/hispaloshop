@@ -3778,5 +3778,20 @@
     "select_new_admin": "새 관리자 선택",
     "member_removed": "멤버 제거됨",
     "group_reported": "그룹 신고됨"
+  },
+  "david": {
+    "panel_alerts": "알림",
+    "panel_wellness": "내 건강",
+    "panel_purchases": "내 구매",
+    "onboarding_title": "당신에 대해 알려주세요",
+    "no_alerts": "지금은 알림이 없습니다.",
+    "no_data": "아직 충분한 데이터가 없습니다.",
+    "greeting": "안녕하세요, David입니다",
+    "retry": "다시 시도",
+    "total_spend": "총 지출",
+    "orders": "주문",
+    "avg_order": "평균",
+    "wellness_label": "건강",
+    "error_loading": "데이터를 불러올 수 없습니다."
   }
 }

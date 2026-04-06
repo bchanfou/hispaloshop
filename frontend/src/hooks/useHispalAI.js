@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import apiClient from '../services/api/client';
+import { trackEvent } from '../utils/analytics';
 
 const RATE_LIMIT_FREE = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -256,11 +257,23 @@ export default function useHispalAI() {
           storeSessionMemory(next);
           return next;
         });
+        trackEvent('david_product_searched', { query: text.slice(0, 50) });
+      }
+
+      // Track add_to_cart tool calls
+      for (const tc of (data.tool_calls || [])) {
+        if (tc.tool === 'add_to_cart' && tc.result?.success) {
+          trackEvent('david_product_added_to_cart', { product_id: tc.input?.product_id });
+        }
       }
 
       // Update profile if preferences were detected
       if (data.preference_updates && Object.keys(data.preference_updates).length > 0) {
         setAiProfile((prev) => (prev ? { ...prev, ...data.preference_updates } : prev));
+        const types = Object.keys(data.preference_updates);
+        for (const type of types) {
+          trackEvent('david_preference_detected', { type });
+        }
       }
 
       const assistantMessage = {

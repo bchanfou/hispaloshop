@@ -3774,5 +3774,20 @@
     "select_new_admin": "Select a new admin",
     "member_removed": "Member removed",
     "group_reported": "Group reported"
+  },
+  "david": {
+    "panel_alerts": "Alerts",
+    "panel_wellness": "My wellness",
+    "panel_purchases": "My purchases",
+    "onboarding_title": "Tell me about yourself",
+    "no_alerts": "No alerts right now.",
+    "no_data": "Not enough data yet.",
+    "greeting": "Hi, I'm David",
+    "retry": "Retry",
+    "total_spend": "Total spend",
+    "orders": "Orders",
+    "avg_order": "average",
+    "wellness_label": "Wellness",
+    "error_loading": "Could not load the data."
   }
 }

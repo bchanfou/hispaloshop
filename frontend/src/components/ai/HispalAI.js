@@ -8,6 +8,8 @@ import useDraggableButton from '../../hooks/useDraggableButton';
 import { useAuth } from '../../context/AuthContext';
 import ProductCardInChat from './ProductCardInChat';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+import { trackEvent } from '../../utils/analytics';
 
 /* ── Helpers ── */
 
@@ -173,6 +175,7 @@ export default function HispalAI() {
   const openPanel = useCallback(async (view) => {
     setPanelView(view);
     setPanelError(null);
+    trackEvent('david_panel_opened', { panel: view });
     if (view === 'alerts') return; // already in state
     setPanelLoading(true);
     try {
@@ -208,6 +211,11 @@ export default function HispalAI() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  const openChatWithTracking = useCallback(() => {
+    openChat();
+    trackEvent('david_opened');
+  }, [openChat]);
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
@@ -234,15 +242,21 @@ export default function HispalAI() {
 
   // Listen for global open event
   useEffect(() => {
-    const handler = () => openChat();
+    const handler = () => openChatWithTracking();
     document.addEventListener('open-hispal-ai', handler);
     return () => document.removeEventListener('open-hispal-ai', handler);
   }, [openChat]);
 
-  if (!user) return null;
+  const location = useLocation();
+
+  // Hide during onboarding, auth, and registration flows
+  const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
+  const shouldHide = HIDDEN_PATHS.some(p => location.pathname.startsWith(p));
+  if (!user || shouldHide) return null;
 
   const handleSend = () => {
     if (!input.trim()) return;
+    trackEvent('david_message_sent', { has_tool_call: false });
     sendMessage(input.trim());
     setInput('');
   };
@@ -384,7 +398,7 @@ export default function HispalAI() {
                 {/* Onboarding CTA banner — shown to new users before any conversation */}
                 {aiProfile && aiProfile.onboarding_completed === false && messages.length === 0 && (
                   <div className="border-b border-stone-100 bg-stone-50 px-4 py-3">
-                    <p className="text-[12px] font-semibold text-stone-950">Cuéntame un poco sobre ti</p>
+                    <p className="text-[12px] font-semibold text-stone-950">{t('david.onboarding_title', 'Cuéntame un poco sobre ti')}</p>
                     <p className="mt-0.5 text-[11px] text-stone-500">
                       30 segundos y te conozco: dieta, alergias, gustos. Así personalizo cada recomendación.
                     </p>
@@ -416,9 +430,9 @@ export default function HispalAI() {
                           <ChevronLeft className="h-4 w-4" />
                         </button>
                         <h3 className="text-[14px] font-semibold text-stone-950">
-                          {panelView === 'alerts' && 'Alertas'}
-                          {panelView === 'wellness' && 'Mi bienestar'}
-                          {panelView === 'purchases' && 'Mis compras'}
+                          {panelView === 'alerts' && t('david.panel_alerts', 'Alertas')}
+                          {panelView === 'wellness' && t('david.panel_wellness', 'Mi bienestar')}
+                          {panelView === 'purchases' && t('david.panel_purchases', 'Mis compras')}
                         </h3>
                       </div>
                       <div className="flex-1 overflow-y-auto px-4 py-3">
@@ -447,7 +461,7 @@ export default function HispalAI() {
                             {!alerts || alerts.length === 0 ? (
                               <div className="flex h-full flex-col items-center justify-center text-center">
                                 <Bell className="h-8 w-8 text-stone-300" />
-                                <p className="mt-3 text-[13px] text-stone-500">Sin alertas ahora mismo.</p>
+                                <p className="mt-3 text-[13px] text-stone-500">{t('david.no_alerts', 'Sin alertas ahora mismo.')}</p>
                               </div>
                             ) : (
                               <div className="space-y-2">
@@ -482,7 +496,7 @@ export default function HispalAI() {
                             {!wellness ? (
                               <div className="flex h-full flex-col items-center justify-center text-center">
                                 <Activity className="h-8 w-8 text-stone-300" />
-                                <p className="mt-3 text-[13px] text-stone-500">Sin datos suficientes aún.</p>
+                                <p className="mt-3 text-[13px] text-stone-500">{t('david.no_data', 'Sin datos suficientes aún.')}</p>
                               </div>
                             ) : (
                               <div className="space-y-4">
@@ -603,7 +617,7 @@ export default function HispalAI() {
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
                         <Sparkles className="h-8 w-8 text-stone-950" />
                       </div>
-                      <h3 className="mt-4 text-lg font-semibold text-stone-950">Hola, soy David</h3>
+                      <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
                       <p className="mt-1 text-center text-sm text-stone-500">
                         Estoy aquí para ayudarte a encontrar lo que necesitas
                       </p>
