@@ -1,7 +1,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Clapperboard, FileText, Images, Loader2, Package, PenSquare, Phone, Search, Reply, Send, Trash2, UserPlus, UtensilsCrossed, Video, X } from 'lucide-react';
+import { ArrowLeft, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, UserPlus, UtensilsCrossed, Video, X } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
@@ -10,6 +10,10 @@ import { useInternalChatData } from '../features/chat/hooks/useInternalChatData'
 import { useSwipeToReply } from '../hooks/useSwipeToReply';
 import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
+import { trackEvent } from '../utils/analytics';
+import AudioRecorder from './chat/AudioRecorder';
+import AudioPlayerBubble from './chat/AudioPlayerBubble';
+import GroupChatPanel from './chat/GroupChatPanel';
 const MAX_VISIBLE_MESSAGES = 150;
 
 // Module-level formatter singletons
@@ -193,7 +197,7 @@ const MessageBubble = React.memo(function MessageBubble({
           </motion.button> : null}
       </AnimatePresence>
 
-      <div ref={elRef} className={`relative min-w-0 max-w-[78%] sm:max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div ref={elRef} className={`relative min-w-0 max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? <>
@@ -234,6 +238,9 @@ const MessageBubble = React.memo(function MessageBubble({
             </> : null}
         </AnimatePresence>
 
+        {/* Group sender name — show for non-own messages in groups */}
+        {!isOwn && message?.sender_name ? <p className="mb-0.5 px-1 text-[11px] font-semibold text-stone-500">{message.sender_name}</p> : null}
+
         {/* Reply preview — inline above the bubble */}
         {hasReplyPreview ? <ReplyPreviewInline preview={message.reply_to_preview} /> : null}
 
@@ -241,13 +248,25 @@ const MessageBubble = React.memo(function MessageBubble({
           {message?.shared_item ? <div className="mb-1.5">
               <SharedItemCard item={message.shared_item} compact />
             </div> : null}
+          {/* Story reply preview — thumbnail + caption */}
+          {message?.message_type === 'story_reply' && message?.story_thumbnail_url ? <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px] bg-stone-900' : 'rounded-bl-[4px] bg-stone-50'}`}>
+              <div className="flex items-center gap-2.5 p-2">
+                <img src={message.story_thumbnail_url} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                <div className="min-w-0 flex-1">
+                  <span className={`text-[11px] font-medium ${isOwn ? 'text-white/50' : 'text-stone-400'}`}>{message.story_expires_at && new Date(message.story_expires_at) < new Date() ? 'Story expirada' : 'Respondiste a su story'}</span>
+                  {message.story_caption ? <p className={`mt-0.5 truncate text-[13px] ${isOwn ? 'text-white/70' : 'text-stone-600'}`}>{message.story_caption}</p> : null}
+                </div>
+              </div>
+            </div> : null}
           {message?.image_url ? <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
               <img src={message.image_url} alt={i18n.t('internal_chat.imagenCompartidaEnElChat', 'Imagen compartida en el chat')} loading="lazy" onError={e => {
             e.target.alt = i18n.t('internal_chat.noSePudoCargarLaImagen', 'No se pudo cargar la imagen');
             e.target.className = 'hidden';
           }} className="max-w-[260px] object-cover" />
             </div> : null}
-          {message?.content ? <div className={`px-3.5 py-2.5 text-[15px] leading-[1.4] whitespace-pre-wrap break-words ${isOwn ? `${hasReplyPreview ? 'rounded-b-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-br-[4px]'} bg-stone-950 text-white` : `${hasReplyPreview ? 'rounded-b-[20px] rounded-bl-[4px]' : 'rounded-[20px] rounded-bl-[4px]'} bg-stone-100 text-stone-950`}`} style={{
+          {/* Audio player bubble */}
+          {message?.audio_url || message?.audio_expired ? <AudioPlayerBubble audioUrl={message.audio_url} duration={message.audio_duration || 0} expiresAt={message.audio_expires_at} expired={!!message.audio_expired} isOwn={isOwn} /> : null}
+          {message?.content && !message?.audio_url && !message?.audio_expired ? <div className={`px-3.5 py-2.5 text-[15px] leading-[1.4] whitespace-pre-wrap break-words ${isOwn ? `${hasReplyPreview ? 'rounded-b-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-br-[4px]'} bg-stone-950 text-white` : `${hasReplyPreview ? 'rounded-b-[20px] rounded-bl-[4px]' : 'rounded-[20px] rounded-bl-[4px]'} bg-stone-100 text-stone-950`}`} style={{
           overflowWrap: 'anywhere',
           wordBreak: 'break-word'
         }}>
@@ -580,6 +599,9 @@ export default function InternalChat({
   const [directorySearchValue, setDirectorySearchValue] = useState('');
   const [directoryRoleFilter, setDirectoryRoleFilter] = useState('all');
   const [isComposerActionsOpen, setIsComposerActionsOpen] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
+  const [inboxTab, setInboxTab] = useState('messages'); // 'messages' | 'requests'
+  const [showGroupPanel, setShowGroupPanel] = useState(false);
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingSharedItem, setPendingSharedItem] = useState(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
@@ -643,14 +665,17 @@ export default function InternalChat({
       return haystack.includes(query);
     });
   }, [deferredDirectorySearchValue, directoryRoleFilter, directoryUsers]);
+  const requestConversations = useMemo(() => sortedConversations.filter(c => c.is_request && c.request_status === 'pending'), [sortedConversations]);
+  const mainConversations = useMemo(() => sortedConversations.filter(c => !c.is_request || c.request_status === 'accepted'), [sortedConversations]);
+  const activeInboxList = inboxTab === 'requests' ? requestConversations : mainConversations;
   const filteredConversations = useMemo(() => {
     const query = deferredSearchValue.trim().toLowerCase();
-    if (!query) return sortedConversations;
-    return sortedConversations.filter(conversation => {
+    if (!query) return activeInboxList;
+    return activeInboxList.filter(conversation => {
       const haystack = [conversation?.other_user_name, conversation?.other_user_role, conversation?.last_message?.content].filter(Boolean).join(' ').toLowerCase();
       return haystack.includes(query);
     });
-  }, [deferredSearchValue, sortedConversations]);
+  }, [deferredSearchValue, activeInboxList]);
   const activeConversation = useMemo(() => sortedConversations.find(conversation => conversation.conversation_id === selectedConversationId) || null, [selectedConversationId, sortedConversations]);
   const resolveShareReference = useCallback((rawValue, forcedType) => {
     const value = rawValue.trim();
@@ -1180,6 +1205,8 @@ export default function InternalChat({
         URL.revokeObjectURL(imageToUpload.previewUrl);
       }
       scheduleReloadConversations();
+      const msgType = imageUrl ? 'image' : sharedItemToSend ? 'product' : 'text';
+      trackEvent('chat_message_sent', { type: msgType, is_group: activeConversation?.type === 'group' });
     } catch (error) {
       setMessages(current => {
         const nextMessages = current.filter(message => message.message_id !== optimisticId);
@@ -1333,6 +1360,16 @@ export default function InternalChat({
           </label>
         </div>
 
+        {/* ── Inbox tabs: Messages | Requests ── */}
+        {requestConversations.length > 0 ? <div className="flex border-b border-stone-100 px-4 shrink-0">
+            <button type="button" onClick={() => setInboxTab('messages')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'messages' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
+              {i18n.t('chat.tab_messages', 'Mensajes')}
+            </button>
+            <button type="button" onClick={() => setInboxTab('requests')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'requests' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
+              {i18n.t('chat.tab_requests', 'Solicitudes')} ({requestConversations.length})
+            </button>
+          </div> : null}
+
         {/* ── Conversation list flat rows ── */}
         <div className="flex-1 overflow-y-auto">
           {filteredConversations.length > 0 ? <div>
@@ -1340,14 +1377,17 @@ export default function InternalChat({
             const isActive = conversation.conversation_id === selectedConversationId;
             const lastMessage = conversation.last_message?.content || conversation.last_message?.shared_item?.title || 'Imagen compartida';
             const unreadCount = Number(conversation.unread_count || 0);
+            const isGroup = conversation.type === 'group';
+            const displayName = isGroup ? conversation.group_name : conversation.other_user_name;
+            const displayAvatar = isGroup ? conversation.group_avatar : conversation.other_user_avatar;
             return <button key={conversation.conversation_id} type="button" onClick={() => loadConversation(conversation.conversation_id)} className={`flex w-full min-h-[72px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${isActive ? 'bg-stone-50' : 'hover:bg-stone-50'}`}>
                     <div className="shrink-0">
-                      <ChatAvatar src={conversation.other_user_avatar} name={conversation.other_user_name} alt={`Avatar de ${conversation.other_user_name}`} />
+                      <ChatAvatar src={displayAvatar} name={displayName} alt={`Avatar de ${displayName}`} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <p className={`truncate text-[14px] text-stone-950 ${unreadCount > 0 ? 'font-semibold' : 'font-normal'}`}>
-                          {conversation.other_user_name}
+                          {displayName}
                         </p>
                         <div className="flex shrink-0 items-center gap-1.5">
                           <span className={`text-[12px] ${unreadCount > 0 ? 'font-medium text-stone-950' : 'text-stone-400'}`}>
@@ -1382,13 +1422,13 @@ export default function InternalChat({
                 </button> : null}
 
               {/* Avatar + name (centre) */}
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <ChatAvatar src={activeConversation.other_user_avatar} name={activeConversation.other_user_name} size="h-9 w-9" alt={`Avatar de ${activeConversation.other_user_name}`} />
+              <div className="flex min-w-0 flex-1 items-center gap-2.5 cursor-pointer" onClick={() => { if (activeConversation.type === 'group') setShowGroupPanel(true); }}>
+                <ChatAvatar src={activeConversation.type === 'group' ? activeConversation.group_avatar : activeConversation.other_user_avatar} name={activeConversation.type === 'group' ? activeConversation.group_name : activeConversation.other_user_name} size="h-9 w-9" alt={`Avatar de ${activeConversation.type === 'group' ? activeConversation.group_name : activeConversation.other_user_name}`} />
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-semibold leading-tight text-stone-950">
-                    {activeConversation.other_user_name}
+                    {activeConversation.type === 'group' ? activeConversation.group_name : activeConversation.other_user_name}
                   </p>
-                  {typingUserId ? <p className="text-[11px] text-stone-400">Escribiendo…</p> : activeConversation.is_online ? <p className="text-[11px] text-stone-500 flex items-center gap-1">
+                  {activeConversation.type === 'group' ? <p className="text-[11px] text-stone-400">{activeConversation.participant_count || '?'} {i18n.t('chat.members', 'miembros')}</p> : typingUserId ? <p className="text-[11px] text-stone-400">Escribiendo…</p> : activeConversation.is_online ? <p className="text-[11px] text-stone-500 flex items-center gap-1">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-950" />
                       En línea
                     </p> : activeConversation.last_seen ? <p className="text-[11px] text-stone-400">
@@ -1420,6 +1460,35 @@ export default function InternalChat({
                   </button> : null}
               </div>
             </div>
+
+            {/* Request inbox banner */}
+            {activeConversation?.is_request && activeConversation?.request_status === 'pending' ? <div className="flex items-center justify-between gap-2 border-b border-stone-100 bg-stone-50 px-4 py-3 shrink-0">
+                <p className="text-[13px] text-stone-600">{i18n.t('chat.request_banner', 'Este usuario quiere enviarte un mensaje')}</p>
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={async () => {
+                    try { await apiClient.post(`/chat/conversations/${activeConversation.conversation_id}/accept`); reloadConversations(); toast.success(i18n.t('chat.request_accepted', 'Mensaje aceptado')); trackEvent('chat_request_accepted'); } catch { toast.error('Error'); }
+                  }} className="rounded-full bg-stone-950 px-3.5 py-1.5 text-[12px] font-semibold text-white border-none cursor-pointer">
+                    {i18n.t('chat.accept', 'Aceptar')}
+                  </button>
+                  <button type="button" onClick={async () => {
+                    try {
+                      const res = await apiClient.post(`/chat/conversations/${activeConversation.conversation_id}/reject`);
+                      reloadConversations();
+                      setSelectedConversationId(null);
+                      trackEvent('chat_request_rejected');
+                      if (res.suggest_block) toast(i18n.t('chat.suggest_block', 'Este usuario ha sido rechazado varias veces. Considerar bloquear.'), { duration: 5000 });
+                    } catch { toast.error('Error'); }
+                  }} className="rounded-full border border-stone-200 bg-white px-3.5 py-1.5 text-[12px] font-medium text-stone-700 cursor-pointer">
+                    {i18n.t('chat.reject', 'Rechazar')}
+                  </button>
+                  <button type="button" onClick={async () => {
+                    if (!window.confirm(i18n.t('chat.block_confirm', 'Bloquear a este usuario?'))) return;
+                    try { await apiClient.post(`/chat/conversations/${activeConversation.conversation_id}/block`); reloadConversations(); setSelectedConversationId(null); toast.success(i18n.t('chat.user_blocked', 'Usuario bloqueado')); } catch { toast.error('Error'); }
+                  }} className="rounded-full border border-stone-200 bg-white px-3.5 py-1.5 text-[12px] font-medium text-stone-500 cursor-pointer">
+                    {i18n.t('chat.block', 'Bloquear')}
+                  </button>
+                </div>
+              </div> : null}
 
             <div className="relative flex-1 bg-white" role="log" aria-live="polite" aria-label={i18n.t('internal_chat.mensajesDeLaConversacion', 'Mensajes de la conversación')}>
               {loadingMessages ? <LoadingConversationSkeleton /> : visibleMessages.length > 0 ? <Virtuoso ref={virtuosoRef} data={visibleTimeline} defaultItemHeight={60} itemContent={(index, item) => <div style={{
@@ -1494,25 +1563,29 @@ export default function InternalChat({
               y: 6
             }} transition={{
               duration: 0.15
-            }} className="mb-1 grid grid-cols-5 border-b border-stone-100 pb-1">
-                    <ComposerActionButton icon={Images} label="Imagen" onClick={() => {
+            }} className="mb-1 grid grid-cols-3 gap-1 border-b border-stone-100 pb-1">
+                    <ComposerActionButton icon={Images} label={i18n.t('chat.attach_image', 'Imagen')} onClick={() => {
                 fileInputRef.current?.click();
                 setIsComposerActionsOpen(false);
               }} />
-                    <ComposerActionButton icon={FileText} label="Documento" onClick={() => {
-                docInputRef.current?.click();
+                    <ComposerActionButton icon={Mic} label={i18n.t('chat.attach_audio', 'Audio')} onClick={() => {
                 setIsComposerActionsOpen(false);
+                setShowAudioRecorder(true);
               }} />
-                    <ComposerActionButton icon={Package} label="Producto" onClick={() => {
+                    <ComposerActionButton icon={ShoppingBag} label={i18n.t('chat.attach_product', 'Producto')} onClick={() => {
                 openShareSheet('product');
                 setIsComposerActionsOpen(false);
               }} />
-                    <ComposerActionButton icon={Clapperboard} label="Post" onClick={() => {
-                openShareSheet('post');
+                    <ComposerActionButton icon={MapPin} label={i18n.t('chat.attach_location', 'Ubicación')} onClick={() => {
                 setIsComposerActionsOpen(false);
+                toast(i18n.t('chat.location_coming_soon', 'Ubicación disponible próximamente'));
               }} />
-                    <ComposerActionButton icon={UtensilsCrossed} label="Receta" onClick={() => {
-                openShareSheet('recipe');
+                    <ComposerActionButton icon={Heart} label={i18n.t('chat.attach_wishlist', 'Wishlist')} onClick={() => {
+                setIsComposerActionsOpen(false);
+                toast(i18n.t('chat.wishlist_coming_soon', 'Wishlist disponible próximamente'));
+              }} />
+                    <ComposerActionButton icon={FileText} label={i18n.t('chat.attach_document', 'Documento')} onClick={() => {
+                docInputRef.current?.click();
                 setIsComposerActionsOpen(false);
               }} />
                   </motion.div> : null}
@@ -1562,8 +1635,24 @@ export default function InternalChat({
                   </motion.div> : null}
               </AnimatePresence>
 
+              {/* Audio recorder overlay */}
+              {showAudioRecorder ? <AudioRecorder onSend={async (blob, dur) => {
+                setShowAudioRecorder(false);
+                if (!selectedConversationId) return;
+                try {
+                  const fd = new FormData();
+                  fd.append('file', blob, `voice_${Date.now()}.webm`);
+                  fd.append('duration', String(Math.round(dur)));
+                  const res = await apiClient.post(`/chat/conversations/${selectedConversationId}/upload-audio`, fd);
+                  await sendHttpMessage({ conversation_id: selectedConversationId, content: '', message_type: 'audio', audio_url: res.audio_url, audio_duration: dur, audio_expires_at: res.audio_expires_at });
+                  toast.success(i18n.t('chat.audio_sent', 'Audio enviado'));
+                  trackEvent('chat_audio_recorded', { duration_seconds: Math.round(dur) });
+                  trackEvent('chat_message_sent', { type: 'audio', is_group: activeConversation?.type === 'group' });
+                } catch (err) { toast.error(i18n.t('chat.audio_send_error', 'Error al enviar audio')); }
+              }} onClose={() => setShowAudioRecorder(false)} /> : null}
+
               {/* Input row */}
-              <div className="flex items-center gap-1.5">
+              {!showAudioRecorder ? <div className="flex items-center gap-1.5">
                 {/* ⊕ toggle — rotates 45° to become × */}
                 <motion.button type="button" animate={{
               rotate: isComposerActionsOpen ? 45 : 0
@@ -1616,7 +1705,7 @@ export default function InternalChat({
                       <Images className="h-[22px] w-[22px]" strokeWidth={1.8} />
                     </motion.button>}
                 </AnimatePresence>
-              </div>
+              </div> : null}
 
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAttachImage} />
               {/* CH-08: Document upload input */}
@@ -1627,5 +1716,6 @@ export default function InternalChat({
 
       <DirectorySheet open={isDirectoryOpen} onClose={() => setIsDirectoryOpen(false)} users={filteredDirectoryUsers} loading={loadingDirectory} onStartConversation={startConversationWithUser} startingConversation={startingConversation} searchValue={directorySearchValue} onSearchChange={setDirectorySearchValue} roleFilter={directoryRoleFilter} onRoleFilterChange={setDirectoryRoleFilter} />
       <ShareItemSheet open={isShareSheetOpen} shareType={shareSheetType} inputValue={shareInputValue} onInputChange={setShareInputValue} onClose={closeShareSheet} onSubmit={handleLoadSharePreview} isLoading={loadingSharePreview} preview={sharePreview} onAttach={attachSharedItemToComposer} />
+      {activeConversation?.type === 'group' ? <GroupChatPanel isOpen={showGroupPanel} onClose={() => setShowGroupPanel(false)} conversation={activeConversation} currentUserId={user?.user_id} onLeave={() => { setShowGroupPanel(false); setSelectedConversationId(null); reloadConversations(); }} onMuteToggle={() => reloadConversations()} /> : null}
     </div>;
 }

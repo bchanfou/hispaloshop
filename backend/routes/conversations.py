@@ -28,7 +28,8 @@ async def get_conversations(user: User = Depends(get_current_user)):
     conversations = await db.internal_chats.find({
         "$or": [
             {"user1_id": user.user_id},
-            {"user2_id": user.user_id}
+            {"user2_id": user.user_id},
+            {"type": "group", "participants": user.user_id}
         ]
     }, {"_id": 0}).sort("last_message_at", -1).to_list(100)
 
@@ -38,8 +39,12 @@ async def get_conversations(user: User = Depends(get_current_user)):
     # Collect all other-user IDs and conversation IDs in one pass
     other_user_ids = []
     for conv in conversations:
-        oid = conv["user2_id"] if conv["user1_id"] == user.user_id else conv["user1_id"]
-        other_user_ids.append(oid)
+        if conv.get("type") == "group":
+            # For groups, use admin_id as the "other user" placeholder
+            other_user_ids.append(conv.get("admin_id", ""))
+        else:
+            oid = conv["user2_id"] if conv["user1_id"] == user.user_id else conv["user1_id"]
+            other_user_ids.append(oid)
 
     conv_ids = [c["conversation_id"] for c in conversations]
 
@@ -61,6 +66,23 @@ async def get_conversations(user: User = Depends(get_current_user)):
     now_utc = datetime.now(timezone.utc)
     result = []
     for conv, other_user_id in zip(conversations, other_user_ids):
+        if conv.get("type") == "group":
+            result.append({
+                "id": conv["conversation_id"],
+                "conversation_id": conv["conversation_id"],
+                "type": "group",
+                "group_name": conv.get("group_name", "Grupo"),
+                "group_avatar": conv.get("group_avatar"),
+                "group_subtype": conv.get("group_subtype", "private"),
+                "admin_id": conv.get("admin_id"),
+                "participant_count": len(conv.get("participants", [])),
+                "muted": user.user_id in conv.get("muted_by", []),
+                "last_message": conv.get("last_message"),
+                "last_message_at": conv.get("last_message_at"),
+                "unread_count": unread_map.get(conv["conversation_id"], 0),
+            })
+            continue
+
         other_user = users_map.get(other_user_id)
         uname = other_user.get("name", "Usuario") if other_user else "Usuario"
         role = other_user.get("role", "customer") if other_user else "customer"
@@ -125,11 +147,19 @@ async def create_conversation(input: NewConversationInput, user: User = Depends(
     if existing:
         return existing
 
+    # Check mutual follow status to determine if this is a request
+    a_follows_b = await db.user_follows.find_one({"follower_id": user.user_id, "following_id": input.other_user_id})
+    b_follows_a = await db.user_follows.find_one({"follower_id": input.other_user_id, "following_id": user.user_id})
+    is_request = not (a_follows_b or b_follows_a)
+
     # Create new conversation with unique index safety
     conversation = {
         "conversation_id": f"conv_{uuid.uuid4().hex[:12]}",
+        "type": "dm",
         "user1_id": user.user_id,
         "user2_id": input.other_user_id,
+        "is_request": is_request,
+        "request_status": "pending" if is_request else "accepted",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "last_message": None,
         "last_message_at": None
@@ -187,7 +217,7 @@ async def get_messages(
 @router.post("/chat/conversations/{conversation_id}/messages")
 async def send_message(conversation_id: str, input: MessageInput, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     """Send a message in a conversation"""
-    # Verify user is part of conversation
+    # Verify user is part of conversation (DM check)
     conversation = await db.internal_chats.find_one({
         "conversation_id": conversation_id,
         "$or": [
@@ -195,10 +225,18 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
             {"user2_id": user.user_id}
         ]
     })
-    
+
+    # Fallback: check group conversation membership
+    if not conversation:
+        conversation = await db.internal_chats.find_one({
+            "conversation_id": conversation_id,
+            "type": "group",
+            "participants": user.user_id
+        })
+
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    
+
     message = {
         "message_id": f"msg_{uuid.uuid4().hex[:12]}",
         "conversation_id": conversation_id,
@@ -374,6 +412,21 @@ async def reply_to_story(request: Request, background_tasks: BackgroundTasks, us
             "last_message_at": None
         })
 
+    # Fetch story thumbnail + caption for inline preview
+    story_thumbnail_url = None
+    story_caption = None
+    story_expires_at = None
+    if story_id:
+        story_doc = await db.hispalostories.find_one(
+            {"story_id": story_id},
+            {"_id": 0, "media_url": 1, "caption": 1, "expires_at": 1}
+        )
+        if story_doc:
+            story_thumbnail_url = story_doc.get("media_url")
+            raw_caption = story_doc.get("caption", "") or ""
+            story_caption = raw_caption[:40] + ("..." if len(raw_caption) > 40 else "")
+            story_expires_at = story_doc.get("expires_at")
+
     # Insert message with story context
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
     msg_doc = {
@@ -382,6 +435,9 @@ async def reply_to_story(request: Request, background_tasks: BackgroundTasks, us
         "sender_id": user.user_id,
         "content": message_text,
         "story_id": story_id,
+        "story_thumbnail_url": story_thumbnail_url,
+        "story_caption": story_caption,
+        "story_expires_at": story_expires_at,
         "message_type": "story_reply",
         "created_at": now,
         "read": False
@@ -460,6 +516,417 @@ async def reply_to_story(request: Request, background_tasks: BackgroundTasks, us
         background_tasks.add_task(send_story_reply_notification)
 
     return {"conversation_id": conversation_id, "message_id": message_id}
+
+
+@router.post("/chat/conversations/{conversation_id}/accept")
+async def accept_conversation_request(conversation_id: str, user: User = Depends(get_current_user)):
+    """Accept a message request — moves conversation from Solicitudes to main inbox"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    if not conv.get("is_request"):
+        return {"status": "already_accepted"}
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$set": {"is_request": False, "request_status": "accepted"}}
+    )
+    return {"status": "accepted"}
+
+
+@router.post("/chat/conversations/{conversation_id}/reject")
+async def reject_conversation_request(conversation_id: str, user: User = Depends(get_current_user)):
+    """Reject a message request"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # Delete the conversation and its messages
+    await db.chat_messages.delete_many({"conversation_id": conversation_id})
+    await db.internal_chats.delete_one({"conversation_id": conversation_id})
+
+    # Track rejection count for auto-block suggestion
+    other_id = conv.get("user2_id") if conv.get("user1_id") == user.user_id else conv.get("user1_id")
+    rejection_key = f"chat_rejections:{user.user_id}:{other_id}"
+    count = await db.counters.find_one({"_id": rejection_key})
+    new_count = (count.get("value", 0) if count else 0) + 1
+    await db.counters.update_one({"_id": rejection_key}, {"$set": {"value": new_count}}, upsert=True)
+
+    return {"status": "rejected", "suggest_block": new_count >= 3}
+
+
+@router.post("/chat/conversations/{conversation_id}/block")
+async def block_conversation_user(conversation_id: str, user: User = Depends(get_current_user)):
+    """Block a user from a conversation (deletes conversation + adds to block list)"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    other_id = conv.get("user2_id") if conv.get("user1_id") == user.user_id else conv.get("user1_id")
+
+    # Add to block list
+    await db.user_blocks.update_one(
+        {"blocker_id": user.user_id, "blocked_id": other_id},
+        {"$set": {"blocker_id": user.user_id, "blocked_id": other_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+
+    # Delete conversation
+    await db.chat_messages.delete_many({"conversation_id": conversation_id})
+    await db.internal_chats.delete_one({"conversation_id": conversation_id})
+
+    return {"status": "blocked"}
+
+
+# ──────────── Group Chat ────────────
+
+@router.post("/chat/groups")
+async def create_group(request: Request, user: User = Depends(get_current_user)):
+    """Create a private group conversation"""
+    body = await request.json()
+    name = (body.get("name") or "").strip()
+    participant_ids = body.get("participant_ids", [])
+
+    if not name:
+        raise HTTPException(status_code=400, detail="Group name is required")
+
+    # Ensure creator is always included
+    if user.user_id not in participant_ids:
+        participant_ids.insert(0, user.user_id)
+
+    if len(participant_ids) > 20:
+        raise HTTPException(status_code=400, detail="Maximum 20 members allowed in a private group")
+
+    if len(participant_ids) < 2:
+        raise HTTPException(status_code=400, detail="A group needs at least 2 members")
+
+    # Verify all participant user_ids exist
+    existing_users = await db.users.find(
+        {"user_id": {"$in": participant_ids}},
+        {"_id": 0, "user_id": 1}
+    ).to_list(len(participant_ids))
+    existing_ids = {u["user_id"] for u in existing_users}
+    invalid = [uid for uid in participant_ids if uid not in existing_ids]
+    if invalid:
+        raise HTTPException(status_code=400, detail=f"Users not found: {', '.join(invalid)}")
+
+    now = datetime.now(timezone.utc).isoformat()
+    conversation = {
+        "conversation_id": f"conv_{uuid.uuid4().hex[:12]}",
+        "type": "group",
+        "group_name": name,
+        "group_avatar": None,
+        "group_description": "",
+        "group_subtype": "private",
+        "community_id": None,
+        "admin_id": user.user_id,
+        "participants": participant_ids,
+        "max_members": 20,
+        "muted_by": [],
+        "created_at": now,
+        "last_message": None,
+        "last_message_at": None,
+    }
+
+    await db.internal_chats.insert_one(conversation)
+    conversation.pop("_id", None)
+    return conversation
+
+
+@router.post("/chat/groups/community")
+async def create_or_join_community_group(request: Request, user: User = Depends(get_current_user)):
+    """Create a community group or join an existing one"""
+    body = await request.json()
+    community_id = body.get("community_id")
+
+    if not community_id:
+        raise HTTPException(status_code=400, detail="community_id is required")
+
+    # Verify community exists
+    community = await db.communities.find_one({"community_id": community_id})
+    if not community:
+        raise HTTPException(status_code=404, detail="Community not found")
+
+    # Check if a group already exists for this community
+    existing = await db.internal_chats.find_one({
+        "type": "group",
+        "group_subtype": "community",
+        "community_id": community_id,
+    })
+
+    if existing:
+        # Join existing group if not already a member
+        if user.user_id in existing.get("participants", []):
+            existing.pop("_id", None)
+            return existing
+        if len(existing.get("participants", [])) >= existing.get("max_members", 500):
+            raise HTTPException(status_code=400, detail="Community group is full")
+        await db.internal_chats.update_one(
+            {"conversation_id": existing["conversation_id"]},
+            {"$addToSet": {"participants": user.user_id}}
+        )
+        existing["participants"].append(user.user_id)
+        existing.pop("_id", None)
+        return existing
+
+    # Create new community group
+    owner_id = community.get("owner_id") or community.get("created_by") or user.user_id
+    participants = [owner_id]
+    if user.user_id != owner_id:
+        participants.append(user.user_id)
+
+    now = datetime.now(timezone.utc).isoformat()
+    conversation = {
+        "conversation_id": f"conv_{uuid.uuid4().hex[:12]}",
+        "type": "group",
+        "group_name": community.get("name", "Community Group"),
+        "group_avatar": community.get("avatar_url"),
+        "group_description": community.get("description", ""),
+        "group_subtype": "community",
+        "community_id": community_id,
+        "admin_id": owner_id,
+        "participants": participants,
+        "max_members": 500,
+        "muted_by": [],
+        "created_at": now,
+        "last_message": None,
+        "last_message_at": None,
+    }
+
+    await db.internal_chats.insert_one(conversation)
+    conversation.pop("_id", None)
+    return conversation
+
+
+@router.get("/chat/groups/{conversation_id}/members")
+async def get_group_members(conversation_id: str, user: User = Depends(get_current_user)):
+    """List members of a group conversation"""
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+        "participants": user.user_id,
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found or not a member")
+
+    participant_ids = group.get("participants", [])
+    users_docs = await db.users.find(
+        {"user_id": {"$in": participant_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "avatar_url": 1, "profile_image": 1},
+    ).to_list(len(participant_ids))
+
+    members = []
+    for u in users_docs:
+        members.append({
+            "user_id": u["user_id"],
+            "name": u.get("name", "Usuario"),
+            "avatar_url": u.get("avatar_url") or u.get("profile_image"),
+            "is_admin": u["user_id"] == group.get("admin_id"),
+        })
+
+    return {"members": members, "admin_id": group.get("admin_id")}
+
+
+@router.post("/chat/groups/{conversation_id}/members")
+async def add_group_member(conversation_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Add a member to a group (admin only)"""
+    body = await request.json()
+    new_user_id = body.get("user_id")
+    if not new_user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    if group.get("admin_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Only the group admin can add members")
+    if new_user_id in group.get("participants", []):
+        raise HTTPException(status_code=400, detail="User is already a member")
+    if len(group.get("participants", [])) >= group.get("max_members", 20):
+        raise HTTPException(status_code=400, detail="Group is full")
+
+    # Verify user exists
+    target_user = await db.users.find_one({"user_id": new_user_id}, {"_id": 0, "user_id": 1})
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$addToSet": {"participants": new_user_id}}
+    )
+    return {"success": True, "user_id": new_user_id}
+
+
+@router.delete("/chat/groups/{conversation_id}/members/{target_user_id}")
+async def remove_group_member(
+    conversation_id: str,
+    target_user_id: str,
+    new_admin_id: Optional[str] = None,
+    user: User = Depends(get_current_user),
+):
+    """Remove a member (admin only) or leave the group (self)"""
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    if user.user_id not in group.get("participants", []):
+        raise HTTPException(status_code=403, detail="Not a member of this group")
+
+    is_self = target_user_id == user.user_id
+    is_admin = group.get("admin_id") == user.user_id
+
+    if not is_self and not is_admin:
+        raise HTTPException(status_code=403, detail="Only the admin can remove other members")
+
+    if target_user_id not in group.get("participants", []):
+        raise HTTPException(status_code=400, detail="User is not a member")
+
+    participants = [p for p in group["participants"] if p != target_user_id]
+
+    # If last member, delete the group entirely
+    if not participants:
+        await db.chat_messages.delete_many({"conversation_id": conversation_id})
+        await db.internal_chats.delete_one({"conversation_id": conversation_id})
+        return {"success": True, "group_deleted": True}
+
+    update: dict = {"$pull": {"participants": target_user_id}}
+
+    # Admin leaving: transfer admin role
+    if target_user_id == group.get("admin_id"):
+        if not new_admin_id:
+            raise HTTPException(status_code=400, detail="new_admin_id is required when admin leaves")
+        if new_admin_id not in participants:
+            raise HTTPException(status_code=400, detail="new_admin_id must be an existing member")
+        update.setdefault("$set", {})["admin_id"] = new_admin_id
+
+    # Also remove from muted_by if present
+    update.setdefault("$pull", {})
+    update["$pull"]["muted_by"] = target_user_id
+
+    # MongoDB doesn't allow $pull on two fields in one op if using dict form;
+    # run two updates to be safe
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$pull": {"participants": target_user_id}}
+    )
+    secondary_update: dict = {}
+    if target_user_id == group.get("admin_id") and new_admin_id:
+        secondary_update["$set"] = {"admin_id": new_admin_id}
+    # Pull from muted_by separately
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$pull": {"muted_by": target_user_id}}
+    )
+    if secondary_update:
+        await db.internal_chats.update_one(
+            {"conversation_id": conversation_id},
+            secondary_update
+        )
+
+    return {"success": True, "group_deleted": False}
+
+
+@router.patch("/chat/groups/{conversation_id}")
+async def update_group(conversation_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Update group settings (admin only)"""
+    body = await request.json()
+
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    if group.get("admin_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Only the group admin can update settings")
+
+    updates = {}
+    if "name" in body:
+        name = (body["name"] or "").strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Group name cannot be empty")
+        updates["group_name"] = name
+    if "description" in body:
+        updates["group_description"] = (body["description"] or "")[:500]
+    if "avatar" in body:
+        updates["group_avatar"] = body["avatar"]  # Cloudinary URL or null
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$set": updates}
+    )
+    return {"success": True, **updates}
+
+
+@router.post("/chat/groups/{conversation_id}/mute")
+async def toggle_group_mute(conversation_id: str, user: User = Depends(get_current_user)):
+    """Toggle mute for a group conversation"""
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+        "participants": user.user_id,
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found or not a member")
+
+    muted_by = group.get("muted_by", [])
+    if user.user_id in muted_by:
+        await db.internal_chats.update_one(
+            {"conversation_id": conversation_id},
+            {"$pull": {"muted_by": user.user_id}}
+        )
+        return {"muted": False}
+    else:
+        await db.internal_chats.update_one(
+            {"conversation_id": conversation_id},
+            {"$addToSet": {"muted_by": user.user_id}}
+        )
+        return {"muted": True}
+
+
+@router.post("/chat/groups/{conversation_id}/report")
+async def report_group(conversation_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Report a group conversation"""
+    body = await request.json()
+    reason = (body.get("reason") or "").strip()
+    if not reason:
+        raise HTTPException(status_code=400, detail="Reason is required")
+
+    group = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "type": "group",
+    })
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    report = {
+        "report_id": f"rep_{uuid.uuid4().hex[:12]}",
+        "type": "group_chat",
+        "target_id": conversation_id,
+        "group_name": group.get("group_name"),
+        "reporter_id": user.user_id,
+        "reason": reason[:500],
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.reports.insert_one(report)
+    return {"success": True, "report_id": report["report_id"]}
 
 
 @router.get("/chat/search-users")
@@ -608,9 +1075,17 @@ async def upload_conv_audio(
     if len(contents) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Max 10 MB")
 
+    if duration > 120:
+        raise HTTPException(status_code=400, detail="Audio cannot exceed 2 minutes")
+
     from services.cloudinary_storage import upload_image as cloudinary_upload
     result = await cloudinary_upload(contents, folder="chat-audio", filename=f"voice_{uuid.uuid4().hex[:8]}")
-    return {"audio_url": result["url"], "duration": duration}
+
+    # Expiry: aggressive purge for >1 min (7 days), normal 30 days
+    expiry_days = 7 if duration > 60 else 30
+    expires_at = (datetime.now(timezone.utc) + timedelta(days=expiry_days)).isoformat()
+
+    return {"audio_url": result["url"], "duration": duration, "audio_expires_at": expires_at}
 
 
 @router.post("/chat/conversations/{conversation_id}/upload-document")

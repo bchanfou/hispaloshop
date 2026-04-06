@@ -142,18 +142,23 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
                     "type": "error",
                     "message": "Invalid JSON format"
                 })
+            except WebSocketDisconnect:
+                raise  # Re-raise to outer handler
             except Exception as e:
                 logger.error(f"[WS] Error processing message: {e}")
-                await websocket.send_json({
-                    "type": "error",
-                    "message": "Failed to process message"
-                })
-    
+                try:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Failed to process message"
+                    })
+                except Exception:
+                    break  # Connection gone — exit loop
+
     except WebSocketDisconnect:
-        if user_id:
-            manager.disconnect(user_id, websocket)
+        pass  # Normal disconnect
     except Exception as e:
         logger.error(f"[WS] Unexpected error: {e}")
+    finally:
         if user_id:
             manager.disconnect(user_id, websocket)
 
