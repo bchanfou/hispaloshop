@@ -1375,8 +1375,13 @@ Hashtag {
 
 ---
 
-## 2.10 — Pedro AI (ELITE international sales)
-**Objetivo:** Agente comercial agentic para productores ELITE. Mercados internacionales, contratos B2B.
+## 2.10 — Pedro AI (ELITE — context-adapted by role)
+**Objetivo:** Agente comercial agentic para ELITE sellers. **Adapta su personalidad según el rol del usuario** (cerrado 2026-04-07):
+
+- **Para productores ELITE**: "Soy tu agente de exportación. Te ayudo a encontrar mercados e importadores." → busca mercados, analiza demanda, genera contratos de exportación
+- **Para importadores ELITE**: "Soy tu agente de sourcing. Te ayudo a encontrar productos ganadores para importar." → busca productores verificados, analiza viabilidad de importación, sugiere productos trending
+
+**Mismo Pedro, mismo UI, mismo Sonnet model.** El system prompt detecta `user.role` y ajusta el enfoque.
 
 **Archivos clave:**
 - Backend: `routes/commercial_ai.py`, `services/commercial_ai_tools.py`
@@ -1384,15 +1389,15 @@ Hashtag {
 
 **Done cuando:**
 - Página dedicada `/producer/commercial-ai` (triple gate: ruta + componente + backend)
-- Personalidad: closer B2B neutral profesional
-- Claude Sonnet + 5 tools: search_importers, analyze_market, predict_demand, generate_contract, check_producer_plan
+- System prompt detecta role (producer vs importer) y adapta personalidad + tools
+- **Producer tools**: search_importers, analyze_market, predict_demand, generate_contract, check_producer_plan
+- **Importer tools**: search_producers, analyze_import_viability, find_trending_products, generate_import_contract, check_importer_plan
 - 9 países con datos de mercado (aunque sean estáticos)
-- PDF de contrato descargable (fix el bug actual)
-- Opportunity cards con datos reales (no hardcoded %)
+- PDF de contrato descargable
 - Historial de conversaciones y contratos generados
 
 **Dependencias:** 2.9
-**Estimación:** 3 días
+**Estimación:** 4 días (was 3 — added role adaptation)
 
 ---
 
@@ -1677,12 +1682,26 @@ Settings → IA Assistants
 - Si tiene menos productos que slots (ej: producer PRO con 3 productos), todos se promocionan
 - Si tiene más, elige los 5/10 mejores (automático) o marca manualmente
 
-### Targeting países ELITE (Opción C1)
-- ELITE puede targetear los 3 países V1: **ES + KR + US**
+### Targeting países — DIFERENTE para productor vs importador (cerrado 2026-04-07)
+
+**Productor ELITE:**
+- Puede targetear los 3 países V1: **ES + KR + US**
 - Checkbox en el panel: "¿Dónde quieres que se vea tu producto?"
 - Por defecto: el país del seller (nacional)
 - Expandible a otros países con 1 click cada uno
-- Cuando se añadan países nuevos al lanzamiento, aparecen automáticamente como opción
+
+**Importador ELITE:**
+- Promoción solo **NACIONAL** (no internacional — el importador ya vende local)
+- En vez de promotion internacional, el importador ELITE recibe **sourcing prioritario**:
+  - Market Requests 72h antes que importadores PRO
+  - Pedro AI como agente de sourcing (busca productos + productores)
+  - Alertas de productos trending internacionales
+  - Badge "Importador verificado ELITE" al contactar productores
+
+**Market Requests por plan de importador:**
+- FREE: top 3 productos más pedidos de su país (teaser sin detalles) + CTA upgrade
+- PRO: lista completa pero sin ventaja de 72h, detalles limitados (producto + país + count)
+- ELITE: lista completa + 72h early access + todos los detalles + contacto directo productor
 
 ### Placement en feed
 **Posts/Reels feed** (decisión cerrada — Opción A frecuencia):
@@ -1805,13 +1824,19 @@ MarketInterestRequest {
 - Genera FOMO positivo + viralidad
 - Filtros: mi país / todos los países
 
-### Importer side — Dashboard "Oportunidades de mercado" (D4 — B + C)
-**Para todos los importers:**
-- Lista de productos solicitados en su país, ordenados por nº solicitudes
-- Card con: producto, productor origen, cantidad de solicitudes, notas de consumers (anonimizadas)
-- Botón "Contactar productor" → inicia chat B2B
+### Importer side — Dashboard "Oportunidades de mercado" (actualizado 2026-04-07)
 
-**Para importers ELITE** (C — prioridad):
+**Importers FREE:**
+- Top 3 productos más pedidos de su país (teaser sin detalles)
+- CTA: "Hazte PRO para ver la lista completa"
+
+**Importers PRO:**
+- Lista completa de productos solicitados en su país, ordenados por nº solicitudes
+- Card con: producto, productor origen, cantidad de solicitudes (sin notas de consumers, sin trending velocity)
+- Botón "Contactar productor" → inicia chat B2B
+- Sin ventaja de tiempo (ve las solicitudes al mismo tiempo que otros PRO)
+
+**Importers ELITE** (sourcing prioritario):
 - **Ventana de primer contacto de 72h**: los importers ELITE ven las oportunidades 72h antes que los importers PRO
 - **Notificación instantánea** cuando hay una nueva oportunidad (>50 solicitudes)
 - Estadísticas avanzadas: trending, velocidad de crecimiento del interés
