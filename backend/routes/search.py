@@ -223,6 +223,36 @@ async def _search_users(db, q: str, limit: int):
     return await db.users.aggregate(pipeline).to_list(limit)
 
 
+async def _search_communities(db, q: str, limit: int):
+    pipeline = [
+        {"$match": {"is_active": {"$ne": False}, "name": {"$regex": q, "$options": "i"}}},
+        {"$sort": {"member_count": -1}},
+        {"$limit": limit},
+        {"$project": {"_id": 0, "community_id": {"$toString": "$_id"}, "name": 1, "slug": 1, "cover_image": 1, "member_count": 1, "category": 1}},
+    ]
+    return await db.communities.aggregate(pipeline).to_list(limit)
+
+
+async def _search_hashtags(db, q: str, limit: int):
+    """Search hashtags from posts. Aggregates tag usage counts."""
+    tag_q = q.lstrip('#').lower()
+    if len(tag_q) < 1:
+        return []
+    pipeline = [
+        {"$match": {"caption": {"$regex": f"#{tag_q}", "$options": "i"}}},
+        {"$project": {"tags": {"$regexFindAll": {"input": {"$toLower": "$caption"}, "regex": f"#({tag_q}[\\w]*)"}}}},
+        {"$unwind": "$tags"},
+        {"$group": {"_id": "$tags.captures", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": limit},
+        {"$project": {"_id": 0, "tag": {"$arrayElemAt": [{"$ifNull": ["$_id", []]}, 0]}, "posts_count": "$count"}},
+    ]
+    try:
+        return await db.user_posts.aggregate(pipeline).to_list(limit)
+    except Exception:
+        return []
+
+
 @router.get("/search/suggestions")
 async def search_suggestions(
     q: str = Query(..., min_length=2, max_length=100),
@@ -313,7 +343,7 @@ async def unified_search(
 
     # Fetch limit+1 per category so we can detect if there are more results
     fetch_limit = limit + 1
-    products, recipes, stores, creators = await asyncio.gather(
+    products, recipes, stores, creators, communities, hashtags = await asyncio.gather(
         _search_products(db, safe_q, fetch_limit, country,
                          sort=sort, min_price=min_price, max_price=max_price,
                          certifications=certifications, in_stock=in_stock, free_shipping=free_shipping,
@@ -321,6 +351,8 @@ async def unified_search(
         _search_recipes(db, safe_q, fetch_limit),
         _search_stores(db, safe_q, fetch_limit),
         _search_users(db, safe_q, fetch_limit),
+        _search_communities(db, safe_q, fetch_limit),
+        _search_hashtags(db, safe_q, fetch_limit),
         return_exceptions=True,
     )
 
@@ -334,6 +366,8 @@ async def unified_search(
     r, r_more = _trim(recipes, limit)
     s, s_more = _trim(stores, limit)
     c, c_more = _trim(creators, limit)
+    cm, cm_more = _trim(communities, limit)
+    h, h_more = _trim(hashtags, limit)
 
     return {
         "query": q,
@@ -341,11 +375,15 @@ async def unified_search(
         "recipes": r,
         "stores": s,
         "creators": c,
+        "communities": cm,
+        "hashtags": h,
         "has_more": {
             "products": p_more,
             "recipes": r_more,
             "stores": s_more,
             "creators": c_more,
+            "communities": cm_more,
+            "hashtags": h_more,
         },
-        "total": len(p) + len(r) + len(s) + len(c),
+        "total": len(p) + len(r) + len(s) + len(c) + len(cm) + len(h),
     }

@@ -70,7 +70,7 @@ export default function AppHeader() {
         <div className="flex items-center gap-1">
           {/* Search */}
           <button
-            onClick={() => navigate('/search')}
+            onClick={() => window.dispatchEvent(new Event('open-global-search'))}
             aria-label="Buscar"
             className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-transparent border-none cursor-pointer p-2 text-stone-950"
           >

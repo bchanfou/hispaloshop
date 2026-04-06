@@ -3866,5 +3866,20 @@
     "become_subtitle": "With just 1 follower you can start earning. Personal code + recurring commissions for 18 months.",
     "no_ambassadors": "No ambassadors yet",
     "load_more": "Load more"
+  },
+  "search": {
+    "universal_placeholder": "Search products, people, stores...",
+    "recent": "Recent",
+    "clear_all": "Clear",
+    "trending": "Trending",
+    "no_results": "No results for",
+    "section_users": "People",
+    "section_stores": "Stores",
+    "section_communities": "Communities",
+    "section_hashtags": "Hashtags",
+    "section_products": "Products",
+    "section_recipes": "Recipes",
+    "see_all_products": "See all products",
+    "to_close": "to close"
   }
 }

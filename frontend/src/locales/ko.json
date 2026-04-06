@@ -3870,5 +3870,20 @@
     "become_subtitle": "팔로워 1명만 있어도 수익을 시작할 수 있습니다. 개인 코드 + 18개월 반복 수수료.",
     "no_ambassadors": "아직 앰배서더가 없습니다",
     "load_more": "더 보기"
+  },
+  "search": {
+    "universal_placeholder": "상품, 사람, 스토어 검색...",
+    "recent": "최근 검색",
+    "clear_all": "지우기",
+    "trending": "인기",
+    "no_results": "검색 결과 없음",
+    "section_users": "사람",
+    "section_stores": "스토어",
+    "section_communities": "커뮤니티",
+    "section_hashtags": "해시태그",
+    "section_products": "상품",
+    "section_recipes": "레시피",
+    "see_all_products": "모든 상품 보기",
+    "to_close": "닫기"
   }
 }

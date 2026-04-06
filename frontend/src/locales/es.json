@@ -5631,5 +5631,20 @@
     "become_subtitle": "Con 1 seguidor ya puedes ganar. Código personal + comisiones recurrentes durante 18 meses.",
     "no_ambassadors": "No hay embajadores aún",
     "load_more": "Cargar más"
+  },
+  "search": {
+    "universal_placeholder": "Buscar productos, personas, tiendas...",
+    "recent": "Recientes",
+    "clear_all": "Limpiar",
+    "trending": "Trending",
+    "no_results": "Sin resultados para",
+    "section_users": "Personas",
+    "section_stores": "Tiendas",
+    "section_communities": "Comunidades",
+    "section_hashtags": "Hashtags",
+    "section_products": "Productos",
+    "section_recipes": "Recetas",
+    "see_all_products": "Ver todos los productos",
+    "to_close": "para cerrar"
   }
 }

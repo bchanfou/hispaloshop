@@ -34,6 +34,7 @@ import { ChatProvider } from './context/chat/ChatProvider';
 import { FeedTabProvider } from './context/FeedTabContext';
 import { UploadQueueProvider } from './context/UploadQueueContext';
 import UploadProgressBanner from './components/upload/UploadProgressBanner';
+import GlobalSearch from './components/GlobalSearch';
 import { ProducerPlanProvider } from './context/ProducerPlanContext';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import { useNavigationDirection } from './hooks/useNavigationDirection';
@@ -868,6 +869,7 @@ function App() {
                     <FeedTabProvider>
                     <UploadQueueProvider>
                       <UploadProgressBanner />
+                      <GlobalSearch />
                       <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
                       <BottomNavBar />
