@@ -24,6 +24,7 @@ import {
 import { useChatContext } from '../context/chat/ChatProvider';
 import apiClient from '../services/api/client';
 import B2BProductModal from '../components/b2b/B2BProductModal';
+import { trackEvent } from '../utils/analytics';
 
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
@@ -118,6 +119,18 @@ export default function ProductDetailPage() {
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, -30]);
 
+  // Track product view (once per product load)
+  useEffect(() => {
+    if (product?.product_id) {
+      trackEvent('product_viewed', {
+        product_id: product.product_id,
+        category: product.category,
+        producer_id: product.producer_id,
+        price: product.price,
+      });
+    }
+  }, [product?.product_id]);
+
   // Reset transient UI state when navigating between products
   useEffect(() => {
     setActiveImageIndex(0);
@@ -196,6 +209,7 @@ export default function ProductDetailPage() {
     try {
       await toggleWishlistMutation();
       toast.success(inWishlist ? t('wishlist.removed', 'Eliminado de lista') : t('wishlist.added', 'Guardado'));
+      if (!inWishlist) trackEvent('product_saved', { product_id: product?.product_id });
     } catch { toast.error(t('errors.generic', 'Error')); }
   };
 
@@ -210,6 +224,7 @@ export default function ProductDetailPage() {
       const success = await addToCart(productId, quantity, variantId, packId);
       if (success && success !== 'redirect') {
         toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
+        trackEvent('product_added_to_cart', { product_id: productId, variant_id: variantId, pack_id: packId, price: currentPrice, quantity });
         setAddedToCart(true);
         clearTimeout(addedTimerRef.current);
         addedTimerRef.current = setTimeout(() => setAddedToCart(false), 1800);
@@ -226,9 +241,9 @@ export default function ProductDetailPage() {
   const handleShare = async () => {
     const shareData = { title: product?.name, url: window.location.href };
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch { /* cancelled */ }
+      try { await navigator.share(shareData); trackEvent('product_shared', { product_id: product?.product_id, method: 'native' }); } catch { /* cancelled */ }
     } else {
-      try { await navigator.clipboard.writeText(shareData.url); toast.success('Enlace copiado'); }
+      try { await navigator.clipboard.writeText(shareData.url); toast.success('Enlace copiado'); trackEvent('product_shared', { product_id: product?.product_id, method: 'clipboard' }); }
       catch { toast.error('No se pudo copiar'); }
     }
   };
@@ -751,6 +766,7 @@ export default function ProductDetailPage() {
         <Link
           to={storeSlug ? `/store/${storeSlug}` : '/stores'}
           className="flex items-center gap-3 border-t border-stone-200 px-4 py-3.5 no-underline"
+          onClick={() => trackEvent('producer_profile_clicked', { producer_id: product?.producer_id, from: 'product_detail' })}
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-100">
             {storeInfo.logo ? (

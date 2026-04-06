@@ -30,14 +30,11 @@ export default function SocialProofBar({ productId }) {
         </p>
       )}
 
-      {/* Purchases today */}
-      {signals.purchases_today > 0 && (
+      {/* Purchases today — show only if ≥5 (avoids low-trust signals like "1 person bought") */}
+      {signals.purchases_today >= 5 && (
         <p className="flex items-center gap-1.5 text-xs text-stone-500">
           <span>🔥</span>
-          <span>
-            {signals.purchases_today}{' '}
-            {signals.purchases_today === 1 ? 'persona compró' : 'personas compraron'} esto hoy
-          </span>
+          <span>{signals.purchases_today} personas compraron esto hoy</span>
         </p>
       )}
 
