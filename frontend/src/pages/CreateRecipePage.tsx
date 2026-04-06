@@ -412,6 +412,7 @@ export default function CreateRecipePage() {
       } catch {/* ignore */}
       if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
       trackEvent('create_published', { type: 'recipe', has_products: recipe.ingredients.some(i => i.product_id), has_location: false });
+      trackEvent('recipe_created', { recipe_id: data?.recipe_id, ingredients_count: ci.length, linked_products_count: ci.filter(i => i.product_id).length });
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success(t('recipes.published', 'Receta publicada'));

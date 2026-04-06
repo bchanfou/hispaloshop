@@ -2903,7 +2903,19 @@
     "azucar": "Azúcar",
     "aunNoHayResenasSeElPrimero": "Aún no hay reseñas. ¡Sé el primero!",
     "tuResena": "Tu reseña",
-    "enviarResena": "Enviar reseña"
+    "enviarResena": "Enviar reseña",
+    "ingredientes": "Ingredientes",
+    "comprarRecetaCompleta": "Comprar receta completa",
+    "anadirTodosAlCarrito": "Añadir todos al carrito",
+    "ingredientesAnadidos": "ingredientes añadidos al carrito",
+    "noDisponibles": "no disponibles",
+    "ingredienteGenerico": "Ingrediente básico",
+    "verAlternativas": "Ver alternativas",
+    "agotado": "Agotado",
+    "recetasSimilares": "Recetas similares",
+    "masRecetasDe": "Más recetas de",
+    "guardada": "Guardada",
+    "guardar": "Guardar"
   },
   "community": {
     "configuracion": "Configuración",

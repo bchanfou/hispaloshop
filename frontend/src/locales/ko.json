@@ -3807,5 +3807,27 @@
     "seElPrimeroEnPublicarAlgo": "첫 번째로 게시해보세요!",
     "aunNoHayPosts": "아직 게시물이 없습니다",
     "normasDeLaComunidad": "커뮤니티 규칙"
+  },
+  "recipe_detail": {
+    "ingredientes": "재료",
+    "preparacion": "조리법",
+    "comprarRecetaCompleta": "레시피 전체 구매",
+    "anadirTodosAlCarrito": "모두 장바구니에 담기",
+    "ingredientesAnadidos": "재료가 장바구니에 추가됨",
+    "noDisponibles": "사용 불가",
+    "ingredienteGenerico": "기본 재료",
+    "verAlternativas": "대안 보기",
+    "agotado": "품절",
+    "recetasSimilares": "비슷한 레시피",
+    "masRecetasDe": "더 많은 레시피",
+    "guardada": "저장됨",
+    "guardar": "저장",
+    "errorAlAnadirProductosAlCarrito": "장바구니에 추가 오류",
+    "errorAlAnadir": "추가 오류",
+    "informacionNutricional": "영양 정보",
+    "porRacion": "1인분 기준",
+    "aunNoHayResenasSeElPrimero": "아직 리뷰가 없습니다. 첫 번째로 작성해보세요!",
+    "tuResena": "내 리뷰",
+    "enviarResena": "리뷰 제출"
   }
 }

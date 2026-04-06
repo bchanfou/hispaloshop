@@ -3803,5 +3803,27 @@
     "seElPrimeroEnPublicarAlgo": "Be the first to post something!",
     "aunNoHayPosts": "No posts yet",
     "normasDeLaComunidad": "Community rules"
+  },
+  "recipe_detail": {
+    "ingredientes": "Ingredients",
+    "preparacion": "Preparation",
+    "comprarRecetaCompleta": "Buy full recipe",
+    "anadirTodosAlCarrito": "Add all to cart",
+    "ingredientesAnadidos": "ingredients added to cart",
+    "noDisponibles": "not available",
+    "ingredienteGenerico": "Basic ingredient",
+    "verAlternativas": "See alternatives",
+    "agotado": "Out of stock",
+    "recetasSimilares": "Similar recipes",
+    "masRecetasDe": "More recipes by",
+    "guardada": "Saved",
+    "guardar": "Save",
+    "errorAlAnadirProductosAlCarrito": "Error adding products to cart",
+    "errorAlAnadir": "Error adding",
+    "informacionNutricional": "Nutritional info",
+    "porRacion": "Per serving",
+    "aunNoHayResenasSeElPrimero": "No reviews yet. Be the first!",
+    "tuResena": "Your review",
+    "enviarResena": "Submit review"
   }
 }

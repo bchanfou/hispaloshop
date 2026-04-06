@@ -13,6 +13,7 @@ import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListO
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
+import { trackEvent } from '../utils/analytics';
 const ALLERGEN_MAP = [{
   key: 'gluten',
   flag: 'is_gluten_free',
@@ -179,6 +180,7 @@ export default function RecipeDetailPage() {
         setRecipe(data || null);
         setPortions(data?.servings || 1);
         setSaved(data?.is_saved || false);
+        trackEvent('recipe_viewed', { recipe_id: recipeId, author_id: data?.author_id });
       }
     }).catch(() => {
       if (active) {
@@ -240,23 +242,34 @@ export default function RecipeDetailPage() {
     if (taggedIngredients.length >= 2) {
       setAddingAll(true);
       let added = 0;
-      let failed = 0;
+      let skipped = 0;
+      const skippedNames = [];
       for (const ing of taggedIngredients) {
         const productId = ing.product?.product_id || ing.product_id;
-        if (!productId) continue;
+        if (!productId) { skipped++; continue; }
+        // Skip out-of-stock items
+        if (ing.product?.in_stock === false || ing.product?.stock === 0) {
+          skippedNames.push(ing.name || ing.product?.name || 'Producto');
+          skipped++;
+          continue;
+        }
         try {
           await addToCart(productId, 1);
           added++;
         } catch {
-          failed++;
+          skippedNames.push(ing.name || 'Producto');
+          skipped++;
         }
       }
       setAddingAll(false);
-      if (failed === 0) {
+      if (added > 0) {
         toast.success(`${added} ingredientes añadidos al carrito`);
-      } else if (added > 0) {
-        toast.error(`${added} añadidos, ${failed} fallaron`);
-      } else {
+        trackEvent('recipe_all_ingredients_added', { recipe_id: recipe.recipe_id, count: added, total_price: taggedIngredients.reduce((s, i) => s + Number(i.product?.price || 0), 0) });
+      }
+      if (skippedNames.length > 0) {
+        toast(`${skippedNames.length} no disponibles: ${skippedNames.slice(0, 3).join(', ')}${skippedNames.length > 3 ? '...' : ''}`, { duration: 4000 });
+      }
+      if (added === 0 && skipped > 0) {
         toast.error(i18n.t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
       }
     } else {
@@ -269,6 +282,7 @@ export default function RecipeDetailPage() {
     try {
       await addToCart(productId, 1);
       toast.success(i18n.t('ai.addedToCart', 'Añadido al carrito'));
+      trackEvent('recipe_ingredient_added_to_cart', { recipe_id: recipe?.recipe_id, product_id: productId });
     } catch {
       toast.error(i18n.t('recipe_detail.errorAlAnadir', 'Error al añadir'));
     }
@@ -378,7 +392,7 @@ export default function RecipeDetailPage() {
         const next = !saved;
         setSaved(next);
         try {
-          if (next) await apiClient.post(`/recipes/${recipeId}/save`);else await apiClient.delete(`/recipes/${recipeId}/save`);
+          if (next) { await apiClient.post(`/recipes/${recipeId}/save`); trackEvent('recipe_saved', { recipe_id: recipeId }); } else { await apiClient.delete(`/recipes/${recipeId}/save`); }
         } catch {
           setSaved(!next);
           toast.error('Error al guardar');
@@ -478,11 +492,11 @@ export default function RecipeDetailPage() {
           </div>
         </div>
 
-        {/* ── Ingredients + Steps: 2-col on desktop ── */}
-        <div className="lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-8 lg:items-start">
+        {/* ── Ingredients + Steps: 2-col on desktop — ingredients sticky right ── */}
+        <div className="lg:grid lg:grid-cols-[1.4fr_1fr] lg:gap-8 lg:items-start">
 
-        {/* ── Ingredients ── */}
-        <section className="mb-5">
+        {/* ── Ingredients (mobile: first / desktop: right sticky sidebar) ── */}
+        <section className="mb-5 order-1 lg:order-2 lg:sticky lg:top-20">
           <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Ingredientes</h2>
           <div className="flex flex-col gap-2">
             {(recipe.ingredients || []).map((ing, i) => {
@@ -548,8 +562,8 @@ export default function RecipeDetailPage() {
             </motion.button> : null}
         </section>
 
-        {/* ── Steps ── */}
-        <section className="mb-5">
+        {/* ── Steps (mobile: second / desktop: left column) ── */}
+        <section className="mb-5 order-2 lg:order-1">
           <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('recipe_detail.preparacion', 'Preparación')}</h2>
           <div className="flex flex-col gap-3">
             {steps.map((step, i) => <motion.div key={i} initial={{
