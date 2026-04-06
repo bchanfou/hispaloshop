@@ -3610,5 +3610,25 @@
   },
   "profile_tabs": {
     "no_reviews": "아직 리뷰가 없습니다"
+  },
+  "notif_center": {
+    "title": "알림",
+    "tab_all": "전체",
+    "tab_social": "소셜",
+    "tab_orders": "주문",
+    "tab_earnings": "수익",
+    "tab_system": "시스템",
+    "mark_all_read": "모두 읽음 처리",
+    "clear": "정리",
+    "clear_all": "모든 알림 정리",
+    "read": "읽음",
+    "delete": "알림 삭제",
+    "empty_title": "모두 확인했습니다",
+    "empty_body": "새로운 알림이 없습니다. 좋아요, 주문 등이 여기에 표시됩니다.",
+    "today": "오늘",
+    "yesterday": "어제",
+    "this_week": "이번 주",
+    "this_month": "이번 달",
+    "older": "이전"
   }
 }

@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 
 // ── Icon map by notification type ────────────────────────────────
 import i18n from "../locales/i18n";
@@ -222,29 +223,23 @@ const CATEGORY_ICON_STYLE = {
   }
 };
 
-// ── Tab definitions ──────────────────────────────────────────────
-const TABS = [{
-  key: 'all',
-  label: 'Todo'
-}, {
-  key: 'interactions',
-  label: 'Interacciones'
-}, {
-  key: 'orders',
-  label: 'Pedidos'
-}, {
-  key: 'following',
-  label: 'Siguiendo'
-}];
-const INTERACTION_TYPES = new Set(['like', 'comment', 'post_liked', 'post_commented', 'mentioned', 'review', 'new_like', 'new_comment', 'story_like', 'story_reply']);
-const ORDER_TYPES = new Set(['order_confirmed', 'order_shipped', 'order_delivered', 'order_update', 'order_preparing', 'order_received', 'new_order', 'purchase', 'order_review_request', 'order_payment_failed', 'new_product']);
-const FOLLOWING_TYPES = new Set(['follow', 'follow_request', 'new_follower', 'new_follow_request', 'follow_request_accepted']);
+// ── Category-based tab definitions ──────────────────────────────
+// Maps each TYPE_META category to a tab. Tabs are dynamic — only shown if the user has notifs of that category.
+const CATEGORY_TABS = [
+  { key: 'all', labelKey: 'notif_center.tab_all', fallback: 'Todo' },
+  { key: 'social', labelKey: 'notif_center.tab_social', fallback: 'Social' },
+  { key: 'pedidos', labelKey: 'notif_center.tab_orders', fallback: 'Pedidos' },
+  { key: 'ofertas', labelKey: 'notif_center.tab_earnings', fallback: 'Ganancias' },
+  { key: 'sistema', labelKey: 'notif_center.tab_system', fallback: 'Sistema' },
+];
+
+function getNotifCategory(n) {
+  return TYPE_META[n.type]?.category || 'sistema';
+}
+
 function filterByTab(notifs, tab) {
   if (tab === 'all') return notifs;
-  if (tab === 'interactions') return notifs.filter(n => INTERACTION_TYPES.has(n.type));
-  if (tab === 'orders') return notifs.filter(n => ORDER_TYPES.has(n.type));
-  if (tab === 'following') return notifs.filter(n => FOLLOWING_TYPES.has(n.type));
-  return notifs;
+  return notifs.filter(n => getNotifCategory(n) === tab);
 }
 
 // ── Grouping logic ───────────────────────────────────────────────
@@ -501,6 +496,7 @@ function NotifRow({
     }
     if (!isRead) onRead(notifKey);
     const url = notif.action_url || notif.data?.action_url;
+    trackEvent('notification_clicked', { type: notif.type, action_url: url || '' });
     if (url) navigate(url);
   };
 
@@ -513,8 +509,9 @@ function NotifRow({
       <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[72px] bg-stone-800">
         <button onClick={e => {
         e.stopPropagation();
+        trackEvent('notification_deleted', { type: notif.type });
         onDelete(notifKey);
-      }} className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer" aria-label={i18n.t('notifications.eliminarNotificacion', 'Eliminar notificación')}>
+      }} className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer" aria-label={i18n.t('notif_center.delete', 'Eliminar notificacion')}>
           <Trash2 className="w-[18px] h-[18px] text-white" strokeWidth={1.8} />
           <span className="text-[10px] text-white font-medium">Eliminar</span>
         </button>
@@ -591,10 +588,10 @@ function EmptyState() {
   }} className="flex flex-col items-center justify-center py-24 px-8 text-center">
       <Bell size={48} className="text-stone-300" strokeWidth={1.5} />
       <h3 className="mt-4 text-lg font-semibold text-stone-950">
-        Todo al día
+        {i18n.t('notif_center.empty_title', 'Estas al dia')}
       </h3>
       <p className="mt-1 text-sm text-stone-500 max-w-[280px]">
-        Aquí verás likes, comentarios, actualizaciones de pedidos y más.
+        {i18n.t('notif_center.empty_body', 'No hay nada nuevo. Aqui veras likes, pedidos y mas.')}
       </p>
     </motion.div>;
 }
@@ -604,6 +601,12 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  // Analytics: track page view
+  useEffect(() => {
+    trackEvent('notifications_viewed', { unread_count: 0 });
+  }, []);
 
   // Refresh badge count when page opens
   useEffect(() => {
@@ -664,22 +667,26 @@ export default function NotificationsPage() {
   // Flatten pages
   const notifications = data?.pages?.flatMap(p => p.notifications ?? p.items ?? p ?? []) ?? [];
 
-  // N-07: Unread count per tab
+  // Unread count per category tab
   const unreadByTab = useMemo(() => {
-    const counts = {
-      all: 0,
-      interactions: 0,
-      orders: 0,
-      following: 0
-    };
+    const counts = { all: 0, social: 0, pedidos: 0, ofertas: 0, sistema: 0 };
     notifications.forEach(n => {
       if (n.read_at) return;
       counts.all++;
-      if (INTERACTION_TYPES.has(n.type)) counts.interactions++;
-      if (ORDER_TYPES.has(n.type)) counts.orders++;
-      if (FOLLOWING_TYPES.has(n.type)) counts.following++;
+      const cat = getNotifCategory(n);
+      if (counts[cat] !== undefined) counts[cat]++;
     });
     return counts;
+  }, [notifications]);
+
+  // Only show tabs that have at least 1 notification (total, not just unread)
+  const visibleTabs = useMemo(() => {
+    const catCounts = { social: 0, pedidos: 0, ofertas: 0, sistema: 0 };
+    notifications.forEach(n => {
+      const cat = getNotifCategory(n);
+      if (catCounts[cat] !== undefined) catCounts[cat]++;
+    });
+    return CATEGORY_TABS.filter(tab => tab.key === 'all' || catCounts[tab.key] > 0);
   }, [notifications]);
 
   // Apply tab filter
@@ -740,28 +747,28 @@ export default function NotificationsPage() {
 
           {/* Center: title */}
           <h1 className="font-semibold text-stone-950 text-base">
-            Notificaciones
+            {t('notif_center.title', 'Notificaciones')}
           </h1>
 
           {/* Right: Limpiar | Leído */}
           <div className="flex items-center gap-1">
-            <button onClick={handleClearAll} className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer" aria-label="Limpiar todas las notificaciones">
-              Limpiar
+            <button onClick={handleClearAll} className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer" aria-label={t('notif_center.clear_all', 'Limpiar')}>
+              {t('notif_center.clear', 'Limpiar')}
             </button>
             <span className="text-stone-200 text-xs">|</span>
-            <button onClick={() => markAll()} className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer" aria-label={i18n.t('notifications.marcarTodoComoLeido', 'Marcar todo como leído')}>
-              Leído
+            <button onClick={() => { markAll(); trackEvent('notifications_mark_all_read', { count: unreadCount }); }} className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer" aria-label={t('notif_center.mark_all_read', 'Marcar todo como leido')}>
+              {t('notif_center.read', 'Leido')}
             </button>
           </div>
         </div>
 
-        {/* Horizontal tabs */}
-        <div className="flex border-b border-stone-200">
-          {TABS.map(tab => {
+        {/* Category tabs (dynamic) */}
+        <div className="flex border-b border-stone-200 overflow-x-auto scrollbar-hide">
+          {visibleTabs.map(tab => {
           const isActive = activeTab === tab.key;
           const tabUnread = unreadByTab[tab.key] || 0;
           return <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`relative flex-1 py-3 min-h-[44px] transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${isActive ? 'font-semibold text-stone-950 border-stone-950' : 'font-normal text-stone-500 border-transparent'}`}>
-                {tab.label}
+                {t(tab.labelKey, tab.fallback)}
                 {tabUnread > 0 && !isActive && <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-stone-950 text-white text-[10px] font-bold px-1">
                     {tabUnread > 99 ? '99+' : tabUnread}
                   </span>}

@@ -3606,5 +3606,25 @@
   },
   "profile_tabs": {
     "no_reviews": "No reviews yet"
+  },
+  "notif_center": {
+    "title": "Notifications",
+    "tab_all": "All",
+    "tab_social": "Social",
+    "tab_orders": "Orders",
+    "tab_earnings": "Earnings",
+    "tab_system": "System",
+    "mark_all_read": "Mark all as read",
+    "clear": "Clear",
+    "clear_all": "Clear all notifications",
+    "read": "Read",
+    "delete": "Delete notification",
+    "empty_title": "You're up to date",
+    "empty_body": "Nothing new. You'll see likes, orders and more here.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_week": "This week",
+    "this_month": "This month",
+    "older": "Older"
   }
 }
