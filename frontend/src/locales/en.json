@@ -685,7 +685,7 @@
     "product": "Product"
   },
   "cart": {
-    "title": "Shopping Cart",
+    "title": "Your cart",
     "empty": "Your cart is empty",
     "continueShopping": "Continue Shopping",
     "quantity": "Quantity",
@@ -696,10 +696,18 @@
     "discountCode": "Discount code",
     "apply": "Apply",
     "proceedToCheckout": "Proceed to Checkout",
-    "checkout": "Proceed to Checkout",
+    "checkout": "Proceed to checkout",
     "itemsInCart": "items in your cart",
     "viewCart": "View cart",
-    "more": "more..."
+    "more": "more...",
+    "emptySubtitle": "Discover incredible products from local producers",
+    "exploreCta": "Go to Discover",
+    "shipping": "Shipping",
+    "shippingPackages": "Shipping ({{n}} packages)",
+    "vatIncluded": "VAT included",
+    "remove": "Remove",
+    "freeShippingProgress": "Add {{amount}} more for free shipping",
+    "freeShipping": "Free shipping"
   },
   "checkout": {
     "title": "Checkout",

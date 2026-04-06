@@ -490,7 +490,7 @@
     "anonimo": "Anónimo"
   },
   "cart": {
-    "title": "Carrito de Compra",
+    "title": "Tu carrito",
     "empty": "Tu carrito está vacío",
     "continueShopping": "Seguir Comprando",
     "quantity": "Cantidad",
@@ -501,7 +501,7 @@
     "discountCode": "Código de descuento",
     "apply": "Aplicar",
     "proceedToCheckout": "Proceder al Pago",
-    "checkout": "Proceder al Pago",
+    "checkout": "Ir al checkout",
     "itemsInCart": "itemás en tu carrito",
     "viewCart": "Ver carrito",
     "more": "más...",
@@ -518,7 +518,15 @@
     "envioPorTienda": "Envío por tienda",
     "iniciaSesionParaVerElCosteDeEnvio": "Inicia sesión para ver el coste de envío",
     "ivaIncluido·EnvioSeCalculaAlInici": "IVA incluido · Envío se calcula al iniciar sesión",
-    "iniciarSesionParaComprar": "Iniciar sesión para comprar"
+    "iniciarSesionParaComprar": "Iniciar sesión para comprar",
+    "emptySubtitle": "Descubre productos increíbles de productores locales",
+    "exploreCta": "Ir a Descubrir",
+    "shipping": "Envío",
+    "shippingPackages": "Envío ({{n}} paquetes)",
+    "vatIncluded": "IVA incluido",
+    "remove": "Eliminar",
+    "freeShippingProgress": "Añade {{amount}} más para envío gratis",
+    "freeShipping": "Envío gratis"
   },
   "checkout": {
     "title": "Pago",

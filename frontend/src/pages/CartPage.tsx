@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
 import i18n from "../locales/i18n";
@@ -201,6 +202,14 @@ export default function CartPage() {
       setSelectedAddressId(defaultAddressId);
     }
   }, [defaultAddressId, savedAddresses.length, selectedAddressId]);
+
+  // Track cart view once
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      trackEvent('cart_viewed', { items_count: cartItems.length, total_items: getTotalItems() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleSaveNewAddress = async data => {
     try {
       await createAddress({
@@ -260,6 +269,7 @@ export default function CartPage() {
       await refetchPricing();
       setDiscountCode('');
       toast.success(t('success.added'));
+      trackEvent('cart_coupon_applied', { code: trimmedCode });
     } catch (error) {
       toast.error(error?.message || t('errors.generic'));
     } finally {
@@ -275,6 +285,7 @@ export default function CartPage() {
       }
       await refetchPricing();
       toast.success(t('success.deleted'));
+      trackEvent('cart_coupon_removed');
     } catch (error) {
       toast.error(error?.message || t('errors.generic'));
     } finally {
@@ -309,6 +320,7 @@ export default function CartPage() {
       return;
     }
     if (checkoutLoading) return; // Prevent double-submit
+    trackEvent('cart_proceed_checkout', { items_count: cartItems.length });
     if (cartItems.length === 0) {
       toast.error(t('cart.empty'));
       return;
@@ -373,6 +385,7 @@ export default function CartPage() {
         queryKey: ['cart']
       });
       refetchPricing();
+      trackEvent('cart_item_removed', { product_id: item.product_id });
     } catch (error) {
       toast.error(error?.message || t('cart.noSePudoEliminarElProducto', 'No se pudo eliminar el producto'));
     }

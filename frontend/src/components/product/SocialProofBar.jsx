@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Zap, TrendingUp, Eye, Clock } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
 export default function SocialProofBar({ productId }) {
@@ -26,14 +27,15 @@ export default function SocialProofBar({ productId }) {
       {/* FOMO — low stock */}
       {signals.is_low_stock && signals.stock_units > 0 && (
         <p className="fomo-stock">
-          ⚡ Solo quedan {signals.stock_units} unidades
+          <Zap className="w-3.5 h-3.5 inline mr-1" />
+          Solo quedan {signals.stock_units} unidades
         </p>
       )}
 
       {/* Purchases today — show only if ≥5 (avoids low-trust signals like "1 person bought") */}
       {signals.purchases_today >= 5 && (
         <p className="flex items-center gap-1.5 text-xs text-stone-500">
-          <span>🔥</span>
+          <TrendingUp className="w-3.5 h-3.5 text-stone-400 shrink-0" />
           <span>{signals.purchases_today} personas compraron esto hoy</span>
         </p>
       )}
@@ -41,7 +43,7 @@ export default function SocialProofBar({ productId }) {
       {/* Active viewers (exclude self = show only if > 1) */}
       {signals.viewers_now > 1 && (
         <p className="flex items-center gap-1.5 text-xs text-stone-500">
-          <span>👁️</span>
+          <Eye className="w-3.5 h-3.5 text-stone-400 shrink-0" />
           <span>{signals.viewers_now} personas lo están viendo ahora</span>
         </p>
       )}
@@ -49,7 +51,7 @@ export default function SocialProofBar({ productId }) {
       {/* Last purchase recency */}
       {signals.last_purchase_minutes != null && signals.last_purchase_minutes < 120 && (
         <p className="flex items-center gap-1.5 text-xs text-stone-500">
-          <span>⏱️</span>
+          <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
           <span>
             Última compra hace{' '}
             {signals.last_purchase_minutes < 60
