@@ -987,6 +987,31 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
 # ANALYTICS, SALES CHART & ALERTS
 # ============================================
 
+@router.get("/producer/latest-orders")
+async def get_producer_latest_orders(user: User = Depends(get_current_user)):
+    """Latest 5 orders for the overview preview."""
+    await require_role(user, ["producer", "importer"])
+    orders = await db.orders.find(
+        {"line_items.producer_id": user.user_id},
+        {"_id": 0, "order_id": 1, "user_name": 1, "status": 1, "created_at": 1, "line_items": 1},
+    ).sort("created_at", -1).limit(5).to_list(5)
+    result = []
+    for o in orders:
+        producer_total = sum(
+            it.get("subtotal", it.get("price", 0) * it.get("quantity", 1))
+            for it in o.get("line_items", [])
+            if it.get("producer_id") == user.user_id
+        )
+        result.append({
+            "order_id": o.get("order_id", ""),
+            "customer_name": o.get("user_name", ""),
+            "total": round(float(producer_total), 2),
+            "status": o.get("status", ""),
+            "created_at": o.get("created_at"),
+        })
+    return result
+
+
 @router.get("/producer/sales-chart")
 async def get_producer_sales_chart(user: User = Depends(get_current_user)):
     """30-day daily sales data for overview chart."""
@@ -1034,8 +1059,11 @@ async def get_producer_alerts(user: User = Depends(get_current_user)):
     if low_stock:
         alerts.append({
             "type": "warning",
+            "alert_type": "low_stock",
             "title": f"{low_stock} producto(s) con stock bajo",
-            "action": "/producer/products",
+            "message": "Repone stock para no perder ventas.",
+            "action_href": "/producer/products",
+            "action_label": "Ver productos",
         })
 
     # Out of stock
@@ -1045,14 +1073,17 @@ async def get_producer_alerts(user: User = Depends(get_current_user)):
     if out_of_stock:
         alerts.append({
             "type": "danger",
+            "alert_type": "out_of_stock",
             "title": f"{out_of_stock} producto(s) sin stock",
-            "action": "/producer/products",
+            "message": "Tus clientes no pueden comprar estos productos.",
+            "action_href": "/producer/products",
+            "action_label": "Reponer",
         })
 
-    # Pending orders (filter by producer to avoid loading all platform orders)
+    # Pending orders
     orders = await db.orders.find(
         {"status": {"$in": ["paid", "confirmed"]}, "line_items.producer_id": user.user_id},
-        {"line_items": 1},
+        {"line_items": 1, "created_at": 1},
     ).to_list(200)
     pending = sum(
         1 for o in orders
@@ -1061,17 +1092,89 @@ async def get_producer_alerts(user: User = Depends(get_current_user)):
     if pending:
         alerts.append({
             "type": "warning",
+            "alert_type": "pending_orders",
             "title": f"{pending} pedido(s) pendientes de preparar",
-            "action": "/producer/orders",
+            "message": "Prepara y envia los pedidos.",
+            "action_href": "/producer/orders",
+            "action_label": "Ver pedidos",
         })
+
+    # Orders >24h in paid status without being prepared
+    from datetime import timedelta as _td
+    cutoff_24h = (datetime.now(timezone.utc) - _td(hours=24)).isoformat()
+    stale_orders = await db.orders.count_documents({
+        "status": "paid",
+        "line_items.producer_id": user.user_id,
+        "created_at": {"$lte": cutoff_24h},
+    })
+    if stale_orders:
+        alerts.append({
+            "type": "danger",
+            "alert_type": "stale_orders",
+            "title": f"{stale_orders} pedido(s) llevan mas de 24h sin preparar",
+            "message": "Los clientes esperan. Preparalos cuanto antes.",
+            "action_href": "/producer/orders?filter=pending",
+            "action_label": "Preparar",
+        })
+
+    # Expiring certificates (<30 days)
+    user_doc = await db.users.find_one({"user_id": user.user_id})
+    if user_doc:
+        vs = user_doc.get("verification_status", {})
+        certs = vs.get("documents", {}).get("certificates", [])
+        from datetime import date as _date
+        today = _date.today()
+        expiring = 0
+        for c in certs:
+            if c.get("status") != "verified" or not c.get("expiry_date"):
+                continue
+            try:
+                exp = _date.fromisoformat(c["expiry_date"][:10])
+                if 0 < (exp - today).days <= 30:
+                    expiring += 1
+            except (ValueError, TypeError):
+                pass
+        if expiring:
+            alerts.append({
+                "type": "warning",
+                "alert_type": "expiring_certs",
+                "title": f"{expiring} certificado(s) expira(n) en menos de 30 dias",
+                "message": "Renueva para no interrumpir tus ventas.",
+                "action_href": "/producer/verification",
+                "action_label": "Renovar",
+            })
+
+    # Unanswered reviews (last 7 days)
+    seven_days_ago = (datetime.now(timezone.utc) - _td(days=7)).isoformat()
+    product_ids = [p["product_id"] async for p in db.products.find(
+        {"producer_id": user.user_id}, {"product_id": 1}
+    )]
+    if product_ids:
+        unanswered = await db.reviews.count_documents({
+            "product_id": {"$in": product_ids},
+            "created_at": {"$gte": seven_days_ago},
+            "producer_reply": {"$in": [None, ""]},
+        })
+        if unanswered:
+            alerts.append({
+                "type": "info",
+                "alert_type": "unanswered_reviews",
+                "title": f"{unanswered} resena(s) sin responder",
+                "message": "Responde para mejorar tu reputacion.",
+                "action_href": "/producer/products",
+                "action_label": "Responder",
+            })
 
     # Unapproved products
     unapproved = await db.products.count_documents({"producer_id": user.user_id, "approved": False})
     if unapproved:
         alerts.append({
             "type": "info",
-            "title": f"{unapproved} producto(s) pendientes de aprobación",
-            "action": "/producer/products",
+            "alert_type": "unapproved_products",
+            "title": f"{unapproved} producto(s) pendientes de aprobacion",
+            "message": "Estan en cola de revision.",
+            "action_href": "/producer/products",
+            "action_label": "Ver",
         })
 
     return alerts

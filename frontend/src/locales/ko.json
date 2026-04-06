@@ -3871,5 +3871,42 @@
     "manualReviewMsg": "24시간 이내에 서류를 검토하겠습니다. 이메일로 알려드리겠습니다.",
     "importerDocRequired": "수입자 서류",
     "importerDocHint": "수입자로서 수입 인증서 또는 유통 계약서를 업로드해야 합니다. 인증서 섹션에서 선택하세요."
+  },
+  "producer_overview": {
+    "salesThisMonth": "이번 달 매출",
+    "pendingOrders": "대기 중 주문",
+    "healthScoreKpi": "건강 점수",
+    "currentPlan": "현재 플랜",
+    "commission": "수수료",
+    "visits": "방문",
+    "conversion": "전환율",
+    "latestOrders": "최근 주문",
+    "viewAllOrders": "전체 보기",
+    "statusPaid": "결제 완료",
+    "statusConfirmed": "확인됨",
+    "statusPreparing": "준비 중",
+    "statusShipped": "배송 중",
+    "statusDelivered": "배송 완료",
+    "qaNewProduct": "새 제품",
+    "qaOrders": "주문 보기",
+    "qaOrdersDesc": "주문 관리",
+    "qaStore": "매장 편집",
+    "qaStoreDesc": "공개 프로필",
+    "qaAnalytics": "분석",
+    "qaAnalyticsDesc": "매출 지표",
+    "qaCerts": "인증서",
+    "qaCertsDesc": "품질 및 갱신",
+    "qaPromote": "홍보",
+    "qaPromoteDesc": "제품 홍보하기",
+    "rebecaUpgradeTitle": "Rebeca AI 잠금 해제",
+    "rebecaUpgradeMsg": "PRO로 업그레이드하여 매출, 재고 및 기회에 대한 일일 인사이트를 받으세요.",
+    "upgradePlan": "플랜 보기",
+    "rebecaInsightTitle": "Rebeca AI",
+    "rebecaNoInsight": "Rebeca가 매일 매출을 분석합니다. 내일 첫 인사이트를 확인하세요."
+  },
+  "producer_layout": {
+    "shipping": "배송",
+    "community": "커뮤니티",
+    "promotion": "홍보"
   }
 }

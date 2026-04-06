@@ -9,7 +9,8 @@ import {
   Package, FileCheck, ShoppingBag, CreditCard,
   AlertCircle, Users, TrendingUp, Heart, Star,
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle, Handshake,
-  PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown, AlertTriangle
+  PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown, AlertTriangle,
+  Store, Megaphone, BarChart3
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -20,6 +21,7 @@ import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
 import StatCardMobile from '../../components/dashboard/StatCardMobile';
 import QuickActionsMobile from '../../components/dashboard/QuickActionsMobile';
 import { asNumber } from '../../utils/safe';
+import { trackEvent } from '../../utils/analytics';
 
 // ===== TREND BADGE =====
 function TrendBadge({ trend }) {
@@ -556,9 +558,12 @@ export default function ProducerOverview() {
   const [alerts, setAlerts] = useState([]);
   const [verificationStatus, setVerificationStatus] = useState(null);
   const [collabs, setCollabs] = useState([]);
+  const [latestOrders, setLatestOrders] = useState([]);
+  const [rebecaBriefing, setRebecaBriefing] = useState(null);
 
   useEffect(() => {
     fetchData();
+    trackEvent('producer_dashboard_viewed');
   }, []);
 
   // Fetch sales chart, alerts, collabs in parallel
@@ -568,6 +573,8 @@ export default function ProducerOverview() {
     apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(logErr('alerts'));
     apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(logErr('verification'));
     apiClient.get('/collaborations').then(d => setCollabs(d?.collaborations || [])).catch(logErr('collaborations'));
+    apiClient.get('/producer/latest-orders').then(d => setLatestOrders(Array.isArray(d) ? d : [])).catch(logErr('latest-orders'));
+    apiClient.get('/v1/rebeca-ai/briefing').then(d => setRebecaBriefing(d)).catch(logErr('rebeca-briefing'));
   }, []);
 
   const fetchData = async () => {
@@ -684,36 +691,54 @@ export default function ProducerOverview() {
   const quickActions = [
     {
       icon: Package,
-      label: t('producer.createNewProduct'),
-      description: t('producer_overview.anadirNuevoProducto', 'Añadir nuevo producto'),
+      label: t('producer_overview.qaNewProduct', 'Nuevo producto'),
+      description: t('producer_overview.anadirNuevoProducto', 'Anadir nuevo producto'),
       to: '/producer/products',
       bgColor: 'bg-stone-950',
       iconColor: 'text-white',
       badge: stats?.pending_products > 0 ? stats.pending_products : 0,
     },
     {
-      icon: FileCheck,
-      label: t('producer.manageCertificates'),
-      description: 'Certificaciones de calidad',
-      to: '/producer/certificates',
-      bgColor: 'bg-stone-100',
-      iconColor: 'text-stone-500',
-      badge: stats?.expiring_certs > 0 ? stats.expiring_certs : 0,
-    },
-    {
       icon: ShoppingBag,
-      label: t('producer.viewOrders'),
-      description: 'Gestionar pedidos',
+      label: t('producer_overview.qaOrders', 'Ver pedidos'),
+      description: t('producer_overview.qaOrdersDesc', 'Gestionar pedidos'),
       to: '/producer/orders',
       bgColor: 'bg-stone-100',
       iconColor: 'text-stone-500',
       badge: stats?.pending_orders > 0 ? stats.pending_orders : 0,
     },
     {
-      icon: TrendingUp,
-      label: t('producer_overview.verAnaliticas', 'Ver analíticas'),
-      description: t('producer_overview.metricasYPagos', 'Métricas y pagos'),
-      to: '/producer/payments',
+      icon: Store,
+      label: t('producer_overview.qaStore', 'Editar tienda'),
+      description: t('producer_overview.qaStoreDesc', 'Perfil publico'),
+      to: '/producer/store',
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500',
+      badge: 0,
+    },
+    {
+      icon: BarChart3,
+      label: t('producer_overview.qaAnalytics', 'Analytics'),
+      description: t('producer_overview.qaAnalyticsDesc', 'Metricas de ventas'),
+      to: '/producer/analytics',
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500',
+      badge: 0,
+    },
+    {
+      icon: FileCheck,
+      label: t('producer_overview.qaCerts', 'Certificados'),
+      description: t('producer_overview.qaCertsDesc', 'Calidad y renovacion'),
+      to: '/producer/certificates',
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500',
+      badge: stats?.expiring_certs > 0 ? stats.expiring_certs : 0,
+    },
+    {
+      icon: Megaphone,
+      label: t('producer_overview.qaPromote', 'Promocionar'),
+      description: t('producer_overview.qaPromoteDesc', 'Destaca tus productos'),
+      to: '/producer/plan',
       bgColor: 'bg-stone-100',
       iconColor: 'text-stone-500',
       badge: 0,
@@ -820,13 +845,13 @@ export default function ProducerOverview() {
         <div className="space-y-2" data-testid="producer-alerts">
           {alerts.map((alert, i) => (
             <div key={i} className={`flex items-start gap-3 p-3 rounded-2xl bg-stone-100 ${alert.type === 'danger' ? 'border border-stone-500' : 'shadow-sm'}`}>
-              <span className="text-lg shrink-0">{alert.type === 'danger' ? '\uD83D\uDEA8' : '\u26A0\uFE0F'}</span>
+              <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${alert.type === 'danger' ? 'text-stone-700' : 'text-stone-500'}`} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
                 <p className="text-xs text-stone-500">{alert.message}</p>
               </div>
               {alert.action_href && (
-                <Link to={alert.action_href} className="shrink-0 text-xs font-bold hover:underline text-stone-950">
+                <Link to={alert.action_href} onClick={() => trackEvent('producer_alert_clicked', { alert_type: alert.alert_type || alert.type })} className="shrink-0 text-xs font-bold hover:underline text-stone-950">
                   {alert.action_label || 'Ver'} →
                 </Link>
               )}
@@ -931,48 +956,51 @@ export default function ProducerOverview() {
         </div>
       </section>
 
-      {/* KPIs grid 2x2 */}
+      {/* Primary KPIs — 4 cards */}
       {(() => {
         const grossCurr = asNumber(payments?.total_gross);
         const grossPrev = asNumber(payments?.total_gross_prev);
         const revTrend = grossPrev > 0 ? ((grossCurr - grossPrev) / grossPrev) * 100 : null;
 
-        const ordersCurr = asNumber(payments?.total_orders_current || payments?.pending_orders);
-        const ordersPrev = asNumber(payments?.total_orders_prev);
-        const ordersTrend = ordersPrev > 0 ? ((ordersCurr - ordersPrev) / ordersPrev) * 100 : null;
+        const pendingOrders = asNumber(payments?.pending_orders);
+        const healthScore = null; // fetched separately by HealthScoreCard
 
-        const visitsCurr = asNumber(payments?.visits_current || stats?.visits_current);
-        const visitsPrev = asNumber(payments?.visits_prev || stats?.visits_prev);
-        const visitsTrend = visitsPrev > 0 ? ((visitsCurr - visitsPrev) / visitsPrev) * 100 : null;
+        const plan = (user?.subscription?.plan || user?.plan || 'FREE').toUpperCase();
+        const commRate = user?.subscription?.commission_rate
+          ? `${Math.round(user.subscription.commission_rate * 100)}%`
+          : plan === 'ELITE' ? '17%' : plan === 'PRO' ? '18%' : '20%';
 
-        const kpis = [
+        const primaryKpis = [
           {
-            label: t('sellerDashboard.totalSales', 'Ventas'),
+            label: t('producer_overview.salesThisMonth', 'Ventas este mes'),
             value: fmtMoney(grossCurr),
             trend: revTrend,
           },
           {
-            label: t('customerDashboard.orders', 'Pedidos'),
-            value: payments?.pending_orders || 0,
-            trend: ordersTrend,
+            label: t('producer_overview.pendingOrders', 'Pedidos pendientes'),
+            value: pendingOrders,
+            trend: null,
           },
           {
-            label: 'Visitas',
-            value: visitsCurr > 0 ? visitsCurr : '—',
-            trend: visitsTrend,
-          },
-          {
-            label: t('producer_overview.conversion', 'Conversión'),
+            label: t('producer_overview.healthScoreKpi', 'Health Score'),
             value: '—',
+            trend: null,
+            isHealthScore: true,
+          },
+          {
+            label: t('producer_overview.currentPlan', 'Plan actual'),
+            value: plan,
+            sublabel: commRate + ' ' + t('producer_overview.commission', 'comision'),
             trend: null,
           },
         ];
         return (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {kpis.map((kpi, i) => (
+            {primaryKpis.map((kpi, i) => (
               <div key={i} className="p-4 text-center bg-white shadow-sm rounded-2xl">
                 <p className="text-2xl font-bold text-stone-950">{kpi.value}</p>
                 <p className="text-[10px] uppercase mt-1 text-stone-500">{kpi.label}</p>
+                {kpi.sublabel && <p className="text-[10px] text-stone-400 mt-0.5">{kpi.sublabel}</p>}
                 {kpi.trend !== null && (
                   <div className="mt-1 flex justify-center">
                     <TrendBadge trend={kpi.trend} />
@@ -984,10 +1012,26 @@ export default function ProducerOverview() {
         );
       })()}
 
-      {/* Net earnings */}
-      <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
-        <p className="text-2xl font-bold text-stone-950">{fmtMoney(payments?.total_net)}</p>
-        <p className="text-[10px] uppercase mt-1 text-stone-500">{t('sellerDashboard.earned', 'Ganado neto')}</p>
+      {/* More metrics — secondary KPIs (net earnings, visits, conversion) */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
+          <p className="text-2xl font-bold text-stone-950">{fmtMoney(payments?.total_net)}</p>
+          <p className="text-[10px] uppercase mt-1 text-stone-500">{t('sellerDashboard.earned', 'Ganado neto')}</p>
+        </div>
+        <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
+          <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.visits_current || stats?.visits_current) || '\u2014'}</p>
+          <p className="text-[10px] uppercase mt-1 text-stone-500">{t('producer_overview.visits', 'Visitas')}</p>
+          {(() => {
+            const vc = asNumber(payments?.visits_current || stats?.visits_current);
+            const vp = asNumber(payments?.visits_prev || stats?.visits_prev);
+            const vt = vp > 0 ? ((vc - vp) / vp) * 100 : null;
+            return vt !== null ? <div className="mt-1 flex justify-center"><TrendBadge trend={vt} /></div> : null;
+          })()}
+        </div>
+        <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
+          <p className="text-2xl font-bold text-stone-950">{'\u2014'}</p>
+          <p className="text-[10px] uppercase mt-1 text-stone-500">{t('producer_overview.conversion', 'Conversion')}</p>
+        </div>
       </div>
 
       {/* Sales Chart — 30 days */}
@@ -1019,6 +1063,84 @@ export default function ProducerOverview() {
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* Latest orders preview */}
+      {latestOrders.length > 0 && (
+        <div className="p-4 bg-white shadow-sm rounded-2xl" data-testid="latest-orders">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-bold text-stone-950">{t('producer_overview.latestOrders', 'Ultimos pedidos')}</p>
+            <Link to="/producer/orders" className="text-xs font-semibold text-stone-500">
+              {t('producer_overview.viewAllOrders', 'Ver todos')} <ChevronRight className="w-3 h-3 inline" />
+            </Link>
+          </div>
+          <div className="space-y-0 divide-y divide-stone-100">
+            {latestOrders.slice(0, 5).map((o) => {
+              const shortId = String(o.order_id).slice(-8).toUpperCase();
+              const statusMap = {
+                paid: { label: t('producer_overview.statusPaid', 'Pagado'), tw: 'bg-stone-100 text-stone-700' },
+                confirmed: { label: t('producer_overview.statusConfirmed', 'Confirmado'), tw: 'bg-stone-100 text-stone-700' },
+                preparing: { label: t('producer_overview.statusPreparing', 'Preparando'), tw: 'bg-stone-100 text-stone-600' },
+                shipped: { label: t('producer_overview.statusShipped', 'Enviado'), tw: 'bg-stone-950 text-white' },
+                delivered: { label: t('producer_overview.statusDelivered', 'Entregado'), tw: 'bg-stone-100 text-stone-950' },
+              };
+              const badge = statusMap[o.status] || { label: o.status, tw: 'bg-stone-100 text-stone-500' };
+              return (
+                <Link key={o.order_id} to="/producer/orders" className="flex items-center gap-3 py-2.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-950">#{shortId}</p>
+                    <p className="text-xs text-stone-500 truncate">{o.customer_name}</p>
+                  </div>
+                  <p className="text-sm font-semibold text-stone-950 shrink-0">{fmtMoney(o.total)}</p>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${badge.tw}`}>
+                    {badge.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Rebeca AI insight widget */}
+      {(() => {
+        const plan = (user?.subscription?.plan || user?.plan || 'FREE').toUpperCase();
+        const isPro = plan === 'PRO' || plan === 'ELITE';
+        if (!isPro) {
+          return (
+            <div className="p-5 bg-stone-50 rounded-2xl border border-stone-200" data-testid="rebeca-upgrade">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-stone-950">{t('producer_overview.rebecaUpgradeTitle', 'Desbloquea Rebeca AI')}</p>
+                  <p className="text-xs mt-1 text-stone-500">{t('producer_overview.rebecaUpgradeMsg', 'Actualiza a PRO para recibir insights diarios sobre tus ventas, inventario y oportunidades.')}</p>
+                  <Link to="/producer/plan" className="inline-block mt-2 text-xs font-bold text-stone-950 hover:underline">
+                    {t('producer_overview.upgradePlan', 'Ver planes')} <ChevronRight className="w-3 h-3 inline" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        // PRO/ELITE — show briefing or placeholder
+        const summary = rebecaBriefing?.summary || rebecaBriefing?.highlights?.[0]?.text;
+        return (
+          <div className="p-5 bg-stone-50 rounded-2xl border border-stone-200" data-testid="rebeca-insight">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-stone-950">{t('producer_overview.rebecaInsightTitle', 'Rebeca AI')}</p>
+                <p className="text-xs mt-1 text-stone-600">
+                  {summary || t('producer_overview.rebecaNoInsight', 'Rebeca analiza tus ventas cada dia. Vuelve manana para tu primer insight.')}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Plan Manager */}
       <PlanManager />
@@ -1192,11 +1314,12 @@ export default function ProducerOverview() {
         <h2 className="text-lg font-semibold mb-4 text-stone-950">
           {t('producer.quickActions')}
         </h2>
-        <div className="grid grid-cols-2 gap-4">
-          {quickActions.slice(0, 4).map((action, idx) => (
+        <div className="grid grid-cols-3 gap-4">
+          {quickActions.slice(0, 6).map((action, idx) => (
             <Link
               key={idx}
               to={action.to}
+              onClick={() => trackEvent('producer_quick_action_clicked', { action: action.label })}
               className="relative flex items-center gap-3 p-4 transition-colors rounded-xl shadow-sm bg-white"
               data-testid={`desktop-quick-action-${idx}`}
             >
