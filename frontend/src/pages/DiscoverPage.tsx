@@ -8,7 +8,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Loader2, Flower2, Sun, Leaf, Snowflake, MapPin, Lightbulb, Users, UserPlus, ChefHat, Star, Map } from 'lucide-react';
+import { RefreshCw, Loader2, Flower2, Sun, Leaf, Snowflake, MapPin, Lightbulb, Users, UserPlus, ChefHat, Star, Map, Hash } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -51,6 +51,7 @@ export default function DiscoverPage() {
   const [forYouPage, setForYouPage] = useState(1);
   const [forYouExtra, setForYouExtra] = useState([]);
   const [forYouLoading, setForYouLoading] = useState(false);
+  const [trendingHashtags, setTrendingHashtags] = useState([]);
 
   const fetchBundle = useCallback(async () => {
     setLoading(true);
@@ -65,6 +66,7 @@ export default function DiscoverPage() {
       setForYouPage(1);
       setForYouExtra([]);
       trackEvent('discover_viewed', { country, chip_filter: activeChip });
+      apiClient.get('/hashtags/trending?limit=8').then(d => setTrendingHashtags(d?.hashtags || [])).catch(() => {});
     } catch (err) {
       setError(err);
     } finally {
@@ -195,6 +197,23 @@ export default function DiscoverPage() {
             <DiscoverSection id="creators" icon={Star} titleKey="trendingCreators" titleFallback={t('discover.trendingCreators', 'Trending creators')} seeAllHref="/ambassadors" loading={loading} isEmpty={!loading && creators.length === 0} emptyMessage={t('discover.creatorsEmpty', 'Pronto tendremos creators aquí.')}>
               <HorizontalStrip items={creators} renderItem={(c) => <AvatarCard user={c} />} gap="gap-4" />
             </DiscoverSection>
+          )}
+
+          {/* Trending Hashtags */}
+          {trendingHashtags.length > 0 && (
+            <div className="px-4 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Hash size={16} className="text-stone-400" />
+                <h2 className="text-base font-semibold text-stone-950">{t('discover.trendingHashtags', 'Trending ahora')}</h2>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {trendingHashtags.map(h => (
+                  <button key={h.tag} type="button" onClick={() => navigate(`/hashtag/${encodeURIComponent(h.tag)}`)} className="rounded-full bg-stone-100 px-3.5 py-2 text-[13px] font-medium text-stone-700 border-none cursor-pointer hover:bg-stone-200 transition-colors">
+                    #{h.tag}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {show('map') && !loading && (

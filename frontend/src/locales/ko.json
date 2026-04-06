@@ -3885,5 +3885,17 @@
     "section_recipes": "레시피",
     "see_all_products": "모든 상품 보기",
     "to_close": "닫기"
+  },
+  "hashtag": {
+    "posts_tab_top": "인기",
+    "posts_tab_recent": "최신",
+    "follow": "팔로우",
+    "following": "팔로잉",
+    "publications": "게시물",
+    "no_posts": "게시물 없음",
+    "no_posts_desc": "아직 이 해시태그의 게시물이 없습니다",
+    "products_with_tag": "관련 상품",
+    "recipes_with_tag": "관련 레시피",
+    "trending_now": "지금 인기"
   }
 }

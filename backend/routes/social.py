@@ -64,6 +64,27 @@ async def _moderate_content_async(
     except Exception as exc:
         logger.warning(f"[MODERATION] Failed for {collection_name} {doc_id}: {exc}")
 
+# ── Hashtag extraction + upsert ──
+
+def _extract_hashtags(text: str) -> list:
+    if not text:
+        return []
+    tags = re.findall(r'#([a-zA-Z0-9_\u00C0-\u024F]+)', text)
+    return list(dict.fromkeys(tag.lower() for tag in tags))[:30]
+
+
+async def _upsert_hashtags(tags: list):
+    if not tags:
+        return
+    now = datetime.now(timezone.utc)
+    for tag in tags:
+        await db.hashtags.update_one(
+            {"name": tag},
+            {"$inc": {"post_count": 1}, "$set": {"last_used_at": now, "slug": tag}, "$setOnInsert": {"created_at": now, "velocity_score": 0}},
+            upsert=True,
+        )
+
+
 # Preference-aware notification types (maps notification type → preference key)
 _NOTIF_PREF_KEY = {
     "new_like": "likes", "like": "likes", "post_liked": "likes", "story_like": "likes",
@@ -716,6 +737,7 @@ async def create_reel(
     }
     try:
         await db.reels.insert_one(reel)
+        asyncio.create_task(_upsert_hashtags(_extract_hashtags(caption)))
     except Exception as db_err:
         # Compensating action: delete orphaned Cloudinary video if DB insert fails
         if video_public_id:
@@ -2080,6 +2102,8 @@ async def create_post(
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.user_posts.insert_one(post)
+    # Extract and upsert hashtags from caption
+    asyncio.create_task(_upsert_hashtags(_extract_hashtags(caption)))
     for tag in tagged_products:
         await _record_intelligence_signal(
             "content_product_tagged",
@@ -3026,6 +3050,84 @@ async def search_hashtags(q: str = Query("", min_length=1), limit: int = Query(6
     return [{"name": r.get("name", ""), "post_count": r.get("post_count", 0)} for r in results]
 
 
+@router.get("/hashtags/suggest")
+async def suggest_hashtags(q: str = Query("", min_length=1), limit: int = Query(5, ge=1, le=10)):
+    """Suggest hashtags for autocomplete in creator caption."""
+    results = await db.hashtags.find(
+        {"name": {"$regex": f"^{re.escape(q.lower())}", "$options": "i"}},
+    ).sort("post_count", -1).limit(limit).to_list(limit)
+    return {"suggestions": [{"tag": r.get("name", ""), "posts_count": r.get("post_count", 0)} for r in results]}
+
+
+@router.get("/hashtags/trending")
+async def get_trending_hashtags(country: Optional[str] = None, limit: int = Query(10, ge=1, le=30)):
+    """Top hashtags by velocity score (trending) or post_count."""
+    results = await db.hashtags.find(
+        {"post_count": {"$gt": 0}},
+    ).sort([("velocity_score", -1), ("post_count", -1)]).limit(limit).to_list(limit)
+    return {"hashtags": [{"tag": r.get("name", ""), "slug": r.get("slug", r.get("name", "")), "posts_count": r.get("post_count", 0), "velocity_score": r.get("velocity_score", 0)} for r in results]}
+
+
+@router.get("/hashtags/{slug}")
+async def get_hashtag_detail(slug: str, request: Request):
+    """Get hashtag info + follow status."""
+    tag = await db.hashtags.find_one({"name": slug.lower()}, {"_id": 0})
+    if not tag:
+        return {"tag": slug.lower(), "slug": slug.lower(), "posts_count": 0, "is_trending": False, "is_followed": False}
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    is_followed = False
+    if current_user:
+        user_doc = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0, "followed_hashtags": 1})
+        is_followed = slug.lower() in (user_doc.get("followed_hashtags") or [])
+    return {"tag": tag.get("name"), "slug": tag.get("slug", tag.get("name")), "posts_count": tag.get("post_count", 0), "is_trending": tag.get("velocity_score", 0) > 1.5, "is_followed": is_followed}
+
+
+@router.get("/hashtags/{slug}/products")
+async def get_hashtag_products(slug: str, limit: int = Query(10, ge=1, le=20)):
+    """Products that have this hashtag in their tags."""
+    products = await db.products.find(
+        {"tags": {"$regex": slug.lower(), "$options": "i"}, "status": {"$nin": ["suspended_by_admin", "deleted", "rejected"]}},
+        {"_id": 0, "product_id": 1, "name": 1, "slug": 1, "images": 1, "price": 1}
+    ).limit(limit).to_list(limit)
+    return products
+
+
+@router.get("/users/me/followed-hashtags")
+async def get_followed_hashtags(user: User = Depends(get_current_user)):
+    """Get list of hashtags the user follows."""
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "followed_hashtags": 1})
+    tags = user_doc.get("followed_hashtags") or [] if user_doc else []
+    return [{"tag": t} for t in tags]
+
+
+@router.post("/users/me/followed-hashtags")
+async def follow_hashtag(request: Request, user: User = Depends(get_current_user)):
+    """Follow a hashtag."""
+    body = await request.json()
+    tag = (body.get("tag") or "").lower().strip()
+    if not tag:
+        from fastapi import HTTPException
+        raise HTTPException(400, "tag required")
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$addToSet": {"followed_hashtags": tag}}
+    )
+    return {"status": "followed", "tag": tag}
+
+
+@router.delete("/users/me/followed-hashtags/{tag}")
+async def unfollow_hashtag(tag: str, user: User = Depends(get_current_user)):
+    """Unfollow a hashtag."""
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$pull": {"followed_hashtags": tag.lower()}}
+    )
+    return {"status": "unfollowed", "tag": tag}
+
+
 @router.get("/users/search")
 async def search_users_autocomplete(q: str = Query("", min_length=1), limit: int = Query(6, ge=1, le=10)):
     """Usuarios cuyo username o nombre empieza por q."""
@@ -3298,6 +3400,7 @@ async def create_story(
         except Exception:
             story["products"] = []
     await db.hispalostories.insert_one(story)
+    asyncio.create_task(_upsert_hashtags(_extract_hashtags(caption or "")))
 
     # Async post-publish moderation (non-blocking)
     asyncio.create_task(_moderate_content_async(

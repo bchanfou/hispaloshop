@@ -233,6 +233,8 @@ export default function CreatePostPage() {
 
   /* --- step 3 state --- */
   const [caption, setCaption] = useState('');
+  const [hashtagSuggestions, setHashtagSuggestions] = useState([]);
+  const hashtagDebounceRef = useRef(null);
   const [taggedProducts, setTaggedProducts] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState(false);
@@ -982,7 +984,32 @@ export default function CreatePostPage() {
           setCaption(v);
           e.target.style.height = 'auto';
           e.target.style.height = e.target.scrollHeight + 'px';
+          // Hashtag autocomplete detection
+          clearTimeout(hashtagDebounceRef.current);
+          const cursorPos = e.target.selectionStart;
+          const textBefore = v.slice(0, cursorPos);
+          const hashMatch = textBefore.match(/#([\w\u00C0-\u024F]{2,})$/);
+          if (hashMatch) {
+            hashtagDebounceRef.current = setTimeout(async () => {
+              try {
+                const res = await apiClient.get(`/hashtags/suggest?q=${encodeURIComponent(hashMatch[1])}&limit=5`);
+                setHashtagSuggestions(res?.suggestions || []);
+              } catch { setHashtagSuggestions([]); }
+            }, 200);
+          } else { setHashtagSuggestions([]); }
         }} maxLength={2200} aria-label={i18n.t('create_post.descripcionDeLaPublicacion', 'Descripción de la publicación')} placeholder={i18n.t('create_post.escribeTuPieDeFotoUsaParaHas', 'Escribe tu pie de foto... Usa # para hashtags y @ para menciones')} className="w-full border-[1.5px] border-stone-200 rounded-xl p-3 resize-none min-h-[80px] text-sm leading-relaxed outline-none box-border overflow-hidden bg-transparent relative caret-stone-950" />
+          {/* Hashtag autocomplete dropdown */}
+          {hashtagSuggestions.length > 0 && <div className="absolute left-0 right-0 -bottom-1 translate-y-full bg-white border border-stone-200 rounded-xl shadow-lg z-20 overflow-hidden">
+              {hashtagSuggestions.map(s => <button key={s.tag} type="button" onClick={() => {
+                const regex = /#[\w\u00C0-\u024F]*$/;
+                setCaption(prev => prev.replace(regex, `#${s.tag} `));
+                setHashtagSuggestions([]);
+                trackEvent('hashtag_autocomplete_used', { tag: s.tag });
+              }} className="w-full flex items-center justify-between px-3 py-2 text-left bg-transparent border-none cursor-pointer hover:bg-stone-50 transition-colors">
+                  <span className="text-[13px] font-medium text-stone-950">#{s.tag}</span>
+                  <span className="text-[11px] text-stone-400">{s.posts_count} posts</span>
+                </button>)}
+            </div>}
           <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2200 ? 'text-stone-950 font-semibold' : caption.length > 2000 ? 'text-stone-700 font-semibold' : 'text-stone-500'}`}>
             {caption.length}/2200
           </span>

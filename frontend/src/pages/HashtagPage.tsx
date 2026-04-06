@@ -6,6 +6,7 @@ import { ArrowLeft, Hash, AlertTriangle, Image, Play, ChefHat, Clock, Bell, Bell
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
+import { trackEvent } from '../utils/analytics';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +32,14 @@ export default function HashtagPage() {
   } = useAuth();
   const decodedTag = decodeURIComponent(tag || '');
   const [activeTab, setActiveTab] = useState('posts');
+  const [tagProducts, setTagProducts] = useState([]);
+
+  // Track view + fetch products with this tag
+  useEffect(() => {
+    if (!decodedTag) return;
+    trackEvent('hashtag_viewed', { tag: decodedTag });
+    apiClient.get(`/hashtags/${encodeURIComponent(decodedTag.toLowerCase())}/products?limit=10`).then(d => setTagProducts(Array.isArray(d) ? d : [])).catch(() => {});
+  }, [decodedTag]);
 
   // P-06: Hashtag following
   const {
@@ -59,6 +68,7 @@ export default function HashtagPage() {
       queryClient.invalidateQueries({
         queryKey: ['followed-hashtags']
       });
+      trackEvent(isFollowingTag ? 'hashtag_unfollowed' : 'hashtag_followed', { tag: decodedTag });
     }
   });
 
@@ -316,6 +326,23 @@ export default function HashtagPage() {
           })}
               </div>}
           </>}
+        {/* Products with this tag */}
+        {tagProducts.length > 0 && (
+          <div className="mt-6 mb-4">
+            <h3 className="text-sm font-semibold text-stone-950 mb-2">{i18n.t('hashtag.products_with_tag', 'Productos con')} #{decodedTag}</h3>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {tagProducts.map(p => (
+                <button key={p.product_id} onClick={() => navigate(`/product/${p.slug || p.product_id}`)} className="shrink-0 w-[140px] text-left bg-white rounded-2xl overflow-hidden border border-stone-100 p-0 cursor-pointer hover:shadow-sm transition-shadow">
+                  {p.images?.[0] && <img src={resolveUserImage(p.images[0])} alt={p.name} className="w-full aspect-square object-cover" loading="lazy" />}
+                  <div className="px-2 py-1.5">
+                    <p className="text-[12px] font-medium text-stone-950 line-clamp-2">{p.name}</p>
+                    {p.price != null && <p className="text-[11px] text-stone-500 mt-0.5">{Number(p.price).toFixed(2)} €</p>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>;
 }

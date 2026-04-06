@@ -3881,5 +3881,17 @@
     "section_recipes": "Recipes",
     "see_all_products": "See all products",
     "to_close": "to close"
+  },
+  "hashtag": {
+    "posts_tab_top": "Top",
+    "posts_tab_recent": "Recent",
+    "follow": "Follow",
+    "following": "Following",
+    "publications": "publications",
+    "no_posts": "No posts",
+    "no_posts_desc": "No posts with this hashtag yet",
+    "products_with_tag": "Products with",
+    "recipes_with_tag": "Recipes with",
+    "trending_now": "Trending now"
   }
 }
