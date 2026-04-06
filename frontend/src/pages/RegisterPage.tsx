@@ -164,6 +164,8 @@ export default function RegisterPage() {
   const [ageBlocked, setAgeBlocked] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [countryWarning, setCountryWarning] = useState(false);  // non-active country modal
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
   // Username availability
   const [usernameStatus, setUsernameStatus] = useState(null);
@@ -254,9 +256,7 @@ export default function RegisterPage() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const doRegister = async () => {
     setIsLoading(true);
 
     const birthDate = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
@@ -337,6 +337,26 @@ export default function RegisterPage() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    // For producers/importers, check if country is active before proceeding
+    if (activeRole === 'producer' || activeRole === 'importer') {
+      try {
+        const countryStatus = await apiClient.get(`/verification/country-status/${form.country}`);
+        if (!countryStatus?.is_active) {
+          setCountryWarning(true);
+          return;
+        }
+      } catch {
+        // If check fails, proceed anyway (non-blocking)
+      }
+    }
+
+    await doRegister();
+  };
+
   const handleGoogleRegister = async () => {
     try {
       const data = await authApi.getGoogleAuthUrl();
@@ -354,6 +374,29 @@ export default function RegisterPage() {
 
   const strength = getPasswordStrength(form.password);
   const strengthWidth = `${(strength.level / 3) * 100}%`;
+
+  // Waitlist confirmation screen
+  if (waitlistSubmitted) {
+    return (
+      <div className="text-center py-10">
+        <div className="w-[72px] h-[72px] rounded-full mx-auto mb-5 bg-stone-100 flex items-center justify-center">
+          <Check size={32} className="text-stone-950" />
+        </div>
+        <h1 className="text-[22px] font-bold text-stone-950 mb-2">
+          {t('register.waitlistTitle', 'Te avisaremos')}
+        </h1>
+        <p className="text-[15px] text-stone-500 mb-6 leading-relaxed max-w-xs mx-auto">
+          {t('register.waitlistMsg', 'Cuando tu pais este completamente configurado, te enviaremos un email para que completes tu registro.')}
+        </p>
+        <button
+          onClick={() => { setWaitlistSubmitted(false); setCountryWarning(false); }}
+          className="px-8 h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold hover:bg-stone-800 transition-colors"
+        >
+          {t('register.goBack', 'Volver')}
+        </button>
+      </div>
+    );
+  }
 
   // Age-blocked screen
   if (ageBlocked) {
@@ -380,6 +423,37 @@ export default function RegisterPage() {
 
   return (
     <>
+      {/* Country warning modal for non-active countries */}
+      {countryWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h2 className="text-lg font-bold text-stone-950 mb-3">
+              {t('register.countryWarningTitle', 'Pais no completamente configurado')}
+            </h2>
+            <p className="text-sm text-stone-600 mb-5 leading-relaxed">
+              {t('register.countryWarningMsg', 'Tu pais aun no esta completamente configurado en Hispaloshop. Puedes registrarte y listar productos, pero ten en cuenta que los pagos se procesaran manualmente y pueden tardar mas de lo habitual.')}
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={async () => {
+                  setCountryWarning(false);
+                  await doRegister();
+                }}
+                className="w-full py-3 text-sm font-bold bg-stone-950 text-white rounded-full hover:bg-stone-800 transition-colors"
+              >
+                {t('register.countryWarningContinue', 'Si, continuar')}
+              </button>
+              <button
+                onClick={() => { setCountryWarning(false); setWaitlistSubmitted(true); }}
+                className="w-full py-3 text-sm font-semibold border border-stone-200 text-stone-950 rounded-full hover:bg-stone-50 transition-colors"
+              >
+                {t('register.countryWarningWaitlist', 'Avisarme cuando mi pais este listo')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <h1 className="text-2xl font-bold text-stone-950 text-center mb-1">
         Crear cuenta

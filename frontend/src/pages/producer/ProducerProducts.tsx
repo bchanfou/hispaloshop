@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Plus, Edit, ArrowLeft, ArrowRight, Eye, CheckCircle, Check, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, Send, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -271,6 +271,14 @@ export default function ProducerProducts() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // Verification blocked state
+  const [isBlocked, setIsBlocked] = useState(true);
+  useEffect(() => {
+    apiClient.get('/verification/status')
+      .then((vs) => setIsBlocked(vs?.blocked_from_selling !== false))
+      .catch(() => setIsBlocked(true));
+  }, []);
 
   // Filtered products
   const filteredProducts = useMemo(() => {
@@ -1406,9 +1414,16 @@ export default function ProducerProducts() {
           </h1>
           <p className="text-stone-500 text-sm">{t('producerProducts.subtitle')}</p>
         </div>
-        <button type="button" onClick={() => setShowCreateForm(true)} className="shrink-0 flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors" data-testid="create-product">
-          <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
-        </button>
+        <div className="relative group shrink-0">
+          <button type="button" onClick={() => setShowCreateForm(true)} disabled={isBlocked} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-2xl transition-colors" data-testid="create-product">
+            <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
+          </button>
+          {isBlocked && (
+            <div className="absolute right-0 top-full mt-1 px-3 py-1.5 text-xs text-white bg-stone-800 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              {t('producerProducts.verifyFirst', 'Verifica tu cuenta primero')}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Search bar */}
@@ -1497,8 +1512,8 @@ export default function ProducerProducts() {
               </div>)}
           </div> : filteredProducts.length === 0 ? <div className="p-8 text-center">
             <p className="text-stone-500 mb-4">{products.length === 0 ? t('producerProducts.noProductsYet') : 'No hay productos que coincidan con tu búsqueda.'}</p>
-            {products.length === 0 && <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
-                <Plus className="w-4 h-4 mr-2" /> {t('producerProducts.createFirstProduct')}
+            {products.length === 0 && <button type="button" onClick={() => setShowCreateForm(true)} disabled={isBlocked} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-2xl transition-colors">
+                <Plus className="w-4 h-4 mr-2" /> {isBlocked ? t('producerProducts.verifyFirst', 'Verifica tu cuenta primero') : t('producerProducts.createFirstProduct')}
               </button>}
           </div> : <>
             {/* Mobile Card Layout */}

@@ -42,7 +42,8 @@ import { useNavigationDirection } from './hooks/useNavigationDirection';
 // Nuevos providers P12
 import { QueryProvider } from './providers/QueryProvider';
 // Cart components
-import MiniCart from './components/cart/MiniCart';
+// MiniCart removed — permanently hidden (isCartOpen never set true), /cart page is the active flow
+// import MiniCart from './components/cart/MiniCart';
 import ConsentBanner from './components/ui/ConsentBanner';
 import { initAnalyticsOnConsent } from './utils/analytics';
 
@@ -359,7 +360,7 @@ function HomeRoute() {
 function AppRouter() {
   const location = useLocation();
   const { user } = useAuth();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  // MiniCart state removed — was permanently hidden (isCartOpen never set true)
   const direction = useNavigationDirection();
 
   usePushNotifications(user);
@@ -849,7 +850,7 @@ function AppRouter() {
       </AppLayout>
 
       {/* Mini Cart Drawer */}
-      <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      {/* MiniCart removed — /cart page is the active flow */}
     </>
   );
 }

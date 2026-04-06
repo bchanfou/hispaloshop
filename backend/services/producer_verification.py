@@ -96,15 +96,27 @@ async def verify_cif_nif(file_url: str, country: str = "ES") -> dict:
     content_type = _detect_content_type(file_url)
     file_b64 = base64.standard_b64encode(file_bytes).decode("utf-8")
 
+    # Country-specific prompt for AI extraction
+    doc_hints = {
+        "ES": ("CIF o NIF", "formato: letra+8digitos o letra+7digitos+letra"),
+        "US": ("EIN (Employer Identification Number)", "formato: XX-XXXXXXX, 9 digitos"),
+        "FR": ("SIRET o SIREN", "formato: 14 digitos (SIRET) o 9 digitos (SIREN)"),
+        "KR": ("사업자등록번호 (Business Registration Number)", "formato: 10 digitos"),
+        "IT": ("Partita IVA", "formato: 11 digitos"),
+        "PT": ("NIF (Numero de Identificacao Fiscal)", "formato: 9 digitos"),
+        "DE": ("USt-IdNr o Steuernummer", "formato: DE+9 digitos o 10-13 digitos"),
+    }
+    doc_name, doc_format = doc_hints.get(country, ("business registration number", "official format"))
+
     prompt = (
-        "Analiza este documento oficial español. Extrae:\n"
-        "1. CIF o NIF (formato: letra+8dígitos o letra+7dígitos+letra)\n"
-        "2. Nombre de la empresa o persona\n"
-        "3. Tipo de documento (CIF empresarial / NIF personal / Otro)\n"
-        "4. ¿Es un documento oficial válido?\n"
-        "Responde SOLO con JSON:\n"
-        '{"tax_id": "CIF/NIF o null", "entity_name": "nombre o null", '
-        '"document_type": "cif|nif|other", "is_official": true/false, '
+        f"Analyze this official business document from country {country}. Extract:\n"
+        f"1. {doc_name} ({doc_format})\n"
+        "2. Business or person name\n"
+        "3. Document type\n"
+        "4. Is this a valid official document?\n"
+        "Respond ONLY with JSON:\n"
+        '{"tax_id": "extracted ID or null", "entity_name": "name or null", '
+        '"document_type": "type or other", "is_official": true/false, '
         '"confidence": "high|medium|low"}'
     )
 
@@ -255,6 +267,8 @@ CERT_TYPE_LABELS = {
     "halal": "Halal",
     "gluten_free": "Sin Gluten",
     "vegan": "Vegano",
+    "import_certificate": "Certificado de importación",
+    "distribution_agreement": "Acuerdo de distribución",
     "other": "Otro",
 }
 

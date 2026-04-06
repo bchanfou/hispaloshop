@@ -215,9 +215,11 @@ export default function CommunityPage() {
           <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
           {isMember && <button type="button" onClick={async () => {
             try {
-              await apiClient.post('/chat/groups/community', { community_id: community.id || community._id });
+              const chatRes = await apiClient.post('/chat/groups/community', { community_id: community.id || community._id });
               trackEvent('community_chat_joined', { community_id: community.id || community._id });
               toast.success(i18n.t('community.chat_activated', 'Chat de la comunidad activado'));
+              const convId = chatRes?.conversation_id || chatRes?.id;
+              if (convId) navigate(`/messages/${convId}`);
             } catch (err) {
               if (err?.response?.status === 409) toast(i18n.t('community.chat_already_joined', 'Ya estás en el chat'));
               else toast.error('Error');

@@ -28,6 +28,7 @@ ALLOWED_DOC_TYPES = ALLOWED_IMAGE_TYPES | {"application/pdf"}
 VALID_CERT_TYPES = {
     "ecological_eu", "dop", "igp", "halal",
     "gluten_free", "vegan", "other",
+    "import_certificate", "distribution_agreement",
 }
 
 
@@ -109,8 +110,10 @@ async def upload_cif_nif(
         upsert=False,
     )
 
-    # Verify with AI
-    verification = await verify_cif_nif(file_url)
+    # Verify with AI (pass producer's country for country-specific validation)
+    db_user = db_user or await db.users.find_one({"user_id": user.user_id})
+    producer_country = (db_user or {}).get("country", "ES")
+    verification = await verify_cif_nif(file_url, country=producer_country)
 
     # Update document with AI results
     cif_update = {
@@ -370,4 +373,18 @@ async def get_verification_status(user: User = Depends(get_current_user)):
         "admin_review_reason": vs.get("admin_review_reason"),
         "blocked_from_selling": vs.get("blocked_from_selling", True),
         "block_reason": vs.get("block_reason"),
+    }
+
+
+# ── GET /verification/country-status/:code ──────────────────────
+
+@router.get("/verification/country-status/{code}")
+async def get_country_status(code: str):
+    """Check if a country is active for seller registration."""
+    country_code = code.upper()
+    cc = await db.country_configs.find_one({"country_code": country_code})
+    is_active = bool(cc and cc.get("is_active"))
+    return {
+        "country_code": country_code,
+        "is_active": is_active,
     }

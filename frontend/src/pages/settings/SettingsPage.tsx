@@ -237,7 +237,7 @@ export default function SettingsPage() {
         {/* ── PRIVACIDAD Y DATOS ── */}
         <SectionLabel>{i18n.t('settings_page.privacy_data', 'Privacidad y datos')}</SectionLabel>
         <SettingsGroup>
-          <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.ai_consent', 'Consentimiento IA')} to="/dashboard/profile" />
+          <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.ai_consent', 'Consentimiento IA')} to="/settings/profile" />
           <SettingsItem icon={<Download size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.download_data', 'Descargar mis datos')} onClick={async () => {
             try {
               trackEvent('data_export_requested');
