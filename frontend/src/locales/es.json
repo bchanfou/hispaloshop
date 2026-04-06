@@ -4507,28 +4507,36 @@
         "title": "B2C y B2B desde una sola plataforma",
         "items": [
           {
-            "title": "Venta directa al consumidor",
-            "description": "Tu tienda online como un supermercado. El cliente final descubre, compra y recibe tus productos importados."
+            "title": "Tu tienda de importación en minutos",
+            "description": "Lista tus productos importados con badge 'Importado desde...' visible. El consumidor sabe exactamente de dónde viene."
           },
           {
-            "title": "Marketplace B2B",
-            "description": "Vende al por mayor a otros negocios. Cotizaciones, contratos y seguimiento como en Alibaba."
+            "title": "Comisiones transparentes",
+            "description": "Mismas comisiones que productores: FREE 20%, PRO 18%, ELITE 17%. Sin costes ocultos ni sorpresas."
           },
           {
-            "title": "Sin infraestructura propia",
-            "description": "No necesitas montar e-commerce, ni pasarela de pago, ni SEO. La plataforma es tu infraestructura."
+            "title": "Rebeca AI, tu asesora comercial",
+            "description": "IA que analiza tus ventas, te avisa de stock bajo y te sugiere precios. Incluida en tu plan PRO."
           },
           {
-            "title": "Catálogo ilimitado",
-            "description": "Sube todos tus productos con variantes, packs y precios por volumen. Sin límite."
+            "title": "Pedro AI, tu agente internacional",
+            "description": "Analiza mercados, busca productores extranjeros y genera contratos. Tu equipo de sourcing en el plan ELITE."
           },
           {
-            "title": "Red de influencers",
-            "description": "Creadores locales pueden promocionar tus productos importados a su audiencia."
+            "title": "Certificado digital QR",
+            "description": "Cada producto tiene un QR descargable. Tu cliente escanea y ve toda la info en su idioma. Perfecto para importados."
           },
           {
-            "title": "Alcance internacional",
-            "description": "Vende en España, Europa, USA, Japón y Corea del Sur. La plataforma se adapta al idioma del comprador."
+            "title": "Promoción incluida en tu plan",
+            "description": "Tus productos se promocionan automáticamente. PRO a nivel nacional, ELITE a nivel internacional. Sin pagar ads extra."
+          },
+          {
+            "title": "Market Requests",
+            "description": "Ve qué productos pide la gente de tu país antes de importarlos. Datos reales de demanda, no suposiciones."
+          },
+          {
+            "title": "Traducción automática",
+            "description": "Tu producto se traduce automáticamente al idioma del comprador. Un producto en español lo ve un coreano en coreano."
           }
         ]
       },
