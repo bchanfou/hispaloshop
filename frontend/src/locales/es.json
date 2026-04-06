@@ -4074,28 +4074,28 @@
         "title": "Todo lo que necesitas en un solo lugar",
         "items": [
           {
-            "title": "Compra sin intermediarios",
-            "description": "Cada producto viene directamente del productor. Precio justo para ti, margen justo para quien lo hace."
+            "title": "Del productor a tu mesa",
+            "description": "Sin intermediarios. Cada producto tiene cara y apellidos. Sabes quién lo cultiva y cómo lo hace."
           },
           {
-            "title": "Conoce quién hace tu comida",
-            "description": "Sigue a productores, descubre su día a día y entiende lo que hay detrás de cada producto."
+            "title": "Recetas que se compran solas",
+            "description": "Ve una receta, compra todos los ingredientes de productores reales con un botón. Cocina y compra al mismo tiempo."
+          },
+          {
+            "title": "Tu nutricionista personal",
+            "description": "David AI te conoce: tu dieta, alergias, gustos. Te recomienda productos y recetas personalizadas."
           },
           {
             "title": "Vende lo que produces",
-            "description": "Tu tienda online en minutos. Sin complicaciones técnicas. Tú produces, nosotros conectamos."
+            "description": "Abre tu tienda online en minutos con IA que te ayuda a vender más. Desde 0€ con comisiones transparentes."
           },
           {
             "title": "Gana recomendando",
-            "description": "Si te apasiona la gastronomía, conviértete en embajador y gana comisiones por cada venta."
+            "description": "Código personal + comisiones recurrentes durante 18 meses. Con 1 seguidor ya puedes ganar."
           },
           {
-            "title": "Importa y distribuye",
-            "description": "Trae productos del mundo a tu mercado local. B2C y B2B desde una sola plataforma."
-          },
-          {
-            "title": "Comunidad real",
-            "description": "No es solo una tienda. Es una red social donde la comida conecta a personas."
+            "title": "Escanea, descubre, compra",
+            "description": "Certificado digital QR en cada producto. Escanéalo en cualquier tienda del mundo y ve la info en tu idioma."
           }
         ]
       },
@@ -4177,20 +4177,28 @@
         "title": "Comprar así tiene sentido",
         "items": [
           {
-            "title": "Sin intermediarios",
-            "description": "El precio que pagas va directamente al productor. Sin márgenes de distribuidores ni supermercados."
+            "title": "Del productor a tu mesa",
+            "description": "Sin intermediarios. Cada producto tiene rostro y apellidos. Sabes quién lo hace, dónde y cómo."
           },
           {
-            "title": "Trazabilidad total",
-            "description": "Sabes quién lo hace, dónde y cómo. Cada producto tiene una historia que puedes seguir."
+            "title": "Recetas con ingredientes comprables",
+            "description": "Ve una receta, compra todos los ingredientes de productores reales con un solo botón. Nadie más hace esto."
           },
           {
-            "title": "Frescura garantizada",
-            "description": "Del campo a tu mesa en el menor tiempo posible. Sin almacenes intermedios."
+            "title": "David AI, tu nutricionista personal",
+            "description": "Un asistente que te conoce: tu dieta, alergias, gustos. Te recomienda productos y recetas hechas para ti."
           },
           {
-            "title": "Sigue a tus productores",
-            "description": "Como en una red social: sigue a productores, ve sus novedades y compra cuando quieras."
+            "title": "Certificado digital QR",
+            "description": "Escanea el QR de un producto físico en cualquier tienda del mundo y ve toda la info en tu idioma."
+          },
+          {
+            "title": "Comunidades de foodies",
+            "description": "Únete a comunidades de gente que come como tú. Comparte recetas, descubre productores, haz amigos."
+          },
+          {
+            "title": "Wishlists para compartir",
+            "description": "Crea listas de deseos y compártelas con quien quieras. Perfectas para cumpleaños, regalos y despensas."
           }
         ]
       },
@@ -4257,27 +4265,27 @@
         "items": [
           {
             "title": "Tu tienda en minutos",
-            "description": "Sube tus productos, personaliza tu perfil y empieza a vender. Sin conocimientos técnicos, sin desarrolladores."
+            "description": "Sube tus productos, cuenta tu historia, personaliza tu perfil. Sin conocimientos técnicos, sin desarrolladores."
           },
           {
-            "title": "Precio justo, margen tuyo",
-            "description": "Tú decides el precio. Sin intermediarios que se lleven un trozo. Comisiones transparentes según tu plan."
+            "title": "Comisiones transparentes",
+            "description": "FREE 20%, PRO 18%, ELITE 17%. Tú ves exactamente cuánto ganas por cada venta. Sin letra pequeña."
           },
           {
-            "title": "Comunidad que te sigue",
-            "description": "Los clientes te siguen como en una red social. Publica novedades, cuenta tu día a día y fideliza."
+            "title": "Rebeca AI, tu asesora comercial",
+            "description": "Una IA que conoce tus ventas, te avisa si el stock baja, y te sugiere precios y estrategias. Incluida en PRO."
           },
           {
-            "title": "Gestión de pedidos",
-            "description": "Panel de pedidos, notificaciones en tiempo real, historial completo. Todo desde tu móvil."
+            "title": "Pedro AI, tu agente internacional",
+            "description": "Analiza mercados, busca importadores y genera contratos. Tu equipo de exportación en el plan ELITE."
           },
           {
-            "title": "Analytics de tu tienda",
-            "description": "Visualizaciones, ventas, productos más vistos. Datos reales para tomar decisiones."
+            "title": "Certificado digital QR",
+            "description": "Descarga un QR para tus productos físicos. Cualquier persona del mundo lo escanea y ve la info en su idioma."
           },
           {
-            "title": "Colabora con influencers",
-            "description": "Creadores de contenido gastronómico promocionan tus productos. Tú ganas visibilidad, ellos comisiones."
+            "title": "Promoción incluida en tu plan",
+            "description": "Tus productos se promocionan automáticamente. PRO a nivel nacional, ELITE a nivel internacional. Sin pagar ads."
           }
         ]
       },
@@ -4394,20 +4402,28 @@
         "title": "Tu influencia, tu ingreso",
         "items": [
           {
-            "title": "Código de descuento propio",
-            "description": "Recibe un código único para compartir con tu audiencia. Cada compra con tu código genera comisión para ti."
+            "title": "Tu código, 10% para tu audiencia",
+            "description": "Código personalizado que ofrece 10% de descuento en la primera compra. Tu audiencia gana, tú ganas."
           },
           {
-            "title": "Comisiones por venta",
-            "description": "Gana un porcentaje de cada venta realizada con tu código. Sin límite de ganancias."
+            "title": "Cobras por 18 meses",
+            "description": "Cada persona que traigas genera comisiones para ti durante 18 meses. No solo la primera compra: todas."
           },
           {
-            "title": "Dashboard de rendimiento",
-            "description": "Visualiza en tiempo real: clics, ventas, conversión y ganancias acumuladas."
+            "title": "De Hercules a Zeus",
+            "description": "Empieza ganando 3% (Hercules). Sube a 5% (Atenea) y 7% (Zeus) a medida que atraes más clientes."
           },
           {
-            "title": "Cobra cuando quieras",
-            "description": "Solicita el retiro de tus ganancias en cualquier momento. Transferencia directa a tu cuenta."
+            "title": "Tu landing personal",
+            "description": "hispaloshop.com/@tuhandle — tu página con tu código, tu perfil y tus recomendaciones. Comparte en bio de IG."
+          },
+          {
+            "title": "Dashboard de tráfico",
+            "description": "Ve cuántas personas usaron tu código, cuánto gastaron y cuánto has ganado. Todo en tiempo real."
+          },
+          {
+            "title": "Con 1 seguidor ya puedes ganar",
+            "description": "No necesitas 100K followers. Si alguien confía en ti y compra con tu código, ya estás ganando."
           }
         ]
       },
