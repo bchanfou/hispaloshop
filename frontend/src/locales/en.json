@@ -3530,5 +3530,81 @@
     "empty_can_review": "No reviews yet. Be the first!",
     "empty_no_purchase": "No reviews yet",
     "buy_to_review": "Buy this product to leave a review"
+  },
+  "settings_page": {
+    "account": "Account",
+    "edit_profile": "Edit profile",
+    "addresses": "Saved addresses",
+    "payment_methods": "Payment methods",
+    "managed_by_stripe": "Managed by Stripe",
+    "preferences": "Preferences",
+    "notifications": "Notifications",
+    "privacy_toggle": "Privacy",
+    "private": "Private account",
+    "public": "Public account",
+    "follow_requests": "Follow requests",
+    "accounts": "Accounts",
+    "switch_account": "Switch account",
+    "switch_desc": "Tap your avatar in the profile to switch",
+    "add_account": "Add account",
+    "gamification": "Gamification",
+    "level_xp": "Level & XP",
+    "privacy_data": "Privacy & data",
+    "ai_consent": "AI consent",
+    "download_data": "Download my data",
+    "data_downloaded": "Data downloaded",
+    "data_error": "Error downloading data",
+    "delete_account": "Delete my account"
+  },
+  "settings_addr": {
+    "title": "Saved addresses",
+    "empty": "You have no saved addresses",
+    "add": "Add address",
+    "edit": "Edit address",
+    "new": "New address",
+    "address": "Address",
+    "default": "Default",
+    "set_default": "Set as default",
+    "fill_required": "Fill in all required fields",
+    "saved": "Address saved",
+    "updated": "Address updated",
+    "deleted": "Address deleted",
+    "default_set": "Default address updated",
+    "label": "Label (e.g. Home, Office)",
+    "street": "Street and number",
+    "city": "City",
+    "postal": "Postal code",
+    "country": "Country",
+    "phone": "Phone (optional)",
+    "update": "Update",
+    "save": "Save address"
+  },
+  "settings_gam": {
+    "title": "Level & XP",
+    "level": "Level",
+    "next": "Next",
+    "max_level": "Max level",
+    "streak": "Streak",
+    "days": "consecutive days",
+    "weekly_goal": "Weekly goal",
+    "spent": "spent this week"
+  },
+  "settings_notif": {
+    "channels": "Channels",
+    "push": "Push notifications",
+    "email": "Email notifications",
+    "quiet_hours": "Quiet hours",
+    "quiet_desc": "You won't receive push notifications during these hours.",
+    "from": "From",
+    "to": "To",
+    "timezone": "Timezone"
+  },
+  "settings": {
+    "account_switched": "Account switched",
+    "switch_error": "Error switching account",
+    "switch_account": "Switch account"
+  },
+  "profile_tabs": {
+    "no_reviews": "No reviews yet"
   }
 }

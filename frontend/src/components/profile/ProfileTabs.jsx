@@ -25,6 +25,10 @@ const ALL_TABS = [{
   icon: BookOpen,
   label: 'Recetas'
 }, {
+  id: 'reviews',
+  icon: Star,
+  label: 'Resenas'
+}, {
   id: 'saved',
   icon: Bookmark,
   label: 'Guardados'
@@ -34,15 +38,15 @@ function getTabsForRole(role, isOwn) {
   switch (role) {
     case 'producer':
     case 'importer':
-      ids = ['posts', 'reels', 'products', 'recipes'];
+      ids = ['posts', 'reels', 'products', 'recipes', 'reviews'];
       break;
     case 'influencer':
-      ids = ['posts', 'reels', 'recipes'];
+      ids = ['posts', 'reels', 'recipes', 'reviews'];
       break;
     case 'consumer':
     case 'customer':
     default:
-      ids = ['posts', 'reels'];
+      ids = ['posts', 'reels', 'reviews'];
       break;
   }
   if (isOwn) ids.push('saved');
@@ -161,6 +165,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     reels: `/users/${userId}/reels`,
     products: `/users/${userId}/products`,
     recipes: `/users/${userId}/recipes`,
+    reviews: `/customer/reviews`,
     saved: `/users/me/saved-posts`
   }), [userId]);
   const fetchTab = useCallback(async (tabId, append = false) => {
@@ -387,6 +392,39 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       })}
       </div>;
   }
+  function renderReviews() {
+    const items = data.reviews;
+    if (loading.reviews && !items) return <SkeletonGrid count={4} columns={1} />;
+    if (!items || items.length === 0) {
+      return <EmptyState icon={Star} title={i18n.t('profile_tabs.no_reviews', 'Sin resenas todavia')} />;
+    }
+    return <div className="flex flex-col gap-2.5 p-2">
+        {items.map((review) => (
+          <div key={review.review_id || review._id} className="bg-white rounded-2xl border border-stone-100 p-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[13px] font-medium text-stone-950 truncate flex-1">
+                {review.product_name || review.product_id}
+              </span>
+              <div className="flex items-center gap-0.5 ml-2">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} size={11} className={s <= review.rating ? 'fill-stone-950 text-stone-950' : 'text-stone-200'} />
+                ))}
+              </div>
+            </div>
+            {review.title && <p className="text-sm font-semibold text-stone-950 mb-0.5">{review.title}</p>}
+            <p className="text-[13px] text-stone-500 leading-relaxed line-clamp-3">
+              {review.comment || review.text}
+            </p>
+            {review.created_at && (
+              <p className="text-[11px] text-stone-400 mt-1.5">
+                {new Date(review.created_at).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>;
+  }
+
   function renderSaved() {
     const items = data.saved;
     if (loading.saved && !items) return <SkeletonGrid />;
@@ -424,6 +462,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     reels: renderReels,
     products: renderProducts,
     recipes: renderRecipes,
+    reviews: renderReviews,
     saved: renderSaved
   };
 

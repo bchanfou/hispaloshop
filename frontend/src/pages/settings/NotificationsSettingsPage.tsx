@@ -57,6 +57,8 @@ function SectionLabel({
     </p>;
 }
 const DEFAULT_PREFS = {
+  master_push_enabled: true,
+  master_email_enabled: true,
   new_followers: true,
   likes: true,
   comments: true,
@@ -160,6 +162,56 @@ export default function NotificationsSettingsPage() {
           <div className="bg-white border-t border-stone-200">
             <ToggleRow index={11} label="Novedades de Hispaloshop" sublabel="Nuevas funcionalidades y anuncios" value={prefs.platform_news} onChange={v => handleToggle('platform_news', v)} />
             <ToggleRow index={12} label="Emails de marketing" sublabel="Ofertas y descuentos especiales" value={prefs.marketing_emails} onChange={v => handleToggle('marketing_emails', v)} />
+          </div>
+
+          {/* CANALES */}
+          <SectionLabel>{i18n.t('settings_notif.channels', 'Canales')}</SectionLabel>
+          <div className="bg-white border-t border-stone-200">
+            <ToggleRow index={13} label={i18n.t('settings_notif.push', 'Notificaciones push')} value={prefs.master_push_enabled} onChange={v => handleToggle('master_push_enabled', v)} />
+            <ToggleRow index={14} label={i18n.t('settings_notif.email', 'Notificaciones por email')} value={prefs.master_email_enabled} onChange={v => handleToggle('master_email_enabled', v)} />
+          </div>
+
+          {/* HORARIO SILENCIOSO */}
+          <SectionLabel>{i18n.t('settings_notif.quiet_hours', 'Horario silencioso')}</SectionLabel>
+          <div className="bg-white border-t border-stone-200 px-4 py-4">
+            <p className="text-[13px] text-stone-500 mb-3">
+              {i18n.t('settings_notif.quiet_desc', 'No recibiras notificaciones push durante este horario.')}
+            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-stone-500 mb-1 block">{i18n.t('settings_notif.from', 'De')}</label>
+                <input
+                  type="time"
+                  value={prefs.quiet_hours_start || '22:00'}
+                  onChange={e => handleToggle('quiet_hours_start', e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm text-stone-950 outline-none"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-medium text-stone-500 mb-1 block">{i18n.t('settings_notif.to', 'A')}</label>
+                <input
+                  type="time"
+                  value={prefs.quiet_hours_end || '08:00'}
+                  onChange={e => handleToggle('quiet_hours_end', e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm text-stone-950 outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-500 mb-1 block">{i18n.t('settings_notif.timezone', 'Zona horaria')}</label>
+              <select
+                value={prefs.quiet_hours_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                onChange={e => handleToggle('quiet_hours_timezone', e.target.value)}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm text-stone-950 outline-none bg-white"
+              >
+                <option value="Europe/Madrid">Europe/Madrid</option>
+                <option value="Asia/Seoul">Asia/Seoul</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                <option value="America/Chicago">America/Chicago</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
           </div>
         </div>}
     </div>;

@@ -587,6 +587,53 @@ async def reactivate_analytics_consent(user: User = Depends(get_current_user)):
 
 
 # ============================================
+# GDPR DATA EXPORT
+# ============================================
+
+@router.post("/users/me/data-export")
+async def request_data_export(user: User = Depends(get_current_user)):
+    """
+    GDPR data export — collects user data from all collections into JSON.
+    Returns 200 with data for small exports. Structure ready for async (202 + email)
+    when data volume grows.
+    """
+    user_id = user.user_id
+
+    # Collect data from all relevant collections
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
+    orders = await db.orders.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    reviews = await db.reviews.find({"user_id": user_id, "deleted": {"$ne": True}}, {"_id": 0}).to_list(200)
+    posts = await db.posts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    addresses = await db.customer_addresses.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+    preferences = await db.user_preferences.find_one({"user_id": user_id}, {"_id": 0})
+    notification_prefs = await db.user_notification_preferences.find_one({"user_id": user_id}, {"_id": 0})
+    saved_items = await db.saved_products.find({"user_id": user_id}, {"_id": 0}).to_list(200)
+    ai_insights = await db.user_inferred_insights.find_one({"user_id": user_id}, {"_id": 0})
+
+    export_data = {
+        "export_date": datetime.now(timezone.utc).isoformat(),
+        "user_id": user_id,
+        "profile": user_doc,
+        "orders": orders,
+        "reviews": reviews,
+        "posts": posts,
+        "addresses": addresses,
+        "preferences": preferences,
+        "notification_preferences": notification_prefs,
+        "saved_items": saved_items,
+        "ai_insights": ai_insights,
+    }
+
+    # For V1 with small datasets, return synchronously.
+    # When data grows: switch to 202 + background task + email with download link.
+    return {
+        "status": "ready",
+        "message": "Tu descarga de datos está lista.",
+        "data": export_data,
+    }
+
+
+# ============================================
 # CUSTOMER SHIPPING ADDRESSES
 # ============================================
 

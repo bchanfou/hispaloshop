@@ -5397,5 +5397,81 @@
     "empty_can_review": "Aún no hay reseñas. ¡Sé el primero!",
     "empty_no_purchase": "Aún no hay reseñas",
     "buy_to_review": "Compra este producto para dejar tu reseña"
+  },
+  "settings_page": {
+    "account": "Cuenta",
+    "edit_profile": "Editar perfil",
+    "addresses": "Direcciones guardadas",
+    "payment_methods": "Métodos de pago",
+    "managed_by_stripe": "Gestionado por Stripe",
+    "preferences": "Preferencias",
+    "notifications": "Notificaciones",
+    "privacy_toggle": "Privacidad",
+    "private": "Cuenta privada",
+    "public": "Cuenta pública",
+    "follow_requests": "Solicitudes de seguimiento",
+    "accounts": "Cuentas",
+    "switch_account": "Cambiar cuenta",
+    "switch_desc": "Toca tu avatar en el perfil para cambiar",
+    "add_account": "Añadir cuenta",
+    "gamification": "Gamificación",
+    "level_xp": "Nivel y XP",
+    "privacy_data": "Privacidad y datos",
+    "ai_consent": "Consentimiento IA",
+    "download_data": "Descargar mis datos",
+    "data_downloaded": "Datos descargados",
+    "data_error": "Error al descargar los datos",
+    "delete_account": "Eliminar mi cuenta"
+  },
+  "settings_addr": {
+    "title": "Direcciones guardadas",
+    "empty": "No tienes direcciones guardadas",
+    "add": "Añadir dirección",
+    "edit": "Editar dirección",
+    "new": "Nueva dirección",
+    "address": "Dirección",
+    "default": "Predeterminada",
+    "set_default": "Predeterminada",
+    "fill_required": "Rellena todos los campos obligatorios",
+    "saved": "Dirección guardada",
+    "updated": "Dirección actualizada",
+    "deleted": "Dirección eliminada",
+    "default_set": "Dirección predeterminada actualizada",
+    "label": "Etiqueta (ej: Casa, Oficina)",
+    "street": "Calle y número",
+    "city": "Ciudad",
+    "postal": "C.P.",
+    "country": "País",
+    "phone": "Teléfono (opcional)",
+    "update": "Actualizar",
+    "save": "Guardar dirección"
+  },
+  "settings_gam": {
+    "title": "Nivel y XP",
+    "level": "Nivel",
+    "next": "Siguiente",
+    "max_level": "Nivel máximo",
+    "streak": "Racha",
+    "days": "días consecutivos",
+    "weekly_goal": "Objetivo semanal",
+    "spent": "gastado esta semana"
+  },
+  "settings_notif": {
+    "channels": "Canales",
+    "push": "Notificaciones push",
+    "email": "Notificaciones por email",
+    "quiet_hours": "Horario silencioso",
+    "quiet_desc": "No recibirás notificaciones push durante este horario.",
+    "from": "De",
+    "to": "A",
+    "timezone": "Zona horaria"
+  },
+  "settings": {
+    "account_switched": "Cuenta cambiada",
+    "switch_error": "Error al cambiar de cuenta",
+    "switch_account": "Cambiar cuenta"
+  },
+  "profile_tabs": {
+    "no_reviews": "Sin reseñas todavía"
   }
 }

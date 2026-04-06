@@ -1,11 +1,12 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye, HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2, Link2, Receipt, CreditCard, Store, Globe, Check } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye, HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2, Link2, Receipt, CreditCard, Store, Globe, Check, MapPin, Trophy, Download, Moon, UserPlus, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { removeToken } from '../../lib/auth';
 import apiClient from '../../services/api/client';
+import { trackEvent } from '../../utils/analytics';
 import { useTranslation } from 'react-i18next';
 
 /* ── Section header ── */
@@ -180,12 +181,13 @@ export default function SettingsPage() {
       {/* ── Desktop sidebar navigation ── */}
       <aside className="hidden lg:block lg:w-[240px] lg:shrink-0 lg:pt-6 lg:pb-8 lg:sticky lg:top-[60px] lg:self-start lg:max-h-[calc(100vh-60px)] lg:overflow-y-auto">
         <nav className="space-y-0.5">
-          <SettingsSidebarLink icon={<User size={16} />} label="Editar perfil" to="/settings/profile" />
+          <SettingsSidebarLink icon={<User size={16} />} label={i18n.t('settings_page.edit_profile', 'Editar perfil')} to="/settings/profile" />
           <SettingsSidebarLink icon={<Lock size={16} />} label={i18n.t('auth.password', 'Contraseña')} to="/settings/password" />
-          <SettingsSidebarLink icon={<Bell size={16} />} label="Notificaciones" to="/settings/notifications" />
-          <SettingsSidebarLink icon={<Eye size={16} />} label="Privacidad" to={null} active />
+          <SettingsSidebarLink icon={<MapPin size={16} />} label={i18n.t('settings_page.addresses', 'Direcciones')} to="/settings/addresses" />
+          <SettingsSidebarLink icon={<Bell size={16} />} label={i18n.t('settings_page.notifications', 'Notificaciones')} to="/settings/notifications" />
           <SettingsSidebarLink icon={<Globe size={16} />} label={i18n.t('settings.paisEIdioma', 'País e idioma')} to="/settings/locale" />
-          <SettingsSidebarLink icon={<Shield size={16} />} label="Solicitudes" to="/settings/follow-requests" />
+          <SettingsSidebarLink icon={<Eye size={16} />} label={i18n.t('settings_page.privacy_toggle', 'Privacidad')} to={null} active />
+          <SettingsSidebarLink icon={<Trophy size={16} />} label={i18n.t('settings_page.level_xp', 'Nivel y XP')} to="/settings/gamification" />
           {(isProducer || isInfluencer) && <>
               <div className="my-2 h-px bg-stone-200" />
               {isProducer && <SettingsSidebarLink icon={<Store size={16} />} label="Editar tienda" to="/producer/store" />}
@@ -202,19 +204,61 @@ export default function SettingsPage() {
       <div className="max-w-[600px] mx-auto px-4 pb-28 lg:flex-1 lg:max-w-none lg:pt-6">
 
         {/* ── CUENTA ── */}
-        <SectionLabel>Cuenta</SectionLabel>
+        <SectionLabel>{i18n.t('settings_page.account', 'Cuenta')}</SectionLabel>
         <SettingsGroup>
-          <SettingsItem icon={<User size={16} />} iconClass="bg-stone-100 text-stone-600" label="Editar perfil" to="/settings/profile" />
+          <SettingsItem icon={<User size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.edit_profile', 'Editar perfil')} to="/settings/profile" />
           <SettingsItem icon={<Lock size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('auth.password', 'Contraseña')} to="/settings/password" />
-          <SettingsItem icon={<Eye size={16} />} iconClass="bg-stone-100 text-stone-600" label="Privacidad" sublabel={isProducer ? i18n.t('settings.lasCuentasDeProductorSonSiemprePub', 'Las cuentas de productor son siempre públicas') : isPrivate ? 'Cuenta privada' : 'Cuenta pública'} rightContent={isProducer ? <ToggleSwitch value={false} onChange={() => {}} disabled /> : <ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />} />
-          <SettingsItem icon={<Globe size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings.paisEIdioma', 'País e idioma')} sublabel={user?.country || i18n.t('admin.countries.ES', 'España')} to="/settings/locale" />
+          <SettingsItem icon={<MapPin size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.addresses', 'Direcciones guardadas')} to="/settings/addresses" />
+          <SettingsItem icon={<CreditCard size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.payment_methods', 'Metodos de pago')} sublabel={i18n.t('settings_page.managed_by_stripe', 'Gestionado por Stripe')} to="/settings/plan" />
         </SettingsGroup>
 
-        {/* ── NOTIFICACIONES ── */}
-        <SectionLabel>Notificaciones</SectionLabel>
+        {/* ── PREFERENCIAS ── */}
+        <SectionLabel>{i18n.t('settings_page.preferences', 'Preferencias')}</SectionLabel>
         <SettingsGroup>
-          <SettingsItem icon={<Bell size={16} />} iconClass="bg-stone-100 text-stone-600" label="Notificaciones push" to="/settings/notifications" />
-          <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label="Solicitudes de seguimiento" to="/settings/follow-requests" />
+          <SettingsItem icon={<Globe size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings.paisEIdioma', 'País e idioma')} sublabel={user?.country || i18n.t('admin.countries.ES', 'España')} to="/settings/locale" />
+          <SettingsItem icon={<Bell size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.notifications', 'Notificaciones')} to="/settings/notifications" />
+          <SettingsItem icon={<Eye size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.privacy_toggle', 'Privacidad')} sublabel={isProducer ? i18n.t('settings.lasCuentasDeProductorSonSiemprePub', 'Las cuentas de productor son siempre públicas') : isPrivate ? i18n.t('settings_page.private', 'Cuenta privada') : i18n.t('settings_page.public', 'Cuenta publica')} rightContent={isProducer ? <ToggleSwitch value={false} onChange={() => {}} disabled /> : <ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />} />
+          <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.follow_requests', 'Solicitudes de seguimiento')} to="/settings/follow-requests" />
+        </SettingsGroup>
+
+        {/* ── CUENTAS ── */}
+        <SectionLabel>{i18n.t('settings_page.accounts', 'Cuentas')}</SectionLabel>
+        <SettingsGroup>
+          <SettingsItem icon={<Users size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.switch_account', 'Cambiar cuenta')} sublabel={i18n.t('settings_page.switch_desc', 'Toca tu avatar en el perfil para cambiar')} onClick={() => navigate(user?.username ? `/${user.username}` : '/profile')} />
+          <SettingsItem icon={<UserPlus size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.add_account', 'Anadir cuenta')} to="/login?add_account=true" />
+        </SettingsGroup>
+
+        {/* ── GAMIFICACIÓN ── */}
+        <SectionLabel>{i18n.t('settings_page.gamification', 'Gamificacion')}</SectionLabel>
+        <SettingsGroup>
+          <SettingsItem icon={<Trophy size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.level_xp', 'Nivel y XP')} to="/settings/gamification" />
+        </SettingsGroup>
+
+        {/* ── PRIVACIDAD Y DATOS ── */}
+        <SectionLabel>{i18n.t('settings_page.privacy_data', 'Privacidad y datos')}</SectionLabel>
+        <SettingsGroup>
+          <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.ai_consent', 'Consentimiento IA')} to="/dashboard/profile" />
+          <SettingsItem icon={<Download size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.download_data', 'Descargar mis datos')} onClick={async () => {
+            try {
+              trackEvent('data_export_requested');
+              const result = await apiClient.post('/users/me/data-export', {});
+              if (result?.data) {
+                const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hispaloshop_data_export_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success(i18n.t('settings_page.data_downloaded', 'Datos descargados'));
+              }
+            } catch {
+              toast.error(i18n.t('settings_page.data_error', 'Error al descargar los datos'));
+            }
+          }} />
+          <SettingsItem icon={<Trash2 size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.delete_account', 'Eliminar mi cuenta')} onClick={() => setShowDeleteConfirm(true)} />
         </SettingsGroup>
 
         {/* ── PLAN Y PAGOS ── */}

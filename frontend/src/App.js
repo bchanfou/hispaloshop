@@ -95,6 +95,8 @@ const ChangePasswordPage = lazy(() => import('./pages/settings/ChangePasswordPag
 const FollowRequestsPage = lazy(() => import('./pages/settings/FollowRequestsPage'));
 const NotificationsSettingsPage = lazy(() => import('./pages/settings/NotificationsSettingsPage'));
 const PlanPage = lazy(() => import('./pages/settings/PlanPage'));
+const AddressesPage = lazy(() => import('./pages/settings/AddressesPage'));
+const GamificationPage = lazy(() => import('./pages/settings/GamificationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const PayoutSettingsPage = lazy(() => import('./pages/settings/PayoutSettingsPage'));
 const FollowersPage = lazy(() => import('./pages/FollowersPage'));
@@ -453,6 +455,8 @@ function AppRouter() {
               <Route path="/settings/plan" element={<PlanPage />} />
               <Route path="/settings/payout" element={<PayoutSettingsPage />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
+              <Route path="/settings/addresses" element={<AddressesPage />} />
+              <Route path="/settings/gamification" element={<GamificationPage />} />
               <Route path="/loyalty" element={<ProtectedRoute><LoyaltyPage /></ProtectedRoute>} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
