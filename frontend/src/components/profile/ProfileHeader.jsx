@@ -686,21 +686,30 @@ export default function ProfileHeader({
               </span>}
           </div>}
 
-        {/* Influencer public stats + discount code */}
-        {user?.role === 'influencer' && (user?.sales_count > 0 || user?.discount_code) && <div className="mt-2 flex flex-wrap items-center gap-2">
+        {/* Influencer public stats + tier badge + discount code */}
+        {user?.role === 'influencer' && (user?.sales_count > 0 || user?.discount_code || user?.tier) && <div className="mt-2 flex flex-wrap items-center gap-2">
+            {user?.tier && <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-700">
+                <Star size={11} className="text-stone-500" />
+                {user.tier}
+              </span>}
             {user?.sales_count > 0 && <span className="text-xs text-stone-500">{user.sales_count} ventas generadas</span>}
             {user?.producers_count > 0 && <span className="text-xs text-stone-500">· {user.producers_count} productores apoyados</span>}
-            {user?.discount_code && <button onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(user.discount_code);
-            toast.success(i18n.t('profile_header.codigoCopiado', 'Código copiado: ') + user.discount_code);
-          } catch {
-            toast.error('No se pudo copiar');
-          }
-        }} className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white">
-                <Copy size={10} />
-                {user.discount_code}
-              </button>}
+            {user?.discount_code && <>
+              <button onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(user.discount_code);
+              toast.success(i18n.t('profile_header.codigoCopiado', 'Código copiado: ') + user.discount_code);
+            } catch {
+              toast.error('No se pudo copiar');
+            }
+          }} className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white">
+                  <Copy size={10} />
+                  {user.discount_code}
+                </button>
+              {!isOwn && <button onClick={() => navigate(`/cart?code=${encodeURIComponent(user.discount_code)}`)} className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-3 py-1 text-[11px] font-medium text-stone-700 cursor-pointer hover:bg-stone-50 transition-colors">
+                  {i18n.t('ambassadors.use_code', 'Usar código')}
+                </button>}
+            </>}
           </div>}
 
         {/* website */}

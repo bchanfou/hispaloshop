@@ -192,7 +192,7 @@ export default function DiscoverPage() {
           )}
 
           {show('creators') && (
-            <DiscoverSection id="creators" icon={Star} titleKey="trendingCreators" titleFallback={t('discover.trendingCreators', 'Trending creators')} seeAllHref="/people" loading={loading} isEmpty={!loading && creators.length === 0} emptyMessage={t('discover.creatorsEmpty', 'Pronto tendremos creators aquí.')}>
+            <DiscoverSection id="creators" icon={Star} titleKey="trendingCreators" titleFallback={t('discover.trendingCreators', 'Trending creators')} seeAllHref="/ambassadors" loading={loading} isEmpty={!loading && creators.length === 0} emptyMessage={t('discover.creatorsEmpty', 'Pronto tendremos creators aquí.')}>
               <HorizontalStrip items={creators} renderItem={(c) => <AvatarCard user={c} />} gap="gap-4" />
             </DiscoverSection>
           )}

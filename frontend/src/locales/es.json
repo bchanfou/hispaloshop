@@ -5611,5 +5611,25 @@
     "new_list": "Nueva lista",
     "done": "Hecho",
     "login_to_buy": "Inicia sesión para comprar"
+  },
+  "ambassadors": {
+    "title": "Embajadores HispaloShop",
+    "subtitle": "Personas que te ayudan a descubrir productos reales",
+    "all": "Todos",
+    "filter_country": "País",
+    "filter_tier": "Nivel",
+    "sort_sales": "Ventas",
+    "sort_followers": "Seguidores",
+    "sort_newest": "Nuevos",
+    "sales_generated": "ventas generadas",
+    "followers": "seguidores",
+    "code_label": "Código",
+    "use_code": "Usar código",
+    "follow": "Seguir",
+    "following": "Siguiendo",
+    "become_ambassador": "Hazte embajador",
+    "become_subtitle": "Con 1 seguidor ya puedes ganar. Código personal + comisiones recurrentes durante 18 meses.",
+    "no_ambassadors": "No hay embajadores aún",
+    "load_more": "Cargar más"
   }
 }

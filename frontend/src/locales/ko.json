@@ -3850,5 +3850,25 @@
     "new_list": "새 리스트",
     "done": "완료",
     "login_to_buy": "구매하려면 로그인하세요"
+  },
+  "ambassadors": {
+    "title": "HispaloShop 앰배서더",
+    "subtitle": "진짜 상품을 발견하도록 도와주는 사람들",
+    "all": "전체",
+    "filter_country": "국가",
+    "filter_tier": "등급",
+    "sort_sales": "판매",
+    "sort_followers": "팔로워",
+    "sort_newest": "최신",
+    "sales_generated": "판매 창출",
+    "followers": "팔로워",
+    "code_label": "코드",
+    "use_code": "코드 사용",
+    "follow": "팔로우",
+    "following": "팔로잉",
+    "become_ambassador": "앰배서더 되기",
+    "become_subtitle": "팔로워 1명만 있어도 수익을 시작할 수 있습니다. 개인 코드 + 18개월 반복 수수료.",
+    "no_ambassadors": "아직 앰배서더가 없습니다",
+    "load_more": "더 보기"
   }
 }

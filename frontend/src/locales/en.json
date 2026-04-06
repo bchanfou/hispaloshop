@@ -3846,5 +3846,25 @@
     "new_list": "New list",
     "done": "Done",
     "login_to_buy": "Log in to buy"
+  },
+  "ambassadors": {
+    "title": "HispaloShop Ambassadors",
+    "subtitle": "Real people helping you discover real products",
+    "all": "All",
+    "filter_country": "Country",
+    "filter_tier": "Tier",
+    "sort_sales": "Sales",
+    "sort_followers": "Followers",
+    "sort_newest": "Newest",
+    "sales_generated": "sales generated",
+    "followers": "followers",
+    "code_label": "Code",
+    "use_code": "Use code",
+    "follow": "Follow",
+    "following": "Following",
+    "become_ambassador": "Become an ambassador",
+    "become_subtitle": "With just 1 follower you can start earning. Personal code + recurring commissions for 18 months.",
+    "no_ambassadors": "No ambassadors yet",
+    "load_more": "Load more"
   }
 }

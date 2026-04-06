@@ -170,6 +170,7 @@ const CustomerFollowedStores = lazy(() => import('./pages/customer/CustomerFollo
 const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPredictions'));
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 const WishlistsPage = lazy(() => import('./pages/WishlistsPage'));
+const AmbassadorsPage = lazy(() => import('./pages/AmbassadorsPage'));
 const WishlistDetailPage = lazy(() => import('./pages/WishlistDetailPage'));
 const WishlistSharedPage = lazy(() => import('./pages/WishlistSharedPage'));
 
@@ -441,6 +442,7 @@ function AppRouter() {
               <Route path="/wishlists" element={<ProtectedRoute><WishlistsPage /></ProtectedRoute>} />
               <Route path="/wishlists/:wishlistId" element={<ProtectedRoute><WishlistDetailPage /></ProtectedRoute>} />
               <Route path="/w/:slug" element={<WishlistSharedPage />} />
+              <Route path="/ambassadors" element={<AmbassadorsPage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />

@@ -15,6 +15,74 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+@router.get("/ambassadors")
+async def get_ambassadors(
+    request=None,
+    country: Optional[str] = Query(default=None),
+    tier: Optional[str] = Query(default=None),
+    category: Optional[str] = Query(default=None),
+    sort: str = Query(default="sales"),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=50),
+):
+    """Public ambassadors listing with filters for the /ambassadors page."""
+    _filter = {"status": "active", "user_id": {"$ne": None, "$exists": True}}
+    if tier:
+        from config import normalize_influencer_tier
+        _filter["current_tier"] = normalize_influencer_tier(tier)
+    if category:
+        _filter["niche"] = {"$regex": category, "$options": "i"}
+
+    sort_field = {"sales": "total_sales_generated", "followers": "followers", "newest": "created_at"}.get(sort, "total_sales_generated")
+    total = await db.influencers.count_documents(_filter)
+    influencers = await db.influencers.find(
+        _filter,
+        {"_id": 0, "stripe_account_id": 0, "stripe_onboarding_complete": 0,
+         "total_commission_earned": 0, "available_balance": 0}
+    ).sort(sort_field, -1).skip((page - 1) * limit).limit(limit).to_list(limit)
+
+    # Check auth for is_followed
+    try:
+        current_user = await get_optional_user(request) if request else None
+    except Exception:
+        current_user = None
+    current_uid = current_user.user_id if current_user else None
+
+    ambassadors = []
+    for inf in influencers:
+        uid = inf.get("user_id")
+        user = await db.users.find_one({"user_id": uid}, {"_id": 0, "name": 1, "username": 1, "profile_image": 1, "country": 1, "bio": 1})
+        if not user:
+            continue
+        # Country filter (on user doc, not influencer)
+        if country and user.get("country", "").upper() != country.upper():
+            continue
+        # Get discount code
+        code_doc = await db.discount_codes.find_one({"influencer_id": inf.get("influencer_id"), "active": True}, {"_id": 0, "code": 1, "discount_value": 1})
+        is_followed = False
+        if current_uid:
+            is_followed = bool(await db.user_follows.find_one({"follower_id": current_uid, "following_id": uid}))
+        ambassadors.append({
+            "user_id": uid,
+            "username": user.get("username") or inf.get("full_name", "").lower().replace(" ", "_"),
+            "name": inf.get("full_name") or user.get("name"),
+            "avatar": user.get("profile_image"),
+            "location": user.get("country", ""),
+            "country": user.get("country", ""),
+            "bio": user.get("bio", ""),
+            "tier": inf.get("current_tier", "Hercules"),
+            "discount_code": code_doc.get("code") if code_doc else None,
+            "discount_value": code_doc.get("discount_value") if code_doc else None,
+            "stats": {
+                "total_sales": inf.get("total_sales_generated", 0),
+                "followers_count": inf.get("followers", 0),
+                "posts_count": 0,
+            },
+            "is_followed": is_followed,
+        })
+    return {"ambassadors": ambassadors, "total": total, "has_more": page * limit < total}
+
+
 @router.get("/directory/influencers")
 async def get_public_influencers(
     page: int = Query(default=1, ge=1),
