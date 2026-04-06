@@ -8,13 +8,21 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Loader2 } from 'lucide-react';
+import { RefreshCw, Loader2, Flower2, Sun, Leaf, Snowflake, MapPin, Lightbulb, Users, UserPlus, ChefHat, Star, Map } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { trackEvent } from '../utils/analytics';
 import SEO from '../components/SEO';
+
+// Seasonal icon mapping (Lucide icons instead of emojis — per DESIGN_SYSTEM.md §10)
+const SEASONAL_ICONS = {
+  'Primavera': Flower2, 'Spring': Flower2, '봄': Flower2,
+  'Verano': Sun, 'Summer': Sun, '여름': Sun,
+  'Otoño': Leaf, 'Autumn': Leaf, '가을': Leaf,
+  'Invierno': Snowflake, 'Winter': Snowflake, '겨울': Snowflake,
+};
 
 import DiscoverSearchBar from '../components/discover/DiscoverSearchBar';
 import DiscoverChips from '../components/discover/DiscoverChips';
@@ -126,19 +134,19 @@ export default function DiscoverPage() {
         <motion.div key={activeChip} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
 
           {show('seasonal') && (
-            <DiscoverSection id="seasonal" emoji={seasonal?.emoji || '🌱'} titleKey="seasonal" titleFallback={`${seasonal?.label || t('discover.seasonNow', 'Temporada')} ahora`} loading={loading} isEmpty={!loading && (seasonal?.products?.length || 0) === 0} emptyMessage={t('discover.seasonalEmpty', 'Aún no hay productos de temporada en tu zona.')} emptyCta={t('discover.seasonalEmptyCta', 'Descubre de otros países')} emptyCtaHref="/search">
+            <DiscoverSection id="seasonal" icon={SEASONAL_ICONS[seasonal?.label] || Flower2} titleKey="seasonal" titleFallback={`${seasonal?.label || t('discover.seasonNow', 'Temporada')} ahora`} loading={loading} isEmpty={!loading && (seasonal?.products?.length || 0) === 0} emptyMessage={t('discover.seasonalEmpty', 'Aún no hay productos de temporada en tu zona.')} emptyCta={t('discover.seasonalEmptyCta', 'Descubre de otros países')} emptyCtaHref="/search">
               <HorizontalStrip items={seasonal?.products || []} renderItem={(p) => <ProductCard product={p} />} />
             </DiscoverSection>
           )}
 
           {show('near_you') && (
-            <DiscoverSection id="near_you" emoji="📍" titleKey="nearYou" titleFallback={t('discover.nearYou', 'Cerca de ti')} seeAllHref="/stores" loading={loading} isEmpty={!loading && nearYou.length === 0} emptyMessage={t('discover.nearYouEmpty', 'Aún no hay productores en tu zona. ¡Sé el primero!')} emptyCta={t('discover.nearYouEmptyCta', 'Registrarme como productor')} emptyCtaHref="/register?role=producer">
+            <DiscoverSection id="near_you" icon={MapPin} titleKey="nearYou" titleFallback={t('discover.nearYou', 'Cerca de ti')} seeAllHref="/stores" loading={loading} isEmpty={!loading && nearYou.length === 0} emptyMessage={t('discover.nearYouEmpty', 'Aún no hay productores en tu zona. ¡Sé el primero!')} emptyCta={t('discover.nearYouEmptyCta', 'Registrarme como productor')} emptyCtaHref="/register?role=producer">
               <HorizontalStrip items={nearYou} renderItem={(p) => <ProducerCard producer={p} />} />
             </DiscoverSection>
           )}
 
           {show('for_you') && (
-            <DiscoverSection id="for_you" emoji="💡" titleKey="forYou" titleFallback={t('discover.forYou', 'Para ti')} loading={loading} isEmpty={!loading && forYouAll.length === 0} emptyMessage={t('discover.forYouEmpty', 'Completa tu onboarding para personalizar esta sección.')} emptyCta={t('discover.forYouEmptyCta', 'Ir al onboarding')} emptyCtaHref="/onboarding" dismissable={false}>
+            <DiscoverSection id="for_you" icon={Lightbulb} titleKey="forYou" titleFallback={t('discover.forYou', 'Para ti')} loading={loading} isEmpty={!loading && forYouAll.length === 0} emptyMessage={t('discover.forYouEmpty', 'Completa tu onboarding para personalizar esta sección.')} emptyCta={t('discover.forYouEmptyCta', 'Ir al onboarding')} emptyCtaHref="/onboarding" dismissable={false}>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 px-4">
                 {forYouAll.map((product, i) => <ProductCard key={product.product_id || product.id || i} product={product} />)}
               </div>
@@ -154,7 +162,7 @@ export default function DiscoverPage() {
           )}
 
           {show('communities') && (
-            <DiscoverSection id="communities" emoji="🏘️" titleKey="communitiesTrending" titleFallback={t('discover.communitiesTrending', 'Comunidades trending')} seeAllHref="/communities" loading={loading} isEmpty={!loading && communities.length === 0} emptyMessage={t('discover.communitiesEmpty', 'Aún no hay comunidades en tu zona.')} emptyCta={t('discover.communitiesEmptyCta', 'Crea la primera')} emptyCtaHref="/communities/create">
+            <DiscoverSection id="communities" icon={Users} titleKey="communitiesTrending" titleFallback={t('discover.communitiesTrending', 'Comunidades trending')} seeAllHref="/communities" loading={loading} isEmpty={!loading && communities.length === 0} emptyMessage={t('discover.communitiesEmpty', 'Aún no hay comunidades en tu zona.')} emptyCta={t('discover.communitiesEmptyCta', 'Crea la primera')} emptyCtaHref="/communities/create">
               {activeChip === 'communities' ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 px-4">
                   {communities.map((c, i) => <CommunityCard key={c.slug || i} community={c} />)}
@@ -166,13 +174,13 @@ export default function DiscoverPage() {
           )}
 
           {show('new_producers') && (
-            <DiscoverSection id="new_producers" emoji="✨" titleKey="newProducers" titleFallback={t('discover.newProducers', 'Nuevos productores')} seeAllHref="/stores" loading={loading} isEmpty={!loading && newProducers.length === 0} emptyMessage={t('discover.newProducersEmpty', 'Nadie nuevo esta semana.')}>
+            <DiscoverSection id="new_producers" icon={UserPlus} titleKey="newProducers" titleFallback={t('discover.newProducers', 'Nuevos productores')} seeAllHref="/stores" loading={loading} isEmpty={!loading && newProducers.length === 0} emptyMessage={t('discover.newProducersEmpty', 'Nadie nuevo esta semana.')}>
               <HorizontalStrip items={newProducers} renderItem={(p) => <AvatarCard user={p} />} gap="gap-4" />
             </DiscoverSection>
           )}
 
           {show('recipes') && recipes.length > 0 && (
-            <DiscoverSection id="recipes" emoji="🍳" titleKey="recipesWeek" titleFallback={t('discover.recipesWeek', 'Recetas de la semana')} seeAllHref="/recipes" loading={loading} isEmpty={false}>
+            <DiscoverSection id="recipes" icon={ChefHat} titleKey="recipesWeek" titleFallback={t('discover.recipesWeek', 'Recetas de la semana')} seeAllHref="/recipes" loading={loading} isEmpty={false}>
               {activeChip === 'recipes' ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 px-4">
                   {recipes.map((r, i) => <RecipeCard key={r.recipe_id || r.id || i} recipe={r} />)}
@@ -184,13 +192,13 @@ export default function DiscoverPage() {
           )}
 
           {show('creators') && (
-            <DiscoverSection id="creators" emoji="🔥" titleKey="trendingCreators" titleFallback={t('discover.trendingCreators', 'Trending creators')} seeAllHref="/people" loading={loading} isEmpty={!loading && creators.length === 0} emptyMessage={t('discover.creatorsEmpty', 'Pronto tendremos creators aquí.')}>
+            <DiscoverSection id="creators" icon={Star} titleKey="trendingCreators" titleFallback={t('discover.trendingCreators', 'Trending creators')} seeAllHref="/people" loading={loading} isEmpty={!loading && creators.length === 0} emptyMessage={t('discover.creatorsEmpty', 'Pronto tendremos creators aquí.')}>
               <HorizontalStrip items={creators} renderItem={(c) => <AvatarCard user={c} />} gap="gap-4" />
             </DiscoverSection>
           )}
 
           {show('map') && !loading && (
-            <DiscoverSection id="map" emoji="🗺️" titleKey="mapPreview" titleFallback={t('discover.mapPreview', 'Mapa de productores')} loading={false} isEmpty={(mapPreview?.producers_count || 0) === 0} emptyMessage={t('discover.mapEmpty', 'Pronto tendremos productores en tu zona.')}>
+            <DiscoverSection id="map" icon={Map} titleKey="mapPreview" titleFallback={t('discover.mapPreview', 'Mapa de productores')} loading={false} isEmpty={(mapPreview?.producers_count || 0) === 0} emptyMessage={t('discover.mapEmpty', 'Pronto tendremos productores en tu zona.')}>
               <div className="mx-4 p-6 rounded-2xl bg-stone-950 text-white text-center">
                 <p className="text-3xl font-bold mb-1">{mapPreview?.producers_count || 0}</p>
                 <p className="text-sm text-stone-300 mb-4">{t('discover.mapCount', 'productores verificados')}</p>

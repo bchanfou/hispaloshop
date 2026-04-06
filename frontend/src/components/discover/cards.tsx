@@ -70,11 +70,11 @@ export function CommunityCard({ community }) {
   const href = `/community/${community.slug}`;
   return (
     <Link to={href} className="block w-[180px] lg:w-[200px] rounded-2xl border border-stone-200 bg-white overflow-hidden no-underline group hover:border-stone-300 transition-colors">
-      <div className="h-20 bg-stone-100 flex items-center justify-center text-3xl">
+      <div className="h-20 bg-stone-100 flex items-center justify-center">
         {community.cover_image ? (
           <img src={community.cover_image} alt="" loading="lazy" className="w-full h-full object-cover" />
         ) : (
-          community.emoji || '🏘️'
+          <Users className="w-8 h-8 text-stone-300" />
         )}
       </div>
       <div className="p-3">

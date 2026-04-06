@@ -13,7 +13,8 @@ const DISMISS_KEY_PREFIX = 'hs_discover_dismiss_';
 
 export default function DiscoverSection({
   id,
-  emoji,
+  emoji,  // DEPRECATED — use `icon` prop instead (Lucide component)
+  icon: IconComponent = null,
   titleKey,
   titleFallback,
   seeAllHref,
@@ -55,7 +56,8 @@ export default function DiscoverSection({
           {/* Header */}
           <div className="flex items-center justify-between px-4 mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              {emoji && <span className="text-lg shrink-0">{emoji}</span>}
+              {IconComponent && <IconComponent className="w-4 h-4 text-stone-400 shrink-0" />}
+              {!IconComponent && emoji && <span className="text-lg shrink-0">{emoji}</span>}
               <h2 className="text-base font-bold text-stone-950 truncate">{title}</h2>
             </div>
             <div className="flex items-center gap-2 shrink-0">
