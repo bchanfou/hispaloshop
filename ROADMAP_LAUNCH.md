@@ -290,6 +290,82 @@
 
 ---
 
+## 1.4b — Digital Certificate & HispaloTranslate (product translation engine)
+**Objetivo:** Cada producto genera automáticamente un certificado digital multi-idioma con QR descargable. HispaloTranslate es el motor de traducción propio con cache que aprende con el uso — traduce contenido del vendedor una vez y reutiliza fragmentos para futuros productos.
+
+**Por qué es killer feature:** Un turista coreano en un supermercado de Madrid escanea el QR del aceite → ve toda la info en coreano → botón "Comprar online" → HispaloShop gana un usuario. Canal de acquisition orgánico desde cada producto físico en el mundo.
+
+**Archivos clave:**
+- Backend:
+  - Nuevo `services/hispalo_translate.py` — motor de traducción con cache MongoDB
+  - Nuevo `routes/certificates_public.py` — página pública `/c/{product_id}` sin auth
+  - Nuevo `services/certificate_generator.py` — generación de QR + certificado
+  - Extender `routes/products.py` — trigger traducción auto al publicar/aprobar
+  - Colecciones: `translation_cache`, `certificate_scans`
+- Frontend:
+  - Nuevo `pages/CertificatePage.tsx` — vista pública del certificado (compacta, mobile-first)
+  - Extender `pages/producer/ProducerProducts.tsx` — botón descargar QR por producto
+  - Nuevo widget analytics de escaneos en producer dashboard
+
+**HispaloTranslate — motor de traducción:**
+- Colección `translation_cache`: source_text + source_lang + translations map + category + confidence + usage_count
+- Flujo: tokenizar texto → buscar fragmentos en cache → solo traducir con Claude lo que falta → guardar nuevos fragmentos
+- Pre-seed al lanzar: 14 alérgenos EU + 20 labels nutricionales + 16 categorías + 10 certificaciones + 135 países (en ES/EN/KO)
+- Cache hit rate esperado: 30% mes 1 → 90% mes 6
+- Coste estimado: ~$5/mes cayendo a ~$0.50/mes con escala
+
+**Contenido traducido auto al publicar:**
+- Nombre producto, descripción, ingredientes, valores nutricionales (labels), alérgenos, certificaciones, bio/historia productor, nombre tienda, recetas (título + ingredientes)
+
+**Contenido traducido on-demand (botón "Traducir"):**
+- Posts del feed, reviews, bio larga de tienda
+
+**NO traducir:** Chat messages (privado, cada quien habla su idioma)
+
+**Página del certificado digital (`/c/{product_id}`):**
+- Auto-detecta idioma del dispositivo (Accept-Language header)
+- Diseño compacto (cabe en pantalla móvil sin scroll excesivo)
+- Contenido: foto + nombre + ingredientes + valores nutricionales + alérgenos + certificaciones + sobre el productor
+- 2 CTAs al fondo: "Comprar online" (→ ProductDetailPage) + "Ver tienda" (→ StorePage)
+- Buscador integrado para encontrar productos si accedes a la sección general `/certificates`
+- Analytics: registra cada escaneo con idioma + país + timestamp
+
+**QR descargable para productores:**
+- Dashboard del productor → por producto → botón "Descargar QR"
+- Formatos: PNG (300x300), SVG (vectorial para imprimir), PDF (con marco para pegar)
+- QR apunta a `hispaloshop.com/c/{product_id}`
+
+**Analytics de escaneos (V1):**
+- Colección `certificate_scans` con: product_id, language, country (del IP), timestamp
+- Dashboard productor → sección certificados:
+  - Total escaneos por producto
+  - Top idiomas (pie chart)
+  - Top países (lista)
+  - Gráfica por día (últimos 30 días)
+
+**Super admin → HispaloTranslate dashboard:**
+- Total fragmentos en cache
+- Idiomas cubiertos con %
+- Cache hit rate semanal
+- Coste Claude semanal estimado
+- Fragmentos con confidence=low (necesitan revisión)
+
+**Done cuando:**
+- HispaloTranslate servicio funcional con cache + pre-seed
+- Traducción auto al publicar producto funcional (name + desc + ingredients + nutrition + allergens + certs + bio)
+- Página pública `/c/{product_id}` renderiza en idioma del dispositivo
+- QR code generado y descargable por producto
+- Analytics de escaneos registrando idioma + país
+- Botón "Traducir" on-demand para posts/reviews
+- Pre-seed de ~200 fragmentos estándar alimentarios
+- Tests: verificar traducción de producto nuevo, verificar cache hit en segundo producto similar
+- Responsive mobile + desktop
+
+**Dependencias:** 1.4 (Product detail page), 2.3 (Product management)
+**Estimación:** 5-6 días
+
+---
+
 ## 1.5 — Cart & multi-producer handling
 **Objetivo:** Carrito claro cuando compras de 3 productores distintos (shipping separado, estimación clara).
 
@@ -2083,6 +2159,39 @@ Pedro AI usa esta data como tool:
 **Total estimado:** 15-17 días para auditar, pulir o reescribir los 5 dashboards con consistencia visual y UX unificada.
 
 **Dependencias:** 2.9b (AI UX), 2.15 (promotion system), 2.16 (market requests), todas las secciones de Fase 2
+
+---
+
+## 3.7 — User Feedback System (público con votos)
+**Objetivo:** Cualquier usuario puede reportar bugs, proponer mejoras, y votar las ideas de otros. El fundador ve qué quiere la comunidad, priorizado por votos reales.
+
+**Archivos clave:**
+- Backend: nuevo `routes/feedback.py`, colección `user_feedback`
+- Frontend: nuevo `pages/FeedbackPage.tsx`, `pages/FeedbackDetailPage.tsx`
+- Admin: nuevo widget en super admin dashboard
+
+**Features:**
+- Página `/feedback` accesible desde footer + hamburger menu
+- Crear feedback: título + descripción + categoría (bug/feature/mejora/otro) + screenshot opcional
+- Votar: botón "Yo también" (upvote) — 1 voto por usuario por feedback
+- Ordenar: más votados / más recientes / por categoría / por status
+- Admin puede: responder, cambiar status (recibido → planeado → en progreso → hecho → descartado), ocultar spam
+- Status tags visibles: "Recibido", "Planeado", "En progreso", "Hecho"
+- Cuando admin marca "Hecho" → notificación a todos los que votaron: "Tu sugerencia fue implementada"
+- Moderación: admin puede ocultar feedback inapropiado (no borrar, ocultar)
+- i18n: ES/EN/KO
+
+**Done cuando:**
+- CRUD de feedback funcional
+- Votación funcional (1 user = 1 vote)
+- Admin panel de gestión de feedback
+- Notificación "Hecho" a votantes
+- Responsive mobile + desktop
+- Tests smoke
+- Commit
+
+**Dependencias:** 1.9 (profile/settings para link), 3.4 (support — comparten patrón UI)
+**Estimación:** 3-4 días
 
 ---
 
