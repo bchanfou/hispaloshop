@@ -810,8 +810,7 @@ function AppRouter() {
               <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<Navigate to="/messages" replace />} />
-              <Route path="/chat/:conversationId" element={<Navigate to="/messages" replace />} />
-                            <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
+              <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
               {/* /ai/chat removed — HI Multi-role consolidated into David/Rebeca/Pedro */}
               <Route path="/messages" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
               <Route path="/messages/new" element={<ProtectedRoute><NewConversationPage /></ProtectedRoute>} />

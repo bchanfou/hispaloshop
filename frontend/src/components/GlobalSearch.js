@@ -96,7 +96,7 @@ export default function GlobalSearch() {
     if (tab === 'all' || tab === 'users') addSection('users', results.creators || results.users, u => `/@${u.username || u.user_id}`);
     if (tab === 'all' || tab === 'stores') addSection('stores', results.stores, s => `/store/${s.slug || s.store_id}`);
     if (tab === 'all' || tab === 'communities') addSection('communities', results.communities, c => `/community/${c.slug}`);
-    if (tab === 'all' || tab === 'hashtags') addSection('hashtags', results.hashtags, h => `/tag/${h.tag || h.slug}`);
+    if (tab === 'all' || tab === 'hashtags') addSection('hashtags', results.hashtags, h => `/hashtag/${h.tag || h.slug}`);
     if (tab === 'all' || tab === 'products') addSection('products', results.products, p => `/product/${p.slug || p.product_id}`);
     if (tab === 'all' || tab === 'recipes') addSection('recipes', results.recipes, r => `/recipes/${r.recipe_id}`);
     return items;

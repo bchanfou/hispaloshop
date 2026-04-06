@@ -9,7 +9,7 @@ import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
-import apiClient from '../../services/api/client';
+import { AlertCircle, Check } from 'lucide-react';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';

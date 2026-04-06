@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { Users } from 'lucide-react';
+import { Users, AlertCircle, Check } from 'lucide-react';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import PostDetailModal from './PostDetailModal';
