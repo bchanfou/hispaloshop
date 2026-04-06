@@ -30,6 +30,8 @@ async def _search_products(
     certifications: Optional[str] = None,
     in_stock: Optional[bool] = None,
     free_shipping: Optional[bool] = None,
+    category: Optional[str] = None,
+    country_origin: Optional[str] = None,
 ):
     # Text index is created at startup in core/database.py
     # Use $text search for relevance scoring when sort is default (relevance)
@@ -65,6 +67,10 @@ async def _search_products(
         match_stage["stock"] = {"$gt": 0}
     if free_shipping:
         match_stage["free_shipping"] = True
+    if category:
+        match_stage["category"] = {"$regex": _sanitize_search(category), "$options": "i"}
+    if country_origin:
+        match_stage["country_origin"] = country_origin.upper()
 
     # Sort: textScore for relevance, explicit field for other modes
     if use_text_search:
@@ -75,6 +81,8 @@ async def _search_products(
         sort_stage = {"$sort": {"price": -1}}
     elif sort == "newest":
         sort_stage = {"$sort": {"created_at": -1}}
+    elif sort == "rating":
+        sort_stage = {"$sort": {"rating_avg": -1, "created_at": -1}}
     else:
         sort_stage = {"$sort": {"_id": -1}}
 
@@ -89,6 +97,10 @@ async def _search_products(
             "images": 1,
             "category": 1,
             "country_origin": 1,
+            "certifications": 1,
+            "rating_avg": 1,
+            "stock": 1,
+            "free_shipping": 1,
             "created_at": 1,
             "_id": 0,
         }
@@ -211,6 +223,67 @@ async def _search_users(db, q: str, limit: int):
     return await db.users.aggregate(pipeline).to_list(limit)
 
 
+@router.get("/search/suggestions")
+async def search_suggestions(
+    q: str = Query(..., min_length=2, max_length=100),
+    limit: int = Query(default=5, ge=1, le=10),
+    db=Depends(get_db),
+):
+    """
+    Fast prefix-match suggestions for autocomplete. Returns product names,
+    store names, and popular prior query terms. Target <100ms.
+    """
+    safe_q = _sanitize_search(q)
+    regex = {"$regex": f"^{safe_q}", "$options": "i"}
+
+    products_task = db.products.find(
+        {"name": regex, "status": {"$in": ["active", "approved"]}},
+        {"_id": 0, "name": 1},
+    ).limit(limit).to_list(limit)
+
+    stores_task = db.stores.find(
+        {"name": regex},
+        {"_id": 0, "name": 1},
+    ).limit(3).to_list(3)
+
+    product_names, store_names = await asyncio.gather(products_task, stores_task)
+
+    suggestions = []
+    for p in product_names:
+        suggestions.append({"text": p["name"], "type": "product"})
+    for s in store_names:
+        suggestions.append({"text": s["name"], "type": "store"})
+
+    return {"suggestions": suggestions[:limit]}
+
+
+@router.get("/search/trending")
+async def search_trending(
+    country: Optional[str] = Query(default=None),
+    limit: int = Query(default=8, ge=1, le=20),
+    db=Depends(get_db),
+):
+    """
+    Trending search queries for the search empty state. V1: extracts names
+    from trending products (via trending_service). Future: record actual
+    search queries and aggregate popular ones.
+    """
+    try:
+        from services.trending_service import get_trending_products
+        products = await get_trending_products(country=country, limit=limit)
+        queries = [p.get("name", "") for p in products if p.get("name")]
+        if queries:
+            return {"queries": queries[:limit]}
+    except Exception:
+        pass
+
+    # Fallback
+    return {"queries": [
+        "aceite de oliva", "queso manchego", "miel ecológica",
+        "jamón ibérico", "gazpacho", "almendra", "azafrán", "conservas",
+    ][:limit]}
+
+
 @router.get("/search")
 async def unified_search(
     q: str = Query(..., min_length=1, max_length=100),
@@ -221,6 +294,8 @@ async def unified_search(
     certifications: Optional[str] = Query(default=None),
     in_stock: Optional[bool] = Query(default=None),
     free_shipping: Optional[bool] = Query(default=None),
+    category: Optional[str] = Query(default=None),
+    country_origin: Optional[str] = Query(default=None),
     db=Depends(get_db),
     current_user=Depends(get_current_user_optional),
 ):
@@ -241,7 +316,8 @@ async def unified_search(
     products, recipes, stores, creators = await asyncio.gather(
         _search_products(db, safe_q, fetch_limit, country,
                          sort=sort, min_price=min_price, max_price=max_price,
-                         certifications=certifications, in_stock=in_stock, free_shipping=free_shipping),
+                         certifications=certifications, in_stock=in_stock, free_shipping=free_shipping,
+                         category=category, country_origin=country_origin),
         _search_recipes(db, safe_q, fetch_limit),
         _search_stores(db, safe_q, fetch_limit),
         _search_users(db, safe_q, fetch_limit),

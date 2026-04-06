@@ -10,6 +10,7 @@ import SEO from '../components/SEO';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 
 /* ── Autocomplete Suggestion Item ── */
 import i18n from "../locales/i18n";
@@ -93,7 +94,7 @@ function AutocompleteDropdown({
     </div>;
 }
 const HISTORY_KEY = 'hispal_search_history';
-const MAX_HISTORY = 8;
+const MAX_HISTORY = 10;
 function getHistory() {
   try {
     return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -150,6 +151,9 @@ const SORT_OPTIONS = [{
 }, {
   value: 'newest',
   label: "Más reciente"
+}, {
+  value: 'rating',
+  label: 'Mejor valorados'
 }];
 const CERTIFICATION_OPTIONS = [{
   value: 'ecologico',
@@ -292,13 +296,17 @@ export default function SearchPage() {
   const [filterCerts, setFilterCerts] = useState([]);
   const [filterInStock, setFilterInStock] = useState(false);
   const [filterFreeShipping, setFilterFreeShipping] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterCountryOrigin, setFilterCountryOrigin] = useState('');
   // Applied filters (only set when user clicks "Aplicar")
   const [appliedFilters, setAppliedFilters] = useState({
     minPrice: '',
     maxPrice: '',
     certs: [],
     inStock: false,
-    freeShipping: false
+    freeShipping: false,
+    category: '',
+    countryOrigin: '',
   });
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
@@ -307,7 +315,7 @@ export default function SearchPage() {
   const suggestIdRef = useRef(0);
   const searchIdRef = useRef(0);
   const hasActiveFilters = useMemo(() => {
-    return appliedFilters.minPrice !== '' || appliedFilters.maxPrice !== '' || appliedFilters.certs.length > 0 || appliedFilters.inStock || appliedFilters.freeShipping;
+    return appliedFilters.minPrice !== '' || appliedFilters.maxPrice !== '' || appliedFilters.certs.length > 0 || appliedFilters.inStock || appliedFilters.freeShipping || appliedFilters.category !== '' || appliedFilters.countryOrigin !== '';
   }, [appliedFilters]);
   const toggleFilterCert = useCallback(cert => {
     setFilterCerts(prev => prev.includes(cert) ? prev.filter(c => c !== cert) : [...prev, cert]);
@@ -328,22 +336,29 @@ export default function SearchPage() {
       maxPrice: validMax,
       certs: [...filterCerts],
       inStock: filterInStock,
-      freeShipping: filterFreeShipping
+      freeShipping: filterFreeShipping,
+      category: filterCategory,
+      countryOrigin: filterCountryOrigin,
     });
+    trackEvent('search_filter_applied', { certs: filterCerts, category: filterCategory, countryOrigin: filterCountryOrigin, inStock: filterInStock });
     setShowFilters(false);
-  }, [filterMinPrice, filterMaxPrice, filterCerts, filterInStock, filterFreeShipping]);
+  }, [filterMinPrice, filterMaxPrice, filterCerts, filterInStock, filterFreeShipping, filterCategory, filterCountryOrigin]);
   const handleClearFilters = useCallback(() => {
     setFilterMinPrice('');
     setFilterMaxPrice('');
     setFilterCerts([]);
     setFilterInStock(false);
     setFilterFreeShipping(false);
+    setFilterCategory('');
+    setFilterCountryOrigin('');
     setAppliedFilters({
       minPrice: '',
       maxPrice: '',
       certs: [],
       inStock: false,
-      freeShipping: false
+      freeShipping: false,
+      category: '',
+      countryOrigin: '',
     });
   }, []);
   const isEmpty = !query.trim();
@@ -351,15 +366,14 @@ export default function SearchPage() {
     inputRef.current?.focus();
   }, []);
   useEffect(() => {
-    apiClient.get('/discovery/trending', {
-      params: {
-        type: 'products',
-        limit: 8
-      }
+    // Use dedicated /search/trending endpoint (section 1.3) — extracts product names
+    // from trending_service. Falls back to TRENDING_FALLBACK if API fails.
+    apiClient.get('/search/trending', {
+      params: { limit: 8 }
     }).then(data => {
-      const terms = (data?.items || data || []).map(item => item.name || item.title || item.query).filter(Boolean);
-      if (terms.length > 0) setTrending(terms);
-    }).catch(() => {/* S-06: Fallback already set via TRENDING_FALLBACK default */});
+      const queries = data?.queries || [];
+      if (queries.length > 0) setTrending(queries);
+    }).catch(() => {/* Fallback already set via TRENDING_FALLBACK default */});
     apiClient.get('/discovery/trending', {
       params: {
         type: 'hashtags',
@@ -406,7 +420,7 @@ export default function SearchPage() {
           setShowSuggestions(false);
         }
       }
-    }, 300);
+    }, 200);
     return () => clearTimeout(timer);
   }, [query]);
   const handleSuggestionSelect = useCallback((item, type) => {
@@ -440,16 +454,24 @@ export default function SearchPage() {
         if (appliedFilters.certs.length > 0) params.certifications = appliedFilters.certs.join(',');
         if (appliedFilters.inStock) params.in_stock = true;
         if (appliedFilters.freeShipping) params.free_shipping = true;
+        if (appliedFilters.category) params.category = appliedFilters.category;
+        if (appliedFilters.countryOrigin) params.country_origin = appliedFilters.countryOrigin;
         const data = await apiClient.get('/search', {
           params
         });
         if (reqId !== searchIdRef.current) return;
         setResults(data);
-        setSearchParams({
-          q: query.trim()
-        }, {
-          replace: true
-        });
+        // Reflect all filters in URL for shareable links
+        const urlParams = { q: query.trim() };
+        if (sortParam) urlParams.sort = sortParam;
+        if (appliedFilters.minPrice) urlParams.min_price = appliedFilters.minPrice;
+        if (appliedFilters.maxPrice) urlParams.max_price = appliedFilters.maxPrice;
+        if (appliedFilters.certs.length) urlParams.certifications = appliedFilters.certs.join(',');
+        if (appliedFilters.inStock) urlParams.in_stock = '1';
+        if (appliedFilters.freeShipping) urlParams.free_shipping = '1';
+        if (appliedFilters.category) urlParams.category = appliedFilters.category;
+        if (appliedFilters.countryOrigin) urlParams.country_origin = appliedFilters.countryOrigin;
+        setSearchParams(urlParams, { replace: true });
       } catch (err) {
         if (reqId !== searchIdRef.current) return;
         setResults(null);
@@ -457,7 +479,7 @@ export default function SearchPage() {
       } finally {
         if (reqId === searchIdRef.current) setLoading(false);
       }
-    }, 320);
+    }, 200);
     return () => clearTimeout(timer);
   }, [query, sortBy, appliedFilters, setSearchParams]);
 
@@ -470,6 +492,7 @@ export default function SearchPage() {
     setSuggestions(null);
     saveHistory(query.trim());
     setHistory(getHistory());
+    trackEvent('search_performed', { query: query.trim(), sort: sortBy });
     // Search is triggered by the useEffect on [query, sortBy, appliedFilters]
   }, [query]);
   const handleHistoryClick = term => {
@@ -602,6 +625,24 @@ export default function SearchPage() {
 
                 {/* Toggles */}
                 <div className="mb-4 flex flex-col gap-3">
+                  {/* Category */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-stone-500 uppercase tracking-wide">Categoría</label>
+                    <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
+                      <option value="">Todas</option>
+                      {['aceites','quesos','miel','conservas','embutidos','salsas','especias','legumbres','panaderia','reposteria','vinos','frutas','verduras','bebidas','frutos_secos','infusiones'].map(c => <option key={c} value={c}>{c[0].toUpperCase() + c.slice(1).replace('_',' ')}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Country of origin */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-stone-500 uppercase tracking-wide">País de origen</label>
+                    <select value={filterCountryOrigin} onChange={e => setFilterCountryOrigin(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
+                      <option value="">Todos</option>
+                      {['ES','KR','US','MX','FR','IT','PT','DE','AR','CO'].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-stone-950">Solo en stock</span>
                     <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
@@ -657,6 +698,24 @@ export default function SearchPage() {
             })}
             </div>
 
+            {/* Category */}
+            <div className="mb-4">
+              <p className="mb-1.5 text-[13px] font-semibold text-stone-950">Categoría</p>
+              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="w-full h-9 px-3 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
+                <option value="">Todas</option>
+                {['aceites','quesos','miel','conservas','embutidos','salsas','especias','legumbres','panaderia','reposteria','vinos','frutas','verduras','bebidas','frutos_secos','infusiones'].map(c => <option key={c} value={c}>{c[0].toUpperCase() + c.slice(1).replace('_',' ')}</option>)}
+              </select>
+            </div>
+
+            {/* Country of origin */}
+            <div className="mb-4">
+              <p className="mb-1.5 text-[13px] font-semibold text-stone-950">País de origen</p>
+              <select value={filterCountryOrigin} onChange={e => setFilterCountryOrigin(e.target.value)} className="w-full h-9 px-3 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
+                <option value="">Todos</option>
+                {['ES','KR','US','MX','FR','IT','PT','DE','AR','CO'].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
             {/* Toggles */}
             <div className="mb-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
@@ -664,8 +723,8 @@ export default function SearchPage() {
                 <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-950">Envio gratis</span>
-                <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label="Envio gratis" />
+                <span className="text-sm text-stone-950">Envío gratis</span>
+                <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label="Envío gratis" />
               </div>
             </div>
 
