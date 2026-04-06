@@ -170,6 +170,299 @@ async def get_explore_sections(
     }
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Discover bundle — all 8 sections in one call (section 1.2 of the launch roadmap)
+# ───────────────────────────────────────────────────────────────────────────────
+# Reduces the frontend from 8+ parallel requests to 1. Each sub-query runs in
+# parallel via asyncio.gather, target <500ms p95. In-memory LRU cache with 5-min
+# TTL per (country, user_id) prevents thundering herd on popular pages.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import logging as _logging
+import time as _time
+from collections import OrderedDict
+
+_bundle_logger = _logging.getLogger("discovery.bundle")
+
+# ── Simple in-memory LRU cache (no Redis needed for V1) ──
+_bundle_cache: OrderedDict = OrderedDict()
+_BUNDLE_CACHE_TTL = 300  # 5 minutes
+_BUNDLE_CACHE_MAX = 200
+
+# ── Seasonal map ──
+SEASONAL_MAP = {
+    "north": {
+        1:  {"label": "Invierno",  "emoji": "❄️", "tags": ["naranja", "mandarina", "caqui"]},
+        2:  {"label": "Invierno",  "emoji": "❄️", "tags": ["alcachofa", "puerro", "kale"]},
+        3:  {"label": "Primavera", "emoji": "🌱", "tags": ["fresa", "espárrago", "guisante"]},
+        4:  {"label": "Primavera", "emoji": "🌱", "tags": ["cereza", "alcachofa", "habas"]},
+        5:  {"label": "Primavera", "emoji": "🌸", "tags": ["cereza", "nispero", "frambuesa"]},
+        6:  {"label": "Verano",    "emoji": "☀️", "tags": ["tomate", "melocotón", "sandía"]},
+        7:  {"label": "Verano",    "emoji": "☀️", "tags": ["gazpacho", "melón", "higo"]},
+        8:  {"label": "Verano",    "emoji": "☀️", "tags": ["pimiento", "berenjena", "uva"]},
+        9:  {"label": "Otoño",     "emoji": "🍂", "tags": ["calabaza", "seta", "castaña"]},
+        10: {"label": "Otoño",     "emoji": "🍂", "tags": ["boniato", "granada", "membrillo"]},
+        11: {"label": "Otoño",     "emoji": "🍂", "tags": ["seta", "caqui", "kiwi"]},
+        12: {"label": "Invierno",  "emoji": "❄️", "tags": ["turrón", "naranja", "mandarina"]},
+    },
+    "south": {
+        1:  {"label": "Verano",    "emoji": "☀️", "tags": ["tomate", "sandía", "melocotón"]},
+        2:  {"label": "Verano",    "emoji": "☀️", "tags": ["melón", "uva", "pimiento"]},
+        3:  {"label": "Otoño",     "emoji": "🍂", "tags": ["calabaza", "manzana", "seta"]},
+        4:  {"label": "Otoño",     "emoji": "🍂", "tags": ["castaña", "boniato", "granada"]},
+        5:  {"label": "Otoño",     "emoji": "🍂", "tags": ["kiwi", "caqui", "naranja"]},
+        6:  {"label": "Invierno",  "emoji": "❄️", "tags": ["naranja", "mandarina", "puerro"]},
+        7:  {"label": "Invierno",  "emoji": "❄️", "tags": ["alcachofa", "kale", "brócoli"]},
+        8:  {"label": "Invierno",  "emoji": "❄️", "tags": ["espinaca", "coliflor", "remolacha"]},
+        9:  {"label": "Primavera", "emoji": "🌱", "tags": ["fresa", "espárrago", "guisante"]},
+        10: {"label": "Primavera", "emoji": "🌱", "tags": ["cereza", "habas", "nispero"]},
+        11: {"label": "Primavera", "emoji": "🌸", "tags": ["cereza", "frambuesa", "melocotón"]},
+        12: {"label": "Verano",    "emoji": "☀️", "tags": ["tomate", "sandía", "gazpacho"]},
+    },
+}
+
+SOUTH_HEMISPHERE_COUNTRIES = {"AR", "CL", "AU", "NZ", "ZA", "UY", "PY", "BO", "BR"}
+
+
+def _get_seasonal(country: str | None) -> dict:
+    """Resolve current season by country hemisphere + current month."""
+    hemisphere = "south" if (country or "").upper() in SOUTH_HEMISPHERE_COUNTRIES else "north"
+    month = datetime.now(timezone.utc).month
+    season = SEASONAL_MAP[hemisphere].get(month, SEASONAL_MAP["north"][1])
+    return {**season, "hemisphere": hemisphere}
+
+
+def _bundle_cache_key(country: str | None, user_id: str | None) -> str:
+    return f"{country or 'XX'}:{user_id or 'anon'}"
+
+
+def _get_cached_bundle(key: str) -> dict | None:
+    if key not in _bundle_cache:
+        return None
+    ts, data = _bundle_cache[key]
+    if _time.time() - ts > _BUNDLE_CACHE_TTL:
+        del _bundle_cache[key]
+        return None
+    _bundle_cache.move_to_end(key)
+    return data
+
+
+def _set_cached_bundle(key: str, data: dict) -> None:
+    _bundle_cache[key] = (_time.time(), data)
+    _bundle_cache.move_to_end(key)
+    while len(_bundle_cache) > _BUNDLE_CACHE_MAX:
+        _bundle_cache.popitem(last=False)
+
+
+async def _fetch_seasonal_products(seasonal: dict, country: str | None, limit: int) -> list:
+    """Fetch products matching seasonal tags."""
+    tags = seasonal.get("tags", [])
+    if not tags:
+        return []
+    query = {
+        "status": {"$in": ["active", "approved"]},
+        "approved": True,
+        "$or": [
+            {"name": {"$regex": "|".join(re.escape(t) for t in tags), "$options": "i"}},
+            {"tags": {"$in": tags}},
+            {"category": {"$regex": "|".join(re.escape(t) for t in tags), "$options": "i"}},
+        ],
+    }
+    if country:
+        query["$or"].append({"country_origin": country})
+    products = await db.products.find(
+        query, {"_id": 1, "product_id": 1, "name": 1, "price": 1, "images": 1, "producer_id": 1, "category": 1, "tags": 1}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    return [_s(p) for p in products]
+
+
+async def _fetch_near_you_producers(country: str | None, limit: int) -> list:
+    """Fetch approved producers in the user's country."""
+    if not country:
+        return []
+    producers = await db.users.find(
+        {"role": {"$in": ["producer", "importer"]}, "country": country, "approved": True},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "picture": 1, "company_name": 1, "country": 1, "followers_count": 1},
+    ).sort("followers_count", -1).limit(limit).to_list(limit)
+    return producers
+
+
+async def _fetch_for_you_products(user_id: str | None, country: str | None, limit: int) -> list:
+    """Personalized products: by interests (if available) or trending fallback."""
+    # Try user interests for personalization
+    interests = []
+    if user_id:
+        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "interests": 1, "preferred_categories": 1})
+        interests = (user_doc or {}).get("interests", []) or (user_doc or {}).get("preferred_categories", [])
+
+    query = {"status": {"$in": ["active", "approved"]}, "approved": True}
+    if interests:
+        query["$or"] = [
+            {"category": {"$regex": "|".join(re.escape(i) for i in interests[:5]), "$options": "i"}},
+            {"tags": {"$in": interests[:5]}},
+        ]
+    if country:
+        query.setdefault("$or", []).append({"country_origin": country})
+
+    products = await db.products.find(
+        query, {"_id": 1, "product_id": 1, "name": 1, "price": 1, "images": 1, "producer_id": 1, "category": 1}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+
+    # Fallback: trending if interests yield nothing
+    if not products:
+        products = await get_trending_products(country=country, limit=limit)
+
+    return [_s(p) for p in products]
+
+
+async def _fetch_trending_communities(country: str | None, limit: int) -> list:
+    """Communities with most posts in the last 7 days."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    pipeline = [
+        {"$match": {"created_at": {"$gt": cutoff}}},
+        {"$group": {"_id": "$community_id", "post_count": {"$sum": 1}}},
+        {"$sort": {"post_count": -1}},
+        {"$limit": limit},
+    ]
+    active_ids = []
+    try:
+        results = await db.community_posts.aggregate(pipeline).to_list(limit)
+        active_ids = [r["_id"] for r in results if r.get("_id")]
+    except Exception:
+        pass
+
+    if not active_ids:
+        # Fallback: biggest communities by member count
+        communities = await db.communities.find(
+            {}, {"_id": 0, "slug": 1, "name": 1, "description": 1, "cover_image": 1, "emoji": 1, "member_count": 1}
+        ).sort("member_count", -1).limit(limit).to_list(limit)
+        return communities
+
+    communities = await db.communities.find(
+        {"_id": {"$in": [ObjectId(i) if ObjectId.is_valid(str(i)) else i for i in active_ids]}},
+        {"_id": 0, "slug": 1, "name": 1, "description": 1, "cover_image": 1, "emoji": 1, "member_count": 1},
+    ).to_list(limit)
+    return communities
+
+
+async def _fetch_new_producers(country: str | None, limit: int) -> list:
+    """Producers registered in the last 7 days."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    query = {
+        "role": {"$in": ["producer", "importer"]},
+        "approved": True,
+        "created_at": {"$gt": cutoff},
+    }
+    if country:
+        query["country"] = country
+    producers = await db.users.find(
+        query, {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "picture": 1, "company_name": 1, "country": 1}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+
+    # Fallback: if no new producers this week, show popular ones
+    if not producers:
+        fallback_query = {"role": {"$in": ["producer", "importer"]}, "approved": True}
+        if country:
+            fallback_query["country"] = country
+        producers = await db.users.find(
+            fallback_query, {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "picture": 1, "company_name": 1, "country": 1}
+        ).sort("followers_count", -1).limit(limit).to_list(limit)
+
+    return producers
+
+
+async def _fetch_popular_recipes(limit: int) -> list:
+    """Most liked/saved recipes."""
+    recipes = await db.recipes.find(
+        {"status": {"$in": ["published", "approved", None]}},
+        {"_id": 1, "recipe_id": 1, "title": 1, "image_url": 1, "time_minutes": 1, "difficulty": 1, "author_id": 1, "likes_count": 1, "saves_count": 1},
+    ).sort([("likes_count", -1), ("saves_count", -1)]).limit(limit).to_list(limit)
+    return [_s(r) for r in recipes]
+
+
+async def _fetch_map_preview(country: str | None) -> dict:
+    """Count of producers + sample markers for the map preview card."""
+    query = {"role": {"$in": ["producer", "importer"]}, "approved": True}
+    if country:
+        query["country"] = country
+    count = await db.users.count_documents(query)
+    return {"producers_count": count, "country": country}
+
+
+@router.get("/discover/bundle")
+async def get_discover_bundle(
+    country: Optional[str] = Query(None),
+    limit: int = Query(10, le=20),
+    user: Optional[User] = Depends(get_current_user),
+):
+    """
+    All Discover page sections in one call. Reduces frontend waterfall from
+    8+ requests to 1. Each sub-query runs in parallel via asyncio.gather.
+
+    Cache: in-memory LRU with 5-min TTL per (country, user_id). No Redis needed V1.
+    Performance target: <500ms p95.
+    """
+    t0 = _time.time()
+    user_id = user.user_id if user else None
+    resolved_country = country or _country_of(user)
+
+    # Cache check
+    cache_key = _bundle_cache_key(resolved_country, user_id)
+    cached = _get_cached_bundle(cache_key)
+    if cached:
+        _bundle_logger.info("[BUNDLE] cache hit key=%s (%dms)", cache_key, int((_time.time() - t0) * 1000))
+        return cached
+
+    # Resolve seasonal
+    seasonal = _get_seasonal(resolved_country)
+
+    # 8 parallel sub-queries
+    (
+        seasonal_products,
+        near_you_producers,
+        for_you_products,
+        communities,
+        new_producers,
+        recipes,
+        trending_creators,
+        map_preview,
+    ) = await asyncio.gather(
+        _fetch_seasonal_products(seasonal, resolved_country, limit),
+        _fetch_near_you_producers(resolved_country, limit),
+        _fetch_for_you_products(user_id, resolved_country, limit),
+        _fetch_trending_communities(resolved_country, 5),
+        _fetch_new_producers(resolved_country, 5),
+        _fetch_popular_recipes(5),
+        get_suggested_creators(user_id=user_id, country=resolved_country, limit=5),
+        _fetch_map_preview(resolved_country),
+    )
+
+    result = {
+        "seasonal": {
+            "label": seasonal["label"],
+            "emoji": seasonal["emoji"],
+            "tags": seasonal["tags"],
+            "hemisphere": seasonal["hemisphere"],
+            "products": seasonal_products,
+        },
+        "near_you": {"producers": near_you_producers},
+        "for_you": {"products": for_you_products},
+        "communities_trending": {"communities": communities},
+        "new_producers": {"producers": new_producers},
+        "recipes_week": {"recipes": recipes},
+        "trending_creators": {"creators": [_s(c) for c in trending_creators]},
+        "map_preview": map_preview,
+        "country": resolved_country,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    elapsed_ms = int((_time.time() - t0) * 1000)
+    _bundle_logger.info("[BUNDLE] generated key=%s sections=8 (%dms)", cache_key, elapsed_ms)
+
+    _set_cached_bundle(cache_key, result)
+    return result
+
+
 # ── Related products widget ────────────────────────────────────────────────────
 
 @router.get("/discovery/related-products/{product_id}")
