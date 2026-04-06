@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { AtSign, Link2, MapPin, HelpCircle } from 'lucide-react';
+import { AtSign, Link2, MapPin, HelpCircle, Leaf, Trophy, Award, Shield, WheatOff, Sprout } from 'lucide-react';
 import {
   STORY_EMOJI_CATEGORIES,
   STORY_CERTIFICATIONS,
@@ -102,18 +102,22 @@ export default function StoryStickerTool({
       {/* Certificaciones */}
       {stickerTab === 'certificaciones' && (
         <div className="grid grid-cols-2 gap-2 p-2">
-          {STORY_CERTIFICATIONS.map((cert) => (
-            <button
-              key={cert.label}
-              onClick={() =>
-                onAddSticker(`${cert.emoji} ${cert.label}`, 'badge')
-              }
-              className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors border-none cursor-pointer"
-            >
-              <span className="text-base">{cert.emoji}</span>
-              {cert.label}
-            </button>
-          ))}
+          {STORY_CERTIFICATIONS.map((cert) => {
+            const IconMap: Record<string, React.ComponentType<any>> = { Leaf, Trophy, Award, Shield, WheatOff, Sprout };
+            const Icon = IconMap[cert.icon];
+            return (
+              <button
+                key={cert.label}
+                onClick={() =>
+                  onAddSticker(cert.label, 'badge')
+                }
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors border-none cursor-pointer"
+              >
+                {Icon && <Icon size={16} className="text-stone-400 shrink-0" />}
+                {cert.label}
+              </button>
+            );
+          })}
         </div>
       )}
 

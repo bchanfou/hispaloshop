@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Image, Clapperboard, CirclePlus, ChefHat, FileText } from 'lucide-react';
+import { Image, Video, Square, ChefHat, FileText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import BottomSheet from '../motion/BottomSheet';
 
 const CONTENT_TYPES = [
-  { type: 'post',   label: 'Post',   Icon: Image },
-  { type: 'reel',   label: 'Reel',   Icon: Clapperboard },
-  { type: 'story',  label: 'Story',  Icon: CirclePlus },
-  { type: 'recipe', label: 'Receta', Icon: ChefHat },
+  { type: 'post',   labelKey: 'content_selector.post',   fallback: 'Post',   Icon: Image },
+  { type: 'reel',   labelKey: 'content_selector.reel',   fallback: 'Reel',   Icon: Video },
+  { type: 'story',  labelKey: 'content_selector.story',  fallback: 'Story',  Icon: Square },
+  { type: 'recipe', labelKey: 'content_selector.recipe', fallback: 'Receta', Icon: ChefHat },
 ];
 
 const DRAFT_KEYS = ['post_draft', 'reel_draft', 'story_draft'];
@@ -16,6 +17,7 @@ const MAX_AGE = 24 * 60 * 60 * 1000;
 
 export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [draftCount, setDraftCount] = useState(0);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
         style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}
       >
         {/* Title */}
-        <p className="text-base font-semibold text-stone-950 mb-4">Crear</p>
+        <p className="text-base font-semibold text-stone-950 mb-4">{t('content_selector.title', 'Crear')}</p>
 
         {/* 2×2 grid */}
         <div className="grid grid-cols-2 gap-3">
@@ -64,7 +66,7 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
                 className="text-stone-500"
               />
               <span className="text-sm font-semibold text-stone-950">
-                {opt.label}
+                {t(opt.labelKey, opt.fallback)}
               </span>
             </motion.button>
           ))}
@@ -81,7 +83,7 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
             className="w-full flex items-center justify-center gap-2 py-3 text-sm text-stone-500 hover:text-stone-950 bg-transparent border-none cursor-pointer transition-colors"
           >
             <FileText size={16} />
-            <span>Borradores</span>
+            <span>{t('content_selector.drafts', 'Borradores')}</span>
             <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-stone-200 text-stone-700 text-[11px] font-semibold px-1">
               {draftCount}
             </span>

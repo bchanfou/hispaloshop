@@ -5507,5 +5507,13 @@
     "explore_products": "Explorar productos",
     "comments_count": "Ver los {{count}} comentarios",
     "likes_count": "{{count}} me gusta"
+  },
+  "content_selector": {
+    "title": "Crear",
+    "post": "Post",
+    "reel": "Reel",
+    "story": "Story",
+    "recipe": "Receta",
+    "drafts": "Borradores"
   }
 }

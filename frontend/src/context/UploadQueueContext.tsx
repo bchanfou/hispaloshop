@@ -30,6 +30,9 @@ interface UploadQueueContextValue {
   hasActiveUploads: boolean;
 }
 
+// Keys handled specially (not appended as-is to FormData)
+const SPECIAL_KEYS = new Set(['contentType', 'caption', 'files', 'products', 'location']);
+
 async function publishSocialContent({ publishData, onProgress }: { publishData: PublishData; onProgress?: (progress: number) => void }) {
   const fd = new FormData();
   if (publishData.caption) fd.append('caption', publishData.caption);
@@ -40,6 +43,19 @@ async function publishSocialContent({ publishData, onProgress }: { publishData: 
     fd.append('tagged_products_json', JSON.stringify(publishData.products.map((p: any) => ({ product_id: p.id || p }))));
   }
   if (publishData.location) fd.append('location', publishData.location);
+
+  // Pass through any extra fields (audience, hideLikes, postType, filter, etc.)
+  for (const [key, val] of Object.entries(publishData)) {
+    if (SPECIAL_KEYS.has(key) || val === undefined || val === null || val === '') continue;
+    if (val instanceof File) {
+      fd.append(key, val);
+    } else if (typeof val === 'object') {
+      fd.append(key, JSON.stringify(val));
+    } else {
+      fd.append(key, String(val));
+    }
+  }
+
   // Route to correct endpoint based on content type
   const type = publishData.contentType || 'post';
   let endpoint = '/posts';
@@ -51,6 +67,11 @@ async function publishSocialContent({ publishData, onProgress }: { publishData: 
     endpoint = '/stories';
     const firstFile = publishData.files?.[0];
     if (firstFile) { fd.delete('files'); fd.append('file', firstFile); }
+  }
+
+  // For posts with post_type, rename to avoid conflict with the form field name
+  if (type === 'post' && publishData.postType) {
+    fd.set('post_type', String(publishData.postType));
   }
 
   const res = await apiClient.post(endpoint, fd, {

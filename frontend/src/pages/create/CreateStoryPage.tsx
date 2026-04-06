@@ -6,6 +6,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import i18n from "../../locales/i18n";
+import { trackEvent } from '../../utils/analytics';
+import { useUploadQueue } from '../../context/UploadQueueContext';
 import StoryFilterSwipe from '../../components/story-editor/StoryFilterSwipe';
 import StoryTextTool from '../../components/story-editor/StoryTextTool';
 import StoryStickerTool from '../../components/story-editor/StoryStickerTool';
@@ -19,6 +21,7 @@ import {
 export default function CreateStoryPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { enqueueAndProcess } = useUploadQueue();
   const [background, setBackground] = useState('black');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
@@ -176,6 +179,7 @@ export default function CreateStoryPage() {
       setVideoFile(null);
       setVideoPreviewUrl(null);
     }
+    trackEvent('create_started', { type: 'story' });
   }, []);
   const handleBgSelect = useCallback(bg => {
     if (bg.id === 'camera') {
@@ -361,6 +365,7 @@ export default function CreateStoryPage() {
             privacy: 'public',
             savedAt: Date.now()
           }));
+          trackEvent('create_draft_saved', { type: 'story' });
         }
       } catch {/* quota exceeded or private mode */}
     }, 500);
@@ -626,41 +631,51 @@ export default function CreateStoryPage() {
         });
         fd.append('file', compositeFile);
       }
-      fd.append('caption', '');
-      // Send product sticker data as structured JSON
+      // Build the file to upload (already in fd as 'file')
+      const fileEntry = fd.get('file') as File | null;
+      if (!fileEntry) {
+        setPublishing(false);
+        toast.error(i18n.t('create_story.errorAlExportarLaHistoria', 'Error al exportar la historia'));
+        return;
+      }
+
+      // Collect product sticker data
       const productStickers = stickerOverlays.filter(s => s.type === 'product' && s.productId);
+
+      // Clear draft before navigating
+      try { localStorage.removeItem('story_draft'); } catch {/* ignore */}
+
+      trackEvent('create_published', { type: 'story', has_products: productStickers.length > 0, has_location: stickerOverlays.some((s: any) => s.type === 'location') });
+
+      // Enqueue upload — banner handles progress + toast
+      const publishPayload: Record<string, any> = {
+        contentType: 'story',
+        caption: '',
+        files: [fileEntry],
+      };
+      if (publishFilterCSS) publishPayload.filter_css = publishFilterCSS;
+      if (videoFile && (textOverlays.length || stickerOverlays.length || drawPaths.length)) {
+        publishPayload.overlays_json = fd.get('overlays_json');
+      }
       if (productStickers.length > 0) {
-        fd.append('products_json', JSON.stringify(productStickers.map(s => ({
+        publishPayload.products_json = JSON.stringify(productStickers.map(s => ({
           product_id: s.productId,
           product_name: s.content || '',
           product_image: s.productImage || '',
           product_price: s.productPrice || 0,
-          position: {
-            x: s.x,
-            y: s.y
-          }
-        }))));
+          position: { x: s.x, y: s.y }
+        })));
       }
-      await apiClient.post('/stories', fd);
-      queryClient.invalidateQueries({
-        queryKey: ['feed-stories']
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['stories-mine']
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['user-stories']
-      }); // broad invalidate — clears all user story caches
+
+      enqueueAndProcess(publishPayload);
+
+      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+      queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
+      queryClient.invalidateQueries({ queryKey: ['user-stories'] });
       if (navigator.vibrate) navigator.vibrate(50);
-      try {
-        localStorage.removeItem('story_draft');
-      } catch {/* ignore */}
       setPublishing(false);
       setPublishSuccess(true);
-      setTimeout(() => {
-        toast.success('Historia publicada');
-        navigate('/');
-      }, 800);
+      setTimeout(() => navigate('/'), 600);
     } catch (err) {
       toast.error(i18n.t('create_story.errorAlPublicarLaHistoria', 'Error al publicar la historia'));
       setPublishing(false);
@@ -688,6 +703,7 @@ export default function CreateStoryPage() {
         <button onClick={() => {
         if (imageFile || videoFile || textOverlays.length > 0 || stickerOverlays.length > 0) {
           if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
+          trackEvent('create_abandoned', { type: 'story', step: 'editor' });
         }
         navigate(-1);
       }} aria-label="Cerrar editor de historia" className="w-10 h-10 bg-black/30 backdrop-blur-xl rounded-xl border-none cursor-pointer flex items-center justify-center transition-colors hover:bg-black/50">

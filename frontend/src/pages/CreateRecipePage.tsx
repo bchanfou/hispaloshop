@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { trackEvent } from '../utils/analytics';
 import { resolveUserImage } from '../features/user/queries';
 import ProductSearchModal from '../components/create/ProductSearchModal';
 import HispalAIPanel from '../components/creator/HispalAIPanel';
@@ -185,6 +186,7 @@ export default function CreateRecipePage() {
 
   // R-05: Check for existing draft on mount
   useEffect(() => {
+    trackEvent('create_started', { type: 'recipe' });
     try {
       const raw = localStorage.getItem('recipe_draft');
       if (!raw) return;
@@ -220,6 +222,7 @@ export default function CreateRecipePage() {
             tags: recipe.tags,
             savedAt: Date.now()
           }));
+          trackEvent('create_draft_saved', { type: 'recipe' });
         }
       } catch {/* quota exceeded */}
     }, 500);
@@ -408,6 +411,7 @@ export default function CreateRecipePage() {
         localStorage.removeItem('recipe_draft');
       } catch {/* ignore */}
       if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+      trackEvent('create_published', { type: 'recipe', has_products: recipe.ingredients.some(i => i.product_id), has_location: false });
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success(t('recipes.published', 'Receta publicada'));

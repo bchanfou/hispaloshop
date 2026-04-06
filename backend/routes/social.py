@@ -26,12 +26,43 @@ from services.video_service import VideoService
 from utils.images import extract_product_image
 from core.sanitize import sanitize_text
 from middleware.rate_limit import rate_limiter
+from services.content_moderation import moderate_post_content
 # NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
 # from database import AsyncSessionLocal
 # from models import Post as PgPost, User as PgUser
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+async def _moderate_content_async(
+    collection_name: str,
+    doc_id_field: str,
+    doc_id: str,
+    caption: str,
+    image_urls: list[str] | None = None,
+):
+    """Post-publish async moderation. If IA flags the content, mark it for review or hide it."""
+    try:
+        result = await moderate_post_content({
+            "text": caption,
+            "image_urls": image_urls or [],
+            "tags": [],
+        })
+        action = result.get("action", "approve")
+        if action in ("hide", "review"):
+            collection = db[collection_name]
+            update = {
+                "moderation_status": action,
+                "moderation_reason": result.get("reason"),
+                "moderation_violation": result.get("violation_type"),
+            }
+            if action == "hide":
+                update["status"] = "hidden"
+            await collection.update_one({doc_id_field: doc_id}, {"$set": update})
+            logger.info(f"[MODERATION] {collection_name} {doc_id} → {action}: {result.get('reason')}")
+    except Exception as exc:
+        logger.warning(f"[MODERATION] Failed for {collection_name} {doc_id}: {exc}")
 
 # Preference-aware notification types (maps notification type → preference key)
 _NOTIF_PREF_KEY = {
@@ -707,6 +738,11 @@ async def create_reel(
             },
             user.user_id,
         )
+    # Async post-publish moderation (non-blocking)
+    asyncio.create_task(_moderate_content_async(
+        "reels", "reel_id", reel_id, caption, [reel.get("video_url", "")]
+    ))
+
     return {k: v for k, v in reel.items() if k != "_id"}
 
 
@@ -2056,6 +2092,11 @@ async def create_post(
             },
             user.user_id,
         )
+    # Async post-publish moderation (non-blocking)
+    asyncio.create_task(_moderate_content_async(
+        "user_posts", "post_id", post_id, caption, [m.get("url", "") for m in media if m.get("url")]
+    ))
+
     return _normalize_post_media({k: v for k, v in post.items() if k != "_id"})
 
 
@@ -3257,6 +3298,12 @@ async def create_story(
         except Exception:
             story["products"] = []
     await db.hispalostories.insert_one(story)
+
+    # Async post-publish moderation (non-blocking)
+    asyncio.create_task(_moderate_content_async(
+        "hispalostories", "story_id", story.get("story_id", ""), caption or "", [story.get("media_url", "")]
+    ))
+
     return {k: v for k, v in story.items() if k != "_id"}
 
 

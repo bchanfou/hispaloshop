@@ -7,6 +7,8 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
+import { useUploadQueue } from '../../context/UploadQueueContext';
 
 /* ───────────────────────── constants ───────────────────────── */
 import i18n from "../../locales/i18n";
@@ -14,35 +16,27 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per image (must match backend l
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 const FILTERS = [{
   name: 'Natural',
-  emoji: '✨',
   css: 'none'
 }, {
   name: 'Amanecer',
-  emoji: '🌅',
   css: 'sepia(0.25) saturate(1.3) brightness(1.08)'
 }, {
   name: 'Lonja',
-  emoji: '🌊',
   css: 'hue-rotate(10deg) saturate(1.15) brightness(1.05) contrast(1.05)'
 }, {
   name: 'Huerta',
-  emoji: '🌿',
   css: 'saturate(1.35) contrast(1.05) brightness(1.03)'
 }, {
   name: 'Miel',
-  emoji: '🍯',
   css: 'sepia(0.2) saturate(1.2) brightness(1.1)'
 }, {
   name: 'Trufa',
-  emoji: '🌑',
   css: 'contrast(1.25) brightness(0.88) saturate(1.1)'
 }, {
   name: 'Mate',
-  emoji: '🪨',
   css: 'saturate(0.75) brightness(1.1) contrast(0.95)'
 }, {
   name: 'Antiguo',
-  emoji: '📜',
   css: 'sepia(0.45) saturate(0.8) brightness(1.05)'
 }];
 const FONT_OPTIONS = [{
@@ -159,6 +153,7 @@ export default function CreatePostPage() {
   const {
     user
   } = useAuth();
+  const { enqueueAndProcess } = useUploadQueue();
 
   /* --- shared state --- */
   const [step, setStep] = useState(1);
@@ -289,6 +284,9 @@ export default function CreatePostPage() {
     if (!valid.length) return;
     setSelectedFiles(prev => {
       const merged = [...prev, ...valid].slice(0, 10);
+      if (prev.length === 0 && merged.length > 0) {
+        trackEvent('create_started', { type: 'post' });
+      }
       if (merged.length >= 10 && valid.length > merged.length - prev.length) {
         toast('Máximo 10 imágenes por publicación', {
           duration: 3000
@@ -365,6 +363,7 @@ export default function CreatePostPage() {
             fileCount: selectedFiles.length,
             savedAt: Date.now()
           }));
+          trackEvent('create_draft_saved', { type: 'post' });
         }
       } catch {/* quota exceeded or private mode */}
     }, 2000);
@@ -394,69 +393,27 @@ export default function CreatePostPage() {
       toast.error(i18n.t('create_post.laDescripcionEsDemasiadoLarga', 'La descripción es demasiado larga'));
       return;
     }
-    setPublishing(true);
-    setPublishError(false);
-    setUploadProgress(0);
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-    try {
-      const fd = new FormData();
-      selectedFiles.forEach(f => fd.append('files', f));
-      fd.append('caption', caption);
-      if (taggedProducts.length) fd.append('tagged_products_json', JSON.stringify(taggedProducts.map(p => ({
-        product_id: p.id
-      }))));
-      if (selectedFiles.length > 1) fd.append('post_type', 'carousel');
-      if (location.trim()) fd.append('location', location.trim());
-      if (audience) fd.append('audience', audience);
-      if (hideLikes) fd.append('hide_likes', 'true');
-      if (disableComments) fd.append('disable_comments', 'true');
+    // Clear draft before navigating away
+    try { localStorage.removeItem('post_draft'); } catch {/* ignore */}
 
-      // Upload with progress tracking + abort signal
-      const res = await apiClient.post('/posts', fd, {
-        signal: controller.signal,
-        onUploadProgress: e => {
-          if (e.total) setUploadProgress(Math.round(e.loaded / e.total * 100));
-        }
-      });
-      setUploadProgress(100);
-      abortControllerRef.current = null;
-      const postId = res?.id || res?.post?.id || res?.data?.id;
+    trackEvent('create_published', { type: 'post', has_products: taggedProducts.length > 0, has_location: !!location.trim() });
 
-      // Haptic feedback
-      if (navigator.vibrate) navigator.vibrate(50);
+    // Enqueue upload — progress + success/error handled by global UploadProgressBanner
+    enqueueAndProcess({
+      contentType: 'post',
+      caption,
+      files: selectedFiles,
+      products: taggedProducts,
+      location: location.trim(),
+      audience,
+      hideLikes: hideLikes ? 'true' : undefined,
+      disableComments: disableComments ? 'true' : undefined,
+      postType: selectedFiles.length > 1 ? 'carousel' : 'post',
+    });
 
-      // Clear draft on successful publish
-      try {
-        localStorage.removeItem('post_draft');
-      } catch {/* ignore */}
-
-      // Show success animation before redirecting
-      setPublishing(false);
-      setPublishSuccess(true);
-      setTimeout(() => {
-        toast.success(i18n.t('create_post.publicacionCreada', 'Publicación creada'), {
-          action: postId ? {
-            label: i18n.t('create_post.verEnElFeed', 'Ver en el feed'),
-            onClick: () => navigate(`/posts/${postId}`)
-          } : undefined,
-          duration: 4000
-        });
-        navigate(postId ? `/posts/${postId}` : '/');
-      }, 800);
-    } catch (err) {
-      abortControllerRef.current = null;
-      // If user cancelled, don't show error
-      if (err?.name === 'AbortError' || err?.name === 'CanceledError') return;
-      const detail = err?.response?.data?.detail;
-      const msg = typeof detail === 'string' ? detail : i18n.t('create_post.errorAlPublicarCompruebaTuConexion', 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.');
-      toast.error(msg, {
-        duration: 5000
-      });
-      setPublishing(false);
-      setPublishError(true);
-      setUploadProgress(0);
-    }
+    if (navigator.vibrate) navigator.vibrate(50);
+    setPublishSuccess(true);
+    setTimeout(() => navigate('/'), 600);
   };
 
   /* ── text overlay helpers ── */
@@ -576,6 +533,7 @@ export default function CreatePostPage() {
         <div className="flex items-center justify-between px-4 shrink-0 h-[52px]">
           <button onClick={() => {
         if (hasFiles && !window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
+        if (hasFiles) trackEvent('create_abandoned', { type: 'post', step });
         navigate(-1);
       }} className="bg-transparent border-none cursor-pointer p-1" aria-label="Cerrar">
             <X size={22} className="text-white" />
@@ -743,7 +701,7 @@ export default function CreatePostPage() {
             }} exit={{
               opacity: 0
             }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-white px-4 py-1.5 rounded-full text-[13px] font-semibold pointer-events-none z-[3]">
-                  {activeFilter.emoji} {activeFilter.name}
+                  {activeFilter.name}
                 </motion.div>}
             </AnimatePresence>
             {/* vignette overlay */}
@@ -802,6 +760,7 @@ export default function CreatePostPage() {
               <div className="flex gap-2.5 overflow-x-auto pb-3">
                 {FILTERS.map(f => <div key={f.name} onClick={() => {
               setActiveFilter(f);
+              if (f.name !== 'Natural') trackEvent('create_filter_applied', { filter_name: f.name });
               if (navigator.vibrate) navigator.vibrate(10);
             }} className="shrink-0 cursor-pointer text-center">
                     <div className="w-14 h-14 rounded-xl overflow-hidden transition-all duration-150" style={{
@@ -812,7 +771,7 @@ export default function CreatePostPage() {
                   filter: f.css === 'none' ? 'none' : f.css
                 }} loading="lazy" />}
                     </div>
-                    <span className="text-[10px] text-white/70 mt-1 block">{f.emoji} {f.name}</span>
+                    <span className="text-[10px] text-white/70 mt-1 block">{f.name}</span>
                   </div>)}
               </div>
               <div className="flex items-center gap-2.5 py-1">
@@ -1133,6 +1092,7 @@ export default function CreatePostPage() {
                   id: pid,
                   name: p.name || p.title
                 }]);
+                trackEvent('create_product_tagged', { product_id: pid });
               }
               setShowProductSearch(false);
               setSearchQuery('');

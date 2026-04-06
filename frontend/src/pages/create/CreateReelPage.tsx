@@ -6,37 +6,31 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { trackEvent } from '../../utils/analytics';
+import { useUploadQueue } from '../../context/UploadQueueContext';
 const FILTERS = [{
   name: 'Natural',
-  emoji: '✨',
   value: 'none'
 }, {
   name: 'Amanecer',
-  emoji: '🌅',
   value: 'sepia(0.25) saturate(1.3) brightness(1.08)'
 }, {
   name: 'Lonja',
-  emoji: '🌊',
   value: 'hue-rotate(10deg) saturate(1.15) brightness(1.05) contrast(1.05)'
 }, {
   name: 'Huerta',
-  emoji: '🌿',
   value: 'saturate(1.35) contrast(1.05) brightness(1.03)'
 }, {
   name: 'Miel',
-  emoji: '🍯',
   value: 'sepia(0.2) saturate(1.2) brightness(1.1)'
 }, {
   name: 'Trufa',
-  emoji: '🌑',
   value: 'contrast(1.25) brightness(0.88) saturate(1.1)'
 }, {
   name: 'Mate',
-  emoji: '🪨',
   value: 'saturate(0.75) brightness(1.1) contrast(0.95)'
 }, {
   name: 'Antiguo',
-  emoji: '📜',
   value: 'sepia(0.45) saturate(0.8) brightness(1.05)'
 }];
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.5, 2];
@@ -51,6 +45,7 @@ const fmt = s => {
 };
 export default function CreateReelPage() {
   const navigate = useNavigate();
+  const { enqueueAndProcess } = useUploadQueue();
   const [screen, setScreen] = useState('upload');
   const [uploadTab, setUploadTab] = useState('subir');
   const [videoFile, setVideoFile] = useState(null);
@@ -131,6 +126,7 @@ export default function CreateReelPage() {
     setVideoUrl(URL.createObjectURL(file));
     setVideoFile(file);
     setScreen('edit');
+    trackEvent('create_started', { type: 'reel' });
     e.target.value = '';
   }, []);
   const togglePlay = useCallback(() => {
@@ -347,6 +343,7 @@ export default function CreateReelPage() {
             privacy: audience,
             savedAt: Date.now()
           }));
+          trackEvent('create_draft_saved', { type: 'reel' });
         }
       } catch {/* quota exceeded or private mode */}
     }, 500);
@@ -373,73 +370,34 @@ export default function CreateReelPage() {
       toast.error(i18n.t('create_reel.elPuntoDeInicioDelRecorteNoPuede', 'El punto de inicio del recorte no puede ser mayor o igual al de fin.'));
       return;
     }
-    setPublishing(true);
-    setPublishError(false);
-    setUploadProgress(0);
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-    try {
-      const fd = new FormData();
-      fd.append('file', videoFile);
-      fd.append('caption', caption);
-      if (location.trim()) fd.append('location', location.trim());
-      fd.append('playback_rate', String(speed));
-      fd.append('muted', String(isMuted));
-      fd.append('audience', audience);
-      if (activeFilter !== 'none') fd.append('filter', activeFilter);
-      if (trimStart > 0) fd.append('trim_start_seconds', String(trimStart.toFixed(2)));
-      if (trimEnd > 0 && trimEnd <= duration) fd.append('trim_end_seconds', String(trimEnd.toFixed(2)));
-      if (thumbnailIndex > 0 && duration > 0) {
-        fd.append('cover_frame_seconds', String(duration / 5 * thumbnailIndex));
-      }
-      if (textOverlays.length > 0) {
-        fd.append('text_overlays_json', JSON.stringify(textOverlays));
-      }
-      if (taggedProducts.length) {
-        fd.append('tagged_products_json', JSON.stringify(taggedProducts.map(p => ({
-          product_id: p.id
-        }))));
-      }
-      if (coverFromGallery) {
-        fd.append('cover_image', coverFromGallery);
-      }
-      const res = await apiClient.post('/reels', fd, {
-        signal: controller.signal,
-        onUploadProgress: e => {
-          if (e.total) setUploadProgress(Math.round(e.loaded / e.total * 100));
-        }
-      });
-      abortControllerRef.current = null;
-      setUploadProgress(100);
-      const postId = res?.id || res?.post?.id || res?.data?.id;
-      if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
-      try {
-        localStorage.removeItem('reel_draft');
-      } catch {/* ignore */}
-      setPublishing(false);
-      setPublishSuccess(true);
-      setTimeout(() => {
-        toast.success('Reel publicado', {
-          action: postId ? {
-            label: i18n.t('create_reel.verEnElFeed', 'Ver en el feed'),
-            onClick: () => navigate(`/posts/${postId}`)
-          } : undefined,
-          duration: 4000
-        });
-        navigate(postId ? `/posts/${postId}` : '/');
-      }, 1200);
-    } catch (err) {
-      abortControllerRef.current = null;
-      if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
-      const detail = err?.response?.data?.detail;
-      const msg = typeof detail === 'string' ? detail : i18n.t('create_reel.errorAlPublicarElReelCompruebaTu', 'Error al publicar el reel. Comprueba tu conexión e inténtalo de nuevo.');
-      toast.error(msg, {
-        duration: 5000
-      });
-      setPublishing(false);
-      setPublishError(true);
-      setUploadProgress(0);
-    }
+    // Clear draft
+    try { localStorage.removeItem('reel_draft'); } catch {/* ignore */}
+
+    trackEvent('create_published', { type: 'reel', has_products: taggedProducts.length > 0, has_location: !!location.trim() });
+
+    // Build publish data for the upload queue
+    const publishPayload: Record<string, any> = {
+      contentType: 'reel',
+      caption,
+      files: [videoFile],
+      products: taggedProducts,
+      location: location.trim(),
+      playback_rate: String(speed),
+      muted: String(isMuted),
+      audience,
+    };
+    if (activeFilter !== 'none') publishPayload.filter = activeFilter;
+    if (trimStart > 0) publishPayload.trim_start_seconds = String(trimStart.toFixed(2));
+    if (trimEnd > 0 && trimEnd <= duration) publishPayload.trim_end_seconds = String(trimEnd.toFixed(2));
+    if (thumbnailIndex > 0 && duration > 0) publishPayload.cover_frame_seconds = String(duration / 5 * thumbnailIndex);
+    if (textOverlays.length > 0) publishPayload.text_overlays_json = JSON.stringify(textOverlays);
+    if (coverFromGallery) publishPayload.cover_image = coverFromGallery;
+
+    enqueueAndProcess(publishPayload);
+
+    if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+    setPublishSuccess(true);
+    setTimeout(() => navigate('/'), 600);
   }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience, isMuted, trimStart, trimEnd, duration, taggedProducts, coverFromGallery]);
 
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
@@ -447,7 +405,7 @@ export default function CreateReelPage() {
     return <div className="fixed inset-0 z-50 bg-black flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Cerrar">
+          <button onClick={() => { if (videoFile) trackEvent('create_abandoned', { type: 'reel', step: screen }); navigate(-1); }} className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Cerrar">
             <X className="text-white w-[22px] h-[22px]" />
           </button>
           <span className="text-white text-[15px] font-medium">Nuevo Reel</span>
@@ -803,7 +761,7 @@ export default function CreateReelPage() {
                       Cancelar
                     </button>
                     <button onClick={addTextOverlay} className="flex-1 bg-white text-black border-none rounded-2xl py-3 text-[13px] font-semibold cursor-pointer min-h-[44px]">
-                      ✓ Confirmar
+                      Confirmar
                     </button>
                   </div>
                 </div>}
@@ -815,6 +773,7 @@ export default function CreateReelPage() {
             const isActive = activeFilter === f.value;
             return <button key={f.name} onClick={() => {
               setActiveFilter(f.value);
+              if (f.name !== 'Natural') trackEvent('create_filter_applied', { filter_name: f.name });
               if (navigator.vibrate) navigator.vibrate(10);
             }} className="flex flex-col items-center gap-1.5 flex-shrink-0 snap-start bg-transparent border-none cursor-pointer p-0" aria-label={`Filtro ${f.name}`} aria-pressed={isActive}>
                     <div className={`w-16 h-20 rounded-2xl overflow-hidden transition-all duration-150 ${isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-105' : 'opacity-70 hover:opacity-100'}`}>
@@ -1026,6 +985,7 @@ export default function CreateReelPage() {
                   id: pid,
                   name: p.name || p.title
                 }]);
+                trackEvent('create_product_tagged', { product_id: pid });
               }
               setShowProductSearch(false);
               setProductQuery('');

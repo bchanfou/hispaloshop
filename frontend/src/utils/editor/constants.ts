@@ -70,14 +70,14 @@ export const STORY_EMOJI_CATEGORIES: Record<string, string[]> = {
   Símbolos: ['✅','❌','📦','🏷️','💰','🛒','🏪'],
 };
 
-// Story certification stickers
+// Story certification stickers — icon is the Lucide icon name used in the picker
 export const STORY_CERTIFICATIONS = [
-  { emoji: '🌿', label: 'Ecológico EU' },
-  { emoji: '🏆', label: 'DOP' },
-  { emoji: '🥇', label: 'IGP' },
-  { emoji: '☪️', label: 'Halal' },
-  { emoji: '🌾', label: 'Sin gluten' },
-  { emoji: '🌱', label: 'Vegano' },
+  { icon: 'Leaf', label: 'Ecológico EU' },
+  { icon: 'Trophy', label: 'DOP' },
+  { icon: 'Award', label: 'IGP' },
+  { icon: 'Shield', label: 'Halal' },
+  { icon: 'WheatOff', label: 'Sin gluten' },
+  { icon: 'Sprout', label: 'Vegano' },
 ];
 
 // Story phrase stickers
