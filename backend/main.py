@@ -58,6 +58,7 @@ from routes.admin_fiscal import router as admin_fiscal_router
 from routes.subscriptions import router as legacy_subscriptions_router
 from routes.customer import router as legacy_customer_router
 from routes.wishlist import router as legacy_wishlist_router
+from routes.wishlists import router as wishlists_router
 from routes.notifications import router as legacy_notifications_router
 from routes.uploads import router as legacy_uploads_router
 from routes.certificates import router as legacy_certificates_router
@@ -200,6 +201,7 @@ app.include_router(admin_fiscal_router, prefix="/api", tags=["admin-fiscal"])
 app.include_router(legacy_subscriptions_router, prefix="/api", tags=["subscriptions"])
 app.include_router(legacy_customer_router, prefix="/api", tags=["customer"])
 app.include_router(legacy_wishlist_router, prefix="/api", tags=["wishlist"])
+app.include_router(wishlists_router, prefix="/api", tags=["wishlists"])
 app.include_router(legacy_notifications_router, prefix="/api", tags=["notifications"])
 app.include_router(legacy_uploads_router, prefix="/api", tags=["uploads"])
 app.include_router(legacy_certificates_router, prefix="/api", tags=["certificates"])

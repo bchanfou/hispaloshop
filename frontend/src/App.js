@@ -169,6 +169,9 @@ const CustomerAIPreferences = lazy(() => import('./pages/customer/CustomerAIPref
 const CustomerFollowedStores = lazy(() => import('./pages/customer/CustomerFollowedStores'));
 const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPredictions'));
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
+const WishlistsPage = lazy(() => import('./pages/WishlistsPage'));
+const WishlistDetailPage = lazy(() => import('./pages/WishlistDetailPage'));
+const WishlistSharedPage = lazy(() => import('./pages/WishlistSharedPage'));
 
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
 const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
@@ -435,6 +438,9 @@ function AppRouter() {
               <Route path="/drafts" element={<ProtectedRoute><DraftsPage /></ProtectedRoute>} />
               <Route path="/saved" element={<ProtectedRoute><SavedPage /></ProtectedRoute>} />
               <Route path="/guardados" element={<Navigate to="/saved" replace />} />
+              <Route path="/wishlists" element={<ProtectedRoute><WishlistsPage /></ProtectedRoute>} />
+              <Route path="/wishlists/:wishlistId" element={<ProtectedRoute><WishlistDetailPage /></ProtectedRoute>} />
+              <Route path="/w/:slug" element={<WishlistSharedPage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />

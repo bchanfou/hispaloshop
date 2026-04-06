@@ -3825,5 +3825,26 @@
     "aunNoHayResenasSeElPrimero": "No reviews yet. Be the first!",
     "tuResena": "Your review",
     "enviarResena": "Submit review"
+  },
+  "wishlists": {
+    "title": "Saved & lists",
+    "create_list": "Create new list",
+    "favorites": "Favorites",
+    "items_count": "{{count}} products",
+    "public": "Public",
+    "private": "Private",
+    "empty": "Save products you like to find them easily",
+    "list_empty": "This list is empty",
+    "not_found": "This list doesn't exist or is private",
+    "buy_all": "Buy all available",
+    "purchased": "Purchased",
+    "mark_purchased": "Mark as purchased",
+    "copy_link": "Copy link",
+    "link_copied": "Link copied",
+    "share": "Share",
+    "save_in": "Save to...",
+    "new_list": "New list",
+    "done": "Done",
+    "login_to_buy": "Log in to buy"
   }
 }

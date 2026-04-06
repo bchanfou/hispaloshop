@@ -5590,5 +5590,26 @@
     "avg_order": "medio",
     "wellness_label": "Bienestar",
     "error_loading": "No pudimos cargar los datos."
+  },
+  "wishlists": {
+    "title": "Guardados y listas",
+    "create_list": "Crear nueva lista",
+    "favorites": "Favoritos",
+    "items_count": "{{count}} productos",
+    "public": "Pública",
+    "private": "Privada",
+    "empty": "Guarda productos que te gusten para encontrarlos fácil",
+    "list_empty": "Esta lista está vacía",
+    "not_found": "Esta lista no existe o es privada",
+    "buy_all": "Comprar todos los disponibles",
+    "purchased": "Comprado",
+    "mark_purchased": "Marcar como comprado",
+    "copy_link": "Copiar enlace",
+    "link_copied": "Enlace copiado",
+    "share": "Compartir",
+    "save_in": "Guardar en...",
+    "new_list": "Nueva lista",
+    "done": "Hecho",
+    "login_to_buy": "Inicia sesión para comprar"
   }
 }

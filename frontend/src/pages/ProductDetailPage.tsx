@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import AddToWishlistModal from '../components/wishlist/AddToWishlistModal';
 import SEO from '../components/SEO';
 import SocialProofBar from '../components/product/SocialProofBar';
 import ProductImage from '../components/ui/ProductImage.tsx';
@@ -93,6 +94,7 @@ export default function ProductDetailPage() {
   } = useProductPurchaseOptions(productId);
 
   const [reviewSort, setReviewSort] = useState('recent');
+  const [showWishlistModal, setShowWishlistModal] = useState(false);
   const {
     reviews, averageRating, totalReviews, distribution,
     canReview, canReviewReason, reviewOrderId,
@@ -342,7 +344,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-[100px]">
+    <><div className="min-h-screen bg-stone-50 pb-[100px]">
       <SEO
         title={product.name || 'Producto'}
         description={product.description?.slice(0, 160) || ''}
@@ -374,7 +376,7 @@ export default function ProductDetailPage() {
             </button>
             <button
               type="button"
-              onClick={toggleWishlist}
+              onClick={() => user ? setShowWishlistModal(true) : toggleWishlist()}
               disabled={wishlistLoading}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
               aria-label={inWishlist ? t('product_detail.quitarDeFavoritos', 'Quitar de favoritos') : t('product_detail.anadirAFavoritos', 'Añadir a favoritos')}
@@ -1452,5 +1454,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
     </div>
+    {product && <AddToWishlistModal isOpen={showWishlistModal} onClose={() => setShowWishlistModal(false)} productId={product.product_id} productName={product.name} />}
+    </>
   );
 }
