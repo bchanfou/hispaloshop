@@ -459,7 +459,7 @@ async def run_full_verification(user_id: str) -> dict:
                 {"creator_id": user_id, "type": "producer", "is_active": {"$ne": False}}
             )
             if not existing_community:
-                store_name = user_doc.get("company_name") or user_doc.get("name", "Mi tienda")
+                store_name = user.get("company_name") or user.get("name", "Mi tienda")
                 slug_base = store_name.lower().replace(" ", "-")[:30]
                 import re as _re
                 slug_base = _re.sub(r"[^a-z0-9-]", "", slug_base) or f"producer-{user_id[:8]}"
@@ -477,13 +477,13 @@ async def run_full_verification(user_id: str) -> dict:
                     "emoji": "",
                     "category": "Productores",
                     "tags": [],
-                    "cover_image": user_doc.get("store_cover_image") or user_doc.get("profile_image"),
-                    "logo_url": user_doc.get("profile_image"),
+                    "cover_image": user.get("store_cover_image") or user.get("profile_image"),
+                    "logo_url": user.get("profile_image"),
                     "rules": [],
                     "type": "producer",
                     "is_auto_created": True,
                     "creator_id": user_id,
-                    "creator_username": user_doc.get("username") or user_doc.get("name", ""),
+                    "creator_username": user.get("username") or user.get("name", ""),
                     "member_count": 1,
                     "post_count": 0,
                     "created_at": _dt.now(_tz.utc).isoformat(),
@@ -495,7 +495,7 @@ async def run_full_verification(user_id: str) -> dict:
                     await db.community_members.insert_one({
                         "community_id": str(community_doc["_id"]),
                         "user_id": user_id,
-                        "username": user_doc.get("username") or user_doc.get("name", ""),
+                        "username": user.get("username") or user.get("name", ""),
                         "is_admin": True,
                         "role": "creator",
                         "is_seller": True,

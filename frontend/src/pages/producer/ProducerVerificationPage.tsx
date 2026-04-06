@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Upload, Loader2, AlertCircle, Clock, Building2, Camer
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 
 /* ── Country-specific document config ────────────────────── */
 const DOC_LABELS_BY_COUNTRY = {
@@ -151,6 +152,23 @@ export default function ProducerVerificationPage() {
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
+  // Track verification state transitions
+  const prevVerifiedRef = useRef(null);
+  useEffect(() => {
+    if (!vs) return;
+    if (prevVerifiedRef.current === null) {
+      prevVerifiedRef.current = vs.is_verified;
+      return;
+    }
+    if (vs.is_verified && !prevVerifiedRef.current) {
+      trackEvent('producer_verified');
+    }
+    if (vs.blocked_from_selling && vs.block_reason && !vs.admin_review_required && !prevVerifiedRef.current) {
+      trackEvent('producer_verification_rejected');
+    }
+    prevVerifiedRef.current = vs.is_verified;
+  }, [vs]);
+
   // Polling while any doc is pending
   useEffect(() => {
     if (!vs) return;
@@ -161,6 +179,20 @@ export default function ProducerVerificationPage() {
     const id = setInterval(fetchStatus, 2000);
     return () => clearInterval(id);
   }, [vs, fetchStatus]);
+
+  // Track submission (all 3 doc types uploaded at least once)
+  const submittedRef = useRef(false);
+  useEffect(() => {
+    if (!vs || submittedRef.current) return;
+    const d = vs.documents || {};
+    const hasCif = !!d.cif_nif?.status;
+    const hasFacility = !!d.facility_photo?.status;
+    const hasCert = (d.certificates || []).length > 0;
+    if (hasCif && hasFacility && hasCert) {
+      submittedRef.current = true;
+      trackEvent('producer_verification_submitted');
+    }
+  }, [vs]);
 
   // Derived
   const docs = vs?.documents || {};
@@ -190,6 +222,7 @@ export default function ProducerVerificationPage() {
       const fd = new FormData();
       fd.append('file', file);
       await apiClient.post('/verification/cif-nif', fd);
+      trackEvent('producer_document_uploaded', { doc_type: 'cif_nif', country: userCountry });
       await fetchStatus();
       toast.success(t('producer_verification.docUploadedOk', 'Documento subido correctamente'));
     } catch {
@@ -205,6 +238,7 @@ export default function ProducerVerificationPage() {
       const fd = new FormData();
       fd.append('file', file);
       await apiClient.post('/verification/facility-photo', fd);
+      trackEvent('producer_document_uploaded', { doc_type: 'facility_photo' });
       await fetchStatus();
       toast.success(t('producer_verification.facilityUploadedOk', 'Foto de instalaciones subida correctamente'));
     } catch {
@@ -221,6 +255,7 @@ export default function ProducerVerificationPage() {
       fd.append('file', file);
       fd.append('cert_type', selectedCertType);
       await apiClient.post('/verification/certificate', fd);
+      trackEvent('producer_document_uploaded', { doc_type: selectedCertType });
       await fetchStatus();
       toast.success(t('producer_verification.certUploadedOk', 'Certificado subido correctamente'));
     } catch {

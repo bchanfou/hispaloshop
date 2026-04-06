@@ -8,6 +8,7 @@ import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../utils/analytics';
 
 /* ── Password strength helper ── */
 function getPasswordStrength(pw) {
@@ -258,6 +259,9 @@ export default function RegisterPage() {
 
   const doRegister = async () => {
     setIsLoading(true);
+    if (activeRole === 'producer' || activeRole === 'importer') {
+      trackEvent('producer_registration_started', { role: activeRole, country: form.country });
+    }
 
     const birthDate = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
     const roleConfig = ROLES.find(r => r.key === activeRole);
@@ -292,6 +296,9 @@ export default function RegisterPage() {
       if (data?.user) {
         if (data.session_token || data.access_token) {
           setToken(data.session_token || data.access_token, data.refresh_token);
+        }
+        if (activeRole === 'producer' || activeRole === 'importer') {
+          trackEvent('producer_registration_completed', { role: activeRole, country: form.country });
         }
         // Navigate based on role
         const destinations = {
