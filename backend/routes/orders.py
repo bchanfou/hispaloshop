@@ -2484,21 +2484,33 @@ async def get_order_tracking(order_id: str, user: User = Depends(get_current_use
 
 @router.post("/orders/{order_id}/cancel")
 async def cancel_order(order_id: str, user: User = Depends(get_current_user)):
-    """Legacy cancel endpoint for frontend compatibility."""
+    """Cancel an order — only allowed when status is 'paid' (before producer starts preparing)."""
     order = await get_order(order_id, user)
     current_status = (order.get("status") or "").lower()
-    if current_status in {"delivered", "cancelled", "refunded"}:
-        raise HTTPException(status_code=400, detail="Este pedido no se puede cancelar")
+    if current_status not in {"pending", "paid"}:
+        raise HTTPException(
+            status_code=400,
+            detail="El productor ya ha empezado a preparar tu pedido. Si necesitas cancelar, contacta con soporte y lo gestionamos.",
+        )
 
     await db.orders.update_one(
         {"order_id": order_id, "user_id": user.user_id},
         {
             "$set": {
                 "status": "cancelled",
+                "cancelled_at": datetime.now(timezone.utc).isoformat(),
                 "updated_at": datetime.now(timezone.utc).isoformat(),
             }
         },
     )
+
+    # Notify via dispatcher (respects quiet hours + push)
+    try:
+        from routes.notifications import notify_order_event
+        await notify_order_event(order_id, "order_cancelled")
+    except Exception:
+        pass  # non-critical
+
     return {"success": True, "status": "cancelled"}
 
 

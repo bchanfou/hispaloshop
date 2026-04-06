@@ -364,6 +364,26 @@ async def notify_order_event(order_id: str, event_type: str, **kwargs):
                 f"Deja tu reseña sobre el pedido #{short_id}.",
             ),
         },
+        "order_cancelled": {
+            "consumer": (
+                "Pedido cancelado",
+                f"Tu pedido #{short_id} ha sido cancelado.",
+            ),
+            "producer": (
+                "Pedido cancelado por el cliente",
+                f"El cliente ha cancelado el pedido #{short_id}.",
+            ),
+        },
+        "order_refunded": {
+            "consumer": (
+                "Reembolso en proceso",
+                f"El reembolso de tu pedido #{short_id} se está procesando. Lo verás en tu cuenta en 5-10 días hábiles.",
+            ),
+            "producer": (
+                "Reembolso procesado",
+                f"Se ha procesado un reembolso para el pedido #{short_id}.",
+            ),
+        },
     }
 
     event = EVENT_MAP.get(event_type, {})

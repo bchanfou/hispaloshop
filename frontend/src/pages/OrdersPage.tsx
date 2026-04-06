@@ -1,248 +1,336 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Truck, ChevronRight, ExternalLink, Loader2, Clock, CheckCircle, X, RefreshCw } from 'lucide-react';
+import {
+  ArrowLeft, Package, Truck, ChevronRight, ExternalLink,
+  Loader2, Clock, CheckCircle, X, RefreshCw, CreditCard,
+  PackageCheck, Star,
+} from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
+import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import i18n from "../locales/i18n";
-const TABS = [{
-  id: 'active',
-  label: 'En curso'
-}, {
-  id: 'completed',
-  label: 'Completados'
-}, {
-  id: 'cancelled',
-  label: 'Cancelados'
-}];
-const STATUS_BADGES = {
-  pending: {
-    label: 'Pendiente',
-    Icon: Clock,
-    cls: 'bg-stone-100 text-stone-400'
-  },
-  confirmed: {
-    label: 'Confirmado',
-    Icon: CheckCircle,
-    cls: 'bg-stone-100 text-stone-700'
-  },
-  preparing: {
-    label: 'Preparando',
-    Icon: Package,
-    cls: 'bg-stone-100 text-stone-700'
-  },
-  processing: {
-    label: 'Procesando',
-    Icon: Package,
-    cls: 'bg-stone-100 text-stone-700'
-  },
-  shipped: {
-    label: 'En camino',
-    Icon: Truck,
-    cls: 'bg-stone-100 text-stone-700'
-  },
-  in_transit: {
-    label: 'En camino',
-    Icon: Truck,
-    cls: 'bg-stone-100 text-stone-700'
-  },
-  delivered: {
-    label: 'Entregado',
-    Icon: Package,
-    cls: 'bg-stone-950 text-white'
-  },
-  cancelled: {
-    label: 'Cancelado',
-    Icon: X,
-    cls: 'bg-stone-100 text-stone-400'
-  },
-  refunded: {
-    label: 'Reembolsado',
-    Icon: RefreshCw,
-    cls: 'bg-stone-100 text-stone-400'
-  }
+import { trackEvent } from '../utils/analytics';
+
+/* ── Status config ── */
+const STATUS_BADGES: Record<string, { label: string; labelKey: string; Icon: any; cls: string }> = {
+  pending:    { label: 'Pendiente',   labelKey: 'order_tracking.status_pending',    Icon: Clock,        cls: 'bg-stone-100 text-stone-400' },
+  paid:       { label: 'Pagado',      labelKey: 'order_tracking.status_paid',       Icon: CreditCard,   cls: 'bg-stone-100 text-stone-700' },
+  confirmed:  { label: 'Confirmado',  labelKey: 'order_tracking.status_confirmed',  Icon: CheckCircle,  cls: 'bg-stone-100 text-stone-700' },
+  preparing:  { label: 'Preparando',  labelKey: 'order_tracking.status_preparing',  Icon: Package,      cls: 'bg-stone-100 text-stone-700' },
+  processing: { label: 'Procesando',  labelKey: 'order_tracking.status_processing', Icon: Package,      cls: 'bg-stone-100 text-stone-700' },
+  shipped:    { label: 'En camino',   labelKey: 'order_tracking.status_shipped',    Icon: Truck,        cls: 'bg-stone-100 text-stone-700' },
+  in_transit: { label: 'En camino',   labelKey: 'order_tracking.status_shipped',    Icon: Truck,        cls: 'bg-stone-100 text-stone-700' },
+  delivered:  { label: 'Entregado',   labelKey: 'order_tracking.status_delivered',  Icon: PackageCheck, cls: 'bg-stone-950 text-white' },
+  cancelled:  { label: 'Cancelado',   labelKey: 'order_tracking.status_cancelled',  Icon: X,            cls: 'bg-stone-100 text-stone-400' },
+  refunded:   { label: 'Reembolsado', labelKey: 'order_tracking.status_refunded',   Icon: RefreshCw,    cls: 'bg-stone-100 text-stone-400' },
 };
-function StatusBadge({
-  status
-}) {
-  const badge = STATUS_BADGES[status] || {
-    label: status,
-    Icon: Package,
-    cls: 'bg-stone-100 text-stone-400'
-  };
-  const {
-    Icon
-  } = badge;
-  return <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${badge.cls}`}>
+
+const ACTIVE_STATUSES = ['pending', 'paid', 'confirmed', 'preparing', 'processing', 'shipped', 'in_transit'];
+const PAST_STATUSES = ['delivered', 'completed', 'cancelled', 'refunded'];
+const PAGE_SIZE = 20;
+
+function StatusBadge({ status, t }: { status: string; t: any }) {
+  const badge = STATUS_BADGES[status] || { label: status, labelKey: '', Icon: Package, cls: 'bg-stone-100 text-stone-400' };
+  const { Icon } = badge;
+  const label = badge.labelKey ? t(badge.labelKey, badge.label) : badge.label;
+  return (
+    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${badge.cls}`}>
       <Icon size={11} strokeWidth={2.5} />
-      {badge.label}
-    </span>;
+      {label}
+    </span>
+  );
 }
-function formatDate(dateStr) {
+
+function formatDate(dateStr: string | undefined, language: string = 'es') {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
+  const locale = language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : 'es-ES';
+  return new Date(dateStr).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
 }
+
 export default function OrdersPage() {
   const navigate = useNavigate();
-  const {
-    user,
-    loading: authLoading
-  } = useAuth();
-  const [orders, setOrders] = useState([]);
+  const { user, loading: authLoading } = useAuth();
+  const { convertAndFormatPrice, language } = useLocale();
+  const { t } = useTranslation();
+
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [activeTab, setActiveTab] = useState('active');
-  const loadOrders = async () => {
-    setLoading(true);
-    setFetchError(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'past'>('all');
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [total, setTotal] = useState(0);
+
+  const statusFilter = useMemo(() => {
+    if (activeTab === 'active') return ACTIVE_STATUSES.join(',');
+    if (activeTab === 'past') return PAST_STATUSES.join(',');
+    return undefined;
+  }, [activeTab]);
+
+  const loadOrders = useCallback(async (skip = 0, append = false) => {
+    if (!append) { setLoading(true); setFetchError(false); }
+    else setLoadingMore(true);
+
     try {
-      const data = await apiClient.get('/customer/orders');
-      setOrders(Array.isArray(data) ? data : data?.orders || []);
+      const params = new URLSearchParams();
+      params.set('skip', String(skip));
+      params.set('limit', String(PAGE_SIZE));
+      if (statusFilter) params.set('status', statusFilter);
+
+      const data = await apiClient.get(`/customer/orders?${params.toString()}`);
+      const fetched = Array.isArray(data) ? data : data?.orders || [];
+      const totalCount = data?.total ?? fetched.length;
+
+      if (append) {
+        setOrders(prev => [...prev, ...fetched]);
+      } else {
+        setOrders(fetched);
+      }
+      setTotal(totalCount);
+      setHasMore(data?.has_more ?? (skip + PAGE_SIZE < totalCount));
     } catch {
-      setOrders([]);
-      setFetchError(true);
+      if (!append) { setOrders([]); setFetchError(true); }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [statusFilter]);
+
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      navigate('/login', {
-        replace: true
-      });
-      return;
+    if (!user) { navigate('/login', { replace: true }); return; }
+    loadOrders(0, false);
+  }, [user, authLoading, navigate, loadOrders]);
+
+  // Analytics: track tab view
+  useEffect(() => {
+    if (!loading && !fetchError) {
+      trackEvent('orders_viewed', { tab: activeTab, count: orders.length });
     }
-    loadOrders();
-  }, [user, authLoading, navigate]);
-  const filtered = useMemo(() => {
-    const activeStatuses = ['pending', 'confirmed', 'preparing', 'processing', 'shipped', 'in_transit'];
-    const completedStatuses = ['delivered'];
-    const cancelledStatuses = ['cancelled', 'refunded'];
-    return orders.filter(o => {
-      const s = (o.status || '').toLowerCase();
-      if (activeTab === 'active') return activeStatuses.includes(s);
-      if (activeTab === 'completed') return completedStatuses.includes(s);
-      return cancelledStatuses.includes(s);
-    });
-  }, [orders, activeTab]);
-  return <div className="min-h-screen bg-stone-50">
+  }, [activeTab, loading, fetchError]);
+
+  const handleLoadMore = () => {
+    loadOrders(orders.length, true);
+  };
+
+  const handleReorder = async (e: React.MouseEvent, orderId: string) => {
+    e.stopPropagation();
+    try {
+      const result = await apiClient.post(`/customer/orders/${orderId}/reorder`, {});
+      const skipped = result?.skipped || [];
+      const priceChanged = result?.price_changed || [];
+      if (skipped.length > 0) {
+        toast(t('order_tracking.some_out_of_stock', '{{items}} no disponible(s)', { items: skipped.join(', ') }));
+      }
+      if (priceChanged.length > 0) {
+        toast(t('order_tracking.price_changed', 'El precio de {{items}} ha cambiado', { items: priceChanged.join(', ') }));
+      }
+      toast.success(t('order_tracking.reorder_success', 'Productos añadidos al carrito'));
+      trackEvent('order_reordered', { order_id: orderId, items_count: result?.added || 0 });
+      navigate('/cart');
+    } catch {
+      toast.error(t('order_tracking.reorder_error', 'Error al volver a pedir'));
+    }
+  };
+
+  const TABS = [
+    { id: 'all' as const,    label: t('order_tracking.tab_all', 'Todos') },
+    { id: 'active' as const, label: t('order_tracking.tab_active', 'Activos') },
+    { id: 'past' as const,   label: t('order_tracking.tab_past', 'Pasados') },
+  ];
+
+  return (
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
       <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
-        <button onClick={() => navigate(-1)} className="bg-transparent border-none cursor-pointer p-1 flex" aria-label="Volver">
+        <button onClick={() => navigate(-1)} className="bg-transparent border-none cursor-pointer p-1 flex" aria-label={t('common.back', 'Volver')}>
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[17px] font-bold text-stone-950">Mis pedidos</span>
+        <span className="text-[17px] font-bold text-stone-950">
+          {t('order_tracking.my_orders', 'Mis pedidos')}
+        </span>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-stone-200 bg-white">
-        {TABS.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 py-3 text-sm bg-transparent border-none cursor-pointer transition-all duration-150 ${activeTab === tab.id ? 'font-semibold text-stone-950 border-b-2 border-stone-950' : 'font-normal text-stone-500 border-b-2 border-transparent'}`}>
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 py-3 text-sm bg-transparent border-none cursor-pointer transition-all duration-150 ${
+              activeTab === tab.id
+                ? 'font-semibold text-stone-950 border-b-2 border-stone-950'
+                : 'font-normal text-stone-500 border-b-2 border-transparent'
+            }`}
+          >
             {tab.label}
-          </button>)}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
-      <div className="px-4 pt-4 pb-[100px] max-w-[600px] mx-auto">
-        {loading ? <div className="flex justify-center py-12">
+      <div className="px-4 pt-4 pb-[100px] max-w-[800px] mx-auto">
+        {loading ? (
+          <div className="flex justify-center py-12">
             <Loader2 size={28} className="text-stone-500 animate-spin" />
-          </div> : fetchError ? (/* Error state */
-      <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
             <Package size={64} className="text-stone-500" strokeWidth={1} />
             <p className="text-[15px] text-stone-500 text-center">
-              No pudimos cargar tus pedidos
+              {t('order_tracking.load_error', 'No pudimos cargar tus pedidos')}
             </p>
-            <button onClick={loadOrders} className="px-6 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-semibold border-none cursor-pointer">
-              Reintentar
+            <button
+              onClick={() => loadOrders(0, false)}
+              className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold border-none cursor-pointer"
+            >
+              {t('common.retry', 'Reintentar')}
             </button>
-          </div>) : filtered.length === 0 ? (/* Empty state */
-      <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
             <Package size={64} className="text-stone-500" strokeWidth={1} />
             <p className="text-[15px] text-stone-500 text-center">
-              No tienes pedidos {activeTab === 'active' ? 'en curso' : activeTab === 'completed' ? 'completados' : 'cancelados'}
+              {t('order_tracking.empty_state', 'Aun no has hecho ningun pedido. Descubre productos increibles.')}
             </p>
-            <Link to="/explore" className="px-6 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-semibold no-underline">
-              Explorar productos
+            <Link
+              to="/discover"
+              className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold no-underline"
+            >
+              {t('order_tracking.discover_cta', 'Descubrir productos')}
             </Link>
-          </div>) : <div className="flex flex-col gap-3">
-            {filtered.map(order => {
-          const orderId = order.order_id || order.id || order._id;
-          const ref = `#HSP-${String(orderId).slice(-4).toUpperCase()}`;
-          const items = order.items || order.line_items || [];
-          const status = (order.status || '').toLowerCase();
-          const isShipped = status === 'shipped' || status === 'in_transit';
-          const totalNum = order.total ? order.total / 100 : order.total_amount ? Number(order.total_amount) : 0;
-          const total = new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: order.currency || 'EUR'
-          }).format(totalNum);
-          const isDelivered = status === 'delivered';
-          return <div key={orderId} className="bg-white border border-stone-200 rounded-2xl p-4 cursor-pointer transition-all duration-150" onClick={() => navigate(`/dashboard/orders/${orderId}`)}>
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="text-[15px] font-semibold text-stone-950 m-0">{ref}</p>
-                      <p className="text-xs text-stone-500 mt-0.5 m-0">{formatDate(order.created_at)}</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col gap-3">
+              {orders.map(order => {
+                const orderId = order.order_id || order.id || order._id;
+                const ref = `#HSP-${String(orderId).slice(-4).toUpperCase()}`;
+                const items = order.items || order.line_items || [];
+                const status = (order.status || '').toLowerCase();
+                const isShipped = status === 'shipped' || status === 'in_transit';
+                const isDelivered = status === 'delivered';
+                const totalNum = order.total_cents
+                  ? order.total_cents / 100
+                  : order.total_amount
+                    ? Number(order.total_amount)
+                    : 0;
+                const cur = order.currency || 'EUR';
+
+                return (
+                  <div
+                    key={orderId}
+                    className="bg-white border border-stone-200 rounded-2xl p-4 cursor-pointer transition-all duration-150 hover:border-stone-300"
+                    onClick={() => navigate(`/dashboard/orders/${orderId}`)}
+                  >
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <p className="text-[15px] font-semibold text-stone-950 m-0">{ref}</p>
+                        <p className="text-xs text-stone-500 mt-0.5 m-0">{formatDate(order.created_at, language)}</p>
+                      </div>
+                      <StatusBadge status={status} t={t} />
                     </div>
-                    <StatusBadge status={status} />
-                  </div>
 
-                  {/* Items preview */}
-                  <div className="flex items-center gap-2 mb-3">
-                    {items.slice(0, 2).map((item, i) => <div key={i} className="flex items-center gap-1.5">
-                        <div className="w-10 h-10 rounded-xl bg-stone-100 overflow-hidden shrink-0">
-                          {(item.image || item.product_image) && <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover" />}
+                    {/* Items preview */}
+                    <div className="flex items-center gap-2 mb-3">
+                      {items.slice(0, 2).map((item: any, i: number) => (
+                        <div key={i} className="flex items-center gap-1.5">
+                          <div className="w-10 h-10 rounded-xl bg-stone-100 overflow-hidden shrink-0">
+                            {(item.image || item.product_image) && (
+                              <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]">
+                              {item.name || item.product_name}
+                            </p>
+                            <p className="text-[11px] text-stone-500 m-0">x{item.quantity}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]">
-                            {item.name || item.product_name}
-                          </p>
-                          <p className="text-[11px] text-stone-500 m-0">x{item.quantity}</p>
-                        </div>
-                      </div>)}
-                    {items.length > 2 && <span className="text-xs text-stone-500 font-medium">+{items.length - 2} más</span>}
-                  </div>
+                      ))}
+                      {items.length > 2 && (
+                        <span className="text-xs text-stone-500 font-medium">
+                          +{items.length - 2} {t('order_tracking.more_items', 'mas')}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Shipping row */}
-                  {isShipped && <div className="flex items-center gap-1.5 px-3 py-2 mb-3 bg-stone-100 rounded-xl text-[13px] text-stone-950">
-                      <Truck size={16} />
-                      <span>En camino</span>
-                      {order.carrier && <span>· {order.carrier}</span>}
-                      {order.tracking_url && <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="ml-auto flex items-center gap-0.5 font-semibold text-stone-950 no-underline">
-                          Rastrear <ExternalLink size={12} />
-                        </a>}
-                    </div>}
+                    {/* Shipping row */}
+                    {isShipped && (
+                      <div className="flex items-center gap-1.5 px-3 py-2 mb-3 bg-stone-100 rounded-xl text-[13px] text-stone-950">
+                        <Truck size={16} />
+                        <span>{t('order_tracking.status_shipped', 'En camino')}</span>
+                        {order.carrier && <span>· {order.carrier}</span>}
+                        {order.tracking_url && (
+                          <a
+                            href={order.tracking_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => { e.stopPropagation(); trackEvent('order_tracking_clicked', { order_id: orderId }); }}
+                            className="ml-auto flex items-center gap-0.5 font-semibold text-stone-950 no-underline"
+                          >
+                            {t('order_tracking.track', 'Rastrear')} <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                    )}
 
-                  {/* Footer */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-[15px] font-semibold text-stone-950">{total}</span>
-                    <div className="flex items-center gap-2">
-                      {isDelivered && <button onClick={async e => {
-                  e.stopPropagation();
-                  try {
-                    await apiClient.post(`/customer/orders/${orderId}/reorder`, {});
-                    toast.success(i18n.t('customer_orders.productosAnadidosAlCarrito', 'Productos añadidos al carrito'));
-                  } catch (err) {
-                    toast.error(err?.message || 'Error al volver a pedir');
-                  }
-                }} className="px-3.5 py-1.5 bg-stone-950 text-white rounded-full text-xs font-semibold border-none cursor-pointer">
-                          Volver a pedir
-                        </button>}
-                      <span className="flex items-center gap-1 text-[13px] font-semibold text-stone-500">
-                        Ver detalles <ChevronRight size={16} />
+                    {/* Footer */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[15px] font-semibold text-stone-950">
+                        {convertAndFormatPrice(totalNum, cur)}
                       </span>
+                      <div className="flex items-center gap-2">
+                        {isDelivered && (
+                          <>
+                            <Link
+                              to={items[0]?.product_id ? `/product/${items[0].product_id}#reviews` : '#'}
+                              onClick={e => e.stopPropagation()}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950 no-underline"
+                            >
+                              <Star size={12} />
+                              {t('order_tracking.leave_review', 'Resena')}
+                            </Link>
+                            <button
+                              onClick={e => handleReorder(e, orderId)}
+                              className="px-3.5 py-1.5 bg-stone-950 text-white rounded-full text-xs font-semibold border-none cursor-pointer"
+                            >
+                              {t('order_tracking.reorder', 'Volver a pedir')}
+                            </button>
+                          </>
+                        )}
+                        <span className="flex items-center gap-1 text-[13px] font-semibold text-stone-500">
+                          {t('order_tracking.view_details', 'Ver detalles')} <ChevronRight size={16} />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>;
-        })}
-          </div>}
+                );
+              })}
+            </div>
+
+            {/* Load more */}
+            {hasMore && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2.5 bg-white border border-stone-200 rounded-full text-sm font-semibold text-stone-950 cursor-pointer"
+                >
+                  {loadingMore ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    t('order_tracking.load_more', 'Cargar mas pedidos')
+                  )}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </div>;
+    </div>
+  );
 }

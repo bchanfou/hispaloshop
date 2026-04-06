@@ -67,19 +67,24 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
     cart_items = list(cart.get("items", [])) if cart else []
 
     added = 0
+    skipped = []
+    price_changed = []
     for item in order.get("line_items", []):
         product = await db.products.find_one(
             {"product_id": item.get("product_id")},
-            {"_id": 0, "stock": 1, "status": 1, "price_cents": 1, "price": 1,
+            {"_id": 0, "stock": 1, "stock_quantity": 1, "status": 1, "price_cents": 1, "price": 1,
              "name": 1, "images": 1, "seller_id": 1, "producer_id": 1}
         )
+        item_name = item.get("product_name") or item.get("name", "Producto")
         if not product or product.get("status") != "active":
+            skipped.append(item_name)
             continue
 
         # Check stock availability
         stock = product.get("stock_quantity", product.get("stock"))
         if stock is not None and stock <= 0:
-            continue  # Skip out-of-stock products
+            skipped.append(item_name)
+            continue
 
         product_id = item.get("product_id", "")
         variant_id = item.get("variant_id")
@@ -88,12 +93,15 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
         # Cap at available stock
         if stock is not None:
             quantity = min(quantity, stock)
-        unit_price_cents = item.get("price_cents") or int(round((item.get("price", 0)) * 100))
+        old_price_cents = item.get("price_cents") or int(round((item.get("price", 0)) * 100))
+        unit_price_cents = old_price_cents
         # Prefer current product price over stale order price
         if product.get("price_cents"):
             unit_price_cents = product["price_cents"]
         elif product.get("price"):
             unit_price_cents = int(round(product["price"] * 100))
+        if unit_price_cents != old_price_cents and old_price_cents > 0:
+            price_changed.append(item_name)
 
         # Check if already in cart — match by product+variant+pack (not just product_id)
         existing_idx = None
@@ -139,7 +147,12 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
             "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
         })
 
-    return {"added": added, "message": f"{added} productos agregados al carrito"}
+    return {
+        "added": added,
+        "skipped": skipped,
+        "price_changed": price_changed,
+        "message": f"{added} productos agregados al carrito",
+    }
 
 @router.post("/customer/orders/{order_id}/review")
 async def submit_order_review(
@@ -212,9 +225,12 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
     order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    cancellable = ["pending", "processing", "paid", "confirmed"]
+    cancellable = ["pending", "paid"]
     if order["status"] not in cancellable:
-        raise HTTPException(status_code=400, detail="Este pedido no se puede cancelar porque ya está en preparación o enviado")
+        raise HTTPException(
+            status_code=400,
+            detail="El productor ya ha empezado a preparar tu pedido. Si necesitas cancelar, contacta con soporte y lo gestionamos.",
+        )
     await db.orders.update_one({"order_id": order_id}, {"$set": {
         "status": "cancelled",
         "cancelled_at": datetime.now(timezone.utc).isoformat(),
@@ -251,25 +267,12 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
             }}
         )
 
-    # Notify producer(s) about cancellation
-    producer_ids = set(item.get("producer_id") for item in order.get("line_items", []) if item.get("producer_id"))
-    for pid in producer_ids:
-        try:
-            await db.notifications.insert_one({
-                "user_id": pid,
-                "type": "order_update",
-                "title": "Pedido cancelado",
-                "body": f"El pedido #{order_id[-8:]} ha sido cancelado por el cliente.",
-                "action_url": "/producer/orders",
-                "data": {"order_id": order_id},
-                "channels": ["in_app"],
-                "status_by_channel": {"in_app": "sent"},
-                "read_at": None,
-                "created_at": datetime.now(timezone.utc),
-                "sent_at": datetime.now(timezone.utc),
-            })
-        except Exception:
-            pass  # non-critical
+    # Notify consumer + producer(s) via dispatcher (respects quiet hours + push)
+    try:
+        from routes.notifications import notify_order_event
+        await notify_order_event(order_id, "order_cancelled")
+    except Exception:
+        pass  # non-critical
 
     return {"message": "Pedido cancelado correctamente"}
 
