@@ -59,6 +59,7 @@ class CreateCommunityBody(BaseModel):
     cover_image: Optional[str] = None
     logo_url: Optional[str] = None
     rules: List[str] = []
+    type: str = "open"  # "open" (user-created) or "producer" (auto-created)
 
 
 class CreatePostBody(BaseModel):
@@ -424,12 +425,14 @@ async def create_community(body: CreateCommunityBody, request: Request):
     if followers_count < 100 and not is_verified_seller:
         raise HTTPException(403, "Necesitas al menos 100 seguidores o ser vendedor verificado")
 
-    # Rate limit: max 3 communities per user
-    user_community_count = await db.communities.count_documents(
-        {"creator_id": user.user_id, "is_active": {"$ne": False}}
-    )
-    if user_community_count >= 3:
-        raise HTTPException(429, "No puedes crear más de 3 comunidades")
+    # Rate limit: max 3 open communities per user (producer communities don't count)
+    community_type = body.type if body.type in ("open", "producer") else "open"
+    if community_type == "open":
+        open_community_count = await db.communities.count_documents(
+            {"creator_id": user.user_id, "type": {"$in": ["open", None]}, "is_active": {"$ne": False}}
+        )
+        if open_community_count >= 3:
+            raise HTTPException(429, "No puedes crear más de 3 comunidades")
 
     # Check slug uniqueness
     existing = await db.communities.find_one({"slug": body.slug})
@@ -447,6 +450,8 @@ async def create_community(body: CreateCommunityBody, request: Request):
         "cover_image": body.cover_image,
         "logo_url": body.logo_url,
         "rules": [sanitize_text(r)[:200] for r in body.rules[:10]],
+        "type": community_type,
+        "is_auto_created": community_type == "producer",
         "creator_id": user.user_id,
         "creator_username": getattr(user, "username", None) or user.name,
         "member_count": 1,

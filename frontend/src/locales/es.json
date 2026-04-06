@@ -2924,7 +2924,14 @@
     "contenidoRelacionadoConAlimentacionY": "Contenido relacionado con alimentación y gastronomía",
     "sinSpamNiPublicidadNoAutorizada": "Sin spam ni publicidad no autorizada",
     "sinBebidasAlcoholicas": "Sin bebidas alcohólicas",
-    "elAdminPuedeEliminarPostsQueNoCum": "El admin puede eliminar posts que no cumplan las normas"
+    "elAdminPuedeEliminarPostsQueNoCum": "El admin puede eliminar posts que no cumplan las normas",
+    "chat_activated": "Chat de la comunidad activado",
+    "chat_already_joined": "Ya estás en el chat de la comunidad",
+    "activate_chat": "Chat",
+    "producer_badge": "Comunidad del productor",
+    "open_badge": "Comunidad abierta",
+    "type_producer": "Productor",
+    "type_open": "Abierta"
   },
   "user_profile": {
     "errorAlCargarTusStories": "Error al cargar tus stories",

@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { trackEvent } from '../utils/analytics';
 import { useTranslation } from 'react-i18next';
 
 // Pre-declare slugify so it's available before the component body
@@ -265,6 +266,7 @@ export default function CreateCommunityPage() {
       };
       const data = await apiClient.post('/communities', payload);
       toast.success(i18n.t('create_community.comunidadCreada', '¡Comunidad creada!'));
+      trackEvent('community_created', { type: 'open' });
       navigate(`/communities/${data.slug || form.slug}`);
     } catch (err) {
       const detail = err?.response?.data?.detail || err?.detail;

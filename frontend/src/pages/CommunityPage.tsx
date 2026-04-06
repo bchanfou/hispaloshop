@@ -4,7 +4,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X, Heart, MessageCircle, Share, MoreHorizontal, Image, PackageSearch, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X, Heart, MessageCircle, MessageSquare, Share, MoreHorizontal, Image, PackageSearch, Trash2 } from 'lucide-react';
+import { trackEvent } from '../utils/analytics';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +64,7 @@ export default function CommunityPage() {
     if (!communityId) return;
     // Record visit server-side
     apiClient.post(`/communities/${communityId}/visit`).catch(() => {});
+    trackEvent('community_viewed', { community_id: communityId });
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         hiddenAtRef.current = Date.now();
@@ -211,6 +213,18 @@ export default function CommunityPage() {
               </span>}
           </div>
           <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
+          {isMember && <button type="button" onClick={async () => {
+            try {
+              await apiClient.post('/chat/groups/community', { community_id: community.id || community._id });
+              trackEvent('community_chat_joined', { community_id: community.id || community._id });
+              toast.success(i18n.t('community.chat_activated', 'Chat de la comunidad activado'));
+            } catch (err) {
+              if (err?.response?.status === 409) toast(i18n.t('community.chat_already_joined', 'Ya estás en el chat'));
+              else toast.error('Error');
+            }
+          }} className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-700 cursor-pointer hover:bg-stone-50 transition-colors shrink-0">
+            <MessageSquare size={14} /> {i18n.t('community.activate_chat', 'Chat')}
+          </button>}
         </div>
 
         {community.description && <p className="text-sm text-stone-600 leading-snug m-0 mb-2">{community.description}</p>}
@@ -299,8 +313,10 @@ const JoinButton = ({
     try {
       if (wasJoined) {
         await apiClient.delete(`/communities/${communityId}/join`);
+        trackEvent('community_left', { community_id: communityId });
       } else {
         await apiClient.post(`/communities/${communityId}/join`);
+        trackEvent('community_joined', { community_id: communityId });
       }
       onToggle?.();
     } catch {
@@ -482,6 +498,7 @@ const CommunityPostForm = ({
         image_url: imageUrl,
         product_ids: selectedProducts.map(p => p.id || p._id),
       });
+      trackEvent('community_post_created', { community_id: communityId });
       onSuccess();
     } catch {
       toast.error('Error al publicar');

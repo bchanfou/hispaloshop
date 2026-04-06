@@ -3793,5 +3793,19 @@
     "avg_order": "평균",
     "wellness_label": "건강",
     "error_loading": "데이터를 불러올 수 없습니다."
+  },
+  "community": {
+    "chat_activated": "커뮤니티 채팅 활성화됨",
+    "chat_already_joined": "이미 커뮤니티 채팅에 참여 중",
+    "activate_chat": "채팅",
+    "producer_badge": "생산자 커뮤니티",
+    "open_badge": "오픈 커뮤니티",
+    "type_producer": "생산자",
+    "type_open": "오픈",
+    "errorAlActualizarMembresia": "멤버십 업데이트 오류",
+    "salirDeLaComunidad": "커뮤니티 나가기",
+    "seElPrimeroEnPublicarAlgo": "첫 번째로 게시해보세요!",
+    "aunNoHayPosts": "아직 게시물이 없습니다",
+    "normasDeLaComunidad": "커뮤니티 규칙"
   }
 }

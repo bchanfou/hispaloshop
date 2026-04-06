@@ -439,6 +439,58 @@ async def run_full_verification(user_id: str) -> dict:
         except Exception as e:
             logger.warning(f"[VERIFICATION] Could not send approval notification to {user_id}: {e}")
 
+        # Auto-create producer community if none exists
+        try:
+            existing_community = await db.communities.find_one(
+                {"creator_id": user_id, "type": "producer", "is_active": {"$ne": False}}
+            )
+            if not existing_community:
+                store_name = user_doc.get("company_name") or user_doc.get("name", "Mi tienda")
+                slug_base = store_name.lower().replace(" ", "-")[:30]
+                import re as _re
+                slug_base = _re.sub(r"[^a-z0-9-]", "", slug_base) or f"producer-{user_id[:8]}"
+                # Ensure slug uniqueness
+                slug = slug_base
+                counter = 0
+                while await db.communities.find_one({"slug": slug}):
+                    counter += 1
+                    slug = f"{slug_base}-{counter}"
+                from datetime import datetime as _dt, timezone as _tz
+                await db.communities.insert_one({
+                    "name": store_name,
+                    "slug": slug,
+                    "description": f"Comunidad oficial de {store_name}",
+                    "emoji": "",
+                    "category": "Productores",
+                    "tags": [],
+                    "cover_image": user_doc.get("store_cover_image") or user_doc.get("profile_image"),
+                    "logo_url": user_doc.get("profile_image"),
+                    "rules": [],
+                    "type": "producer",
+                    "is_auto_created": True,
+                    "creator_id": user_id,
+                    "creator_username": user_doc.get("username") or user_doc.get("name", ""),
+                    "member_count": 1,
+                    "post_count": 0,
+                    "created_at": _dt.now(_tz.utc).isoformat(),
+                    "is_active": True,
+                })
+                # Add creator as member
+                community_doc = await db.communities.find_one({"slug": slug})
+                if community_doc:
+                    await db.community_members.insert_one({
+                        "community_id": str(community_doc["_id"]),
+                        "user_id": user_id,
+                        "username": user_doc.get("username") or user_doc.get("name", ""),
+                        "is_admin": True,
+                        "role": "creator",
+                        "is_seller": True,
+                        "joined_at": _dt.now(_tz.utc).isoformat(),
+                    })
+                logger.info(f"[VERIFICATION] Auto-created producer community '{slug}' for {user_id}")
+        except Exception as e:
+            logger.warning(f"[VERIFICATION] Failed to auto-create community for {user_id}: {e}")
+
     elif any_low_confidence or any_cert_low:
         # Manual review needed
         reasons = []

@@ -3789,5 +3789,19 @@
     "avg_order": "average",
     "wellness_label": "Wellness",
     "error_loading": "Could not load the data."
+  },
+  "community": {
+    "chat_activated": "Community chat activated",
+    "chat_already_joined": "Already in the community chat",
+    "activate_chat": "Chat",
+    "producer_badge": "Producer community",
+    "open_badge": "Open community",
+    "type_producer": "Producer",
+    "type_open": "Open",
+    "errorAlActualizarMembresia": "Error updating membership",
+    "salirDeLaComunidad": "Leave community",
+    "seElPrimeroEnPublicarAlgo": "Be the first to post something!",
+    "aunNoHayPosts": "No posts yet",
+    "normasDeLaComunidad": "Community rules"
   }
 }
