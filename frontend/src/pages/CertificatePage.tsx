@@ -8,6 +8,7 @@ import BackButton from '../components/BackButton';
 import { useProductDetail } from '../features/products/hooks/useProductDetail';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { trackEvent } from '../utils/analytics';
 
 import {
   CertHeader,
@@ -102,7 +103,20 @@ export default function CertificatePage() {
     )
   );
 
+  // Track certificate view once
+  useEffect(() => {
+    if (product?.product_id) {
+      trackEvent('certificate_viewed', {
+        product_id: product.product_id,
+        language: certLang,
+        is_qr_scan: isQrScan,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.product_id]);
+
   const handleBuy = () => {
+    trackEvent('certificate_buy_clicked', { product_id: productId, language: certLang });
     if (storeSlug) navigate(`/store/${storeSlug}?product=${productId}`);
     else navigate(`/products/${productId}`);
   };

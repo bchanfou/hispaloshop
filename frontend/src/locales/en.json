@@ -1387,7 +1387,7 @@
     "nutrient": "Nutrient",
     "value": "Value",
     "countryOfProduction": "Country of Production",
-    "aboutProducer": "About the Seller",
+    "aboutProducer": "About the producer",
     "certificateId": "Certificate ID",
     "nutritionLabels": {
       "energy": "Energy",
@@ -1409,7 +1409,19 @@
     "status": "Status",
     "verifiedStatus": "Verified",
     "madeIn": "Proudly Made in",
-    "notFoundDesc": "This certificate could not be found"
+    "notFoundDesc": "We could not find the certificate for this product.",
+    "viewTitle": "Digital certificate",
+    "buyOnline": "Buy online",
+    "viewStore": "View store",
+    "scannedTimes": "Scanned {{n}} times",
+    "poweredBy": "Verified by HispaloShop",
+    "notFound": "Certificate not found",
+    "ingredients": "Ingredients",
+    "allergens": "Allergens",
+    "noAllergens": "No allergens declared",
+    "nutrition": "Nutritional information",
+    "certifications": "Certifications",
+    "downloadQr": "Download QR"
   },
   "errors": {
     "generic": "An error occurred. Please try again.",

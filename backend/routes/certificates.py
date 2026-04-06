@@ -126,7 +126,7 @@ async def get_certificate(product_id: str, lang: Optional[str] = None):
     return cert
 
 @router.get("/certificates/{cert_id}/verify")
-async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
+async def verify_certificate(cert_id: str, lang: Optional[str] = "es", request: Request = None):
     """
     Public verification endpoint for certificate QR codes.
     Returns certificate data translated to the requested language.
@@ -148,14 +148,38 @@ async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
 
-    # Increment verification scan counter (fire-and-forget)
+    # Increment verification scan counter + record detailed analytics (fire-and-forget)
+    now_iso = datetime.now(timezone.utc).isoformat()
     try:
         await target_collection.update_one(
             {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
-            {"$inc": {"scan_count": 1}, "$set": {"last_scanned_at": datetime.now(timezone.utc).isoformat()}},
+            {"$inc": {"scan_count": 1}, "$set": {"last_scanned_at": now_iso}},
         )
     except Exception:
         pass
+
+    # Section 1.4b: detailed scan analytics for producer dashboard
+    try:
+        # Detect country from IP (reuse the geo helper from config.py)
+        from routes.config import _client_ip, _hash_ip
+        scan_ip = _client_ip(request) if hasattr(request, 'headers') else ""
+        geo_country = None
+        if scan_ip:
+            try:
+                cached_geo = await db.ip_geo_cache.find_one({"ip_hash": _hash_ip(scan_ip)}, {"_id": 0, "country": 1})
+                geo_country = (cached_geo or {}).get("country")
+            except Exception:
+                pass
+        asyncio.create_task(db.certificate_scans.insert_one({
+            "product_id": cert.get("product_id"),
+            "certificate_id": cert.get("certificate_id") or cert_id,
+            "scanned_at": now_iso,
+            "language": lang,
+            "country": geo_country,
+            "user_agent": (request.headers.get("user-agent") or "")[:200] if hasattr(request, 'headers') else None,
+        }))
+    except Exception:
+        pass  # Analytics must never block the response
 
     # Get product info for enrichment
     product = await db.products.find_one(
@@ -704,6 +728,78 @@ async def translate_certificate(input: TranslateCertificateInput, user: User = D
         raise HTTPException(status_code=404, detail="Certificate not found")
     
     return cert
+
+@router.post("/translate/on-demand")
+async def translate_on_demand(
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    """
+    Generic on-demand text translation (section 1.4b).
+
+    Used by future "Translate" button in feed posts, reviews, bios.
+    Rate limited: 20 req/min per user. Uses the existing TranslationService
+    with 3-tier cache (Redis → MongoDB → Google API).
+
+    Request body: { "text": "...", "source_lang": "es", "target_lang": "ko" }
+    Response:     { "translated": "...", "from_cache": false, "confidence": "high" }
+    """
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    source_lang = (body.get("source_lang") or "es").strip()[:5]
+    target_lang = (body.get("target_lang") or "en").strip()[:5]
+
+    if not text:
+        raise HTTPException(status_code=400, detail="Text is required")
+    if len(text) > 5000:
+        raise HTTPException(status_code=400, detail="Text exceeds 5000 character limit")
+    if target_lang not in TRANSLATION_LANGUAGES:
+        raise HTTPException(status_code=400, detail=f"Unsupported target language. Supported: {TRANSLATION_LANGUAGES}")
+    if source_lang == target_lang:
+        return {"translated": text, "from_cache": True, "confidence": "high"}
+
+    # Check cache first
+    cached = await db.translation_cache.find_one(
+        {"source_text": text, "source_lang": source_lang, f"translations.{target_lang}": {"$exists": True}},
+        {"_id": 0, f"translations.{target_lang}": 1},
+    )
+    if cached:
+        translated_text = cached.get("translations", {}).get(target_lang)
+        if translated_text:
+            # Increment usage count (fire-and-forget)
+            asyncio.create_task(db.translation_cache.update_one(
+                {"source_text": text, "source_lang": source_lang},
+                {"$inc": {"usage_count": 1}, "$set": {"last_used": datetime.now(timezone.utc).isoformat()}},
+            ))
+            return {"translated": translated_text, "from_cache": True, "confidence": "high"}
+
+    # Cache miss — translate via TranslationService (Google API with its own cache)
+    try:
+        translated = await TranslationService.translate_text(text, source_lang, target_lang)
+        # Save in our on-demand cache for reuse
+        await db.translation_cache.update_one(
+            {"source_text": text, "source_lang": source_lang},
+            {
+                "$set": {
+                    f"translations.{target_lang}": translated,
+                    "last_used": datetime.now(timezone.utc).isoformat(),
+                },
+                "$setOnInsert": {
+                    "source_text": text,
+                    "source_lang": source_lang,
+                    "category": "on_demand",
+                    "confidence": "high",
+                    "usage_count": 1,
+                    "first_seen": datetime.now(timezone.utc).isoformat(),
+                },
+            },
+            upsert=True,
+        )
+        return {"translated": translated, "from_cache": False, "confidence": "high"}
+    except Exception as exc:
+        logger.warning("[TRANSLATE] On-demand translation failed: %s", exc)
+        return {"translated": text, "from_cache": False, "confidence": "low"}
+
 
 @router.get("/translate/status/{product_id}")
 async def get_translation_status(product_id: str):

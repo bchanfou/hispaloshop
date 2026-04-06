@@ -1326,7 +1326,7 @@
     "nutrient": "ì˜ì–‘ì†Œ",
     "value": "ê°’",
     "countryOfProduction": "ìƒì‚°êµ­",
-    "aboutProducer": "ìƒì‚°ìž ì†Œê°œ",
+    "aboutProducer": "생산자 소개",
     "certificateId": "ì¸ì¦ì„œ ID",
     "nutritionLabels": {
       "energy": "ì—ë„ˆì§€",
@@ -1348,7 +1348,19 @@
     "status": "ìƒíƒœ",
     "verifiedStatus": "ì¸ì¦ë¨",
     "madeIn": "ìžëž‘ìŠ¤ëŸ½ê²Œ ì œì¡°",
-    "notFoundDesc": "ì´ ì¸ì¦ì„œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤"
+    "notFoundDesc": "이 제품의 인증서를 찾을 수 없습니다.",
+    "viewTitle": "디지털 인증서",
+    "buyOnline": "온라인 구매",
+    "viewStore": "매장 보기",
+    "scannedTimes": "{{n}}회 스캔됨",
+    "poweredBy": "HispaloShop 인증",
+    "notFound": "인증서를 찾을 수 없습니다",
+    "ingredients": "성분",
+    "allergens": "알레르기 유발 물질",
+    "noAllergens": "선언된 알레르기 유발 물질 없음",
+    "nutrition": "영양 정보",
+    "certifications": "인증",
+    "downloadQr": "QR 다운로드"
   },
   "errors": {
     "generic": "ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•˜ì„¸ìš”.",

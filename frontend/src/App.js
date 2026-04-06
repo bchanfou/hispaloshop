@@ -481,6 +481,8 @@ function AppRouter() {
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               {/* Public certificate pages — no auth required */}
               <Route path="/certificate/:productId" element={<CertificatePage />} />
+              {/* Short URL for QR codes on physical products (1.4b Digital Certificate) */}
+              <Route path="/c/:productId" element={<CertificatePage />} />
               <Route path="/certificado/:productId" element={<CertificatePage />} />
 
               <Route path="/que-es" element={<Navigate to="/landing/general" replace />} />
