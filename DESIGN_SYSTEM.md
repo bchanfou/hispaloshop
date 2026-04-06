@@ -214,18 +214,119 @@ Framer Motion para casi todo. Las CSS animations son para estados sin estado JS 
 
 ---
 
-## 10. Icons
+## 10. Icons & Iconography
 
+### Proveedor: Lucide React (exclusivo)
 **Lucide React** con stroke 2. No mezclar con otras librerías de iconos.
 
 | Tamaño | Clase | Uso |
 |---|---|---|
-| `w-4 h-4` (16px) | — | Inline con texto |
+| `w-4 h-4` (16px) | — | Inline con texto, badges, labels de sección |
 | `w-5 h-5` (20px) | — | Botones, metadata |
 | `w-6 h-6` (24px) | — | Headers, action bars |
 | `w-8 h-8` (32px) | — | Empty states, hero icons |
 
-**Regla**: si un icono va al lado de texto, usa el mismo color que el texto (`text-stone-950` para primary, `text-stone-500` para secondary).
+### 🚫 REGLA: ZERO EMOJIS en la UI visible
+
+**Los emojis estándar (🌱🍳🔥🏘️⚠️✅ etc.) están PROHIBIDOS** en cualquier
+superficie visible de la plataforma. Razones:
+- Inconsistentes entre dispositivos (Android vs iOS vs Windows)
+- Colores chillones que rompen el palette stone B&W
+- Aspecto vulgar que destruye el feel premium
+- No escalan ni se tematizan
+
+**Todo se reemplaza por Lucide Icons** en `text-stone-400` (sutil, Apple-like).
+
+### Opacidad de icons
+
+| Contexto | Color | Ejemplo |
+|---|---|---|
+| Icons de sección, labels, badges, metadata | `text-stone-400` | `<Leaf className="w-4 h-4 text-stone-400" />` |
+| Icons de acción (botones, CTAs, nav activa) | `text-stone-950` | `<ShoppingCart className="w-5 h-5 text-stone-950" />` |
+| Icons de estado pasivo (disabled, placeholder) | `text-stone-300` | `<Lock className="w-4 h-4 text-stone-300" />` |
+
+**Principio**: el icon es un acompañante sutil del texto, no el protagonista.
+El texto manda, el icon da reconocimiento visual rápido.
+
+### Mapeo de emojis → Lucide icons
+
+| Uso | ~~Emoji~~ | Lucide Icon | Import |
+|---|---|---|---|
+| Orgánico | ~~🌱~~ | `<Leaf />` | `lucide-react` |
+| km0 / Local | ~~📍~~ | `<MapPin />` | `lucide-react` |
+| Vegano | ~~🥬~~ | `<Sprout />` | `lucide-react` |
+| Halal | ~~☪️~~ | `<Shield />` | `lucide-react` |
+| Sin gluten | ~~🚫~~ | `<WheatOff />` | `lucide-react` |
+| Nuevo | ~~🆕~~ | `<Sparkles />` | `lucide-react` |
+| Popular / Trending | ~~🔥~~ | `<TrendingUp />` | `lucide-react` |
+| Verificado | ~~✅~~ | `<BadgeCheck />` | `lucide-react` |
+| Carrito | ~~🛒~~ | `<ShoppingCart />` | `lucide-react` |
+| Guardar | ~~♡~~ | `<Heart />` | `lucide-react` |
+| Compartir | ~~↗️~~ | `<Share2 />` | `lucide-react` |
+| Recetas | ~~🍳~~ | `<ChefHat />` | `lucide-react` |
+| Comunidades | ~~🏘️~~ | `<Users />` | `lucide-react` |
+| Nuevos usuarios | ~~✨~~ | `<UserPlus />` | `lucide-react` |
+| Mapa | ~~🗺️~~ | `<Map />` | `lucide-react` |
+| Alérgeno / Warning | ~~⚠️~~ | `<AlertTriangle />` | `lucide-react` |
+| Temporada | ~~🌱~~ | `<Sun />` (verano) / `<Snowflake />` (invierno) / `<Flower2 />` (primavera) / `<Leaf />` (otoño) | `lucide-react` |
+| Cerca de ti | ~~📍~~ | `<MapPin />` | `lucide-react` |
+| Para ti | ~~💡~~ | `<Lightbulb />` | `lucide-react` |
+| Creators | ~~🔥~~ | `<Star />` | `lucide-react` |
+
+### Badges de certificación: icon + texto
+
+Los badges de producto usan **Lucide icon (stone-400) + texto (stone-700)**:
+
+```jsx
+// ✅ Correcto — icon lineal + texto, premium feel
+<span className="inline-flex items-center gap-1 bg-stone-100 text-stone-700
+                  text-xs px-2.5 py-1 rounded-full">
+  <Leaf className="w-3.5 h-3.5 text-stone-400" />
+  Orgánico
+</span>
+
+// ❌ Incorrecto — emoji con color
+<span>🌱 Orgánico</span>
+
+// ❌ Incorrecto — icon demasiado prominente
+<span><Leaf className="w-4 h-4 text-stone-950" /> Orgánico</span>
+```
+
+### Section headers en Discover / páginas curadas
+
+```jsx
+// ✅ Correcto — icon sutil + texto prominente, Apple-like
+<div className="flex items-center gap-2">
+  <MapPin className="w-4 h-4 text-stone-400" />
+  <h2 className="text-lg font-semibold text-stone-950">Cerca de ti</h2>
+</div>
+
+// ❌ Incorrecto — emoji protagonista
+<h2>📍 Cerca de ti</h2>
+```
+
+### Única excepción: banderas de países
+
+Las **banderas de países** (🇪🇸 🇰🇷 🇺🇸 🇫🇷) son la **única excepción** aceptada.
+Razón: no existe alternativa visual aceptable en Lucide, y son universalmente
+reconocibles. Apple, Google, y Airbnb todas usan flag emojis.
+
+```jsx
+// ✅ OK — flag emoji para países
+<span>🇪🇸 España</span>
+
+// ❌ NO — flag emoji para otros usos
+<span>🇪🇸 ¡Producto español!</span>  // Usar texto, no flag como decoración
+```
+
+### Dónde aplicar (checklist de migración)
+
+Cuando se encuentre un emoji en la UI visible:
+1. Buscar el Lucide icon equivalente en la tabla de arriba
+2. Usar `w-3.5 h-3.5 text-stone-400` para inline con texto
+3. Usar `w-4 h-4 text-stone-400` para headers de sección
+4. Si no hay equivalente en Lucide, buscar el más cercano semánticamente
+5. Si no hay equivalente posible, usar solo texto (sin icon ni emoji)
 
 ---
 
