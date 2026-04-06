@@ -1,16 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
 import HomeHeader from './HomeHeader';
 import StoriesBar from './StoriesBar';
 import StoryViewer from './StoryViewer';
-import WeeklyGoalBar from '../gamification/WeeklyGoalBar';
-import ProductCard from '../ProductCard';
 import { useAuth } from '../../context/AuthContext';
 import { useFeedTab } from '../../context/FeedTabContext';
-import apiClient from '../../services/api/client';
+import { trackEvent } from '../../utils/analytics';
 
 /**
  * FeedContainer — "Para ti" / "Siguiendo" tabbed feed with stories bar
@@ -18,35 +16,11 @@ import apiClient from '../../services/api/client';
 function FeedContainer() {
   const { user } = useAuth();
   // Feed tab state — persisted across navigations via context
-  const { activeTab: feedTab, setActiveTab: setFeedTab } = useFeedTab();
-
-  // Gamification profile for weekly goal
-  const { data: gamifProfile } = useQuery({
-    queryKey: ['gamification', 'profile'],
-    queryFn: () => apiClient.get('/gamification/profile'),
-    enabled: !!user,
-    staleTime: 60_000,
-  });
-
-  // Personalized product recommendations (graceful — hidden on error)
-  const { data: forYouProducts } = useQuery({
-    queryKey: ['products-for-you'],
-    queryFn: async () => {
-      try {
-        const data = await apiClient.get('/discovery/recommended?limit=10');
-        return Array.isArray(data) ? data : (data?.products || data?.items || []);
-      } catch (error) {
-        if (error?.status === 404) {
-          const data = await apiClient.get('/products?recommended=true&limit=10');
-          return Array.isArray(data) ? data : (data?.products || data?.items || []);
-        }
-        throw error;
-      }
-    },
-    enabled: !!user,
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
+  const { activeTab: feedTab, setActiveTab: rawSetFeedTab } = useFeedTab();
+  const setFeedTab = useCallback((tab) => {
+    trackEvent('feed_tab_changed', { from: feedTab, to: tab });
+    rawSetFeedTab(tab);
+  }, [feedTab, rawSetFeedTab]);
 
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
@@ -73,36 +47,12 @@ function FeedContainer() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="mx-auto md:max-w-[500px] lg:max-w-[470px]">
+      <div className="mx-auto lg:max-w-[680px]">
       {/* Header with tab toggle */}
       <HomeHeader activeTab={feedTab} onTabChange={setFeedTab} />
 
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
-
-      {/* Weekly healthy goal */}
-      {gamifProfile && gamifProfile.weekly_goal_cents > 0 && (
-        <WeeklyGoalBar spent={gamifProfile.weekly_spent_cents} goal={gamifProfile.weekly_goal_cents} />
-      )}
-
-      {/* Personalized product carousel */}
-      {Array.isArray(forYouProducts) && forYouProducts.length > 0 && (
-        <div className="pb-2">
-          <div className="flex items-center justify-between px-4 mb-2">
-            <span className="text-sm font-semibold text-stone-950">Para ti</span>
-          </div>
-          <div
-            className="flex gap-3 overflow-x-auto px-4 pb-1"
-            style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
-          >
-            {forYouProducts.map((product) => (
-              <div key={product.product_id || product.id} className="shrink-0 w-[140px]" style={{ scrollSnapAlign: 'start' }}>
-                <ProductCard product={product} variant="compact" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Tabbed Feed */}
       <div>

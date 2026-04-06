@@ -3626,5 +3626,19 @@
     "this_week": "This week",
     "this_month": "This month",
     "older": "Older"
+  },
+  "feed": {
+    "welcome": "Welcome to HispaloShop",
+    "follow_to_see": "Follow producers to see their content here",
+    "for_you": "For you",
+    "following": "Following",
+    "promoted": "Promoted",
+    "empty_following": "Follow your first producer to see their content here",
+    "empty_following_cta": "Discover producers",
+    "up_to_date": "You're up to date",
+    "up_to_date_cta": "Discover more in Explore",
+    "explore_products": "Explore products",
+    "comments_count": "View all {{count}} comments",
+    "likes_count": "{{count}} likes"
   }
 }

@@ -4,19 +4,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Check, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
-import SuggestedUsersCard from './SuggestedUsersCard';
-import SponsoredProductCard from './SponsoredProductCard';
-import FeedRecipeCard from './FeedRecipeCard';
 import { useFollowingFeed, useLikePost, feedKeys } from '../../features/feed/queries';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
-import { useSponsoredContent } from '../../hooks/useSponsoredContent';
 
 /** Lightweight error boundary that silently hides a single broken feed item. */
 class FeedItemBoundary extends Component {
@@ -96,11 +92,9 @@ function FollowingFeed() {
   const error = feedQuery.error;
 
   // Suggested users dismissal (session-only)
-  const [dismissedSuggestions, setDismissedSuggestions] = useState(false);
+
 
   // Sponsored / promoted content
-  const { sponsoredProducts, recipes } = useSponsoredContent();
-  const [dismissedSponsored, setDismissedSponsored] = useState(new Set());
 
   const [modalPost, setModalPost] = useState(null);
   const handleCloseModal = useCallback(() => setModalPost(null), []);
@@ -228,17 +222,6 @@ function FollowingFeed() {
               const shouldAnimate = index < 5;
               const animDelay = shouldAnimate ? index * 0.05 : 0;
 
-              // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
-              const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
-
-              // Promoted product card every ~8 posts (positions 7, 15, 23...)
-              const sponsoredSlot = (index >= 7 && (index - 7) % 8 === 0) ? sponsoredProducts[Math.floor((index - 7) / 8) % Math.max(sponsoredProducts.length, 1)] : null;
-              const showSponsored = sponsoredSlot && sponsoredProducts.length > 0 && !dismissedSponsored.has(sponsoredSlot?.id);
-
-              // Recipe card every ~15 posts (positions 14, 29...)
-              const recipeSlot = (index >= 14 && (index - 14) % 15 === 0) ? recipes[Math.floor((index - 14) / 15) % Math.max(recipes.length, 1)] : null;
-              const showRecipe = recipeSlot && recipes.length > 0;
-
               const motionProps = shouldAnimate
                 ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
                 : {};
@@ -265,14 +248,7 @@ function FollowingFeed() {
                 return (
                   <FeedItemBoundary>
                     <div className="mb-2">
-                      {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
-                      {showSponsored && (
-                        <SponsoredProductCard
-                          product={sponsoredSlot}
-                          onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
-                        />
-                      )}
-                      {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
+
                       <motion.div {...motionProps}>
                         <ReelCard
                           reel={{
@@ -315,14 +291,6 @@ function FollowingFeed() {
               return (
                 <FeedItemBoundary>
                   <div className="mb-2">
-                    {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
-                    {showSponsored && (
-                      <SponsoredProductCard
-                        product={sponsoredSlot}
-                        onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
-                      />
-                    )}
-                    {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
                     <motion.div {...motionProps}>
                       <PostCard
                         post={{

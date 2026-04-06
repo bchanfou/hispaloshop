@@ -3,72 +3,16 @@ import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Check, TrendingUp, ShoppingBag, Heart } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
-import SuggestedUsersCard from './SuggestedUsersCard';
-import SponsoredProductCard from './SponsoredProductCard';
-import FeedRecipeCard from './FeedRecipeCard';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
 import apiClient from '../../services/api/client';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
-import { useSponsoredContent } from '../../hooks/useSponsoredContent';
-
-/* ── P-15: Weekly summary card (Sundays only) ── */
-function WeeklySummaryCard() {
-  const { t } = useTranslation();
-  const { data: weeklyStats } = useQuery({
-    queryKey: ['weekly-summary'],
-    queryFn: async () => {
-      try {
-        const res = await apiClient.get('/gamification/weekly-summary');
-        return res || {};
-      } catch { return {}; }
-    },
-    staleTime: 3_600_000,
-  });
-  const navigate = useNavigate();
-  const stats = weeklyStats || {};
-  const postsLiked = stats.posts_liked ?? stats.likes_given ?? 0;
-  const productsSaved = stats.products_saved ?? stats.saves ?? 0;
-  const ordersPlaced = stats.orders_placed ?? stats.orders ?? 0;
-
-  return (
-    <div className="mx-3 my-3 rounded-2xl bg-stone-950 p-5 text-white">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">{t('for_you_feed.tuSemanaEnHispaloshop', 'Tu semana en HispaloShop')}</p>
-      <p className="text-[15px] font-bold leading-snug mb-4">Resumen semanal</p>
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="flex flex-col items-center gap-1">
-          <Heart size={18} className="text-stone-300" />
-          <span className="text-lg font-bold">{postsLiked}</span>
-          <span className="text-[10px] text-stone-400">Likes</span>
-        </div>
-        <div className="flex flex-col items-center gap-1">
-          <ShoppingBag size={18} className="text-stone-300" />
-          <span className="text-lg font-bold">{productsSaved}</span>
-          <span className="text-[10px] text-stone-400">Guardados</span>
-        </div>
-        <div className="flex flex-col items-center gap-1">
-          <TrendingUp size={18} className="text-stone-300" />
-          <span className="text-lg font-bold">{ordersPlaced}</span>
-          <span className="text-[10px] text-stone-400">Pedidos</span>
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={() => navigate('/discover')}
-        className="w-full rounded-full bg-white text-stone-950 py-2 text-[13px] font-semibold border-none cursor-pointer hover:bg-stone-100 transition-colors"
-      >
-        Descubrir más
-      </button>
-    </div>
-  );
-}
 
 /** Lightweight error boundary that silently hides a single broken feed item. */
 class FeedItemBoundary extends Component {
@@ -110,11 +54,9 @@ export default function ForYouFeed() {
   const error = feedQuery.error;
 
   // Suggested users dismissal (session-only)
-  const [dismissedSuggestions, setDismissedSuggestions] = useState(false);
+
 
   // Sponsored / promoted content
-  const { sponsoredProducts, recipes } = useSponsoredContent();
-  const [dismissedSponsored, setDismissedSponsored] = useState(new Set());
 
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
@@ -224,10 +166,9 @@ export default function ForYouFeed() {
       ) : allPosts.length === 0 ? (
         <div className="px-4 py-8 space-y-6">
           <div className="text-center">
-            <p className="text-lg font-semibold text-stone-950">Bienvenido a HispaloShop</p>
-            <p className="text-sm text-stone-500 mt-1">{t('for_you_feed.sigueProductoresParaVerSuContenido', 'Sigue productores para ver su contenido aquí')}</p>
+            <p className="text-lg font-semibold text-stone-950">{t('feed.welcome', 'Bienvenido a HispaloShop')}</p>
+            <p className="text-sm text-stone-500 mt-1">{t('feed.follow_to_see', 'Sigue productores para ver su contenido aqui')}</p>
           </div>
-          <SuggestedUsersCard />
           <button
             type="button"
             onClick={() => navigate('/discover')}
@@ -245,21 +186,6 @@ export default function ForYouFeed() {
             const isReel = post.video_url || post.type === 'reel';
             const shouldAnimate = index < 5;
             const animDelay = shouldAnimate ? index * 0.05 : 0;
-
-            // P-15: Weekly summary card on Sundays at position 3
-            const isSunday = new Date().getDay() === 0;
-            const showWeeklySummary = isSunday && index === 3;
-
-            // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
-            const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
-
-            // Promoted product card every ~8 posts (positions 7, 15, 23...)
-            const sponsoredSlot = (index >= 7 && (index - 7) % 8 === 0) ? sponsoredProducts[Math.floor((index - 7) / 8) % Math.max(sponsoredProducts.length, 1)] : null;
-            const showSponsored = sponsoredSlot && sponsoredProducts.length > 0 && !dismissedSponsored.has(sponsoredSlot.id);
-
-            // Recipe card every ~15 posts (positions 14, 29...)
-            const recipeSlot = (index >= 14 && (index - 14) % 15 === 0) ? recipes[Math.floor((index - 14) / 15) % Math.max(recipes.length, 1)] : null;
-            const showRecipe = recipeSlot && recipes.length > 0;
 
             const motionProps = shouldAnimate
               ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
@@ -282,15 +208,7 @@ export default function ForYouFeed() {
               return (
                 <FeedItemBoundary>
                 <div className="mb-2">
-                  {showWeeklySummary && <WeeklySummaryCard />}
-                  {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
-                  {showSponsored && (
-                    <SponsoredProductCard
-                      product={sponsoredSlot}
-                      onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
-                    />
-                  )}
-                  {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
+
                   <motion.div {...motionProps}>
                     <ReelCard
                       reel={{
@@ -333,15 +251,6 @@ export default function ForYouFeed() {
             return (
               <FeedItemBoundary>
               <div className="mb-2">
-                {showWeeklySummary && <WeeklySummaryCard />}
-                {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
-                {showSponsored && (
-                  <SponsoredProductCard
-                    product={sponsoredSlot}
-                    onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
-                  />
-                )}
-                {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
                 <motion.div {...motionProps}>
                   <PostCard
                     post={{

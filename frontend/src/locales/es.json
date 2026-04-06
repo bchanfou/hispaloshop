@@ -5493,5 +5493,19 @@
     "this_week": "Esta semana",
     "this_month": "Este mes",
     "older": "Anterior"
+  },
+  "feed": {
+    "welcome": "Bienvenido a HispaloShop",
+    "follow_to_see": "Sigue productores para ver su contenido aqui",
+    "for_you": "Para ti",
+    "following": "Siguiendo",
+    "promoted": "Promocionado",
+    "empty_following": "Sigue a tu primer productor para ver su contenido aqui",
+    "empty_following_cta": "Descubrir productores",
+    "up_to_date": "Estas al dia",
+    "up_to_date_cta": "Descubre mas en Explore",
+    "explore_products": "Explorar productos",
+    "comments_count": "Ver los {{count}} comentarios",
+    "likes_count": "{{count}} me gusta"
   }
 }
