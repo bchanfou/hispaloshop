@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, ExternalLink, Globe, Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Send, Star, Store, Truck, User } from 'lucide-react';
+import { AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, Clock, ExternalLink, Globe, Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Send, Star, Store, Truck, User } from 'lucide-react';
 import { toast } from 'sonner';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
@@ -15,6 +15,7 @@ import { useChatContext } from '../context/chat/ChatProvider';
 import SEO from '../components/SEO';
 import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
+import { trackEvent } from '../utils/analytics';
 const normalizeEntityId = v => v == null ? '' : String(v);
 export default function StorePage() {
   const {
@@ -119,6 +120,7 @@ export default function StorePage() {
     }
     try {
       await handleFollowStore();
+      if (!isFollowing) trackEvent('store_followed', { store_slug: store?.slug });
       toast.success(isFollowing ? 'Dejaste de seguir' : 'Ahora sigues esta tienda');
     } catch {
       toast.error('Error');
@@ -146,13 +148,12 @@ export default function StorePage() {
     const url = window.location.href;
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: store?.name,
-          url
-        });
+        await navigator.share({ title: store?.name, url });
+        trackEvent('store_shared', { store_slug: store?.slug, method: 'native' });
       } catch {/* cancelled */}
     } else {
       await navigator.clipboard.writeText(url);
+      trackEvent('store_shared', { store_slug: store?.slug, method: 'clipboard' });
       toast.success('Enlace copiado');
     }
   };
@@ -164,6 +165,11 @@ export default function StorePage() {
       setSelectedProduct(prev => normalizeEntityId(prev?.product_id || prev?.id) === normalizeEntityId(matched.product_id || matched.id) ? prev : matched);
     }
   }, [allProducts, requestedProductId]);
+  // Analytics: track store view
+  useEffect(() => {
+    if (store?.slug) trackEvent('store_viewed', { store_slug: store.slug, producer_id: store.producer_id });
+  }, [store?.slug]);
+
   const tabs = [{
     id: 'products',
     icon: <Package size={14} />,
@@ -485,6 +491,7 @@ export default function StorePage() {
               <SectionTitle>CONTACTO</SectionTitle>
               <div className="bg-stone-100 rounded-xl p-4 flex flex-col gap-3">
                 {store.location && <InfoRow icon={<MapPin size={16} />} text={store.location} />}
+                {store.business_hours && <InfoRow icon={<Clock size={16} />} text={store.business_hours} />}
                 {store.contact_email && <a href={`mailto:${store.contact_email}`} className="no-underline">
                     <InfoRow icon={<Mail size={16} />} text={store.contact_email} />
                   </a>}
@@ -493,6 +500,12 @@ export default function StorePage() {
                   </a>}
                 {store.contact_phone && <a href={`tel:${store.contact_phone}`} className="no-underline">
                     <InfoRow icon={<Phone size={16} />} text={store.contact_phone} />
+                  </a>}
+                {store.social_instagram && <a href={store.social_instagram.startsWith('http') ? store.social_instagram : `https://instagram.com/${store.social_instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="no-underline">
+                    <InfoRow icon={<ExternalLink size={16} />} text={`Instagram: ${store.social_instagram}`} />
+                  </a>}
+                {store.social_tiktok && <a href={store.social_tiktok.startsWith('http') ? store.social_tiktok : `https://tiktok.com/@${store.social_tiktok.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="no-underline">
+                    <InfoRow icon={<ExternalLink size={16} />} text={`TikTok: ${store.social_tiktok}`} />
                   </a>}
               </div>
             </div>
@@ -512,12 +525,38 @@ export default function StorePage() {
                 Miembro desde {new Date(store.created_at).getFullYear()}
               </p>}
 
+            {/* Video */}
+            {store.video_url && <div>
+                <SectionTitle>VIDEO</SectionTitle>
+                <a href={store.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium text-stone-950 hover:underline no-underline">
+                  <ExternalLink size={14} /> Ver video de presentacion
+                </a>
+              </div>}
+
             {/* Process photos */}
             {store.process_photos?.length > 0 && <div>
                 <SectionTitle>NUESTRO PROCESO</SectionTitle>
                 <div className="grid grid-cols-2 gap-1.5">
                   {store.process_photos.map((photo, i) => <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy" className="w-full aspect-[4/3] object-cover rounded-xl" />)}
                 </div>
+              </div>}
+
+            {/* Community */}
+            {store.community_slug && <div>
+                <SectionTitle>COMUNIDAD</SectionTitle>
+                <div className="bg-stone-100 rounded-xl p-4">
+                  <p className="text-sm font-medium text-stone-950">{store.community_name || `Comunidad de ${store.name}`}</p>
+                  {store.community_member_count > 0 && <p className="text-xs text-stone-500 mt-1">{store.community_member_count} miembros</p>}
+                  <button type="button" onClick={() => navigate(`/community/${store.community_slug}`)} className="mt-2 text-sm font-semibold text-stone-950 hover:underline bg-transparent border-none cursor-pointer p-0">
+                    Unirme a la comunidad →
+                  </button>
+                </div>
+              </div>}
+
+            {/* Certificate digital */}
+            {certificates.length > 0 && <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                <p className="text-sm font-medium text-stone-950">Certificado digital</p>
+                <p className="text-xs text-stone-500 mt-1">Escanea el QR de nuestros productos para ver toda la info en tu idioma.</p>
               </div>}
           </div>}
       </div>

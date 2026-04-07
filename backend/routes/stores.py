@@ -255,7 +255,17 @@ async def get_store_by_slug(slug: str):
     # Get product count
     product_count = await db.products.count_documents({"producer_id": store["producer_id"], **_public_product_filter()})
     store["product_count"] = product_count
-    
+
+    # Community info (auto-created on verification)
+    community = await db.communities.find_one(
+        {"creator_id": store["producer_id"], "type": "producer", "is_active": {"$ne": False}},
+        {"_id": 0, "slug": 1, "name": 1, "member_count": 1},
+    )
+    if community:
+        store["community_slug"] = community.get("slug")
+        store["community_name"] = community.get("name")
+        store["community_member_count"] = community.get("member_count", 0)
+
     return store
 
 @router.get("/store/{slug}/products")

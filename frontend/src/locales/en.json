@@ -799,7 +799,13 @@
     "hours": "Hours",
     "stats": "Statistics",
     "rating": "Rating",
-    "product": "Product"
+    "product": "Product",
+    "communityTitle": "COMMUNITY",
+    "joinCommunity": "Join community",
+    "digitalCertTitle": "Digital certificate",
+    "digitalCertDesc": "Scan the QR on our products to see all info in your language.",
+    "videoTitle": "VIDEO",
+    "watchVideo": "Watch presentation video"
   },
   "cart": {
     "title": "Your cart",
@@ -3945,5 +3951,10 @@
     "copyAddress": "Copy address",
     "addressCopied": "Address copied",
     "cancelled": "Cancelled"
+  },
+  "producer_store_profile": {
+    "videoUrl": "Presentation video (optional)",
+    "tiktok": "TikTok",
+    "storyPlaceholder": "Tell who you are, how you do what you do, and why it matters."
   }
 }

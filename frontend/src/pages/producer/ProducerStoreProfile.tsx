@@ -6,6 +6,7 @@ import { resolveApiAssetUrl } from '../../utils/api';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import { Store, Image, Upload, X, Loader2, Save, Eye, MapPin, Phone, Mail, Globe, Clock, Instagram, Facebook, Trash2 } from 'lucide-react';
+import { trackEvent } from '../../utils/analytics';
 import i18n from "../../locales/i18n";
 function ImageUploader({
   label,
@@ -136,6 +137,8 @@ export default function ProducerStoreProfile() {
     website: '',
     social_instagram: '',
     social_facebook: '',
+    social_tiktok: '',
+    video_url: '',
     business_hours: ''
   });
   const [isDirty, setIsDirty] = useState(false);
@@ -174,6 +177,7 @@ export default function ProducerStoreProfile() {
     setSaving(true);
     try {
       await apiClient.put('/producer/store-profile', profile);
+      trackEvent('store_edited', { fields_changed: Object.keys(profile).filter(k => profile[k]).length });
       toast.success('Perfil de tienda actualizado');
       setIsDirty(false);
     } catch (error) {
@@ -308,8 +312,8 @@ export default function ProducerStoreProfile() {
             
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{i18n.t('producer_store_profile.historiaDeLaMarca', 'Historia de la marca')}</label>
-              <textarea value={profile.story || ''} onChange={e => updateField('story', e.target.value)} placeholder={i18n.t('producer_store_profile.cuentaLaHistoriaDeTuMarcaComoEmp', 'Cuenta la historia de tu marca, cómo empezaste, tu filosofía...')} rows={5} maxLength={500} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none" />
-              <p className="text-xs text-stone-500 mt-1">{(profile.story || '').length}/500 caracteres</p>
+              <textarea value={profile.story || ''} onChange={e => updateField('story', e.target.value)} placeholder="Cuenta quien eres, como haces lo que haces, y por que importa. Habla de tu tierra, tu proceso, tu familia, lo que te mueve cada dia..." rows={7} maxLength={3000} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none" />
+              <p className="text-xs text-stone-500 mt-1">{(profile.story || '').length}/3000 caracteres</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -324,6 +328,13 @@ export default function ProducerStoreProfile() {
             </div>
             
             <GalleryUploader images={profile.gallery || []} onChange={val => updateField('gallery', val)} />
+
+            {/* Video URL */}
+            <div>
+              <label className="block text-sm font-medium text-stone-600 mb-1">Video de presentacion (opcional)</label>
+              <input value={profile.video_url || ''} onChange={e => updateField('video_url', e.target.value)} placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..." className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
+              <p className="text-xs text-stone-500 mt-1">URL de YouTube o Vimeo</p>
+            </div>
 
             {/* Certifications visible */}
             <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4 space-y-1">
@@ -421,6 +432,11 @@ export default function ProducerStoreProfile() {
                 <Facebook className="w-4 h-4" /> Facebook
               </label>
               <input value={profile.social_facebook || ''} onChange={e => updateField('social_facebook', e.target.value)} placeholder="https://facebook.com/tutienda" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-600 mb-1">TikTok</label>
+              <input value={profile.social_tiktok || ''} onChange={e => updateField('social_tiktok', e.target.value)} placeholder="https://tiktok.com/@tutienda" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
             </div>
           </div>
         </div>

@@ -2009,7 +2009,13 @@
     "hours": "ì˜ì—… ì‹œê°„",
     "stats": "í†µê³„",
     "rating": "í‰ì ",
-    "product": "ì œí’ˆ"
+    "product": "ì œí’ˆ",
+    "communityTitle": "커뮤니티",
+    "joinCommunity": "커뮤니티 참여",
+    "digitalCertTitle": "디지털 인증서",
+    "digitalCertDesc": "QR 코드를 스캔하여 모든 제품 정보를 확인하세요.",
+    "videoTitle": "동영상",
+    "watchVideo": "소개 영상 보기"
   },
   "discover": {
     "seoTitle": "발견 — HispaloShop",
@@ -3949,5 +3955,10 @@
     "copyAddress": "주소 복사",
     "addressCopied": "주소 복사됨",
     "cancelled": "취소됨"
+  },
+  "producer_store_profile": {
+    "videoUrl": "소개 영상 (선택)",
+    "tiktok": "TikTok",
+    "storyPlaceholder": "당신이 누구인지, 무엇을 하는지, 왜 중요한지 이야기하세요."
   }
 }

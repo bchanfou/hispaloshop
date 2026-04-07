@@ -495,7 +495,13 @@
     "sinResenas": "Sin reseñas",
     "estaTiendaNoTieneProductosAun": "Esta tienda no tiene productos aún",
     "estaTiendaNoHaCompartidoRecetasAun": "Esta tienda no ha compartido recetas aún",
-    "anonimo": "Anónimo"
+    "anonimo": "Anónimo",
+    "communityTitle": "COMUNIDAD",
+    "joinCommunity": "Unirme a la comunidad",
+    "digitalCertTitle": "Certificado digital",
+    "digitalCertDesc": "Escanea el QR de nuestros productos para ver toda la info en tu idioma.",
+    "videoTitle": "VIDEO",
+    "watchVideo": "Ver video de presentacion"
   },
   "cart": {
     "title": "Tu carrito",
@@ -3382,7 +3388,10 @@
     "ctraDeLosOlivaresKm1223001Jaen": "Ctra. de los Olivares, km 12, 23001 Jaén",
     "todaEspanaPeninsular": "Toda España peninsular",
     "horarioDeAtencion": "Horario de atención",
-    "lun-vie900-180010sab900-1400": "Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00"
+    "lun-vie900-180010sab900-1400": "Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00",
+    "videoUrl": "Video de presentacion (opcional)",
+    "tiktok": "TikTok",
+    "storyPlaceholder": "Cuenta quien eres, como haces lo que haces, y por que importa."
   },
   "producer_verification": {
     "instalacion": "Instalacion",
