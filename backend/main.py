@@ -100,6 +100,7 @@ from routes.translation import router as translation_router
 from routes.certificates_public import router as certificates_public_router
 from routes.recipes import router as recipes_router
 from routes.search import router as search_router
+from routes.feedback import router as feedback_router
 
 logger = logging.getLogger(__name__)
 
@@ -300,6 +301,9 @@ app.include_router(discovery_router, prefix="/api", tags=["discovery"])
 
 from routes.search import router as search_router
 app.include_router(search_router, prefix="/api", tags=["search"])
+
+# Feedback Routes (Fase 3.7)
+app.include_router(feedback_router, prefix="/api", tags=["feedback"])
 
 # Onboarding Routes
 app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])

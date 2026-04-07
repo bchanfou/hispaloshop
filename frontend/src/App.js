@@ -195,6 +195,7 @@ const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const ChatRequestsPage = lazy(() => import('./pages/chat/ChatRequestsPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ActivityPage = lazy(() => import('./pages/ActivityPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const ChatToastContainer = lazy(() => import('./components/notifications/ChatToastContainer'));
@@ -498,6 +499,7 @@ function AppRouter() {
               <Route path="/communities/:slug/settings" element={<CommunitySettingsPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+              <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
               <Route path="/activity" element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />

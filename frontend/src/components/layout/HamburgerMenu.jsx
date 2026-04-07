@@ -6,7 +6,7 @@ import {
   X, Bookmark, Activity, Package, HelpCircle, FileText, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check, User, Store, Users,
   ChefHat, MessageCircle, Info, Megaphone, Truck, Globe2, ShieldCheck,
-  Bell, ShoppingBag, Tag, DollarSign, TrendingUp, BarChart3
+  Bell, ShoppingBag, Tag, DollarSign, TrendingUp, BarChart3, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -321,6 +321,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             <SectionLabel>{t('hamburger.ayuda', 'AYUDA')}</SectionLabel>
             <MenuItem to="/que-es" icon={<Info size={20} />} label={t('hamburger.queEs', '¿Qué es HispaloShop?')} onClose={onClose} />
             <MenuItem to="/help" icon={<HelpCircle size={20} />} label={t('hamburger.centroAyuda', 'Centro de ayuda')} onClose={onClose} />
+            <MenuItem to="/feedback" icon={<MessageSquare size={20} />} label={t('hamburger.feedback', 'Feedback e ideas')} onClose={onClose} />
             <MenuItem to="/terms" icon={<FileText size={20} />} label={t('hamburger.terminos', 'Términos')} onClose={onClose} />
             <MenuItem to="/privacy" icon={<ShieldCheck size={20} />} label={t('hamburger.privacidad', 'Privacidad')} onClose={onClose} />
 
