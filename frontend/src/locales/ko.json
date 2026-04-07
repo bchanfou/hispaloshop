@@ -4087,5 +4087,18 @@
   },
   "influencer_insights": {
     "geography": "클릭 출처"
+  },
+  "payouts": {
+    "downloadReceipt": "영수증 다운로드",
+    "pendingD15": "D+15 기간 대기 중인 수수료가 있습니다.",
+    "d15Explanation": "자금은 각 구매 후 15일 후에 사용 가능합니다. 결제는 1-3 영업일 이내에 수동으로 이체됩니다.",
+    "withholdingIRPF": "HispaloShop은 수수료의 15%를 원천징수하여 분기별로 세무 당국에 신고합니다.",
+    "manualPayouts": "결제는 1-3 영업일 이내에 수동 처리됩니다.",
+    "receiptTitle": "결제 영수증",
+    "grossAmount": "총액",
+    "withholding": "세금 원천징수",
+    "netReceived": "실수령액",
+    "fiscalSummary": "세금 요약",
+    "configFiscal": "세금 설정"
   }
 }

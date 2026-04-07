@@ -7,6 +7,8 @@ import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { Download } from 'lucide-react';
+import { trackEvent } from '../../utils/analytics';
 const STATUS_TABS = [{
   key: 'all',
   label: 'Todos'
@@ -137,6 +139,7 @@ export default function PayoutsPage() {
   useEffect(() => {
     fetchPayouts();
     fetchStats();
+    trackEvent('influencer_payouts_viewed');
     // Fetch fiscal withholding summary
     apiClient.get('/influencer/fiscal/withholding-summary').then(setWithholdingSummary).catch(() => setWithholdingSummary(null));
   }, [fetchPayouts, fetchStats]);
@@ -194,8 +197,41 @@ export default function PayoutsPage() {
       </span>;
   };
   const handleWithdrawalSuccess = () => {
+    trackEvent('influencer_withdrawal_requested', { gross: stats?.available_to_withdraw || 0 });
     fetchPayouts();
     fetchStats();
+  };
+
+  const handleDownloadReceipt = (payout) => {
+    trackEvent('influencer_receipt_downloaded');
+    const w = window.open('', '_blank', 'width=600,height=700');
+    if (!w) return;
+    const date = payout.paid_at || payout.created_at;
+    const dateStr = date ? new Date(date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    w.document.write(`<!DOCTYPE html><html><head><title>Recibo</title>
+      <style>body{font-family:system-ui,sans-serif;padding:40px;color:#1c1917;max-width:500px;margin:0 auto}
+      h1{font-size:18px;margin-bottom:4px}h2{font-size:13px;color:#78716c;margin-bottom:24px}
+      table{width:100%;border-collapse:collapse;margin-bottom:16px}
+      td{padding:8px 0;font-size:13px;border-bottom:1px solid #e7e5e4}
+      td:last-child{text-align:right;font-weight:600}
+      .total td{border-top:2px solid #1c1917;border-bottom:none;font-weight:700;font-size:15px}
+      .footer{margin-top:32px;font-size:11px;color:#a8a29e;border-top:1px solid #e7e5e4;padding-top:16px}
+      @media print{body{padding:20px}}</style>
+      </head><body>
+      <h1>HispaloShop</h1>
+      <h2>Recibo de pago — ${dateStr}</h2>
+      <table>
+      <tr><td>Bruto</td><td>${(payout.gross_amount_eur || payout.net_amount_eur || 0).toFixed(2)} EUR</td></tr>
+      ${payout.withholding_amount_eur ? `<tr><td>Retencion IRPF (15%)</td><td>-${Number(payout.withholding_amount_eur).toFixed(2)} EUR</td></tr>` : ''}
+      ${payout.fee_amount_eur ? `<tr><td>Comision transferencia</td><td>-${Number(payout.fee_amount_eur).toFixed(2)} EUR</td></tr>` : ''}
+      <tr class="total"><td>Neto recibido</td><td>${Number(payout.net_amount_eur || 0).toFixed(2)} EUR</td></tr>
+      </table>
+      <p style="font-size:12px;color:#57534e">${payout.commission_count || 0} ventas atribuidas</p>
+      ${payout.stripe_transfer_id ? `<p style="font-size:11px;color:#a8a29e">Ref: ${payout.stripe_transfer_id}</p>` : ''}
+      <div class="footer">Este documento es un recibo informativo. HispaloShop SL.</div>
+      </body></html>`);
+    w.document.close();
+    w.print();
   };
   return <div className="min-h-screen bg-stone-50">
       <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
@@ -234,8 +270,8 @@ export default function PayoutsPage() {
             </>}
         </div>
 
-        {/* Next payout */}
-        {stats?.next_payout_date && <div className="bg-stone-100 shadow-sm rounded-2xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
+        {/* Next payout / D+15 pending */}
+        {stats?.next_payout_date ? <div className="bg-stone-100 shadow-sm rounded-2xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
             <CreditCard className="w-4 h-4 shrink-0" />
             Próximo pago automático el{' '}
             <strong>
@@ -244,7 +280,13 @@ export default function PayoutsPage() {
             month: 'long'
           })}
             </strong>
-          </div>}
+          </div> : (stats?.pending_eur || 0) > 0 ? <div className="bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 mb-5 text-sm text-stone-600 flex items-start gap-2">
+            <CreditCard className="w-4 h-4 shrink-0 mt-0.5" />
+            <div>
+              <p>{t('payouts.pendingD15', 'Tienes comisiones pendientes de completar el periodo D+15.')}</p>
+              <p className="text-xs text-stone-500 mt-1">{t('payouts.d15Explanation', 'Los fondos estan disponibles 15 dias despues de cada compra. Los pagos se transfieren manualmente en 1-3 dias habiles.')}</p>
+            </div>
+          </div> : null}
 
         {/* Stripe fees info */}
         <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 text-xs text-stone-500 leading-relaxed">
@@ -315,11 +357,18 @@ export default function PayoutsPage() {
                         </span>}
                     </div>}
                 </div>
-                <div className="text-right">
-                  <p className="text-base font-bold text-stone-950">
-                    {convertAndFormatPrice(Number(payout.net_amount_eur || 0))}
-                  </p>
-                  {getStatusBadge(payout.status)}
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-base font-bold text-stone-950">
+                      {convertAndFormatPrice(Number(payout.net_amount_eur || 0))}
+                    </p>
+                    {getStatusBadge(payout.status)}
+                  </div>
+                  {(payout.status === 'paid' || payout.status === 'completed') && (
+                    <button onClick={() => handleDownloadReceipt(payout)} className="p-2 rounded-full hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-700" title={t('payouts.downloadReceipt', 'Descargar recibo')}>
+                      <Download className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>)}
           </div>

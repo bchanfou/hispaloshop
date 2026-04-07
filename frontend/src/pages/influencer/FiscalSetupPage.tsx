@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 
 /* ─── Country list: derived from LocaleContext at component level ─── */
 import i18n from "../../locales/i18n";
@@ -613,6 +614,7 @@ export default function FiscalSetupPage() {
       <button onClick={async () => {
         try {
           await apiClient.post('/influencer/fiscal/complete-verification', {});
+          trackEvent('influencer_fiscal_configured', { country: selectedCountry });
           toast.success(t('fiscal_setup.configuracionFiscalGuardadaAfiliados', 'Configuración fiscal guardada. Afiliados activados.'));
           await refreshUser();
           navigate('/influencer/links');
