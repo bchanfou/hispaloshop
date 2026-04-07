@@ -5815,5 +5815,24 @@
     "distributionAgreement": "Acuerdo de distribucion",
     "vatVerified": "VAT verificado",
     "sourcingPriority": "Sourcing prioritario"
+  },
+  "promotion": {
+    "title": "Promocion de productos",
+    "subtitle": "Incluido en tu plan",
+    "slots": "slots",
+    "nationalInternational": "nacionales + internacionales",
+    "nationalOnly": "nacionales",
+    "autoSelect": "Auto-seleccion",
+    "addProduct": "Anadir producto",
+    "selectProduct": "Seleccionar producto",
+    "internationalTargeting": "Targeting internacional",
+    "saveTargeting": "Guardar targeting",
+    "weeklySummary": "Resumen",
+    "upgradeTitle": "Promocion de productos",
+    "upgradeDesc": "Actualiza a PRO para promocionar hasta 5 productos en el feed. Incluido en tu plan, sin coste adicional.",
+    "upgradeCta": "Ver planes",
+    "promoted": "Promocionado",
+    "autoWillSelect": "La auto-seleccion elegira tus mejores productos automaticamente.",
+    "noPromoted": "No tienes productos promocionados."
   }
 }

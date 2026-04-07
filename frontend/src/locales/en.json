@@ -4106,5 +4106,24 @@
     "distributionAgreement": "Distribution agreement",
     "vatVerified": "VAT verified",
     "sourcingPriority": "Priority sourcing"
+  },
+  "promotion": {
+    "title": "Product promotion",
+    "subtitle": "Included in your plan",
+    "slots": "slots",
+    "nationalInternational": "national + international",
+    "nationalOnly": "national",
+    "autoSelect": "Auto-selection",
+    "addProduct": "Add product",
+    "selectProduct": "Select product",
+    "internationalTargeting": "International targeting",
+    "saveTargeting": "Save targeting",
+    "weeklySummary": "Summary",
+    "upgradeTitle": "Product promotion",
+    "upgradeDesc": "Upgrade to PRO to promote up to 5 products in the feed. Included in your plan, no extra cost.",
+    "upgradeCta": "View plans",
+    "promoted": "Promoted",
+    "autoWillSelect": "Auto-selection will choose your best products automatically.",
+    "noPromoted": "No promoted products."
   }
 }

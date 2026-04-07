@@ -57,6 +57,13 @@ export default function ForYouFeed() {
 
 
   // Sponsored / promoted content
+  const [promotedProducts, setPromotedProducts] = useState([]);
+  useEffect(() => {
+    const country = user?.country || 'ES';
+    apiClient.get(`/feed/promoted?country=${country}&limit=3`).then(d => {
+      if (Array.isArray(d)) setPromotedProducts(d);
+    }).catch(() => {});
+  }, [user?.country]);
 
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
@@ -183,6 +190,11 @@ export default function ForYouFeed() {
           data={allPosts}
           defaultItemHeight={460}
           itemContent={(index, post) => {
+            // Inject promoted product card every 10 posts
+            const promoIndex = Math.floor(index / 10) - 1;
+            const isPromoSlot = index > 0 && index % 10 === 0 && promotedProducts[promoIndex];
+            const promoProduct = isPromoSlot ? promotedProducts[promoIndex] : null;
+
             const isReel = post.video_url || post.type === 'reel';
             const shouldAnimate = index < 5;
             const animDelay = shouldAnimate ? index * 0.05 : 0;
@@ -203,6 +215,30 @@ export default function ForYouFeed() {
               verified: post.user_verified ?? false,
               has_story: post.user_has_story ?? false,
             };
+
+            // Render promoted product card if this is a promo slot
+            if (promoProduct) {
+              return (
+                <div className="mb-2 px-4">
+                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <p className="px-4 pt-2 text-[10px] text-stone-400 font-medium">Promocionado</p>
+                    <button
+                      onClick={() => {
+                        apiClient.post(`/feed/promoted/${promoProduct.promo_id}/click`).catch(() => {});
+                        navigate(`/products/${promoProduct.product_id}`);
+                      }}
+                      className="w-full flex items-center gap-3 p-4 pt-1 text-left bg-transparent border-none cursor-pointer"
+                    >
+                      {promoProduct.product_image && <img src={promoProduct.product_image} alt="" className="w-16 h-16 rounded-2xl object-cover shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-stone-950 truncate">{promoProduct.product_name}</p>
+                        <p className="text-xs text-stone-500 mt-0.5">Por {promoProduct.producer_name || 'Productor'}</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
 
             if (isReel) {
               return (

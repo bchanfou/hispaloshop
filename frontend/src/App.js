@@ -159,6 +159,7 @@ const ProducerConnectSuccess = lazy(() => import('./pages/producer/ProducerConne
 const ProducerConnectRefresh = lazy(() => import('./pages/producer/ProducerConnectRefresh'));
 const ProducerShippingPolicy = lazy(() => import('./pages/producer/ProducerShippingPolicy'));
 const CommercialAIPage = lazy(() => import('./pages/producer/CommercialAIPage'));
+const PromotionPage = lazy(() => import('./pages/producer/PromotionPage'));
 const ProducerB2BRequestsPage = lazy(() => import('./pages/producer/ProducerB2BRequestsPage'));
 const ProducerVerificationPage = lazy(() => import('./pages/producer/ProducerVerificationPage'));
 
@@ -700,7 +701,8 @@ function AppRouter() {
                 <Route path="plan" element={<ProducerPlanPage />} />
                 <Route path="b2b-requests" element={<ProducerB2BRequestsPage />} />
                 <Route path="verification" element={<ProducerVerificationPage />} />
-                <Route path="promotions" element={<Navigate to="/producer" replace />} />
+                <Route path="promotions" element={<Navigate to="/producer/promotion" replace />} />
+                <Route path="promotion" element={<PromotionPage />} />
                 <Route path="influencers" element={<Navigate to="/discover?scope=profiles" replace />} />
               </Route>
 

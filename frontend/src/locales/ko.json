@@ -4110,5 +4110,24 @@
     "distributionAgreement": "유통 계약",
     "vatVerified": "VAT 인증됨",
     "sourcingPriority": "우선 소싱"
+  },
+  "promotion": {
+    "title": "제품 홍보",
+    "subtitle": "플랜에 포함",
+    "slots": "슬롯",
+    "nationalInternational": "국내 + 국제",
+    "nationalOnly": "국내",
+    "autoSelect": "자동 선택",
+    "addProduct": "제품 추가",
+    "selectProduct": "제품 선택",
+    "internationalTargeting": "국제 타겟팅",
+    "saveTargeting": "타겟팅 저장",
+    "weeklySummary": "요약",
+    "upgradeTitle": "제품 홍보",
+    "upgradeDesc": "PRO로 업그레이드하여 피드에서 최대 5개 제품을 홍보하세요. 플랜에 포함, 추가 비용 없음.",
+    "upgradeCta": "플랜 보기",
+    "promoted": "홍보",
+    "autoWillSelect": "자동 선택이 최고의 제품을 자동으로 선택합니다.",
+    "noPromoted": "홍보 제품이 없습니다."
   }
 }
