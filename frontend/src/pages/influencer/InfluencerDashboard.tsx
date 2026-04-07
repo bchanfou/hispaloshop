@@ -11,6 +11,7 @@ import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
 import { useInfluencerDiscountCodes, useInfluencerEmailVerification, useInfluencerProfile, useInfluencerStripeStatus, useInfluencerWithdrawal } from '../../features/influencer/hooks';
+import { trackEvent } from '../../utils/analytics';
 import { asNumber } from '../../utils/safe';
 import { useLocale } from '../../context/LocaleContext';
 import i18n from "../../locales/i18n";
@@ -242,6 +243,7 @@ function DiscountCodesList({
   const copyTimerRef = React.useRef(null);
   const handleCopy = useCallback(code => {
     navigator.clipboard.writeText(code);
+    trackEvent('influencer_code_copied');
     setCopiedCode(code);
     toast.success(i18n.t('influencer_dashboard.codigoCopiado', 'Código copiado'));
     clearTimeout(copyTimerRef.current);
@@ -368,6 +370,7 @@ export default function InfluencerDashboard() {
     apiClient.get('/influencer/analytics?days=30').then(d => {
       if (active) setTrafficData(d);
     }).catch(logFetchErr('analytics'));
+    trackEvent('influencer_dashboard_viewed');
     return () => {
       active = false;
       clearTimeout(copyTimerRef.current);
@@ -379,6 +382,7 @@ export default function InfluencerDashboard() {
     if (refreshUser) refreshUser();
   }, [refreshUser]);
   const handleCodeCreated = useCallback(_newCode => {
+    trackEvent('influencer_code_created', { code: _newCode });
     refetchDashboard();
     apiClient.get('/influencer/discount-codes').then(d => {
       setDiscountCodes(d?.codes || d || []);
@@ -545,12 +549,12 @@ export default function InfluencerDashboard() {
           </div>
         </div>
 
-        {/* Product Performance */}
+        {/* Content Performance (traffic-focused) */}
         <div id="analytics-section" className="mb-6 bg-white shadow-sm rounded-2xl">
           <div className="px-6 pt-6 pb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
               <BarChart3 className="h-5 w-5 text-stone-500" />
-              Productos que mejor funcionan en tu contenido
+              {t('influencer_dashboard.contentPerformance', 'Rendimiento de tu contenido')}
             </h3>
           </div>
           <div className="px-6 pb-6 space-y-3">
@@ -710,6 +714,33 @@ export default function InfluencerDashboard() {
                   </button>
                 </div>}
             </div>
+          </div>
+
+          {/* Educational Guide — Como empezar */}
+          <div className="lg:col-span-2 bg-stone-50 border border-stone-200 rounded-2xl p-5 mb-4">
+            <h3 className="text-sm font-semibold text-stone-950 mb-3">{t('influencer_dashboard.howToStart', 'Como empezar')}</h3>
+            <p className="text-xs text-stone-500 mb-3">{t('influencer_dashboard.missionStatement', 'Tu mision: llevar trafico a HispaloShop. Gana cada vez que alguien usa tu codigo.')}</p>
+            <div className="space-y-2">
+              {[
+                t('influencer_dashboard.tip1', 'Pon tu codigo en tu bio de Instagram y TikTok'),
+                t('influencer_dashboard.tip2', 'Comparte en stories: tu audiencia tiene 24h para usarlo'),
+                t('influencer_dashboard.tip3', 'Crea un post contando por que te gusta HispaloShop'),
+                t('influencer_dashboard.tip4', 'Anade el link a tu Linktree o enlace en bio'),
+                t('influencer_dashboard.tip5', 'Cada persona que compra con tu codigo te atribuye comision durante 18 meses'),
+              ].map((tip, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="text-xs font-bold text-stone-400 w-5 shrink-0">{i + 1}.</span>
+                  <p className="text-xs text-stone-600">{tip}</p>
+                </div>
+              ))}
+            </div>
+            {dashboard.discount_code && (
+              <div className="mt-3 pt-3 border-t border-stone-200">
+                <p className="text-xs text-stone-500">
+                  {t('influencer_dashboard.yourLanding', 'Tu landing personal')}: <strong className="text-stone-950">hispaloshop.com/@{user?.username}</strong>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Commission Summary */}

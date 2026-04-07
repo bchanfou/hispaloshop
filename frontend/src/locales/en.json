@@ -4054,5 +4054,20 @@
     "upgradeRebeca": "Upgrade to PRO to access Rebeca, your commercial advisor.",
     "upgradePedro": "Upgrade to ELITE to access Pedro, your international commercial agent.",
     "historyDeleted": "History deleted"
+  },
+  "influencer_dashboard": {
+    "peopleAttracted": "People attracted",
+    "linkClicks": "Link clicks",
+    "conversionRate": "Conversion",
+    "earnedThisMonth": "Earned this month",
+    "contentPerformance": "Your content performance",
+    "howToStart": "How to start",
+    "missionStatement": "Your mission: drive traffic to HispaloShop. Earn every time someone uses your code.",
+    "tip1": "Put your code in your Instagram and TikTok bio",
+    "tip2": "Share in stories: your audience has 24h to use it",
+    "tip3": "Create a post about why you like HispaloShop",
+    "tip4": "Add the link to your Linktree or bio link",
+    "tip5": "Every person who buys with your code attributes commission for 18 months",
+    "yourLanding": "Your personal landing"
   }
 }
