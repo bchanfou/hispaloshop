@@ -5647,5 +5647,22 @@
     "products_with_tag": "Productos con",
     "recipes_with_tag": "Recetas con",
     "trending_now": "Trending ahora"
+  },
+  "producerOrders": {
+    "dateAll": "Todo",
+    "dateToday": "Hoy",
+    "date7d": "7 dias",
+    "date30d": "30 dias",
+    "exportCSV": "Exportar CSV",
+    "subtotal": "Subtotal (tus productos)",
+    "platformFee": "Comision plataforma",
+    "influencerCut": "Comision embajador",
+    "firstPurchaseNote": "Descuento 1a compra: absorbido por plataforma",
+    "yourShare": "Tu parte",
+    "printSlip": "Imprimir",
+    "contactClient": "Contactar",
+    "copyAddress": "Copiar direccion",
+    "addressCopied": "Direccion copiada",
+    "cancelled": "Cancelados"
   }
 }

@@ -130,18 +130,41 @@ async def get_producer_orders(
     for order in orders:
         producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
         if producer_items:
+            financials = _get_producer_financial_snapshot(order, user.user_id)
+            # Influencer info from commission_data
+            cd = order.get("commission_data", {})
+            influencer_info = None
+            if cd.get("influencer_id"):
+                influencer_info = {
+                    "influencer_id": cd.get("influencer_id"),
+                    "influencer_rate": float(cd.get("influencer_rate", 0) or 0),
+                    "influencer_cut": float(cd.get("influencer_cut", 0) or 0),
+                    "first_purchase_discount": bool(cd.get("first_purchase_discount")),
+                }
             producer_orders.append({
                 "order_id": order.get("order_id", ""),
                 "customer_name": order.get("user_name", "Unknown"),
+                "customer_id": order.get("user_id"),
+                "user_email": order.get("user_email"),
                 "shipping_address": order.get("shipping_address", {}),
                 "items": producer_items,
                 "total": sum(item.get("subtotal", item.get("price", 0) * item.get("quantity", 1)) for item in producer_items),
                 "status": order.get("status", ""),
                 "tracking_number": order.get("tracking_number"),
                 "tracking_url": order.get("tracking_url"),
+                "shipping_carrier": order.get("shipping_carrier"),
                 "status_history": order.get("status_history", []),
                 "created_at": order["created_at"],
-                "updated_at": order.get("updated_at")
+                "updated_at": order.get("updated_at"),
+                "currency": order.get("currency", "EUR"),
+                # Commission breakdown
+                "gross_amount": financials.get("gross_amount", 0),
+                "platform_fee": financials.get("platform_fee", 0),
+                "producer_share": financials.get("net_earnings", 0),
+                "commission_rate": financials.get("commission_rate", 0),
+                "commission_plan": order.get("commission_plan") or normalize_seller_plan(user.subscription.get("plan", "FREE") if hasattr(user, 'subscription') and user.subscription else "FREE"),
+                "paid_out": financials.get("paid_out", False),
+                "influencer_info": influencer_info,
             })
     return {"orders": producer_orders, "total": total, "page": page, "has_more": page * limit < total}
 

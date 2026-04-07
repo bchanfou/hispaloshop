@@ -3932,5 +3932,22 @@
     "shipping": "배송",
     "community": "커뮤니티",
     "promotion": "홍보"
+  },
+  "producerOrders": {
+    "dateAll": "전체",
+    "dateToday": "오늘",
+    "date7d": "7일",
+    "date30d": "30일",
+    "exportCSV": "CSV 내보내기",
+    "subtotal": "소계 (내 상품)",
+    "platformFee": "플랫폼 수수료",
+    "influencerCut": "홍보대사 수수료",
+    "firstPurchaseNote": "첫 구매 할인: 플랫폼 부담",
+    "yourShare": "내 수익",
+    "printSlip": "인쇄",
+    "contactClient": "연락",
+    "copyAddress": "주소 복사",
+    "addressCopied": "주소 복사됨",
+    "cancelled": "취소됨"
   }
 }

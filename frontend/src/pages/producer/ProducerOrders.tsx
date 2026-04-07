@@ -1,10 +1,12 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send, Search, Zap } from 'lucide-react';
+import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send, Search, Zap, Download, Printer, MessageCircle, Copy, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
+import { trackEvent } from '../../utils/analytics';
 import FocusTrap from 'focus-trap-react';
 import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
 
@@ -197,6 +199,7 @@ const ORDER_FILTERS = [
   { key: 'preparing', label: 'Preparando', statuses: ['preparing'] },
   { key: 'shipped', label: 'Enviados', statuses: ['shipped'] },
   { key: 'delivered', label: 'Entregados', statuses: ['delivered'] },
+  { key: 'cancelled', label: 'Cancelados', statuses: ['cancelled', 'refunded'] },
 ];
 
 export default function ProducerOrders() {
@@ -207,8 +210,10 @@ export default function ProducerOrders() {
   const [orderToShip, setOrderToShip] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState('all'); // all | today | 7d | 30d
   const [error, setError] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const statusLabels = {
     pending: t('orders.status.pending'),
@@ -229,6 +234,7 @@ export default function ProducerOrders() {
 
   useEffect(() => {
     fetchOrders();
+    trackEvent('producer_orders_viewed', { tab: activeFilter });
   }, []);
 
   const fetchOrders = async () => {
@@ -258,8 +264,15 @@ export default function ProducerOrders() {
         o.shipping_address?.name?.toLowerCase().includes(q)
       );
     }
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = Date.now();
+      const ms = { today: 86400000, '7d': 7 * 86400000, '30d': 30 * 86400000 };
+      const cutoff = now - (ms[dateFilter] || 0);
+      filtered = filtered.filter(o => new Date(o.created_at).getTime() >= cutoff);
+    }
     return filtered;
-  }, [orders, activeFilter, searchQuery]);
+  }, [orders, activeFilter, searchQuery, dateFilter]);
 
   const handleShipOrder = (order) => {
     // For shipping, validate status
@@ -281,6 +294,7 @@ export default function ProducerOrders() {
     setUpdatingOrderId(order.order_id);
     try {
       await apiClient.put(`/orders/${order.order_id}/status`, { status: newStatus });
+      trackEvent('producer_order_status_changed', { order_id: order.order_id, from_status: order.status, to_status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus]}`);
       setOrders(prev => prev.map(o =>
         o.order_id === order.order_id
@@ -306,6 +320,7 @@ export default function ProducerOrders() {
     setQuickUpdatingId(order.order_id);
     try {
       await apiClient.patch(`/producer/orders/${order.order_id}/status`, { status: newStatus });
+      trackEvent('producer_order_status_changed', { order_id: order.order_id, from_status: order.status, to_status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus] || newStatus}`);
       setOrders(prev => prev.map(o =>
         o.order_id === order.order_id
@@ -321,6 +336,8 @@ export default function ProducerOrders() {
   };
 
   const handleShipSuccess = (orderId, shipData) => {
+    trackEvent('producer_order_status_changed', { order_id: orderId, from_status: 'preparing', to_status: 'shipped' });
+    if (shipData.tracking_number) trackEvent('producer_tracking_added', { order_id: orderId });
     setOrders(prev => prev.map(o =>
       o.order_id === orderId
         ? {
@@ -340,6 +357,79 @@ export default function ProducerOrders() {
 
   const canUpdateStatus = (status) => {
     return ['paid', 'confirmed', 'preparing', 'shipped'].includes(status);
+  };
+
+  // CSV export
+  const handleExportCSV = () => {
+    if (filteredOrders.length === 0) return;
+    const cur = (o) => o?.currency || 'EUR';
+    const rows = filteredOrders.map(o => ({
+      'ID': String(o.order_id || '').slice(-8).toUpperCase(),
+      'Fecha': new Date(o.created_at).toLocaleDateString('es-ES'),
+      'Cliente': o.customer_name || '',
+      'Items': (o.items || o.line_items || []).map(i => `${i.product_name} x${i.quantity}`).join('; '),
+      'Total': asNumber(o.total).toFixed(2),
+      'Tu parte': asNumber(o.producer_share ?? (asNumber(o.total) * (1 - asNumber(o.commission_rate, 0.18)))).toFixed(2),
+      'Comision %': Math.round(asNumber(o.commission_rate, 0.18) * 100),
+      'Status': statusLabels[o.status] || o.status,
+      'Tracking': o.tracking_number || '',
+    }));
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(','), ...rows.map(r => headers.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pedidos-${activeFilter}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    trackEvent('producer_orders_exported', { format: 'csv', count: filteredOrders.length });
+  };
+
+  // Packing slip print
+  const handlePrint = (order) => {
+    const items = (order.items || order.line_items || []);
+    const addr = order.shipping_address || {};
+    const w = window.open('', '_blank', 'width=600,height=800');
+    if (!w) return;
+    w.document.write(`<!DOCTYPE html><html><head><title>Packing Slip</title>
+      <style>body{font-family:system-ui,sans-serif;padding:40px;color:#1c1917}
+      h1{font-size:18px;margin-bottom:4px}h2{font-size:14px;color:#78716c;margin-bottom:24px}
+      table{width:100%;border-collapse:collapse;margin-bottom:24px}
+      th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #e7e5e4;font-size:13px}
+      th{font-weight:600;color:#57534e;font-size:11px;text-transform:uppercase;letter-spacing:0.05em}
+      .addr{margin-bottom:24px;font-size:13px;line-height:1.6}
+      .footer{margin-top:32px;font-size:12px;color:#78716c;border-top:1px solid #e7e5e4;padding-top:16px}
+      @media print{body{padding:20px}}</style>
+      </head><body>
+      <h1>HispaloShop</h1>
+      <h2>Pedido #${String(order.order_id || '').slice(-8).toUpperCase()} — ${new Date(order.created_at).toLocaleDateString('es-ES')}</h2>
+      <table><thead><tr><th>Producto</th><th>Cantidad</th></tr></thead><tbody>
+      ${items.map(i => `<tr><td>${i.product_name || ''}${i.variant_name ? ' (' + i.variant_name + ')' : ''}</td><td>${i.quantity}</td></tr>`).join('')}
+      </tbody></table>
+      <div class="addr"><strong>Enviar a:</strong><br/>${addr.name || ''}<br/>${addr.street || ''}<br/>${addr.postal_code || ''} ${addr.city || ''}<br/>${addr.country || ''}</div>
+      <div class="footer">Gracias por comprar en HispaloShop.</div>
+      </body></html>`);
+    w.document.close();
+    w.print();
+  };
+
+  // Contact client
+  const handleContactClient = (order) => {
+    const shortId = String(order.order_id || '').slice(-8).toUpperCase();
+    const customerId = order.customer_id || order.user_id;
+    if (customerId) {
+      navigate(`/messages?to=${customerId}&prefill=${encodeURIComponent(`Hola, sobre tu pedido #${shortId}...`)}`);
+    } else {
+      navigate('/messages');
+    }
+  };
+
+  // Copy address
+  const handleCopyAddress = (addr) => {
+    if (!addr) return;
+    const text = [addr.name, addr.street, `${addr.postal_code || ''} ${addr.city || ''}`, addr.country].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(text).then(() => toast.success(t('producerOrders.addressCopied', 'Direccion copiada')));
   };
 
   // Retry handler for error state
@@ -401,12 +491,27 @@ export default function ProducerOrders() {
 
   return (
     <div className="max-w-[975px] mx-auto">
-      <h1 className="text-3xl font-bold text-stone-950 mb-2">
-        {t('orders.myOrders')}
-      </h1>
-      <p className="text-stone-500 mb-4">
-        {t('orders.manageOrders')}
-      </p>
+      <div className="flex items-center justify-between mb-2 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-stone-950">
+            {t('orders.myOrders')}
+          </h1>
+          <p className="text-stone-500">
+            {t('orders.manageOrders')}
+          </p>
+        </div>
+        {filteredOrders.length > 0 && (
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
+            data-testid="export-csv"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">{t('producerOrders.exportCSV', 'Exportar CSV')}</span>
+          </button>
+        )}
+      </div>
 
       {/* Search */}
       <div className="relative mb-3">
@@ -417,6 +522,22 @@ export default function ProducerOrders() {
           placeholder="Buscar por nº pedido o cliente..."
           className="h-10 w-full pl-10 pr-4 rounded-xl bg-stone-100 border-none text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-300"
         />
+      </div>
+
+      {/* Date filter */}
+      <div className="flex gap-2 mb-3">
+        {[
+          { key: 'all', label: t('producerOrders.dateAll', 'Todo') },
+          { key: 'today', label: t('producerOrders.dateToday', 'Hoy') },
+          { key: '7d', label: t('producerOrders.date7d', '7 dias') },
+          { key: '30d', label: t('producerOrders.date30d', '30 dias') },
+        ].map(d => (
+          <button key={d.key} onClick={() => setDateFilter(d.key)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${dateFilter === d.key ? 'bg-stone-200 text-stone-950' : 'text-stone-500 hover:bg-stone-100'}`}
+          >
+            {d.label}
+          </button>
+        ))}
       </div>
 
       {/* Filter tabs */}
@@ -629,15 +750,51 @@ export default function ProducerOrders() {
                     </div>
                   </div>
 
-                  {/* Order Total */}
-                  <div className="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between">
-                    <div className="text-sm text-stone-500">
-                      {t('orders.customer')}: {order.user_email || order.customer_name}
+                  {/* Quick actions row */}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => handlePrint(order)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                      <Printer className="w-3.5 h-3.5" /> {t('producerOrders.printSlip', 'Imprimir')}
+                    </button>
+                    <button type="button" onClick={() => handleContactClient(order)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                      <MessageCircle className="w-3.5 h-3.5" /> {t('producerOrders.contactClient', 'Contactar')}
+                    </button>
+                    {order.shipping_address && (
+                      <button type="button" onClick={() => handleCopyAddress(order.shipping_address)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                        <Copy className="w-3.5 h-3.5" /> {t('producerOrders.copyAddress', 'Copiar direccion')}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Financial breakdown */}
+                  <div className="mt-4 pt-4 border-t border-stone-100">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-stone-500">{t('orders.customer')}: {order.user_email || order.customer_name}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-stone-500">{t('orders.orderTotal')}</p>
-                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount ?? order.total).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</p>
-                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share ?? ((order.total_amount ?? order.total ?? 0) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">{t('producerOrders.subtotal', 'Subtotal (tus productos)')}</span>
+                        <span className="font-medium text-stone-950">{asNumber(order.gross_amount || order.total_amount || order.total).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">{t('producerOrders.platformFee', 'Comision plataforma')} ({Math.round(asNumber(order.commission_rate, 0.18) * 100)}%)</span>
+                        <span className="text-stone-500">-{asNumber(order.platform_fee || (asNumber(order.total) * asNumber(order.commission_rate, 0.18))).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</span>
+                      </div>
+                      {order.influencer_info && order.influencer_info.influencer_cut > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">{t('producerOrders.influencerCut', 'Comision embajador')} ({Math.round(asNumber(order.influencer_info.influencer_rate) * 100)}%)</span>
+                          <span className="text-stone-500">-{asNumber(order.influencer_info.influencer_cut).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</span>
+                        </div>
+                      )}
+                      {order.influencer_info?.first_purchase_discount && (
+                        <div className="flex justify-between">
+                          <span className="text-stone-400 text-xs">{t('producerOrders.firstPurchaseNote', 'Descuento 1a compra: absorbido por plataforma')}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-stone-100">
+                        <span className="font-semibold text-stone-950">{t('producerOrders.yourShare', 'Tu parte')}</span>
+                        <span className="text-lg font-bold text-stone-950">{asNumber(order.producer_share ?? ((order.total_amount ?? order.total ?? 0) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString(undefined, { style: 'currency', currency: order?.currency || 'EUR' })}</span>
+                      </div>
+                      <p className="text-[10px] text-stone-400 text-right">Plan {order.commission_plan || 'FREE'}{order.paid_out ? ' — Pagado' : ''}</p>
                     </div>
                   </div>
                 </div>

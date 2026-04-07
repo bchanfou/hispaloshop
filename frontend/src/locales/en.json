@@ -3928,5 +3928,22 @@
     "products_with_tag": "Products with",
     "recipes_with_tag": "Recipes with",
     "trending_now": "Trending now"
+  },
+  "producerOrders": {
+    "dateAll": "All",
+    "dateToday": "Today",
+    "date7d": "7 days",
+    "date30d": "30 days",
+    "exportCSV": "Export CSV",
+    "subtotal": "Subtotal (your products)",
+    "platformFee": "Platform commission",
+    "influencerCut": "Ambassador commission",
+    "firstPurchaseNote": "1st purchase discount: absorbed by platform",
+    "yourShare": "Your share",
+    "printSlip": "Print",
+    "contactClient": "Contact",
+    "copyAddress": "Copy address",
+    "addressCopied": "Address copied",
+    "cancelled": "Cancelled"
   }
 }

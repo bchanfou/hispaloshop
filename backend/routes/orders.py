@@ -2630,14 +2630,17 @@ async def customer_reorder(order_id: str, user: User = Depends(get_current_user)
 
 @router.patch("/producer/orders/{order_id}/status")
 async def update_producer_order_status(order_id: str, body: dict, user: User = Depends(get_current_user)):
-    """Producer updates the status of one of their orders (PATCH variant used by new frontend)."""
+    """Producer updates the status of one of their orders (PATCH variant used by frontend).
+    One-way transitions only: paid/confirmed -> preparing -> shipped -> delivered.
+    Producer cannot cancel or go backwards.
+    """
     producer_id = user.user_id
     new_status = body.get("status")
-    allowed = ["confirmed", "shipped", "preparing", "cancelled"]
+    allowed = ["confirmed", "preparing", "shipped", "delivered"]
     if new_status not in allowed:
-        raise HTTPException(status_code=400, detail=f"Status must be one of: {allowed}")
+        raise HTTPException(status_code=400, detail=f"Status must be one of: {', '.join(allowed)}")
 
-    # Resolve order by order_id string or ObjectId
+    # Resolve order
     order = await db.orders.find_one({"order_id": order_id})
     if not order:
         try:
@@ -2648,11 +2651,16 @@ async def update_producer_order_status(order_id: str, body: dict, user: User = D
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
+    # One-way validation: cannot go backwards
+    STATUS_ORDER = {"pending": 0, "paid": 1, "confirmed": 2, "preparing": 3, "shipped": 4, "delivered": 5}
+    current = order.get("status", "paid")
+    if STATUS_ORDER.get(new_status, 0) <= STATUS_ORDER.get(current, 0):
+        raise HTTPException(status_code=400, detail=f"No se puede cambiar de '{current}' a '{new_status}'. Solo transiciones hacia adelante.")
+
     # Verify this producer has at least one item in the order
     line_items = order.get("line_items", order.get("items", []))
     producer_ids = [item.get("producer_id") for item in line_items]
     if producer_id not in producer_ids:
-        # Fall back to checking via products owned by producer
         product_ids_in_order = {item.get("product_id") for item in line_items if item.get("product_id")}
         if product_ids_in_order:
             owned = await db.products.count_documents({"producer_id": producer_id, "product_id": {"$in": list(product_ids_in_order)}})
@@ -2661,18 +2669,51 @@ async def update_producer_order_status(order_id: str, body: dict, user: User = D
         else:
             raise HTTPException(status_code=403, detail="Not your order")
 
+    now_iso = datetime.now(timezone.utc).isoformat()
     update_fields: Dict[str, Any] = {
         "status": new_status,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": now_iso,
     }
     if new_status == "shipped":
         if body.get("tracking_url"):
             update_fields["tracking_url"] = body["tracking_url"]
         if body.get("tracking_number"):
             update_fields["tracking_number"] = body["tracking_number"]
-        update_fields["shipped_at"] = datetime.now(timezone.utc).isoformat()
+        if body.get("shipping_carrier"):
+            update_fields["shipping_carrier"] = body["shipping_carrier"]
+        update_fields["shipped_at"] = now_iso
+    elif new_status == "delivered":
+        update_fields["delivered_at"] = now_iso
 
-    await db.orders.update_one({"_id": order["_id"]}, {"$set": update_fields})
+    # Atomic update with status_history
+    status_entry = {"status": new_status, "timestamp": now_iso, "updated_by": producer_id}
+    await db.orders.update_one(
+        {"_id": order["_id"]},
+        {"$set": update_fields, "$push": {"status_history": status_entry}},
+    )
+
+    # Notify consumer (idempotent: check last notification to avoid duplicates)
+    event_map = {
+        "confirmed": "order_confirmed",
+        "preparing": "order_preparing",
+        "shipped": "order_shipped",
+        "delivered": "order_delivered",
+    }
+    event_type = event_map.get(new_status)
+    if event_type:
+        try:
+            # Idempotency: skip if a notification for this (order, event) was sent in the last 60s
+            from routes.notifications import notify_order_event
+            recent = await db.notifications.find_one({
+                "action_url": {"$regex": order_id},
+                "notification_type": event_type,
+                "created_at": {"$gte": (datetime.now(timezone.utc) - timedelta(seconds=60)).isoformat()},
+            })
+            if not recent:
+                await notify_order_event(order_id, event_type)
+        except Exception as e:
+            logger.warning(f"[ORDER_PATCH] notify_order_event failed for {order_id}: {e}")
+
     return {"success": True, "status": new_status}
 
 
