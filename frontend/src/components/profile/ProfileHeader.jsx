@@ -477,8 +477,10 @@ export default function ProfileHeader({
                 setShowAccountSwitcher(false);
               }} className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left">
                       {acc.avatar_url ? <img src={acc.avatar_url} alt={acc.username} className="h-11 w-11 rounded-full object-cover" onError={e => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
+                  const img = e.currentTarget;
+                  img.style.display = 'none';
+                  const fallback = img.nextElementSibling;
+                  if (fallback && fallback.style) fallback.style.display = 'flex';
                 }} /> : null}
                       <InitialsAvatar name={acc.name || acc.full_name || acc.username || 'U'} size={44} style={acc.avatar_url ? {
                   display: 'none'
@@ -586,8 +588,10 @@ export default function ProfileHeader({
           background: STORY_RING_GRADIENT
         }} />}
           {user?.profile_image || user?.avatar_url ? <img src={user?.profile_image || user?.avatar_url} alt={user?.name} onClick={user?.has_active_story ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`) : undefined} className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover lg:h-[150px] lg:w-[150px] ${user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'}`} onError={e => {
-          e.target.style.display = 'none';
-          e.target.nextSibling.style.display = 'flex';
+          const img = e.currentTarget;
+          img.style.display = 'none';
+          const fallback = img.nextElementSibling;
+          if (fallback && fallback.style) fallback.style.display = 'flex';
         }} /> : null}
           <InitialsAvatar name={user?.name || user?.full_name || user?.username || '?'} size={86} className={`relative border-[3px] border-white lg:!w-[150px] lg:!h-[150px] ${user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'} ${user?.profile_image || user?.avatar_url ? '' : 'lg:text-2xl'}`} style={user?.profile_image || user?.avatar_url ? {
           display: 'none'

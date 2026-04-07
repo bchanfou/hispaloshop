@@ -52,10 +52,13 @@ function getTabsForRole(role, isOwn) {
   if (isOwn) ids.push('saved');
   return ALL_TABS.filter(t => ids.includes(t.id));
 }
-const priceFormatter = new Intl.NumberFormat('es-ES', {
-  style: 'currency',
-  currency: 'EUR'
-});
+function formatEuroPrice(value) {
+  const numeric = Number(value ?? 0);
+  return `${numeric.toLocaleString('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })} €`;
+}
 function formatViews(n) {
   if (n == null) return '0';
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + ' M';
@@ -212,6 +215,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
 
   // IntersectionObserver for infinite scroll
   useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
     const el = sentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(entries => {
@@ -339,7 +343,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                   {product.name || product.title}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-stone-950">
-                  {priceFormatter.format(product.price)}
+                  {formatEuroPrice(product.price)}
                 </p>
               </div>
             </div>

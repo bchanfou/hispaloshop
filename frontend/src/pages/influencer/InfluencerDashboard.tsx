@@ -325,6 +325,7 @@ export default function InfluencerDashboard() {
   const [collabs, setCollabs] = useState([]);
   const [discountCodes, setDiscountCodes] = useState([]);
   const [kpiStats, setKpiStats] = useState(null);
+  const [trafficData, setTrafficData] = useState(null);
   useEffect(() => {
     if (user) {
       setEmailVerified(user.email_verified);
@@ -364,6 +365,9 @@ export default function InfluencerDashboard() {
     apiClient.get('/influencer/stats').then(d => {
       if (active) setKpiStats(d);
     }).catch(logFetchErr('kpi-stats'));
+    apiClient.get('/influencer/analytics?days=30').then(d => {
+      if (active) setTrafficData(d);
+    }).catch(logFetchErr('analytics'));
     return () => {
       active = false;
       clearTimeout(copyTimerRef.current);
@@ -518,25 +522,28 @@ export default function InfluencerDashboard() {
             </p>
           </div>}
 
-        {/* === KPI CARDS ROW === */}
-        {kpiStats && <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">GMV 30d</p>
-              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.gmv_30d || 0))}</p>
-            </div>
-            <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Atribuciones activas</p>
-              <p className="text-xl font-bold text-stone-950">{kpiStats.active_attributions || 0}</p>
-            </div>
-            <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Comisiones pendientes</p>
-              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.pending_eur || 0))}</p>
-            </div>
-            <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Total cobrado</p>
-              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.paid_total_eur || 0))}</p>
-            </div>
-          </div>}
+        {/* === TRAFFIC-FOCUSED KPI CARDS === */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="rounded-2xl shadow-sm bg-white p-4">
+            <p className="text-xs text-stone-500 mb-1">{t('influencer_dashboard.peopleAttracted', 'Personas atraidas')}</p>
+            <p className="text-xl font-bold text-stone-950">{kpiStats?.active_attributions || trafficData?.summary?.all_time_orders || 0}</p>
+            <p className="text-[10px] text-stone-400 mt-0.5">total</p>
+          </div>
+          <div className="rounded-2xl shadow-sm bg-white p-4">
+            <p className="text-xs text-stone-500 mb-1">{t('influencer_dashboard.linkClicks', 'Clicks en tu link')}</p>
+            <p className="text-xl font-bold text-stone-950">{trafficData?.summary?.total_link_clicks || 0}</p>
+            <p className="text-[10px] text-stone-400 mt-0.5">30d</p>
+          </div>
+          <div className="rounded-2xl shadow-sm bg-white p-4">
+            <p className="text-xs text-stone-500 mb-1">{t('influencer_dashboard.conversionRate', 'Conversion')}</p>
+            <p className="text-xl font-bold text-stone-950">{trafficData?.summary?.click_to_order_rate || 0}%</p>
+            <p className="text-[10px] text-stone-400 mt-0.5">clicks → compras</p>
+          </div>
+          <div className="rounded-2xl shadow-sm bg-white p-4">
+            <p className="text-xs text-stone-500 mb-1">{t('influencer_dashboard.earnedThisMonth', 'Ganado este mes')}</p>
+            <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(trafficData?.summary?.total_commission || kpiStats?.pending_eur || 0))}</p>
+          </div>
+        </div>
 
         {/* Product Performance */}
         <div id="analytics-section" className="mb-6 bg-white shadow-sm rounded-2xl">
