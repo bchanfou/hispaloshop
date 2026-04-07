@@ -13,15 +13,24 @@ import { useProducerPlan } from '../../context/ProducerPlanContext';
 import apiClient from '../../services/api/client';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 
 /* ───────── constants ───────── */
 
-const DEFAULT_SUGGESTIONS = [
-  { icon: '🔍', text: 'Detecta mis oportunidades de exportación' },
-  { icon: '📋', text: 'Requisitos para exportar a Alemania' },
-  { icon: '💰', text: 'Calcula costes Incoterm FOB vs DDP' },
-  { icon: '📧', text: 'Crea un email de contacto para importador' },
-  { icon: '📅', text: 'Ferias B2B próximas para mi producto' },
+const PRODUCER_SUGGESTIONS = [
+  { icon: Globe, text: 'Detecta mis oportunidades de exportacion' },
+  { icon: ClipboardList, text: 'Requisitos para exportar a Alemania' },
+  { icon: DollarSign, text: 'Calcula costes Incoterm FOB vs DDP' },
+  { icon: Mail, text: 'Crea un email de contacto para importador' },
+  { icon: Calendar, text: 'Ferias B2B proximas para mi producto' },
+];
+
+const IMPORTER_SUGGESTIONS = [
+  { icon: Globe, text: 'Productos trending para importar a mi mercado' },
+  { icon: Users, text: 'Busca productores verificados de aceite de oliva' },
+  { icon: ClipboardList, text: 'Requisitos para importar desde Espana' },
+  { icon: DollarSign, text: 'Calcula costes de importacion FOB vs DDP' },
+  { icon: Mail, text: 'Crea un email para contactar a un productor' },
 ];
 
 const TOOL_LABELS = {
@@ -73,7 +82,7 @@ function UpgradeBanner() {
       </div>
 
       <h2 className="text-[28px] font-bold text-stone-950 tracking-tight mb-3">
-        Agente Comercial IA
+        Pedro AI
       </h2>
 
       <p className="text-base text-stone-500 leading-relaxed max-w-[420px] mb-9">
@@ -83,7 +92,7 @@ function UpgradeBanner() {
 
       <button
         onClick={() => navigate('/producer/plan')}
-        className="px-8 py-3.5 rounded-full bg-stone-700 text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
+        className="px-8 py-3.5 rounded-full bg-[#b45309] text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03] hover:bg-[#78350f]"
       >
         Actualizar a ELITE
       </button>
@@ -145,7 +154,7 @@ function ToolCallCard({ toolCall }) {
         <div className="px-3.5 pb-3">
           {hasPdf && (
             <button
-              onClick={() => downloadPdfFromBase64(toolCall.result.pdf_base64)}
+              onClick={() => { trackEvent('pedro_contract_downloaded', { contract_id: toolCall.result?.contract_id }); downloadPdfFromBase64(toolCall.result.pdf_base64); }}
               className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <FileText size={14} />
@@ -189,6 +198,7 @@ export default function CommercialAIPage() {
   const inputRef = useRef(null);
 
   const isElite = plan?.toLowerCase() === 'elite';
+  const isImporter = user?.role === 'importer';
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -201,6 +211,7 @@ export default function CommercialAIPage() {
   // Load dynamic data (opportunities + alerts + profile) on mount for ELITE users
   useEffect(() => {
     if (!isElite) return;
+    trackEvent('pedro_opened', { role: isImporter ? 'importer' : 'producer' });
     apiClient.get('/v1/commercial-ai/opportunities').then((data) => {
       if (data?.opportunities) setDynamicOpportunities(data.opportunities);
     }).catch(() => {});
@@ -280,6 +291,7 @@ export default function CommercialAIPage() {
         messages: allMessages.map(m => ({ role: m.role, content: m.content })),
       });
 
+      trackEvent('pedro_message_sent', { has_tool_call: (data.tool_calls || []).length > 0, role: isImporter ? 'importer' : 'producer' });
       setMessages(prev => [
         ...prev,
         {
@@ -318,14 +330,14 @@ export default function CommercialAIPage() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1.5">
           <h1 className="text-[32px] font-bold text-stone-950 tracking-tight m-0">
-            Agente Comercial
+            Pedro AI
           </h1>
-          <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-[11px] font-bold tracking-wide">
+          <span className="px-3 py-1 rounded-full bg-[#b45309]/10 text-[#b45309] text-[11px] font-bold tracking-wide">
             ELITE
           </span>
         </div>
         <p className="text-[15px] text-stone-500 m-0">
-          Tu representante de ventas internacional con IA
+          {isImporter ? 'Tu agente de sourcing internacional' : 'Tu agente de exportacion internacional'}
         </p>
       </div>
 
@@ -339,7 +351,7 @@ export default function CommercialAIPage() {
           <Bell size={14} />
           Alertas
           {alertCount > 0 && (
-            <span className={`ml-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${hasUrgentAlerts ? 'bg-stone-950' : 'bg-stone-600'}`}>
+            <span className={`ml-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${hasUrgentAlerts ? 'bg-[#b45309]' : 'bg-stone-600'}`}>
               {alertCount}
             </span>
           )}
@@ -419,7 +431,7 @@ export default function CommercialAIPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
                 className="min-w-[240px] shrink-0 snap-start rounded-2xl border border-black/[0.08] bg-white px-[18px] py-5 shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                onClick={() => handleSend(`Analiza ${opp.country_name} para ${opp.category}, dame precios, importadores y requisitos`)}
+                onClick={() => { trackEvent('pedro_market_explored', { country: opp.country_code || opp.country_name }); handleSend(`Analiza ${opp.country_name} para ${opp.category}, dame precios, importadores y requisitos`); }}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[28px]">{opp.flag}</span>
@@ -576,7 +588,7 @@ export default function CommercialAIPage() {
                               onClick={() => { closePanel(); handleSend(`${action.title}. ${action.action}.`); }}
                               className="flex w-full items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 text-left hover:border-stone-300 transition-all"
                             >
-                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-950 text-[11px] font-bold text-white">{action.priority}</span>
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b45309] text-[11px] font-bold text-white">{action.priority}</span>
                               <div className="flex-1 min-w-0">
                                 <p className="text-[13px] font-medium text-stone-950">{action.title}</p>
                                 <p className="mt-0.5 text-[11px] text-stone-500">{action.why}</p>
@@ -693,7 +705,7 @@ export default function CommercialAIPage() {
               Claude Sonnet — análisis avanzado
             </p>
           </div>
-          <div className="ml-auto w-2 h-2 rounded-full bg-stone-950" />
+          <div className="ml-auto w-2 h-2 rounded-full bg-[#b45309]" />
         </div>
 
         {/* Messages Area */}
@@ -708,19 +720,22 @@ export default function CommercialAIPage() {
                 <Globe size={28} className="text-stone-400" strokeWidth={1.5} />
               </div>
               <p className="text-[15px] text-stone-500 mb-5 max-w-[320px] m-0">
-                Pregunta sobre mercados, regulaciones o importadores
+                {isImporter ? 'Pregunta sobre productos, productores o viabilidad de importacion' : 'Pregunta sobre mercados, regulaciones o importadores'}
               </p>
               <div className="flex flex-wrap justify-center gap-2 max-w-[480px]">
-                {DEFAULT_SUGGESTIONS.map(s => (
-                  <button
-                    type="button"
-                    key={s.text}
-                    onClick={() => handleSend(s.text)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-black/[0.08] bg-white text-[13px] text-stone-950 cursor-pointer transition-colors duration-200 hover:bg-stone-50"
-                  >
-                    <span>{s.icon}</span> {s.text}
-                  </button>
-                ))}
+                {(isImporter ? IMPORTER_SUGGESTIONS : PRODUCER_SUGGESTIONS).map(s => {
+                  const SIcon = s.icon;
+                  return (
+                    <button
+                      type="button"
+                      key={s.text}
+                      onClick={() => handleSend(s.text)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-black/[0.08] bg-white text-[13px] text-stone-950 cursor-pointer transition-colors duration-200 hover:bg-stone-50"
+                    >
+                      <SIcon size={14} className="text-stone-500" /> {s.text}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

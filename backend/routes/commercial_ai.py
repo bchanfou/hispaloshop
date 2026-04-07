@@ -60,8 +60,9 @@ def _sanitize(text: str) -> str:
 # DYNAMIC SYSTEM PROMPT
 # ═══════════════════════════════════════════════════════
 
-def build_system_prompt(pedro_profile: dict, store: dict, country: str) -> str:
-    """Build personalized system prompt for Pedro with fear, tone, experience adaptation."""
+def build_system_prompt(pedro_profile: dict, store: dict, country: str, user_role: str = "producer") -> str:
+    """Build personalized system prompt for Pedro with fear, tone, experience, and role adaptation."""
+    is_importer = user_role == "importer"
     tone_level = pedro_profile.get("tone_level", 1)
     interaction_count = pedro_profile.get("interaction_count", 0)
     experience = pedro_profile.get("experience_level", "novice")
@@ -155,12 +156,23 @@ Este es el primer contacto con el productor. Haz lo siguiente:
 ESTO JUSTIFICA EL PLAN ELITE — demuéstrale valor en los primeros 30 segundos.
 """
 
-    return f"""Eres Pedro, el socio comercial B2B senior de Hispaloshop para productores con plan ELITE.
+    role_identity = (
+        "Eres Pedro, el agente de sourcing internacional de Hispaloshop para importadores con plan ELITE.\n\n"
+        "QUIEN ERES:\n"
+        "Experto en sourcing de alimentos artesanales y premium. Ayudas a importadores a encontrar productores verificados, "
+        "productos trending, y evaluar viabilidad de importacion (aranceles, certificaciones, logistica). "
+        "Tu trabajo es que el importador encuentre los mejores productos al mejor precio y cierre acuerdos de distribucion."
+    ) if is_importer else (
+        "Eres Pedro, el socio comercial B2B senior de Hispaloshop para productores con plan ELITE.\n\n"
+        "QUIEN ERES:\n"
+        "Experto en exportacion de alimentos artesanales y premium. Has acompanado a decenas de productores a abrir mercado en 9 paises. "
+        "Eres su socio estrategico — no un vendedor, no una herramienta, un asesor comercial de verdad que maneja datos, habla con importadores, y cierra contratos. "
+        "Tu trabajo es que las transacciones B2B ocurran y que ambas partes queden satisfechas."
+    )
+
+    return f"""{role_identity}
 
 IDIOMA: Detecta el idioma del usuario y responde SIEMPRE en ese mismo idioma.
-
-QUIÉN ERES:
-Experto en exportación de alimentos artesanales y premium. Has acompañado a decenas de productores españoles a abrir mercado en 9 países. Eres su socio estratégico — no un vendedor, no una herramienta, un asesor comercial de verdad que maneja datos, habla con importadores, y cierra contratos. Tu trabajo es que las transacciones B2B ocurran y que ambas partes queden satisfechas.
 
 NIVEL DE CONFIANZA: {tone_level}/3 (interacciones: {interaction_count})
 {tone_instruction}
@@ -168,40 +180,41 @@ NIVEL DE CONFIANZA: {tone_level}/3 (interacciones: {interaction_count})
 NIVEL DE EXPERIENCIA DEL PRODUCTOR: {experience}
 {exp_instruction}
 
-DATOS DEL VENDEDOR:
+{'DATOS DEL IMPORTADOR' if is_importer else 'DATOS DEL VENDEDOR'}:
 - Tienda: {store.get('name', 'Sin nombre') if store else 'Sin tienda'}
-- País origen: {country}
+- {'Pais de mercado' if is_importer else 'Pais origen'}: {country}
+- Rol: {'importador' if is_importer else 'productor'}
 {profile_section}{summary_section}{fear_section}
 {onboarding_note}
 
-HERRAMIENTAS DISPONIBLES — úsalas SIEMPRE antes de dar consejos:
+HERRAMIENTAS DISPONIBLES — usalas SIEMPRE antes de dar consejos:
 
-ANÁLISIS DE MERCADO:
-- analyze_market — análisis completo de mercado objetivo
-- predict_demand — predicción mensual con estacionalidad
-- search_importers — búsqueda básica de importadores
-- smart_importer_match — matching inteligente con scoring y razones de fit
-- detect_export_opportunities — análisis de tu catálogo vs mercados (usar en primer contacto)
+{'SOURCING Y MERCADO:' if is_importer else 'ANALISIS DE MERCADO:'}
+- analyze_market — analisis completo de mercado {'(viabilidad de importacion, aranceles de entrada)' if is_importer else 'objetivo'}
+- predict_demand — prediccion mensual con estacionalidad
+- search_importers — {'busqueda de productores verificados en otros paises' if is_importer else 'busqueda basica de importadores'}
+- smart_importer_match — {'matching inteligente con productores (scoring y razones de fit)' if is_importer else 'matching inteligente con scoring y razones de fit'}
+- detect_export_opportunities — analisis de {'productos trending sin importador en tu mercado' if is_importer else 'tu catalogo vs mercados (usar en primer contacto)'}
 
 REQUISITOS Y COSTES:
-- get_market_entry_requirements — checklist de certificaciones, etiquetado, aranceles por país + categoría
+- get_market_entry_requirements — checklist de certificaciones, etiquetado, aranceles por pais + categoria
 - calculate_incoterm_costs — desglose EXW vs FOB vs CIF vs DDP con costes reales
-- get_trade_shows — ferias B2B relevantes según tus mercados
+- get_trade_shows — ferias B2B relevantes segun tus mercados
 
 CONTENIDO:
-- generate_pitch — email personalizado para un importador específico en su idioma (first_contact, sample_offer, formal_offer, follow_up)
-- generate_contract — borrador de contrato B2B con PDF descargable
+- generate_pitch — email personalizado {'para un productor' if is_importer else 'para un importador'} en su idioma
+- generate_contract — borrador de contrato {'de importacion/distribucion' if is_importer else 'B2B'} con PDF descargable
 
-ACCIONES DIRECTAS (SIEMPRE con confirmación previa del productor):
-- create_b2b_offer_draft — crear borrador de oferta B2B en el sistema
-- send_offer_to_importer — enviar la oferta al importador (se añade al pipeline automáticamente)
+ACCIONES DIRECTAS (SIEMPRE con confirmacion previa):
+- create_b2b_offer_draft — crear borrador de {'solicitud de importacion' if is_importer else 'oferta B2B'} en el sistema
+- send_offer_to_importer — enviar {'la solicitud al productor' if is_importer else 'la oferta al importador'}
 
 PIPELINE Y OBJETIVOS:
-- manage_pipeline — trackear leads (contacted, interested, negotiating, offer_sent, closed_won, closed_lost, cold)
-- manage_export_goals — objetivos de exportación (first_contract, new_market_entry, export_revenue, new_importers)
+- manage_pipeline — trackear leads
+- manage_export_goals — objetivos {'de sourcing' if is_importer else 'de exportacion'}
 
 CUENTA:
-- check_producer_plan — verificar plan y límites
+- check_producer_plan — verificar plan y limites
 
 MERCADOS DISPONIBLES: Alemania (DE), Francia (FR), Reino Unido (GB), Estados Unidos (US), Japón (JP), Italia (IT), Países Bajos (NL), Suecia (SE), Emiratos Árabes (AE).
 
@@ -544,8 +557,9 @@ async def commercial_ai_chat(request_body: CommercialChatRequest, request: Reque
         )
         pedro_profile = await v2.get_or_create_pedro_profile(db, user_id)
 
-    # Build system prompt with all context
-    system_prompt = build_system_prompt(pedro_profile, store, country)
+    # Build system prompt with all context (role-adapted)
+    user_role = getattr(current_user, "role", "producer")
+    system_prompt = build_system_prompt(pedro_profile, store, country, user_role=user_role)
 
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:

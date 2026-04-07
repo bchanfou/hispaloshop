@@ -4024,5 +4024,16 @@
     "tooManyRequests": "Too many requests. Wait a moment.",
     "noConnection": "No connection. Check your network.",
     "errorRetry": "Error. Try again."
+  },
+  "pedroAI": {
+    "exportAgent": "Your international export agent",
+    "sourcingAgent": "Your international sourcing agent",
+    "upgradeTitle": "Pedro AI",
+    "upgradeDesc": "Access your international commercial agent with market analysis, importer matching and contract generation.",
+    "upgradeCta": "Upgrade to ELITE",
+    "askMarkets": "Ask about markets, regulations or importers",
+    "askSourcing": "Ask about products, producers or import viability",
+    "downloadContract": "Download contract PDF",
+    "explore": "Explore"
   }
 }

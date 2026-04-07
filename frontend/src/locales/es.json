@@ -5739,5 +5739,16 @@
     "tooManyRequests": "Demasiadas solicitudes. Espera un momento.",
     "noConnection": "Sin conexion. Comprueba tu red.",
     "errorRetry": "Error. Intentalo de nuevo."
+  },
+  "pedroAI": {
+    "exportAgent": "Tu agente de exportacion internacional",
+    "sourcingAgent": "Tu agente de sourcing internacional",
+    "upgradeTitle": "Pedro AI",
+    "upgradeDesc": "Accede a tu agente comercial internacional con analisis de mercados, matching con importadores y generacion de contratos.",
+    "upgradeCta": "Actualizar a ELITE",
+    "askMarkets": "Pregunta sobre mercados, regulaciones o importadores",
+    "askSourcing": "Pregunta sobre productos, productores o viabilidad de importacion",
+    "downloadContract": "Descargar contrato PDF",
+    "explore": "Explorar"
   }
 }

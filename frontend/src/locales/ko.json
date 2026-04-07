@@ -4028,5 +4028,16 @@
     "tooManyRequests": "요청이 너무 많습니다. 잠시 기다려주세요.",
     "noConnection": "연결 없음. 네트워크를 확인하세요.",
     "errorRetry": "오류. 다시 시도하세요."
+  },
+  "pedroAI": {
+    "exportAgent": "국제 수출 에이전트",
+    "sourcingAgent": "국제 소싱 에이전트",
+    "upgradeTitle": "Pedro AI",
+    "upgradeDesc": "시장 분석, 수입업체 매칭 및 계약 생성이 포함된 국제 상업 에이전트에 접근하세요.",
+    "upgradeCta": "ELITE로 업그레이드",
+    "askMarkets": "시장, 규정 또는 수입업체에 대해 질문하세요",
+    "askSourcing": "제품, 생산자 또는 수입 가능성에 대해 질문하세요",
+    "downloadContract": "계약서 PDF 다운로드",
+    "explore": "탐색"
   }
 }
