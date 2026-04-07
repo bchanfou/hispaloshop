@@ -96,6 +96,7 @@ from routes.gamification import router as gamification_router
 from routes.loyalty import router as loyalty_router
 from routes.invoices import router as invoices_router
 from routes.translation import router as translation_router
+from routes.certificates_public import router as certificates_public_router
 
 logger = logging.getLogger(__name__)
 
@@ -267,6 +268,7 @@ app.include_router(wishlists_router, prefix="/api", tags=["wishlists"])
 app.include_router(legacy_notifications_router, prefix="/api", tags=["notifications"])
 app.include_router(legacy_uploads_router, prefix="/api", tags=["uploads"])
 app.include_router(legacy_certificates_router, prefix="/api", tags=["certificates"])
+app.include_router(certificates_public_router, prefix="/api", tags=["certificates-v2"])
 app.include_router(legacy_cron_router, prefix="/api", tags=["cron"])
 app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["recipes-reviews"])
 app.include_router(legacy_admin_router, prefix="/api", tags=["admin"])

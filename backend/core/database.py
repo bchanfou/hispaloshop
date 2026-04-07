@@ -323,6 +323,41 @@ async def _create_indexes():
     except Exception as e:
         logger.warning(f"  SKIP: products text search index ({e})")
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # HISPALOTRANSLATE - Cache de traducciones
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.translation_cache.create_index("fragment_hash", unique=True)
+    await db.translation_cache.create_index([("source_lang", 1), ("target_lang", 1)])
+    await db.translation_cache.create_index("category")
+    await db.translation_cache.create_index("usage_count")
+    logger.info("  OK: translation_cache indexes")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # CERTIFICATE SCANS - Analytics de escaneos
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.certificate_scans.create_index("product_id")
+    await db.certificate_scans.create_index([("product_id", 1), ("scanned_at", -1)])
+    await db.certificate_scans.create_index("language")
+    await db.certificate_scans.create_index("country")
+    await db.certificate_scans.create_index("date")
+    # TTL: mantener scans por 90 días (analytics rolling)
+    try:
+        await db.certificate_scans.create_index(
+            "scanned_at", expireAfterSeconds=90 * 24 * 3600
+        )
+    except Exception:
+        pass
+    logger.info("  OK: certificate_scans indexes")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PRODUCT TRANSLATIONS - Cache de traducciones de productos
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.product_translations.create_index(
+        [("product_id", 1), ("target_lang", 1)], unique=True
+    )
+    await db.product_translations.create_index("updated_at")
+    logger.info("  OK: product_translations indexes")
+
     logger.info("All indexes created successfully")
 
 
