@@ -3970,5 +3970,26 @@
     "faqChangePlan": "Can I change plans?",
     "faqCancel": "What if I cancel?",
     "faqPaymentFail": "What if payment fails?"
+  },
+  "producerPayments": {
+    "totalAccumulated": "Total accumulated",
+    "available": "Available",
+    "readyToWithdraw": "Ready to withdraw",
+    "minWithdrawal": "Min 20 EUR to withdraw",
+    "pendingRelease": "Pending (<15d)",
+    "d15Rule": "Available 15 days after delivery",
+    "totalWithdrawn": "Total withdrawn",
+    "requestWithdrawal": "Request withdrawal",
+    "manualPayoutNote": "Payments processed manually in 1-3 business days",
+    "d15Explanation": "Funds available 15 days after order delivery. Payments transferred manually from our Revolut Business account.",
+    "min20": "You need at least 20 EUR to request a withdrawal",
+    "withdrawalRequested": "Withdrawal request submitted",
+    "withdrawalHistory": "Withdrawal history",
+    "wdPending": "Pending",
+    "wdProcessing": "Processing",
+    "wdCompleted": "Transferred",
+    "wdFailed": "Failed",
+    "manualPayoutsTitle": "Manual payments via bank transfer",
+    "manualPayoutsDesc": "Your earnings accumulate. When you request a withdrawal, we transfer from Revolut Business to your bank account in 1-3 business days. Set up your bank details to request withdrawals."
   }
 }

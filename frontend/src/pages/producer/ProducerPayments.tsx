@@ -7,6 +7,7 @@ import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import i18n from "../../locales/i18n";
+import { trackEvent } from '../../utils/analytics';
 const fmtMoney = (val, cur = 'EUR') => (Number(val) || 0).toLocaleString(undefined, {
   style: 'currency',
   currency: cur
@@ -237,6 +238,7 @@ function PayoutMethodSection({
         payout_method: payoutMethod,
         bank_details: payoutMethod === 'bank_transfer' ? bankDetails : undefined
       });
+      trackEvent('producer_banking_details_saved');
       toast.success(t('producer_payments.metodoDePagoActualizado', 'Método de pago actualizado'));
       onRefresh?.();
     } catch (err) {
@@ -377,8 +379,13 @@ export default function ProducerPayments() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [openingDashboard, setOpeningDashboard] = useState(false);
   const [visibleOrders, setVisibleOrders] = useState(20);
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [requestingPayout, setRequestingPayout] = useState(false);
+
   useEffect(() => {
     fetchPayments();
+    apiClient.get('/producer/withdrawals').then(d => setWithdrawals(Array.isArray(d) ? d : [])).catch(() => {});
+    trackEvent('producer_payments_viewed');
   }, []);
   const fetchPayments = async () => {
     try {
@@ -390,6 +397,28 @@ export default function ProducerPayments() {
       setLoading(false);
     }
   };
+  const handleRequestPayout = async () => {
+    if (requestingPayout) return;
+    const available = data?.balance_available ?? data?.pending_payout ?? 0;
+    if (available < 20) {
+      toast.error(t('producerPayments.min20', 'Necesitas al menos 20 EUR para solicitar un retiro'));
+      return;
+    }
+    if (!window.confirm(`Solicitar retiro de ${fmtMoney(available)}?`)) return;
+    setRequestingPayout(true);
+    try {
+      await apiClient.post('/producer/request-payout', { amount: available });
+      trackEvent('producer_withdrawal_requested', { amount: available });
+      toast.success(t('producerPayments.withdrawalRequested', 'Solicitud de retiro enviada'));
+      fetchPayments();
+      apiClient.get('/producer/withdrawals').then(d => setWithdrawals(Array.isArray(d) ? d : [])).catch(() => {});
+    } catch (err) {
+      toast.error(err?.data?.detail || err.message || 'Error');
+    } finally {
+      setRequestingPayout(false);
+    }
+  };
+
   const handleOpenStripeDashboard = async () => {
     setOpeningDashboard(true);
     try {
@@ -465,37 +494,46 @@ export default function ProducerPayments() {
           </div>
         </div>}
 
-      {/* Stat Cards */}
+      {/* Balance Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <StatCard icon={DollarSign} label={t('producer.grossSales')} value={fmtMoney(data.total_gross)} sublabel={`${data.paid_orders ?? 0} pedidos completados`} color="blue" testId="stat-gross" />
-        <StatCard icon={TrendingUp} label={`Tus ganancias (${100 - commissionPct}%)`} value={fmtMoney(data.total_net)} sublabel={t('producer.afterCommission')} color="green" testId="stat-net" />
-        <StatCard icon={CreditCard} label={`Comisión plataforma (${commissionPct}%)`} value={fmtMoney(data.total_platform_fee)} color="amber" testId="stat-fees" />
-        <StatCard icon={Wallet} label={t('producer.pendingPayout')} value={fmtMoney(data.pending_payout)} sublabel={data.stripe_connected ? 'Stripe conectado' : 'Solicita tu pago'} color={data.pending_payout > 0 ? 'green' : 'default'} testId="stat-pending" />
+        <StatCard icon={DollarSign} label={t('producerPayments.totalAccumulated', 'Total acumulado')} value={fmtMoney(data.total_net)} sublabel={`${data.paid_orders ?? 0} pedidos`} color="default" testId="stat-total" />
+        <StatCard icon={Wallet} label={t('producerPayments.available', 'Disponible')} value={fmtMoney(data.balance_available ?? data.pending_payout)} sublabel={data.balance_available >= 20 ? t('producerPayments.readyToWithdraw', 'Listo para retirar') : t('producerPayments.minWithdrawal', 'Min 20 EUR para retirar')} color={data.balance_available >= 20 ? 'green' : 'default'} testId="stat-available" />
+        <StatCard icon={CreditCard} label={t('producerPayments.pendingRelease', 'Pendiente (<15d)')} value={fmtMoney(data.balance_pending ?? 0)} sublabel={t('producerPayments.d15Rule', 'Disponible 15 dias tras entrega')} color="amber" testId="stat-pending" />
+        <StatCard icon={TrendingUp} label={t('producerPayments.totalWithdrawn', 'Total pagado')} value={fmtMoney(data.total_withdrawn ?? 0)} color="blue" testId="stat-withdrawn" />
       </div>
 
-      {/* Stripe Connect Banner (if not connected) */}
-      {!data.stripe_connected && <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4" data-testid="stripe-connect-banner">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="p-2.5 bg-stone-100 rounded-2xl">
-              <AlertCircle className="w-5 h-5 text-stone-700" />
-            </div>
-            <div>
-              <h3 className="font-medium text-stone-950 text-sm">Conecta Stripe para recibir pagos</h3>
-              <p className="text-xs text-stone-600 mt-0.5">
-                Tus ganancias se acumulan, pero necesitas Stripe Connect para recibir transferencias automáticas.
-              </p>
-            </div>
+      {/* Withdraw button */}
+      {(data.balance_available ?? data.pending_payout ?? 0) >= 20 && (
+        <div className="bg-stone-950 text-white rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold">{fmtMoney(data.balance_available ?? data.pending_payout)} disponible</p>
+            <p className="text-xs text-white/70">{t('producerPayments.manualPayoutNote', 'Los pagos se procesan manualmente en 1-3 dias habiles')}</p>
           </div>
-          <button type="button" onClick={async () => {
-        try {
-          const res = await apiClient.post('/producer/stripe/create-account', {});
-          if (res.url) window.location.href = res.url;else toast.success('Cuenta de Stripe ya creada');
-        } catch (e) {
-          toast.error(e.message || 'Error');
-        }
-      }} className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors self-start" data-testid="connect-stripe-cta">
-            Conectar Stripe
+          <button type="button" onClick={() => handleRequestPayout()} className="text-xs bg-white text-stone-950 px-4 py-2 rounded-full font-semibold hover:bg-stone-100 transition-colors">
+            {t('producerPayments.requestWithdrawal', 'Solicitar retiro')}
           </button>
+        </div>
+      )}
+
+      {/* D+15 info */}
+      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3 flex items-start gap-2">
+        <AlertCircle className="w-4 h-4 text-stone-500 mt-0.5 shrink-0" />
+        <p className="text-xs text-stone-600">
+          {t('producerPayments.d15Explanation', 'Los fondos estan disponibles 15 dias despues de la entrega del pedido. Los pagos se transfieren manualmente desde nuestra cuenta de Revolut Business.')}
+        </p>
+      </div>
+
+      {/* Manual payouts V1 info */}
+      {!data.stripe_connected && <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 flex items-start gap-3" data-testid="manual-payout-info">
+          <div className="p-2.5 bg-stone-100 rounded-2xl shrink-0">
+            <Wallet className="w-5 h-5 text-stone-700" />
+          </div>
+          <div>
+            <h3 className="font-medium text-stone-950 text-sm">{t('producerPayments.manualPayoutsTitle', 'Pagos manuales via transferencia')}</h3>
+            <p className="text-xs text-stone-600 mt-0.5">
+              {t('producerPayments.manualPayoutsDesc', 'Tus ganancias se acumulan. Cuando solicitas un retiro, transferimos desde Revolut Business a tu cuenta bancaria en 1-3 dias habiles. Configura tus datos bancarios para poder solicitar retiros.')}
+            </p>
+          </div>
         </div>}
 
       {/* Chart + Recent Orders Grid */}
@@ -562,6 +600,7 @@ export default function ProducerPayments() {
           a.download = `hispaloshop-pagos-${new Date().toISOString().slice(0, 10)}.csv`;
           a.click();
           URL.revokeObjectURL(url);
+          trackEvent('producer_payments_exported', { format: 'csv' });
           toast.success('CSV exportado');
         }} className="text-xs font-semibold text-stone-500 hover:text-stone-950 transition-colors">
               Exportar CSV
@@ -593,6 +632,43 @@ export default function ProducerPayments() {
             </table>
           </div>
         </div>}
+
+      {/* Withdrawal History */}
+      {withdrawals.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden" data-testid="withdrawal-history">
+          <div className="px-4 py-3 border-b border-stone-100">
+            <h2 className="font-medium text-stone-950 text-sm flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-stone-500" />
+              {t('producerPayments.withdrawalHistory', 'Historial de retiros')}
+            </h2>
+          </div>
+          <div className="divide-y divide-stone-100">
+            {withdrawals.map((wd, i) => {
+              const statusMap = {
+                pending: { label: t('producerPayments.wdPending', 'Pendiente'), cls: 'bg-stone-100 text-stone-600' },
+                processing: { label: t('producerPayments.wdProcessing', 'En proceso'), cls: 'bg-stone-100 text-stone-700' },
+                completed: { label: t('producerPayments.wdCompleted', 'Transferido'), cls: 'bg-stone-950 text-white' },
+                failed: { label: t('producerPayments.wdFailed', 'Fallido'), cls: 'bg-stone-200 text-stone-700' },
+              };
+              const badge = statusMap[wd.status] || statusMap.pending;
+              return (
+                <div key={wd.payout_id || i} className="px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-stone-950">{fmtMoney(wd.amount)}</p>
+                    <p className="text-xs text-stone-500">
+                      {wd.requested_at ? new Date(wd.requested_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                      {wd.iban_masked ? ` \u00b7 IBAN ${wd.iban_masked}` : ''}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${badge.cls}`}>
+                    {badge.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Info footer */}
       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-sm text-stone-500">

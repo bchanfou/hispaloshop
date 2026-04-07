@@ -267,12 +267,14 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     total_gross = 0
     total_net = 0
     total_platform_fee = 0
-    pending_payout = 0
+    balance_available = 0    # delivered >15d, not paid out
+    balance_pending = 0      # delivered <15d (D+15 rule)
     paid_orders_count = 0
     pending_orders_count = 0
     recent_orders = []
     monthly_data = {}
-    
+    d15_cutoff = (datetime.now(timezone.utc) - timedelta(days=15)).isoformat()
+
     for order in all_orders:
         producer_financials = _get_producer_financial_snapshot(order, user.user_id)
         if not producer_financials:
@@ -282,15 +284,20 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         platform_fee = producer_financials["platform_fee"]
         net_earnings = producer_financials["net_earnings"]
         is_paid = order.get("status") in ("paid", "confirmed", "preparing", "shipped", "delivered")
-        
+
         if is_paid:
             total_gross += gross_amount
             total_net += net_earnings
             total_platform_fee += platform_fee
             paid_orders_count += 1
-            
+
             if not producer_financials["paid_out"]:
-                pending_payout += net_earnings
+                # D+15: funds available only if delivered >15 days ago
+                delivered_at = order.get("delivered_at") or order.get("updated_at") or order.get("created_at", "")
+                if order.get("status") == "delivered" and delivered_at <= d15_cutoff:
+                    balance_available += net_earnings
+                else:
+                    balance_pending += net_earnings
         else:
             pending_orders_count += 1
         
@@ -337,11 +344,23 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     fiscal = (seller_doc or {}).get("fiscal_status", {})
     tax_withholding_pct = fiscal.get("withholding_pct") if fiscal.get("certificate_verified") else None
 
+    # Total withdrawn (completed payouts)
+    total_withdrawn = 0.0
+    completed_payouts = await db.manual_payouts.find(
+        {"producer_id": user.user_id, "status": "completed"},
+        {"amount": 1},
+    ).to_list(500)
+    for p in completed_payouts:
+        total_withdrawn += float(p.get("amount", 0))
+
     return {
         "total_gross": round(total_gross, 2),
         "total_net": round(total_net, 2),
         "total_platform_fee": round(total_platform_fee, 2),
-        "pending_payout": round(pending_payout, 2),
+        "balance_available": round(balance_available, 2),
+        "balance_pending": round(balance_pending, 2),
+        "pending_payout": round(balance_available + balance_pending, 2),  # backward compat
+        "total_withdrawn": round(total_withdrawn, 2),
         "commission_rate": current_commission_rate,
         "commission_plan": current_plan,
         "paid_orders": paid_orders_count,
@@ -983,8 +1002,8 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
             pending_balance += snapshot.get("net_earnings", 0)
 
     amount = round(min(float(body.get("amount", 0)), pending_balance), 2)
-    if amount <= 0:
-        raise HTTPException(status_code=400, detail="No tienes saldo pendiente para retirar")
+    if amount < 20:
+        raise HTTPException(status_code=400, detail="El minimo para solicitar un retiro es 20 EUR")
 
     import uuid
     payout_id = f"payout_{uuid.uuid4().hex[:12]}"
@@ -1004,6 +1023,26 @@ async def request_manual_payout(request: Request, user: User = Depends(get_curre
     await db.manual_payouts.insert_one(payout)
 
     return {"success": True, "payout_id": payout_id, "status": "pending"}
+
+
+@router.get("/producer/withdrawals")
+async def get_producer_withdrawals(user: User = Depends(get_current_user)):
+    """List all withdrawal requests for the producer."""
+    await require_role(user, ["producer", "importer"])
+    payouts = await db.manual_payouts.find(
+        {"producer_id": user.user_id},
+        {"_id": 0},
+    ).sort("requested_at", -1).to_list(100)
+    # Mask IBAN for display
+    for p in payouts:
+        bd = p.get("bank_details", {})
+        iban = bd.get("iban", "")
+        if iban and len(iban) > 4:
+            p["iban_masked"] = "****" + iban[-4:]
+        else:
+            p["iban_masked"] = iban or ""
+        p.pop("bank_details", None)  # don't expose full bank details in list
+    return payouts
 
 
 # ============================================

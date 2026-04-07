@@ -5687,5 +5687,26 @@
     "faqChangePlan": "Puedo cambiar de plan?",
     "faqCancel": "Que pasa si cancelo?",
     "faqPaymentFail": "Que pasa si falla el pago?"
+  },
+  "producerPayments": {
+    "totalAccumulated": "Total acumulado",
+    "available": "Disponible",
+    "readyToWithdraw": "Listo para retirar",
+    "minWithdrawal": "Min 20 EUR para retirar",
+    "pendingRelease": "Pendiente (<15d)",
+    "d15Rule": "Disponible 15 dias tras entrega",
+    "totalWithdrawn": "Total pagado",
+    "requestWithdrawal": "Solicitar retiro",
+    "manualPayoutNote": "Los pagos se procesan manualmente en 1-3 dias habiles",
+    "d15Explanation": "Los fondos estan disponibles 15 dias despues de la entrega del pedido. Los pagos se transfieren manualmente desde nuestra cuenta de Revolut Business.",
+    "min20": "Necesitas al menos 20 EUR para solicitar un retiro",
+    "withdrawalRequested": "Solicitud de retiro enviada",
+    "withdrawalHistory": "Historial de retiros",
+    "wdPending": "Pendiente",
+    "wdProcessing": "En proceso",
+    "wdCompleted": "Transferido",
+    "wdFailed": "Fallido",
+    "manualPayoutsTitle": "Pagos manuales via transferencia",
+    "manualPayoutsDesc": "Tus ganancias se acumulan. Cuando solicitas un retiro, transferimos desde Revolut Business a tu cuenta bancaria en 1-3 dias habiles. Configura tus datos bancarios para poder solicitar retiros."
   }
 }

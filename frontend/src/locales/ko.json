@@ -3974,5 +3974,26 @@
     "faqChangePlan": "플랜을 변경할 수 있나요?",
     "faqCancel": "취소하면 어떻게 되나요?",
     "faqPaymentFail": "결제 실패 시 어떻게 되나요?"
+  },
+  "producerPayments": {
+    "totalAccumulated": "총 누적",
+    "available": "인출 가능",
+    "readyToWithdraw": "인출 가능",
+    "minWithdrawal": "최소 20 EUR 인출",
+    "pendingRelease": "대기 중 (<15일)",
+    "d15Rule": "배송 후 15일 후 인출 가능",
+    "totalWithdrawn": "총 인출",
+    "requestWithdrawal": "인출 요청",
+    "manualPayoutNote": "결제는 1-3 영업일 이내 수동 처리",
+    "d15Explanation": "주문 배송 후 15일 후 자금 인출 가능. Revolut Business 계좌에서 수동 이체.",
+    "min20": "인출하려면 최소 20 EUR이 필요합니다",
+    "withdrawalRequested": "인출 요청 제출됨",
+    "withdrawalHistory": "인출 내역",
+    "wdPending": "대기 중",
+    "wdProcessing": "처리 중",
+    "wdCompleted": "이체 완료",
+    "wdFailed": "실패",
+    "manualPayoutsTitle": "수동 은행 이체 결제",
+    "manualPayoutsDesc": "수익이 누적됩니다. 인출을 요청하면 Revolut Business에서 1-3 영업일 이내에 은행 계좌로 이체합니다. 인출 요청을 위해 은행 정보를 설정하세요."
   }
 }
