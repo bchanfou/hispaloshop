@@ -214,6 +214,7 @@ const LangDetectRedirect = lazy(() => import('./components/informativas/LangDete
 const LandingConsumidor = lazy(() => import('./pages/informativas/LandingConsumidor'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
+const ImporterOpportunitiesPage = lazy(() => import('./pages/importer/ImporterOpportunitiesPage'));
 const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCertificatesPage'));
 const ImporterCatalogPage = lazy(() => import('./pages/importer/ImporterCatalogPage'));
 const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPage'));
@@ -567,6 +568,7 @@ function AppRouter() {
               />
               <Route path="/importer/catalog" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterCatalogPage /></ProtectedRoute>} />
               <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ProducerPlanProvider><EliteRoute><CommercialAIPage /></EliteRoute></ProducerPlanProvider></ProtectedRoute>} />
+              <Route path="/importer/opportunities" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterOpportunitiesPage /></ProtectedRoute>} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/b2b/catalog" element={<B2BCatalogPage />} />

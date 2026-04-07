@@ -117,6 +117,23 @@ export default function ProductDetailPage() {
   const [productRecipes, setProductRecipes] = useState([]);
   const galleryRef = useRef(null);
   const addedTimerRef = useRef(null);
+
+  // Market request ("Traelo a mi pais")
+  const [marketCount, setMarketCount] = useState(0);
+  const [userHasRequested, setUserHasRequested] = useState(false);
+  const [requestingMarket, setRequestingMarket] = useState(false);
+  const [showMarketModal, setShowMarketModal] = useState(false);
+  const [marketNotes, setMarketNotes] = useState('');
+  const userCountry = user?.country || 'ES';
+  const productCountries = product?.target_markets || product?.available_countries || [];
+  const isUnavailableInCountry = product && productCountries.length > 0 && !productCountries.includes(userCountry);
+
+  useEffect(() => {
+    if (!product?.product_id || !isUnavailableInCountry) return;
+    apiClient.get(`/market-requests/product/${product.product_id}/count?country=${userCountry}`)
+      .then(d => { setMarketCount(d?.count || 0); setUserHasRequested(d?.user_has_requested || false); })
+      .catch(() => {});
+  }, [product?.product_id, isUnavailableInCountry, userCountry]);
   const rafRef = useRef(null);
 
   // Parallax for hero image
@@ -1390,6 +1407,82 @@ export default function ProductDetailPage() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Market Request "Traelo a mi pais" ── */}
+      {isUnavailableInCountry && (
+        <div className="mx-auto max-w-[1200px] px-4 py-4 mb-2">
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-center">
+            <p className="text-sm font-semibold text-stone-950 mb-1">
+              {t('marketRequest.unavailable', 'Este producto aun no esta disponible en tu pais.')}
+            </p>
+            {marketCount > 0 && (
+              <p className="text-xs text-stone-600 mb-3">
+                {marketCount} {marketCount === 1 ? 'persona' : 'personas'} en tu pais ya lo han pedido.
+              </p>
+            )}
+            {userHasRequested ? (
+              <p className="text-xs text-stone-500 flex items-center justify-center gap-1">
+                <Check size={14} /> {t('marketRequest.alreadyRequested', 'Ya lo pediste. Te avisaremos cuando este disponible.')}
+              </p>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowMarketModal(true)}
+                  className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors"
+                >
+                  {t('marketRequest.bringToMyCountry', 'Traelo a mi pais')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Market request modal */}
+      {showMarketModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={() => setShowMarketModal(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-stone-950 mb-2">
+              {t('marketRequest.modalTitle', 'Solicitar este producto')}
+            </h2>
+            <p className="text-xs text-stone-500 mb-4">
+              {marketCount > 0 ? `Otros ${marketCount} ya lo han pedido. ` : ''}
+              {t('marketRequest.modalDesc', 'Cuando llegue, te avisaremos.')}
+            </p>
+            <div className="mb-4">
+              <label className="text-xs font-medium text-stone-600 mb-1 block">{t('marketRequest.whyLabel', 'Por que lo quieres? (opcional)')}</label>
+              <input
+                value={marketNotes}
+                onChange={(e) => setMarketNotes(e.target.value)}
+                maxLength={200}
+                placeholder={t('marketRequest.notesPlaceholder', 'Me encantaria probarlo...')}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400"
+              />
+            </div>
+            <button
+              onClick={async () => {
+                setRequestingMarket(true);
+                try {
+                  const res = await apiClient.post('/market-requests', { product_id: product.product_id, notes: marketNotes });
+                  setMarketCount(res?.count || marketCount + 1);
+                  setUserHasRequested(true);
+                  setShowMarketModal(false);
+                  toast.success(t('marketRequest.success', 'Solicitud enviada. Te avisaremos cuando este disponible.'));
+                  trackEvent('market_request_submitted', { product_id: product.product_id, consumer_country: userCountry });
+                } catch (err) {
+                  toast.error(err?.data?.detail || 'Error');
+                } finally {
+                  setRequestingMarket(false);
+                }
+              }}
+              disabled={requestingMarket}
+              className="w-full py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50"
+            >
+              {requestingMarket ? 'Enviando...' : t('marketRequest.submit', 'Enviar solicitud')}
+            </button>
           </div>
         </div>
       )}

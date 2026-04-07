@@ -402,7 +402,8 @@
     "rebecaUpgradeMsg": "Upgrade to PRO to get daily insights about your sales, inventory and opportunities.",
     "upgradePlan": "View plans",
     "rebecaInsightTitle": "Rebeca AI",
-    "rebecaNoInsight": "Rebeca analyzes your sales every day. Come back tomorrow for your first insight."
+    "rebecaNoInsight": "Rebeca analyzes your sales every day. Come back tomorrow for your first insight.",
+    "internationalDemand": "International demand"
   },
   "producer_layout": {
     "shipping": "Shipping",
@@ -4125,5 +4126,26 @@
     "promoted": "Promoted",
     "autoWillSelect": "Auto-selection will choose your best products automatically.",
     "noPromoted": "No promoted products."
+  },
+  "marketRequest": {
+    "unavailable": "This product is not yet available in your country.",
+    "alreadyRequested": "You already requested it. We will notify you when available.",
+    "bringToMyCountry": "Bring it to my country",
+    "modalTitle": "Request this product",
+    "modalDesc": "When it arrives, we will notify you.",
+    "whyLabel": "Why do you want it? (optional)",
+    "notesPlaceholder": "I would love to try it...",
+    "submit": "Submit request",
+    "success": "Request submitted. We will notify you when available."
+  },
+  "marketOpportunities": {
+    "title": "Market opportunities",
+    "subtitle": "Products consumers in your country are requesting.",
+    "eliteAdvantage": "Priority access: see opportunities 72h before others.",
+    "empty": "No requests in your market yet.",
+    "contact": "Contact",
+    "seeMore": "Want to see all opportunities?",
+    "upgradeCta": "Upgrade to PRO to see the full list.",
+    "viewPlans": "View plans"
   }
 }

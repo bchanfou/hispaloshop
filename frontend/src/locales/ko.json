@@ -3932,7 +3932,8 @@
     "rebecaUpgradeMsg": "PRO로 업그레이드하여 매출, 재고 및 기회에 대한 일일 인사이트를 받으세요.",
     "upgradePlan": "플랜 보기",
     "rebecaInsightTitle": "Rebeca AI",
-    "rebecaNoInsight": "Rebeca가 매일 매출을 분석합니다. 내일 첫 인사이트를 확인하세요."
+    "rebecaNoInsight": "Rebeca가 매일 매출을 분석합니다. 내일 첫 인사이트를 확인하세요.",
+    "internationalDemand": "국제 수요"
   },
   "producer_layout": {
     "shipping": "배송",
@@ -4129,5 +4130,26 @@
     "promoted": "홍보",
     "autoWillSelect": "자동 선택이 최고의 제품을 자동으로 선택합니다.",
     "noPromoted": "홍보 제품이 없습니다."
+  },
+  "marketRequest": {
+    "unavailable": "이 제품은 아직 귀하의 국가에서 구매할 수 없습니다.",
+    "alreadyRequested": "이미 요청했습니다. 이용 가능하면 알려드리겠습니다.",
+    "bringToMyCountry": "내 나라로 가져와",
+    "modalTitle": "이 제품 요청",
+    "modalDesc": "도착하면 알려드리겠습니다.",
+    "whyLabel": "왜 원하시나요? (선택)",
+    "notesPlaceholder": "꼭 먹어보고 싶어요...",
+    "submit": "요청 보내기",
+    "success": "요청 제출됨. 이용 가능하면 알려드리겠습니다."
+  },
+  "marketOpportunities": {
+    "title": "시장 기회",
+    "subtitle": "귀하의 국가 소비자들이 요청하는 제품.",
+    "eliteAdvantage": "우선 접근: 다른 사람들보다 72시간 먼저 기회를 확인하세요.",
+    "empty": "아직 귀하의 시장에 요청이 없습니다.",
+    "contact": "연락",
+    "seeMore": "모든 기회를 보시겠습니까?",
+    "upgradeCta": "PRO로 업그레이드하여 전체 목록을 확인하세요.",
+    "viewPlans": "플랜 보기"
   }
 }

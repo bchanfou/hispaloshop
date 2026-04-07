@@ -3312,7 +3312,8 @@
     "rebecaUpgradeMsg": "Actualiza a PRO para recibir insights diarios sobre tus ventas, inventario y oportunidades.",
     "upgradePlan": "Ver planes",
     "rebecaInsightTitle": "Rebeca AI",
-    "rebecaNoInsight": "Rebeca analiza tus ventas cada dia. Vuelve manana para tu primer insight."
+    "rebecaNoInsight": "Rebeca analiza tus ventas cada dia. Vuelve manana para tu primer insight.",
+    "internationalDemand": "Demanda internacional"
   },
   "producer_layout": {
     "shipping": "Envios",
@@ -5834,5 +5835,26 @@
     "promoted": "Promocionado",
     "autoWillSelect": "La auto-seleccion elegira tus mejores productos automaticamente.",
     "noPromoted": "No tienes productos promocionados."
+  },
+  "marketRequest": {
+    "unavailable": "Este producto aun no esta disponible en tu pais.",
+    "alreadyRequested": "Ya lo pediste. Te avisaremos cuando este disponible.",
+    "bringToMyCountry": "Traelo a mi pais",
+    "modalTitle": "Solicitar este producto",
+    "modalDesc": "Cuando llegue, te avisaremos.",
+    "whyLabel": "Por que lo quieres? (opcional)",
+    "notesPlaceholder": "Me encantaria probarlo...",
+    "submit": "Enviar solicitud",
+    "success": "Solicitud enviada. Te avisaremos cuando este disponible."
+  },
+  "marketOpportunities": {
+    "title": "Oportunidades de mercado",
+    "subtitle": "Productos que los consumidores de tu pais estan pidiendo.",
+    "eliteAdvantage": "Acceso prioritario: ves oportunidades 72h antes que el resto.",
+    "empty": "No hay solicitudes en tu mercado todavia.",
+    "contact": "Contactar",
+    "seeMore": "Quieres ver todas las oportunidades?",
+    "upgradeCta": "Actualiza a PRO para ver la lista completa.",
+    "viewPlans": "Ver planes"
   }
 }

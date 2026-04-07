@@ -10,7 +10,7 @@ import {
   AlertCircle, Users, TrendingUp, Heart, Star,
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle, Handshake,
   PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown, AlertTriangle,
-  Store, Megaphone, BarChart3
+  Store, Megaphone, BarChart3, Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -560,6 +560,7 @@ export default function ProducerOverview() {
   const [collabs, setCollabs] = useState([]);
   const [latestOrders, setLatestOrders] = useState([]);
   const [rebecaBriefing, setRebecaBriefing] = useState(null);
+  const [marketRequests, setMarketRequests] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -575,6 +576,7 @@ export default function ProducerOverview() {
     apiClient.get('/collaborations').then(d => setCollabs(d?.collaborations || [])).catch(logErr('collaborations'));
     apiClient.get('/producer/latest-orders').then(d => setLatestOrders(Array.isArray(d) ? d : [])).catch(logErr('latest-orders'));
     apiClient.get('/v1/rebeca-ai/briefing').then(d => setRebecaBriefing(d)).catch(logErr('rebeca-briefing'));
+    apiClient.get('/market-requests/opportunities?limit=5').then(d => setMarketRequests(d?.opportunities || [])).catch(logErr('market-requests'));
   }, []);
 
   const fetchData = async () => {
@@ -1141,6 +1143,29 @@ export default function ProducerOverview() {
           </div>
         );
       })()}
+
+      {/* Market requests — international demand */}
+      {marketRequests.length > 0 && (
+        <div className="bg-white shadow-sm rounded-2xl p-4" data-testid="market-requests-widget">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-stone-950 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-stone-500" />
+              {t('producer_overview.internationalDemand', 'Demanda internacional')}
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {marketRequests.slice(0, 3).map((mr, i) => (
+              <div key={`${mr.product_id}-${i}`} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-stone-950 truncate">{mr.product_name}</p>
+                  <p className="text-xs text-stone-500">{mr.count} solicitudes desde {mr.consumer_country}</p>
+                </div>
+                <span className="text-lg font-bold text-stone-950 shrink-0">{mr.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Plan Manager */}
       <PlanManager />

@@ -278,6 +278,8 @@ from routes.ai_preferences import router as ai_preferences_router
 app.include_router(ai_preferences_router, prefix="/api", tags=["ai-preferences"])
 from routes.promotion import router as promotion_router
 app.include_router(promotion_router, prefix="/api", tags=["promotion"])
+from routes.market_requests import router as market_requests_router
+app.include_router(market_requests_router, prefix="/api", tags=["market-requests"])
 
 # Social Routes (Fase 3) — posts_router ya registrado como legacy_posts_router en /api arriba
 
