@@ -358,6 +358,36 @@ async def _create_indexes():
     await db.product_translations.create_index("updated_at")
     logger.info("  OK: product_translations indexes")
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # RECIPES - Recetas con ingredientes comprables
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.recipes.create_index("slug", unique=True)
+    await db.recipes.create_index("author_id")
+    await db.recipes.create_index("category")
+    await db.recipes.create_index("difficulty")
+    await db.recipes.create_index("tags")
+    await db.recipes.create_index("language")
+    await db.recipes.create_index("status")
+    await db.recipes.create_index([("status", 1), ("published_at", -1)])
+    await db.recipes.create_index([("category", 1), ("ratings.avg", -1)])
+    await db.recipes.create_index([("tags", 1), ("published_at", -1)])
+    await db.recipes.create_index("ingredients.name")  # Para búsqueda por ingrediente
+    logger.info("  OK: recipes indexes")
+
+    # Saved recipes (favoritos)
+    await db.saved_recipes.create_index(
+        [("user_id", 1), ("recipe_id", 1)], unique=True
+    )
+    await db.saved_recipes.create_index("saved_at")
+    logger.info("  OK: saved_recipes indexes")
+
+    # Recipe ratings
+    await db.recipe_ratings.create_index(
+        [("user_id", 1), ("recipe_id", 1)], unique=True
+    )
+    await db.recipe_ratings.create_index("recipe_id")
+    logger.info("  OK: recipe_ratings indexes")
+
     logger.info("All indexes created successfully")
 
 

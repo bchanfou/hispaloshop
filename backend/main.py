@@ -97,6 +97,7 @@ from routes.loyalty import router as loyalty_router
 from routes.invoices import router as invoices_router
 from routes.translation import router as translation_router
 from routes.certificates_public import router as certificates_public_router
+from routes.recipes import router as recipes_router
 
 logger = logging.getLogger(__name__)
 
@@ -271,6 +272,7 @@ app.include_router(legacy_certificates_router, prefix="/api", tags=["certificate
 app.include_router(certificates_public_router, prefix="/api", tags=["certificates-v2"])
 app.include_router(legacy_cron_router, prefix="/api", tags=["cron"])
 app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["recipes-reviews"])
+app.include_router(recipes_router)
 app.include_router(legacy_admin_router, prefix="/api", tags=["admin"])
 app.include_router(legacy_admin_dashboard_router, prefix="/api", tags=["admin-dashboard"])
 if legacy_ai_chat_router is not None:

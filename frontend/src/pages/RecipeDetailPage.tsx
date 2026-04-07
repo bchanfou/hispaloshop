@@ -1,777 +1,386 @@
-// @ts-nocheck
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Send, ArrowUp, ListPlus, Star } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
-import apiClient from '../services/api/client';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import { resolveUserImage } from '../features/user/queries';
-import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
-import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
-import SEO from '../components/SEO';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import i18n from "../locales/i18n";
-import { trackEvent } from '../utils/analytics';
-const ALLERGEN_MAP = [{
-  key: 'gluten',
-  flag: 'is_gluten_free',
-  label: '🌾 Gluten'
-}, {
-  key: 'lactose',
-  flag: 'is_lactose_free',
-  label: '🥛 Lactosa'
-}, {
-  key: 'nuts',
-  flag: 'is_nut_free',
-  label: '🥜 Frutos secos'
-}, {
-  key: 'eggs',
-  flag: 'is_egg_free',
-  label: '🥚 Huevo'
-}, {
-  key: 'soy',
-  flag: 'is_soy_free',
-  label: '🫘 Soja'
-}, {
-  key: 'fish',
-  flag: 'is_fish_free',
-  label: '🐟 Pescado'
-}, {
-  key: 'shellfish',
-  flag: 'is_shellfish_free',
-  label: '🦐 Mariscos'
-}, {
-  key: 'celery',
-  flag: 'is_celery_free',
-  label: '🥬 Apio'
-}, {
-  key: 'mustard',
-  flag: 'is_mustard_free',
-  label: '🟡 Mostaza'
-}, {
-  key: 'sesame',
-  flag: 'is_sesame_free',
-  label: '🫘 Sésamo'
-}, {
-  key: 'sulphites',
-  flag: 'is_sulphite_free',
-  label: '🍷 Sulfitos'
-}, {
-  key: 'lupin',
-  flag: 'is_lupin_free',
-  label: '🌿 Altramuces'
-}, {
-  key: 'molluscs',
-  flag: 'is_mollusc_free',
-  label: '🐚 Moluscos'
-}, {
-  key: 'peanuts',
-  flag: 'is_peanut_free',
-  label: '🥜 Cacahuetes'
-}];
-function getIngredientAllergens(product) {
-  if (!product) return [];
-  const allergens = [];
-  // Check explicit allergens array
-  if (Array.isArray(product.allergens)) {
-    for (const a of product.allergens) {
-      const name = typeof a === 'string' ? a : a.name || a.label || '';
-      if (name) allergens.push(name);
-    }
-  }
-  // Check individual boolean flags (is_X_free === false means contains X)
-  for (const {
-    flag,
-    label
-  } of ALLERGEN_MAP) {
-    if (product[flag] === false && !allergens.includes(label)) {
-      allergens.push(label);
-    }
-  }
-  return allergens;
-}
-const DIFFICULTY_CLASSES = {
-  easy: {
-    pill: 'bg-stone-100 text-stone-600',
-    label: 'Fácil'
-  },
-  medium: {
-    pill: 'bg-stone-100 text-stone-700',
-    label: 'Media'
-  },
-  hard: {
-    pill: 'bg-stone-950 text-white',
-    label: "Difícil"
-  }
-};
-function normalizeStep(step) {
-  if (typeof step === 'string') return {
-    text: step,
-    image_url: ''
+import {
+  Clock, Users, ChefHat, ArrowLeft, ShoppingCart,
+  Heart, Share2, Star, CheckCircle, AlertCircle
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import apiClient from '../services/api/client';
+import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+
+interface Ingredient {
+  name: string;
+  quantity: string;
+  unit: string;
+  product_id?: string;
+  is_generic: boolean;
+  is_optional: boolean;
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    currency: string;
+    image: string;
+    stock: number;
+    slug: string;
   };
-  return {
-    text: step?.text || step?.description || '',
-    image_url: step?.image_url || ''
-  };
+  alternatives?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+  }>;
 }
 
-/* ── Shared topbar used in loading / not-found / main ── */
-function Topbar({
-  title,
-  onBack,
-  right
-}) {
-  return <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
-      <button type="button" onClick={onBack} aria-label="Volver" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
-        <ArrowLeft size={22} />
-      </button>
-      <span className="flex-1 truncate text-[17px] font-bold text-stone-950">{title}</span>
-      {right}
-    </div>;
+interface Recipe {
+  _id: string;
+  title: string;
+  description: string;
+  cover_image: string;
+  servings: number;
+  prep_time_minutes: number;
+  cook_time_minutes: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: string;
+  tags: string[];
+  ingredients: Ingredient[];
+  instructions: Array<{
+    step: number;
+    text: string;
+    image_url?: string;
+  }>;
+  nutrition?: Record<string, any>;
+  ratings: { avg: number; count: number };
+  author?: {
+    name: string;
+    username?: string;
+    profile_image?: string;
+  };
+  is_saved?: boolean;
 }
+
 export default function RecipeDetailPage() {
-  const {
-    recipeId
-  } = useParams();
-  const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
-  const {
-    addToCart
-  } = useCart();
-  const [recipe, setRecipe] = useState(null);
+  const { recipeId } = useParams<{ recipeId: string }>();
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [portions, setPortions] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showShoppingList, setShowShoppingList] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [addingAll, setAddingAll] = useState(false);
-  const [similarRecipes, setSimilarRecipes] = useState([]);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [reviews, setReviews] = useState([]);
-  const [avgRating, setAvgRating] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [hasReviewed, setHasReviewed] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
-  const pageRef = useRef(null);
+  const [error, setError] = useState('');
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [cartResult, setCartResult] = useState<any>(null);
+
   useEffect(() => {
-    let active = true;
-    setLoading(true);
-    // Reset all state when navigating between recipes
-    setReviews([]);
-    setAvgRating(0);
-    setTotalReviews(0);
-    setHasReviewed(false);
-    setSimilarRecipes([]);
-    setShowAllReviews(false);
-    setReviewRating(0);
-    setReviewText('');
-    setPortions(1);
-    setSaved(false);
-    window.scrollTo(0, 0);
-    apiClient.get(`/recipes/${recipeId}`).then(data => {
-      if (active) {
-        setRecipe(data || null);
-        setPortions(data?.servings || 1);
-        setSaved(data?.is_saved || false);
-        trackEvent('recipe_viewed', { recipe_id: recipeId, author_id: data?.author_id });
-      }
-    }).catch(() => {
-      if (active) {
-        setRecipe(null);
-        toast.error('Receta no encontrada');
-      }
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => {
-      active = false;
-    };
+    if (recipeId) {
+      loadRecipe();
+    }
   }, [recipeId]);
 
-  /* Fetch similar recipes once recipe is loaded */
-  useEffect(() => {
-    if (!recipe?.category) return;
-    let active = true;
-    apiClient.get(`/recipes?category=${encodeURIComponent(recipe.category)}&limit=3&exclude=${recipeId}`).then(data => {
-      if (active) setSimilarRecipes(Array.isArray(data) ? data : data?.recipes || []);
-    }).catch(() => {/* similar recipes non-critical */});
-    return () => {
-      active = false;
-    };
-  }, [recipe?.category, recipeId]);
+  const loadRecipe = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.get(`/recipes/${recipeId}`);
+      setRecipe(response);
+    } catch (err) {
+      setError(t('recipe.notFound', 'Receta no encontrada'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  /* Fetch recipe reviews */
-  useEffect(() => {
-    if (!recipeId) return;
-    let active = true;
-    apiClient.get(`/recipes/${recipeId}/reviews`).then(data => {
-      if (!active) return;
-      const list = data?.reviews || [];
-      setReviews(list);
-      setAvgRating(data?.average_rating || 0);
-      setTotalReviews(data?.total_reviews || 0);
-      if (user && list.some((r: any) => String(r.user_id) === String(user.user_id))) {
-        setHasReviewed(true);
-      }
-    }).catch(() => {/* reviews non-critical */});
-    return () => {
-      active = false;
-    };
-  }, [recipeId, user]);
-
-  /* Scroll-to-top visibility */
-  useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
-    window.addEventListener('scroll', handleScroll, {
-      passive: true
-    });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  const steps = useMemo(() => (recipe?.steps || []).map(normalizeStep), [recipe?.steps]);
-  const baseServings = recipe?.servings || 1;
-  const ratio = portions / baseServings;
-  const taggedIngredients = useMemo(() => (recipe?.ingredients || []).filter(i => i.product || i.product_id), [recipe?.ingredients]);
   const handleAddAllToCart = async () => {
-    if (taggedIngredients.length >= 2) {
-      setAddingAll(true);
-      let added = 0;
-      let skipped = 0;
-      const skippedNames = [];
-      for (const ing of taggedIngredients) {
-        const productId = ing.product?.product_id || ing.product_id;
-        if (!productId) { skipped++; continue; }
-        // Skip out-of-stock items
-        if (ing.product?.in_stock === false || ing.product?.stock === 0) {
-          skippedNames.push(ing.name || ing.product?.name || 'Producto');
-          skipped++;
-          continue;
-        }
-        try {
-          await addToCart(productId, 1);
-          added++;
-        } catch {
-          skippedNames.push(ing.name || 'Producto');
-          skipped++;
-        }
-      }
-      setAddingAll(false);
-      if (added > 0) {
-        toast.success(`${added} ingredientes añadidos al carrito`);
-        trackEvent('recipe_all_ingredients_added', { recipe_id: recipe.recipe_id, count: added, total_price: taggedIngredients.reduce((s, i) => s + Number(i.product?.price || 0), 0) });
-      }
-      if (skippedNames.length > 0) {
-        toast(`${skippedNames.length} no disponibles: ${skippedNames.slice(0, 3).join(', ')}${skippedNames.length > 3 ? '...' : ''}`, { duration: 4000 });
-      }
-      if (added === 0 && skipped > 0) {
-        toast.error(i18n.t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
-      }
-    } else {
-      setShowShoppingList(true);
-    }
-  };
-  const handleAddSingle = async ingredient => {
-    const productId = ingredient.product?.product_id || ingredient.product_id;
-    if (!productId) return;
-    try {
-      await addToCart(productId, 1);
-      toast.success(i18n.t('ai.addedToCart', 'Añadido al carrito'));
-      trackEvent('recipe_ingredient_added_to_cart', { recipe_id: recipe?.recipe_id, product_id: productId });
-    } catch {
-      toast.error(i18n.t('recipe_detail.errorAlAnadir', 'Error al añadir'));
-    }
-  };
-  const handleShare = async () => {
-    const url = window.location.href;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: recipe?.title || 'Receta',
-          url
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado');
-      }
-    } catch {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast.success('Enlace copiado');
-      } catch {
-        toast.error(i18n.t('recipe_detail.noSePudoCopiarElEnlace', 'No se pudo copiar el enlace'));
-      }
-    }
-  };
-  const handleAddToShoppingList = ingredient => {
-    const name = [ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ');
-    // Store in localStorage shopping list
-    try {
-      const existing = JSON.parse(localStorage.getItem('shopping_list') || '[]');
-      if (!existing.some(i => i.name === ingredient.name)) {
-        existing.push({
-          name: ingredient.name,
-          display: name,
-          added_at: Date.now()
-        });
-        localStorage.setItem('shopping_list', JSON.stringify(existing));
-      }
-      toast.success(i18n.t('recipe_detail.anadidoALaLista', 'Añadido a la lista'));
-    } catch {
-      toast.error(i18n.t('recipe_detail.noSePudoGuardarEnLaLista', 'No se pudo guardar en la lista'));
-    }
-  };
-  const handleSubmitReview = async () => {
-    if (!reviewRating) {
-      toast.error(i18n.t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración'));
+    if (!user) {
+      // Redirect to login
+      window.location.href = `/login?redirect=/recipes/${recipeId}`;
       return;
     }
-    setSubmittingReview(true);
+
+    setAddingToCart(true);
     try {
-      const newReview = await apiClient.post(`/recipes/${recipeId}/reviews`, {
-        rating: reviewRating,
-        text: reviewText
+      const result = await apiClient.post(`/recipes/${recipeId}/add-to-cart`, {
+        servings_multiplier: 1
       });
-      setReviews(prev => [newReview, ...prev]);
-      // Use server-returned stats if available, otherwise calculate locally
-      if (newReview?.avg_rating != null) {
-        setAvgRating(Number(newReview.avg_rating));
-        if (newReview.total_reviews != null) setTotalReviews(newReview.total_reviews);else setTotalReviews(prev => prev + 1);
-      } else {
-        setTotalReviews(prev => prev + 1);
-        const newTotal = totalReviews + 1;
-        setAvgRating(Math.round((avgRating * totalReviews + reviewRating) / newTotal * 10) / 10);
-      }
-      setHasReviewed(true);
-      setReviewRating(0);
-      setReviewText('');
-      toast.success(i18n.t('recipe_detail.valoracionPublicada', 'Valoración publicada'));
-    } catch (err: any) {
-      toast.error(err?.message || i18n.t('recipe_detail.errorAlPublicarLaValoracion', 'Error al publicar la valoración'));
+      setCartResult(result);
+    } catch (err) {
+      console.error('Error adding to cart:', err);
     } finally {
-      setSubmittingReview(false);
+      setAddingToCart(false);
     }
   };
 
-  /* ── Loading ── */
+  const handleSave = async () => {
+    if (!user) return;
+    
+    try {
+      if (recipe?.is_saved) {
+        await apiClient.delete(`/recipes/${recipeId}/save`);
+        setRecipe(prev => prev ? { ...prev, is_saved: false } : null);
+      } else {
+        await apiClient.post(`/recipes/${recipeId}/save`);
+        setRecipe(prev => prev ? { ...prev, is_saved: true } : null);
+      }
+    } catch (err) {
+      console.error('Error saving recipe:', err);
+    }
+  };
+
+  const getDifficultyLabel = (diff: string) => {
+    const labels: Record<string, string> = {
+      easy: t('recipe.difficulty.easy', 'Fácil'),
+      medium: t('recipe.difficulty.medium', 'Medio'),
+      hard: t('recipe.difficulty.hard', 'Difícil')
+    };
+    return labels[diff] || diff;
+  };
+
+  const totalTime = (recipe?.prep_time_minutes || 0) + (recipe?.cook_time_minutes || 0);
+  
+  // Calcular precio total estimado
+  const estimatedTotal = recipe?.ingredients.reduce((sum, ing) => {
+    if (ing.product && !ing.is_generic) {
+      return sum + (ing.product.price || 0);
+    }
+    return sum;
+  }, 0) || 0;
+
+  const buyableCount = recipe?.ingredients.filter(ing => ing.product_id && !ing.is_generic).length || 0;
+
   if (loading) {
-    return <div className="min-h-screen bg-white">
-        <Topbar title="Receta" onBack={() => navigate(-1)} />
-        <div className="flex justify-center p-12">
-          <Loader2 size={28} className="animate-spin text-stone-400" />
-        </div>
-      </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-900" />
+      </div>
+    );
   }
 
-  /* ── Not found ── */
-  if (!recipe) {
-    return <div className="min-h-screen bg-white">
-        <Topbar title="Receta" onBack={() => navigate(-1)} />
-        <div className="flex flex-col items-center gap-3 px-4 py-16">
-          <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
-          <p className="text-[15px] text-stone-500">Receta no encontrada</p>
-          <Link to="/recipes" className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline hover:bg-stone-800 transition-colors">
-            Ver recetas
-          </Link>
-        </div>
-      </div>;
+  if (error || !recipe) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <AlertCircle className="w-16 h-16 text-stone-300 mb-4" />
+        <h1 className="text-xl font-semibold mb-2">{error}</h1>
+        <Link to="/recipes" className="text-stone-600 hover:underline">
+          {t('recipe.backToRecipes', 'Volver a recetas')}
+        </Link>
+      </div>
+    );
   }
-  const diff = DIFFICULTY_CLASSES[recipe.difficulty] || DIFFICULTY_CLASSES.easy;
-  return <div className="min-h-screen bg-white">
-      {/* ── Topbar ── */}
-      <Topbar title={recipe.title} onBack={() => navigate(-1)} right={<div className="flex items-center gap-1">
-            <button type="button" onClick={handleShare} aria-label="Compartir receta" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
-              <Send size={20} />
-            </button>
-            <button type="button" onClick={async () => {
-        const next = !saved;
-        setSaved(next);
-        try {
-          if (next) { await apiClient.post(`/recipes/${recipeId}/save`); trackEvent('recipe_saved', { recipe_id: recipeId }); } else { await apiClient.delete(`/recipes/${recipeId}/save`); }
-        } catch {
-          setSaved(!next);
-          toast.error('Error al guardar');
-        }
-      }} aria-label={saved ? 'Quitar guardado' : 'Guardar receta'} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
-              <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
-            </button>
-          </div>} />
 
-      <SEO title={`${recipe.title} — Receta en Hispaloshop`} description={recipe.description?.slice(0, 160) || `Receta de ${recipe.title} con ingredientes artesanales locales`} image={recipe.image_url} structuredData={[{
-      '@context': 'https://schema.org',
-      '@type': 'Recipe',
-      name: recipe.title,
-      image: recipe.image_url || undefined,
-      description: recipe.description || undefined,
-      ...(recipe.author_name && {
-        author: {
-          '@type': 'Person',
-          name: recipe.author_name
-        }
-      }),
-      cookTime: recipe.time_minutes ? `PT${recipe.time_minutes}M` : undefined,
-      recipeYield: recipe.servings ? `${recipe.servings} porciones` : undefined,
-      recipeCategory: recipe.category || undefined,
-      recipeIngredient: (recipe.ingredients || []).map(i => [i.quantity, i.unit, i.name].filter(Boolean).join(' ')),
-      recipeInstructions: steps.map((s, idx) => ({
-        '@type': 'HowToStep',
-        position: idx + 1,
-        text: s.text,
-        ...(s.image_url && {
-          image: s.image_url
-        })
-      })),
-      ...(recipe.nutrition && {
-        nutrition: {
-          '@type': 'NutritionInformation',
-          ...(recipe.nutrition.calories != null && {
-            calories: `${recipe.nutrition.calories} kcal`
-          }),
-          ...(recipe.nutrition.protein != null && {
-            proteinContent: `${recipe.nutrition.protein} g`
-          }),
-          ...(recipe.nutrition.carbs != null && {
-            carbohydrateContent: `${recipe.nutrition.carbs} g`
-          }),
-          ...(recipe.nutrition.fat != null && {
-            fatContent: `${recipe.nutrition.fat} g`
-          })
-        }
-      })
-    }]} />
+  return (
+    <div className="min-h-screen bg-stone-50 pb-20">
+      {/* Header Image */}
+      <div className="relative h-72 md:h-96">
+        <img
+          src={recipe.cover_image}
+          alt={recipe.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        
+        {/* Back button */}
+        <Link
+          to="/recipes"
+          className="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
 
-      {/* ── Hero Image ── */}
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-stone-100">
-        {recipe.image_url ? <img src={resolveUserImage(recipe.image_url)} alt={recipe.title} loading="lazy" className="block h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center">
-            <ChefHat size={48} className="text-stone-400" />
-          </div>}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/40 to-transparent" />
+        {/* Save/Share */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button
+            onClick={handleSave}
+            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
+              recipe.is_saved ? 'bg-red-500 text-white' : 'bg-white/90'
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${recipe.is_saved ? 'fill-current' : ''}`} />
+          </button>
+          <button className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Title overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{recipe.title}</h1>
+          {recipe.author && (
+            <p className="text-white/80">
+              {t('recipe.by', 'Por')} {recipe.author.name}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="mx-auto max-w-[700px] px-4 pb-24 lg:max-w-[960px]">
-        {/* ── Title + Meta ── */}
-        <div className="py-4">
-          <h1 className="mb-3 text-2xl font-bold leading-tight text-stone-950">{recipe.title}</h1>
-          {totalReviews > 0 && <div className="mb-3 flex items-center gap-1.5">
-              <Star size={16} className="text-stone-950" fill="currentColor" />
-              <span className="text-sm font-semibold text-stone-950">{avgRating}</span>
-              <span className="text-sm text-stone-400">· {totalReviews} reseña{totalReviews !== 1 ? 's' : ''}</span>
-            </div>}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${diff.pill}`}>{diff.label}</span>
-            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600"><Clock3 size={13} /> {recipe.time_minutes || 0} min</span>
-            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600"><Users size={13} /> {recipe.servings || 1} porciones</span>
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Meta info */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+            <Clock className="w-4 h-4 text-stone-400" />
+            <span className="text-sm font-medium">{totalTime} min</span>
           </div>
-
-          {recipe.author_name && <div className="mt-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-stone-100">
-                {recipe.author_avatar ? <img loading="lazy" src={recipe.author_avatar} alt="" className="h-full w-full object-cover" /> : <User size={16} className="text-stone-400" />}
-              </div>
-              <p className="text-[13px] font-semibold text-stone-950">{recipe.author_name}</p>
-            </div>}
-
-          {recipe.description && <p className="mt-3 text-sm leading-relaxed text-stone-500">{recipe.description}</p>}
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+            <Users className="w-4 h-4 text-stone-400" />
+            <span className="text-sm font-medium">{recipe.servings} {t('recipe.servings', 'pers.')}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+            <ChefHat className="w-4 h-4 text-stone-400" />
+            <span className="text-sm font-medium">{getDifficultyLabel(recipe.difficulty)}</span>
+          </div>
+          {recipe.ratings.count > 0 && (
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+              <Star className="w-4 h-4 text-amber-400 fill-current" />
+              <span className="text-sm font-medium">
+                {recipe.ratings.avg.toFixed(1)} ({recipe.ratings.count})
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* ── Portion Selector ── */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl shadow-sm bg-white p-3.5">
-          <span className="text-sm font-semibold text-stone-950">Porciones</span>
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setPortions(p => Math.max(1, p - 1))} disabled={portions <= 1} aria-label="Menos porciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 disabled:opacity-40 cursor-pointer disabled:cursor-default">
-              <Minus size={16} />
-            </button>
-            <span className="min-w-[24px] text-center text-lg font-bold text-stone-950">{portions}</span>
-            <button type="button" onClick={() => setPortions(p => p + 1)} aria-label={i18n.t('recipe_detail.masPorciones', 'Más porciones')} className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer">
-              <Plus size={16} />
-            </button>
-          </div>
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {recipe.tags.map((tag, i) => (
+            <span
+              key={i}
+              className="px-3 py-1 bg-stone-100 text-stone-600 rounded-full text-sm"
+            >
+              #{tag}
+            </span>
+          ))}
         </div>
 
-        {/* ── Ingredients + Steps: 2-col on desktop — ingredients sticky right ── */}
-        <div className="lg:grid lg:grid-cols-[1.4fr_1fr] lg:gap-8 lg:items-start">
+        {/* Description */}
+        <p className="text-stone-600 text-lg mb-8">{recipe.description}</p>
 
-        {/* ── Ingredients (mobile: first / desktop: right sticky sidebar) ── */}
-        <section className="mb-5 order-1 lg:order-2 lg:sticky lg:top-20">
-          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Ingredientes</h2>
-          <div className="flex flex-col gap-2">
-            {(recipe.ingredients || []).map((ing, i) => {
-              const hasProduct = ing.product || ing.product_id;
-              const rawQty = parseFloat(ing.quantity);
-              const quantity = ing.quantity && !isNaN(rawQty) ? (rawQty * ratio).toFixed(rawQty % 1 === 0 && ratio === Math.round(ratio) ? 0 : 1) : ing.quantity || '';
-              const displayQty = [quantity, ing.unit, ing.name].filter(Boolean).join(' ');
-              return <div key={i} className={`rounded-2xl border p-3 ${hasProduct ? 'border-stone-200 bg-stone-50' : 'border-stone-200 bg-white'}`}>
-                  <button type="button" onClick={() => handleAddToShoppingList(ing)} className="flex w-full items-center justify-between gap-2 border-none bg-transparent p-0 text-left cursor-pointer group" aria-label={`Añadir ${ing.name || displayQty} a la lista de la compra`}>
-                    <p className="text-sm font-medium text-stone-950">{displayQty}</p>
-                    <ListPlus size={14} className="shrink-0 text-stone-300 group-hover:text-stone-500 transition-colors" />
-                  </button>
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Ingredients */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              {t('recipe.ingredients', 'Ingredientes')}
+            </h2>
 
-                  {/* Allergen badges */}
-                  {ing.product && (() => {
-                  const badges = getIngredientAllergens(ing.product);
-                  if (badges.length === 0) return null;
-                  return <div className="mt-1.5 flex flex-wrap gap-1">
-                        {badges.map(badge => <span key={badge} className="inline-flex items-center rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-600">
-                            {badge}
-                          </span>)}
-                      </div>;
-                })()}
-
-                  {ing.product && <div className="mt-2 flex items-center gap-2.5 rounded-2xl shadow-sm bg-white p-2">
-                      <button type="button" onClick={() => setSelectedProduct(ing.product)} className="h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-stone-100 border-none cursor-pointer p-0">
-                        {ing.product.images?.[0] && <img loading="lazy" src={resolveUserImage(ing.product.images[0])} alt="" className="h-full w-full object-cover" />}
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-medium text-stone-950">{ing.product.name}</p>
-                        {ing.product.price != null && <p className="mt-0.5 text-xs text-stone-500">{Number(ing.product.price).toLocaleString('es-ES', {
-                        style: 'currency',
-                        currency: 'EUR'
-                      })}</p>}
-                      </div>
-                      <button type="button" onClick={() => handleAddSingle(ing)} aria-label={`Añadir ${ing.product?.name || 'producto'} al carrito`} className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-stone-950 px-3.5 text-xs font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors">
-                        <ShoppingCart size={12} /> Añadir
-                      </button>
-                    </div>}
-                </div>;
-            })}
-          </div>
-
-          {taggedIngredients.length >= 3 ? (() => {
-            const total = taggedIngredients.reduce((sum, ing) => {
-              const price = Number(ing.product?.price || 0);
-              return sum + price;
-            }, 0);
-            return <motion.button whileTap={{
-              scale: 0.97
-            }} onClick={handleAddAllToCart} disabled={addingAll} className={`mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}>
-                <ShoppingCart size={18} />
-                {addingAll ? i18n.t('productDetail.addingToCart', 'Añadiendo...') : `Comprar receta completa · ${total.toLocaleString('es-ES', {
-                style: 'currency',
-                currency: 'EUR'
-              })}`}
-              </motion.button>;
-          })() : taggedIngredients.length >= 2 ? <motion.button whileTap={{
-            scale: 0.97
-          }} onClick={handleAddAllToCart} disabled={addingAll} className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}>
-              <ShoppingCart size={18} />
-              {addingAll ? i18n.t('productDetail.addingToCart', 'Añadiendo...') : `Añadir todos al carrito (${taggedIngredients.length})`}
-            </motion.button> : null}
-        </section>
-
-        {/* ── Steps (mobile: second / desktop: left column) ── */}
-        <section className="mb-5 order-2 lg:order-1">
-          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('recipe_detail.preparacion', 'Preparación')}</h2>
-          <div className="flex flex-col gap-3">
-            {steps.map((step, i) => <motion.div key={i} initial={{
-              opacity: 0,
-              y: 10
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              delay: i * 0.05
-            }} className="rounded-2xl shadow-sm bg-white p-3.5">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-bold text-white">
-                    {i + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {step.text && <p className="text-sm leading-relaxed text-stone-950">{step.text}</p>}
-                    {step.image_url && <div className="mt-2.5 overflow-hidden rounded-2xl">
-                        <img src={resolveUserImage(step.image_url)} alt={`Paso ${i + 1}`} loading="lazy" className="block h-[180px] w-full object-cover" />
-                      </div>}
-                  </div>
+            {/* Buy All Button */}
+            {buyableCount > 0 && (
+              <div className="mb-6 p-4 bg-stone-900 text-white rounded-xl">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-stone-300">
+                    {buyableCount} {t('recipe.buyableIngredients', 'ingredientes disponibles')}
+                  </span>
+                  <span className="font-bold text-lg">
+                    ~{estimatedTotal.toFixed(2)}€
+                  </span>
                 </div>
-              </motion.div>)}
-          </div>
-        </section>
-
-        </div>{/* close 2-col ingredients+steps wrapper */}
-
-        {/* ── Nutritional Info ── */}
-        {recipe.nutrition && <section className="mb-5">
-            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('recipe_detail.informacionNutricional', 'Información nutricional')}</h2>
-            <p className="mb-2 text-[11px] text-stone-400">{i18n.t('recipe_detail.porRacion', 'Por ración')}</p>
-            <div className="grid grid-cols-4 gap-2">
-              {[{
-            key: 'calories',
-            label: i18n.t('certificate.nutritionLabels.calories', 'Calorías'),
-            unit: 'kcal'
-          }, {
-            key: 'protein',
-            label: i18n.t('recipe_detail.proteina', 'Proteína'),
-            unit: 'g'
-          }, {
-            key: 'carbs',
-            label: 'Carbohidratos',
-            unit: 'g'
-          }, {
-            key: 'fat',
-            label: 'Grasa',
-            unit: 'g'
-          }].map(({
-            key,
-            label,
-            unit
-          }) => {
-            const val = recipe.nutrition?.[key];
-            if (val == null) return null;
-            return <div key={key} className="rounded-2xl shadow-sm bg-white p-2.5 text-center">
-                    <p className="text-[15px] font-bold text-stone-950">{val}</p>
-                    <p className="text-[10px] text-stone-400">{unit}</p>
-                    <p className="mt-0.5 text-[10px] font-medium text-stone-500">{label}</p>
-                  </div>;
-          })}
-            </div>
-            {recipe.nutrition?.fiber != null && <div className="mt-2 grid grid-cols-3 gap-2">
-                {[{
-            key: 'fiber',
-            label: 'Fibra',
-            unit: 'g'
-          }, {
-            key: 'sugar',
-            label: i18n.t('recipe_detail.azucar', 'Azúcar'),
-            unit: 'g'
-          }, {
-            key: 'sodium',
-            label: 'Sodio',
-            unit: 'mg'
-          }].map(({
-            key,
-            label,
-            unit
-          }) => {
-            const val = recipe.nutrition?.[key];
-            if (val == null) return null;
-            return <div key={key} className="rounded-2xl shadow-sm bg-white p-2 text-center">
-                      <p className="text-[13px] font-semibold text-stone-950">{val}{unit}</p>
-                      <p className="text-[10px] text-stone-400">{label}</p>
-                    </div>;
-          })}
-              </div>}
-          </section>}
-
-        {/* ── Chef Tips ── */}
-        {recipe.tips && <section className="mb-5">
-            <div className="rounded-2xl shadow-sm bg-stone-50 p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <ChefHat size={18} className="text-stone-950" />
-                <span className="text-sm font-bold text-stone-950">Consejos del chef</span>
-              </div>
-              <p className="text-[13px] leading-relaxed text-stone-500">{recipe.tips}</p>
-            </div>
-          </section>}
-
-        {/* ── Tags ── */}
-        {recipe.tags?.length > 0 && <div className="mb-5 flex flex-wrap gap-1.5">
-            {recipe.tags.map(tag => <span key={tag} className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500">
-                #{tag}
-              </span>)}
-          </div>}
-
-        {/* ── Recetas similares ── */}
-        {similarRecipes.length > 0 && <section className="mb-5">
-            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Recetas similares</h2>
-            <div className="flex flex-col gap-2">
-              {similarRecipes.map(sr => <Link key={sr.recipe_id} to={`/recipes/${sr.recipe_id}`} className="flex items-center gap-3 rounded-2xl shadow-sm bg-white p-2.5 no-underline hover:shadow-md transition-shadow">
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-stone-100">
-                    {sr.image_url ? <img src={resolveUserImage(sr.image_url)} alt={sr.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center">
-                        <ChefHat size={20} className="text-stone-300" />
-                      </div>}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-stone-950">{sr.title}</p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-stone-500">
-                      <Clock3 size={11} /> {sr.time_minutes || 0} min
+                <Button
+                  onClick={handleAddAllToCart}
+                  loading={addingToCart}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {t('recipe.addAllToCart', 'Añadir todos al carrito')}
+                </Button>
+                
+                {cartResult && (
+                  <div className="mt-3 p-3 bg-white/10 rounded-lg text-sm">
+                    <p className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      {cartResult.added_count} {t('recipe.addedToCart', 'añadidos')}
                     </p>
+                    {cartResult.failed_count > 0 && (
+                      <p className="text-stone-300 mt-1">
+                        {cartResult.failed_count} {t('recipe.notAvailable', 'no disponibles')}
+                      </p>
+                    )}
                   </div>
-                </Link>)}
-            </div>
-          </section>}
+                )}
+              </div>
+            )}
 
-        {/* ── Valoraciones ── */}
-        <section className="mb-5">
-          <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">{i18n.t('store.reviews', 'Reseñas')}</h2>
-            {totalReviews > 0 && <div className="flex items-center gap-1.5">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} className={s <= Math.round(avgRating) ? 'text-stone-950' : 'text-stone-200'} fill={s <= Math.round(avgRating) ? 'currentColor' : 'none'} />)}
+            {/* Ingredients List */}
+            <div className="space-y-3">
+              {recipe.ingredients.map((ingredient, i) => (
+                <div
+                  key={i}
+                  className={`p-3 rounded-lg border ${
+                    ingredient.product_id && !ingredient.is_generic
+                      ? 'border-stone-200 bg-white'
+                      : 'border-stone-100 bg-stone-50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{ingredient.name}</span>
+                        {ingredient.is_optional && (
+                          <span className="text-xs text-stone-400">
+                            ({t('recipe.optional', 'opcional')})
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm text-stone-500">
+                        {ingredient.quantity} {ingredient.unit}
+                      </span>
+                    </div>
+
+                    {/* Product link if available */}
+                    {ingredient.product && !ingredient.is_generic ? (
+                      <Link
+                        to={`/products/${ingredient.product.slug || ingredient.product.id}`}
+                        className="flex items-center gap-2 text-right"
+                      >
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100">
+                          {ingredient.product.image ? (
+                            <img
+                              src={ingredient.product.image}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ShoppingCart className="w-full h-full p-3 text-stone-300" />
+                          )}
+                        </div>
+                        <div className="hidden sm:block">
+                          <p className="text-xs text-stone-500">{ingredient.product.name}</p>
+                          <p className="text-sm font-medium">{ingredient.product.price}€</p>
+                        </div>
+                      </Link>
+                    ) : (
+                      <span className="text-xs text-stone-400 px-2 py-1 bg-stone-100 rounded">
+                        {t('recipe.generic', 'Básico')}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm font-semibold text-stone-950">{avgRating}</span>
-                <span className="text-sm text-stone-400">({totalReviews})</span>
-              </div>}
+              ))}
+            </div>
           </div>
 
-          {/* Review list */}
-          {reviews.length > 0 ? <div className="flex flex-col">
-              {(showAllReviews ? reviews : reviews.slice(0, 10)).map((review: any) => <div key={review.review_id || review._id} className="border-b border-stone-100 py-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100">
-                      {review.user_avatar ? <img src={review.user_avatar} alt="" className="h-full w-full object-cover" loading="lazy" /> : <User size={14} className="text-stone-400" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-semibold text-stone-950">{review.user_name || 'Usuario'}</p>
-                      <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map(s => <Star key={s} size={12} className={s <= review.rating ? 'text-stone-950' : 'text-stone-200'} fill={s <= review.rating ? 'currentColor' : 'none'} />)}
-                      </div>
-                    </div>
-                    <span className="text-[11px] text-stone-400">
-                      {review.created_at ? new Date(review.created_at).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                }) : ''}
-                    </span>
+          {/* Instructions */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h2 className="text-xl font-bold mb-4">
+              {t('recipe.instructions', 'Preparación')}
+            </h2>
+            <div className="space-y-6">
+              {recipe.instructions.map((step) => (
+                <div key={step.step} className="flex gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-stone-900 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                    {step.step}
                   </div>
-                  {review.text && <p className="mt-2 text-sm leading-relaxed text-stone-600">{review.text}</p>}
-                </div>)}
-              {!showAllReviews && reviews.length > 10 && <button type="button" onClick={() => setShowAllReviews(true)} className="mt-3 self-start rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 cursor-pointer hover:bg-stone-50 transition-colors">
-                  Ver más ({reviews.length - 10})
-                </button>}
-            </div> : <p className="text-sm text-stone-400">{i18n.t('recipe_detail.aunNoHayResenasSeElPrimero', 'Aún no hay reseñas. ¡Sé el primero!')}</p>}
-
-          {/* Review form */}
-          {user && !hasReviewed && <div className="mt-4 rounded-2xl border border-stone-200 p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-950">{i18n.t('recipe_detail.tuResena', 'Tu reseña')}</p>
-              <div className="mb-3 flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map(s => <button key={s} type="button" onClick={() => setReviewRating(s)} aria-label={`${s} estrella${s > 1 ? 's' : ''}`} className="border-none bg-transparent p-0.5 cursor-pointer">
-                    <Star size={28} className={s <= reviewRating ? 'text-stone-950' : 'text-stone-200'} fill={s <= reviewRating ? 'currentColor' : 'none'} />
-                  </button>)}
-              </div>
-              <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Comparte tu experiencia..." maxLength={500} rows={3} className="mb-3 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 placeholder:text-stone-400 outline-none focus:border-stone-400 transition-colors" />
-              <button type="button" onClick={handleSubmitReview} disabled={submittingReview || !reviewRating} className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-default">
-                {submittingReview ? 'Enviando...' : i18n.t('recipe_detail.enviarResena', 'Enviar reseña')}
-              </button>
-            </div>}
-        </section>
+                  <div className="flex-1">
+                    <p className="text-stone-700 leading-relaxed">{step.text}</p>
+                    {step.image_url && (
+                      <img
+                        src={step.image_url}
+                        alt={`Step ${step.step}`}
+                        className="mt-3 rounded-lg w-full"
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-
-      {selectedProduct && <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />}
-      {showShoppingList && <RecipeShoppingListOverlay recipeId={recipeId} defaultServings={recipe?.servings || 1} onClose={() => setShowShoppingList(false)} />}
-
-      {/* ── Scroll to top ── */}
-      <AnimatePresence>
-        {showScrollTop && <motion.button initial={{
-        opacity: 0,
-        scale: 0.8
-      }} animate={{
-        opacity: 1,
-        scale: 1
-      }} exit={{
-        opacity: 0,
-        scale: 0.8
-      }} transition={{
-        duration: 0.2
-      }} onClick={() => window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })} aria-label="Volver arriba" className="fixed bottom-24 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-stone-950 text-white shadow-lg border-none cursor-pointer hover:bg-stone-800 transition-colors">
-            <ArrowUp size={18} />
-          </motion.button>}
-      </AnimatePresence>
-    </div>;
+    </div>
+  );
 }
