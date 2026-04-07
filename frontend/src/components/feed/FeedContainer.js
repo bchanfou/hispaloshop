@@ -1,101 +1,76 @@
-import React, { useCallback, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
-import HomeHeader from './HomeHeader';
-import StoriesBar from './StoriesBar';
-import StoryViewer from './StoryViewer';
-import { useAuth } from '../../context/AuthContext';
-import { useFeedTab } from '../../context/FeedTabContext';
-import { trackEvent } from '../../utils/analytics';
 
 /**
- * FeedContainer — "Para ti" / "Siguiendo" tabbed feed with stories bar
+ * FeedContainer - Contenedor principal del feed con tabs
+ * 
+ * Estructura según ROADMAP 1.11:
+ * - Tabs: Siguiendo | Para ti
+ * - Solo contenido social: Posts, Reels, Stories
+ * - Zero widgets/injections que no sean content social
  */
-function FeedContainer() {
-  const { user } = useAuth();
-  // Feed tab state — persisted across navigations via context
-  const { activeTab: feedTab, setActiveTab: rawSetFeedTab } = useFeedTab();
-  const setFeedTab = useCallback((tab) => {
-    trackEvent('feed_tab_changed', { from: feedTab, to: tab });
-    rawSetFeedTab(tab);
-  }, [feedTab, rawSetFeedTab]);
-
-  // Story viewer state
-  const [storyViewer, setStoryViewer] = useState(null);
-  const queryClient = useQueryClient();
-
-  const handleCreateStory = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
-  }, []);
-
-  const handleStoryClick = useCallback((stories, index) => {
-    if (stories?.length > 0 && index >= 0 && index < stories.length) {
-      const targetUserId = stories[index]?.user_id;
-      setStoryViewer({ stories, initialIndex: index, originUserId: targetUserId });
-    }
-  }, []);
-
-  const handleCloseStoryViewer = useCallback(() => {
-    setStoryViewer(null);
-    // Force immediate refetch so story rings update (seen → grey ring)
-    queryClient.refetchQueries({ queryKey: ['feed-stories'] });
-    // Sync own-story ring state in case user viewed/deleted their own story
-    queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
-  }, [queryClient]);
+export default function FeedContainer() {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState('for-you'); // 'for-you' | 'following'
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto lg:max-w-[680px]">
-      {/* Header with tab toggle */}
-      <HomeHeader activeTab={feedTab} onTabChange={setFeedTab} />
-
-      {/* Stories */}
-      <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
-
-      {/* Tabbed Feed */}
-      <div>
-        <AnimatePresence mode="wait">
-          {feedTab === 'foryou' ? (
-            <motion.div
-              key="foryou"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+    <div className="h-full flex flex-col">
+      {/* Tabs Navigation */}
+      <div className="sticky top-0 z-20 bg-white border-b border-stone-100">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center">
+            {/* Siguiendo (Following) Tab */}
+            <button
+              onClick={() => setActiveTab('following')}
+              className={`relative px-6 py-3 text-[15px] font-semibold transition-colors ${
+                activeTab === 'following'
+                  ? 'text-stone-950'
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}
             >
-              <ForYouFeed />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="following"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+              {t('feed.following', 'Siguiendo')}
+              {activeTab === 'following' && (
+                <motion.div
+                  layoutId="feed-tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+
+            {/* Para ti (For You) Tab */}
+            <button
+              onClick={() => setActiveTab('for-you')}
+              className={`relative px-6 py-3 text-[15px] font-semibold transition-colors ${
+                activeTab === 'for-you'
+                  ? 'text-stone-950'
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}
             >
-              <FollowingFeed />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {t('feed.forYou', 'Para ti')}
+              {activeTab === 'for-you' && (
+                <motion.div
+                  layoutId="feed-tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+          </div>
+        </div>
       </div>
-      </div>{/* end max-w container */}
 
-      {/* Story Viewer (fullscreen modal — outside max-w so it's truly fullscreen) */}
-      <AnimatePresence>
-        {storyViewer && (
-          <StoryViewer
-            key="story-viewer"
-            stories={storyViewer.stories}
-            initialIndex={storyViewer.initialIndex}
-            onClose={handleCloseStoryViewer}
-            originLayoutId={storyViewer.originUserId ? `story-${storyViewer.originUserId}` : undefined}
-          />
+      {/* Feed Content */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === 'following' ? (
+          <FollowingFeed />
+        ) : (
+          <ForYouFeed />
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
-
-export default React.memo(FeedContainer);
