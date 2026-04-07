@@ -4008,5 +4008,21 @@
     "newCustomers": "New",
     "returningCustomers": "Returning",
     "repeatRate": "Repeat purchase rate"
+  },
+  "rebecaAI": {
+    "openChat": "Open Rebeca",
+    "advisor": "Your commercial advisor",
+    "alerts": "Alerts",
+    "weeklyBriefing": "Weekly briefing",
+    "myGoals": "My goals",
+    "storeHealth": "Store health",
+    "clearChat": "Clear chat",
+    "completeProfile": "Complete your business profile",
+    "profileDesc": "30 seconds to personalize every analysis to your store.",
+    "start": "Start",
+    "upgradePro": "Rebeca AI is available on PRO and ELITE plans.",
+    "tooManyRequests": "Too many requests. Wait a moment.",
+    "noConnection": "No connection. Check your network.",
+    "errorRetry": "Error. Try again."
   }
 }

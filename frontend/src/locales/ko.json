@@ -4012,5 +4012,21 @@
     "newCustomers": "신규",
     "returningCustomers": "재구매",
     "repeatRate": "재구매율"
+  },
+  "rebecaAI": {
+    "openChat": "Rebeca 열기",
+    "advisor": "상업 고문",
+    "alerts": "알림",
+    "weeklyBriefing": "주간 요약",
+    "myGoals": "내 목표",
+    "storeHealth": "매장 건강",
+    "clearChat": "채팅 삭제",
+    "completeProfile": "비즈니스 프로필 완성",
+    "profileDesc": "30초면 매장에 맞는 분석을 제공합니다.",
+    "start": "시작",
+    "upgradePro": "Rebeca AI는 PRO 및 ELITE 플랜에서 사용 가능합니다.",
+    "tooManyRequests": "요청이 너무 많습니다. 잠시 기다려주세요.",
+    "noConnection": "연결 없음. 네트워크를 확인하세요.",
+    "errorRetry": "오류. 다시 시도하세요."
   }
 }

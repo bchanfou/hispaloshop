@@ -5723,5 +5723,21 @@
     "read": "Leer",
     "not_found": "Artículo no encontrado",
     "back_to_blog": "Volver al blog"
+  },
+  "rebecaAI": {
+    "openChat": "Abrir Rebeca",
+    "advisor": "Tu asesora comercial",
+    "alerts": "Alertas",
+    "weeklyBriefing": "Resumen semanal",
+    "myGoals": "Mis objetivos",
+    "storeHealth": "Salud de la tienda",
+    "clearChat": "Limpiar chat",
+    "completeProfile": "Completa tu perfil de negocio",
+    "profileDesc": "30 segundos para que personalice cada analisis a tu tienda.",
+    "start": "Empezar",
+    "upgradePro": "Rebeca AI esta disponible en planes PRO y ELITE.",
+    "tooManyRequests": "Demasiadas solicitudes. Espera un momento.",
+    "noConnection": "Sin conexion. Comprueba tu red.",
+    "errorRetry": "Error. Intentalo de nuevo."
   }
 }
