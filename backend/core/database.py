@@ -388,6 +388,32 @@ async def _create_indexes():
     await db.recipe_ratings.create_index("recipe_id")
     logger.info("  OK: recipe_ratings indexes")
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SEARCH - Historial y trending
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.search_history.create_index(
+        [("user_id", 1), ("searched_at", -1)]
+    )
+    await db.search_history.create_index(
+        [("user_id", 1), ("query", 1)], unique=True, sparse=True
+    )
+    # TTL: mantener historial por 90 días
+    try:
+        await db.search_history.create_index(
+            "searched_at", expireAfterSeconds=90 * 24 * 3600
+        )
+    except Exception:
+        pass
+    logger.info("  OK: search_history indexes")
+
+    await db.search_trending.create_index(
+        [("query", 1), ("country", 1), ("date", 1)], unique=True
+    )
+    await db.search_trending.create_index(
+        [("country", 1), ("date", 1), ("count", -1)]
+    )
+    logger.info("  OK: search_trending indexes")
+
     logger.info("All indexes created successfully")
 
 
