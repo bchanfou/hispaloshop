@@ -4068,6 +4068,20 @@
     "tip3": "Create a post about why you like HispaloShop",
     "tip4": "Add the link to your Linktree or bio link",
     "tip5": "Every person who buys with your code attributes commission for 18 months",
-    "yourLanding": "Your personal landing"
+    "yourLanding": "Your personal landing",
+    "landingPreview": "Your personal landing",
+    "codeLabel": "Code",
+    "linkCopied": "Link copied",
+    "copyLink": "Copy link",
+    "editProfile": "Edit profile",
+    "templates": "Ready-to-use templates",
+    "templateCopied": "Text copied",
+    "copyText": "Copy text",
+    "brandAssets": "Brand assets",
+    "assetsNote": "Logos and materials for your posts.",
+    "guidelines": "How to talk about HispaloShop"
+  },
+  "influencer_insights": {
+    "geography": "Where your clicks come from"
   }
 }

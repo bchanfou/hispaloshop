@@ -743,6 +743,74 @@ export default function InfluencerDashboard() {
             )}
           </div>
 
+          {/* Landing Preview */}
+          {dashboard.discount_code && user?.username && (
+            <div className="lg:col-span-2 bg-white shadow-sm rounded-2xl p-5 mb-4">
+              <h3 className="text-sm font-semibold text-stone-950 mb-3">{t('influencer_dashboard.landingPreview', 'Tu landing personal')}</h3>
+              <div className="bg-stone-50 rounded-2xl p-4 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-stone-200 flex items-center justify-center shrink-0 overflow-hidden">
+                  {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-lg font-bold text-stone-500">{(user?.name || 'U')[0]}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-stone-950">{user?.name}</p>
+                  <p className="text-xs text-stone-500">@{user?.username}</p>
+                  <p className="text-xs text-stone-600 mt-1">{t('influencer_dashboard.codeLabel', 'Codigo')}: <strong>{dashboard.discount_code}</strong> (10% off)</p>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/user/${user?.username || user?.user_id}`); toast.success(t('influencer_dashboard.linkCopied', 'Link copiado')); }} className="flex-1 px-3 py-2 text-xs font-medium border border-stone-200 rounded-full hover:bg-stone-50 transition-colors text-center">
+                  {t('influencer_dashboard.copyLink', 'Copiar link')}
+                </button>
+                <Link to={`/settings/profile`} className="flex-1 px-3 py-2 text-xs font-medium border border-stone-200 rounded-full hover:bg-stone-50 transition-colors text-center no-underline text-stone-950">
+                  {t('influencer_dashboard.editProfile', 'Editar perfil')}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Post Templates */}
+          <div className="lg:col-span-2 bg-white shadow-sm rounded-2xl p-5 mb-4">
+            <h3 className="text-sm font-semibold text-stone-950 mb-3">{t('influencer_dashboard.templates', 'Plantillas listas para usar')}</h3>
+            <div className="space-y-3">
+              {[
+                `Conoces a quien alimenta tu mesa? Yo descubri HispaloShop y cambio mi forma de comprar. Usa mi codigo ${dashboard.discount_code || 'TUCODIGO'} y llevate un 10% en tu primera compra. hispaloshop.com/r/${dashboard.discount_code || 'TUCODIGO'}`,
+                `Compra directo a productores locales en HispaloShop. Aceite, queso, miel... todo artesanal. Codigo ${dashboard.discount_code || 'TUCODIGO'} = 10% off. hispaloshop.com/r/${dashboard.discount_code || 'TUCODIGO'}`,
+                `Lo mejor de la comida artesanal, directo del productor a tu casa. HispaloShop es mi descubrimiento favorito. Pruebalo con mi codigo ${dashboard.discount_code || 'TUCODIGO'} y ahorra un 10%. hispaloshop.com/r/${dashboard.discount_code || 'TUCODIGO'}`,
+              ].map((tpl, i) => (
+                <div key={i} className="bg-stone-50 rounded-2xl p-3">
+                  <p className="text-xs text-stone-600 leading-relaxed whitespace-pre-line">{tpl}</p>
+                  <button onClick={() => { navigator.clipboard.writeText(tpl); trackEvent('influencer_template_copied', { template_index: i }); toast.success(t('influencer_dashboard.templateCopied', 'Texto copiado')); }} className="mt-2 text-xs font-medium text-stone-950 hover:underline">
+                    {t('influencer_dashboard.copyText', 'Copiar texto')}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Asset Library */}
+          <div className="lg:col-span-2 bg-white shadow-sm rounded-2xl p-5 mb-4">
+            <h3 className="text-sm font-semibold text-stone-950 mb-3">{t('influencer_dashboard.brandAssets', 'Materiales de marca')}</h3>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-stone-950 rounded-2xl p-4 flex items-center justify-center h-16">
+                <span className="text-white text-sm font-bold tracking-tight">HispaloShop</span>
+              </div>
+              <div className="bg-stone-50 rounded-2xl p-4 flex items-center justify-center h-16 border border-stone-200">
+                <span className="text-stone-950 text-sm font-bold tracking-tight">HispaloShop</span>
+              </div>
+            </div>
+            <p className="text-xs text-stone-500 mb-3">{t('influencer_dashboard.assetsNote', 'Logos y materiales para tus publicaciones. Descarga desde nuestro kit de marca.')}</p>
+            <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+              <h4 className="text-xs font-semibold text-stone-950 mb-2">{t('influencer_dashboard.guidelines', 'Como hablar de HispaloShop')}</h4>
+              <div className="space-y-1 text-xs text-stone-600">
+                <p>- Habla de la comida, no de la app</p>
+                <p>- Comparte tu experiencia real</p>
+                <p>- Usa tu codigo naturalmente</p>
+                <p className="text-stone-400">- No hagas spam</p>
+                <p className="text-stone-400">- No prometas descuentos falsos</p>
+              </div>
+            </div>
+          </div>
+
           {/* Commission Summary */}
           <div className="lg:col-span-1 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">

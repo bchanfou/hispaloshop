@@ -455,9 +455,26 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
         "influencer_id": influencer["influencer_id"]
     })
     
+    # Geographic breakdown (from orders with shipping_address)
+    geography = {}
+    if discount_code:
+        geo_orders = await db.orders.find(
+            {"discount_code": discount_code["code"], "created_at": {"$gte": start_date.isoformat()}},
+            {"_id": 0, "shipping_address.country": 1},
+        ).to_list(1000)
+        for o in geo_orders:
+            country_code = (o.get("shipping_address") or {}).get("country", "")
+            if country_code:
+                geography[country_code] = geography.get(country_code, 0) + 1
+    geo_total = sum(geography.values()) or 1
+    customer_geography = sorted(
+        [{"country": k, "count": v, "pct": round(v / geo_total * 100)} for k, v in geography.items()],
+        key=lambda x: x["count"], reverse=True,
+    )
+
     # Referral link for influencer
     referral_code = discount_code["code"] if discount_code else None
-    
+
     return {
         "chart_data": chart_data,
         "summary": {
@@ -472,6 +489,7 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
             "all_time_link_clicks": all_time_link_clicks,
             "code_usage_count": discount_code.get("usage_count", 0) if discount_code else 0
         },
+        "customer_geography": customer_geography,
         "discount_code": referral_code,
         "referral_link": f"/r/{referral_code}" if referral_code else None,
         "period_days": days

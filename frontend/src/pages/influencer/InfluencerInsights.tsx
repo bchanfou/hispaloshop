@@ -7,6 +7,7 @@ import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { trackEvent } from '../../utils/analytics';
 const PERIODS = [{
   label: '7 días',
   value: 7
@@ -86,6 +87,7 @@ export default function InfluencerInsights() {
   const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [trafficGeo, setTrafficGeo] = useState([]);
   const load = useCallback((d, isRefresh = false) => {
     setLoading(true);
     setError(false);
@@ -101,6 +103,10 @@ export default function InfluencerInsights() {
   }, []);
   useEffect(() => {
     load(days);
+    apiClient.get(`/influencer/analytics?days=${days}`).then(d => {
+      setTrafficGeo(d?.customer_geography || []);
+    }).catch(() => {});
+    trackEvent('influencer_insights_viewed', { period: days });
   }, [days, load]);
   const overview = data?.overview || {};
   const prevOverview = prevData?.overview || {};
@@ -143,6 +149,33 @@ export default function InfluencerInsights() {
 
         {/* Revenue mini-chart */}
         {!loading && !error && <RevenueChart dailyEarnings={dailyEarnings} days={days} />}
+
+        {/* Geographic breakdown — from /influencer/analytics */}
+        {trafficGeo.length > 0 && (
+          <div className="rounded-2xl shadow-sm bg-white p-5">
+            <h3 className="text-sm font-semibold text-stone-950 mb-3">{i18n.t('influencer_insights.geography', 'De donde vienen tus clicks')}</h3>
+            <div className="space-y-2">
+              {trafficGeo.map((geo) => {
+                const flags = { ES: '\uD83C\uDDEA\uD83C\uDDF8', KR: '\uD83C\uDDF0\uD83C\uDDF7', US: '\uD83C\uDDFA\uD83C\uDDF8', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', IT: '\uD83C\uDDEE\uD83C\uDDF9', PT: '\uD83C\uDDF5\uD83C\uDDF9', GB: '\uD83C\uDDEC\uD83C\uDDE7' };
+                return (
+                  <div key={geo.country} className="flex items-center gap-3">
+                    <span className="text-sm">{flags[geo.country] || geo.country}</span>
+                    <div className="flex-1">
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span className="text-stone-700">{geo.country}</span>
+                        <span className="text-stone-500">{geo.pct}%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-full bg-stone-950 rounded-full" style={{ width: `${geo.pct}%` }} />
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-stone-950 shrink-0">{geo.count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Top products driven */}
         <div>
