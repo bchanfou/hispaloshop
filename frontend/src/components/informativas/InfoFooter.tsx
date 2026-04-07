@@ -20,6 +20,9 @@ const FOOTER_LINKS = [
     titleKey: 'landing.footer.empresa',
     titleFallback: 'Empresa',
     links: [
+      { labelKey: 'landing.footer.queEs', fallback: '¿Qué es HispaloShop?', to: '/blog/que-es-hispaloshop' },
+      { labelKey: 'landing.footer.comisiones', fallback: 'Comisiones', to: '/blog/comisiones' },
+      { labelKey: 'landing.footer.faq', fallback: 'FAQ', to: '/blog/faq' },
       { labelKey: 'landing.footer.contacto', fallback: 'Contacto', to: '/contacto' },
     ],
   },

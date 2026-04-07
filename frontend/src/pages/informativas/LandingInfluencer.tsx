@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 import {
   Tag,
   TrendingUp,
@@ -95,6 +96,7 @@ function AudienceSection() {
 
 export default function LandingInfluencer() {
   const { t } = useTranslation();
+  React.useEffect(() => { trackEvent('landing_viewed', { page: 'influencer' }); }, []);
 
   const heroData = {
     eyebrow: t('landing.influencer.hero.eyebrow', 'Para creadores gastronómicos'),

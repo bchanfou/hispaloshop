@@ -173,6 +173,8 @@ const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPrediction
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 const WishlistsPage = lazy(() => import('./pages/WishlistsPage'));
 const AmbassadorsPage = lazy(() => import('./pages/AmbassadorsPage'));
+const BlogIndexPage = lazy(() => import('./pages/blog/BlogIndexPage'));
+const BlogArticlePage = lazy(() => import('./pages/blog/BlogArticlePage'));
 const WishlistDetailPage = lazy(() => import('./pages/WishlistDetailPage'));
 const WishlistSharedPage = lazy(() => import('./pages/WishlistSharedPage'));
 
@@ -577,7 +579,8 @@ function AppRouter() {
               <Route path="/terms" element={<Navigate to="/legal/terminos" replace />} />
               <Route path="/privacy" element={<Navigate to="/legal/privacidad" replace />} />
               <Route path="/help" element={<Navigate to="/contacto" replace />} />
-              <Route path="/blog" element={<Navigate to="/" replace />} />
+              <Route path="/blog" element={<BlogIndexPage />} />
+              <Route path="/blog/:slug" element={<BlogArticlePage />} />
               <Route path="/press" element={<Navigate to="/" replace />} />
               <Route path="/careers" element={<Navigate to="/" replace />} />
               <Route path="/contact" element={<Navigate to="/contacto" replace />} />

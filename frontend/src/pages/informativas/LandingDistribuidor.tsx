@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 import {
   ShoppingCart,
   Building2,
@@ -97,6 +98,7 @@ function B2BSection() {
 
 export default function LandingDistribuidor() {
   const { t } = useTranslation();
+  React.useEffect(() => { trackEvent('landing_viewed', { page: 'importer' }); }, []);
 
   const heroData = {
     eyebrow: t('landing.distribuidor.hero.eyebrow', 'Para distribuidores e importadores'),

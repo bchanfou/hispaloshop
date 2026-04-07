@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 import {
   ShoppingBag,
   Eye,
@@ -24,6 +25,7 @@ const STEP_ICONS = [Search, CreditCard, PackageCheck];
 
 export default function LandingConsumidor() {
   const { t } = useTranslation();
+  React.useEffect(() => { trackEvent('landing_viewed', { page: 'consumer' }); }, []);
 
   // Hero
   const heroData = {

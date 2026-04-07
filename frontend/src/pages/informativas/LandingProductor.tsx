@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { trackEvent } from '../../utils/analytics';
 import {
   Store,
   Coins,
@@ -129,6 +130,7 @@ function PlansSection() {
 
 export default function LandingProductor() {
   const { t } = useTranslation();
+  React.useEffect(() => { trackEvent('landing_viewed', { page: 'producer' }); }, []);
 
   const heroData = {
     eyebrow: t('landing.productor.hero.eyebrow', 'Para productores y artesanos'),
