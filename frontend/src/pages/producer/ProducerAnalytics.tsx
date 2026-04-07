@@ -5,6 +5,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, L
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { trackEvent } from '../../utils/analytics';
 function AnalyticsSection({
   title,
   icon: Icon,
@@ -144,6 +145,7 @@ export default function ProducerAnalytics() {
   };
   useEffect(() => {
     fetchAnalytics();
+    trackEvent('producer_analytics_viewed', { period });
   }, [period]);
   if (loading) {
     return <div className="max-w-[975px] mx-auto space-y-4 pt-6">
@@ -189,11 +191,11 @@ export default function ProducerAnalytics() {
   return <div className="max-w-[975px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-stone-950">{i18n.t('producer_analytics.analitica', 'Analítica')}</h1>
-        <select value={period} onChange={e => setPeriod(e.target.value)} className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
+        <select value={period} onChange={e => { setPeriod(e.target.value); trackEvent('producer_analytics_period_changed', { period: e.target.value }); }} className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400">
           <option value="7d">{i18n.t('producer.followerGrowth.last7Days', 'Últimos 7 días')}</option>
           <option value="30d">{i18n.t('producer.followerGrowth.last30Days', 'Últimos 30 días')}</option>
           <option value="90d">{i18n.t('producer.followerGrowth.last90Days', 'Últimos 90 días')}</option>
-          <option value="12m">Últimos 12 meses</option>
+          <option value="365d">{i18n.t('producer_analytics.last365d', 'Ultimos 365 dias')}</option>
         </select>
       </div>
 
@@ -252,8 +254,8 @@ export default function ProducerAnalytics() {
       <AnalyticsSection title={i18n.t('producer_analytics.productosMasVendidos', 'Productos más vendidos')} icon={ShoppingBag}>
         {data?.top_products?.length ? <div className="space-y-0">
             {data.top_products.map((product, i) => <div key={product.product_id || i} className="flex items-center gap-3 py-2.5 border-b border-stone-100 last:border-0">
-                <span className="text-lg font-bold text-stone-300 w-6 text-center shrink-0">
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                <span className="text-sm font-bold text-stone-400 w-6 text-center shrink-0">
+                  {i + 1}
                 </span>
                 {product.image ? <img loading="lazy" src={product.image} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" /> : <div className="w-10 h-10 rounded-2xl bg-stone-100 shrink-0" />}
                 <div className="flex-1 min-w-0">
@@ -294,13 +296,13 @@ export default function ProducerAnalytics() {
       </AnalyticsSection>
 
       {/* Conversion */}
-      <AnalyticsSection title={i18n.t('producer_analytics.tasaDeConversion', 'Tasa de conversión')} icon={Target}>
+      <AnalyticsSection title={i18n.t('producer_analytics.tasaDeConversion', 'Tasa de conversion')} icon={Target}>
         <div className="grid grid-cols-3 gap-3 mb-3">
           {[{
           label: 'Visitas tienda',
           value: data?.conversion?.store_visits || 0
         }, {
-          label: i18n.t('producer_analytics.anadidosAlCarrito', 'Añadidos al carrito'),
+          label: i18n.t('producer_analytics.anadidosAlCarrito', 'Anadidos al carrito'),
           value: data?.conversion?.cart_adds || 0
         }, {
           label: 'Compras',
@@ -311,8 +313,75 @@ export default function ProducerAnalytics() {
             </div>)}
         </div>
         {(data?.conversion?.rate || 0) > 0 && <p className="text-sm text-stone-600 text-center">
-            Tasa de conversión: <strong className="text-stone-950">{(data.conversion.rate * 100).toFixed(1)}%</strong>
+            Tasa de conversion: <strong className="text-stone-950">{(data.conversion.rate * 100).toFixed(1)}%</strong>
           </p>}
       </AnalyticsSection>
+
+      {/* 2-col grid: Geography + Customers */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* Customer Geography */}
+        <AnalyticsSection title={i18n.t('producer_analytics.customerGeography', 'Geografia de clientes')} icon={Target}>
+          {data?.customer_geography?.length ? (
+            <div className="space-y-2">
+              {data.customer_geography.map((geo) => {
+                const flags = { ES: '\uD83C\uDDEA\uD83C\uDDF8', KR: '\uD83C\uDDF0\uD83C\uDDF7', US: '\uD83C\uDDFA\uD83C\uDDF8', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', IT: '\uD83C\uDDEE\uD83C\uDDF9', PT: '\uD83C\uDDF5\uD83C\uDDF9', GB: '\uD83C\uDDEC\uD83C\uDDE7' };
+                return (
+                  <div key={geo.country} className="flex items-center gap-3">
+                    <span className="text-sm">{flags[geo.country] || geo.country}</span>
+                    <div className="flex-1">
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span className="text-stone-700">{geo.country}</span>
+                        <span className="text-stone-500">{geo.pct}%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-full bg-stone-950 rounded-full" style={{ width: `${geo.pct}%` }} />
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-stone-950 shrink-0">{geo.revenue.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-stone-500 text-center py-4">{i18n.t('producer_analytics.sinDatosAun', 'Sin datos aun')}</p>
+          )}
+        </AnalyticsSection>
+
+        {/* Customer Stats */}
+        <AnalyticsSection title={i18n.t('producer_analytics.customerStats', 'Clientes')} icon={Users}>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-stone-50 rounded-2xl p-3 text-center">
+              <p className="text-xl font-bold text-stone-950">{data?.customers?.total || 0}</p>
+              <p className="text-[10px] text-stone-500 uppercase">Total</p>
+            </div>
+            <div className="bg-stone-50 rounded-2xl p-3 text-center">
+              <p className="text-xl font-bold text-stone-950">{data?.customers?.new || 0}</p>
+              <p className="text-[10px] text-stone-500 uppercase">Nuevos</p>
+            </div>
+            <div className="bg-stone-50 rounded-2xl p-3 text-center">
+              <p className="text-xl font-bold text-stone-950">{data?.customers?.returning || 0}</p>
+              <p className="text-[10px] text-stone-500 uppercase">Recurrentes</p>
+            </div>
+          </div>
+          {(data?.customers?.total || 0) > 0 && (
+            <p className="text-sm text-stone-600 text-center mt-3">
+              Tasa de recompra: <strong className="text-stone-950">
+                {Math.round((data.customers.returning / data.customers.total) * 100)}%
+              </strong>
+            </p>
+          )}
+        </AnalyticsSection>
+      </div>
+
+      {/* Health Score link (PRO+ gated) */}
+      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-stone-950">{i18n.t('producer_analytics.healthScore', 'Health Score')}</p>
+          <p className="text-xs text-stone-500">{i18n.t('producer_analytics.healthScoreDesc', 'Puntuacion de salud de tu tienda con sugerencias accionables.')}</p>
+        </div>
+        <a href="/producer" className="text-xs font-semibold text-stone-950 hover:underline shrink-0">
+          Ver en Overview →
+        </a>
+      </div>
     </div>;
 }

@@ -1244,23 +1244,44 @@ async def get_producer_alerts(user: User = Depends(get_current_user)):
 
 @router.get("/producer/analytics")
 async def get_producer_analytics(user: User = Depends(get_current_user), period: str = "30d"):
-    """Analytics data: top products, sales sources, followers, conversion."""
+    """Analytics data: KPIs with comparison, top products, sources, geography, conversion."""
     await require_role(user, ["producer", "importer"])
 
     # Parse period
-    period_map = {"7d": 7, "30d": 30, "90d": 90, "12m": 365}
+    period_map = {"7d": 7, "30d": 30, "90d": 90, "365d": 365, "12m": 365}
     days_back = period_map.get(period, 30)
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
+    now = datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days_back)).isoformat()
+    prev_cutoff = (now - timedelta(days=days_back * 2)).isoformat()
 
-    # Get orders in period that contain this producer's items (DB-level filter)
+    # Current + previous period orders
     all_orders = await db.orders.find(
-        {"created_at": {"$gte": cutoff}, "line_items.producer_id": user.user_id},
-        {"line_items": 1, "source": 1, "total_amount": 1},
-    ).to_list(2000)
+        {"created_at": {"$gte": prev_cutoff}, "line_items.producer_id": user.user_id},
+        {"_id": 0, "line_items": 1, "source": 1, "total_amount": 1, "created_at": 1,
+         "shipping_address": 1, "user_id": 1, "status": 1},
+    ).to_list(5000)
 
-    # Top products
+    def _producer_revenue(order):
+        return sum(
+            it.get("subtotal", it.get("price", 0) * it.get("quantity", 1))
+            for it in order.get("line_items", [])
+            if it.get("producer_id") == user.user_id
+        )
+
+    current_orders = [o for o in all_orders if o.get("created_at", "") >= cutoff]
+    previous_orders = [o for o in all_orders if prev_cutoff <= o.get("created_at", "") < cutoff]
+
+    # KPI comparison
+    rev_curr = sum(_producer_revenue(o) for o in current_orders)
+    rev_prev = sum(_producer_revenue(o) for o in previous_orders)
+    ord_curr = len(current_orders)
+    ord_prev = len(previous_orders)
+    aov_curr = round(rev_curr / ord_curr, 2) if ord_curr else 0
+    aov_prev = round(rev_prev / ord_prev, 2) if ord_prev else 0
+
+    # Top products (top 10)
     product_sales = {}
-    for order in all_orders:
+    for order in current_orders:
         for item in order.get("line_items", []):
             if item.get("producer_id") != user.user_id:
                 continue
@@ -1271,22 +1292,37 @@ async def get_producer_analytics(user: User = Depends(get_current_user), period:
                 product_sales[pid] = {"product_id": pid, "name": item.get("product_name", item.get("name", "")), "image": item.get("image"), "units_sold": 0, "revenue": 0}
             product_sales[pid]["units_sold"] += item.get("quantity", 1)
             product_sales[pid]["revenue"] += item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
-
-    top_products = sorted(product_sales.values(), key=lambda x: x["revenue"], reverse=True)[:5]
+    top_products = sorted(product_sales.values(), key=lambda x: x["revenue"], reverse=True)[:10]
     for p in top_products:
         p["revenue"] = round(p["revenue"], 2)
 
     # Sales sources
     source_counts = {"feed": 0, "store": 0, "hispal_ai": 0, "influencer": 0, "direct": 0}
-    for order in all_orders:
-        has_items = any(it.get("producer_id") == user.user_id for it in order.get("line_items", []))
-        if not has_items:
-            continue
+    for order in current_orders:
         src = order.get("source", "direct")
-        if src in source_counts:
-            source_counts[src] += 1
-        else:
-            source_counts["direct"] += 1
+        source_counts[src] = source_counts.get(src, 0) + 1
+
+    # Customer geography
+    geography = {}
+    customer_ids = set()
+    for order in current_orders:
+        country = (order.get("shipping_address") or {}).get("country") or ""
+        if country:
+            geography[country] = geography.get(country, 0) + _producer_revenue(order)
+        uid = order.get("user_id")
+        if uid:
+            customer_ids.add(uid)
+    geo_sorted = sorted(geography.items(), key=lambda x: x[1], reverse=True)
+    geo_total = sum(v for _, v in geo_sorted) or 1
+    customer_geography = [
+        {"country": k, "revenue": round(v, 2), "pct": round(v / geo_total * 100)}
+        for k, v in geo_sorted
+    ]
+
+    # Customer stats (new vs returning)
+    prev_customer_ids = {o.get("user_id") for o in previous_orders if o.get("user_id")}
+    new_customers = len(customer_ids - prev_customer_ids)
+    returning_customers = len(customer_ids & prev_customer_ids)
 
     # Followers
     store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
@@ -1298,20 +1334,29 @@ async def get_producer_analytics(user: User = Depends(get_current_user), period:
             {"store_id": store["store_id"], "created_at": {"$gte": cutoff}}
         )
 
-    # Conversion (simplified — based on available data)
-    producer_orders = [
-        o for o in all_orders
-        if any(it.get("producer_id") == user.user_id for it in o.get("line_items", []))
-    ]
-    purchases = len(producer_orders)
-    # Estimate visits and cart adds (we don't track these yet, so use multiples)
+    # Conversion
+    purchases = ord_curr
     store_visits = purchases * 8 if purchases else 0
     cart_adds = purchases * 3 if purchases else 0
     rate = purchases / store_visits if store_visits else 0
 
+    # Revenue trend (daily for charts)
+    from collections import defaultdict
+    daily = defaultdict(float)
+    for order in current_orders:
+        day = order.get("created_at", "")[:10]
+        if day:
+            daily[day] += _producer_revenue(order)
+    revenue_trend = [{"label": k, "revenue": round(v, 2)} for k, v in sorted(daily.items())]
+
     return {
+        "revenue": {"current": round(rev_curr, 2), "previous": round(rev_prev, 2)},
+        "orders_count": {"current": ord_curr, "previous": ord_prev},
+        "avg_ticket": {"current": aov_curr, "previous": aov_prev},
         "top_products": top_products,
         "sales_sources": source_counts,
+        "customer_geography": customer_geography,
+        "customers": {"new": new_customers, "returning": returning_customers, "total": len(customer_ids)},
         "followers": {"current": current_followers, "delta": delta_followers},
         "conversion": {
             "store_visits": store_visits,
@@ -1319,6 +1364,7 @@ async def get_producer_analytics(user: User = Depends(get_current_user), period:
             "purchases": purchases,
             "rate": round(rate, 4),
         },
+        "revenue_trend": revenue_trend,
     }
 
 

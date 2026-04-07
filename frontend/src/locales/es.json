@@ -3217,7 +3217,15 @@
     "deDondeVienenTusVentas": "¿De dónde vienen tus ventas?",
     "seguidoresDeLaTienda": "Seguidores de la tienda",
     "tasaDeConversion": "Tasa de conversión",
-    "anadidosAlCarrito": "Añadidos al carrito"
+    "anadidosAlCarrito": "Añadidos al carrito",
+    "last365d": "Ultimos 365 dias",
+    "customerGeography": "Geografia de clientes",
+    "customerStats": "Clientes",
+    "healthScore": "Health Score",
+    "healthScoreDesc": "Puntuacion de salud de tu tienda con sugerencias accionables.",
+    "newCustomers": "Nuevos",
+    "returningCustomers": "Recurrentes",
+    "repeatRate": "Tasa de recompra"
   },
   "producer_b2_b_requests": {
     "introduceElNumeroDeTracking": "Introduce el número de tracking",

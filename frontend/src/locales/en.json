@@ -3998,5 +3998,15 @@
     "read": "Read",
     "not_found": "Article not found",
     "back_to_blog": "Back to blog"
+  },
+  "producer_analytics": {
+    "last365d": "Last 365 days",
+    "customerGeography": "Customer geography",
+    "customerStats": "Customers",
+    "healthScore": "Health Score",
+    "healthScoreDesc": "Your store health score with actionable suggestions.",
+    "newCustomers": "New",
+    "returningCustomers": "Returning",
+    "repeatRate": "Repeat purchase rate"
   }
 }

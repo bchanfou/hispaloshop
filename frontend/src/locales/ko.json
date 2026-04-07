@@ -4002,5 +4002,15 @@
     "read": "읽기",
     "not_found": "기사를 찾을 수 없습니다",
     "back_to_blog": "블로그로 돌아가기"
+  },
+  "producer_analytics": {
+    "last365d": "최근 365일",
+    "customerGeography": "고객 지역",
+    "customerStats": "고객",
+    "healthScore": "건강 점수",
+    "healthScoreDesc": "실행 가능한 제안이 포함된 매장 건강 점수.",
+    "newCustomers": "신규",
+    "returningCustomers": "재구매",
+    "repeatRate": "재구매율"
   }
 }
