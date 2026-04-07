@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef, Component } from 'react';
+import React, { useMemo, useState, useCallback, useRef, Component, useEffect } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,8 @@ import { AlertCircle, Check } from 'lucide-react';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
 
 /** Lightweight error boundary that silently hides a single broken feed item. */
 class FeedItemBoundary extends Component {
@@ -25,6 +27,7 @@ class FeedItemBoundary extends Component {
 export default function ForYouFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
