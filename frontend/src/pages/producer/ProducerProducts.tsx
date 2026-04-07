@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Plus, Edit, ArrowLeft, ArrowRight, Eye, CheckCircle, Check, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, Send, Search } from 'lucide-react';
+import { Plus, Edit, ArrowLeft, ArrowRight, Eye, CheckCircle, Check, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, Send, Search, PauseCircle, FileEdit, Play, Copy, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VariantPackManager from './VariantPackManager';
 import apiClient from '../../services/api/client';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useCategories } from '../../features/products/queries';
 import { useProducerImageUpload, useProducerProductMutations, useProducerProducts } from '../../features/producer/hooks';
 import { asNumber } from '../../utils/safe';
+import { trackEvent } from '../../utils/analytics';
 
 /* ── WizardStepper ── */
 const WIZARD_STEPS = [{
@@ -50,10 +51,27 @@ function WizardStepper({
     })}
     </div>;
 }
+const statusConfig = {
+  active: { icon: CheckCircle, label: 'Activo', tw: 'text-stone-700' },
+  approved: { icon: CheckCircle, label: 'Activo', tw: 'text-stone-700' },
+  draft: { icon: FileEdit, label: 'Borrador', tw: 'text-stone-400' },
+  pending: { icon: Clock, label: 'Pendiente', tw: 'text-stone-400' },
+  pending_review: { icon: Clock, label: 'Pendiente', tw: 'text-stone-400' },
+  paused: { icon: PauseCircle, label: 'Pausado', tw: 'text-stone-400' },
+  rejected: { icon: XCircle, label: 'Rechazado', tw: 'text-stone-700' },
+};
+const getProductStatus = (p) => {
+  if (p.status === 'draft') return 'draft';
+  if (p.status === 'paused') return 'paused';
+  if (p.status === 'rejected') return 'rejected';
+  if (p.status === 'pending_review' || (!p.approved && p.status !== 'rejected')) return 'pending';
+  if (p.approved) return 'active';
+  return 'pending';
+};
 const statusIcons = {
   approved: <CheckCircle className="w-4 h-4 text-stone-700" />,
   pending: <Clock className="w-4 h-4 text-stone-700" />,
-  rejected: <XCircle className="w-4 h-4 text-stone-700" />
+  rejected: <XCircle className="w-4 h-4 text-stone-700" />,
 };
 
 // Image Upload Component
@@ -289,12 +307,12 @@ export default function ProducerProducts() {
       result = result.filter(p => (p.name || '').toLowerCase().includes(q));
     }
     // Status filter
-    if (statusFilter === 'approved') {
-      result = result.filter(p => p.approved === true);
-    } else if (statusFilter === 'pending') {
-      result = result.filter(p => !p.approved && p.status !== 'rejected');
-    } else if (statusFilter === 'rejected') {
-      result = result.filter(p => p.status === 'rejected');
+    if (statusFilter !== 'all') {
+      result = result.filter(p => {
+        const s = getProductStatus(p);
+        if (statusFilter === 'approved') return s === 'active';
+        return s === statusFilter;
+      });
     }
     return result;
   }, [products, searchQuery, statusFilter]);
@@ -313,6 +331,60 @@ export default function ProducerProducts() {
       return next;
     });
   }, []);
+  // Per-product actions
+  const handleStatusChange = async (productId, newStatus) => {
+    try {
+      await apiClient.patch(`/products/${productId}/status`, { status: newStatus });
+      trackEvent(newStatus === 'paused' ? 'product_paused' : 'product_published', { product_id: productId, status: newStatus });
+      toast.success(newStatus === 'paused' ? t('producerProducts.productPaused', 'Producto pausado') : t('producerProducts.productActivated', 'Producto activado'));
+      await refetchProducts();
+    } catch (err) {
+      toast.error(err?.message || 'Error');
+    }
+  };
+
+  const handleDuplicate = async (productId) => {
+    try {
+      await apiClient.post(`/products/${productId}/duplicate`);
+      trackEvent('product_duplicated', { product_id: productId });
+      toast.success(t('producerProducts.productDuplicated', 'Producto duplicado como borrador'));
+      await refetchProducts();
+    } catch (err) {
+      toast.error(err?.message || 'Error');
+    }
+  };
+
+  // Bulk actions
+  const handleBulkStatus = async (newStatus) => {
+    if (selectedIds.size === 0) return;
+    let ok = 0, fail = 0;
+    for (const id of selectedIds) {
+      try {
+        await apiClient.patch(`/products/${id}/status`, { status: newStatus });
+        ok++;
+      } catch { fail++; }
+    }
+    if (ok > 0) toast.success(`${ok} producto(s) ${newStatus === 'paused' ? 'pausado(s)' : 'activado(s)'}`);
+    if (fail > 0) toast.error(`${fail} fallaron`);
+    setSelectedIds(new Set());
+    await refetchProducts();
+  };
+
+  const handleBulkDuplicate = async () => {
+    if (selectedIds.size === 0) return;
+    let ok = 0, fail = 0;
+    for (const id of selectedIds) {
+      try {
+        await apiClient.post(`/products/${id}/duplicate`);
+        ok++;
+      } catch { fail++; }
+    }
+    if (ok > 0) toast.success(`${ok} producto(s) duplicado(s)`);
+    if (fail > 0) toast.error(`${fail} fallaron`);
+    setSelectedIds(new Set());
+    await refetchProducts();
+  };
+
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
     setBulkDeleting(true);
@@ -328,6 +400,7 @@ export default function ProducerProducts() {
       }
     }
     if (failed === 0) {
+      ids.forEach(id => trackEvent('product_deleted', { product_id: id }));
       toast.success(`${deleted} producto${deleted > 1 ? 's' : ''} eliminado${deleted > 1 ? 's' : ''}`);
     } else if (deleted > 0) {
       toast.error(`${deleted} eliminado${deleted > 1 ? 's' : ''}, ${failed} fallaron`);
@@ -379,7 +452,17 @@ export default function ProducerProducts() {
     // B2B wholesale
     b2b_enabled: false,
     b2b_moq: '',
-    b2b_tiers: []
+    b2b_tiers: [],
+    // Shipping weight
+    weight_kg: '',
+    // Target markets
+    target_markets: [],
+    // Publish visibility
+    visibility: 'publish', // 'publish' | 'draft'
+    // SEO
+    seo_slug: '',
+    seo_title: '',
+    seo_description: '',
   });
 
   // Legacy string fields for backward compatibility
@@ -572,12 +655,27 @@ export default function ProducerProducts() {
         b2b_tiers: formData.b2b_enabled && formData.b2b_tiers.length > 0 ? formData.b2b_tiers.filter(tier => tier.min_quantity && tier.unit_price).map(tier => ({
           min_quantity: parseInt(tier.min_quantity, 10) || 1,
           unit_price: parseFloat(tier.unit_price) || 0
-        })).filter(t => !isNaN(t.min_quantity) && !isNaN(t.unit_price)) : null
+        })).filter(t => !isNaN(t.min_quantity) && !isNaN(t.unit_price)) : null,
+        // New fields
+        weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
+        target_markets: formData.target_markets.length > 0 ? formData.target_markets : null,
+        status: formData.visibility === 'draft' ? 'draft' : undefined,
+        seo_slug: formData.seo_slug || null,
+        seo_title: formData.seo_title || null,
+        seo_description: formData.seo_description || null,
       };
       await saveProduct({
         productId: editingProduct?.product_id,
         payload: data
       });
+      if (editingProduct) {
+        trackEvent('product_edited', { product_id: editingProduct.product_id });
+      } else {
+        trackEvent('product_created', { has_variants: (formData.packs?.length || 0) > 0, categories: formData.category_id });
+      }
+      if (formData.visibility !== 'draft') {
+        trackEvent('product_published', { status: 'active' });
+      }
       toast.success(editingProduct ? t('producerProducts.productUpdated') : t('producerProducts.productCreated'));
       setShowCreateForm(false);
       setEditingProduct(null);
@@ -618,7 +716,13 @@ export default function ProducerProducts() {
       stock: '100',
       b2b_enabled: false,
       b2b_moq: '',
-      b2b_tiers: []
+      b2b_tiers: [],
+      weight_kg: '',
+      target_markets: [],
+      visibility: 'publish',
+      seo_slug: '',
+      seo_title: '',
+      seo_description: '',
     });
     setIngredientsStr('');
     setAllergensStr('');
@@ -663,7 +767,13 @@ export default function ProducerProducts() {
       stock: product.stock?.toString() ?? '0',
       b2b_enabled: product.b2b_enabled || false,
       b2b_moq: product.b2b_moq?.toString() || '',
-      b2b_tiers: product.b2b_tiers || []
+      b2b_tiers: product.b2b_tiers || [],
+      weight_kg: product.weight_kg?.toString() || '',
+      target_markets: product.target_markets || product.available_countries || [],
+      visibility: product.status === 'draft' ? 'draft' : 'publish',
+      seo_slug: product.slug || '',
+      seo_title: product.seo_title || '',
+      seo_description: product.seo_description || '',
     });
 
     // Set legacy strings for backward compatibility
@@ -926,7 +1036,7 @@ export default function ProducerProducts() {
                       <ImageIcon className="w-4 h-4" />
                       {t('producerProducts.productImages')}
                     </h3>
-                    <p className="text-sm text-stone-500 mb-4">{t('producer_products.subeHasta5FotosDeTuProductoLaPr', 'Sube hasta 5 fotos de tu producto. La primera será la portada.')}</p>
+                    <p className="text-sm text-stone-500 mb-4">{t('producer_products.subeHasta10FotosDeTuProducto', 'Sube hasta 10 fotos de tu producto. La primera sera la portada.')}</p>
                     <ImageUploader images={formData.images} setImages={newImages => {
                   if (typeof newImages === 'function') {
                     setFormData(prev => ({
@@ -939,7 +1049,7 @@ export default function ProducerProducts() {
                       images: newImages
                     }));
                   }
-                }} maxImages={5} t={t} />
+                }} maxImages={10} t={t} />
                   </div>
                 </motion.div>}
 
@@ -1045,6 +1155,43 @@ export default function ProducerProducts() {
                       ...formData,
                       free_shipping_min_qty: e.target.value
                     })} placeholder="3" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-free-shipping-qty-input" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.weight', 'Peso (kg)')}</label>
+                        <input type="number" step="0.01" min="0" value={formData.weight_kg} onChange={e => setFormData({
+                      ...formData,
+                      weight_kg: e.target.value
+                    })} placeholder="0.5" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-weight-input" />
+                      </div>
+                    </div>
+
+                    {/* Target Markets */}
+                    <div className="mt-3">
+                      <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.targetMarkets', 'Paises de venta')}</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { code: 'ES', label: 'Espana' },
+                          { code: 'KR', label: 'Corea del Sur' },
+                          { code: 'US', label: 'Estados Unidos' },
+                          { code: 'FR', label: 'Francia' },
+                          { code: 'DE', label: 'Alemania' },
+                          { code: 'IT', label: 'Italia' },
+                          { code: 'PT', label: 'Portugal' },
+                        ].map(c => {
+                          const sel = formData.target_markets.includes(c.code);
+                          return (
+                            <button key={c.code} type="button" onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                target_markets: sel
+                                  ? prev.target_markets.filter(m => m !== c.code)
+                                  : [...prev.target_markets, c.code],
+                              }));
+                            }} className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${sel ? 'bg-stone-950 border-stone-950 text-white' : 'bg-white border-stone-200 text-stone-600 hover:border-stone-400'}`}>
+                              {c.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -1371,6 +1518,48 @@ export default function ProducerProducts() {
                       </div>}
                   </div>
 
+                  {/* Visibility toggle */}
+                  <div className="rounded-2xl border border-stone-200 p-5">
+                    <h3 className="font-semibold text-stone-950 mb-3">{t('producerProducts.visibility', 'Visibilidad')}</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors hover:bg-stone-50">
+                        <input type="radio" name="visibility" value="publish" checked={formData.visibility === 'publish'} onChange={() => setFormData({ ...formData, visibility: 'publish' })} className="accent-stone-950 w-4 h-4" />
+                        <div>
+                          <p className="text-sm font-medium text-stone-950">{t('producerProducts.publishNow', 'Publicar ahora')}</p>
+                          <p className="text-xs text-stone-500">{t('producerProducts.publishNowDesc', 'Visible para todos los usuarios')}</p>
+                        </div>
+                      </label>
+                      <label className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors hover:bg-stone-50">
+                        <input type="radio" name="visibility" value="draft" checked={formData.visibility === 'draft'} onChange={() => setFormData({ ...formData, visibility: 'draft' })} className="accent-stone-950 w-4 h-4" />
+                        <div>
+                          <p className="text-sm font-medium text-stone-950">{t('producerProducts.saveAsDraft', 'Guardar como borrador')}</p>
+                          <p className="text-xs text-stone-500">{t('producerProducts.saveAsDraftDesc', 'Solo tu lo ves')}</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* SEO fields */}
+                  <div className="rounded-2xl border border-stone-200 p-5">
+                    <h3 className="font-semibold text-stone-950 mb-3">{t('producerProducts.seo', 'SEO')}</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-stone-600 mb-1">Slug</label>
+                        <input value={formData.seo_slug || formData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')} onChange={e => setFormData({ ...formData, seo_slug: e.target.value })} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
+                        <p className="text-[10px] text-stone-400 mt-0.5">{t('producerProducts.slugHint', 'Se genera automaticamente. La unicidad se verifica al guardar.')}</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.metaTitle', 'Meta titulo')}</label>
+                        <input value={formData.seo_title || `${formData.name || ''} — HispaloShop`} onChange={e => setFormData({ ...formData, seo_title: e.target.value })} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.metaDescription', 'Meta descripcion')}</label>
+                        <textarea value={formData.seo_description || (formData.description || '').slice(0, 160)} onChange={e => setFormData({ ...formData, seo_description: e.target.value })} maxLength={160} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm text-stone-950 min-h-[60px] placeholder:text-stone-400 focus:outline-none focus:border-stone-950" />
+                        <p className="text-[10px] text-stone-400 mt-0.5">{(formData.seo_description || formData.description || '').slice(0, 160).length}/160</p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Approval note */}
                   <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3">
                     <p className="text-xs text-stone-700">
@@ -1434,32 +1623,48 @@ export default function ProducerProducts() {
 
       {/* Status filter pills */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
-        {[{
-        key: 'all',
-        label: 'Todos'
-      }, {
-        key: 'approved',
-        label: 'Aprobados'
-      }, {
-        key: 'pending',
-        label: 'Pendientes'
-      }, {
-        key: 'rejected',
-        label: 'Rechazados'
-      }].map(pill => <button key={pill.key} type="button" onClick={() => {
-        setStatusFilter(pill.key);
-        setSelectedIds(new Set());
-      }} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${statusFilter === pill.key ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`} data-testid={`filter-${pill.key}`}>
-            {pill.label}
-          </button>)}
+        {[
+          { key: 'all', label: t('producerProducts.filterAll', 'Todos') },
+          { key: 'approved', label: t('producerProducts.filterActive', 'Activos') },
+          { key: 'draft', label: t('producerProducts.filterDraft', 'Borradores') },
+          { key: 'pending', label: t('producerProducts.filterPending', 'Pendientes') },
+          { key: 'paused', label: t('producerProducts.filterPaused', 'Pausados') },
+          { key: 'rejected', label: t('producerProducts.filterRejected', 'Rechazados') },
+        ].map(pill => {
+          const count = pill.key === 'all' ? (products || []).length
+            : (products || []).filter(p => {
+              const s = getProductStatus(p);
+              return s === pill.key || (pill.key === 'approved' && s === 'active');
+            }).length;
+          return (
+            <button key={pill.key} type="button" onClick={() => {
+              setStatusFilter(pill.key);
+              setSelectedIds(new Set());
+            }} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${statusFilter === pill.key ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`} data-testid={`filter-${pill.key}`}>
+              {pill.label}{count > 0 ? ` (${count})` : ''}
+            </button>
+          );
+        })}
       </div>
 
       {/* Bulk actions bar */}
-      {selectedIds.size > 0 && <div className="flex items-center gap-3 mb-3">
-          <span className="text-sm text-stone-500">{selectedIds.size} seleccionado{selectedIds.size > 1 ? 's' : ''}</span>
-          <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-stone-950 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-stone-800 transition-colors" data-testid="bulk-delete-btn">
+      {selectedIds.size > 0 && <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <span className="text-sm text-stone-500 mr-1">{selectedIds.size} seleccionado{selectedIds.size > 1 ? 's' : ''}</span>
+          <button type="button" onClick={() => handleBulkStatus('paused')} className="border border-stone-200 text-stone-950 rounded-full px-3 py-1.5 text-xs font-medium hover:bg-stone-50 transition-colors" data-testid="bulk-pause-btn">
+            <PauseCircle className="w-3.5 h-3.5 inline mr-1" />
+            {t('producerProducts.bulkPause', 'Pausar')}
+          </button>
+          <button type="button" onClick={() => handleBulkStatus('active')} className="border border-stone-200 text-stone-950 rounded-full px-3 py-1.5 text-xs font-medium hover:bg-stone-50 transition-colors" data-testid="bulk-activate-btn">
+            <Play className="w-3.5 h-3.5 inline mr-1" />
+            {t('producerProducts.bulkActivate', 'Activar')}
+          </button>
+          <button type="button" onClick={handleBulkDuplicate} className="border border-stone-200 text-stone-950 rounded-full px-3 py-1.5 text-xs font-medium hover:bg-stone-50 transition-colors" data-testid="bulk-duplicate-btn">
+            <Copy className="w-3.5 h-3.5 inline mr-1" />
+            {t('producerProducts.bulkDuplicate', 'Duplicar')}
+          </button>
+          <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-stone-950 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-stone-800 transition-colors" data-testid="bulk-delete-btn">
             <Trash2 className="w-3.5 h-3.5 inline mr-1" />
-            Eliminar seleccionados ({selectedIds.size})
+            {t('producerProducts.bulkDelete', 'Eliminar')}
           </button>
         </div>}
 
@@ -1544,9 +1749,17 @@ export default function ProducerProducts() {
                         style: 'currency',
                         currency: 'EUR'
                       })}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${product.approved ? 'bg-stone-100 text-stone-700' : 'bg-stone-100 text-stone-700'}`}>
-                            {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
-                          </span>
+                          {(() => {
+                            const s = getProductStatus(product);
+                            const cfg = statusConfig[s] || statusConfig.pending;
+                            const Icon = cfg.icon;
+                            return (
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-stone-100">
+                                <Icon className={`w-3 h-3 ${cfg.tw}`} />
+                                <span className={cfg.tw}>{cfg.label}</span>
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -1566,6 +1779,18 @@ export default function ProducerProducts() {
                       </button>
                       <button type="button" onClick={() => setVariantManagerProduct(product)} data-testid={`manage-variants-mobile-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
                         <Layers className="w-3.5 h-3.5 mr-1" /> Variantes
+                      </button>
+                      {getProductStatus(product) === 'active' ? (
+                        <button type="button" onClick={() => handleStatusChange(product.product_id, 'paused')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                          <PauseCircle className="w-3.5 h-3.5 mr-1" /> Pausar
+                        </button>
+                      ) : getProductStatus(product) === 'paused' || getProductStatus(product) === 'draft' ? (
+                        <button type="button" onClick={() => handleStatusChange(product.product_id, 'active')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                          <Play className="w-3.5 h-3.5 mr-1" /> Activar
+                        </button>
+                      ) : null}
+                      <button type="button" onClick={() => handleDuplicate(product.product_id)} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                        <Copy className="w-3.5 h-3.5 mr-1" /> Duplicar
                       </button>
                     </div>
                   </div>;
@@ -1632,10 +1857,15 @@ export default function ProducerProducts() {
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          {statusIcons[product.approved ? 'approved' : 'pending']}
-                          <span className={`text-sm font-medium ${product.approved ? 'text-stone-700' : 'text-stone-700'}`}>
-                            {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
-                          </span>
+                          {(() => {
+                            const s = getProductStatus(product);
+                            const cfg = statusConfig[s] || statusConfig.pending;
+                            const Icon = cfg.icon;
+                            return <>
+                              <Icon className={`w-4 h-4 ${cfg.tw}`} />
+                              <span className={`text-sm font-medium ${cfg.tw}`}>{cfg.label}</span>
+                            </>;
+                          })()}
                         </div>
                         <span className={`text-[11px] flex items-center gap-1 ${product.certificate_id ? 'text-stone-700' : 'text-stone-400'}`}>
                           {product.certificate_id ? <><Award className="w-3 h-3" /> {t('producerProducts.certified', 'Certificado')}</> : <><span>○</span> {t('producerProducts.noCertificate', 'Sin certificado')}</>}
@@ -1653,6 +1883,18 @@ export default function ProducerProducts() {
                         <button type="button" onClick={() => startEdit(product)} aria-label={`Editar ${product.name || 'producto'}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
                           <Edit className="w-4 h-4" />
                         </button>
+                        <button type="button" onClick={() => handleDuplicate(product.product_id)} title="Duplicar" className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        {getProductStatus(product) === 'active' ? (
+                          <button type="button" onClick={() => handleStatusChange(product.product_id, 'paused')} title="Pausar" className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                            <PauseCircle className="w-4 h-4" />
+                          </button>
+                        ) : (getProductStatus(product) === 'paused' || getProductStatus(product) === 'draft') ? (
+                          <button type="button" onClick={() => handleStatusChange(product.product_id, 'active')} title="Activar" className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                            <Play className="w-4 h-4" />
+                          </button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>;

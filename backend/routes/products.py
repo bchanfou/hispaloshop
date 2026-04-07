@@ -532,7 +532,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         needs_manual_review = True  # Products without images go to review queue
 
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
-    slug = input.name.lower().replace(' ', '-')
+    slug = await _ensure_unique_slug(input.name)
     
     # Process packs if provided
     packs_data = None
@@ -749,7 +749,7 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
         "ingredients": input.ingredients,
         "allergens": input.allergens,
         "certifications": input.certifications,
-        "slug": input.name.lower().replace(' ', '-'),
+        "slug": product.get("slug") if product.get("name") == input.name else await _ensure_unique_slug(input.name),
         # New fields
         "sku": input.sku,
         "nutritional_info": input.nutritional_info.dict() if input.nutritional_info else None,
@@ -887,6 +887,87 @@ async def delete_product_variant(
         {"$set": {"variants": variants if variants else None}},
     )
     return {"message": "Variant deleted"}
+
+
+@router.patch("/products/{product_id}/status")
+async def update_product_status(product_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Change product status (pause, activate, draft)."""
+    await require_role(user, ["producer", "importer", "admin", "super_admin"])
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1, "status": 1, "approved": 1})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not your product")
+
+    body = await request.json()
+    new_status = body.get("status", "").lower()
+    allowed = {"active", "paused", "draft"}
+    if new_status not in allowed:
+        raise HTTPException(status_code=400, detail=f"Status must be one of: {', '.join(sorted(allowed))}")
+
+    update = {"status": new_status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if new_status == "active":
+        update["approved"] = True
+    elif new_status == "paused":
+        update["approved"] = False
+
+    await db.products.update_one({"product_id": product_id}, {"$set": update})
+    return {"product_id": product_id, "status": new_status}
+
+
+@router.post("/products/{product_id}/duplicate")
+async def duplicate_product(product_id: str, user: User = Depends(get_current_user)):
+    """Duplicate a product as a new draft."""
+    await require_role(user, ["producer", "importer", "admin"])
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not your product")
+
+    new_id = f"prod_{uuid.uuid4().hex[:12]}"
+    base_slug = product.get("slug", product.get("name", "product").lower().replace(" ", "-"))
+    slug = await _ensure_unique_slug(f"{base_slug}-copy")
+
+    product.pop("_id", None)
+    product.update({
+        "product_id": new_id,
+        "name": f"{product.get('name', '')} (copia)",
+        "slug": slug,
+        "status": "draft",
+        "approved": False,
+        "certificate_id": None,
+        "translated_fields": {},
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+    await db.products.insert_one(product)
+    product.pop("_id", None)
+    return product
+
+
+@router.get("/products/slug-preview")
+async def preview_slug(name: str = ""):
+    """Preview what slug would be generated for a product name."""
+    if not name.strip():
+        return {"slug": ""}
+    slug = await _ensure_unique_slug(name)
+    return {"slug": slug}
+
+
+async def _ensure_unique_slug(base_slug: str) -> str:
+    """Ensure slug is unique in products collection, appending -2, -3 etc if needed."""
+    import re as _re
+    base_slug = _re.sub(r"[^a-z0-9\-]", "", base_slug.lower().replace(" ", "-"))
+    if not base_slug:
+        base_slug = "product"
+    slug = base_slug
+    counter = 1
+    while await db.products.find_one({"slug": slug}):
+        counter += 1
+        slug = f"{base_slug}-{counter}"
+    return slug
 
 
 @router.delete("/products/{product_id}")
