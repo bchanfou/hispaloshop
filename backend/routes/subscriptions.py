@@ -133,6 +133,32 @@ async def reactivate_subscription(user: User = Depends(get_current_user)):
     return {"message": "Suscripcion reactivada"}
 
 
+@router.get("/subscriptions/invoices")
+async def get_subscription_invoices(user: User = Depends(get_current_user)):
+    """Return billing history from Stripe."""
+    db_user = await db.users.find_one({"user_id": user.user_id})
+    if not db_user:
+        return []
+    stripe_customer_id = (db_user.get("subscription") or {}).get("stripe_customer_id")
+    if not stripe_customer_id:
+        return []
+    try:
+        invoices = stripe.Invoice.list(customer=stripe_customer_id, limit=12)
+        return [
+            {
+                "id": inv.id,
+                "date": inv.created,
+                "amount": round(inv.amount_paid / 100, 2) if inv.amount_paid else 0,
+                "status": inv.status,
+                "invoice_pdf": inv.invoice_pdf,
+            }
+            for inv in invoices.data
+        ]
+    except Exception as e:
+        logger.warning(f"[INVOICES] Failed to fetch for {user.user_id}: {e}")
+        return []
+
+
 @router.get("/hi-ai/advanced-analytics")
 async def hi_ai_advanced_analytics(user: User = Depends(require_subscription("pro"))):
     return {

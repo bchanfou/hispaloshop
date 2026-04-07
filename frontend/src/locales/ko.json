@@ -3960,5 +3960,19 @@
     "videoUrl": "소개 영상 (선택)",
     "tiktok": "TikTok",
     "storyPlaceholder": "당신이 누구인지, 무엇을 하는지, 왜 중요한지 이야기하세요."
+  },
+  "producerPlan": {
+    "commissionExample": "100 EUR 판매 시:",
+    "yourShare": "내 수익",
+    "billingHistory": "결제 내역",
+    "cancelSubscription": "구독 취소",
+    "cancelConfirm": "취소 확인",
+    "cancelReason": "사유 (선택)",
+    "planActive": "활성 플랜",
+    "gracePeriod": "결제 방법을 업데이트할 수 있는 3일의 유예 기간이 있습니다.",
+    "upgradeNow": "업그레이드",
+    "faqChangePlan": "플랜을 변경할 수 있나요?",
+    "faqCancel": "취소하면 어떻게 되나요?",
+    "faqPaymentFail": "결제 실패 시 어떻게 되나요?"
   }
 }

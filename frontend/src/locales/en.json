@@ -3956,5 +3956,19 @@
     "videoUrl": "Presentation video (optional)",
     "tiktok": "TikTok",
     "storyPlaceholder": "Tell who you are, how you do what you do, and why it matters."
+  },
+  "producerPlan": {
+    "commissionExample": "For every 100 EUR you sell:",
+    "yourShare": "You",
+    "billingHistory": "Billing history",
+    "cancelSubscription": "Cancel subscription",
+    "cancelConfirm": "Confirm cancellation",
+    "cancelReason": "Reason (optional)",
+    "planActive": "Active plan",
+    "gracePeriod": "You have 3 days to update your payment method.",
+    "upgradeNow": "Upgrade",
+    "faqChangePlan": "Can I change plans?",
+    "faqCancel": "What if I cancel?",
+    "faqPaymentFail": "What if payment fails?"
   }
 }

@@ -5673,5 +5673,19 @@
     "copyAddress": "Copiar direccion",
     "addressCopied": "Direccion copiada",
     "cancelled": "Cancelados"
+  },
+  "producerPlan": {
+    "commissionExample": "Por cada 100 EUR que vendes:",
+    "yourShare": "Tu",
+    "billingHistory": "Historial de facturacion",
+    "cancelSubscription": "Cancelar suscripcion",
+    "cancelConfirm": "Confirmar cancelacion",
+    "cancelReason": "Motivo (opcional)",
+    "planActive": "Plan activo",
+    "gracePeriod": "Tienes 3 dias de gracia para actualizar tu metodo de pago.",
+    "upgradeNow": "Upgrade",
+    "faqChangePlan": "Puedo cambiar de plan?",
+    "faqCancel": "Que pasa si cancelo?",
+    "faqPaymentFail": "Que pasa si falla el pago?"
   }
 }
