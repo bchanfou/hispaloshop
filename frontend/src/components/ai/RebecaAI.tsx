@@ -124,10 +124,11 @@ function storeMessages(msgs: Message[]) {
   } catch {}
 }
 
-export default function RebecaAI() {
+export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => void } = {}) {
   const [messages, setMessages] = useState<Message[]>(() => getStoredMessages());
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const isManaged = typeof onRequestClose === 'function';
+  const [isOpen, setIsOpen] = useState(isManaged);
   const [input, setInput] = useState('');
   const [alerts, setAlerts] = useState<RebecaAlert[]>([]);
   const [profile, setProfile] = useState<RebecaProfile | null>(null);
@@ -302,13 +303,18 @@ export default function RebecaAI() {
     setPanelError(null);
   }, []);
 
+  const handleCloseRebeca = useCallback(() => {
+    if (isManaged) { onRequestClose?.(); return; }
+    setIsOpen(false);
+  }, [isManaged, onRequestClose]);
+
   // ESC key closes panel (nested) or chat (if no panel open)
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (panelView) closePanel();
-        else setIsOpen(false);
+        else handleCloseRebeca();
       }
     };
     window.addEventListener('keydown', handler);
@@ -319,7 +325,7 @@ export default function RebecaAI() {
     <>
       {/* Floating Button */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isManaged && !isOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -359,7 +365,7 @@ export default function RebecaAI() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden"
-              onClick={() => setIsOpen(false)}
+              onClick={handleCloseRebeca}
             />
 
             <motion.div
@@ -434,7 +440,7 @@ export default function RebecaAI() {
                     </button>
                   )}
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleCloseRebeca}
                     className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
                     aria-label="Cerrar"
                   >

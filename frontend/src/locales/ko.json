@@ -4039,5 +4039,24 @@
     "askSourcing": "제품, 생산자 또는 수입 가능성에 대해 질문하세요",
     "downloadContract": "계약서 PDF 다운로드",
     "explore": "탐색"
+  },
+  "aiAssistants": {
+    "title": "AI 어시스턴트",
+    "subtitle": "AI 어시스턴트 설정",
+    "floatingActive": "플로팅 활성",
+    "proactiveSuggestions": "사전 제안",
+    "dailyBriefings": "일일 브리핑",
+    "stockAlerts": "재고 부족 알림",
+    "reviewAlerts": "리뷰 알림",
+    "buttonVisible": "버튼 표시",
+    "deleteHistory": "대화 기록 삭제",
+    "privacy": "개인정보",
+    "useDataForPersonalization": "개인화를 위해 데이터 사용",
+    "expandAssistants": "AI 어시스턴트 펼치기",
+    "allUsers": "모든 사용자",
+    "requiresPlan": "필요",
+    "upgradeRebeca": "PRO로 업그레이드하여 상업 고문 Rebeca에 접근하세요.",
+    "upgradePedro": "ELITE로 업그레이드하여 국제 상업 에이전트 Pedro에 접근하세요.",
+    "historyDeleted": "기록 삭제됨"
   }
 }

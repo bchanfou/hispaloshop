@@ -4035,5 +4035,24 @@
     "askSourcing": "Ask about products, producers or import viability",
     "downloadContract": "Download contract PDF",
     "explore": "Explore"
+  },
+  "aiAssistants": {
+    "title": "AI Assistants",
+    "subtitle": "Configure your AI assistants",
+    "floatingActive": "Floating active",
+    "proactiveSuggestions": "Proactive suggestions",
+    "dailyBriefings": "Daily briefings",
+    "stockAlerts": "Low stock alerts",
+    "reviewAlerts": "Review alerts",
+    "buttonVisible": "Button visible",
+    "deleteHistory": "Delete conversation history",
+    "privacy": "Privacy",
+    "useDataForPersonalization": "Use my data for personalization",
+    "expandAssistants": "Expand AI assistants",
+    "allUsers": "All users",
+    "requiresPlan": "Requires",
+    "upgradeRebeca": "Upgrade to PRO to access Rebeca, your commercial advisor.",
+    "upgradePedro": "Upgrade to ELITE to access Pedro, your international commercial agent.",
+    "historyDeleted": "History deleted"
   }
 }

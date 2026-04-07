@@ -274,6 +274,8 @@ app.include_router(rebeca_ai_router, prefix="/api", tags=["rebeca-ai"])
 # Commercial AI — ELITE producer agent (Claude Sonnet)
 from routes.commercial_ai import router as commercial_ai_router
 app.include_router(commercial_ai_router, prefix="/api", tags=["commercial-ai"])
+from routes.ai_preferences import router as ai_preferences_router
+app.include_router(ai_preferences_router, prefix="/api", tags=["ai-preferences"])
 
 # Social Routes (Fase 3) — posts_router ya registrado como legacy_posts_router en /api arriba
 

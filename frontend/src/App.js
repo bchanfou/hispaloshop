@@ -16,7 +16,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import BottomNavBar from './components/BottomNavBar';
-import HispalAI from './components/ai/HispalAI';
+import AIAssistantManager from './components/ai/AIAssistantManager';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
@@ -102,6 +102,7 @@ const AddressesPage = lazy(() => import('./pages/settings/AddressesPage'));
 const GamificationPage = lazy(() => import('./pages/settings/GamificationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const PayoutSettingsPage = lazy(() => import('./pages/settings/PayoutSettingsPage'));
+const AIAssistantsPage = lazy(() => import('./pages/settings/AIAssistantsPage'));
 const FollowersPage = lazy(() => import('./pages/FollowersPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
@@ -470,6 +471,7 @@ function AppRouter() {
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
               <Route path="/settings/addresses" element={<AddressesPage />} />
               <Route path="/settings/gamification" element={<GamificationPage />} />
+              <Route path="/settings/ai-assistants" element={<AIAssistantsPage />} />
               <Route path="/loyalty" element={<ProtectedRoute><LoyaltyPage /></ProtectedRoute>} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
@@ -877,7 +879,7 @@ function App() {
                       <AppRouter />
                       <BottomNavBar />
                       <Suspense fallback={null}><ChatToastContainer /></Suspense>
-                      <HispalAI />
+                      <AIAssistantManager />
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
                       <Toaster position="top-center" toastOptions={{ duration: 3000, className: 'font-sans' }} />
                     </UploadQueueProvider>

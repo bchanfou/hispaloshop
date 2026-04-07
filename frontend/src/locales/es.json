@@ -5750,5 +5750,24 @@
     "askSourcing": "Pregunta sobre productos, productores o viabilidad de importacion",
     "downloadContract": "Descargar contrato PDF",
     "explore": "Explorar"
+  },
+  "aiAssistants": {
+    "title": "Asistentes IA",
+    "subtitle": "Configura tus asistentes de inteligencia artificial",
+    "floatingActive": "Flotante activo",
+    "proactiveSuggestions": "Sugerencias proactivas",
+    "dailyBriefings": "Briefings diarios",
+    "stockAlerts": "Alertas de stock bajo",
+    "reviewAlerts": "Alertas de resenas",
+    "buttonVisible": "Boton visible",
+    "deleteHistory": "Borrar historial de conversacion",
+    "privacy": "Privacidad",
+    "useDataForPersonalization": "Usar mis datos para personalizacion",
+    "expandAssistants": "Expandir asistentes IA",
+    "allUsers": "Todos los usuarios",
+    "requiresPlan": "Requiere",
+    "upgradeRebeca": "Actualiza a PRO para acceder a Rebeca, tu asesora comercial.",
+    "upgradePedro": "Actualiza a ELITE para acceder a Pedro, tu agente comercial internacional.",
+    "historyDeleted": "Historial borrado"
   }
 }

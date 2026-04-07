@@ -146,7 +146,7 @@ function FloatingButton({ side, buttonY, isDragging, onDragStart, onClick, BUTTO
 
 /* ── Main component ── */
 
-export default function HispalAI() {
+export default function HispalAI({ onRequestClose } = {}) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const {
@@ -211,10 +211,21 @@ export default function HispalAI() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // When managed by AIAssistantManager, auto-open and delegate close
+  const isManaged = typeof onRequestClose === 'function';
+  useEffect(() => {
+    if (isManaged && phase !== 'chat') openChat();
+  }, [isManaged]);
+
   const openChatWithTracking = useCallback(() => {
     openChat();
     trackEvent('david_opened');
   }, [openChat]);
+
+  const handleClose = useCallback(() => {
+    if (isManaged) { onRequestClose(); return; }
+    closeChat();
+  }, [isManaged, onRequestClose, closeChat]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -234,7 +245,7 @@ export default function HispalAI() {
   useEffect(() => {
     if (phase !== 'chat') return;
     const handler = (e) => {
-      if (e.key === 'Escape') closeChat();
+      if (e.key === 'Escape') handleClose();
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -249,10 +260,12 @@ export default function HispalAI() {
 
   const location = useLocation();
 
-  // Hide during onboarding, auth, and registration flows
-  const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
-  const shouldHide = HIDDEN_PATHS.some(p => location.pathname.startsWith(p));
-  if (!user || shouldHide) return null;
+  // Hide during onboarding, auth, and registration flows (skip when managed)
+  if (!isManaged) {
+    const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
+    const shouldHide = HIDDEN_PATHS.some(p => location.pathname.startsWith(p));
+    if (!user || shouldHide) return null;
+  }
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -276,9 +289,9 @@ export default function HispalAI() {
 
   return (
     <>
-      {/* ── Retracted strip ── */}
+      {/* ── Retracted strip (skip when managed by AIAssistantManager) ── */}
       <AnimatePresence>
-        {phase === 'retracted' && (
+        {!isManaged && phase === 'retracted' && (
           <RetractedStrip
             side={side}
             buttonY={buttonY}
@@ -298,7 +311,7 @@ export default function HispalAI() {
 
       {/* ── Floating draggable button ── */}
       <AnimatePresence>
-        {phase === 'button' && (
+        {!isManaged && phase === 'button' && (
           <FloatingButton
             side={side}
             buttonY={buttonY}
@@ -320,7 +333,7 @@ export default function HispalAI() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden"
-              onClick={closeChat}
+              onClick={handleClose}
             />
 
             {/* Panel */}
@@ -386,7 +399,7 @@ export default function HispalAI() {
                       </button>
                     )}
                     <button
-                      onClick={closeChat}
+                      onClick={handleClose}
                       className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
                       aria-label="Cerrar"
                     >

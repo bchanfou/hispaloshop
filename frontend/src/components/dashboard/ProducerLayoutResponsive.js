@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import RebecaAI from '../ai/RebecaAI';
 import InternalChat from '../InternalChat';
 import MobileBottomNav from './MobileBottomNav';
 import BottomSheet from './BottomSheet';
@@ -20,12 +19,6 @@ import {
   useProducerDashboardStats,
 } from '../../features/dashboard/queries';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
-
-function PlanGatedAIAssistant() {
-  const { hasAccess } = useProducerPlan();
-  if (!hasAccess('PRO')) return null;
-  return <RebecaAI />;
-}
 
 export default function ProducerLayout() {
   const { user, loading } = useAuth();
@@ -360,7 +353,6 @@ export default function ProducerLayout() {
         </div>
       </BottomSheet>
     </div>
-    <PlanGatedAIAssistant />
     </ProducerPlanProvider>
   );
 }
