@@ -192,6 +192,7 @@ const AdminModerationPage = lazy(() => import('./pages/admin/AdminModerationPage
 // ChatContainer removed — HI Multi-role AI consolidated into David/Rebeca/Pedro
 const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
+const ChatRequestsPage = lazy(() => import('./pages/chat/ChatRequestsPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const ActivityPage = lazy(() => import('./pages/ActivityPage'));
@@ -824,6 +825,7 @@ function AppRouter() {
               {/* /ai/chat removed — HI Multi-role consolidated into David/Rebeca/Pedro */}
               <Route path="/messages" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
               <Route path="/messages/new" element={<ProtectedRoute><NewConversationPage /></ProtectedRoute>} />
+              <Route path="/messages/requests" element={<ProtectedRoute><ChatRequestsPage /></ProtectedRoute>} />
               <Route path="/messages/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
               <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
               <Route path="/documents" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><SignedDocumentsPage /></ProtectedRoute>} />

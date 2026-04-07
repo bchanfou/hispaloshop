@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-react';
+import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft, Inbox } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -189,9 +189,15 @@ export default function ChatsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [showSwipeHint, setShowSwipeHint] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const debounceRef = useRef(null);
+  
   useEffect(() => {
     reloadConversations();
+    // Load pending requests count
+    apiClient.get('/chat/requests/count').then(data => {
+      setPendingRequests(data?.pending_count || 0);
+    }).catch(() => {});
   }, [reloadConversations]);
 
   // Show swipe hint once per device
@@ -261,6 +267,31 @@ export default function ChatsPage() {
               <input type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Buscar" className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400" />
             </label>
           </div>
+
+          {/* Message Requests button */}
+          {pendingRequests > 0 && (
+            <div className="px-4 pb-2">
+              <button
+                onClick={() => navigate('/messages/requests')}
+                className="flex w-full items-center gap-3 rounded-xl bg-stone-50 px-4 py-3 text-left transition-colors active:bg-stone-100"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 text-white">
+                  <Inbox size={20} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-stone-950">
+                    {i18n.t('chat.messageRequests', 'Solicitudes de mensajes')}
+                  </p>
+                  <p className="text-sm text-stone-500">
+                    {pendingRequests} {i18n.t('chat.pendingRequests', 'pendientes')}
+                  </p>
+                </div>
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-stone-950 text-xs font-semibold text-white">
+                  {pendingRequests}
+                </div>
+              </button>
+            </div>
+          )}
 
           {/* Active Now row — Instagram-style online contacts */}
           {onlineConversations.length > 0 && <div className="border-b border-stone-100 pb-3 pt-1 md:hidden">

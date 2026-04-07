@@ -194,7 +194,40 @@ async def send_internal_message(
         "participants.user_id": user.user_id
     })
     
+    # ── CHECK: Message from unknown user → Request Inbox ──
     if not conv:
+        # Check if conversation doesn't exist (first message)
+        conv_check = await db.internal_conversations.find_one({
+            "conversation_id": conversation_id
+        })
+        
+        if not conv_check and input.recipient_id:
+            # Check if should go to request inbox
+            should_inbox = await chat_request_inbox.should_go_to_inbox(
+                user.user_id, input.recipient_id
+            )
+            
+            if should_inbox:
+                # Create request instead of direct message
+                preview = (input.content or "")[:80]
+                if input.image_url:
+                    preview = "📷 Imagen"
+                
+                try:
+                    request = await chat_request_inbox.create_request(
+                        sender_id=user.user_id,
+                        recipient_id=input.recipient_id,
+                        message_preview=preview
+                    )
+                    return {
+                        "request_sent": True,
+                        "request_id": request["request_id"],
+                        "message": "Solicitud enviada. El usuario debe aceptar para comenzar la conversación."
+                    }
+                except Exception as e:
+                    logger.error(f"[REQUEST_INBOX] Error creating request: {e}")
+                    raise HTTPException(status_code=500, detail="No se pudo enviar la solicitud")
+        
         raise HTTPException(status_code=403, detail="Not a participant in this conversation")
     
     # ── Anti-spam: if recipient hasn't responded, limit to 1 initial message ──
@@ -234,6 +267,14 @@ async def send_internal_message(
     # Create message — encrypt content at rest
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
     encrypted_content = encrypt_message(input.content) if input.content else input.content
+    
+    # Determine message type
+    message_type = input.message_type or "text"
+    if input.image_url:
+        message_type = "image"
+    elif input.audio_url or input.audio_id:
+        message_type = "audio"
+    
     message = {
         "message_id": message_id,
         "conversation_id": conversation_id,
@@ -242,9 +283,13 @@ async def send_internal_message(
         "sender_role": user.role,
         "content": encrypted_content,
         "image_url": input.image_url,
+        "audio_url": input.audio_url,
+        "audio_duration": input.audio_duration,
+        "audio_id": input.audio_id,
         "shared_item": input.shared_item,
         "reply_to_id": input.reply_to_id,
         "reply_to_preview": reply_to_preview,
+        "message_type": message_type,
         "status": "sent",
         "created_at": now
     }
@@ -258,7 +303,7 @@ async def send_internal_message(
     message["content"] = input.content
     
     # Update conversation last message, timestamp, and status
-    preview = "Imagen" if input.message_type == "image" else "Audio" if input.message_type == "audio" else (input.content or "")[:100]
+    preview = "Imagen" if message_type == "image" else "🎙 Audio" if message_type == "audio" else (input.content or "")[:100]
     update_conv = {"updated_at": now, "last_message": preview, "last_message_at": now}
     # Activate conversation when recipient replies for the first time
     if conv.get("status") == "pending":
@@ -298,10 +343,20 @@ async def send_internal_message(
             # Send Web Push notification if recipient is offline
             if not chat_manager.is_online(recipient_id):
                 try:
+                    # Build notification body based on message type
+                    if message_type == "audio":
+                        body = "🎙 Te envió un audio"
+                    elif input.image_url:
+                        body = "📷 Te envió una imagen"
+                    elif input.shared_item:
+                        body = "Te compartió contenido"
+                    else:
+                        body = input.content[:100] if input.content else "Nuevo mensaje"
+                    
                     await send_push_to_user(
                         recipient_id,
                         title=f"{user.name}",
-                        body=input.content[:100] if input.content else ("Te compartio contenido" if input.shared_item else "Te envio una imagen"),
+                        body=body,
                         data={"type": "chat", "conversation_id": conversation_id, "sender_id": user.user_id}
                     )
                 except Exception as e:
@@ -724,4 +779,259 @@ async def get_conversation_detail(conversation_id: str, user: User = Depends(get
         "other_participant": other_participant,
         "unread_count": unread,
     }
+
+
+# ──────────────────────────────────────────────
+# AUDIO MESSAGES
+# ──────────────────────────────────────────────
+
+from services.chat_audio_service import chat_audio_service
+
+
+@router.post("/internal-chat/upload-audio")
+async def upload_chat_audio(
+    file: UploadFile = File(...),
+    conversation_id: str = Form(...),
+    duration_seconds: float = Form(...),
+    user: User = Depends(get_current_user)
+):
+    """Upload an audio message for chat"""
+    # Verify user is participant
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user.user_id
+    })
+    
+    if not conv:
+        raise HTTPException(status_code=403, detail="Not a participant in this conversation")
+    
+    # Validate file type
+    if not file.content_type or not file.content_type.startswith(('audio/', 'video/webm', 'application/octet-stream')):
+        raise HTTPException(status_code=400, detail="Only audio files are allowed")
+    
+    # Read file
+    contents = await file.read()
+    
+    try:
+        result = await chat_audio_service.upload_audio(
+            audio_data=contents,
+            conversation_id=conversation_id,
+            sender_id=user.user_id,
+            duration_seconds=duration_seconds
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"[AUDIO] Upload failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload audio")
+
+
+@router.get("/internal-chat/audio/{audio_id}")
+async def get_audio_info(
+    audio_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Get audio message info"""
+    info = await chat_audio_service.get_audio_info(audio_id)
+    if not info:
+        raise HTTPException(status_code=404, detail="Audio not found or expired")
+    return info
+
+
+# ──────────────────────────────────────────────
+# CHAT GROUPS
+# ──────────────────────────────────────────────
+
+from services.chat_groups_service import chat_groups_service
+
+
+@router.post("/internal-chat/groups/private")
+async def create_private_group(
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Create a private chat group (max 20 members)"""
+    body = await request.json()
+    name = body.get("name", "").strip()
+    member_ids = body.get("member_ids", [])
+    avatar_url = body.get("avatar_url")
+    
+    if not name:
+        raise HTTPException(status_code=400, detail="Group name is required")
+    
+    if not member_ids or len(member_ids) < 1:
+        raise HTTPException(status_code=400, detail="At least one member is required")
+    
+    try:
+        result = await chat_groups_service.create_private_group(
+            creator_id=user.user_id,
+            name=name,
+            member_ids=member_ids,
+            avatar_url=avatar_url
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/internal-chat/groups/community/{community_id}")
+async def create_community_group(
+    community_id: str,
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Create a community chat group (requires admin role)"""
+    body = await request.json()
+    name = body.get("name", "").strip()
+    
+    if not name:
+        raise HTTPException(status_code=400, detail="Group name is required")
+    
+    # Verify user is community admin
+    community = await db.communities.find_one({
+        "_id": community_id,
+        "admins": {"$in": [user.user_id]}
+    })
+    
+    if not community:
+        raise HTTPException(status_code=403, detail="Only community admins can create groups")
+    
+    try:
+        result = await chat_groups_service.create_community_group(
+            community_id=community_id,
+            name=name,
+            admin_id=user.user_id
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/internal-chat/groups/{group_id}/join")
+async def join_community_group(
+    group_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Join a community chat group (opt-in)"""
+    try:
+        result = await chat_groups_service.join_community_group(group_id, user.user_id)
+        return {"joined": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/internal-chat/groups/{group_id}/leave")
+async def leave_group(
+    group_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Leave a chat group"""
+    try:
+        result = await chat_groups_service.leave_group(group_id, user.user_id)
+        return {"left": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/internal-chat/groups/{group_id}/members")
+async def add_member_to_group(
+    group_id: str,
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Add member to private group (admin only)"""
+    body = await request.json()
+    new_member_id = body.get("user_id")
+    
+    if not new_member_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+    
+    try:
+        result = await chat_groups_service.add_member_to_private_group(
+            group_id=group_id,
+            admin_id=user.user_id,
+            new_member_id=new_member_id
+        )
+        return {"added": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/internal-chat/groups/{group_id}")
+async def get_group_info(
+    group_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Get group information"""
+    info = await chat_groups_service.get_group_info(group_id)
+    if not info:
+        raise HTTPException(status_code=404, detail="Group not found")
+    
+    # Verify user is member
+    member_ids = [m["user_id"] for m in info.get("members", [])]
+    if user.user_id not in member_ids:
+        raise HTTPException(status_code=403, detail="Not a member of this group")
+    
+    return info
+
+
+@router.get("/internal-chat/groups")
+async def get_my_groups(
+    user: User = Depends(get_current_user)
+):
+    """Get all groups for current user"""
+    return await chat_groups_service.get_user_groups(user.user_id)
+
+
+# ──────────────────────────────────────────────
+# REQUEST INBOX (Messages from unknown users)
+# ──────────────────────────────────────────────
+
+from services.chat_request_inbox import chat_request_inbox
+
+
+@router.get("/internal-chat/requests")
+async def get_chat_requests(
+    status: str = "pending",
+    user: User = Depends(get_current_user)
+):
+    """Get chat requests (messages from unknown users)"""
+    requests = await chat_request_inbox.get_requests_for_user(user.user_id, status)
+    return {"requests": requests, "count": len(requests)}
+
+
+@router.get("/internal-chat/requests/count")
+async def get_chat_request_count(
+    user: User = Depends(get_current_user)
+):
+    """Get pending chat request count"""
+    count = await chat_request_inbox.get_pending_count(user.user_id)
+    return {"pending_count": count}
+
+
+@router.post("/internal-chat/requests/{request_id}/accept")
+async def accept_chat_request(
+    request_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Accept a chat request and create conversation"""
+    try:
+        conversation_id = await chat_request_inbox.accept_request(request_id, user.user_id)
+        return {"conversation_id": conversation_id, "status": "accepted"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/internal-chat/requests/{request_id}/decline")
+async def decline_chat_request(
+    request_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Decline a chat request"""
+    try:
+        await chat_request_inbox.decline_request(request_id, user.user_id)
+        return {"status": "declined"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 

@@ -815,8 +815,12 @@ class InternalMessageCreate(BaseModel):
     conversation_id: Optional[str] = None
     recipient_id: Optional[str] = None
     image_url: Optional[str] = None
+    audio_url: Optional[str] = None  # URL del audio
+    audio_duration: Optional[float] = None  # Duración en segundos
+    audio_id: Optional[str] = None  # ID del audio en chat_audio
     shared_item: Optional[Dict[str, Any]] = None
     reply_to_id: Optional[str] = None
+    message_type: Optional[str] = "text"  # text, image, audio
 
 
 class InternalMessageResponse(BaseModel):

@@ -71,6 +71,7 @@ from routes.conversations import router as legacy_conversations_router
 from routes.directory import router as legacy_directory_router
 from routes.insights import router as legacy_insights_router
 from routes.internal_chat import router as legacy_internal_chat_router
+from routes.chat import router as chat_router
 from routes.predictions import router as legacy_predictions_router
 from routes.producer import router as legacy_producer_router
 from routes.push_notifications import router as legacy_push_notifications_router
@@ -284,6 +285,7 @@ app.include_router(legacy_conversations_router, prefix="/api", tags=["conversati
 app.include_router(legacy_directory_router, prefix="/api", tags=["directory"])
 app.include_router(legacy_insights_router, prefix="/api", tags=["insights"])
 app.include_router(legacy_internal_chat_router, prefix="/api", tags=["internal-chat"])
+app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
 app.include_router(legacy_predictions_router, prefix="/api", tags=["predictions"])
 app.include_router(legacy_producer_router, prefix="/api", tags=["producer"])
 app.include_router(legacy_importer_router, prefix="/api", tags=["importer"])
