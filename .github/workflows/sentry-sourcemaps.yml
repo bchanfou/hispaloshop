@@ -1,0 +1,57 @@
+# =============================================================================
+# SENTRY SOURCE MAPS UPLOAD
+# Subir source maps a Sentry después de cada deploy a producción
+# =============================================================================
+name: Sentry Source Maps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  upload-sourcemaps:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para obtener el git SHA completo
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build with source maps
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+          REACT_APP_SENTRY_RELEASE: ${{ github.sha }}
+          REACT_APP_ENVIRONMENT: production
+          GENERATE_SOURCEMAP: true
+
+      - name: Upload source maps to Sentry
+        working-directory: ./frontend
+        run: npx @sentry/cli sourcemaps upload --release=${{ github.sha }} ./build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+      - name: Finalize Sentry release
+        working-directory: ./frontend
+        run: npx @sentry/cli releases finalize ${{ github.sha }}
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}

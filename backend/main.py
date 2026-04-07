@@ -99,6 +99,68 @@ from routes.translation import router as translation_router
 
 logger = logging.getLogger(__name__)
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STARTUP CHECKS - FASE 0
+# Valida variables críticas antes de arrancar. Falla fast si falta algo esencial.
+# ═══════════════════════════════════════════════════════════════════════════════
+def _validate_startup() -> None:
+    """Valida variables críticas en startup. Raise ValueError si algo falta."""
+    critical_missing = []
+    warnings = []
+    
+    # Variables CRÍTICAS - sin estas el sistema no puede funcionar
+    critical_vars = {
+        "JWT_SECRET": settings.JWT_SECRET,
+        "MONGO_URL": settings.MONGO_URL,
+    }
+    
+    for name, value in critical_vars.items():
+        if not value or value.startswith("your-") or value == "...":
+            critical_missing.append(name)
+    
+    # Validación de JWT_SECRET - mínimo 32 caracteres
+    if settings.JWT_SECRET and len(settings.JWT_SECRET) < 32:
+        critical_missing.append("JWT_SECRET (mínimo 32 caracteres)")
+    
+    # Variables IMPORTANTES para producción
+    if settings.ENV == "production":
+        prod_vars = {
+            "STRIPE_SECRET_KEY": settings.STRIPE_SECRET_KEY,
+            "FRONTEND_URL": settings.FRONTEND_URL,
+            "BACKEND_URL": settings.BACKEND_URL or settings.AUTH_BACKEND_URL,
+        }
+        for name, value in prod_vars.items():
+            if not value or "localhost" in str(value).lower():
+                warnings.append(f"{name} no configurado correctamente para producción")
+        
+        # Sentry recomendado en producción
+        if not settings.SENTRY_DSN:
+            warnings.append("SENTRY_DSN no configurado (recomendado para producción)")
+    
+    # Log de estado
+    logger.info("[STARTUP] Validando configuración...")
+    logger.info("[STARTUP] Entorno: %s", settings.ENV)
+    logger.info("[STARTUP] Base de datos: %s", settings.DB_NAME)
+    
+    if critical_missing:
+        logger.error("[STARTUP] ❌ Variables críticas faltantes: %s", ", ".join(critical_missing))
+        raise ValueError(
+            f"Variables críticas faltantes: {', '.join(critical_missing)}. "
+            "Copia .env.example a .env y configura los valores."
+        )
+    
+    if warnings:
+        for warning in warnings:
+            logger.warning("[STARTUP] ⚠️  %s", warning)
+    
+    logger.info("[STARTUP] ✅ Configuración validada correctamente")
+
+
+# Ejecutar validación inmediatamente
+_validate_startup()
+
+
 try:
     from routes.ai_chat import router as legacy_ai_chat_router
 except Exception as exc:

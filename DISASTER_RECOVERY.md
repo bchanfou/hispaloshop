@@ -9,11 +9,36 @@
 
 ## 0. Overview
 
+### MongoDB Atlas Backups (Estrategia Principal - FASE 0)
+
+**MongoDB Atlas** (nuestro proveedor de MongoDB) incluye backups automáticos:
+
+| Plan Atlas | Backup incluido | Retención | RPO |
+|---|---|---|---|
+| M0 (Sandbox) | ❌ No tiene backups automáticos | N/A | N/A |
+| M2/M5 | ✅ Snapshots diarios | 7 días | 24h |
+| M10+ | ✅ Continuous backups | 7-30 días | ~6 minutos |
+
+**Para producción (recomendado):**
+1. Usar **M10 o superior** para tener continuous backups
+2. Configurar retención de 30 días
+3. Atlas permite restore point-in-time (a cualquier momento)
+
+**Cómo hacer restore desde Atlas:**
+1. Atlas dashboard → Cluster → Backup tab
+2. Seleccionar el snapshot deseado (o "Point in Time" para momento específico)
+3. Elegir destino: "Restore to a different cluster" o "Download"
+4. Seguir el wizard de Atlas
+
+**Documentación oficial:** https://www.mongodb.com/docs/atlas/backup-restore-cluster/
+
+---
+
 ### What this system protects
 
 | Asset | Primary protection | Secondary | RPO | RTO |
 |---|---|---|---|---|
-| **MongoDB data** | Daily mongodump → Cloudflare R2 | Weekly verify drill | 24h | 2h |
+| **MongoDB data** | Atlas continuous backups (M10+) | Daily mongodump → Cloudflare R2 | ~6min (M10+) / 24h (script) | 2h |
 | **Code** | GitHub (origin) + Railway/Vercel deploys | Local clones on dev machines | 0 | 15m (rollback) |
 | **Secrets** | Railway env vars + Vercel env vars + GitHub Actions secrets | `.env.example` documents what's needed | N/A | 1h (rotate + redeploy) |
 | **Media uploads** | Cloudinary (their own redundancy) + 30-day trash | N/A | See §3 | varies |
