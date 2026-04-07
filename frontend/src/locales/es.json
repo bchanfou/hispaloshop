@@ -5805,5 +5805,15 @@
     "upgradeRebeca": "Actualiza a PRO para acceder a Rebeca, tu asesora comercial.",
     "upgradePedro": "Actualiza a ELITE para acceder a Pedro, tu agente comercial internacional.",
     "historyDeleted": "Historial borrado"
+  },
+  "importer": {
+    "importedFrom": "Importado desde",
+    "imported": "Importado",
+    "originCountry": "Pais de origen del producto",
+    "originCountryRequired": "El pais de origen es obligatorio para importadores",
+    "importCertificate": "Certificado de importacion",
+    "distributionAgreement": "Acuerdo de distribucion",
+    "vatVerified": "VAT verificado",
+    "sourcingPriority": "Sourcing prioritario"
   }
 }

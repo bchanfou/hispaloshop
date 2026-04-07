@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bookmark, Plus, Star, Leaf, Shield, Award } from 'lucide-react';
+import { Bookmark, Plus, Star, Leaf, Shield, Award, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
@@ -79,6 +79,8 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
   const { convertAndFormatPrice, t } = useLocale();
   const certLabels = buildCertLabels(t);
   const productId = getProductId(product);
+  const isImported = product.seller_type === 'importer' || (product.origin_country && product.country_origin && product.origin_country !== product.country_origin);
+  const importOrigin = product.origin_country || product.country_origin;
 
   const basePrice = product.display_price || product.price || 0;
   const baseCurrency = product.display_currency || product.currency || 'EUR';
@@ -157,7 +159,12 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
               <Leaf size={10} /> {certLabels[primaryCert] || primaryCert}
             </span>
           )}
-          {!isBlocked && !primaryCert && isLowStock && (
+          {isImported && importOrigin && !primaryCert && (
+            <span className="absolute bottom-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-700 flex items-center gap-0.5">
+              <Globe size={10} className="text-stone-400" /> Importado
+            </span>
+          )}
+          {!isBlocked && !primaryCert && !isImported && isLowStock && (
             <span className="absolute bottom-1.5 left-1.5 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
               Últimas uds.
             </span>
@@ -220,7 +227,13 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
           </span>
         )}
 
-        {!isBlocked && !primaryCert && isLowStock && (
+        {isImported && importOrigin && !primaryCert && (
+          <span className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-700 flex items-center gap-0.5">
+            <Globe size={10} className="text-stone-400" /> Importado
+          </span>
+        )}
+
+        {!isBlocked && !primaryCert && !isImported && isLowStock && (
           <span className="absolute bottom-2 left-2 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
             Últimas uds.
           </span>

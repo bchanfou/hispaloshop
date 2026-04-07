@@ -6,7 +6,7 @@ import {
   ChevronLeft, Send, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
-  ShoppingBag, Lock, Clock3, ChefHat, Wheat, ThumbsUp,
+  ShoppingBag, Lock, Clock3, ChefHat, Wheat, ThumbsUp, Globe,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -510,6 +510,13 @@ export default function ProductDetailPage() {
                 <FileCheck size={12} /> {cert.name || cert}
               </span>
             ))}
+          </div>
+        )}
+        {(product.seller_type === 'importer' || product.origin_country) && product.origin_country && (
+          <div className="mt-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+              <Globe size={12} className="text-stone-400" /> Importado desde {product.origin_country}
+            </span>
           </div>
         )}
 

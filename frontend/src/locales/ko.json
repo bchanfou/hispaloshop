@@ -4100,5 +4100,15 @@
     "netReceived": "실수령액",
     "fiscalSummary": "세금 요약",
     "configFiscal": "세금 설정"
+  },
+  "importer": {
+    "importedFrom": "수입처",
+    "imported": "수입",
+    "originCountry": "제품 원산지",
+    "originCountryRequired": "수입업체는 원산지 국가가 필수입니다",
+    "importCertificate": "수입 인증서",
+    "distributionAgreement": "유통 계약",
+    "vatVerified": "VAT 인증됨",
+    "sourcingPriority": "우선 소싱"
   }
 }

@@ -4096,5 +4096,15 @@
     "netReceived": "Net received",
     "fiscalSummary": "Tax summary",
     "configFiscal": "Configure tax"
+  },
+  "importer": {
+    "importedFrom": "Imported from",
+    "imported": "Imported",
+    "originCountry": "Product origin country",
+    "originCountryRequired": "Origin country is required for importers",
+    "importCertificate": "Import certificate",
+    "distributionAgreement": "Distribution agreement",
+    "vatVerified": "VAT verified",
+    "sourcingPriority": "Priority sourcing"
   }
 }
