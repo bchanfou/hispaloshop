@@ -22,20 +22,21 @@ function AnalyticsSection({
 function SalesSourcesChart({
   sources
 }) {
+  const { t } = useTranslation();
   const data = [{
-    name: 'Feed',
+    name: t('producer_analytics.sourceFeed', 'Feed'),
     value: sources?.feed || 0
   }, {
-    name: 'Tienda',
+    name: t('producer_analytics.sourceStore', 'Tienda'),
     value: sources?.store || 0
   }, {
     name: 'David AI',
     value: sources?.hispal_ai || 0
   }, {
-    name: 'Influencer',
+    name: t('producer_analytics.sourceInfluencer', 'Influencer'),
     value: sources?.influencer || 0
   }, {
-    name: 'Directo',
+    name: t('producer_analytics.sourceDirect', 'Directo'),
     value: sources?.direct || 0
   }].filter(d => d.value > 0);
   const total = data.reduce((s, d) => s + d.value, 0);
@@ -67,7 +68,7 @@ function SalesSourcesChart({
         boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
         padding: '8px 12px',
         fontSize: 12
-      }} formatter={(value, _name, props) => [`${props.payload.pct}% (${value})`, 'Ventas']} labelStyle={{
+      }} formatter={(value, _name, props) => [`${props.payload.pct}% (${value})`, t('producer_analytics.sales', 'Ventas')]} labelStyle={{
         fontWeight: 600,
         color: '#0c0a09'
       }} />
@@ -85,7 +86,8 @@ function RevenueTrendChart({
   trend
 }) {
   if (!trend || !Array.isArray(trend) || trend.length < 2) return null;
-  return <AnalyticsSection title="Tendencia de ingresos" icon={TrendingUp}>
+  const { t } = useTranslation();
+  return <AnalyticsSection title={t('producer_analytics.revenueTrend', 'Tendencia de ingresos')} icon={TrendingUp}>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={trend} margin={{
         top: 8,
@@ -112,7 +114,7 @@ function RevenueTrendChart({
         }} formatter={value => [typeof value === 'number' ? value.toLocaleString('es-ES', {
           style: 'currency',
           currency: 'EUR'
-        }) : value, 'Ingresos']} labelStyle={{
+        }) : value, t('producer_analytics.revenue', 'Ingresos')]} labelStyle={{
           fontWeight: 600,
           color: '#0c0a09'
         }} />

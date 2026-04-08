@@ -53,7 +53,7 @@ function WithdrawalCard({
       <div className="px-6 pt-6 pb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Wallet className="w-5 h-5 text-stone-500" />
-          Retirar Comisiones
+          {i18n.t('influencerDashboard.withdrawCommissions', 'Retirar Comisiones')}
         </h3>
       </div>
       <div className="px-6 pb-6">
@@ -85,13 +85,13 @@ function WithdrawalCard({
                   Procesando...
                 </> : <>
                   <ArrowUpRight className="w-4 h-4" />
-                  Retirar {convertAndFormatPrice(Number(availableToWithdraw || 0))}
+                  {i18n.t('influencerDashboard.withdraw', 'Retirar')} {convertAndFormatPrice(Number(availableToWithdraw || 0))}
                 </>}
             </button>}
 
           {/* Toggle history */}
           {withdrawals.length > 0 && <button onClick={() => setShowHistory(!showHistory)} className="w-full text-sm py-2 transition-colors text-stone-500">
-              {showHistory ? 'Ocultar historial' : `Ver historial (${withdrawals.length} retiros)`}
+              {showHistory ? i18n.t('influencerDashboard.hideHistory', 'Ocultar historial') : `${i18n.t('influencerDashboard.showHistory', 'Ver historial')} (${withdrawals.length} ${i18n.t('influencer.withdrawals', 'retiros')})`}
             </button>}
 
           {/* Withdrawal history */}
@@ -156,7 +156,7 @@ function EmailVerificationBanner({
           <div className="flex items-center gap-3">
             <input value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" className="w-32 px-3 py-2 text-center text-xl tracking-widest font-mono border border-stone-200 rounded-xl text-stone-950 bg-white outline-none" maxLength={6} />
             <button onClick={handleVerify} disabled={verifying || code.length !== 6} className="px-4 py-2 transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-xl">
-              {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
+              {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : i18n.t('influencerDashboard.verify', 'Verificar')}
             </button>
             <button onClick={handleResend} disabled={resending} className="px-4 py-2 transition-colors border border-stone-200 text-stone-500 rounded-xl bg-white">
               {resending ? i18n.t('common.sending', 'Enviando...') : i18n.t('influencer.resendCode', 'Reenviar código')}
@@ -210,7 +210,7 @@ function CreateCodeCard({
           </p>
           {/* Discount % selector pills */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-sm text-stone-500">Descuento:</span>
+            <span className="text-sm text-stone-500">{i18n.t('influencerDashboard.discount', 'Descuento')}:</span>
             {DISCOUNT_OPTIONS.map(pct => <button key={pct} onClick={() => setDiscountPercent(pct)} className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${discountPercent === pct ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
                 {pct}%
               </button>)}
@@ -219,7 +219,7 @@ function CreateCodeCard({
           <div className="flex items-center gap-3">
             <input value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))} placeholder="Ej: MARIA10" className="flex-1 px-3 py-2 uppercase text-lg font-mono border border-stone-200 rounded-xl text-stone-950 bg-white outline-none" maxLength={20} />
             <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-xl">
-              {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear'}
+              {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : i18n.t('influencerDashboard.create', 'Crear')}
             </button>
           </div>
           <div className="flex items-center justify-between mt-2">
@@ -254,7 +254,7 @@ function DiscountCodesList({
         <div className="px-6 pt-6 pb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
             <Tag className="w-5 h-5 text-stone-500" />
-            Mis códigos de descuento
+            {i18n.t('influencerDashboard.myDiscountCodes', 'Mis códigos de descuento')}
           </h3>
         </div>
         <div className="px-6 pb-6 text-center py-4">

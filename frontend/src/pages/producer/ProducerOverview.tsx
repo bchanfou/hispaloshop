@@ -146,7 +146,7 @@ function StripeConnectSection() {
             <CreditCard className="w-5 h-5 text-stone-500" />
           </div>
           <div>
-            <h3 className="font-medium text-stone-950">Stripe Payouts</h3>
+            <h3 className="font-medium text-stone-950">{t('producer.stripePayouts', 'Stripe Payouts')}</h3>
             <p className="text-sm flex items-center gap-1.5 mt-0.5">
               {isConnected ? (
                 <span className="inline-flex items-center gap-1 text-stone-700">
@@ -210,7 +210,7 @@ function StripeConnectSection() {
               {connecting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                'Conectar Stripe'
+                t('producer.connectStripe', 'Conectar Stripe')
               )}
             </button>
           )}
@@ -275,7 +275,7 @@ function HealthScoreCard() {
           </div>
           <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
             <div className="text-xl font-bold text-stone-950">{fmtMoney(healthData.metrics.revenue_30d)}</div>
-            <div className="text-[10px] uppercase tracking-wider text-stone-500">Ventas</div>
+            <div className="text-[10px] uppercase tracking-wider text-stone-500">{t('producer.sales', 'Ventas')}</div>
           </div>
           <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
             <div className="flex items-center justify-center gap-1">
@@ -1039,7 +1039,7 @@ export default function ProducerOverview() {
       {/* Sales Chart — 30 days */}
       {salesChart.length > 0 && (
         <div className="p-4 bg-white shadow-sm rounded-2xl" data-testid="sales-chart">
-          <p className="text-sm font-bold mb-4 text-stone-950">Ventas — últimos 30 días</p>
+          <p className="text-sm font-bold mb-4 text-stone-950">{t('producer.sales30Days', 'Ventas — últimos 30 días')}</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <CartesianGrid stroke="#e7e5e4" vertical={false} />
@@ -1057,7 +1057,7 @@ export default function ProducerOverview() {
               />
               <Tooltip
                 contentStyle={{ background: '#0c0a09', border: 'none', borderRadius: 12, fontSize: 12, color: 'white' }}
-                formatter={(v) => [fmtMoney(v), 'Ventas']}
+                formatter={(v) => [fmtMoney(v), t('producer.sales', 'Ventas')]}
                 labelFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
               />
               <Line type="monotone" dataKey="revenue" stroke="#0c0a09" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />

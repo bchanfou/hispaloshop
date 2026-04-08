@@ -8,7 +8,7 @@ import { useCart } from '../context/CartContext';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
-import ProductImage from 'components/ui/ProductImage';
+import ProductImage from '../components/ui/ProductImage';
 
 export default function WishlistSharedPage() {
   const { slug } = useParams();

@@ -191,7 +191,8 @@ export default function GlobalSearchModal({
     return { [activeTab]: results[activeTab] || [] };
   };
 
-  const hasResults = Object.values(results).some(arr => arr.length > 0);
+  const hasResults = Object.values(results as Record<string, SearchResult[]>)
+    .some((arr) => Array.isArray(arr) && arr.length > 0);
 
   if (!isOpen) return null;
 
@@ -294,7 +295,8 @@ export default function GlobalSearchModal({
                 <>
                   {hasResults ? (
                     <div className="p-2">
-                      {Object.entries(getFilteredResults()).map(([type, items]) => {
+                      {Object.entries(getFilteredResults() as Record<string, SearchResult[]>)
+                        .map(([type, items]) => {
                         if (!items || items.length === 0) return null;
                         
                         return (
@@ -302,12 +304,13 @@ export default function GlobalSearchModal({
                             <h3 className="px-4 py-2 text-xs font-semibold text-stone-500 uppercase tracking-wide">
                               {t(`search.type.${type}`, type)}
                             </h3>
-                            {items.map((item: any) => (
-                              <ResultItem
-                                key={item.id}
-                                result={item}
-                                onClick={() => handleResultClick(item)}
-                              />
+                            {items.map((item: SearchResult) => (
+                              <div key={item.id}>
+                                <ResultItem
+                                  result={item}
+                                  onClick={() => handleResultClick(item)}
+                                />
+                              </div>
                             ))}
                           </div>
                         );

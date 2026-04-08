@@ -73,8 +73,8 @@ export default function Button({
   disabled = false,
   fullWidth = false,
   type = 'button',
-  style,
-  className,
+  style = {},
+  className = '',
   ...props
 }) {
   const [hovered, setHovered] = React.useState(false);

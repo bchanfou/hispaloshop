@@ -73,6 +73,38 @@ async def _safe_create_index(collection, keys, **kwargs):
             raise
 
 
+async def _ensure_recipes_slug_index():
+    """Ensure recipes.slug is unique only when slug is a non-empty string."""
+    desired_partial = {
+        "slug": {
+            "$exists": True,
+            "$type": "string",
+            "$ne": "",
+        }
+    }
+
+    indexes = await db.recipes.index_information()
+    legacy_slug_index = indexes.get("slug_1")
+
+    # Legacy unique index on slug treats multiple nulls as duplicates.
+    # Drop it so we can replace with a partial unique index.
+    if legacy_slug_index and legacy_slug_index.get("unique"):
+        legacy_partial = legacy_slug_index.get("partialFilterExpression")
+        if legacy_partial != desired_partial:
+            try:
+                await db.recipes.drop_index("slug_1")
+                logger.info("  MIGRATE: dropped legacy recipes.slug unique index")
+            except Exception as exc:
+                logger.warning("  SKIP: unable to drop legacy recipes.slug index (%s)", exc)
+
+    await db.recipes.create_index(
+        "slug",
+        name="slug_1",
+        unique=True,
+        partialFilterExpression=desired_partial,
+    )
+
+
 async def _create_indexes():
     """
     Crea índices críticos para performance.
@@ -361,7 +393,7 @@ async def _create_indexes():
     # ═══════════════════════════════════════════════════════════════════════════
     # RECIPES - Recetas con ingredientes comprables
     # ═══════════════════════════════════════════════════════════════════════════
-    await db.recipes.create_index("slug", unique=True)
+    await _ensure_recipes_slug_index()
     await db.recipes.create_index("author_id")
     await db.recipes.create_index("category")
     await db.recipes.create_index("difficulty")

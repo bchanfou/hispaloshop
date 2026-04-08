@@ -1051,6 +1051,9 @@
     "ofYourStore": "of your store",
     "totalSold": "Total Sold",
     "yourEarnings": "Your Earnings (82%)",
+    "stripePayouts": "Stripe Payouts",
+    "sales": "Sales",
+    "sales30Days": "Sales — last 30 days",
     "quickActions": "Quick Actions",
     "createNewProduct": "Create New Product",
     "manageCertificates": "Manage Certificates",
@@ -2388,7 +2391,16 @@
     "customersReferred": "Customers referred",
     "nextReview": "Next review",
     "totalEarnings": "Total earnings",
-    "pendingPayout": "Pending payout"
+    "pendingPayout": "Pending payout",
+    "withdrawCommissions": "Withdraw Commissions",
+    "processing": "Processing...",
+    "verify": "Verify",
+    "discount": "Discount",
+    "create": "Create",
+    "myDiscountCodes": "My discount codes",
+    "uses": "Uses",
+    "hideHistory": "Hide history",
+    "showHistory": "Show history"
   },
   "sellerLanding": {
     "tagline": "For producers and artisans",
@@ -4028,7 +4040,14 @@
     "healthScoreDesc": "Your store health score with actionable suggestions.",
     "newCustomers": "New",
     "returningCustomers": "Returning",
-    "repeatRate": "Repeat purchase rate"
+    "repeatRate": "Repeat purchase rate",
+    "sourceFeed": "Feed",
+    "sourceStore": "Store",
+    "sourceInfluencer": "Influencer",
+    "sourceDirect": "Direct",
+    "sales": "Sales",
+    "revenueTrend": "Revenue trend",
+    "revenue": "Revenue"
   },
   "rebecaAI": {
     "openChat": "Open Rebeca",

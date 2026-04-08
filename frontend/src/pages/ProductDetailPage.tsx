@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import AddToWishlistModal from '../components/wishlist/AddToWishlistModal';
 import SEO from '../components/SEO';
 import SocialProofBar from '../components/product/SocialProofBar';
-import ProductImage from 'components/ui/ProductImage';
+import ProductImage from '../components/ui/ProductImage';
 import {
   useProductDetail,
   useProductPurchaseOptions,
