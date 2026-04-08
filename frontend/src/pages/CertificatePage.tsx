@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
-import Button from '../components/ui/Button';
+import Button from '../components/ui/button';
 
 interface CertificateData {
   product_id: string;

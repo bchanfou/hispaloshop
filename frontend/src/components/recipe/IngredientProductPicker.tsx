@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Search, X, Check, Package, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
-import Button from '../ui/Button';
+import Button from '../ui/button';
 import Modal from '../ui/Modal';
 
 interface Product {

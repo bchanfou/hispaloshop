@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QrCode, Download, BarChart3, ExternalLink, Check, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Button from '../ui/Button';
+import Button from '../ui/button';
 import Modal from '../ui/Modal';
 
 interface ProductCertificateCardProps {
