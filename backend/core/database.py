@@ -75,13 +75,23 @@ async def _safe_create_index(collection, keys, **kwargs):
 
 async def _ensure_recipes_slug_index():
     """Ensure recipes.slug is unique only when slug is a non-empty string."""
-    desired_partial = {
-        "slug": {
-            "$exists": True,
-            "$type": "string",
-            "$ne": "",
-        }
-    }
+    # Some Mongo-compatible engines reject $ne in partialFilterExpression.
+    # Prefer a strict non-empty string filter, then fall back to string-only.
+    preferred_partials = [
+        {
+            "slug": {
+                "$exists": True,
+                "$type": "string",
+                "$gt": "",
+            }
+        },
+        {
+            "slug": {
+                "$exists": True,
+                "$type": "string",
+            }
+        },
+    ]
 
     indexes = await db.recipes.index_information()
     legacy_slug_index = indexes.get("slug_1")
@@ -90,19 +100,30 @@ async def _ensure_recipes_slug_index():
     # Drop it so we can replace with a partial unique index.
     if legacy_slug_index and legacy_slug_index.get("unique"):
         legacy_partial = legacy_slug_index.get("partialFilterExpression")
-        if legacy_partial != desired_partial:
+        if legacy_partial not in preferred_partials:
             try:
                 await db.recipes.drop_index("slug_1")
                 logger.info("  MIGRATE: dropped legacy recipes.slug unique index")
             except Exception as exc:
                 logger.warning("  SKIP: unable to drop legacy recipes.slug index (%s)", exc)
 
-    await db.recipes.create_index(
-        "slug",
-        name="slug_1",
-        unique=True,
-        partialFilterExpression=desired_partial,
-    )
+    for partial in preferred_partials:
+        try:
+            await db.recipes.create_index(
+                "slug",
+                name="slug_1",
+                unique=True,
+                partialFilterExpression=partial,
+            )
+            return
+        except OperationFailure as exc:
+            # 67 = CannotCreateIndex (unsupported partial expression on this engine)
+            if exc.code == 67:
+                logger.warning("  SKIP: recipes.slug partial filter not supported (%s)", partial)
+                continue
+            raise
+
+    raise RuntimeError("Unable to create compatible recipes.slug unique index")
 
 
 async def _create_indexes():
