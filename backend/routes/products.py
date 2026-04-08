@@ -618,52 +618,12 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
             "admin_reviewed": False, "admin_action": None,
         })
     
-    # Auto-create certificate + functional QR for physical packaging use
+    # Auto-generate digital certificates (Section 1.4b)
     try:
-        cert_id = f"cert_{uuid.uuid4().hex[:12]}"
-        cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
-        markets = get_product_target_markets(product)
-        requirements = ["origin_verification", "quality_check"]
-        cat_slug = product.get("category_id", "")
-        if any(k in cat_slug for k in ["carne", "meat", "lact", "dairy", "queso", "cheese", "congel", "frozen"]):
-            requirements.extend(["food_safety", "allergen_labeling", "cold_chain"])
-        if any(k in cat_slug for k in ["fruta", "fruit", "verdura"]):
-            requirements.extend(["food_safety", "origin_traceability"])
-        
-        frontend_base = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
-        qr_url = f"{frontend_base}/certificate/{product_id}?scan=1"
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(qr_url)
-        qr.make(fit=True)
-        qr_img = qr.make_image(fill_color="black", back_color="white")
-        qr_buffer = io.BytesIO()
-        qr_img.save(qr_buffer, format="PNG")
-        qr_base64 = base64.b64encode(qr_buffer.getvalue()).decode()
-
-        cert = {
-            "certificate_id": cert_id, "certificate_number": cert_number,
-            "product_id": product_id, "product_name": product["name"],
-            "seller_id": user.user_id,
-            "certificate_type": "food_safety" if "food_safety" in requirements else "origin",
-            "data": {
-                "origin_country": product.get("country_origin", ""),
-                "compliance_requirements": requirements,
-                "target_markets": markets,
-                "ingredients": product.get("ingredients", []),
-                "allergens": product.get("allergens", []),
-                "nutritional_info": product.get("nutritional_info") or product.get("nutrition_info"),
-                "certifications": product.get("certifications", []),
-            },
-            "qr_url": qr_url,
-            "qr_code": qr_base64,
-            "approved": False, "status": "pending_review",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        await db.certificates.insert_one(cert)
-        await db.products.update_one({"product_id": product_id}, {"$set": {"certificate_id": cert_id}})
-        logger.info(f"[CERT] Auto-created {cert_number} for product {product_id}")
+        from services.certificate_generator import auto_generate_certificates_for_product
+        await auto_generate_certificates_for_product(product, user.user_id)
     except Exception as e:
-        logger.warning(f"[CERT] Auto-create failed: {e}")
+        logger.warning(f"[CERT] Auto-generation failed: {e}")
     
     # Trigger background translation + notify followers (non-blocking)
     from services.background import create_safe_task
@@ -793,6 +753,15 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
     if content_changed and product.get("approved"):
         from services.background import create_safe_task
         create_safe_task(translate_product_to_all_bg(product_id, input.source_language or "es"), name="product_retranslate")
+    
+    # Auto-generate/update digital certificates on product update (Section 1.4b)
+    try:
+        from services.certificate_generator import auto_generate_certificates_for_product
+        # Update product dict with new values for certificate generation
+        updated_product = {**product, **update_data}
+        await auto_generate_certificates_for_product(updated_product, user.user_id)
+    except Exception as e:
+        logger.warning(f"[CERT] Auto-generation on update failed: {e}")
     
     return {"message": "Product updated"}
 

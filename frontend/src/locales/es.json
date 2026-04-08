@@ -2146,7 +2146,8 @@
     "errorSubtitle": "Revisa tu conexión e inténtalo de nuevo.",
     "retry": "Reintentar",
     "seasonNow": "Temporada",
-    "yourZone": "tu zona"
+    "yourZone": "tu zona",
+    "viewFullMap": "Ver mapa completo"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -2520,7 +2521,13 @@
     "up_to_date_cta": "Descubre mas en Explore",
     "explore_products": "Explorar productos",
     "comments_count": "Ver los {{count}} comentarios",
-    "likes_count": "{{count}} me gusta"
+    "likes_count": "{{count}} me gusta",
+    "forYou": "Para ti",
+    "discoverUsers": "Descubrir usuarios",
+    "following_empty": {
+      "title": "No sigues a nadie todavía",
+      "description": "Sigue a productores, importadores e influencers para ver su contenido aquí."
+    }
   },
   "chat": {
     "attach_image": "Imagen",
@@ -5856,5 +5863,127 @@
     "seeMore": "Quieres ver todas las oportunidades?",
     "upgradeCta": "Actualiza a PRO para ver la lista completa.",
     "viewPlans": "Ver planes"
+  },
+  "hamburger": {
+    "miCuenta": "MI CUENTA",
+    "explorar": "EXPLORAR",
+    "paraVendedores": "PARA VENDEDORES",
+    "paraInfluencers": "PARA INFLUENCERS",
+    "panelAdmin": "PANEL DE ADMIN",
+    "panelSuperAdmin": "SUPER ADMIN",
+    "eresVendedor": "¿ERES VENDEDOR?",
+    "preferencias": "PREFERENCIAS",
+    "ayuda": "AYUDA",
+    "pedidos": "Pedidos",
+    "guardados": "Guardados y listas",
+    "actividad": "Tu actividad",
+    "mensajes": "Mensajes",
+    "notificaciones": "Notificaciones",
+    "descubrir": "Descubrir",
+    "productos": "Productos",
+    "tiendas": "Tiendas",
+    "comunidades": "Comunidades",
+    "recetas": "Recetas",
+    "certificaciones": "Certificaciones",
+    "dashboard": "Dashboard",
+    "ventas": "Ventas",
+    "importerDashboard": "Importador",
+    "codigos": "Códigos",
+    "comisiones": "Comisiones",
+    "adminDashboard": "Dashboard Admin",
+    "adminProducers": "Productores",
+    "adminProducts": "Productos",
+    "adminOrders": "Pedidos",
+    "adminVerification": "Verificaciones",
+    "adminSupport": "Soporte",
+    "superDashboard": "Dashboard Super",
+    "superUsers": "Usuarios",
+    "superFinance": "Finanzas",
+    "superMarkets": "Mercados",
+    "superAdmins": "Administradores",
+    "soyProductor": "Soy productor",
+    "soyImportador": "Soy importador",
+    "soyInfluencer": "Soy influencer",
+    "pais": "País",
+    "idioma": "Idioma",
+    "divisa": "Divisa",
+    "buscarPais": "Buscar país...",
+    "buscarIdioma": "Buscar idioma...",
+    "buscarDivisa": "Buscar divisa...",
+    "queEs": "¿Qué es HispaloShop?",
+    "centroAyuda": "Centro de ayuda",
+    "feedback": "Feedback e ideas",
+    "terminos": "Términos",
+    "privacidad": "Privacidad",
+    "configuracion": "Configuración"
+  },
+  "feedback": {
+    "title": "Feedback & Ideas",
+    "submitButton": "Send feedback",
+    "submitNew": "Send feedback or idea",
+    "loading": "Loading...",
+    "loadMore": "Load more",
+    "emptyState": "No feedback yet",
+    "emptyStateSub": "Be the first to send an idea!",
+    "errorLoading": "Error loading feedback",
+    "errorVoting": "Error voting",
+    "voteRegistered": "Vote registered!",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "typeLabel": "Type",
+    "types": {
+      "bug": "Bug",
+      "feature": "Feature",
+      "improvement": "Improvement",
+      "other": "Other"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "under_review": "Under review",
+      "planned": "Planned",
+      "in_progress": "In progress",
+      "done": "Completed",
+      "declined": "Declined"
+    },
+    "sort": {
+      "popular": "Most voted",
+      "trending": "Trending",
+      "newest": "Newest"
+    },
+    "filters": {
+      "allTypes": "All types",
+      "features": "Features",
+      "improvements": "Improvements",
+      "bugs": "Bugs",
+      "others": "Others"
+    },
+    "validation": {
+      "titleMinLength": "Title must be at least 5 characters",
+      "descMinLength": "Description must be at least 20 characters"
+    },
+    "placeholders": {
+      "title": "Summarize your idea in one sentence",
+      "description": "Describe your idea in detail. The more context, the better."
+    }
+  },
+  "cards": {
+    "followers": "seguidores",
+    "members": "miembros",
+    "follow": "Seguir",
+    "min": "min"
+  },
+  "map": {
+    "seoTitle": "Mapa de Productores — HispaloShop",
+    "seoDesc": "Explora productores locales verificados en tu región y descubre productos frescos cerca de ti.",
+    "title": "Mapa de Productores",
+    "searchPlaceholder": "Buscar tiendas o ubicaciones...",
+    "allCountries": "Todos los países",
+    "stores": "tiendas",
+    "countries": "países",
+    "noSearchResults": "No se encontraron resultados",
+    "noStores": "No hay tiendas en esta región",
+    "tryDifferentSearch": "Intenta con otros términos",
+    "tryAnotherCountry": "Prueba con otro país",
+    "viewFullMap": "Ver mapa completo"
   }
 }

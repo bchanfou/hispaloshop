@@ -6,7 +6,8 @@ import {
   X, Bookmark, Activity, Package, HelpCircle, FileText, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check, User, Store, Users,
   ChefHat, MessageCircle, Info, Megaphone, Truck, Globe2, ShieldCheck,
-  Bell, ShoppingBag, Tag, DollarSign, TrendingUp, BarChart3, MessageSquare
+  Bell, ShoppingBag, Tag, DollarSign, TrendingUp, BarChart3, MessageSquare,
+  Shield, Crown, Lock, BarChart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -90,6 +91,9 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const isImporter = user?.role === 'importer';
   const isInfluencer = user?.role === 'influencer';
   const isSeller = isProducer || isInfluencer;
+  const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.role === 'super_admin';
+  const isStaff = isAdmin || isSuperAdmin;
 
   return createPortal(
     <AnimatePresence>
@@ -216,6 +220,29 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <MenuItem to="/influencer/dashboard" icon={<LayoutDashboard size={20} />} label={t('hamburger.dashboard', 'Dashboard')} onClose={onClose} />
               <MenuItem to="/influencer/codes" icon={<Tag size={20} />} label={t('hamburger.codigos', 'Códigos')} onClose={onClose} />
               <MenuItem to="/influencer/payouts" icon={<DollarSign size={20} />} label={t('hamburger.comisiones', 'Comisiones')} onClose={onClose} />
+              <Divider />
+            </>}
+
+            {/* ── PANEL DE ADMINISTRACIÓN ── */}
+            {isAdmin && <>
+              <SectionLabel>{t('hamburger.panelAdmin', 'PANEL DE ADMIN')}</SectionLabel>
+              <MenuItem to="/admin" icon={<Shield size={20} />} label={t('hamburger.adminDashboard', 'Dashboard Admin')} onClose={onClose} />
+              <MenuItem to="/admin/producers" icon={<Store size={20} />} label={t('hamburger.adminProducers', 'Productores')} onClose={onClose} />
+              <MenuItem to="/admin/products" icon={<Package size={20} />} label={t('hamburger.adminProducts', 'Productos')} onClose={onClose} />
+              <MenuItem to="/admin/orders" icon={<ShoppingBag size={20} />} label={t('hamburger.adminOrders', 'Pedidos')} onClose={onClose} />
+              <MenuItem to="/admin/verification" icon={<ShieldCheck size={20} />} label={t('hamburger.adminVerification', 'Verificaciones')} onClose={onClose} />
+              <MenuItem to="/admin/support" icon={<MessageSquare size={20} />} label={t('hamburger.adminSupport', 'Soporte')} onClose={onClose} />
+              <Divider />
+            </>}
+
+            {/* ── PANEL SUPER ADMIN ── */}
+            {isSuperAdmin && <>
+              <SectionLabel>{t('hamburger.panelSuperAdmin', 'SUPER ADMIN')}</SectionLabel>
+              <MenuItem to="/super-admin" icon={<Crown size={20} />} label={t('hamburger.superDashboard', 'Dashboard Super')} onClose={onClose} />
+              <MenuItem to="/super-admin/users" icon={<Users size={20} />} label={t('hamburger.superUsers', 'Usuarios')} onClose={onClose} />
+              <MenuItem to="/super-admin/finance" icon={<BarChart size={20} />} label={t('hamburger.superFinance', 'Finanzas')} onClose={onClose} />
+              <MenuItem to="/super-admin/markets" icon={<Globe2 size={20} />} label={t('hamburger.superMarkets', 'Mercados')} onClose={onClose} />
+              <MenuItem to="/super-admin/admins" icon={<Lock size={20} />} label={t('hamburger.superAdmins', 'Administradores')} onClose={onClose} />
               <Divider />
             </>}
 

@@ -946,3 +946,339 @@ async def translate_product_to_all_languages(product_id: str, user: User = Depen
     
     return results
 
+    if user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    if job_id not in translation_jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return translation_jobs[job_id]
+
+@router.post("/translate/product-all/{product_id}")
+async def translate_product_to_all_languages(product_id: str, user: User = Depends(get_current_user)):
+    """Translate a single product to all supported languages"""
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    source_lang = product.get("source_language", "en")
+    results = {"product_id": product_id, "translations": {}}
+    
+    for target_lang in TRANSLATION_LANGUAGES:
+        if target_lang == source_lang:
+            results["translations"][target_lang] = "skipped (source)"
+            continue
+        
+        try:
+            await TranslationService.get_product_in_language(product_id, target_lang)
+            results["translations"][target_lang] = "success"
+        except Exception as e:
+            results["translations"][target_lang] = f"error: {str(e)}"
+    
+    return results
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DIGITAL CERTIFICATES API — Sección 1.4b
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from core.models import CertificateType, DigitalCertificate, DigitalCertificateCreateInput
+from services.certificate_generator import (
+    certificate_generator, 
+    auto_generate_certificates_for_product,
+    get_product_certificates,
+    track_scan,
+    get_scan_analytics
+)
+
+
+@router.get("/digital-certificates")
+async def list_digital_certificates(
+    user: User = Depends(get_current_user),
+    product_id: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """
+    Lista los certificados digitales del productor.
+    
+    Query params:
+      - product_id: Filtrar por producto específico
+      - status: Filtrar por estado (active, revoked, expired)
+    """
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    query = {"producer_id": user.user_id}
+    if product_id:
+        query["product_id"] = product_id
+    if status:
+        query["status"] = status
+    
+    certs = await db.digital_certificates.find(query).to_list(length=500)
+    
+    # Enriquecer con info de producto
+    product_ids = list(set(c["product_id"] for c in certs if c.get("product_id")))
+    products = {}
+    if product_ids:
+        product_docs = await db.products.find(
+            {"product_id": {"in": product_ids}},
+            {"_id": 0, "product_id": 1, "name": 1, "images": 1}
+        ).to_list(len(product_ids))
+        products = {p["product_id"]: p for p in product_docs}
+    
+    result = []
+    for cert in certs:
+        cert.pop("_id", None)
+        product = products.get(cert.get("product_id", ""), {})
+        cert["product"] = {
+            "name": product.get("name", ""),
+            "image": product.get("images", [None])[0] if product.get("images") else None
+        }
+        result.append(cert)
+    
+    return {"certificates": result}
+
+
+@router.get("/digital-certificates/{certificate_id}")
+async def get_digital_certificate(
+    certificate_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Obtiene detalle de un certificado digital."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    # Verificar ownership
+    if cert.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    cert.pop("_id", None)
+    
+    # Enriquecer con producto
+    product = await db.products.find_one(
+        {"product_id": cert.get("product_id")},
+        {"_id": 0, "name": 1, "images": 1, "price": 1, "currency": 1}
+    )
+    cert["product"] = product
+    
+    return cert
+
+
+@router.post("/digital-certificates/generate")
+async def generate_digital_certificate(
+    input: DigitalCertificateCreateInput,
+    user: User = Depends(get_current_user)
+):
+    """
+    Genera manualmente un certificado digital para un producto.
+    Normalmente los certificados se generan automáticamente al crear/actualizar producto.
+    """
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    # Verificar producto existe y pertenece al usuario
+    product = await db.products.find_one({"product_id": input.product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Verificar si ya existe
+    cert_id = f"cert_{input.product_id}_{input.certificate_type.value}"
+    existing = await db.digital_certificates.find_one({"certificate_id": cert_id})
+    if existing:
+        raise HTTPException(status_code=409, detail="Certificate already exists for this type")
+    
+    # Generar
+    certs = await auto_generate_certificates_for_product(product, user.user_id)
+    created = [c for c in certs if c.certificate_id == cert_id]
+    
+    if created:
+        return {"certificate": created[0].model_dump(), "status": "created"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to create certificate")
+
+
+@router.get("/digital-certificates/{certificate_id}/qr.png")
+async def download_certificate_qr_png(
+    certificate_id: str,
+    size: int = 300,
+    user: User = Depends(get_current_user)
+):
+    """
+    Descarga el QR code del certificado en formato PNG.
+    
+    Query params:
+      - size: Tamaño en píxeles (default 300)
+    """
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    # Verificar ownership
+    if cert.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        png_bytes = certificate_generator.generate_png(certificate_id, size=size, include_frame=True)
+        return Response(
+            content=png_bytes,
+            media_type="image/png",
+            headers={
+                "Content-Disposition": f'attachment; filename="certificate-{certificate_id}-qr.png"',
+                "Cache-Control": "public, max-age=86400"
+            }
+        )
+    except Exception as e:
+        logger.error(f"[DigitalCertificates] Error generando QR PNG: {e}")
+        raise HTTPException(status_code=500, detail="Error generating QR code")
+
+
+@router.get("/digital-certificates/{certificate_id}/qr.svg")
+async def download_certificate_qr_svg(
+    certificate_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Descarga el QR code del certificado en formato SVG (vectorial)."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    if cert.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        svg_content = certificate_generator.generate_svg(certificate_id)
+        return Response(
+            content=svg_content,
+            media_type="image/svg+xml",
+            headers={
+                "Content-Disposition": f'attachment; filename="certificate-{certificate_id}-qr.svg"',
+                "Cache-Control": "public, max-age=86400"
+            }
+        )
+    except Exception as e:
+        logger.error(f"[DigitalCertificates] Error generando QR SVG: {e}")
+        raise HTTPException(status_code=500, detail="Error generating QR code")
+
+
+@router.get("/digital-certificates/{certificate_id}/pdf")
+async def download_certificate_pdf(
+    certificate_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Genera y descarga el certificado digital en formato PDF premium."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert_doc = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert_doc:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    if cert_doc.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        # Obtener datos relacionados
+        product = await db.products.find_one(
+            {"product_id": cert_doc.get("product_id")},
+            {"_id": 0}
+        )
+        producer = await db.users.find_one(
+            {"user_id": cert_doc.get("producer_id")},
+            {"_id": 0, "company_name": 1, "full_name": 1, "name": 1}
+        )
+        store = await db.store_profiles.find_one(
+            {"producer_id": cert_doc.get("producer_id")},
+            {"_id": 0, "name": 1, "logo": 1}
+        )
+        
+        # Crear modelo DigitalCertificate desde el doc
+        cert = DigitalCertificate(**cert_doc)
+        
+        pdf_bytes = certificate_generator.generate_certificate_pdf(
+            cert, product or {}, producer or {}, store
+        )
+        
+        safe_name = (product.get("name", "") if product else "")[:40].replace(" ", "_")
+        filename = f"certificado-{safe_name or certificate_id}.pdf"
+        
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+            }
+        )
+    except ImportError:
+        raise HTTPException(
+            status_code=501,
+            detail="Generación de PDF no disponible. Instala: pip install reportlab"
+        )
+    except Exception as e:
+        logger.error(f"[DigitalCertificates] Error generando PDF: {e}")
+        raise HTTPException(status_code=500, detail="Error generating PDF")
+
+
+@router.get("/digital-certificates/{certificate_id}/analytics")
+async def get_certificate_analytics(
+    certificate_id: str,
+    days: int = 30,
+    user: User = Depends(get_current_user)
+):
+    """Obtiene analytics de escaneos del certificado."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    if cert.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    analytics = await get_scan_analytics(certificate_id, days)
+    return analytics
+
+
+@router.post("/digital-certificates/{certificate_id}/revoke")
+async def revoke_certificate(
+    certificate_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Revoca un certificado digital (lo desactiva)."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    cert = await db.digital_certificates.find_one({"certificate_id": certificate_id})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    if cert.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.digital_certificates.update_one(
+        {"certificate_id": certificate_id},
+        {"$set": {"status": "revoked", "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    return {"status": "revoked", "certificate_id": certificate_id}
+
+
+@router.get("/products/{product_id}/digital-certificates")
+async def get_product_digital_certificates(
+    product_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Obtiene todos los certificados digitales de un producto específico."""
+    await require_role(user, ["producer", "importer", "admin"])
+    
+    # Verificar ownership del producto
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.get("producer_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    certs = await get_product_certificates(product_id)
+    return {"certificates": certs}

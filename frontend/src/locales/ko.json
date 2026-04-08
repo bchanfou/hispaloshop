@@ -2057,7 +2057,8 @@
     "errorSubtitle": "연결을 확인하고 다시 시도하세요.",
     "retry": "다시 시도",
     "seasonNow": "제철",
-    "yourZone": "내 지역"
+    "yourZone": "내 지역",
+    "viewFullMap": "전체 지도 보기"
   },
   "notifications": {
     "title": "ì•Œë¦¼",
@@ -2425,7 +2426,13 @@
     "up_to_date_cta": "탐색에서 더 보기",
     "explore_products": "상품 둘러보기",
     "comments_count": "댓글 {{count}}개 모두 보기",
-    "likes_count": "좋아요 {{count}}개"
+    "likes_count": "좋아요 {{count}}개",
+    "forYou": "추천",
+    "discoverUsers": "사용자 발견",
+    "following_empty": {
+      "title": "아직 팔로우하는 사람이 없습니다",
+      "description": "생산자, 수입자 및 인플루언서를 팔로우하여 여기에서 콘텐츠를 확인하세요."
+    }
   },
   "chat": {
     "attach_image": "이미지",
@@ -4151,5 +4158,127 @@
     "seeMore": "모든 기회를 보시겠습니까?",
     "upgradeCta": "PRO로 업그레이드하여 전체 목록을 확인하세요.",
     "viewPlans": "플랜 보기"
+  },
+  "hamburger": {
+    "miCuenta": "내 계정",
+    "explorar": "탐색",
+    "paraVendedores": "판매자용",
+    "paraInfluencers": "인플루언서용",
+    "panelAdmin": "관리자 패널",
+    "panelSuperAdmin": "슈퍼 관리자",
+    "eresVendedor": "판매자이신가요?",
+    "preferencias": "환경 설정",
+    "ayuda": "도움말",
+    "pedidos": "주문",
+    "guardados": "저장됨 및 목록",
+    "actividad": "내 활동",
+    "mensajes": "메시지",
+    "notificaciones": "알림",
+    "descubrir": "발견",
+    "productos": "제품",
+    "tiendas": "스토어",
+    "comunidades": "커뮤니티",
+    "recetas": "레시피",
+    "certificaciones": "인증",
+    "dashboard": "대시보드",
+    "ventas": "판매",
+    "importerDashboard": "수입자",
+    "codigos": "코드",
+    "comisiones": "커미션",
+    "adminDashboard": "관리자 대시보드",
+    "adminProducers": "생산자",
+    "adminProducts": "제품",
+    "adminOrders": "주문",
+    "adminVerification": "인증",
+    "adminSupport": "지원",
+    "superDashboard": "슈퍼 대시보드",
+    "superUsers": "사용자",
+    "superFinance": "재무",
+    "superMarkets": "시장",
+    "superAdmins": "관리자",
+    "soyProductor": "생산자입니다",
+    "soyImportador": "수입자입니다",
+    "soyInfluencer": "인플루언서입니다",
+    "pais": "국가",
+    "idioma": "언어",
+    "divisa": "통화",
+    "buscarPais": "국가 검색...",
+    "buscarIdioma": "언어 검색...",
+    "buscarDivisa": "통화 검색...",
+    "queEs": "HispaloShop이란?",
+    "centroAyuda": "도움말 센터",
+    "feedback": "피드백 및 아이디어",
+    "terminos": "이용약관",
+    "privacidad": "개인정보",
+    "configuracion": "설정"
+  },
+  "feedback": {
+    "title": "Feedback & Ideas",
+    "submitButton": "Send feedback",
+    "submitNew": "Send feedback or idea",
+    "loading": "Loading...",
+    "loadMore": "Load more",
+    "emptyState": "No feedback yet",
+    "emptyStateSub": "Be the first to send an idea!",
+    "errorLoading": "Error loading feedback",
+    "errorVoting": "Error voting",
+    "voteRegistered": "Vote registered!",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "typeLabel": "Type",
+    "types": {
+      "bug": "Bug",
+      "feature": "Feature",
+      "improvement": "Improvement",
+      "other": "Other"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "under_review": "Under review",
+      "planned": "Planned",
+      "in_progress": "In progress",
+      "done": "Completed",
+      "declined": "Declined"
+    },
+    "sort": {
+      "popular": "Most voted",
+      "trending": "Trending",
+      "newest": "Newest"
+    },
+    "filters": {
+      "allTypes": "All types",
+      "features": "Features",
+      "improvements": "Improvements",
+      "bugs": "Bugs",
+      "others": "Others"
+    },
+    "validation": {
+      "titleMinLength": "Title must be at least 5 characters",
+      "descMinLength": "Description must be at least 20 characters"
+    },
+    "placeholders": {
+      "title": "Summarize your idea in one sentence",
+      "description": "Describe your idea in detail. The more context, the better."
+    }
+  },
+  "cards": {
+    "followers": "팔로워",
+    "members": "멤버",
+    "follow": "팔로우",
+    "min": "분"
+  },
+  "map": {
+    "seoTitle": "생산자 지도 — HispaloShop",
+    "seoDesc": "해당 지역의 검증된 로컬 생산자를 탐색하고 신선한 제품을 발견하세요.",
+    "title": "생산자 지도",
+    "searchPlaceholder": "스토어 또는 위치 검색...",
+    "allCountries": "모든 국가",
+    "stores": "스토어",
+    "countries": "국가",
+    "noSearchResults": "결과를 찾을 수 없습니다",
+    "noStores": "이 지역에 스토어가 없습니다",
+    "tryDifferentSearch": "다른 검색어를 시도하세요",
+    "tryAnotherCountry": "다른 국가를 시도하세요",
+    "viewFullMap": "전체 지도 보기"
   }
 }

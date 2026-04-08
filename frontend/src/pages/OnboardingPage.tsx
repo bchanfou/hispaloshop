@@ -140,11 +140,13 @@ export default function OnboardingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo]);
 
-  // Redirect if not auth or already onboarded
+  // Redirect if not auth, already onboarded, or email not verified
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate('/login', { replace: true }); return; }
-    if (user.onboarding_completed) navigate('/', { replace: true });
+    if (user.onboarding_completed) { navigate('/', { replace: true }); return; }
+    // Require email verification before onboarding
+    if (!user.email_verified) { navigate('/verify-email', { replace: true }); return; }
   }, [user, authLoading, navigate]);
 
   const goTo = useCallback((n) => { setDirection(n > step ? 1 : -1); setStep(n); }, [step]);

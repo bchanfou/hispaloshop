@@ -34,6 +34,7 @@ export function ProductCard({ product }) {
 
 // ── Producer card (Airbnb host style) ──
 export function ProducerCard({ producer }) {
+  const { t } = useTranslation();
   const img = producer.profile_image || producer.picture;
   const name = producer.company_name || producer.name;
   const href = `/store/${producer.username || producer.user_id}`;
@@ -59,7 +60,7 @@ export function ProducerCard({ producer }) {
         </div>
       </div>
       {producer.followers_count > 0 && (
-        <p className="text-[11px] text-stone-400">{producer.followers_count} seguidores</p>
+        <p className="text-[11px] text-stone-400">{producer.followers_count} {t('cards.followers', 'seguidores')}</p>
       )}
     </Link>
   );
@@ -67,6 +68,7 @@ export function ProducerCard({ producer }) {
 
 // ── Community card ──
 export function CommunityCard({ community }) {
+  const { t } = useTranslation();
   const href = `/community/${community.slug}`;
   return (
     <Link to={href} className="block w-[180px] lg:w-[200px] rounded-2xl border border-stone-200 bg-white overflow-hidden no-underline group hover:border-stone-300 transition-colors">
@@ -81,7 +83,7 @@ export function CommunityCard({ community }) {
         <p className="text-sm font-semibold text-stone-950 truncate">{community.name}</p>
         {community.member_count != null && (
           <p className="text-[11px] text-stone-400 flex items-center gap-1 mt-0.5">
-            <Users size={10} /> {community.member_count} miembros
+            <Users size={10} /> {community.member_count} {t('cards.members', 'miembros')}
           </p>
         )}
       </div>
@@ -91,6 +93,7 @@ export function CommunityCard({ community }) {
 
 // ── Recipe card ──
 export function RecipeCard({ recipe }) {
+  const { t } = useTranslation();
   const img = recipe.image_url || resolveImage(recipe);
   const href = `/recipe/${recipe.recipe_id || recipe.id}`;
   return (
@@ -106,7 +109,7 @@ export function RecipeCard({ recipe }) {
         <p className="text-sm font-semibold text-stone-950 line-clamp-2 leading-tight">{recipe.title}</p>
         <div className="flex items-center gap-2 mt-1.5 text-[11px] text-stone-400">
           {recipe.time_minutes && (
-            <span className="flex items-center gap-0.5"><Clock size={10} /> {recipe.time_minutes} min</span>
+            <span className="flex items-center gap-0.5"><Clock size={10} /> {recipe.time_minutes} {t('cards.min', 'min')}</span>
           )}
           {recipe.difficulty && (
             <span className="flex items-center gap-0.5"><ChefHat size={10} /> {recipe.difficulty}</span>
@@ -119,6 +122,7 @@ export function RecipeCard({ recipe }) {
 
 // ── Creator / new producer avatar card ──
 export function AvatarCard({ user, onFollow }) {
+  const { t } = useTranslation();
   const img = user.profile_image || user.picture;
   const name = user.name || user.username;
   const href = `/profile/${user.username || user.user_id}`;
@@ -142,7 +146,7 @@ export function AvatarCard({ user, onFollow }) {
           onClick={() => onFollow(user.user_id)}
           className="mt-1 flex items-center gap-0.5 text-[10px] font-semibold text-stone-950 bg-stone-100 rounded-full px-2.5 py-1 hover:bg-stone-200 transition-colors border-none cursor-pointer"
         >
-          <UserPlus size={10} /> Seguir
+          <UserPlus size={10} /> {t('cards.follow', 'Seguir')}
         </button>
       )}
     </div>

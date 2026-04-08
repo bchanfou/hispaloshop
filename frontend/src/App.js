@@ -214,6 +214,7 @@ const LandingDistribuidor = lazy(() => import('./pages/informativas/LandingDistr
 const LangRoute = lazy(() => import('./components/informativas/LangRoute'));
 const LangDetectRedirect = lazy(() => import('./components/informativas/LangDetectRedirect'));
 const LandingConsumidor = lazy(() => import('./pages/informativas/LandingConsumidor'));
+const MapPage = lazy(() => import('./pages/MapPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
 const ImporterOpportunitiesPage = lazy(() => import('./pages/importer/ImporterOpportunitiesPage'));
@@ -490,6 +491,7 @@ function AppRouter() {
               <Route path="/discover/people" element={<PeoplePage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
+              <Route path="/map" element={<MapPage />} />
               <Route path="/collections" element={<FeedLayout><EditorialCollectionsPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />
               <Route path="/hashtag/:tag" element={<HashtagPage />} />

@@ -182,9 +182,15 @@ export default function RegisterPage() {
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   const checkUsername = useCallback(async (value) => {
+    // Validación igual al backend: solo minúsculas, números, guiones, puntos y guiones bajos
     const clean = value.trim().toLowerCase().replace(/[^a-z0-9_.\-]/g, '');
     if (clean.length < 3) {
       setUsernameStatus('short');
+      return;
+    }
+    // Validación igual al backend: ^[a-z0-9_.\-]{3,20}$
+    if (!/^[a-z0-9_.\-]{3,20}$/.test(clean)) {
+      setUsernameStatus('invalid');
       return;
     }
     // No consecutive dots, cannot start/end with dot or hyphen
@@ -230,9 +236,16 @@ export default function RegisterPage() {
     const e = {};
     if (!form.fullName.trim()) e.fullName = t('register.elNombreEsObligatorio', 'El nombre es obligatorio');
     if (!form.email.match(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/)) e.email = t('register.emailNoValido', 'Email no válido');
-    if (!form.username.trim() || form.username.trim().length < 3) e.username = t('register.minimo3Caracteres', 'Mínimo 3 caracteres');
-    else if (/^[.\-]|[.\-]$|\.\./.test(form.username.trim())) e.username = 'No puede empezar/terminar con punto o guion, ni tener puntos consecutivos';
-    else if (usernameStatus === 'taken') e.username = t('register.esteUsuarioYaEstaEnUso', 'Este usuario ya está en uso');
+    const cleanUsername = form.username.trim().toLowerCase().replace(/[^a-z0-9_.\-]/g, '');
+    if (!form.username.trim() || cleanUsername.length < 3) {
+      e.username = t('register.minimo3Caracteres', 'Mínimo 3 caracteres');
+    } else if (!/^[a-z0-9_.\-]{3,20}$/.test(cleanUsername)) {
+      e.username = t('register.usernameInvalido', 'Solo letras minúsculas, números, puntos, guiones y guiones bajos (3-20 caracteres)');
+    } else if (/^[.\-]|[.\-]$|\.\./.test(cleanUsername)) {
+      e.username = t('usernameFormatoInvalido', 'No puede empezar/terminar con punto o guion, ni tener puntos consecutivos');
+    } else if (usernameStatus === 'taken') {
+      e.username = t('register.esteUsuarioYaEstaEnUso', 'Este usuario ya está en uso');
+    }
     if (form.password.length < 8) e.password = t('register.minimo8Caracteres', 'Mínimo 8 caracteres');
     if (!form.country) e.country = t('register.selectCountry', 'Selecciona tu país');
     if (!form.birthDay || !form.birthMonth || !form.birthYear) {
@@ -274,7 +287,8 @@ export default function RegisterPage() {
       birth_date: birthDate,
       role: roleConfig.backendRole,
       country: form.country,
-      analytics_consent: termsAccepted, // Tied to actual checkbox state, not hardcoded
+      analytics_consent: termsAccepted, // Consentimiento GDPR obligatorio
+      marketing_consent: false, // Por defecto false, el usuario puede activar luego
       consent_version: '1.0',
       language: navigator.language?.split('-')[0] || 'es',
     };
@@ -330,12 +344,23 @@ export default function RegisterPage() {
         }
         if (Object.keys(fieldErrors).length > 0) { setErrors(fieldErrors); return; }
       }
+      // Handle 429 rate limit error
+      if (err?.response?.status === 429) {
+        toast.error(
+          t('register.rateLimitError', 'Demasiados intentos. Por favor, espera unos minutos o contacta con soporte.'),
+          { duration: 6000 }
+        );
+        return;
+      }
+      
       // Handle string error messages
       const msg = typeof detail === 'string' ? detail : getAuthErrorMessage(err, t('register.errorAlCrearLaCuenta', 'Error al crear la cuenta.'));
       if (msg.toLowerCase().includes('email')) {
         setErrors({ email: msg });
       } else if (msg.toLowerCase().includes('username') || msg.toLowerCase().includes('usuario')) {
         setErrors({ username: msg });
+      } else if (msg.toLowerCase().includes('demasiados') || msg.includes('429')) {
+        toast.error(msg, { duration: 6000 });
       } else {
         toast.error(msg);
       }

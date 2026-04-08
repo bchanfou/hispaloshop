@@ -32,11 +32,11 @@ function EmptyFollowing() {
         <Users className="h-7 w-7 text-stone-400" />
       </div>
       <p className="text-[15px] font-semibold text-stone-950">
-        {t('feed.following.empty.title', 'No sigues a nadie todavía')}
+        {t('feed.following_empty.title', 'No sigues a nadie todavía')}
       </p>
       <p className="mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-stone-400">
         {t(
-          'feed.following.empty.description',
+          'feed.following_empty.description',
           t('following_feed.sigueAProductoresImportadoresEInfl', 'Sigue a productores, importadores e influencers para ver su contenido aquí.')
         )}
       </p>

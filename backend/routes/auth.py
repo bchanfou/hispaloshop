@@ -24,6 +24,7 @@ from services.auth_helpers import (
     send_email, FRONTEND_URL, AUTH_BACKEND_URL,
 )
 from middleware.rate_limit import rate_limiter
+from core.redis_client import redis_manager
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +248,16 @@ async def _resolve_referral_influencer(referral_code: Optional[str]) -> tuple[Op
 
 @router.post("/auth/register")
 async def register(input: RegisterInput, request: Request):
+    # Rate limit por IP/dispositivo (anti-bot)
     await rate_limiter.check(request, endpoint_type="register")
+    
+    # Rate limit adicional por email (anti-spam masivo)
+    email_key = f"register_email:{input.email.lower()}"
+    if not await redis_manager.check_rate_limit(email_key, max_requests=2, window=3600):
+        raise HTTPException(
+            status_code=429, 
+            detail="Demasiados intentos de registro con este email. Por favor, espera 1 hora."
+        )
     # Age verification — must be 16+ (required for customers)
     if input.role == "customer" and not input.birth_date:
         raise HTTPException(status_code=400, detail="La fecha de nacimiento es obligatoria")
@@ -498,32 +508,22 @@ async def register(input: RegisterInput, request: Request):
     session_token = await _create_user_session(user_id)
 
     if not _is_email_delivery_configured():
-        logger.error("[REGISTRATION] Email delivery unavailable for %s", normalized_email)
-        return _build_auth_response(
-            request,
-            user_data,
-            session_token,
-            email_delivery_available=False,
-            message="La cuenta se creó, pero el servicio de email no está configurado. Configura Resend antes de pedir verificación por email.",
-        )
-
-    try:
-        send_email(
-            to=normalized_email,
-            subject=template['subject'],
-            html=email_html
-        )
-        logger.info(f"[REGISTRATION] Verification email sent to {normalized_email} in {user_lang}")
-    except Exception:
-        # If email fails, we should still allow registration but warn the user
-        logger.exception("[REGISTRATION] Failed to send verification email to %s", normalized_email)
-        return _build_auth_response(
-            request,
-            user_data,
-            session_token,
-            email_delivery_available=False,
-            message="La cuenta se creó, pero no se pudo enviar el email de verificación. Prueba a reenviarlo cuando el servicio de email esté disponible.",
-        )
+        logger.warning("[REGISTRATION] Email delivery unavailable for %s", normalized_email)
+        # Cuenta creada pero email no enviado - no es error crítico
+        # El usuario puede solicitar reenvío más tarde
+    else:
+        try:
+            send_email(
+                to=normalized_email,
+                subject=template['subject'],
+                html=email_html
+            )
+            logger.info(f"[REGISTRATION] Verification email sent to {normalized_email} in {user_lang}")
+        except Exception as email_err:
+            # If email fails, we should still allow registration but warn the user
+            logger.exception("[REGISTRATION] Failed to send verification email to %s: %s", normalized_email, str(email_err))
+            # No devolver error HTTP - la cuenta se creó correctamente
+            # El usuario puede verificar su email más tarde desde su perfil
     
     return _build_auth_response(
         request,

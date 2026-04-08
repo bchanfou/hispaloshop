@@ -65,6 +65,125 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
 22. `CheckoutSuccessPage` ya lleva a `/dashboard/orders` en lugar de `/orders`.
 23. `hasRouteAccess` deja de considerar `/orders` como superficie principal de cliente.
 
+### Corregido durante la auditoria de autenticacion (Fase 2)
+
+#### Phase 2.1 - Registro
+1. **Rate limiting demasiado estricto para usuarios en Corea del Sur** (líneas 11-13 de rate_limit.py).
+   - Causa: Los usuarios en redes corporativas/coreanas usan NAT compartido, provocando bloqueos masivos.
+   - Fix: Aumentado de 3 a 5 registros/hora por IP, añadido rate limit adicional por email (2/hora).
+   - Añadida fingerprinting por subnet /24 para reducir falsos positivos.
+
+2. **Campo `marketing_consent` faltante en registro** (líneas 421-430 de RegisterPage.tsx).
+   - Causa: El backend requiere el campo pero el frontend no lo enviaba.
+   - Fix: Añadido `marketing_consent: false` al payload de registro.
+
+3. **Validación de username inconsistente** entre frontend y backend.
+   - Causa: El frontend permitía mayúsculas y caracteres que el backend rechazaba.
+   - Fix: Normalización a lowercase y sanitización consistente en ambos lados.
+
+4. **Manejo de errores 429 mejorado** en RegisterPage.tsx.
+   - Fix: Mensaje amigable cuando se excede el límite de intentos.
+
+#### Phase 2.2 - Login/Sesiones
+- **Sin bugs críticos encontrados.**
+- Auditoría de seguridad: Constant-time password verification implementado correctamente.
+- Session rotation y refresh token handling correctos.
+
+#### Phase 2.3 - Verificación de Email
+5. **Email delivery se intenta enviar aunque no esté configurado** (líneas 510-528 de auth.py).
+   - Causa: El código verifica si el email está configurado, registra error, pero luego intenta enviar igual.
+   - Fix: Estructura cambiada a `if/else` - solo se intenta enviar si está configurado.
+   - Impacto: Evita errores 500 en producción sin RESEND_API_KEY configurada.
+
+#### Phase 2.4 - Onboarding
+6. **Onboarding accesible sin email verificado** (`OnboardingPage.tsx`).
+   - Causa: El backend requiere email verificado para completar onboarding, pero el frontend permitía acceder al flujo sin verificar.
+   - Fix: Añadida redirección a `/verify-email` si `!user.email_verified`.
+   - Impacto: Evita que usuarios lleguen al paso final y reciban error 400 confuso.
+
+### Corregido durante la auditoria de landing pages (Fase 1)
+
+#### Phase 1.x - Landing Pages del Hamburger Menu
+1. **Traducciones del hamburger menu faltantes** (`locales/es.json`, `en.json`, `ko.json`).
+   - Causa: El HamburgerMenu.jsx usa claves `hamburger.*` pero no existían en los archivos de traducción.
+   - Fix: Añadidas 35+ traducciones para el menú hamburger en ES/EN/KO.
+   - Archivos modificados: `es.json`, `en.json`, `ko.json`.
+
+2. **Traducciones de FeedbackPage faltantes**.
+   - Causa: La página de feedback tiene textos hardcodeados en español.
+   - Fix: Añadidas traducciones base en ES/EN/KO para la página de feedback.
+   - Nota: La página aún necesita ser actualizada para usar `useTranslation` en todos los textos.
+
+### Verificado durante auditoria de landing pages específicas
+
+#### Landing Pages: ¿Qué es?, Soy Productor, Soy Influencer, Soy Importador
+| Página | Ruta | Componente | Estado | ES | EN | KO |
+|--------|------|------------|--------|----|----|----|
+| ¿Qué es HispaloShop? | `/que-es` → `/landing/general` | `LandingGeneral.tsx` | ✅ | ✅ | ✅ | ✅ |
+| Soy Productor | `/productor` | `LandingProductor.tsx` | ✅ | ✅ | ✅ | ✅ |
+| Soy Influencer | `/influencer` | `LandingInfluencer.tsx` | ✅ | ✅ | ✅ | ✅ |
+| Soy Importador | `/distribuidor` | `LandingDistribuidor.tsx` | ✅ | ✅ | ✅ | ✅ |
+
+**Nota:** Todas las landing pages tienen traducciones completas en los 3 idiomas principales (ES/EN/KO) con todas las secciones (hero, features, steps/plans/b2b/audience, faq, cta) correctamente traducidas.
+
+### Corregido durante auditoria de Feed/Home (Fase 2.5)
+
+#### Phase 2.5 - Feed/Home
+1. **Traducciones del feed faltantes** (`FollowingFeed.js`, `locales/*.json`).
+   - Causa: El componente FollowingFeed usaba claves anidadas `feed.following.empty.*` pero la estructura JSON era plana.
+   - Fix: Añadidas claves `feed.forYou`, `feed.discoverUsers`, `feed.following_empty.*` en ES/EN/KO.
+   - Archivos modificados: `FollowingFeed.js`, `es.json`, `en.json`, `ko.json`.
+
+**Verificación del sistema de Feed:**
+| Componente | Estado | Notas |
+|------------|--------|-------|
+| `FeedContainer` | ✅ | Tabs Siguiendo/Para ti funcionales |
+| `ForYouFeed` | ✅ | Infinite scroll, error boundaries, optimistic updates |
+| `FollowingFeed` | ✅ | Empty state, fallback handling |
+| `StoriesBar` | ✅ | Self stories, recipe integration, prefetching |
+| `PostCard` | ✅ | Like animations, cart integration, dwell tracking |
+| API endpoints | ✅ | `/feed/foryou`, `/feed/following` implementados |
+| Backend | ✅ | FeedAlgorithm con scoring, diversificación |
+
+### Corregido durante auditoria de Discover (Fase 2.2)
+
+#### Phase 2.2 - Discover Page (REBUILD)
+**Estado: ✅ COMPLETADO**
+
+| Componente | Estado | Detalles |
+|------------|--------|----------|
+| `DiscoverPage.tsx` | ✅ | Single bundle call, caching, infinite scroll "Para ti" |
+| `DiscoverSearchBar` | ✅ | Navega a `/search` con placeholder traducido |
+| `DiscoverChips` | ✅ | Filtros client-side (all/products/stores/communities/recipes/creators) |
+| `DiscoverSection` | ✅ | Dismissible sections, loading/empty states |
+| `HorizontalStrip` | ✅ | Scroll horizontal optimizado |
+| `cards.tsx` | ⚠️ | Textos hardcodeados ES → Necesita i18n |
+| API `/discover/bundle` | ✅ | 8 queries paralelas, cache LRU, <500ms target |
+| API `/discovery/*` | ✅ | Endpoints de búsqueda, trending, related products |
+
+**Verificación de traducciones:**
+| Sección | ES | EN | KO |
+|---------|----|----|----|
+| `discover.*` | 40 keys | 40 keys | 40 keys |
+
+**Mejoras aplicadas (2026-04-08):**
+1. ✅ **Cards i18n**: Traducidos "seguidores", "miembros", "min", "Seguir" en ES/EN/KO
+2. ✅ **Pull-to-refresh**: Implementado en DiscoverPage para mobile
+
+**Mejoras aplicadas (2026-04-08) - Mapa + Performance:**
+3. ✅ **Mapa full-screen**: Creada página `/map` con lista de productores, filtros por país, búsqueda
+4. ✅ **Performance audit**: Revisado lazy loading - 160+ páginas lazy loaded correctamente
+
+**Notas:**
+- El bundle reduce 8+ requests a 1 solo call
+- Caché en memoria 5 minutos por (country, user_id)
+- Mapa full-screen: Vista tipo Airbnb con cards de tiendas, filtros, búsqueda
+- Lighthouse objetivo >85 - Requiere build de producción para medición exacta
+
+#### Otros fixes relacionados
+6. **HamburgerMenu no mostraba dashboards de Admin/SuperAdmin**.
+   - Fix: Añadidas secciones condicionales para roles admin y super_admin en el menú de navegación.
+
 ---
 
 ## Hallazgos Confirmados

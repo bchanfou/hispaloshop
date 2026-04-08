@@ -430,6 +430,54 @@ class Certificate(BaseModel):
     translated_fields: Optional[Dict[str, Dict[str, Any]]] = None
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# DIGITAL CERTIFICATES — Modelo simplificado (Sección 1.4b)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from enum import Enum
+
+
+class CertificateType(str, Enum):
+    """Tipos de certificados digitales soportados."""
+    ORIGIN = "origin"               # País de origen del producto
+    ARTISAN = "artisan"             # Producto hecho a mano
+    SUSTAINABLE = "sustainable"     # Materiales sostenibles
+    ORGANIC = "organic"             # Ingredientes orgánicos certificados
+    LOCAL = "local"                 # Producción local (<100km)
+    TRADITIONAL = "traditional"     # Métodos tradicionales
+    WOMEN_OWNED = "women_owned"     # Negocio propiedad de mujeres
+    FAMILY_BUSINESS = "family_business"  # Negocio familiar multigeneracional
+
+
+class DigitalCertificate(BaseModel):
+    """
+    Certificado digital compacto para productos.
+    Se genera automáticamente cuando un productor marca los checkboxes correspondientes.
+    """
+    certificate_id: str                    # cert_{product_id}_{type}
+    product_id: str
+    producer_id: str
+    type: CertificateType
+    issued_at: datetime
+    expires_at: Optional[datetime] = None
+    qr_code_url: str                       # URL a imagen QR en CDN
+    pdf_url: Optional[str] = None          # URL a PDF en CDN
+    verification_hash: str                 # Hash único para validación
+    status: str = "active"                 # "active", "revoked", "expired"
+    # Metadata del certificado
+    metadata: Optional[Dict[str, Any]] = None  # Datos adicionales específicos del tipo
+    created_at: datetime = Field(default_factory=_utcnow)
+    updated_at: Optional[datetime] = None
+
+
+class DigitalCertificateCreateInput(BaseModel):
+    """Input para crear un certificado digital."""
+    product_id: str
+    certificate_type: CertificateType
+    expires_at: Optional[datetime] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
 class StockUpdateInput(BaseModel):
     stock: int
     low_stock_threshold: Optional[int] = None
@@ -880,6 +928,29 @@ class PageVisitRequest(BaseModel):
     page: str
     country: Optional[str] = None
     referrer: Optional[str] = None
+
+
+# ── Contact / Support ────────────────────────────────────────
+
+class ContactMessageInput(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    email: EmailStr
+    role: str = Field(default="Consumidor", pattern="^(Consumidor|Productor|Influencer|Distribuidor|Prensa|Otro)$")
+    message: str = Field(min_length=10, max_length=5000)
+
+
+class ContactMessage(BaseModel):
+    message_id: str
+    name: str
+    email: str
+    role: str
+    message: str
+    status: str = "pending"  # pending, read, replied, archived
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    replied_by: Optional[str] = None
+    reply_message: Optional[str] = None
+    replied_at: Optional[datetime] = None
 
 
 # ═══════════════════════════════════════════════════════════

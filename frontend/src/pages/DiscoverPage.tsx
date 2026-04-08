@@ -15,6 +15,8 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { trackEvent } from '../utils/analytics';
 import SEO from '../components/SEO';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
+import PullIndicator from '../components/ui/PullIndicator';
 
 // Seasonal icon mapping (Lucide icons instead of emojis — per DESIGN_SYSTEM.md §10)
 const SEASONAL_ICONS = {
@@ -74,6 +76,11 @@ export default function DiscoverPage() {
     }
   }, [user, activeChip]);
 
+  // Pull to refresh for mobile
+  const { refreshing, progress, handlers } = usePullToRefresh(
+    async () => { await fetchBundle(); }
+  );
+
   useEffect(() => { fetchBundle(); }, [fetchBundle]);
 
   const loadMoreForYou = useCallback(async () => {
@@ -103,11 +110,13 @@ export default function DiscoverPage() {
   const mapPreview = bundle?.map_preview;
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-20 lg:pb-4">
+    <div className="min-h-screen bg-stone-50 pb-20 lg:pb-4" {...handlers}>
       <SEO
         title={t('discover.seoTitle', 'Descubre — HispaloShop')}
         description={t('discover.seoDesc', 'Descubre productores locales, productos de temporada y recetas.')}
       />
+
+      <PullIndicator progress={progress} isRefreshing={refreshing} />
 
       <div className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur-md pt-[max(8px,env(safe-area-inset-top))] pb-1">
         <DiscoverSearchBar />
@@ -221,8 +230,8 @@ export default function DiscoverPage() {
               <div className="mx-4 p-6 rounded-2xl bg-stone-950 text-white text-center">
                 <p className="text-3xl font-bold mb-1">{mapPreview?.producers_count || 0}</p>
                 <p className="text-sm text-stone-300 mb-4">{t('discover.mapCount', 'productores verificados')}</p>
-                <button type="button" onClick={() => navigate('/stores')} className="px-5 py-2 bg-white text-stone-950 rounded-full text-sm font-semibold border-none cursor-pointer hover:bg-stone-100 transition-colors">
-                  {t('discover.exploreStores', 'Explorar tiendas')}
+                <button type="button" onClick={() => navigate('/map')} className="px-5 py-2 bg-white text-stone-950 rounded-full text-sm font-semibold border-none cursor-pointer hover:bg-stone-100 transition-colors">
+                  {t('discover.viewFullMap', 'Ver mapa completo')}
                 </button>
               </div>
             </DiscoverSection>

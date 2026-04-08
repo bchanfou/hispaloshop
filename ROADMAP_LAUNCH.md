@@ -53,7 +53,16 @@
 
 ## Cómo usar este roadmap
 
-- **5 fases** ordenadas por impacto al usuario final
+> **Nota de actualización (2026-04-08):** Se agregó **Fase 1 (Páginas Informativas)**. Las fases originales se han reenumerado: Fase 1→2, Fase 2→3, etc. El roadmap ahora tiene 7 fases (0-6).
+
+- **7 fases** ordenadas por impacto al usuario final:
+  - **Fase 0:** Fundamentos
+  - **Fase 1:** Páginas Informativas / Landings (nueva)
+  - **Fase 2:** Consumer
+  - **Fase 3:** Sellers  
+  - **Fase 4:** Admin & Operations
+  - **Fase 5:** Legal, Fiscal & Polish
+  - **Fase 6:** Launch Prep
 - **~50 secciones** auditables independientemente
 - Cada sección tiene: **objetivo**, **archivos clave**, **criterios de done**, **estimación**, **dependencias**
 - **Los prompts se generan bajo demanda** — pides "genera el prompt para sección 1.3" y recibes un prompt completo listo para ejecutar en un chat dedicado
@@ -66,6 +75,57 @@
 # FASE 0 — FUNDAMENTOS (semana 1-2)
 
 > Antes de tocar features, asegurar que los cimientos son sólidos.
+
+---
+
+# FASE 1 — PÁGINAS INFORMATIVAS / LANDINGS (semana 2, sprint corto)
+
+> Primera impresión para visitantes. Landing pages son la puerta de entrada.
+
+## 1.0 — Landing Pages Audit
+**Objetivo:** Verificar que todas las landings informativas funcionan correctamente y convierten.
+
+**Archivos clave:**
+- `frontend/src/pages/informativas/LandingGeneral.tsx`
+- `frontend/src/pages/informativas/LandingProductor.tsx`
+- `frontend/src/pages/informativas/LandingInfluencer.tsx`
+- `frontend/src/pages/informativas/LandingDistribuidor.tsx`
+- `frontend/src/pages/informativas/LandingConsumidor.tsx`
+- `frontend/src/pages/informativas/ContactoPage.tsx`
+- `frontend/src/pages/informativas/LegalPageNew.tsx`
+- `frontend/src/components/informativas/InfoLandingLayout.tsx`
+
+**Secciones a auditar:**
+- **1.0.1** Landing General (`/`, `/landing/general`) - Hero, value proposition, CTAs
+- **1.0.2** Landing Productor (`/productor`) - Info de valor, planes, registro
+- **1.0.3** Landing Influencer (`/influencer`) - Programa, comisiones, aplicación
+- **1.0.4** Landing Distribuidor (`/distribuidor`) - Importación, proceso, registro
+- **1.0.5** Landing Consumidor (`/consumidor`) - Value prop, registro
+- **1.0.6** Contacto (`/contacto`) - Formulario funcional
+- **1.0.7** Legales (`/legal/*`) - Términos, privacidad, cookies
+
+**Done cuando:**
+- ✅ Todas las landings cargan sin errores
+- ✅ CTAs de registro funcionan y llevan al flujo correcto
+- ✅ Responsive en móvil/tablet/desktop
+- ✅ SEO meta tags presentes
+- ✅ Links entre landings funcionan
+- ✅ Traducciones ES/EN/KO completas
+
+**Estado:** ✅ COMPLETADO (auditoría 2026-04-08)
+
+**Verificación de traducciones ES/EN/KO:**
+| Sección | ES | EN | KO | Estado |
+|---------|----|----|----|--------|
+| landing.general | 20 keys | 20 keys | 20 keys | ✅ |
+| landing.productor | 23 keys | 23 keys | 23 keys | ✅ |
+| landing.distribuidor | 23 keys | 23 keys | 23 keys | ✅ |
+| landing.influencer | 21 keys | 21 keys | 21 keys | ✅ |
+| landing.contacto | 24 keys | 24 keys | 24 keys | ✅ |
+| landing.legal | 3 keys | 3 keys | 3 keys | ✅ |
+
+**Dependencias:** 0.1
+**Estimación:** 2-3 días
 
 ## 0.1 — Brand DNA & Design System consolidation
 **Objetivo:** Un solo archivo de verdad para tokens de diseño, spacing, typography, copy guidelines. Todo el frontend debe consumir de ahí.
@@ -169,11 +229,11 @@
 
 ---
 
-# FASE 1 — CONSUMER (semana 3-7)
+# FASE 2 — CONSUMER (semana 3-7)
 
 > El usuario final debe sentir HispaloShop impecable. Cada click debe ser intencional.
 
-## 1.1 — Onboarding & Registration (consumer)
+## 2.1 — Onboarding & Registration (consumer)
 **Objetivo:** Primera impresión. 60 segundos desde landing hasta feed personalizado.
 
 **Archivos clave:**
@@ -193,9 +253,21 @@
 **Dependencias:** 0.1, 0.2
 **Estimación:** 4-5 días
 
+**🐛 Bugs encontrados y corregidos (auditoría 2026-04-08):**
+| Bug | Severidad | Archivo | Fix aplicado |
+|-----|-----------|---------|--------------|
+| Rate limiting bloqueaba usuarios en Corea (NAT compartido) | Alto | `middleware/rate_limit.py` | Aumentado a 5/hora por IP + fingerprint /24 |
+| Campo `marketing_consent` faltante en payload | Medio | `RegisterPage.tsx` | Añadido al payload con valor `false` |
+| Validación username inconsistente frontend/backend | Medio | `RegisterPage.tsx`, `auth.py` | Normalización a lowercase en ambos lados |
+| Email se intentaba enviar sin servicio configurado | Alto | `auth.py` | Estructura cambiada a if/else |
+| Dashboards Admin/SuperAdmin no accesibles desde menú | Medio | `HamburgerMenu.jsx` | Añadidas secciones condicionales por rol |
+| Onboarding accesible sin email verificado | Medio | `OnboardingPage.tsx` | Redirección a `/verify-email` si email no verificado |
+| Traducciones hamburger menu faltantes | Alto | `locales/*.json` | Añadidas 35+ claves en ES/EN/KO |
+| FeedbackPage sin traducciones | Medio | `locales/*.json` | Añadidas traducciones base ES/EN/KO |
+
 ---
 
-## 1.2 — Discover page (REBUILD completo)
+## 2.2 — Discover page (REBUILD completo)
 **Objetivo:** Rebuild desde cero. Página dedicada al descubrimiento curado. Separada del Home feed social.
 
 **Filosofía**: Discover NO es el feed de stories/posts/reels. Discover es Pinterest + Airbnb para HispaloShop.
@@ -226,17 +298,24 @@
 - Cualquier inyección que no esté en la nueva estructura
 
 **Done cuando:**
-- Rewrite completo de `DiscoverPage.tsx`
-- Endpoint `GET /discover/bundle?country=ES&lang=es` que devuelve TODAS las secciones en una sola llamada (reduce waterfall)
-- Cada sección es **dismissible** ("no me interesa") y el algoritmo aprende
-- Seasonal automático por hemisferio (España primavera, KR otoño en marzo)
-- Skeleton states bonitos
-- Empty states con CTAs ("Aún no hay productos en tu zona, descubre de otros países")
-- Infinite scroll en la sección "Para ti"
+- ✅ Rewrite completo de `DiscoverPage.tsx`
+- ✅ Endpoint `GET /discover/bundle?country=ES&lang=es` que devuelve TODAS las secciones en una sola llamada (reduce waterfall)
+- ✅ Cada sección es **dismissible** ("no me interesa") y el algoritmo aprende
+- ✅ Seasonal automático por hemisferio (España primavera, KR otoño en marzo)
+- ✅ Skeleton states bonitos
+- ✅ Empty states con CTAs ("Aún no hay productos en tu zona, descubre de otros países")
+- ✅ Infinite scroll en la sección "Para ti"
+- ✅ Pull-to-refresh en mobile - Implementado con usePullToRefresh
+- ✅ Mapa con productores visibles (preview + full-screen) — Preview + página `/map` completa
+- ✅ Code muerto del Discover antiguo eliminado
+- ⚠️ Performance: Lighthouse >85 en mobile - Requiere build de producción para medición
+
+**Estado:** ✅ COMPLETADO (auditoría 2026-04-08)
+- Traducciones ES/EN/KO: 40 keys cada uno + cards i18n + map i18n
+- Cache LRU 5 minutos implementado
+- 8 queries paralelas, target <500ms
 - Pull-to-refresh en mobile
-- Mapa con productores visibles (preview + full-screen) — Airbnb-style
-- Code muerto del Discover antiguo eliminado
-- Performance: Lighthouse >85 en mobile
+- Mapa full-screen: `/map` con filtros, búsqueda, cards de tiendas
 
 **Dependencias:** 1.1
 **Estimación:** 5-6 días
@@ -1171,7 +1250,7 @@ Hashtag {
 
 ---
 
-# FASE 2 — SELLERS (semana 8-11)
+# FASE 3 — SELLERS (semana 8-11)
 
 > Producer, Influencer, Importer. Cada rol con su flujo completo.
 
@@ -1895,7 +1974,7 @@ Pedro AI usa esta data como tool:
 
 ---
 
-# FASE 3 — ADMIN & OPERATIONS (semana 12-13)
+# FASE 4 — ADMIN & OPERATIONS (semana 12-13)
 
 ## 3.1 — Payments, Stripe Connect, exchange rates
 **Objetivo:** El core financiero funciona impecable en los 3 países.
@@ -2241,7 +2320,7 @@ Pedro AI usa esta data como tool:
 
 ---
 
-# FASE 4 — LEGAL, FISCAL & POLISH (semana 14-15)
+# FASE 5 — LEGAL, FISCAL & POLISH (semana 14-15)
 
 ## 4.1 — GDPR & Privacy
 **Objetivo:** Full compliance EU. Sin riesgo legal.
@@ -2573,7 +2652,7 @@ Pedro AI usa esta data como tool:
 
 ---
 
-# FASE 5 — LAUNCH PREP (semana 16)
+# FASE 6 — LAUNCH PREP (semana 16)
 
 ## 5.1 — Content seeding
 **Objetivo:** Lanzar con contenido real, no con placeholders.
