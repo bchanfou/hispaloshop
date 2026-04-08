@@ -16,7 +16,7 @@ import apiClient from '../services/api/client';
 import { trackEvent } from '../utils/analytics';
 import SEO from '../components/SEO';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
-import PullIndicator from '../components/ui/PullIndicator';
+import PullIndicator from 'components/ui/PullIndicator';
 
 // Seasonal icon mapping (Lucide icons instead of emojis — per DESIGN_SYSTEM.md §10)
 const SEASONAL_ICONS = {

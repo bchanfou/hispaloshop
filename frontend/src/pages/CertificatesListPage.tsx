@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileCheck, Search, Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import PremiumSelect from '../components/ui/PremiumSelect';
+import PremiumSelect from 'components/ui/PremiumSelect';
 import { API } from '../utils/api';
 import { asLowerText } from '../utils/safe';
 

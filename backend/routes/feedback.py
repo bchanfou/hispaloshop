@@ -9,6 +9,14 @@ from core.auth import get_current_user, require_role
 from core.models import User
 from services.feedback_service import feedback_service
 
+
+def require_admin_role():
+    """Dependency factory to require admin/super_admin role."""
+    async def role_checker(user: User = Depends(get_current_user)) -> User:
+        await require_role(user, ["admin", "super_admin"])
+        return user
+    return role_checker
+
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 
@@ -101,7 +109,7 @@ async def admin_list_all(
     status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=200),
-    user: User = Depends(require_role(["admin", "super_admin"]))
+    user: User = Depends(require_admin_role())
 ):
     """Admin: list all feedback including non-public."""
     from core.database import db
@@ -131,7 +139,7 @@ async def admin_list_all(
 async def admin_update_status(
     feedback_id: str,
     body: UpdateStatusBody,
-    user: User = Depends(require_role(["admin", "super_admin"]))
+    user: User = Depends(require_admin_role())
 ):
     """Admin: update feedback status."""
     success = await feedback_service.update_status(
@@ -146,7 +154,7 @@ async def admin_update_status(
 
 @router.get("/admin/stats")
 async def admin_stats(
-    user: User = Depends(require_role(["admin", "super_admin"]))
+    user: User = Depends(require_admin_role())
 ):
     """Admin: get feedback statistics."""
     stats = await feedback_service.get_admin_stats()
