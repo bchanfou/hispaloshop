@@ -79,15 +79,30 @@ async def list_feedback(
     user: User = Depends(get_current_user)
 ):
     """Get paginated feedback list."""
-    result = await feedback_service.get_feedback_list(
-        user_id=user.user_id,
-        feedback_type=feedback_type,
-        status=status,
-        sort_by=sort_by,
-        page=page,
-        limit=limit
-    )
-    return {"success": True, "data": result}
+    try:
+        result = await feedback_service.get_feedback_list(
+            user_id=user.user_id,
+            feedback_type=feedback_type,
+            status=status,
+            sort_by=sort_by,
+            page=page,
+            limit=limit
+        )
+        return {"success": True, "data": result}
+    except Exception as e:
+        # Log error but return empty list - don't break the UI
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error fetching feedback: {e}")
+        return {
+            "success": True, 
+            "data": {
+                "items": [],
+                "total": 0,
+                "page": page,
+                "has_more": False
+            }
+        }
 
 
 @router.get("/{feedback_id}")

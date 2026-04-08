@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../brand/Logo';
 import { Home, Compass, Plus, User, ShoppingCart, Bell, Search, MessageCircle, Users, Store, X, MoreHorizontal, Settings, Bookmark, Activity, LogOut } from 'lucide-react';
@@ -323,13 +323,16 @@ export default function SideNav() {
     t
   } = useTranslation();
   const {
-    getTotalItems
+    cartItems
   } = useCart();
   const {
     data: unreadData
   } = useUnreadNotifications();
   const unreadCount = user ? unreadData?.unread_count ?? 0 : 0;
-  const totalCartItems = getTotalItems();
+  // Calculate cart items reactively
+  const totalCartItems = useMemo(() => {
+    return cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  }, [cartItems]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const profileUsername = user?.username || null;

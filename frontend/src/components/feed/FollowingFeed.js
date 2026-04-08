@@ -73,12 +73,14 @@ function FollowingFeed() {
     }
   }, []);
 
-  // Guardar posts en cache
+  // Guardar posts en cache y notificar conexión exitosa
   useEffect(() => {
     if (feedQuery.data && allPosts.length > 0 && isOnline) {
       offlineCache.cacheFeed('following', allPosts.slice(0, 20));
+      // Notificar al detector de red que los datos cargaron (hay conexión)
+      window.dispatchEvent(new CustomEvent('app:data-loaded'));
     }
-  }, [feedQuery.data, isOnline]);
+  }, [feedQuery.data, isOnline, allPosts.length]);
 
   const allPosts = useMemo(() => {
     try {

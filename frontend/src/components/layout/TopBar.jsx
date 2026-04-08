@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -10,8 +10,11 @@ export default function TopBar({
   className = '',
 }) {
   const navigate = useNavigate();
-  const { getTotalItems } = useCart();
-  const cartCount = getTotalItems ? getTotalItems() : 0;
+  const { cartItems } = useCart();
+  // Calculate cart count reactively from cartItems
+  const cartCount = useMemo(() => {
+    return cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  }, [cartItems]);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {

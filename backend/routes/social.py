@@ -508,10 +508,12 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", hashtag
                 "user": {
                     "id": user_id,
                     "user_id": user_id,
-                    "username": (user_doc or {}).get("username"),
+                    "username": (user_doc or {}).get("username") or reel.get("username"),
                     "name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
                     "full_name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
-                    "avatar_url": reel.get("user_profile_image") or (user_doc or {}).get("profile_image"),
+                    "profile_image": (user_doc or {}).get("profile_image") or reel.get("user_profile_image"),
+                    "avatar_url": (user_doc or {}).get("profile_image") or reel.get("user_profile_image"),
+                    "role": (user_doc or {}).get("role", "customer"),
                     "is_followed_by_me": is_followed,
                 },
                 "media": [{"url": media_url, "thumbnail_url": thumb_url}] if media_url else [],
@@ -2189,12 +2191,21 @@ async def get_post(post_id: str, request: Request):
     if owner_id and not post.get("user_name"):
         owner_doc = await db.users.find_one(
             {"user_id": owner_id},
-            {"_id": 0, "name": 1, "username": 1, "profile_image": 1, "avatar_url": 1}
+            {"_id": 0, "name": 1, "username": 1, "profile_image": 1, "avatar_url": 1, "role": 1}
         )
         if owner_doc:
             post["user_name"] = owner_doc.get("name") or owner_doc.get("username") or "Usuario"
             post["username"] = owner_doc.get("username")
             post["user_profile_image"] = owner_doc.get("profile_image") or owner_doc.get("avatar_url")
+            # Add user object for frontend compatibility
+            post["user"] = {
+                "id": owner_id,
+                "user_id": owner_id,
+                "name": post["user_name"],
+                "username": owner_doc.get("username"),
+                "profile_image": post["user_profile_image"],
+                "role": owner_doc.get("role", "customer"),
+            }
     # Enrich with auth-aware fields
     if current_user:
         if is_reel:
@@ -2955,13 +2966,23 @@ async def get_social_feed(
                 tagged["avg_rating"] = round(rev["avg_rating"], 1)
                 tagged["review_count"] = rev["count"]
         post_id = post.get("post_id", "")
+        user_obj = {
+            "id": uid,
+            "user_id": uid,
+            "name": ui.get("name", post.get("user_name", "Usuario")),
+            "username": ui.get("username") or post.get("username"),
+            "profile_image": ui.get("profile_image") or post.get("user_profile_image"),
+            "role": ui.get("role", post.get("user_role", "customer")),
+            "country": ui.get("country", post.get("user_country")),
+        }
         enriched.append({
             **post,
-            "user_name": ui.get("name", post.get("user_name", "Usuario")),
-            "username": ui.get("username") or post.get("username"),
-            "user_profile_image": ui.get("profile_image"),
-            "user_role": ui.get("role", "customer"),
-            "user_country": ui.get("country"),
+            "user": user_obj,
+            "user_name": user_obj["name"],
+            "username": user_obj["username"],
+            "user_profile_image": user_obj["profile_image"],
+            "user_role": user_obj["role"],
+            "user_country": user_obj["country"],
             "is_liked": post_id in liked_set,
             "is_bookmarked": post_id in bookmarked_set,
             "product_available_in_country": post_available,
@@ -3024,7 +3045,24 @@ async def get_trending_posts(request: Request, limit: int = 5):
         post_id = post.get("post_id")
         is_liked = post_id in liked_post_ids if current_user and post_id else False
         is_bookmarked = post_id in bookmarked_post_ids if current_user and post_id else False
-        enriched.append({**post, "user_name": ui.get("name", "Usuario"), "username": ui.get("username") or post.get("username"), "user_profile_image": ui.get("profile_image"), "user_role": ui.get("role", "customer"), "is_liked": is_liked, "is_bookmarked": is_bookmarked})
+        user_obj = {
+            "id": uid,
+            "user_id": uid,
+            "name": ui.get("name", "Usuario"),
+            "username": ui.get("username") or post.get("username"),
+            "profile_image": ui.get("profile_image"),
+            "role": ui.get("role", "customer"),
+        }
+        enriched.append({
+            **post,
+            "user": user_obj,
+            "user_name": user_obj["name"],
+            "username": user_obj["username"],
+            "user_profile_image": user_obj["profile_image"],
+            "user_role": user_obj["role"],
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked
+        })
     return {"posts": enriched}
 
 

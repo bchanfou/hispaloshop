@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, ShoppingCart, Menu, Search, MessageCircle } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
@@ -12,7 +12,7 @@ export default function AppHeader() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getTotalItems } = useCart();
+  const { cartItems } = useCart();
   // Only fetch notifications when authenticated — prevents 401 spam
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
   const { unreadTotal: chatUnreadTotal } = useChatContext();
@@ -25,7 +25,12 @@ export default function AppHeader() {
 
   // Polled count is source of truth; WS events invalidate the cache for instant refresh
   const unreadCount = isAuthenticated ? (unreadData?.unread_count ?? 0) : 0;
-  const totalCartItems = isAuthenticated ? getTotalItems() : 0;
+  
+  // Calculate total items from cartItems directly (reactive)
+  const totalCartItems = useMemo(() => {
+    if (!isAuthenticated) return 0;
+    return cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  }, [cartItems, isAuthenticated]);
 
   // Scroll-aware border + shadow
   useEffect(() => {
@@ -47,7 +52,7 @@ export default function AppHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 pt-[env(safe-area-inset-top)] ${
+      className={`sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 pt-[env(safe-area-inset-top)] ${
         scrolled ? 'border-stone-200 shadow-nav' : 'border-stone-100'
       }`}
     >
@@ -123,7 +128,7 @@ export default function AppHeader() {
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Abrir menu"
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-transparent border-none cursor-pointer"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-stone-100 border border-stone-200 cursor-pointer active:bg-stone-200"
           >
             <Menu size={22} className="text-stone-950" strokeWidth={1.8} />
           </button>

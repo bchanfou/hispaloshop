@@ -467,6 +467,17 @@ async def _create_indexes():
     )
     logger.info("  OK: search_trending indexes")
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # FEEDBACK - User feedback and feature requests
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.feedback.create_index("user_id")
+    await db.feedback.create_index("status")
+    await db.feedback.create_index("type")
+    await db.feedback.create_index([("is_public", 1), ("votes", -1)])
+    await db.feedback.create_index([("is_public", 1), ("created_at", -1)])
+    await db.feedback.create_index([("user_id", 1), ("created_at", -1)])
+    logger.info("  OK: feedback indexes")
+
     logger.info("All indexes created successfully")
 
 

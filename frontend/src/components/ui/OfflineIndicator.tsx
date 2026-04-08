@@ -1,32 +1,63 @@
 /**
  * Indicador visual de estado offline
  * Muestra banner en header cuando no hay conectividad
+ * Y punto verde cuando está conectado
  */
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { setBannerVisible, showReconnected } from '../../services/toastManager';
 
 interface OfflineIndicatorProps {
-  variant?: 'header' | 'banner' | 'minimal';
+  variant?: 'header' | 'banner' | 'minimal' | 'dot';
 }
 
 export function OfflineIndicator({ variant = 'header' }: OfflineIndicatorProps) {
   const { isOnline, isChecking, wasOffline, checkConnectivity, acknowledgeOffline } = useNetworkStatus();
-  const [showReconnected, setShowReconnected] = useState(false);
+  const [showReconnectedLocal, setShowReconnectedLocal] = useState(false);
+
+  // Verificar conectividad al montar el componente
+  useEffect(() => {
+    checkConnectivity();
+  }, [checkConnectivity]);
+
+  // Notificar al toastManager cuando el banner cambia de visibilidad
+  useEffect(() => {
+    const isBannerVisible = !isOnline && (variant === 'banner' || variant === 'header');
+    setBannerVisible(isBannerVisible);
+    
+    return () => {
+      if (isBannerVisible) {
+        setBannerVisible(false);
+      }
+    };
+  }, [isOnline, variant]);
 
   // Mostrar toast de reconexión cuando vuelve online
   useEffect(() => {
     if (isOnline && wasOffline) {
-      setShowReconnected(true);
+      // Mostrar toast mediante toastManager (ya no necesitamos estado local)
+      showReconnected();
+      setShowReconnectedLocal(true);
       const timer = setTimeout(() => {
-        setShowReconnected(false);
+        setShowReconnectedLocal(false);
         acknowledgeOffline();
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isOnline, wasOffline, acknowledgeOffline]);
+
+  // Variant: dot - punto verde/rojo simple
+  if (variant === 'dot') {
+    return (
+      <div 
+        className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} ${isChecking ? 'animate-pulse' : ''}`}
+        title={isOnline ? 'Conectado' : 'Sin conexión'}
+      />
+    );
+  }
 
   // Variant: minimal - solo icono
   if (variant === 'minimal') {
@@ -66,7 +97,7 @@ export function OfflineIndicator({ variant = 'header' }: OfflineIndicatorProps) 
           </motion.div>
         )}
         
-        {showReconnected && (
+        {showReconnectedLocal && (
           <motion.div
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -89,7 +120,7 @@ export function OfflineIndicator({ variant = 'header' }: OfflineIndicatorProps) 
   return (
     <>
       <AnimatePresence>
-        {!isOnline && (
+        {!isOnline ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -109,12 +140,23 @@ export function OfflineIndicator({ variant = 'header' }: OfflineIndicatorProps) 
               <RefreshCw className={`w-4 h-4 text-stone-500 ${isChecking ? 'animate-spin' : ''}`} />
             </button>
           </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="flex items-center"
+          >
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-green-100 text-green-700 rounded-full" title="Conectado">
+              <Wifi className="w-3.5 h-3.5" />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* Toast de reconexión */}
       <AnimatePresence>
-        {showReconnected && (
+        {showReconnectedLocal && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

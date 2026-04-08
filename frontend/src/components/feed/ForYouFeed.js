@@ -61,10 +61,12 @@ export default function ForYouFeed() {
     }
   }, [feedQuery.data, isOnline]);
 
-  // Reset retry count cuando hay éxito
+  // Reset retry count cuando hay éxito y notificar que hay conexión
   useEffect(() => {
     if (feedQuery.isSuccess) {
       setRetryCount(0);
+      // Notificar al detector de red que los datos cargaron (hay conexión)
+      window.dispatchEvent(new CustomEvent('app:data-loaded'));
     }
   }, [feedQuery.isSuccess]);
 

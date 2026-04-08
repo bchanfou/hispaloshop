@@ -173,49 +173,59 @@ class FeedbackService:
         Returns:
             Dict with items, total, has_more
         """
-        # Build query
-        query = {"is_public": True}
-        if feedback_type:
-            query["type"] = feedback_type
-        if status:
-            query["status"] = status
-        
-        # Sort
-        if sort_by == "newest":
-            sort_field = [("created_at", -1)]
-        elif sort_by == "trending":
-            # Trending = votes in last 7 days
-            sort_field = [("vote_weight", -1), ("created_at", -1)]
-        else:  # popular
-            sort_field = [("votes", -1), ("created_at", -1)]
-        
-        # Fetch
-        skip = (page - 1) * limit
-        cursor = db.feedback.find(query).sort(sort_field).skip(skip).limit(limit + 1)
-        items = await cursor.to_list(length=limit + 1)
-        
-        has_more = len(items) > limit
-        items = items[:limit]
-        
-        # Enrich with user vote status
-        for item in items:
-            item["feedback_id"] = item.pop("_id")
-            if user_id:
-                item["user_voted"] = any(v["user_id"] == user_id for v in item.get("voters", []))
-            else:
-                item["user_voted"] = False
-            # Don't send full voters list to client
-            item["voter_count"] = len(item.get("voters", []))
-            del item["voters"]
-        
-        total = await db.feedback.count_documents(query)
-        
-        return {
-            "items": items,
-            "total": total,
-            "page": page,
-            "has_more": has_more
-        }
+        try:
+            # Build query
+            query = {"is_public": True}
+            if feedback_type:
+                query["type"] = feedback_type
+            if status:
+                query["status"] = status
+            
+            # Sort
+            if sort_by == "newest":
+                sort_field = [("created_at", -1)]
+            elif sort_by == "trending":
+                # Trending = votes in last 7 days
+                sort_field = [("vote_weight", -1), ("created_at", -1)]
+            else:  # popular
+                sort_field = [("votes", -1), ("created_at", -1)]
+            
+            # Fetch
+            skip = (page - 1) * limit
+            cursor = db.feedback.find(query).sort(sort_field).skip(skip).limit(limit + 1)
+            items = await cursor.to_list(length=limit + 1)
+            
+            has_more = len(items) > limit
+            items = items[:limit]
+            
+            # Enrich with user vote status
+            for item in items:
+                item["feedback_id"] = item.pop("_id")
+                if user_id:
+                    item["user_voted"] = any(v["user_id"] == user_id for v in item.get("voters", []))
+                else:
+                    item["user_voted"] = False
+                # Don't send full voters list to client
+                item["voter_count"] = len(item.get("voters", []))
+                del item["voters"]
+            
+            total = await db.feedback.count_documents(query)
+            
+            return {
+                "items": items,
+                "total": total,
+                "page": page,
+                "has_more": has_more
+            }
+        except Exception as e:
+            logger.error(f"[Feedback] Error getting feedback list: {e}")
+            # Return empty result on error - don't break the UI
+            return {
+                "items": [],
+                "total": 0,
+                "page": page,
+                "has_more": False
+            }
     
     async def get_feedback_detail(self, feedback_id: str, user_id: Optional[str] = None) -> Optional[Dict]:
         """Get single feedback details."""

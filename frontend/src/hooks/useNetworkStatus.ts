@@ -4,11 +4,14 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getApiUrl } from '../utils/api';
+import { getApiOrigin } from '../utils/api';
 
-const API_PING_URL = `${getApiUrl()}/health`;
+// Usar /health directamente (no /api/health) - el endpoint health está en la raíz
+const API_PING_URL = `${getApiOrigin()}/health`;
 const PING_INTERVAL = 30000; // 30 segundos
 const PING_TIMEOUT = 5000; // 5 segundos timeout
+const RETRY_DELAY = 2000; // 2 segundos entre reintentos
+const MAX_RETRIES = 3;
 
 interface NetworkState {
   isOnline: boolean;
@@ -20,22 +23,50 @@ interface NetworkState {
 
 /**
  * Realiza un ping real al backend para verificar conectividad
+ * Con reintentos exponenciales
  */
-async function pingBackend(): Promise<boolean> {
+async function pingBackend(retries = 0): Promise<boolean> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), PING_TIMEOUT);
     
-    const response = await fetch(API_PING_URL, {
-      method: 'HEAD',
-      signal: controller.signal,
-      cache: 'no-store',
-      headers: { 'X-Network-Check': 'true' }
-    });
+    // Intentar con HEAD primero (más ligero), luego GET si falla
+    let response;
+    try {
+      response = await fetch(API_PING_URL, {
+        method: 'HEAD',
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { 'X-Network-Check': 'true' }
+      });
+    } catch (headError) {
+      // Si HEAD falla, intentar con GET
+      response = await fetch(API_PING_URL, {
+        method: 'GET',
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { 'X-Network-Check': 'true' }
+      });
+    }
     
     clearTimeout(timeoutId);
+    
+    // Log para debugging en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[NetworkStatus] Ping success:', API_PING_URL, response.status);
+    }
+    
     return response.ok;
   } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[NetworkStatus] Ping failed:', API_PING_URL, error);
+    }
+    
+    if (retries < MAX_RETRIES) {
+      // Esperar antes de reintentar (backoff exponencial)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, retries)));
+      return pingBackend(retries + 1);
+    }
     return false;
   }
 }
@@ -133,8 +164,25 @@ export function useNetworkStatus() {
       checkConnectivity(true);
     };
 
+    // Evento personalizado: cuando el feed u otro componente carga datos exitosamente
+    const handleDataLoaded = () => {
+      // Si cargamos datos, definitivamente estamos online
+      setState(prev => {
+        if (!prev.isOnline) {
+          return {
+            ...prev,
+            isOnline: true,
+            wasOffline: prev.wasOffline,
+            lastChecked: new Date()
+          };
+        }
+        return prev;
+      });
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('app: data-loaded', handleDataLoaded);
     
     const conn = (navigator as any).connection;
     if (conn) {
@@ -157,6 +205,7 @@ export function useNetworkStatus() {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('app:data-loaded', handleDataLoaded);
       if (conn) {
         conn.removeEventListener('change', handleConnectionChange);
       }

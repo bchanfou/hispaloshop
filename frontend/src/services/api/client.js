@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getRefreshToken, getToken, removeToken, setToken } from '../../lib/auth';
 import { getApiUrl } from '../../utils/api';
+import { showNetworkError, showServerError } from '../toastManager';
 
 export const API_BASE_URL = getApiUrl();
 
@@ -145,8 +146,9 @@ httpClient.interceptors.request.use((config) => {
 });
 
 // Debounced global error toast — prevent spam on cascading failures
+// Debounce para errores de servidor (legacy, ahora se usa toastManager)
 let lastServerErrorToast = 0;
-const SERVER_ERROR_DEBOUNCE_MS = 5000;
+const SERVER_ERROR_DEBOUNCE_MS = 30000;
 
 httpClient.interceptors.response.use(
   (response) => response,
@@ -154,22 +156,14 @@ httpClient.interceptors.response.use(
     const originalRequest = error?.config;
     const status = error?.response?.status;
 
-    // Global 5xx toast (debounced)
-    if (status >= 500 && Date.now() - lastServerErrorToast > SERVER_ERROR_DEBOUNCE_MS) {
-      lastServerErrorToast = Date.now();
-      try {
-        const { toast } = await import('sonner');
-        toast.error('Servidor no disponible. Inténtalo de nuevo en unos segundos.');
-      } catch { /* sonner not loaded */ }
+    // Global 5xx toast (debounced via toastManager)
+    if (status >= 500) {
+      showServerError('Servidor no disponible. Inténtalo de nuevo en unos segundos.');
     }
 
-    // Network error (no response at all)
-    if (!error?.response && error?.code !== 'ERR_CANCELED' && Date.now() - lastServerErrorToast > SERVER_ERROR_DEBOUNCE_MS) {
-      lastServerErrorToast = Date.now();
-      try {
-        const { toast } = await import('sonner');
-        toast.error('Sin conexión. Comprueba tu red.');
-      } catch { /* sonner not loaded */ }
+    // Network error (no response at all) - debounced via toastManager
+    if (!error?.response && error?.code !== 'ERR_CANCELED') {
+      showNetworkError('Sin conexión. Comprueba tu red.');
     }
 
     if (status === 401 && originalRequest && !originalRequest._retry) {

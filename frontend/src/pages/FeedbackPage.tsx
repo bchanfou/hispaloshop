@@ -61,8 +61,18 @@ export default function FeedbackPage() {
         setItems(newItems);
       }
       setHasMore(data?.data?.has_more || false);
-    } catch {
-      toast.error('Error al cargar feedback');
+    } catch (err: any) {
+      // Si es 404, significa que no hay feedback aún - mostrar estado vacío sin error
+      if (err?.status === 404 || err?.response?.status === 404) {
+        setItems([]);
+        setHasMore(false);
+      } else {
+        // Solo mostrar toast si no es un error de "no hay datos"
+        const errorDetail = err?.response?.data?.detail || err?.message;
+        if (errorDetail && errorDetail !== 'Feedback no encontrado') {
+          toast.error('Error al cargar feedback');
+        }
+      }
     } finally {
       setLoading(false);
     }

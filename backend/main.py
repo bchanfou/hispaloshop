@@ -461,12 +461,14 @@ async def _health_payload() -> dict:
 
 
 @app.get("/health")
+@app.head("/health")
 async def health():
     """Health check con ping real a MongoDB. Callable sin autenticacion."""
     return await _health_payload()
 
 
 @app.get("/api/health")
+@app.head("/api/health")
 async def legacy_health():
     """Health check legacy (misma implementacion, path /api/health)."""
     return await _health_payload()

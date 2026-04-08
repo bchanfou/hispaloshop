@@ -29,7 +29,7 @@ export default function Header() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { getTotalItems } = useCart();
+  const { cartItems } = useCart();
   const { country, language, currency } = useLocale();
 
   const [query, setQuery] = useState('');
@@ -37,7 +37,10 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const totalItems = getTotalItems();
+  // Calculate total items reactively from cartItems
+  const totalItems = useMemo(() => {
+    return cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  }, [cartItems]);
   const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
   const firstName = useMemo(() => {
     const raw = user?.name || user?.full_name || user?.username || '';
@@ -50,7 +53,7 @@ export default function Header() {
       { labelKey: 'nav.about', fallback: '¿Qué es Hispaloshop?', to: '/about' },
       { labelKey: 'nav.influencer', fallback: 'Soy Influencer', to: '/influencer' },
       { labelKey: 'nav.producer', fallback: 'Soy Productor', to: '/productor' },
-      { labelKey: 'nav.importer', fallback: 'Soy Importador', to: '/importador' },
+      { labelKey: 'nav.importer', fallback: 'Soy Importador', to: '/distribuidor' },
     ],
     []
   );
