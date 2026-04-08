@@ -85,6 +85,14 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: Optional[str] = Field(default=None)
     
     # ============================================
+    # APPLE SIGN IN
+    # ============================================
+    APPLE_CLIENT_ID: Optional[str] = Field(default=None)  # App Bundle ID or Service ID
+    APPLE_TEAM_ID: Optional[str] = Field(default=None)    # Apple Developer Team ID
+    APPLE_KEY_ID: Optional[str] = Field(default=None)     # Private Key ID
+    APPLE_PRIVATE_KEY: Optional[str] = Field(default=None)  # Private Key content (PEM)
+    
+    # ============================================
     # PLATAFORMA
     # ============================================
     PLATFORM_COMMISSION: float = Field(default=0.20)

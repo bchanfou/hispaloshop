@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
+import OfflineIndicator from '../ui/OfflineIndicator';
 
 /**
  * FeedContainer - Contenedor principal del feed con tabs
@@ -18,6 +19,9 @@ export default function FeedContainer() {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Banner de estado offline */}
+      <OfflineIndicator variant="banner" />
+
       {/* Tabs Navigation */}
       <div className="sticky top-0 z-20 bg-white border-b border-stone-100">
         <div className="flex items-center justify-center">

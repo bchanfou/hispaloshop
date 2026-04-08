@@ -45,6 +45,7 @@ from middleware.request_id import RequestIDMiddleware
 
 # === STACK MONGODB (LEGACY - ACTIVO) ===
 from routes.auth import router as legacy_auth_router
+from routes.auth_apple import router as apple_auth_router
 from routes.config import router as legacy_config_router
 from routes.feed import router as legacy_feed_router
 from routes.products import router as legacy_products_router
@@ -202,6 +203,10 @@ for candidate in [
     "https://hispaloshop.com",
     "https://www.hispaloshop.com",
     "http://localhost:3000",
+    # Mobile app origins (hybrid apps: Capacitor, Ionic, Cordova)
+    "capacitor://localhost",
+    "ionic://localhost",
+    "http://localhost",
 ]:
     normalized = candidate.strip().rstrip("/")
     if normalized and normalized not in origins:
@@ -255,6 +260,7 @@ app.add_middleware(RequestIDMiddleware)
 # ============================================
 app.include_router(frontend_compat_router, prefix="/api", tags=["frontend-compat"])
 app.include_router(legacy_auth_router, prefix="/api", tags=["auth"])
+app.include_router(apple_auth_router, prefix="/api", tags=["auth-apple"])
 app.include_router(legacy_config_router, prefix="/api", tags=["config"])
 app.include_router(legacy_feed_router, prefix="/api", tags=["feed"])
 app.include_router(legacy_posts_router, prefix="/api", tags=["posts"])

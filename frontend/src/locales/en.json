@@ -3769,7 +3769,21 @@
     "yesterday": "Yesterday",
     "this_week": "This week",
     "this_month": "This month",
-    "older": "Older"
+    "older": "Older",
+    "now": "now",
+    "minutesAgo": "{{count}}m",
+    "hoursAgo": "{{count}}h",
+    "daysAgo": "{{count}}d",
+    "likedPost": "{{name}} liked your post",
+    "likedPostOthers": "{{name}} and {{count}} others liked your post",
+    "startedFollowing": "{{name}} started following you",
+    "startedFollowingOthers": "{{name}} and {{count}} others started following you",
+    "someone": "Someone",
+    "following": "Following",
+    "follow": "Follow",
+    "newNotifications": "{{count}} new notifications",
+    "allCleared": "Notifications cleared",
+    "clearError": "Could not delete notifications"
   },
   "content_selector": {
     "title": "Create",

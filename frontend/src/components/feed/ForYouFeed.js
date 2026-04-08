@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef, Component } from 'react';
+import React, { useMemo, useState, useCallback, useRef, Component, useEffect } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -9,10 +9,13 @@ import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
-import { AlertCircle, Check } from 'lucide-react';
+import { AlertCircle, Check, WifiOff } from 'lucide-react';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { offlineCache } from '../../lib/offlineCache';
+import NetworkErrorState from '../ui/NetworkErrorState';
 
 /**
  * ForYouFeed — Feed "Para ti" puramente social
@@ -39,6 +42,38 @@ export default function ForYouFeed() {
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
   const { trigger } = useHaptics();
+  const { isOnline, wasOffline } = useNetworkStatus();
+  const [retryCount, setRetryCount] = useState(0);
+  const [cachedPosts, setCachedPosts] = useState([]);
+
+  // Cargar posts cacheados al inicio
+  useEffect(() => {
+    const cached = offlineCache.getCachedFeed('forYou');
+    if (cached?.items) {
+      setCachedPosts(cached.items);
+    }
+  }, []);
+
+  // Guardar posts en cache cuando se cargan exitosamente
+  useEffect(() => {
+    if (feedQuery.data && allPosts.length > 0 && isOnline) {
+      offlineCache.cacheFeed('forYou', allPosts.slice(0, 20));
+    }
+  }, [feedQuery.data, isOnline]);
+
+  // Reset retry count cuando hay éxito
+  useEffect(() => {
+    if (feedQuery.isSuccess) {
+      setRetryCount(0);
+    }
+  }, [feedQuery.isSuccess]);
+
+  // Incrementar retry count en error
+  useEffect(() => {
+    if (feedQuery.isError) {
+      setRetryCount(prev => prev + 1);
+    }
+  }, [feedQuery.isError]);
 
   // Flatten and dedupe posts
   const allPosts = useMemo(() => {
@@ -64,7 +99,24 @@ export default function ForYouFeed() {
 
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;
+  const isError = feedQuery.isError;
   const error = feedQuery.error;
+  
+  // Debug logging in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[ForYouFeed] State:', {
+        isLoading: feedQuery.isLoading,
+        isError: feedQuery.isError,
+        hasData: !!feedQuery.data,
+        pagesCount: feedQuery.data?.pages?.length,
+        allPostsCount: allPosts.length,
+        error: feedQuery.error?.message,
+        isOnline,
+        cachedPostsCount: cachedPosts.length
+      });
+    }
+  }, [feedQuery.isLoading, feedQuery.isError, feedQuery.data, allPosts.length, feedQuery.error, isOnline, cachedPosts.length]);
 
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
@@ -73,7 +125,9 @@ export default function ForYouFeed() {
   const virtuosoRef = useRef(null);
 
   const { refreshing, progress, handlers } = usePullToRefresh(
-    async () => { await queryClient.refetchQueries({ queryKey: feedKeys.forYou, type: 'active' }); }
+    async () => { 
+      await queryClient.refetchQueries({ queryKey: feedKeys.forYou, type: 'active' }); 
+    }
   );
 
   const handleLike = useCallback(async (postId) => {
@@ -113,23 +167,82 @@ export default function ForYouFeed() {
     queryClient.invalidateQueries({ queryKey: feedKeys.forYou });
   }, [queryClient, trigger]);
 
-  if (error) {
+  // Handler para retry con contador
+  const handleRetry = useCallback(() => {
+    setRetryCount(prev => prev + 1);
+    feedQuery.refetch();
+  }, [feedQuery]);
+
+  // Estado de error con soporte offline
+  if (isError) {
+    const hasCachedData = cachedPosts.length > 0;
+    
+    return (
+      <NetworkErrorState
+        error={error}
+        onRetry={handleRetry}
+        retryCount={retryCount}
+        showCachedContent={hasCachedData}
+        cachedContent={
+          hasCachedData ? (
+            <div className="px-4 py-4 space-y-4">
+              {cachedPosts.slice(0, 5).map((post) => (
+                <div key={post.id} className="opacity-60">
+                  <PostCard
+                    post={{
+                      id: post.id,
+                      user: {
+                        id: post.user_id,
+                        name: post.user_name,
+                        avatar: post.user_profile_image
+                      },
+                      media: post.image_url ? [{ url: post.image_url, ratio: '1:1' }] : [],
+                      caption: post.caption || '',
+                      likes: post.likes_count || 0,
+                      liked: false,
+                      comments: post.comments_count || 0,
+                      timestamp: post.created_at ? new Date(post.created_at).getTime() : null
+                    }}
+                    onLike={() => {}}
+                    onComment={() => {}}
+                    onShare={() => {}}
+                  />
+                </div>
+              ))}
+              <p className="text-center text-xs text-stone-400 pt-4">
+                Mostrando contenido guardado localmente
+              </p>
+            </div>
+          ) : null
+        }
+      />
+    );
+  }
+
+  // Estado vacío (sin posts y no está cargando)
+  if (!isInitialLoading && allPosts.length === 0 && !isError) {
     return (
       <div className="flex flex-col items-center px-6 py-16 text-center">
-        <AlertCircle className="mb-3 h-8 w-8 text-stone-400" />
-        <p className="text-[14px] font-medium text-stone-700">
-          {t('feed.error', 'Error al cargar el feed')}
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 mb-4">
+          <AlertCircle className="h-7 w-7 text-stone-400" />
+        </div>
+        <p className="text-lg font-semibold text-stone-950 mb-1">
+          {t('feed.empty.title', 'No hay publicaciones')}
         </p>
-        <p className="mt-1 text-[13px] text-stone-400">
-          {t('feed.errorDescription', 'No hemos podido cargar las publicaciones ahora mismo.')}
+        <p className="text-sm text-stone-500 max-w-xs mb-6">
+          {!isOnline 
+            ? t('feed.empty.offline', 'Conecta a internet para ver el contenido más reciente')
+            : t('feed.empty.description', 'Aún no hay publicaciones para mostrar. Vuelve más tarde.')
+          }
         </p>
-        <button
-          type="button"
-          onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-stone-950 px-6 py-3 min-h-[44px] text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
-        >
-          {t('common.retry', 'Reintentar')}
-        </button>
+        {!isOnline && cachedPosts.length > 0 && (
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-stone-950 text-white rounded-full font-semibold hover:bg-stone-800 transition-colors"
+          >
+            Ver contenido guardado
+          </button>
+        )}
       </div>
     );
   }
@@ -142,6 +255,20 @@ export default function ForYouFeed() {
       className="relative overscroll-none"
       {...handlers}
     >
+      {/* Indicador de estado offline */}
+      {!isOnline && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="sticky top-0 z-30 bg-amber-50 border-b border-amber-100 px-4 py-2"
+        >
+          <div className="flex items-center justify-center gap-2 text-amber-700 text-sm">
+            <WifiOff className="w-4 h-4" />
+            <span>Sin conexión. Mostrando contenido guardado.</span>
+          </div>
+        </motion.div>
+      )}
+
       {/* "New content available" floating pill */}
       <AnimatePresence>
         {showNewContentPill && (

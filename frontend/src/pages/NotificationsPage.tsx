@@ -298,7 +298,7 @@ function groupNotifications(notifs) {
 }
 
 // ── Relative time helper ─────────────────────────────────────────
-function relativeTime(dateStr) {
+function relativeTime(dateStr, t) {
   if (!dateStr) return '';
   const ts = new Date(dateStr).getTime();
   if (Number.isNaN(ts)) return '';
@@ -306,29 +306,30 @@ function relativeTime(dateStr) {
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `${mins}m`;
-  if (hours < 24) return `${hours}h`;
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('es-ES', {
+  if (mins < 1) return t('notif_center.now', 'ahora');
+  if (mins < 60) return t('notif_center.minutesAgo', '{{count}}m', { count: mins });
+  if (hours < 24) return t('notif_center.hoursAgo', '{{count}}h', { count: hours });
+  if (days < 7) return t('notif_center.daysAgo', '{{count}}d', { count: days });
+  return new Date(dateStr).toLocaleDateString(i18n.language || 'es-ES', {
     day: 'numeric',
     month: 'short'
   });
 }
 
 // ── Date group label ─────────────────────────────────────────────
+// Returns translation keys instead of translated strings for consistent grouping
 function dateGroup(dateStr) {
-  if (!dateStr) return 'Anterior';
+  if (!dateStr) return 'older';
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return 'Anterior';
+  if (Number.isNaN(d.getTime())) return 'older';
   const today = new Date();
   const diff = Math.floor((today - d) / 86400000);
-  if (diff < 0) return 'Hoy';
-  if (diff === 0) return 'Hoy';
-  if (diff === 1) return 'Ayer';
-  if (diff < 7) return 'Esta semana';
-  if (diff < 30) return 'Este mes';
-  return 'Anterior';
+  if (diff < 0) return 'today';
+  if (diff === 0) return 'today';
+  if (diff === 1) return 'yesterday';
+  if (diff < 7) return 'this_week';
+  if (diff < 30) return 'this_month';
+  return 'older';
 }
 
 // ── Grouped notification row (simplified: 1 avatar + count text) ─
@@ -337,6 +338,7 @@ function GroupedNotifRow({
   onBatchRead
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     members,
     type
@@ -345,15 +347,19 @@ function GroupedNotifRow({
   const count = members.length;
   const isLike = type === 'like' || type === 'post_liked' || type === 'new_like';
   const isFollow = type === 'follow' || type === 'new_follower' || type === 'follow_request_accepted';
-  const firstName = first.actor_username || first.data?.actor_username || 'Alguien';
+  const firstName = first.actor_username || first.data?.actor_username || t('notif_center.someone', 'Alguien');
   const others = count - 1;
   let text = '';
   if (isLike) {
-    text = others > 0 ? `A ${firstName} y otras ${others} personas les gustó tu publicación` : `A ${firstName} le gustó tu publicación`;
+    text = others > 0 
+      ? t('notif_center.likedPostOthers', 'A {{name}} y {{count}} personas más les gustó tu publicación', { name: firstName, count: others })
+      : t('notif_center.likedPost', 'A {{name}} le gustó tu publicación', { name: firstName });
   } else if (isFollow) {
-    text = others > 0 ? `${firstName} y ${others} más han empezado a seguirte` : `${firstName} ha empezado a seguirte`;
+    text = others > 0 
+      ? t('notif_center.startedFollowingOthers', '{{name}} y {{count}} más han empezado a seguirte', { name: firstName, count: others })
+      : t('notif_center.startedFollowing', '{{name}} ha empezado a seguirte', { name: firstName });
   } else {
-    text = first.title || `${count} nuevas notificaciones`;
+    text = first.title || t('notif_center.newNotifications', '{{count}} nuevas notificaciones', { count });
   }
   const allRead = members.every(n => !!n.read_at);
   const handleClick = () => {
@@ -393,7 +399,7 @@ function GroupedNotifRow({
           {text}
         </p>
         <p className="text-[10px] text-stone-500 mt-0.5">
-          {relativeTime(first.created_at)}
+          {relativeTime(first.created_at, t)}
         </p>
       </div>
 
@@ -422,6 +428,7 @@ function NotifRow({
   followedIds,
   setFollowedIds
 }) {
+  const { t } = useTranslation();
   const meta = TYPE_META[notif.type] || TYPE_META.system;
   const category = meta?.category || 'sistema';
   const catStyle = CATEGORY_ICON_STYLE[category] || CATEGORY_ICON_STYLE.sistema;
@@ -484,7 +491,7 @@ function NotifRow({
         next.delete(actorId);
         return next;
       });
-      toast.error('Error al seguir al usuario');
+      toast.error(t('store.followError', 'Error al seguir al usuario'));
     } finally {
       setFollowLoading(false);
     }
@@ -513,7 +520,7 @@ function NotifRow({
         onDelete(notifKey);
       }} className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer" aria-label={i18n.t('notif_center.delete', 'Eliminar notificacion')}>
           <Trash2 className="w-[18px] h-[18px] text-white" strokeWidth={1.8} />
-          <span className="text-[10px] text-white font-medium">Eliminar</span>
+          <span className="text-[10px] text-white font-medium">{t('common.delete', 'Eliminar')}</span>
         </button>
       </div>
 
@@ -560,15 +567,15 @@ function NotifRow({
               {notif.body}
             </p>}
           <span className="text-[11px] text-stone-400 mt-0.5 inline-block">
-            {relativeTime(notif.created_at)}
+            {relativeTime(notif.created_at, t)}
           </span>
         </div>
 
         {/* Follow-back button */}
         {isFollowType && actorId && <button onClick={handleFollowBack} disabled={followLoading} className={`rounded-full text-[11px] font-semibold cursor-pointer shrink-0 px-4 py-2 min-h-[44px] transition-all duration-150 ${isFollowing ? 'border border-stone-200 bg-white text-stone-500' : 'border-none bg-stone-950 text-white'}`} style={{
         opacity: followLoading ? 0.6 : 1
-      }} aria-label={isFollowing ? 'Ya sigues a este usuario' : 'Seguir a este usuario'}>
-            {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
+      }} aria-label={isFollowing ? t('store.following', 'Siguiendo') : t('store.follow', 'Seguir')}>
+            {followLoading ? '...' : isFollowing ? t('store.following', 'Siguiendo') : t('store.follow', 'Seguir')}
           </button>}
 
         {/* Thumbnail */}
@@ -703,9 +710,9 @@ export default function NotificationsPage() {
       await queryClient.invalidateQueries({
         queryKey: ['notifications', 'unread']
       });
-      toast.success('Notificaciones eliminadas');
+      toast.success(t('notif_center.allCleared', 'Notificaciones eliminadas'));
     } catch {
-      toast.error(i18n.t('notifications.noSePudieronEliminarLasNotificacion', 'No se pudieron eliminar las notificaciones'));
+      toast.error(t('notif_center.clearError', 'No se pudieron eliminar las notificaciones'));
     }
   };
 
@@ -734,14 +741,14 @@ export default function NotificationsPage() {
     acc[label].push(item);
     return acc;
   }, {});
-  const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Este mes', 'Anterior'];
+  const GROUP_ORDER = ['today', 'yesterday', 'this_week', 'this_month', 'older'];
   return <div className="min-h-screen max-w-[600px] mx-auto pb-20 bg-stone-50">
 
       {/* ── Header ────────────────────────────────────────────── */}
       <div className="sticky top-[52px] lg:top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-stone-200">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: back arrow */}
-          <button onClick={() => navigate(-1)} aria-label="Volver" className="p-2 -ml-2 rounded-full transition-opacity text-stone-950 min-w-[44px] min-h-[44px]">
+          <button onClick={() => navigate(-1)} aria-label={t('common.back', 'Volver')} className="p-2 -ml-2 rounded-full transition-opacity text-stone-950 min-w-[44px] min-h-[44px]">
             <ArrowLeft className="w-5 h-5" />
           </button>
 
@@ -791,7 +798,7 @@ export default function NotificationsPage() {
                   {/* Group header */}
                   <div className="px-4 pt-2.5 pb-1.5">
                     <span className="text-[13px] font-semibold text-stone-950">
-                      {label}
+                      {t(`notif_center.${label}`, label)}
                     </span>
                   </div>
 

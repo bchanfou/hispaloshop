@@ -11,6 +11,8 @@ import logging
 import re
 import hashlib
 import os
+import jwt as jwt_lib
+import json
 
 from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput

@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useCallback, useRef, Component } from 'react';
+import React, { useMemo, useState, useCallback, useRef, Component, useEffect } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { Users, AlertCircle, Check } from 'lucide-react';
+import { Users, AlertCircle, Check, WifiOff } from 'lucide-react';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import PostDetailModal from './PostDetailModal';
@@ -13,6 +13,9 @@ import { useFollowingFeed, useLikePost, feedKeys } from '../../features/feed/que
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { offlineCache } from '../../lib/offlineCache';
+import NetworkErrorState from '../ui/NetworkErrorState';
 
 /** Lightweight error boundary that silently hides a single broken feed item. */
 class FeedItemBoundary extends Component {
@@ -58,6 +61,25 @@ function FollowingFeed() {
   const feedQuery = useFollowingFeed();
   const likeMutation = useLikePost();
   const { trigger } = useHaptics();
+  const { isOnline } = useNetworkStatus();
+  const [retryCount, setRetryCount] = useState(0);
+  const [cachedPosts, setCachedPosts] = useState([]);
+
+  // Cargar posts cacheados
+  useEffect(() => {
+    const cached = offlineCache.getCachedFeed('following');
+    if (cached?.items) {
+      setCachedPosts(cached.items);
+    }
+  }, []);
+
+  // Guardar posts en cache
+  useEffect(() => {
+    if (feedQuery.data && allPosts.length > 0 && isOnline) {
+      offlineCache.cacheFeed('following', allPosts.slice(0, 20));
+    }
+  }, [feedQuery.data, isOnline]);
+
   const allPosts = useMemo(() => {
     try {
       const pages = feedQuery.data?.pages;
@@ -151,24 +173,16 @@ function FollowingFeed() {
     queryClient.invalidateQueries({ queryKey: feedKeys.following });
   }, [queryClient, trigger]);
 
-  if (error) {
+  if (feedQuery.isError) {
     return (
-      <div className="flex flex-col items-center px-6 py-16 text-center">
-        <AlertCircle className="mb-3 h-8 w-8 text-stone-400" />
-        <p className="text-[14px] font-medium text-stone-700">
-          {t('feed.error', 'Error al cargar el feed')}
-        </p>
-        <p className="mt-1 text-[13px] text-stone-400">
-          {t('feed.errorDescription', 'No hemos podido cargar las publicaciones ahora mismo.')}
-        </p>
-        <button
-          type="button"
-          onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-stone-950 px-6 py-3 min-h-[44px] text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
-        >
-          {t('common.retry', 'Reintentar')}
-        </button>
-      </div>
+      <NetworkErrorState
+        error={feedQuery.error}
+        onRetry={() => {
+          setRetryCount(prev => prev + 1);
+          feedQuery.refetch();
+        }}
+        retryCount={retryCount}
+      />
     );
   }
 
@@ -184,6 +198,19 @@ function FollowingFeed() {
       className="relative overscroll-none"
       {...handlers}
     >
+      {/* Indicador de estado offline */}
+      {!isOnline && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="sticky top-0 z-30 bg-amber-50 border-b border-amber-100 px-4 py-2"
+        >
+          <div className="flex items-center justify-center gap-2 text-amber-700 text-sm">
+            <WifiOff className="w-4 h-4" />
+            <span>Sin conexión. Mostrando contenido guardado.</span>
+          </div>
+        </motion.div>
+      )}
       {/* "New content available" floating pill */}
       <AnimatePresence>
         {showNewContentPill && (

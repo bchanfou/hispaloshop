@@ -3663,7 +3663,21 @@
     "yesterday": "어제",
     "this_week": "이번 주",
     "this_month": "이번 달",
-    "older": "이전"
+    "older": "이전",
+    "now": "방금",
+    "minutesAgo": "{{count}}분 전",
+    "hoursAgo": "{{count}}시간 전",
+    "daysAgo": "{{count}}일 전",
+    "likedPost": "{{name}}님이 게시물을 좋아합니다",
+    "likedPostOthers": "{{name}}님 외 {{count}}명이 게시물을 좋아합니다",
+    "startedFollowing": "{{name}}님이 팔로우하기 시작했습니다",
+    "startedFollowingOthers": "{{name}}님 외 {{count}}명이 팔로우하기 시작했습니다",
+    "someone": "누군가",
+    "following": "팔로잉",
+    "follow": "팔로우",
+    "newNotifications": "새 알림 {{count}}개",
+    "allCleared": "알림이 삭제되었습니다",
+    "clearError": "알림을 삭제할 수 없습니다"
   },
   "content_selector": {
     "title": "만들기",

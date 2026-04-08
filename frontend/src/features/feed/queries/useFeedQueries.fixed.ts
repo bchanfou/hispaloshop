@@ -66,7 +66,16 @@ export const feedKeys = {
 };
 
 function normalizeFeedItem(item: any): NormalizedFeedItem {
+  if (!item || typeof item !== 'object') {
+    console.warn('[feed] Invalid item:', item);
+    return null as any;
+  }
+  
   const normalizedId = item?.id || item?.post_id || item?._id || null;
+  if (!normalizedId) {
+    console.warn('[feed] Item without ID:', item);
+  }
+  
   const media: FeedMediaItem[] = Array.isArray(item?.media)
     ? item.media
     : (item?.image_url || item?.thumbnail ? [{ url: item?.image_url || item?.thumbnail, ratio: '1:1' }] : []);
@@ -94,6 +103,16 @@ function normalizeFeedItem(item: any): NormalizedFeedItem {
 }
 
 function normalizeFeedPage(data: any, pageParam: string | null, limit: number = 20): NormalizedFeedPage {
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[feed] Raw response:', { 
+      hasData: !!data, 
+      keys: data ? Object.keys(data) : [],
+      itemsLength: data?.items?.length,
+      postsLength: data?.posts?.length 
+    });
+  }
+
   const rawItems: any[] = Array.isArray(data?.items)
     ? data.items
     : Array.isArray(data?.posts)
@@ -101,7 +120,17 @@ function normalizeFeedPage(data: any, pageParam: string | null, limit: number = 
       : Array.isArray(data?.data?.posts)
         ? data.data.posts
         : [];
-  const normalized = rawItems.map(normalizeFeedItem).filter((post) => Boolean(post.id));
+        
+  if (rawItems.length === 0) {
+    console.warn('[feed] No items found in response:', data);
+  }
+        
+  const normalized = rawItems.map(normalizeFeedItem).filter((post) => Boolean(post?.id));
+  
+  if (normalized.length === 0 && rawItems.length > 0) {
+    console.warn('[feed] All items filtered out. Raw items:', rawItems.length);
+  }
+  
   // Deduplicate within a single page response
   const seenIds = new Set<string>();
   const items = normalized.filter((post) => {
@@ -141,16 +170,31 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
         : '/feed/foryou';
 
   try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[feed] Fetching:', primaryEndpoint, { pageParam, limit });
+    }
+    
     const data = await apiClient.get(primaryEndpoint, {
       params: {
         cursor: pageParam,
         limit,
       },
     });
-    return normalizeFeedPage(data, pageParam ?? null, limit);
+    
+    const normalized = normalizeFeedPage(data, pageParam ?? null, limit);
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[feed] Normalized:', { 
+        itemsCount: normalized.items.length, 
+        hasMore: normalized.hasMore 
+      });
+    }
+    
+    return normalized;
   } catch (primaryError: any) {
     console.error('[feed] Primary endpoint failed:', primaryEndpoint, primaryError?.message);
-    // Don't silently return empty data - let the error propagate to show error UI
+    
+    // Don't use fallbacks that return empty data - let the error propagate
     throw primaryError;
   }
 }
@@ -164,6 +208,7 @@ export function useFollowingFeed() {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     getPreviousPageParam: (firstPage: NormalizedFeedPage) => firstPage?.prevCursor ?? null,
     staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 }
 
@@ -176,6 +221,7 @@ export function useForYouFeed() {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     getPreviousPageParam: (firstPage: NormalizedFeedPage) => firstPage?.prevCursor ?? null,
     staleTime: 3 * 60 * 1000,
+    retry: 2,
   });
 }
 
@@ -188,6 +234,7 @@ export function useCategoryFeed(categorySlug: string) {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     enabled: Boolean(categorySlug),
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 }
 
@@ -196,14 +243,10 @@ export function useLikePost() {
 
   return useMutation({
     mutationFn: async ({ postId }: LikePostVariables) => {
-      // Legacy backend toggles like status via POST /posts/{id}/like.
       return apiClient.post(`/posts/${postId}/like`, {});
     },
     onMutate: async ({ postId, liked }: LikePostVariables) => {
-      // Cancel only single-post detail queries, not feed pagination
       await queryClient.cancelQueries({ queryKey: ['post', postId] });
-
-      // Snapshot ALL feed caches (forYou, following, and any category feeds) for rollback
       const previousFeedData = queryClient.getQueriesData<any>({ queryKey: ['feed'] });
 
       const applyLikeUpdate = (old: any) => {
@@ -236,13 +279,10 @@ export function useLikePost() {
         };
       };
 
-      // Update all feed caches (forYou, following, and all category feeds)
       queryClient.setQueriesData<any>({ queryKey: ['feed'] }, applyLikeUpdate);
-
       return { previousFeedData };
     },
     onError: (_error: any, _variables: LikePostVariables, context: any) => {
-      // Restore all feed caches to their pre-mutation snapshots
       if (context?.previousFeedData) {
         for (const [queryKey, queryData] of context.previousFeedData) {
           queryClient.setQueryData(queryKey, queryData);
@@ -261,12 +301,9 @@ export function useSavePost() {
 
   return useMutation({
     mutationFn: async ({ postId }: SavePostVariables) => {
-      // Legacy backend exposes save/bookmark routes without explicit unsave endpoint.
       return apiClient.post(`/posts/${postId}/save`, {});
     },
     onMutate: async ({ postId, saved }: SavePostVariables) => {
-
-      // Snapshot ALL feed caches for rollback
       const previousFeedData = queryClient.getQueriesData<any>({ queryKey: ['feed'] });
 
       const applySaveUpdate = (old: any) => {
@@ -293,9 +330,7 @@ export function useSavePost() {
         };
       };
 
-      // Update all feed caches (forYou, following, and all category feeds)
       queryClient.setQueriesData<any>({ queryKey: ['feed'] }, applySaveUpdate);
-
       return { previousFeedData };
     },
     onError: (_error: any, _variables: SavePostVariables, context: any) => {

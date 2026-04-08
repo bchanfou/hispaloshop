@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { getDefaultRoute } from '../lib/navigation';
+import OfflineIndicator from './ui/OfflineIndicator';
 
 const NAV_LINKS = [
   { labelKey: 'nav.explore', fallback: 'Explorar', to: '/discover' },
@@ -151,6 +152,9 @@ export default function Header() {
             </form>
 
             <div className="relative ml-auto flex items-center gap-1.5 md:gap-2" ref={menuRef}>
+              {/* Indicador de estado de red */}
+              <OfflineIndicator variant="header" />
+
               <button
                 type="button"
                 onClick={() => setMobileSearchOpen((current) => !current)}

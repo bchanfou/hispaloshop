@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
 import { useTranslation } from 'react-i18next';
+import { initGoogleSignIn, initAppleSignIn, isHybridApp, setupDeepLinkListener } from '../lib/mobileAuth';
 
 const ROLE_DESTINATIONS = {
   customer:    '/',
@@ -21,13 +22,14 @@ const ROLE_DESTINATIONS = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, checkAuth } = useAuth();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState('');
+  const [oauthLoading, setOauthLoading] = useState({ google: false, apple: false });
 
   const intendedRoute = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -47,6 +49,33 @@ export default function LoginPage() {
     const v = params.get('expired');
     return v === '1' || v === 'true';
   }, [location.search]);
+
+  // Setup deep link listener for OAuth callbacks
+  useEffect(() => {
+    const cleanup = setupDeepLinkListener({
+      onAuthSuccess: async ({ token }) => {
+        // Token received from deep link, validate it
+        if (token) {
+          setToken(token);
+          const user = await checkAuth();
+          if (user) {
+            toast.success(t('login.bienvenido', 'Bienvenido'));
+            if (!user.onboarding_completed) {
+              navigate('/onboarding', { replace: true });
+            } else {
+              const dest = ROLE_DESTINATIONS[user.role] || '/';
+              navigate(dest, { replace: true });
+            }
+          }
+        }
+      },
+      onAuthError: (error) => {
+        toast.error(error.message || t('login.errorDeAutenticacion', 'Error de autenticación'));
+      },
+    });
+
+    return cleanup;
+  }, [checkAuth, navigate, t]);
 
   const validate = () => {
     const e = {};
@@ -139,15 +168,76 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    setOauthLoading(prev => ({ ...prev, google: true }));
     try {
-      const data = await authApi.getGoogleAuthUrl();
-      if (data.auth_url && (data.auth_url.startsWith('https://') || data.auth_url.startsWith('http://'))) {
-        window.location.href = data.auth_url;
-      } else {
-        toast.error(t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.'));
-      }
+      await initGoogleSignIn({
+        onSuccess: async (data) => {
+          if (data?.token) {
+            setToken(data.token);
+            const user = await checkAuth();
+            if (user) {
+              toast.success(t('login.bienvenido', 'Bienvenido'));
+              if (!user.onboarding_completed) {
+                navigate('/onboarding', { replace: true });
+              } else {
+                const dest = ROLE_DESTINATIONS[user.role] || '/';
+                navigate(dest, { replace: true });
+              }
+            }
+          }
+        },
+        onError: (error) => {
+          toast.error(getAuthErrorMessage(error, t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.')));
+        },
+        onCancel: () => {
+          // User cancelled, no error message needed
+        },
+      });
     } catch (error) {
-      toast.error(getAuthErrorMessage(error, t('register.errorAlConectarConGoogle', 'Error al conectar con Google.')));
+      // Fallback to legacy method
+      try {
+        const data = await authApi.getGoogleAuthUrl();
+        if (data.auth_url && (data.auth_url.startsWith('https://') || data.auth_url.startsWith('http://'))) {
+          window.location.href = data.auth_url;
+        } else {
+          toast.error(t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.'));
+        }
+      } catch (fallbackError) {
+        toast.error(getAuthErrorMessage(fallbackError, t('register.errorAlConectarConGoogle', 'Error al conectar con Google.')));
+      }
+    } finally {
+      setOauthLoading(prev => ({ ...prev, google: false }));
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    setOauthLoading(prev => ({ ...prev, apple: true }));
+    try {
+      await initAppleSignIn({
+        onSuccess: async (data) => {
+          if (data?.token || data?.session_token) {
+            setToken(data.token || data.session_token, data.refresh_token);
+            const user = await checkAuth();
+            if (user) {
+              toast.success(t('login.bienvenido', 'Bienvenido'));
+              if (!user.onboarding_completed) {
+                navigate('/onboarding', { replace: true });
+              } else {
+                const dest = ROLE_DESTINATIONS[user.role] || '/';
+                navigate(dest, { replace: true });
+              }
+            }
+          }
+        },
+        onError: (error) => {
+          toast.error(getAuthErrorMessage(error, t('login.errorAlIniciarSesionConApple', 'Error al iniciar sesión con Apple.')));
+        },
+      });
+    } catch (error) {
+      // Apple Sign-In may not be fully configured yet
+      toast.error(t('login.appleSignInNoDisponible', 'Apple Sign-In no está disponible en este momento.'));
+    } finally {
+      setOauthLoading(prev => ({ ...prev, apple: false }));
     }
   };
 
@@ -156,6 +246,8 @@ export default function LoginPage() {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
     if (loginError) setLoginError('');
   };
+
+  const isHybrid = isHybridApp();
 
   return (
     <>
@@ -174,35 +266,52 @@ export default function LoginPage() {
         </p>
       )}
 
+      {/* Hybrid app indicator (debug) */}
+      {process.env.NODE_ENV === 'development' && isHybrid && (
+        <p className="text-xs text-stone-400 text-center mb-4">
+          Modo app móvil detectado
+        </p>
+      )}
+
       {/* Social login — Google */}
       <motion.button
         type="button"
         onClick={handleGoogleLogin}
+        disabled={oauthLoading.google}
         aria-label="Continuar con Google"
-        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
+        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         whileTap={{ scale: 0.97 }}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-        </svg>
-        Continuar con Google
+        {oauthLoading.google ? (
+          <Loader2 size={18} className="animate-spin" />
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+        )}
+        {oauthLoading.google ? 'Conectando...' : 'Continuar con Google'}
       </motion.button>
 
       {/* Social login — Apple */}
       <motion.button
         type="button"
-        onClick={() => toast('Apple Sign-In próximamente')}
+        onClick={handleAppleLogin}
+        disabled={oauthLoading.apple}
         aria-label="Continuar con Apple"
-        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
+        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         whileTap={{ scale: 0.97 }}
       >
-        <svg width="16" height="18" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true">
-          <path d="M13.54 10.58c-.01-1.63.72-2.86 2.2-3.76-.83-1.2-2.08-1.86-3.72-1.98-1.56-.12-3.27.92-3.89.92-.66 0-2.13-.88-3.27-.88C2.78 4.92.5 6.88.5 10.79c0 1.15.21 2.34.63 3.57.56 1.62 2.58 5.6 4.7 5.54 1.1-.03 1.87-.78 3.28-.78 1.36 0 2.08.78 3.27.76 2.15-.04 3.94-3.63 4.47-5.25-2.85-1.35-2.82-3.96-2.8-4.05zM11.04 3.45C12.22 2.06 12.1.8 12.07.5c-1.07.06-2.31.74-3.03 1.57-.78.88-1.24 1.97-1.14 3.2 1.17.09 2.24-.53 3.14-1.82z" />
-        </svg>
-        Continuar con Apple
+        {oauthLoading.apple ? (
+          <Loader2 size={18} className="animate-spin" />
+        ) : (
+          <svg width="16" height="18" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true">
+            <path d="M13.54 10.58c-.01-1.63.72-2.86 2.2-3.76-.83-1.2-2.08-1.86-3.72-1.98-1.56-.12-3.27.92-3.89.92-.66 0-2.13-.88-3.27-.88C2.78 4.92.5 6.88.5 10.79c0 1.15.21 2.34.63 3.57.56 1.62 2.58 5.6 4.7 5.54 1.1-.03 1.87-.78 3.28-.78 1.36 0 2.08.78 3.27.76 2.15-.04 3.94-3.63 4.47-5.25-2.85-1.35-2.82-3.96-2.8-4.05zM11.04 3.45C12.22 2.06 12.1.8 12.07.5c-1.07.06-2.31.74-3.03 1.57-.78.88-1.24 1.97-1.14 3.2 1.17.09 2.24-.53 3.14-1.82z" />
+          </svg>
+        )}
+        {oauthLoading.apple ? 'Conectando...' : 'Continuar con Apple'}
       </motion.button>
 
       {/* Divider */}
