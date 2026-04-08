@@ -540,7 +540,17 @@
     "vatIncluded": "IVA incluido",
     "remove": "Eliminar",
     "freeShippingProgress": "Añade {{amount}} más para envío gratis",
-    "freeShipping": "Envío gratis"
+    "freeShipping": "Envío gratis",
+    "remainingForFreeShipping": "Faltan {{amount}} para envío gratis",
+    "stockHoldExpired": "Reserva expirada",
+    "stockHoldReserved": "Reservado {{time}}",
+    "removeDiscount": "Eliminar descuento",
+    "increaseQuantity": "Aumentar cantidad de {{product}}",
+    "decreaseQuantity": "Disminuir cantidad",
+    "verifyEmail": "Verificar email",
+    "fullNameRequired": "Nombre completo requerido",
+    "addressRequired": "Dirección requerida",
+    "cityRequired": "Ciudad requerida"
   },
   "checkout": {
     "title": "Checkout",
@@ -714,7 +724,13 @@
       "success": "Pedido marcado como enviado! Se ha notificado al cliente por email.",
       "other": "Otro"
     },
-    "noPudimosCargarTusPedidos": "No pudimos cargar tus pedidos"
+    "noPudimosCargarTusPedidos": "No pudimos cargar tus pedidos",
+    "filterAll": "Todos",
+    "filterNew": "Nuevos",
+    "filterShipped": "Enviados",
+    "filterDelivered": "Entregados",
+    "filterCancelled": "Cancelados",
+    "noOrdersInCategory": "Sin pedidos en esta categoría"
   },
   "producer": {
     "overview": "Resumen",

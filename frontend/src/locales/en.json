@@ -831,7 +831,14 @@
     "vatIncluded": "VAT included",
     "remove": "Remove",
     "freeShippingProgress": "Add {{amount}} more for free shipping",
-    "freeShipping": "Free shipping"
+    "freeShipping": "Free shipping",
+    "remainingForFreeShipping": "{{amount}} remaining for free shipping",
+    "stockHoldExpired": "Reservation expired",
+    "stockHoldReserved": "Reserved {{time}}",
+    "removeDiscount": "Remove discount",
+    "increaseQuantity": "Increase quantity of {{product}}",
+    "decreaseQuantity": "Decrease quantity",
+    "verifyEmail": "Verify email"
   },
   "checkout": {
     "title": "Checkout",
@@ -992,7 +999,13 @@
       "processing": "Processing...",
       "success": "Order marked as shipped! Customer has been notified by email.",
       "other": "Other"
-    }
+    },
+    "filterAll": "All",
+    "filterNew": "New",
+    "filterShipped": "Shipped",
+    "filterDelivered": "Delivered",
+    "filterCancelled": "Cancelled",
+    "noOrdersInCategory": "No orders in this category"
   },
   "producer": {
     "overview": "Overview",

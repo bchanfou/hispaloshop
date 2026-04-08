@@ -52,8 +52,8 @@ class RecipeCreateInput(BaseModel):
     servings: int = Field(..., ge=1, le=100)
     prep_time_minutes: int = Field(..., ge=0, le=1440)
     cook_time_minutes: int = Field(..., ge=0, le=1440)
-    difficulty: str = Field(..., regex="^(easy|medium|hard)$")
-    category: str = Field(..., regex="^(main|dessert|breakfast|snack|drink)$")
+    difficulty: str = Field(..., pattern="^(easy|medium|hard)$")
+    category: str = Field(..., pattern="^(main|dessert|breakfast|snack|drink)$")
     tags: List[str] = Field(default_factory=list)
     language: str = "es"
     ingredients: List[IngredientInput]

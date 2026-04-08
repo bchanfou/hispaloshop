@@ -193,13 +193,13 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
   );
 }
 
-const ORDER_FILTERS = [
-  { key: 'all', label: 'Todos' },
-  { key: 'confirmed', label: 'Nuevos', statuses: ['paid', 'confirmed'] },
-  { key: 'preparing', label: 'Preparando', statuses: ['preparing'] },
-  { key: 'shipped', label: 'Enviados', statuses: ['shipped'] },
-  { key: 'delivered', label: 'Entregados', statuses: ['delivered'] },
-  { key: 'cancelled', label: 'Cancelados', statuses: ['cancelled', 'refunded'] },
+const useOrderFilters = (t: any) => [
+  { key: 'all', label: t('orders.filterAll', 'Todos') },
+  { key: 'confirmed', label: t('orders.filterNew', 'Nuevos'), statuses: ['paid', 'confirmed'] },
+  { key: 'preparing', label: t('orders.status.preparing', 'Preparando'), statuses: ['preparing'] },
+  { key: 'shipped', label: t('orders.filterShipped', 'Enviados'), statuses: ['shipped'] },
+  { key: 'delivered', label: t('orders.filterDelivered', 'Entregados'), statuses: ['delivered'] },
+  { key: 'cancelled', label: t('orders.filterCancelled', 'Cancelados'), statuses: ['cancelled', 'refunded'] },
 ];
 
 export default function ProducerOrders() {
@@ -248,10 +248,12 @@ export default function ProducerOrders() {
     }
   };
 
+  const orderFilters = useOrderFilters(t);
+  
   const filteredOrders = useMemo(() => {
     let filtered = orders;
     if (activeFilter !== 'all') {
-      const tab = ORDER_FILTERS.find(f => f.key === activeFilter);
+      const tab = orderFilters.find(f => f.key === activeFilter);
       if (tab?.statuses) filtered = filtered.filter(o => tab.statuses.includes(o.status));
     }
     if (searchQuery.trim()) {
@@ -542,7 +544,7 @@ export default function ProducerOrders() {
 
       {/* Filter tabs */}
       <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide pb-1">
-        {ORDER_FILTERS.map(tab => {
+        {orderFilters.map(tab => {
           const count = tab.key === 'all' ? orders.length : orders.filter(o => tab.statuses?.includes(o.status)).length;
           return (
             <button
@@ -564,7 +566,7 @@ export default function ProducerOrders() {
         <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
           <ShoppingBag className="w-16 h-16 text-stone-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-stone-950 mb-2">
-            {activeFilter === 'all' ? t('orders.noOrders') : 'Sin pedidos en esta categoría'}
+            {activeFilter === 'all' ? t('orders.noOrders') : t('orders.noOrdersInCategory', 'Sin pedidos en esta categoría')}
           </h3>
           {activeFilter === 'all' && <p className="text-stone-500">{t('orders.noOrdersDescription')}</p>}
         </div>

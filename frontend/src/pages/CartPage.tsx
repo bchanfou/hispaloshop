@@ -52,7 +52,7 @@ function ShippingProgressBar({
       }} />
       </div>
       {!store.is_free && store.remaining_cents > 0 && <p className="text-[11px] text-stone-500 mt-0.5">
-          Faltan {fmtCents(store.remaining_cents)} para envío gratis
+          {i18n.t('cart.remainingForFreeShipping', 'Faltan {{amount}} para envío gratis').replace('{{amount}}', fmtCents(store.remaining_cents))}
         </p>}
     </div>;
 }
@@ -69,7 +69,7 @@ function StockHoldTimer({
     const update = () => {
       const diff = new Date(expiresAt).getTime() - Date.now();
       if (diff <= 0) {
-        setRemaining('Reserva expirada');
+        setRemaining(i18n.t('cart.stockHoldExpired', 'Reserva expirada'));
         setExpired(true);
         return;
       }
@@ -85,17 +85,17 @@ function StockHoldTimer({
   if (!expiresAt) return null;
   return <div className={`flex items-center gap-1 text-[11px] font-semibold mt-1 ${expired ? 'text-stone-950' : isExpiring ? 'text-stone-700' : 'text-stone-500'}`}>
       <Clock className="w-3 h-3" />
-      {expired ? 'Reserva expirada' : `Reservado ${remaining}`}
+      {expired ? i18n.t('cart.stockHoldExpired', 'Reserva expirada') : i18n.t('cart.stockHoldReserved', 'Reservado {{time}}').replace('{{time}}', remaining)}
     </div>;
 }
 const addressSchema = z.object({
   name: z.string().optional(),
-  full_name: z.string().min(2, 'Nombre completo requerido'),
+  full_name: z.string().min(2, i18n.t('cart.fullNameRequired', 'Nombre completo requerido')),
   phone: z.string().optional(),
-  street: z.string().min(5, "Dirección requerida"),
-  city: z.string().min(2, 'Ciudad requerida'),
-  postal_code: z.string().regex(/^\d{4,10}$/, "Código postal no válido"),
-  country: z.string().min(2, "País requerido"),
+  street: z.string().min(5, i18n.t('cart.addressRequired', 'Dirección requerida')),
+  city: z.string().min(2, i18n.t('cart.cityRequired', 'Ciudad requerida')),
+  postal_code: z.string().regex(/^\d{4,10}$/, i18n.t('cart.codigoPostalNoValido', 'Código postal no válido')),
+  country: z.string().min(2, i18n.t('cart.paisRequerido', 'País requerido')),
   is_default: z.boolean().optional()
 });
 export default function CartPage() {
@@ -452,7 +452,7 @@ export default function CartPage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex gap-2 flex-1">
                     <input placeholder={t('checkout.verificationCodePlaceholder')} value={verificationToken} onChange={event => setVerificationToken(event.target.value)} className="flex-1 max-w-xs h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" aria-label={t('checkout.verificationCodePlaceholder')} data-testid="verification-input" />
-                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-2xl bg-stone-950 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button" aria-label="Verificar email">
+                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-2xl bg-stone-950 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button" aria-label={i18n.t('cart.verifyEmail', 'Verificar email')}>
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
                     </button>
                   </div>
@@ -587,7 +587,7 @@ export default function CartPage() {
                                   <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
                                   <motion.button whileTap={!(item.stock != null && item.quantity >= item.stock) ? {
                               scale: 0.88
-                            } : undefined} type="button" onClick={() => handleUpdateQuantity(item, item.quantity + 1)} disabled={item.stock != null && item.quantity >= item.stock} className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`} aria-label={item.stock != null && item.quantity >= item.stock ? t('cart.maximoAlcanzado', 'Máximo alcanzado') : `Aumentar cantidad de ${item.product_name}`}>
+                            } : undefined} type="button" onClick={() => handleUpdateQuantity(item, item.quantity + 1)} disabled={item.stock != null && item.quantity >= item.stock} className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`} aria-label={item.stock != null && item.quantity >= item.stock ? t('cart.maximoAlcanzado', 'Máximo alcanzado') : t('cart.increaseQuantity', 'Aumentar cantidad de {{product}}').replace('{{product}}', item.product_name)}>
                                     <Plus className="w-4 h-4 text-stone-950" />
                                   </motion.button>
                                 </div>
@@ -756,7 +756,7 @@ export default function CartPage() {
                         -{formatCurrency(appliedDiscount.discount_cents || 0)}
                       </span>
                     </div>
-                    <button onClick={handleRemoveDiscount} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-700 hover:text-stone-950" aria-label="Eliminar descuento" data-testid="remove-discount-btn">
+                    <button onClick={handleRemoveDiscount} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-700 hover:text-stone-950" aria-label={t('cart.removeDiscount', 'Eliminar descuento')} data-testid="remove-discount-btn">
                       <X className="w-4 h-4" />
                     </button>
                   </div>}
@@ -792,7 +792,7 @@ export default function CartPage() {
                 {/* Total */}
                 <div className="flex justify-between">
                   <span className="text-base font-bold text-stone-950">
-                    {isGuest ? 'Subtotal' : t('cart.total')}
+                    {isGuest ? t('cart.subtotal', 'Subtotal') : t('cart.total')}
                   </span>
                   <span className="text-base font-bold text-stone-950">{formatCurrency(displayTotal)}</span>
                 </div>
@@ -847,7 +847,7 @@ export default function CartPage() {
           <motion.button whileTap={{
         scale: 0.96
       }} type="button" onClick={handleCheckout} disabled={checkoutDisabled} className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${checkoutEnabled ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}>
-            {isGuest ? 'Iniciar sesión para comprar' : checkoutLoading ? t('common.loading') : t('cart.checkout')}
+            {isGuest ? t('cart.iniciarSesionParaComprar', 'Iniciar sesión para comprar') : checkoutLoading ? t('common.loading') : t('cart.checkout')}
           </motion.button>
         </div>}
     </div>;
