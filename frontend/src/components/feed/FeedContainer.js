@@ -37,18 +37,6 @@ export default function FeedContainer() {
       {/* Banner de estado offline */}
       <OfflineIndicator variant="banner" />
 
-      {/* Stories Bar */}
-      <StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />
-
-      {/* Story Viewer Modal */}
-      {storyViewerOpen && (
-        <StoryViewer
-          stories={storyViewerData.stories}
-          initialUserIndex={storyViewerData.initialIndex}
-          onClose={() => setStoryViewerOpen(false)}
-        />
-      )}
-
       {/* Tabs Navigation */}
       <div className="sticky top-0 z-20 bg-white border-b border-stone-100">
         <div className="flex items-center justify-center">
@@ -93,6 +81,18 @@ export default function FeedContainer() {
           </div>
         </div>
       </div>
+
+      {/* Stories Bar - debajo de los tabs */}
+      <StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />
+
+      {/* Story Viewer Modal */}
+      {storyViewerOpen && (
+        <StoryViewer
+          stories={storyViewerData.stories}
+          initialUserIndex={storyViewerData.initialIndex}
+          onClose={() => setStoryViewerOpen(false)}
+        />
+      )}
 
       {/* Feed Content */}
       <div className="flex-1 overflow-hidden">
