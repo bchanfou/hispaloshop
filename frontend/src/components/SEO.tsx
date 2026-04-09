@@ -54,9 +54,9 @@ export default function SEO({
 
       {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-      {/* Hreflang — all 8 landing languages */}
-      {['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'].map(hLang => {
-        const langPattern = /\/(es|en|fr|de|it|pt|ja|ko)(\/|$)/;
+      {/* Hreflang — active launch languages */}
+      {['es', 'en', 'ko'].map(hLang => {
+        const langPattern = /\/(es|en|ko)(\/|$)/;
         const hasLangPrefix = langPattern.test(canonical);
         const hrefUrl = hasLangPrefix
           ? canonical.replace(langPattern, `/${hLang}$2`)
@@ -72,7 +72,7 @@ export default function SEO({
       <meta property="og:image" content={image} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Hispaloshop" />
-      <meta property="og:locale" content={{ es: 'es_ES', en: 'en_US', fr: 'fr_FR', de: 'de_DE', it: 'it_IT', pt: 'pt_PT', ja: 'ja_JP', ko: 'ko_KR' }[lang] || 'es_ES'} />
+      <meta property="og:locale" content={{ es: 'es_ES', en: 'en_US', ko: 'ko_KR' }[lang] || 'es_ES'} />
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

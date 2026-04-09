@@ -2,27 +2,37 @@ import React, { useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const SUPPORTED_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+const SUPPORTED_LANGS = ['es', 'en', 'ko'];
 
 /**
  * LangRoute — Reads /:lang from URL, sets i18n language, renders children.
  * If lang is unsupported, redirects to /es/ equivalent.
  */
-export default function LangRoute({ children }: { children: React.ReactNode }) {
+export default function LangRoute({
+  children,
+  lang: forcedLang,
+}: {
+  children: React.ReactNode;
+  lang?: string;
+}) {
   const { lang } = useParams<{ lang: string }>();
   const { i18n } = useTranslation();
+  const resolvedLang = forcedLang || lang;
 
-  const isValid = lang && SUPPORTED_LANGS.includes(lang);
+  const isValid = Boolean(resolvedLang && SUPPORTED_LANGS.includes(resolvedLang));
 
   useEffect(() => {
-    if (isValid && i18n.language !== lang) {
-      i18n.changeLanguage(lang);
+    if (isValid && resolvedLang && i18n.language !== resolvedLang) {
+      i18n.changeLanguage(resolvedLang);
     }
-  }, [lang, isValid, i18n]);
+  }, [resolvedLang, isValid, i18n]);
 
   if (!isValid) {
-    const safeLang = lang || '';
-    const remainingPath = window.location.pathname.replace(`/${safeLang}`, '') || '/';
+    const safeLang = resolvedLang || '';
+    const pathname = window.location.pathname || '/';
+    const remainingPath = safeLang
+      ? (pathname.replace(new RegExp(`^/${safeLang}`), '') || '/')
+      : pathname;
     return <Navigate to={`/es${remainingPath}`} replace />;
   }
 

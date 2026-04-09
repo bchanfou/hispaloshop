@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
 
 // Helper para generar URLs con prefijo de idioma para landings
-const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+const LANDING_LANGS = ['es', 'en', 'ko'];
 function useLocalizedLandingPath() {
   const { i18n } = useTranslation();
   const lang = i18n.language?.split('-')[0] || 'es';

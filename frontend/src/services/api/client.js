@@ -48,6 +48,11 @@ function normalizeApiError(error) {
   return apiError;
 }
 
+function isAuthInvalidError(error) {
+  const status = error?.response?.status;
+  return status === 400 || status === 401 || status === 403;
+}
+
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -195,13 +200,15 @@ httpClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed — reject all queued requests, logout once
         processQueue(refreshError, null);
-        removeToken();
+        if (isAuthInvalidError(refreshError)) {
+          removeToken();
 
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.href = `/login?redirect=${returnUrl}&expired=true`;
+          if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+            const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?redirect=${returnUrl}&expired=true`;
+          }
         }
-        return Promise.reject(refreshError);
+        return Promise.reject(normalizeApiError(refreshError));
       } finally {
         isRefreshing = false;
       }

@@ -138,13 +138,23 @@ export function AuthProvider({ children }) {
 
       return normalizedUser;
     } catch (err) {
-      if (mountedRef.current) {
-        setUser(null);
+      const status = err?.status ?? err?.response?.status;
+      const isAuthFailure = status === 401 || status === 403;
+
+      if (isAuthFailure) {
+        if (mountedRef.current) {
+          setUser(null);
+        }
+        // Only clear tokens when backend explicitly rejects auth.
+        removeToken();
+        return null;
       }
-      // If session check failed (e.g. 401), clear stale tokens from localStorage
-      // so the API client doesn't keep sending expired Bearer headers
-      removeToken();
-      return null;
+
+      // Network/server/transient errors should not force logout.
+      if (mountedRef.current) {
+        setError(err);
+      }
+      return user;
     } finally {
       checkingRef.current = false;
       if (mountedRef.current) {

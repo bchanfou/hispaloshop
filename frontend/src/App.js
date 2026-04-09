@@ -410,17 +410,27 @@ function AppRouter() {
               <Route path="/informativas/distribuidor" element={<Navigate to="/distribuidor" replace />} />
               <Route path="/landing/general" element={<LangDetectRedirect><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangDetectRedirect>} />
               {/* /{lang}/ prefixed landing routes — explicit lang codes to avoid capturing /login etc. */}
-              {['es','en','fr','de','it','pt','ja','ko'].map(lang => (
+              {['es', 'en', 'ko'].map(lang => (
                 <React.Fragment key={lang}>
-                  <Route path={`/${lang}/consumidor`} element={<LangRoute><InfoLandingLayout><LandingConsumidor /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}/productor`} element={<LangRoute><InfoLandingLayout><LandingProductor /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}/influencer`} element={<LangRoute><InfoLandingLayout><LandingInfluencer /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}/distribuidor`} element={<LangRoute><InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}/contacto`} element={<LangRoute><InfoLandingLayout><ContactoPage /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}/legal/*`} element={<LangRoute><InfoLandingLayout><LegalPageNew /></InfoLandingLayout></LangRoute>} />
-                  <Route path={`/${lang}`} element={<LangRoute><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/consumidor`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingConsumidor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/productor`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingProductor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/influencer`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingInfluencer /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/distribuidor`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/contacto`} element={<LangRoute lang={lang}><InfoLandingLayout><ContactoPage /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/legal/*`} element={<LangRoute lang={lang}><InfoLandingLayout><LegalPageNew /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}/about`} element={<Navigate to={`/${lang}/landing/general`} replace />} />
+                  <Route path={`/${lang}/landing/general`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangRoute>} />
+                  <Route path={`/${lang}`} element={<LangRoute lang={lang}><InfoLandingLayout><LandingGeneral /></InfoLandingLayout></LangRoute>} />
                 </React.Fragment>
               ))}
+              {/* Legacy alias for Korean language code */}
+              <Route path="/kr" element={<Navigate to="/ko" replace />} />
+              <Route path="/kr/about" element={<Navigate to="/ko/about" replace />} />
+              <Route path="/kr/landing/general" element={<Navigate to="/ko/landing/general" replace />} />
+              <Route path="/kr/consumidor" element={<Navigate to="/ko/consumidor" replace />} />
+              <Route path="/kr/productor" element={<Navigate to="/ko/productor" replace />} />
+              <Route path="/kr/influencer" element={<Navigate to="/ko/influencer" replace />} />
+              <Route path="/kr/distribuidor" element={<Navigate to="/ko/distribuidor" replace />} />
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
               <Route path="/productor" element={<LangDetectRedirect><InfoLandingLayout><LandingProductor /></InfoLandingLayout></LangDetectRedirect>} />
               <Route path="/informativas/ForProducers" element={<Navigate to="/productor" replace />} />

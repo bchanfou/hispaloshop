@@ -2,14 +2,14 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+const LANDING_LANGS = ['es', 'en', 'ko'];
 
 /**
  * Detects the user's i18n language and redirects from a bare landing route
  * to the /{lang}/ prefixed version. Used for routes like /consumidor → /es/consumidor.
  *
  * Falls back to the non-prefixed route if lang is already set in the URL or
- * if the language isn't one of our 8 landing languages.
+ * if the language isn't one of our active landing languages.
  */
 export default function LangDetectRedirect({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
