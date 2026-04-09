@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
 import OfflineIndicator from '../ui/OfflineIndicator';
+import StoriesBar from './StoriesBar';
+import StoryViewer from './StoryViewer';
 
 /**
  * FeedContainer - Contenedor principal del feed con tabs
@@ -15,12 +18,36 @@ import OfflineIndicator from '../ui/OfflineIndicator';
  */
 export default function FeedContainer() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('for-you'); // 'for-you' | 'following'
+  const [storyViewerOpen, setStoryViewerOpen] = useState(false);
+  const [storyViewerData, setStoryViewerData] = useState({ stories: [], initialIndex: 0 });
+
+  const handleStoryClick = (stories, index) => {
+    setStoryViewerData({ stories, initialIndex: index });
+    setStoryViewerOpen(true);
+  };
+
+  const handleCreateStory = () => {
+    navigate('/create/story');
+  };
 
   return (
     <div className="h-full flex flex-col">
       {/* Banner de estado offline */}
       <OfflineIndicator variant="banner" />
+
+      {/* Stories Bar */}
+      <StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />
+
+      {/* Story Viewer Modal */}
+      {storyViewerOpen && (
+        <StoryViewer
+          stories={storyViewerData.stories}
+          initialUserIndex={storyViewerData.initialIndex}
+          onClose={() => setStoryViewerOpen(false)}
+        />
+      )}
 
       {/* Tabs Navigation */}
       <div className="sticky top-0 z-20 bg-white border-b border-stone-100">

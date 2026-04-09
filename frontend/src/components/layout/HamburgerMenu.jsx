@@ -17,6 +17,23 @@ import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
 
+// Helper para generar URLs con prefijo de idioma para landings
+const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+function useLocalizedLandingPath() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'es';
+  
+  return (path) => {
+    const isLanding = ['/productor', '/distribuidor', '/influencer', '/consumidor', '/about', '/landing'].some(
+      landing => path === landing || path.startsWith(landing + '/')
+    );
+    if (isLanding && lang !== 'es' && LANDING_LANGS.includes(lang)) {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+}
+
 /* ── Component ── */
 export default function HamburgerMenu({ isOpen, onClose }) {
   const location = useLocation();
@@ -27,6 +44,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const [localeSearch, setLocaleSearch] = useState('');
   const [wishlistCount, setWishlistCount] = useState(0);
   const { t } = useTranslation();
+  const getLandingPath = useLocalizedLandingPath();
 
   // Derive lists from backend data (LocaleContext)
   const COUNTRIES = Object.entries(locale.countries || {}).map(([code, data]) => ({
@@ -249,9 +267,9 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             {/* ── ¿ERES VENDEDOR? (contextual si no lo es) ── */}
             {user && !isSeller && <>
               <SectionLabel>{t('hamburger.eresVendedor', '¿ERES VENDEDOR?')}</SectionLabel>
-              <MenuItem to="/informativas/soy-productor" icon={<Truck size={20} />} label={t('hamburger.soyProductor', 'Soy productor')} onClose={onClose} />
-              <MenuItem to="/informativas/soy-importador" icon={<Globe2 size={20} />} label={t('hamburger.soyImportador', 'Soy importador')} onClose={onClose} />
-              <MenuItem to="/influencer/aplicar" icon={<Megaphone size={20} />} label={t('hamburger.soyInfluencer', 'Soy influencer')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/productor')} icon={<Truck size={20} />} label={t('hamburger.soyProductor', 'Soy productor')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/distribuidor')} icon={<Globe2 size={20} />} label={t('hamburger.soyImportador', 'Soy importador')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/influencer')} icon={<Megaphone size={20} />} label={t('hamburger.soyInfluencer', 'Soy influencer')} onClose={onClose} />
               <Divider />
             </>}
 
@@ -346,7 +364,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
             {/* ── AYUDA ── */}
             <SectionLabel>{t('hamburger.ayuda', 'AYUDA')}</SectionLabel>
-            <MenuItem to="/que-es" icon={<Info size={20} />} label={t('hamburger.queEs', '¿Qué es HispaloShop?')} onClose={onClose} />
+            <MenuItem to={getLandingPath('/about')} icon={<Info size={20} />} label={t('hamburger.queEs', '¿Qué es HispaloShop?')} onClose={onClose} />
             <MenuItem to="/help" icon={<HelpCircle size={20} />} label={t('hamburger.centroAyuda', 'Centro de ayuda')} onClose={onClose} />
             <MenuItem to="/feedback" icon={<MessageSquare size={20} />} label={t('hamburger.feedback', 'Feedback e ideas')} onClose={onClose} />
             <MenuItem to="/terms" icon={<FileText size={20} />} label={t('hamburger.terminos', 'Términos')} onClose={onClose} />

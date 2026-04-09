@@ -182,7 +182,7 @@ export function useNetworkStatus() {
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    window.addEventListener('app: data-loaded', handleDataLoaded);
+    window.addEventListener('app:data-loaded', handleDataLoaded);
     
     const conn = (navigator as any).connection;
     if (conn) {

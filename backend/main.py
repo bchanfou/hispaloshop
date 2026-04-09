@@ -234,6 +234,7 @@ app.add_middleware(
         "X-CSRF-Token",
         "X-Client-Version",
         "X-Request-ID",
+        "X-Network-Check",
     ],
     expose_headers=["X-Total-Count"],
     max_age=600,  # 10 minutos cache preflight
@@ -460,17 +461,19 @@ async def _health_payload() -> dict:
     }
 
 
-@app.get("/health")
-@app.head("/health")
-async def health():
+@app.api_route("/health", methods=["GET", "HEAD", "OPTIONS"])
+async def health(request: Request):
     """Health check con ping real a MongoDB. Callable sin autenticacion."""
+    if request.method == "OPTIONS":
+        return JSONResponse(content={}, status_code=200)
     return await _health_payload()
 
 
-@app.get("/api/health")
-@app.head("/api/health")
-async def legacy_health():
+@app.api_route("/api/health", methods=["GET", "HEAD", "OPTIONS"])
+async def legacy_health(request: Request):
     """Health check legacy (misma implementacion, path /api/health)."""
+    if request.method == "OPTIONS":
+        return JSONResponse(content={}, status_code=200)
     return await _health_payload()
 
 

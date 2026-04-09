@@ -25,9 +25,28 @@ const NAV_LINKS = [
   { labelKey: 'nav.certificates', fallback: 'Certificados', to: '/certificates' },
 ];
 
+// Helper para generar URLs con prefijo de idioma para landings
+const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+function useLocalizedLandingPath() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'es';
+  
+  return (path) => {
+    // Solo aplicar prefijo para landings y si no es español
+    const isLanding = ['/productor', '/distribuidor', '/influencer', '/consumidor', '/about', '/landing'].some(
+      landing => path === landing || path.startsWith(landing + '/')
+    );
+    if (isLanding && lang !== 'es' && LANDING_LANGS.includes(lang)) {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+}
+
 export default function Header() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const getLandingPath = useLocalizedLandingPath();
   const { user, logout } = useAuth();
   const { cartItems } = useCart();
   const { country, language, currency } = useLocale();
@@ -50,12 +69,12 @@ export default function Header() {
   const mobileMenuLinks = useMemo(
     () => [
       ...NAV_LINKS,
-      { labelKey: 'nav.about', fallback: '¿Qué es Hispaloshop?', to: '/about' },
-      { labelKey: 'nav.influencer', fallback: 'Soy Influencer', to: '/influencer' },
-      { labelKey: 'nav.producer', fallback: 'Soy Productor', to: '/productor' },
-      { labelKey: 'nav.importer', fallback: 'Soy Importador', to: '/distribuidor' },
+      { labelKey: 'nav.about', fallback: '¿Qué es Hispaloshop?', to: getLandingPath('/about') },
+      { labelKey: 'nav.influencer', fallback: 'Soy Influencer', to: getLandingPath('/influencer') },
+      { labelKey: 'nav.producer', fallback: 'Soy Productor', to: getLandingPath('/productor') },
+      { labelKey: 'nav.importer', fallback: 'Soy Importador', to: getLandingPath('/distribuidor') },
     ],
-    []
+    [getLandingPath]
   );
 
   useEffect(() => {

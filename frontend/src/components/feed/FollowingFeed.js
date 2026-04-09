@@ -73,15 +73,7 @@ function FollowingFeed() {
     }
   }, []);
 
-  // Guardar posts en cache y notificar conexión exitosa
-  useEffect(() => {
-    if (feedQuery.data && allPosts.length > 0 && isOnline) {
-      offlineCache.cacheFeed('following', allPosts.slice(0, 20));
-      // Notificar al detector de red que los datos cargaron (hay conexión)
-      window.dispatchEvent(new CustomEvent('app:data-loaded'));
-    }
-  }, [feedQuery.data, isOnline, allPosts.length]);
-
+  // Compute allPosts PRIMERO antes de usarlo en otros efectos
   const allPosts = useMemo(() => {
     try {
       const pages = feedQuery.data?.pages;
@@ -111,6 +103,16 @@ function FollowingFeed() {
     }
     return map;
   }, [allPosts]);
+
+  // Guardar posts en cache y notificar conexión exitosa (después de declarar allPosts)
+  useEffect(() => {
+    if (feedQuery.data && allPosts.length > 0 && isOnline) {
+      offlineCache.cacheFeed('following', allPosts.slice(0, 20));
+      // Notificar al detector de red que los datos cargaron (hay conexión)
+      window.dispatchEvent(new CustomEvent('app:data-loaded'));
+    }
+  }, [feedQuery.data, isOnline, allPosts.length]);
+
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;

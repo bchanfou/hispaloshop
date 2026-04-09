@@ -5,6 +5,23 @@ import Logo from '../brand/Logo';
 import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 
+// Helper para generar URLs con prefijo de idioma para landings
+const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+function useLocalizedLandingPath() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'es';
+  
+  return (path: string) => {
+    const isLanding = ['/productor', '/distribuidor', '/influencer', '/consumidor', '/about', '/landing'].some(
+      landing => path === landing || path.startsWith(landing + '/')
+    );
+    if (isLanding && lang !== 'es' && LANDING_LANGS.includes(lang)) {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+}
+
 const FOOTER_LINKS = [
   {
     titleKey: 'landing.footer.plataforma',
@@ -20,7 +37,7 @@ const FOOTER_LINKS = [
     titleKey: 'landing.footer.empresa',
     titleFallback: 'Empresa',
     links: [
-      { labelKey: 'landing.footer.queEs', fallback: '¿Qué es HispaloShop?', to: '/blog/que-es-hispaloshop' },
+      { labelKey: 'landing.footer.queEs', fallback: '¿Qué es HispaloShop?', to: '/about' },
       { labelKey: 'landing.footer.comisiones', fallback: 'Comisiones', to: '/blog/comisiones' },
       { labelKey: 'landing.footer.faq', fallback: 'FAQ', to: '/blog/faq' },
       { labelKey: 'landing.footer.contacto', fallback: 'Contacto', to: '/contacto' },
@@ -39,6 +56,7 @@ const FOOTER_LINKS = [
 
 export default function InfoFooter() {
   const { t, i18n } = useTranslation();
+  const getLandingPath = useLocalizedLandingPath();
   const { country, countries, updateCountry } = useLocale();
   const [countryOpen, setCountryOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -104,7 +122,7 @@ export default function InfoFooter() {
                   {col.links.map(link => (
                     <li key={link.to}>
                       <Link
-                        to={link.to}
+                        to={getLandingPath(link.to)}
                         className="text-[13px] text-stone-400 no-underline transition-colors duration-200 hover:text-white"
                       >
                         {t(link.labelKey, link.fallback)}
