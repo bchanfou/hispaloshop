@@ -18,24 +18,26 @@ import { useTranslation } from 'react-i18next';
 export function useLandingI18n(): boolean {
   const { i18n } = useTranslation();
   const currentLang = i18n.language;
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
 
   useEffect(() => {
-    const lang = currentLang?.split('-')[0] || 'es';
-    const resources = i18n.getResourceBundle(lang, 'translation');
-    const hasLanding = resources?.landing?.general?.hero?.title;
+    try {
+      const lang = currentLang?.split('-')[0] || 'es';
+      const resources = i18n.getResourceBundle(lang, 'translation');
+      const hasLanding = resources?.landing?.general?.hero?.title;
 
-    if (hasLanding) {
-      setReady(true);
-    } else {
-      // Fallback: landing translations missing for this language,
-      // try loading the Spanish bundle as fallback
-      const esFallback = i18n.getResourceBundle('es', 'translation');
-      if (esFallback?.landing) {
-        i18n.addResourceBundle(lang, 'translation', { landing: esFallback.landing }, true, false);
+      if (!hasLanding) {
+        // Fallback: landing translations missing for this language,
+        // try loading the Spanish bundle as fallback.
+        const esFallback = i18n.getResourceBundle('es', 'translation');
+        if (esFallback?.landing) {
+          i18n.addResourceBundle(lang, 'translation', { landing: esFallback.landing }, true, false);
+        }
       }
-      setReady(true);
+    } catch {
+      // Non-blocking: this hook should never blank the page.
     }
+    setReady(true);
   }, [currentLang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return ready;

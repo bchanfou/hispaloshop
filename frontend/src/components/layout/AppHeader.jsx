@@ -84,7 +84,7 @@ export default function AppHeader() {
 
           {/* Messages */}
           <Link
-            to="/messages"
+            to={isAuthenticated ? '/messages' : '/login'}
             aria-label="Mensajes"
             className="relative flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full no-underline"
           >

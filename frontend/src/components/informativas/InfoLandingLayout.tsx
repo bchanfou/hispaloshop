@@ -14,10 +14,8 @@ import { useLandingI18n } from '../../hooks/useLandingI18n';
  */
 export default function InfoLandingLayout({ children }: { children: React.ReactNode }) {
   useScrollToHash();
-  const i18nReady = useLandingI18n();
+  useLandingI18n();
   const { pathname } = useLocation();
-
-  if (!i18nReady) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50">
