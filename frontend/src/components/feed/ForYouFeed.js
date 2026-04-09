@@ -59,7 +59,7 @@ export default function ForYouFeed() {
     if (feedQuery.data && allPosts.length > 0 && isOnline) {
       offlineCache.cacheFeed('forYou', allPosts.slice(0, 20));
     }
-  }, [feedQuery.data, isOnline]);
+  }, [feedQuery.data, isOnline, allPosts]);
 
   // Reset retry count cuando hay éxito y notificar que hay conexión
   useEffect(() => {

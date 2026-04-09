@@ -17,7 +17,7 @@ function getStoredPosition() {
 function storePosition(pos) {
   try {
     localStorage.setItem('david_btn_pos', JSON.stringify(pos));
-  } catch {}
+  } catch (e) { /* noop */ }
 }
 
 function getStoredSide() {
@@ -31,7 +31,7 @@ function getStoredSide() {
 function storeSide(side) {
   try {
     localStorage.setItem('david_btn_side', side);
-  } catch {}
+  } catch (e) { /* noop */ }
 }
 
 /**

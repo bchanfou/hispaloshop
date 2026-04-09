@@ -42,6 +42,13 @@ function removeStoredAccountById(userId) {
   writeStoredAccounts(accounts.filter((a) => accountId(a) !== targetId));
 }
 
+function removeStoredAccountByToken(token) {
+  const targetToken = String(token || '');
+  if (!targetToken) return;
+  const accounts = readStoredAccounts();
+  writeStoredAccounts(accounts.filter((a) => String(a?.token || '') !== targetToken));
+}
+
 function normalizeRole(rawRole) {
   if (!rawRole) return null;
   const role = String(rawRole).toLowerCase().replace(/-/g, '_');
@@ -142,6 +149,11 @@ export function AuthProvider({ children }) {
       const isAuthFailure = status === 401 || status === 403;
 
       if (isAuthFailure) {
+        const activeToken = getToken() || '';
+        if (activeToken) {
+          // Policy 1-B: invalidate only the active broken session, keep other saved accounts.
+          removeStoredAccountByToken(activeToken);
+        }
         if (mountedRef.current) {
           setUser(null);
         }
@@ -162,7 +174,7 @@ export function AuthProvider({ children }) {
         setInitialized(true);
       }
     }
-  }, [setUser]);
+  }, [setUser, user]);
 
   useEffect(() => {
     checkAuth();
@@ -256,7 +268,7 @@ export function AuthProvider({ children }) {
       // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
       removeToken();
       // Clear producer plan cache so next user doesn't see previous user's plan
-      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
+      try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
       if (mountedRef.current) {
         setUser(null);
         setError(null);
@@ -264,7 +276,7 @@ export function AuthProvider({ children }) {
       }
       setSentryUser(null);
     }
-  }, [setUser, user]);
+  }, [setUser, user, queryClient]);
 
   const resolveUserFromActiveToken = useCallback(async () => {
     const currentUser = await authApi.getCurrentUser();
@@ -303,7 +315,7 @@ export function AuthProvider({ children }) {
       // Clear all cached data from previous account
       queryClient.clear();
       // Clear plan cache so the new account's plan gate doesn't inherit ELITE access
-      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
+      try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
 
       // Re-authenticate deterministically with the new token
       const newUser = await resolveUserFromActiveToken();
@@ -352,7 +364,7 @@ export function AuthProvider({ children }) {
       }
       return { ok: false, user: null, error: err, errorCode };
     }
-  }, [user, resolveUserFromActiveToken, setUser, authDebug]);
+  }, [user, resolveUserFromActiveToken, setUser, authDebug, queryClient]);
 
   const logoutAccount = useCallback(async (account) => {
     const targetId = accountId(account) || accountId(user);
@@ -373,7 +385,7 @@ export function AuthProvider({ children }) {
       }
 
       // Clear plan cache on any active-account logout (prevent stale plan gate for next user)
-      try { localStorage.removeItem('hsp_plan_cache'); } catch {}
+      try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
 
       removeStoredAccountById(currentId);
       const remaining = readStoredAccounts().filter((a) => a?.token);

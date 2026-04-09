@@ -171,7 +171,7 @@ export default function EditProfileSheet({
       },
       onError: () => toast.error(i18n.t('edit_profile.noSePudoGuardarIntentaloDeNuevo', 'No se pudo guardar. Inténtalo de nuevo.'))
     });
-  }, [draft, usernameStatus, mutate, queryClient, userId, onClose]);
+  }, [draft, usernameStatus, mutate, queryClient, userId, onClose, isProducer]);
   const avatarSrc = profile?.profile_image ? resolveUserImage(profile.profile_image) : null;
   const bioLength = draft.bio.length;
   const bioMax = 150;

@@ -1221,7 +1221,7 @@ export default function InternalChat({
       }
       toast.error(error?.message || i18n.t('internal_chat.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje.'));
     }
-  }, [composerValue, pendingImage, pendingSharedItem, replyingTo, scheduleReloadConversations, setCacheWithEviction, selectedConversationId, sendHttpMessage, sendTyping, uploadImage, user?.name, user?.user_id]);
+  }, [activeConversation?.type, composerValue, pendingImage, pendingSharedItem, replyingTo, scheduleReloadConversations, setCacheWithEviction, selectedConversationId, sendHttpMessage, sendTyping, uploadImage, user?.name, user?.user_id]);
   const handleAttachImage = useCallback(async event => {
     const file = event.target.files?.[0];
     event.target.value = '';

@@ -11,6 +11,7 @@ import os
 import io
 import json as _json
 import logging
+from urllib.parse import urlparse
 
 import stripe
 
@@ -20,6 +21,7 @@ from core.models import (
 )
 from core.constants import SUPPORTED_COUNTRIES
 from core.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from core.config import settings
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
@@ -36,12 +38,82 @@ router = APIRouter()
 stripe.api_key = STRIPE_SECRET_KEY
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com",)
+
+
+def _extract_origin(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    parsed = urlparse(value.strip())
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+
+
+def _allowed_frontend_origins() -> set[str]:
+    allowed = set()
+    configured_origins = str(settings.ALLOWED_ORIGINS or "").split(",")
+    configured_frontend = settings.FRONTEND_URL or FRONTEND_URL
+    for candidate in configured_origins + [configured_frontend]:
+        origin = _extract_origin(candidate)
+        if origin:
+            allowed.add(origin)
+    return allowed
+
+
+def _is_trusted_frontend_origin(value: Optional[str]) -> bool:
+    origin = _extract_origin(value)
+    if not origin:
+        return False
+    hostname = (urlparse(origin).hostname or "").lower()
+    if hostname in _LOCAL_HOSTS:
+        return True
+    if origin in _allowed_frontend_origins():
+        return True
+    return any(hostname.endswith(suffix) for suffix in _TRUSTED_FRONTEND_SUFFIXES)
+
+
+def _safe_frontend_origin_from_request(request: Request) -> str:
+    configured = _extract_origin(settings.FRONTEND_URL or FRONTEND_URL)
+    header_origin = _extract_origin(request.headers.get("origin"))
+    referer_origin = _extract_origin(request.headers.get("referer"))
+    cookie_origin = _extract_origin(request.cookies.get("oauth_frontend_origin"))
+
+    for candidate in (header_origin, referer_origin, cookie_origin):
+        if candidate and _is_trusted_frontend_origin(candidate):
+            return candidate
+
+    if configured and _is_trusted_frontend_origin(configured):
+        return configured
+
+    host_url = str(request.base_url).rstrip('/')
+    return _extract_origin(host_url) or "http://localhost:3000"
 
 
 def _round_money(amount) -> float:
     """Round monetary amount to 2 decimal places using Decimal to avoid float drift."""
     from decimal import Decimal, ROUND_HALF_UP
     return float(Decimal(str(amount or 0)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+def _parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def _is_stale_processing(ts_value: Optional[str], stale_seconds: int = 120) -> bool:
+    ts = _parse_iso_datetime(ts_value)
+    if not ts:
+        return True
+    now = datetime.now(timezone.utc)
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    return (now - ts).total_seconds() >= stale_seconds
 
 
 def _first_influencer_split(commission_data: dict) -> Optional[dict]:
@@ -477,12 +549,30 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
 
     order_id = order.get("order_id", "")
 
+    now_iso = datetime.now(timezone.utc).isoformat()
+
     # Atomic lock: claim processing ownership to prevent webhook+poll double processing.
-    # Only the first caller that transitions status from 'pending'/'pending_payment' wins.
+    # First try the normal transition from pending states.
     lock_result = await db.orders.update_one(
         {"order_id": order_id, "status": {"$in": ["pending", "pending_payment"]}},
-        {"$set": {"status": "processing", "_processing_at": datetime.now(timezone.utc).isoformat()}}
+        {"$set": {"status": "processing", "_processing_at": now_iso}}
     )
+
+    # Recovery path: reclaim stale "processing" locks (e.g., worker crash/timeouts).
+    if lock_result.matched_count == 0 and order.get("status") == "processing":
+        if _is_stale_processing(order.get("_processing_at")):
+            stale_reclaim = await db.orders.update_one(
+                {
+                    "order_id": order_id,
+                    "status": "processing",
+                    "_processing_at": order.get("_processing_at"),
+                },
+                {"$set": {"_processing_at": now_iso}},
+            )
+            if stale_reclaim.matched_count > 0:
+                lock_result = stale_reclaim
+                logger.warning(f"[PAYMENT] Reclaimed stale processing lock for order {order_id}")
+
     if lock_result.matched_count == 0:
         # Another concurrent call already claimed this order.
         if order.get("status") not in ("paid", "confirmed", "preparing", "shipped", "delivered"):
@@ -1210,8 +1300,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             "platform_fee": _round_money(commission_data.get("total_platform_gross", 0)),
         })
     
-    host_url = str(request.base_url).rstrip('/')
-    origin = request.headers.get('origin', host_url)
+    origin = _safe_frontend_origin_from_request(request)
     success_url = f"{origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/cart"
     
@@ -1335,12 +1424,12 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         raise HTTPException(status_code=503, detail="El procesamiento de pagos no está configurado. Contacta con el administrador.")
 
     # Email verification check (same as cart checkout)
-    user_doc = await db.users.find_one({"user_id": user.user_id}, {"email_verified": 1})
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"email_verified": 1, "locale": 1})
     if user_doc and user_doc.get("email_verified") is False:
         raise HTTPException(status_code=403, detail="Debes verificar tu correo electrónico antes de realizar un pedido")
 
     # Get user's country for pricing
-    user_country = normalize_market_code(user.country) or 'ES'
+    user_country = normalize_market_code((user_doc or {}).get("locale", {}).get("country") or user.country) or 'ES'
     
     # Fetch product with country-specific pricing
     product = await db.products.find_one({"product_id": input.product_id}, {"_id": 0})
@@ -1490,8 +1579,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     })
 
     # Setup Stripe checkout — Separate Charges & Transfers
-    host_url = str(request.base_url).rstrip('/')
-    origin = request.headers.get('origin', host_url)
+    origin = _safe_frontend_origin_from_request(request)
     success_url = f"{origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/products/{input.product_id}"
 
@@ -1666,6 +1754,8 @@ async def stripe_webhook(request: Request):
     """
     body = await request.body()
     signature = request.headers.get("Stripe-Signature")
+    event_id = None
+    event_type = "unknown"
 
     # A real webhook secret starts with "whsec_" and is ≥32 chars after that prefix.
     _real_webhook_secret = (
@@ -1701,17 +1791,49 @@ async def stripe_webhook(request: Request):
         # monitoring queries (see DISASTER_RECOVERY.md).
         if event_id:
             from pymongo.errors import DuplicateKeyError
+            processing_started_at = datetime.now(timezone.utc)
             try:
                 await db.processed_webhook_events.insert_one({
                     "event_id": event_id,
                     "event_type": event_type,
                     "source": "orders",
                     "status": "processing",
-                    "processed_at": datetime.now(timezone.utc),
+                    "processed_at": processing_started_at,
                 })
             except DuplicateKeyError:
-                logger.info(f"[WEBHOOK] Event {event_id} already processed, skipping")
-                return {"status": "already_processed"}
+                existing = await db.processed_webhook_events.find_one(
+                    {"event_id": event_id},
+                    {"_id": 0, "status": 1, "processed_at": 1, "completed_at": 1},
+                )
+                if existing and existing.get("status") == "completed":
+                    logger.info(f"[WEBHOOK] Event {event_id} already completed, skipping")
+                    return {"status": "already_processed"}
+
+                # If a previous attempt crashed, reclaim stale processing slot.
+                if existing and _is_stale_processing(existing.get("processed_at")):
+                    reclaimed = await db.processed_webhook_events.update_one(
+                        {
+                            "event_id": event_id,
+                            "status": {"$in": ["processing", "failed"]},
+                            "processed_at": existing.get("processed_at"),
+                        },
+                        {
+                            "$set": {
+                                "status": "processing",
+                                "processed_at": processing_started_at,
+                                "recovered": True,
+                            },
+                            "$unset": {"error": "", "failed_at": "", "completed_at": ""},
+                        },
+                    )
+                    if reclaimed.matched_count > 0:
+                        logger.warning(f"[WEBHOOK] Reclaimed stale event {event_id} for retry")
+                    else:
+                        logger.info(f"[WEBHOOK] Event {event_id} currently in progress, skipping duplicate")
+                        return {"status": "already_processing"}
+                else:
+                    logger.info(f"[WEBHOOK] Event {event_id} currently in progress, skipping duplicate")
+                    return {"status": "already_processing"}
 
         if event_type == "checkout.session.completed":
             session_obj = event.get("data", {}).get("object", {})
@@ -1740,8 +1862,10 @@ async def stripe_webhook(request: Request):
                 order = await db.orders.find_one({"order_id": order_id}, {"_id": 0, "payment_session_id": 1})
                 if order and order.get("payment_session_id"):
                     await db.stock_holds.delete_many({"session_id": order["payment_session_id"]})
-                if user_id:
-                    await db.stock_holds.delete_many({"user_id": user_id})
+            # Always release user-level holds when user_id is present,
+            # even if metadata misses order_id.
+            if user_id:
+                await db.stock_holds.delete_many({"user_id": user_id})
             if user_id and order_id:
                 try:
                     from services.notifications.dispatcher_service import notification_dispatcher
@@ -1797,12 +1921,24 @@ async def stripe_webhook(request: Request):
                 if order:
                     now_iso = datetime.now(timezone.utc).isoformat()
                     new_status = "refunded" if refunded_fully else "partially_refunded"
+                    refund_amount_eur = round((amount_refunded or 0) / 100, 2)
                     await db.orders.update_one(
                         {"order_id": order["order_id"]},
                         {"$set": {
                             "status": new_status,
                             "refund_amount_cents": amount_refunded,
+                            "refund_amount": refund_amount_eur,
                             "refunded_at": now_iso,
+                            "updated_at": now_iso,
+                        }}
+                    )
+                    await db.payment_transactions.update_one(
+                        {"order_id": order["order_id"]},
+                        {"$set": {
+                            "status": new_status,
+                            "payment_status": new_status,
+                            "refund_amount_cents": amount_refunded,
+                            "refund_amount": refund_amount_eur,
                             "updated_at": now_iso,
                         }}
                     )
@@ -1893,6 +2029,15 @@ async def stripe_webhook(request: Request):
         logger.error(f"[WEBHOOK] Signature verification failed: {e}")
         raise HTTPException(status_code=400, detail="Invalid signature")
     except Exception as e:
+        if event_id:
+            await db.processed_webhook_events.update_one(
+                {"event_id": event_id},
+                {"$set": {
+                    "status": "failed",
+                    "failed_at": datetime.now(timezone.utc),
+                    "error": str(e)[:1000],
+                }},
+            )
         logger.error(f"[WEBHOOK] Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -1923,17 +2068,27 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
     await require_role(user, ["admin", "super_admin"])
     body = await request.json() if request.headers.get("content-type") == "application/json" else {}
     refund_type = body.get("type", "full")  # "full" or "partial"
-    partial_amount = body.get("amount", 0)
+    if refund_type not in ("full", "partial"):
+        raise HTTPException(status_code=400, detail="Tipo de reembolso inválido")
+
+    raw_partial_amount = body.get("amount", 0)
+    try:
+        partial_amount = float(raw_partial_amount or 0)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Importe de reembolso parcial inválido")
     
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.get("status") in ("refunded", "cancelled"):
         raise HTTPException(status_code=400, detail="El pedido ya fue reembolsado o cancelado")
-    
+
     total_amount = order.get("total_amount", 0)
     already_refunded = order.get("refunded_amount", 0)
     remaining_refundable = max(0, total_amount - already_refunded)
+    if refund_type == "partial" and partial_amount <= 0:
+        raise HTTPException(status_code=400, detail="El importe del reembolso parcial debe ser mayor que 0")
+
     refund_amount = remaining_refundable if refund_type == "full" else min(partial_amount, remaining_refundable)
     if refund_amount <= 0:
         raise HTTPException(status_code=400, detail="No queda importe por reembolsar")
@@ -1943,193 +2098,338 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
     # 1. Stripe refund
     session_id = order.get("payment_session_id")
     stripe_refund_id = None
-    if session_id:
-        try:
-            session = stripe.checkout.Session.retrieve(session_id)
-            pi_id = session.payment_intent
-            if pi_id:
-                params = {"payment_intent": pi_id, "metadata": {"order_id": order_id, "type": refund_type}}
-                if refund_type == "partial":
-                    params["amount"] = price_to_cents(refund_amount)
-                ref = stripe.Refund.create(**params)
-                stripe_refund_id = ref.id
-                logger.info(f"[REFUND] Stripe refund {ref.id}: {refund_amount} ({refund_type})")
-        except stripe.error.StripeError as e:
-            logger.error(f"[REFUND] Stripe error: {e}")
-    
-    # 1b. Reverse Stripe transfers to producers (if already transferred)
-    transfer_records = order.get("transfer_records", [])
-    for tr in transfer_records:
-        if tr.get("status") == "completed" and tr.get("transfer_id"):
-            try:
-                reversal_amount = int(round(tr.get("amount", 0) * refund_ratio * 100)) if refund_type == "partial" else None
-                reversal_params = {"id": tr["transfer_id"]}
-                if reversal_amount:
-                    reversal_params["amount"] = reversal_amount
-                stripe.Transfer.create_reversal(**reversal_params)
-                logger.info(f"[REFUND] Reversed transfer {tr['transfer_id']} for seller {tr.get('seller_id')}")
-            except stripe.error.StripeError as e:
-                logger.error(f"[REFUND] Failed to reverse transfer {tr.get('transfer_id')}: {e}")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="No se encontró sesión de pago para este pedido")
 
-    # 2. Handle influencer payouts
-    cancelled_payouts = 0
-    clawback_amount = 0
-    
-    # Reverse influencer aggregate counters to keep them consistent
-    influencer_id = order.get("influencer_id")
-    influencer_commission = order.get("influencer_commission_amount", 0)
+    # Concurrency guard: prevent duplicate Stripe refunds for same order.
+    lock_now = datetime.now(timezone.utc).isoformat()
+    lock_token = f"refund_lock_{uuid.uuid4().hex[:12]}"
+    refund_processing = bool(order.get("refund_processing"))
+    processing_at = order.get("refund_processing_at")
 
-    if refund_type == "full":
-        # Cancel ALL pending influencer payouts
-        result = await db.scheduled_payouts.update_many(
-            {"order_id": order_id, "status": "scheduled"},
-            {"$set": {"status": "cancelled", "cancel_reason": "order_refunded", "updated_at": now_iso}}
+    lock_acquired = False
+    if refund_processing:
+        if not _is_stale_processing(processing_at, stale_seconds=180):
+            raise HTTPException(status_code=409, detail="Ya hay un reembolso en curso para este pedido")
+
+        reclaim = await db.orders.update_one(
+            {
+                "order_id": order_id,
+                "refund_processing": True,
+                "refund_processing_at": processing_at,
+                "status": {"$nin": ["refunded", "cancelled"]},
+            },
+            {
+                "$set": {
+                    "refund_processing": True,
+                    "refund_processing_at": lock_now,
+                    "refund_processing_by": user.user_id,
+                    "refund_lock_token": lock_token,
+                }
+            },
         )
-        cancelled_payouts = result.modified_count
+        lock_acquired = reclaim.matched_count > 0
+    else:
+        claim = await db.orders.update_one(
+            {
+                "order_id": order_id,
+                "status": {"$nin": ["refunded", "cancelled"]},
+                "$or": [
+                    {"refund_processing": {"$exists": False}},
+                    {"refund_processing": False},
+                ],
+            },
+            {
+                "$set": {
+                    "refund_processing": True,
+                    "refund_processing_at": lock_now,
+                    "refund_processing_by": user.user_id,
+                    "refund_lock_token": lock_token,
+                }
+            },
+        )
+        lock_acquired = claim.matched_count > 0
 
-        # Reverse influencer counters so lifetime stats stay accurate
-        if influencer_id and influencer_commission > 0:
-            order_value = order.get("influencer_commission_amount", 0)
-            commission_data = order.get("commission_data", {})
-            order_gmv = _round_money(sum(s.get("seller_gmv", 0) for s in commission_data.get("splits", []))) if commission_data else total_amount
-            await db.influencers.update_one(
-                {"influencer_id": influencer_id},
-                {"$inc": {
-                    "total_sales_generated": -order_gmv,
-                    "total_commission_earned": -influencer_commission,
-                    "available_balance": -influencer_commission,
-                }}
-            )
-            await db.influencer_commissions.update_many(
-                {"order_id": order_id, "commission_status": "pending"},
-                {"$set": {"commission_status": "refunded", "updated_at": now_iso}}
-            )
+    if not lock_acquired:
+        raise HTTPException(status_code=409, detail="No se pudo adquirir bloqueo de reembolso. Reintenta en unos segundos")
 
-        # Check if any were already paid → create clawback
-        paid_payouts = await db.scheduled_payouts.find({"order_id": order_id, "status": "paid"}, {"_id": 0}).to_list(10)
-        for pp in paid_payouts:
-            clawback_amount += pp.get("amount", 0)
-            await db.scheduled_payouts.update_one(
-                {"payout_id": pp["payout_id"]},
-                {"$set": {"status": "clawback", "clawback_amount": pp["amount"], "updated_at": now_iso}}
-            )
-            # Add negative balance to influencer
-            await db.influencers.update_one(
-                {"influencer_id": pp["influencer_id"]},
-                {"$inc": {"pending_payout_usd": -pp["amount"]}}
-            )
-            logger.info(f"[REFUND] Clawback {pp['amount']} from influencer {pp['influencer_id']}")
-    
-    elif refund_type == "partial":
-        # Recalculate influencer payouts proportionally
-        scheduled = await db.scheduled_payouts.find({"order_id": order_id, "status": "scheduled"}, {"_id": 0}).to_list(10)
-        for sp in scheduled:
-            new_amount = round(sp["amount"] * (1 - refund_ratio), 2)
-            if new_amount <= 0:
-                await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"status": "cancelled", "cancel_reason": "partial_refund", "updated_at": now_iso}})
-                cancelled_payouts += 1
-            else:
-                reduction = round(sp["amount"] - new_amount, 2)
-                await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"amount": new_amount, "updated_at": now_iso}})
-
-        # Adjust influencer commission + balance for partial refund
-        commission = await db.influencer_commissions.find_one({"order_id": order_id}, {"_id": 0})
-        if commission:
-            inf_id = commission.get("influencer_id")
-            reduction_amount = round(commission.get("commission_amount", 0) * refund_ratio, 2)
-            if reduction_amount > 0:
-                # Reduce commission record
-                new_comm = round(commission["commission_amount"] - reduction_amount, 2)
-                await db.influencer_commissions.update_one(
-                    {"commission_id": commission["commission_id"]},
-                    {"$set": {"commission_amount": max(0, new_comm), "partial_refund_reduction": reduction_amount, "updated_at": now_iso}},
-                )
-                # Adjust influencer balance
-                await db.influencers.update_one(
-                    {"influencer_id": inf_id},
-                    {"$inc": {"available_balance": -reduction_amount, "total_commission_earned": -reduction_amount}},
-                )
-                # If already paid, create clawback
-                if commission.get("commission_status") == "paid":
-                    await db.scheduled_payouts.insert_one({
-                        "payout_id": f"clawback_{uuid.uuid4().hex[:12]}",
-                        "influencer_id": inf_id,
-                        "order_id": order_id,
-                        "amount": -reduction_amount,
-                        "status": "clawback",
-                        "reason": "partial_refund",
-                        "created_at": now_iso,
-                    })
-    
-    # 3. Update order status
-    new_status = "refunded" if refund_type == "full" or (already_refunded + refund_amount >= total_amount) else "partially_refunded"
-    await db.orders.update_one(
-        {"order_id": order_id},
-        {"$set": {"status": new_status, "refund_type": refund_type, "refunded_at": now_iso, "updated_at": now_iso},
-         "$inc": {"refunded_amount": round(refund_amount, 2)}}
-    )
-    await db.payment_transactions.update_one(
-        {"order_id": order_id},
-        {"$set": {"status": new_status, "updated_at": now_iso}}
-    )
-
-    # 3b. Restore stock for refunded items
-    if refund_type == "full":
-        for item in order.get("line_items", []):
-            pid = item.get("product_id")
-            qty = item.get("quantity", 0)
-            if pid and qty > 0:
-                await db.products.update_one(
-                    {"product_id": pid},
-                    {"$inc": {"stock": qty, "stock_quantity": qty}}
-                )
-
-    # 3c. Notify customer about refund (via dispatcher)
     try:
-        customer_id = order.get("user_id")
-        if customer_id:
-            from services.notifications.dispatcher_service import notification_dispatcher
-            await notification_dispatcher.send_notification(
-                user_id=customer_id,
-                title="Pedido reembolsado",
-                body=f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
-                notification_type="order_refunded",
-                channels=["in_app", "push", "email"],
-                data={"order_id": order_id},
-                action_url=f"/orders/{order_id}",
+        session = stripe.checkout.Session.retrieve(session_id)
+        pi_id = session.payment_intent
+        if not pi_id:
+            await db.orders.update_one(
+                {"order_id": order_id, "refund_lock_token": lock_token},
+                {"$set": {"refund_processing": False, "updated_at": datetime.now(timezone.utc).isoformat()},
+                 "$unset": {"refund_processing_at": "", "refund_processing_by": "", "refund_lock_token": ""}},
             )
+            raise HTTPException(status_code=400, detail="No se encontró payment intent para este pedido")
+        params = {"payment_intent": pi_id, "metadata": {"order_id": order_id, "type": refund_type}}
+        if refund_type == "partial":
+            params["amount"] = price_to_cents(refund_amount)
+        ref = stripe.Refund.create(**params)
+        stripe_refund_id = ref.id
+        logger.info(f"[REFUND] Stripe refund {ref.id}: {refund_amount} ({refund_type})")
+    except stripe.error.StripeError as e:
+        await db.orders.update_one(
+            {"order_id": order_id, "refund_lock_token": lock_token},
+            {"$set": {"refund_processing": False, "updated_at": datetime.now(timezone.utc).isoformat()},
+             "$unset": {"refund_processing_at": "", "refund_processing_by": "", "refund_lock_token": ""}},
+        )
+        logger.error(f"[REFUND] Stripe error: {e}")
+        raise HTTPException(status_code=502, detail="Stripe no pudo procesar el reembolso")
+
+    refund_finalized = False
+    
+    try:
+        # 1b. Reverse Stripe transfers to producers (if already transferred)
+        transfer_records = order.get("transfer_records", [])
+        for tr in transfer_records:
+            if tr.get("status") == "completed" and tr.get("transfer_id"):
+                try:
+                    reversal_amount = int(round(tr.get("amount", 0) * refund_ratio * 100)) if refund_type == "partial" else None
+                    reversal_params = {"id": tr["transfer_id"]}
+                    if reversal_amount:
+                        reversal_params["amount"] = reversal_amount
+                    stripe.Transfer.create_reversal(**reversal_params)
+                    logger.info(f"[REFUND] Reversed transfer {tr['transfer_id']} for seller {tr.get('seller_id')}")
+                except stripe.error.StripeError as e:
+                    logger.error(f"[REFUND] Failed to reverse transfer {tr.get('transfer_id')}: {e}")
+
+        # 2. Handle influencer payouts
+        cancelled_payouts = 0
+        clawback_amount = 0
+        
+        # Reverse influencer aggregate counters to keep them consistent
+        influencer_id = order.get("influencer_id")
+        influencer_commission = order.get("influencer_commission_amount", 0)
+
+        if refund_type == "full":
+            # Cancel ALL pending influencer payouts
+            result = await db.scheduled_payouts.update_many(
+                {"order_id": order_id, "status": "scheduled"},
+                {"$set": {"status": "cancelled", "cancel_reason": "order_refunded", "updated_at": now_iso}}
+            )
+            cancelled_payouts = result.modified_count
+
+            # Reverse influencer counters so lifetime stats stay accurate
+            if influencer_id and influencer_commission > 0:
+                order_value = order.get("influencer_commission_amount", 0)
+                commission_data = order.get("commission_data", {})
+                order_gmv = _round_money(sum(s.get("seller_gmv", 0) for s in commission_data.get("splits", []))) if commission_data else total_amount
+                await db.influencers.update_one(
+                    {"influencer_id": influencer_id},
+                    {"$inc": {
+                        "total_sales_generated": -order_gmv,
+                        "total_commission_earned": -influencer_commission,
+                        "available_balance": -influencer_commission,
+                    }}
+                )
+                await db.influencer_commissions.update_many(
+                    {"order_id": order_id, "commission_status": "pending"},
+                    {"$set": {"commission_status": "refunded", "updated_at": now_iso}}
+                )
+
+            # Check if any were already paid → create clawback
+            paid_payouts = await db.scheduled_payouts.find({"order_id": order_id, "status": "paid"}, {"_id": 0}).to_list(10)
+            for pp in paid_payouts:
+                clawback_amount += pp.get("amount", 0)
+                await db.scheduled_payouts.update_one(
+                    {"payout_id": pp["payout_id"]},
+                    {"$set": {"status": "clawback", "clawback_amount": pp["amount"], "updated_at": now_iso}}
+                )
+                # Add negative balance to influencer
+                await db.influencers.update_one(
+                    {"influencer_id": pp["influencer_id"]},
+                    {"$inc": {"pending_payout_usd": -pp["amount"]}}
+                )
+                logger.info(f"[REFUND] Clawback {pp['amount']} from influencer {pp['influencer_id']}")
+        
+        elif refund_type == "partial":
+            # Recalculate influencer payouts proportionally
+            scheduled = await db.scheduled_payouts.find({"order_id": order_id, "status": "scheduled"}, {"_id": 0}).to_list(10)
+            for sp in scheduled:
+                new_amount = round(sp["amount"] * (1 - refund_ratio), 2)
+                if new_amount <= 0:
+                    await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"status": "cancelled", "cancel_reason": "partial_refund", "updated_at": now_iso}})
+                    cancelled_payouts += 1
+                else:
+                    reduction = round(sp["amount"] - new_amount, 2)
+                    await db.scheduled_payouts.update_one({"payout_id": sp["payout_id"]}, {"$set": {"amount": new_amount, "updated_at": now_iso}})
+
+            # Adjust influencer commission + balance for partial refund
+            commission = await db.influencer_commissions.find_one({"order_id": order_id}, {"_id": 0})
+            if commission:
+                inf_id = commission.get("influencer_id")
+                reduction_amount = round(commission.get("commission_amount", 0) * refund_ratio, 2)
+                if reduction_amount > 0:
+                    # Reduce commission record
+                    new_comm = round(commission["commission_amount"] - reduction_amount, 2)
+                    await db.influencer_commissions.update_one(
+                        {"commission_id": commission["commission_id"]},
+                        {"$set": {"commission_amount": max(0, new_comm), "partial_refund_reduction": reduction_amount, "updated_at": now_iso}},
+                    )
+                    # Adjust influencer balance
+                    await db.influencers.update_one(
+                        {"influencer_id": inf_id},
+                        {"$inc": {"available_balance": -reduction_amount, "total_commission_earned": -reduction_amount}},
+                    )
+                    # If already paid, create clawback
+                    if commission.get("commission_status") == "paid":
+                        await db.scheduled_payouts.insert_one({
+                            "payout_id": f"clawback_{uuid.uuid4().hex[:12]}",
+                            "influencer_id": inf_id,
+                            "order_id": order_id,
+                            "amount": -reduction_amount,
+                            "status": "clawback",
+                            "reason": "partial_refund",
+                            "created_at": now_iso,
+                        })
+        
+        # 3. Update order status
+        new_status = "refunded" if refund_type == "full" or (already_refunded + refund_amount >= total_amount) else "partially_refunded"
+        await db.orders.update_one(
+            {"order_id": order_id},
+            {
+                "$set": {
+                    "status": new_status,
+                    "refund_type": refund_type,
+                    "refunded_at": now_iso,
+                    "updated_at": now_iso,
+                    "refund_processing": False,
+                },
+                "$inc": {"refunded_amount": round(refund_amount, 2)},
+                "$unset": {
+                    "refund_processing_at": "",
+                    "refund_processing_by": "",
+                    "refund_lock_token": "",
+                },
+            }
+        )
+        await db.payment_transactions.update_one(
+            {"order_id": order_id},
+            {"$set": {
+                "status": new_status,
+                "payment_status": new_status,
+                "refund_type": refund_type,
+                "refund_amount": round(refund_amount, 2),
+                "refund_amount_cents": price_to_cents(refund_amount),
+                "stripe_refund_id": stripe_refund_id,
+                "updated_at": now_iso,
+            }}
+        )
+        refund_finalized = True
+
+        # 3b. Restore stock for refunded items
+        if refund_type == "full":
+            for item in order.get("line_items", []):
+                pid = item.get("product_id")
+                qty = item.get("quantity", 0)
+                variant_id = item.get("variant_id")
+                pack_id = item.get("pack_id")
+                if not pid or qty <= 0:
+                    continue
+
+                product = await db.products.find_one(
+                    {"product_id": pid},
+                    {"_id": 0, "track_stock": 1, "variants": 1},
+                )
+                if not product or product.get("track_stock", True) is False:
+                    continue
+
+                if variant_id and pack_id and product.get("variants"):
+                    await db.products.update_one(
+                        {"product_id": pid, "variants.variant_id": variant_id, "variants.packs.pack_id": pack_id},
+                        {"$inc": {"variants.$[v].packs.$[p].stock": qty}},
+                        array_filters=[
+                            {"v.variant_id": variant_id},
+                            {"p.pack_id": pack_id},
+                        ],
+                    )
+                elif variant_id and product.get("variants"):
+                    await db.products.update_one(
+                        {"product_id": pid, "variants.variant_id": variant_id},
+                        {"$inc": {"variants.$[v].stock": qty}},
+                        array_filters=[{"v.variant_id": variant_id}],
+                    )
+                else:
+                    await db.products.update_one(
+                        {"product_id": pid},
+                        {"$inc": {"stock": qty, "stock_quantity": qty}},
+                    )
+
+        # 3c. Notify customer about refund (via dispatcher)
+        try:
+            customer_id = order.get("user_id")
+            if customer_id:
+                from services.notifications.dispatcher_service import notification_dispatcher
+                await notification_dispatcher.send_notification(
+                    user_id=customer_id,
+                    title="Pedido reembolsado",
+                    body=f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
+                    notification_type="order_refunded",
+                    channels=["in_app", "push", "email"],
+                    data={"order_id": order_id},
+                    action_url=f"/orders/{order_id}",
+                )
+        except Exception as e:
+            logger.warning(f"[REFUND] Failed to send refund notification: {e}")
+        
+        # 4. Commission transaction record
+        commission_data = order.get("commission_data", {})
+        await db.commission_transactions.insert_one({
+            "transaction_id": f"ctx_{uuid.uuid4().hex[:12]}",
+            "order_id": order_id,
+            "event_type": "refund",
+            "refund_type": refund_type,
+            "refund_amount": refund_amount,
+            "refund_ratio": refund_ratio,
+            "stripe_refund_id": stripe_refund_id,
+            "cancelled_payouts": cancelled_payouts,
+            "clawback_amount": clawback_amount,
+            "original_commission_data": commission_data,
+            "currency": order.get("currency", "EUR"),
+            "created_at": now_iso,
+        })
+        
+        # 5. Ledger event
+        await write_ledger_event(
+            db, event_type="refund", order_id=order_id,
+            currency=order.get("currency", "EUR"),
+            product_subtotal=-refund_amount,
+            buyer_id=order.get("user_id", ""),
+            buyer_country=order.get("country", ""),
+            status="completed",
+            extra={"refund_type": refund_type, "cancelled_payouts": cancelled_payouts, "clawback": clawback_amount},
+        )
+        
+        return {"status": new_status, "refund_amount": refund_amount, "cancelled_payouts": cancelled_payouts, "clawback_amount": clawback_amount}
     except Exception as e:
-        logger.warning(f"[REFUND] Failed to send refund notification: {e}")
-    
-    # 4. Commission transaction record
-    commission_data = order.get("commission_data", {})
-    await db.commission_transactions.insert_one({
-        "transaction_id": f"ctx_{uuid.uuid4().hex[:12]}",
-        "order_id": order_id,
-        "event_type": "refund",
-        "refund_type": refund_type,
-        "refund_amount": refund_amount,
-        "refund_ratio": refund_ratio,
-        "stripe_refund_id": stripe_refund_id,
-        "cancelled_payouts": cancelled_payouts,
-        "clawback_amount": clawback_amount,
-        "original_commission_data": commission_data,
-        "currency": order.get("currency", "EUR"),
-        "created_at": now_iso,
-    })
-    
-    # 5. Ledger event
-    await write_ledger_event(
-        db, event_type="refund", order_id=order_id,
-        currency=order.get("currency", "EUR"),
-        product_subtotal=-refund_amount,
-        buyer_id=order.get("user_id", ""),
-        buyer_country=order.get("country", ""),
-        status="completed",
-        extra={"refund_type": refund_type, "cancelled_payouts": cancelled_payouts, "clawback": clawback_amount},
-    )
-    
-    return {"status": new_status, "refund_amount": refund_amount, "cancelled_payouts": cancelled_payouts, "clawback_amount": clawback_amount}
+        logger.exception(f"[REFUND] Post-refund processing failed for order {order_id}: {e}")
+        await db.orders.update_one(
+            {"order_id": order_id},
+            {"$set": {
+                "refund_reconciliation_required": True,
+                "refund_reconciliation_error": str(e)[:1000],
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }},
+        )
+        raise HTTPException(status_code=500, detail="Reembolso procesado en Stripe pero falló la conciliación interna")
+    finally:
+        if not refund_finalized:
+            await db.orders.update_one(
+                {"order_id": order_id, "refund_lock_token": lock_token},
+                {
+                    "$set": {
+                        "refund_processing": False,
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    "$unset": {
+                        "refund_processing_at": "",
+                        "refund_processing_by": "",
+                        "refund_lock_token": "",
+                    },
+                },
+            )
 
 
 @router.get("/admin/commission-audit")

@@ -111,7 +111,7 @@ function FollowingFeed() {
       // Notificar al detector de red que los datos cargaron (hay conexión)
       window.dispatchEvent(new CustomEvent('app:data-loaded'));
     }
-  }, [feedQuery.data, isOnline, allPosts.length]);
+  }, [feedQuery.data, isOnline, allPosts]);
 
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;

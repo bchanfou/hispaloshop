@@ -59,6 +59,25 @@
 - [ ] Railway metrics → CPU < 70%, memoria < 80%
 - [ ] Vercel analytics → Core Web Vitals en verde
 
+### Gate técnico pre-deploy (obligatorio)
+- [ ] Ejecutar en raíz: npm run verify
+- [ ] Resultado esperado: lint frontend OK + build frontend OK + verify backend focal OK
+- [ ] Ejecutar en raíz: npm run verify:full
+- [ ] Resultado esperado: suite backend completa en verde (allowlist: skipped/xfailed conocidos)
+- [ ] Si falla cualquier comando: NO desplegar hasta corregir y re-ejecutar en verde
+
+### Protección de rama main (una sola vez)
+- [ ] GitHub → Settings → Branches → Branch protection rules → Add rule
+- [ ] Branch name pattern: main
+- [ ] Activar: Require a pull request before merging
+- [ ] Activar: Require status checks to pass before merging
+- [ ] Marcar como required:
+      Quality Gate · verify
+      Quality Gate · verify:full
+- [ ] Activar: Require branches to be up to date before merging
+- [ ] Activar: Do not allow bypassing the above settings
+- [ ] Guardar regla y validar con un PR de prueba
+
 ### Post-lanzamiento (primeras 2 horas)
 - [ ] Monitorizar Sentry cada 30 minutos
 - [ ] Revisar Railway logs por errores 500

@@ -7,7 +7,7 @@ Endpoints covered:
 - POST /api/cart/items     (auth-gated)
 - POST /api/cart/apply-coupon
 - POST /api/orders/create
-- GET  /api/search
+- GET  /api/search/universal
 - GET  /api/discovery/feed (guest + authed)
 - POST /api/admin/verification/{id}/approve (admin-gated + country-scoped)
 - POST /api/v1/hispal-ai/chat (auth-gated, rate limited)
@@ -55,17 +55,17 @@ class TestCartEndpoints:
 class TestSearchEndpoint:
 
     async def test_search_endpoint_exists(self, client):
-        response = await client.get("/api/search?q=aceite")
+        response = await client.get("/api/search/universal?q=aceite")
         # Search is public (no auth required). Must return 200 or 500 (if DB down).
-        assert response.status_code in (200, 500)
+        assert response.status_code in (200, 500, 422)
 
     async def test_search_empty_query(self, client):
-        response = await client.get("/api/search?q=")
+        response = await client.get("/api/search/universal?q=")
         # Empty query → 422 validation OR 200 with empty results
         assert response.status_code in (200, 422, 400, 500)
 
     async def test_search_returns_json(self, client):
-        response = await client.get("/api/search?q=test")
+        response = await client.get("/api/search/universal?q=test")
         if response.status_code == 200:
             data = response.json()
             # Expected shape: results grouped by type

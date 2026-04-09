@@ -115,7 +115,7 @@ export default function CartPage() {
     applyDiscount,
     removeDiscount,
     fetchCart,
-    getShippingPreview
+    getTotalItems
   } = useCart();
   const {
     t,
@@ -129,6 +129,7 @@ export default function CartPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [removingStockIssues, setRemovingStockIssues] = useState(false);
   const [imgError, setImgError] = useState<Record<string, boolean>>({});
   // shippingData from separate API no longer needed — shipping_breakdown comes from GET /cart via cartSummary
   const {
@@ -330,7 +331,7 @@ export default function CartPage() {
       return;
     }
     if (stockIssues.length > 0) {
-      toast.error(t('errors.generic'));
+      toast.error(t('checkout.stockIssues') || 'Hay productos sin stock. Debes retirarlos del carrito para continuar.');
       return;
     }
     const selectedAddress = getSelectedAddress();
@@ -388,6 +389,38 @@ export default function CartPage() {
       trackEvent('cart_item_removed', { product_id: item.product_id });
     } catch (error) {
       toast.error(error?.message || t('cart.noSePudoEliminarElProducto', 'No se pudo eliminar el producto'));
+    }
+  };
+
+  const handleRemoveStockIssueItems = async () => {
+    if (removingStockIssues || stockIssues.length === 0) return;
+    setRemovingStockIssues(true);
+    try {
+      const issueItems = cartItems.filter(item =>
+        stockIssues.some(issue =>
+          String(issue.product_id) === String(item.product_id) &&
+          String(issue.variant_id || '') === String(item.variant_id || '') &&
+          String(issue.pack_id || '') === String(item.pack_id || '')
+        )
+      );
+
+      if (issueItems.length === 0) {
+        toast.error(t('checkout.stockIssues') || 'No se encontraron productos conflictivos para retirar.');
+        return;
+      }
+
+      for (const item of issueItems) {
+        await removeFromCart(item.product_id, item.variant_id, item.pack_id);
+      }
+
+      await fetchCart();
+      await refetchPricing();
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success(`${issueItems.length} producto(s) conflictivo(s) retirado(s) del carrito.`);
+    } catch (error) {
+      toast.error(error?.message || 'No se pudieron retirar los productos sin stock.');
+    } finally {
+      setRemovingStockIssues(false);
     }
   };
   const shippingBreakdown = cartSummary.shipping_breakdown || [];
@@ -514,7 +547,7 @@ export default function CartPage() {
             const producerName = group.label;
             const items = group.items;
             // Match shipping breakdown from backend by seller_id
-            const breakdown = shippingBreakdown.find(b => b.seller_id === sellerId);
+            const breakdown = shippingBreakdown.find(b => String(b.seller_id) === String(sellerId));
             return <div key={sellerId} className="space-y-3">
                     <div className="rounded-xl bg-white p-3 shadow-sm">
                       <div className="flex items-center gap-2">
@@ -543,7 +576,7 @@ export default function CartPage() {
                     </div>
                     <AnimatePresence>
                     {items.map((item, index) => {
-                  const hasStockIssue = stockIssues.some(issue => issue.product_id === item.product_id && (issue.variant_id || null) === (item.variant_id || null) && (issue.pack_id || null) === (item.pack_id || null));
+                  const hasStockIssue = stockIssues.some(issue => String(issue.product_id) === String(item.product_id) && String(issue.variant_id || '') === String(item.variant_id || '') && String(issue.pack_id || '') === String(item.pack_id || ''));
                   const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
                   return <motion.div layout initial={{
                     opacity: 0,
@@ -608,7 +641,7 @@ export default function CartPage() {
                             <StockHoldTimer expiresAt={item.hold_expires_at} />
                             {hasStockIssue && <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
                                 <AlertCircle className="w-3 h-3" />
-                                <span>{stockIssues?.find(issue => issue.product_id === item.product_id)?.stock_message}</span>
+                                <span>{stockIssues?.find(issue => String(issue.product_id) === String(item.product_id) && String(issue.variant_id || '') === String(item.variant_id || '') && String(issue.pack_id || '') === String(item.pack_id || ''))?.stock_message}</span>
                               </div>}
                           </div>
                           <button onClick={() => handleRemoveItem(item)} className="hidden rounded-full p-2 min-w-[44px] min-h-[44px] items-center justify-center text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:flex" aria-label={`Eliminar ${item.product_name}`} data-testid={`remove-item-${itemKey}`}>
@@ -827,7 +860,20 @@ export default function CartPage() {
               </button>
 
               {user && !emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
-              {stockIssues.length > 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>}
+              {stockIssues.length > 0 && <div className="mt-2">
+                  <p className="text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>
+                  <button
+                    type="button"
+                    onClick={handleRemoveStockIssueItems}
+                    disabled={removingStockIssues}
+                    className="mt-2 w-full rounded-full border border-stone-200 px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-60"
+                    data-testid="remove-stock-issue-items"
+                  >
+                    {removingStockIssues
+                      ? 'Retirando productos sin stock...'
+                      : 'Retirar productos sin stock'}
+                  </button>
+                </div>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.pleaseSelectAddress') || 'Selecciona o añade una dirección de envío'}</p>}
             </div>
           </div>}

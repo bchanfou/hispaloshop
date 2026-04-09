@@ -6,7 +6,7 @@ export function useCartAddresses() {
   const { user } = useAuth();
   const addressesQuery = useSavedAddresses({ enabled: Boolean(user) });
   const createAddressMutation = useCreateAddress();
-  const savedAddresses = addressesQuery.data || [];
+  const savedAddresses = useMemo(() => addressesQuery.data || [], [addressesQuery.data]);
 
   const defaultAddressId = useMemo(() => {
     const defaultAddress = savedAddresses.find((address) => address.is_default);

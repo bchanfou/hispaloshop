@@ -544,7 +544,7 @@ export function ChatProvider({ children }) {
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (wsRef.current) wsRef.current.close();
     };
-  }, [isAuthenticated, connect]);
+  }, [isAuthenticated, connect, stopPolling]);
 
   const value = useMemo(() => ({
     // Connection state

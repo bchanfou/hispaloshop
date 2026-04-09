@@ -195,7 +195,7 @@ export function LocaleProvider({ children }) {
     i18n.changeLanguage(detectedLang);
   };
 
-  const updateCountry = async (newCountry) => {
+  const updateCountry = useCallback(async (newCountry) => {
     const oldCountry = country;
     setCountry(newCountry);
     
@@ -219,9 +219,9 @@ export function LocaleProvider({ children }) {
     }
     
     return { oldCountry, newCountry };
-  };
+  }, [country, countries, user]);
 
-  const updateLanguage = async (newLanguage) => {
+  const updateLanguage = useCallback(async (newLanguage) => {
     
     // Update state first
     setLanguage(newLanguage);
@@ -246,9 +246,9 @@ export function LocaleProvider({ children }) {
         // silently handled
       }
     }
-  };
+  }, [user]);
 
-  const updateCurrency = async (newCurrency) => {
+  const updateCurrency = useCallback(async (newCurrency) => {
     setCurrency(newCurrency);
     
     // Always save to localStorage for persistence
@@ -262,22 +262,22 @@ export function LocaleProvider({ children }) {
         // silently handled
       }
     }
-  };
+  }, [user]);
 
-  const getCountryFlag = (countryCode) => {
+  const getCountryFlag = useCallback((countryCode) => {
     return countries[countryCode]?.flag || '🌍';
-  };
+  }, [countries]);
 
-  const getCurrencySymbol = (currencyCode) => {
+  const getCurrencySymbol = useCallback((currencyCode) => {
     return currencies[currencyCode]?.symbol || currencyCode;
-  };
+  }, [currencies]);
 
-  const getLanguageName = (langCode) => {
+  const getLanguageName = useCallback((langCode) => {
     return languages[langCode]?.native || languages[langCode]?.name || langCode;
-  };
+  }, [languages]);
 
   // Translation function
-  const t = (key, paramsOrDefault = {}) => {
+  const t = useCallback((key, paramsOrDefault = {}) => {
     // Support t('key', 'default string') pattern used by some components
     const isDefaultString = typeof paramsOrDefault === 'string';
     const params = isDefaultString ? {} : paramsOrDefault;
@@ -321,29 +321,29 @@ export function LocaleProvider({ children }) {
     });
     
     return result;
-  };
+  }, [language]);
 
   // Helper function to convert and format price
-  const convertAndFormatPrice = (amount, fromCurrency = 'EUR', toCurrency = null) => {
+  const convertAndFormatPrice = useCallback((amount, fromCurrency = 'EUR', toCurrency = null) => {
     const targetCurrency = toCurrency || currency;
     const converted = convertPrice(amount, fromCurrency, targetCurrency, exchangeRates);
     return formatCurrency(converted, targetCurrency, currencies);
-  };
+  }, [currency, exchangeRates, currencies]);
 
   // Helper function to get raw converted price
-  const getConvertedPrice = (amount, fromCurrency = 'EUR', toCurrency = null) => {
+  const getConvertedPrice = useCallback((amount, fromCurrency = 'EUR', toCurrency = null) => {
     const targetCurrency = toCurrency || currency;
     return convertPrice(amount, fromCurrency, targetCurrency, exchangeRates);
-  };
+  }, [currency, exchangeRates]);
 
   // Helper function to format price without conversion
-  const formatPrice = (amount, currencyCode = null) => {
+  const formatPrice = useCallback((amount, currencyCode = null) => {
     const targetCurrency = currencyCode || currency;
     return formatCurrency(amount, targetCurrency, currencies);
-  };
+  }, [currency, currencies]);
 
   // Helper function to get exchange rate display
-  const getExchangeRateDisplay = (fromCurrency, toCurrency = null) => {
+  const getExchangeRateDisplay = useCallback((fromCurrency, toCurrency = null) => {
     const targetCurrency = toCurrency || currency;
     const rate = getExchangeRate(fromCurrency, targetCurrency, exchangeRates);
     if (!rate) return null;
@@ -352,7 +352,7 @@ export function LocaleProvider({ children }) {
       rate: rate.toFixed(4),
       text: `1 ${fromCurrency} = ${rate.toFixed(4)} ${targetCurrency}`
     };
-  };
+  }, [currency, exchangeRates]);
 
   // RTL status derived from current language
   const isRTL = RTL_LANGUAGES.includes(language);

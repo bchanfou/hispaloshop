@@ -134,8 +134,8 @@ def test_rate_limiter_configuration():
     """
     limiter = RateLimiter()
     # Auth limits
-    assert limiter.limits["login"] == (5, 300)
-    assert limiter.limits["register"] == (3, 3600)
+    assert limiter.limits["login"] == (10, 300)
+    assert limiter.limits["register"] == (5, 3600)
     assert limiter.limits["forgot_password"] == (3, 900)  # Cycle 4: widened window
     # AI limits
     assert limiter.limits["hispal_ai"] == (20, 3600)

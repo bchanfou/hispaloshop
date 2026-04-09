@@ -64,10 +64,10 @@ def test_rate_limiter_has_auth_limits():
     assert "login" in limiter.limits
     assert "register" in limiter.limits
     assert "forgot_password" in limiter.limits
-    # Login: 5 per 5 min
-    assert limiter.limits["login"][0] == 5
-    # Register: 3 per hour
-    assert limiter.limits["register"][0] == 3
+    # Login: 10 per 5 min (mobile-friendly)
+    assert limiter.limits["login"][0] == 10
+    # Register: 5 per hour (IP-level)
+    assert limiter.limits["register"][0] == 5
 
 
 # ── Upload validation ────────────────────────────────

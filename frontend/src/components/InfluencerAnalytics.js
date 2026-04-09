@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, MousePointer, ShoppingCart, DollarSign, Percent, Loader2, BarChart3, Calendar } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import apiClient from '../services/api/client';
@@ -30,10 +30,7 @@ export default function InfluencerAnalytics() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState(30);
-  useEffect(() => {
-    fetchAnalytics();
-  }, [period]);
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
       const data = await apiClient.get(`/influencer/analytics?days=${period}`);
@@ -43,7 +40,11 @@ export default function InfluencerAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
   if (loading) {
     return <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-stone-500" />

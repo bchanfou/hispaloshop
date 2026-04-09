@@ -38,7 +38,17 @@ def _hash_session_token(token: str) -> str:
 
 router = APIRouter()
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
-_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app")
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com",)
+
+
+def _allowed_frontend_origins() -> set[str]:
+    allowed = set()
+    configured_origins = str(settings.ALLOWED_ORIGINS or "").split(",")
+    for candidate in configured_origins + [settings.FRONTEND_URL]:
+        origin = _extract_origin(candidate)
+        if origin:
+            allowed.add(origin)
+    return allowed
 
 
 def _extract_origin(value: Optional[str]) -> Optional[str]:
@@ -64,6 +74,8 @@ def _is_trusted_frontend_origin(value: Optional[str]) -> bool:
         return False
     hostname = (urlparse(origin).hostname or "").lower()
     if hostname in _LOCAL_HOSTS:
+        return True
+    if origin in _allowed_frontend_origins():
         return True
     return any(hostname.endswith(suffix) for suffix in _TRUSTED_FRONTEND_SUFFIXES)
 
@@ -753,10 +765,6 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
     })
     
     # Validate origin against trusted domains to prevent open redirect
-    _trusted_origins = {FRONTEND_URL}
-    if AUTH_BACKEND_URL:
-        _trusted_origins.add(AUTH_BACKEND_URL.rstrip("/"))
-    # Allow Vercel preview URLs (*.vercel.app)
     raw_origin = request.headers.get("origin") or request.headers.get("referer", "").rstrip("/") or ""
     if "/api" in raw_origin:
         raw_origin = raw_origin.split("/api")[0]
@@ -765,7 +773,7 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
         from urllib.parse import urlparse
         parsed = urlparse(raw_origin)
         candidate = f"{parsed.scheme}://{parsed.netloc}"
-        if candidate in _trusted_origins or (parsed.netloc and parsed.netloc.endswith(".vercel.app")):
+        if _is_trusted_frontend_origin(candidate):
             origin = candidate
     reset_link = f"{origin}/reset-password?token={reset_token}"
     

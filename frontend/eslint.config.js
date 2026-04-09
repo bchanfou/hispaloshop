@@ -21,6 +21,8 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node,
+        ...globals.jest,
+        Intl: "readonly",
       },
     },
     plugins: {

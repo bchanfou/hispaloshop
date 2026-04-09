@@ -4,41 +4,168 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: pr-checks-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
 jobs:
+
+  changes:
+    name: Detect changed areas
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      quality: ${{ steps.filter.outputs.quality }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - 'package.json'
+              - '.github/workflows/pr-checks.yml'
+            backend:
+              - 'backend/**'
+              - 'package.json'
+              - '.github/workflows/pr-checks.yml'
+            quality:
+              - 'frontend/**'
+              - 'backend/**'
+              - 'package.json'
+              - '.github/workflows/pr-checks.yml'
+
+  quality-gate:
+    name: Quality Gate · verify
+    needs: [changes]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install frontend dependencies
+        if: needs.changes.outputs.quality == 'true'
+        run: cd frontend && npm ci
+
+      - name: Install backend dependencies
+        if: needs.changes.outputs.quality == 'true'
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run root quality gate
+        if: needs.changes.outputs.quality == 'true'
+        run: npm run verify
+        env:
+          JWT_SECRET: ci-test-secret-hispaloshop-32chars-ok!
+          MONGO_URL: mongodb://localhost:27017/hispaloshop_test
+          FRONTEND_URL: http://localhost:3000
+          AUTH_BACKEND_URL: http://localhost:8000
+          ENV: test
+
+      - name: Skip verify for docs-only PR
+        if: needs.changes.outputs.quality != 'true'
+        run: echo "No frontend/backend quality-impacting changes detected. Skipping npm run verify."
+
+  quality-gate-full:
+    name: Quality Gate · verify:full
+    needs: [changes]
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install frontend dependencies
+        if: needs.changes.outputs.quality == 'true'
+        run: cd frontend && npm ci
+
+      - name: Install backend dependencies
+        if: needs.changes.outputs.quality == 'true'
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run full root quality gate
+        if: needs.changes.outputs.quality == 'true'
+        run: npm run verify:full
+        env:
+          JWT_SECRET: ci-test-secret-hispaloshop-32chars-ok!
+          MONGO_URL: mongodb://localhost:27017/hispaloshop_test
+          FRONTEND_URL: http://localhost:3000
+          AUTH_BACKEND_URL: http://localhost:8000
+          ENV: test
+
+      - name: Skip verify:full for docs-only PR
+        if: needs.changes.outputs.quality != 'true'
+        run: echo "No frontend/backend quality-impacting changes detected. Skipping npm run verify:full."
 
   lint-frontend:
     name: Lint · ESLint
+    needs: [changes]
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: cd frontend && npm ci
-      - run: cd frontend && npm run lint --if-present
+      - run: cd frontend && npm run lint -- --max-warnings=0
 
   security-check:
     name: Security · npm audit
+    needs: [changes]
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: cd frontend && npm audit --audit-level=high || true
 
   backend-tests:
     name: Backend · pytest
+    needs: [changes]
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - run: |
           cd backend

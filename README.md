@@ -106,13 +106,22 @@ Ver [ROADMAP_LAUNCH.md](ROADMAP_LAUNCH.md) para detalles.
 ## 🧪 Testing
 
 ```bash
-# Backend
-cd backend
-pytest tests/smoke/ -v
+# Verificacion recomendada desde raiz (lint + build frontend + backend focal)
+npm run verify
 
-# Frontend (manual)
-# Ver LAUNCH_CHECKLIST.md para flujos críticos
+# Verificacion completa desde raiz (incluye backend completo)
+npm run verify:full
+
+# Equivalentes por area
+npm run lint:frontend
+npm run build:frontend
+npm run verify:backend
 ```
+
+### Gate de calidad
+
+- Usar `npm run verify` como validacion minima antes de merge.
+- Usar `npm run verify:full` antes de release/deploy grande.
 
 ---
 

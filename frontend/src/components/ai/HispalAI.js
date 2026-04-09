@@ -215,7 +215,7 @@ export default function HispalAI({ onRequestClose } = {}) {
   const isManaged = typeof onRequestClose === 'function';
   useEffect(() => {
     if (isManaged && phase !== 'chat') openChat();
-  }, [isManaged]);
+  }, [isManaged, openChat, phase]);
 
   const openChatWithTracking = useCallback(() => {
     openChat();
@@ -249,14 +249,14 @@ export default function HispalAI({ onRequestClose } = {}) {
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [phase, closeChat]);
+  }, [phase, handleClose]);
 
   // Listen for global open event
   useEffect(() => {
     const handler = () => openChatWithTracking();
     document.addEventListener('open-hispal-ai', handler);
     return () => document.removeEventListener('open-hispal-ai', handler);
-  }, [openChat]);
+  }, [openChatWithTracking]);
 
   const location = useLocation();
 

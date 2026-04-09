@@ -234,20 +234,26 @@ function PostCardInner({
 
   // Cleanup timers + RAF on unmount to prevent memory leaks + setState on unmounted component
   React.useEffect(() => {
+    const heartTimer = heartTimerRef.current;
+    const undoTimer = undoTimerRef.current;
+    const longPressTimer = longPressRef.current;
+    const scrollRaf = scrollThrottleRef.current;
+    const deleteTimer = deleteTimerRef.current;
+
     return () => {
-      clearTimeout(heartTimerRef.current);
-      clearTimeout(undoTimerRef.current);
-      clearTimeout(longPressRef.current);
-      cancelAnimationFrame(scrollThrottleRef.current);
+      clearTimeout(heartTimer);
+      clearTimeout(undoTimer);
+      clearTimeout(longPressTimer);
+      cancelAnimationFrame(scrollRaf);
       // If post was marked for deletion and user scrolled away, execute delete now
-      if (deletedRef.current && deleteTimerRef.current) {
-        clearTimeout(deleteTimerRef.current);
+      if (deletedRef.current && deleteTimer) {
+        clearTimeout(deleteTimer);
         apiClient.delete(`/posts/${post.id}`).catch(() => {});
       } else {
-        clearTimeout(deleteTimerRef.current);
+        clearTimeout(deleteTimer);
       }
     };
-  }, []);
+  }, [post.id]);
 
   // ---- handlers -----------------------------------------------------------
 

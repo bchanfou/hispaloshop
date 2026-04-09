@@ -203,6 +203,12 @@ db.orders.find().pretty()
 ## 8. Comandos Útiles
 
 ```bash
+# Verificacion desde raiz (recomendado)
+npm run verify
+
+# Verificacion completa (incluye backend full suite)
+npm run verify:full
+
 # Limpiar caché Python
 find . -type d -name __pycache__ -exec rm -rf {} +
 

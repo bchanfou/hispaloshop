@@ -21,8 +21,28 @@ export const productKeys = {
   wishlist: (id) => ['wishlist', 'product', id],
 };
 
+const DEFAULT_PAGE_SIZE = 20;
+
 function getNextCursor(page) {
   return page?.nextCursor ?? page?.next_cursor ?? null;
+}
+
+function getPageItems(page) {
+  if (Array.isArray(page)) return page;
+  if (Array.isArray(page?.products)) return page.products;
+  if (Array.isArray(page?.items)) return page.items;
+  return [];
+}
+
+function getNextPageParam(page, allPages, pageSize = DEFAULT_PAGE_SIZE) {
+  const cursor = getNextCursor(page);
+  if (cursor) return cursor;
+  const hasMoreFlag = page?.has_more ?? page?.hasMore;
+  if (typeof hasMoreFlag === 'boolean') {
+    return hasMoreFlag ? allPages.length + 1 : undefined;
+  }
+  const items = getPageItems(page);
+  return items.length >= pageSize ? allPages.length + 1 : undefined;
 }
 
 export function useCategories() {
@@ -61,16 +81,17 @@ export function useCatalog(filters = {}) {
 
   return useInfiniteQuery({
     queryKey: productKeys.catalog(filterKey),
-    queryFn: ({ pageParam = null }) =>
+    queryFn: ({ pageParam = 1 }) =>
       apiClient.get('/products', {
         params: {
           ...mergedFilters,
-          cursor: pageParam,
-          limit: 20,
+          page: typeof pageParam === 'number' ? pageParam : 1,
+          cursor: typeof pageParam === 'string' ? pageParam : undefined,
+          limit: DEFAULT_PAGE_SIZE,
         },
       }),
-    initialPageParam: null,
-    getNextPageParam: getNextCursor,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => getNextPageParam(lastPage, allPages, DEFAULT_PAGE_SIZE),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -116,17 +137,18 @@ export function useRelatedProducts(productId) {
 export function useSearchProducts(query, filters = {}) {
   return useInfiniteQuery({
     queryKey: productKeys.search(query, JSON.stringify(filters)),
-    queryFn: ({ pageParam = null }) =>
+    queryFn: ({ pageParam = 1 }) =>
       apiClient.get('/search', {
         params: {
           q: query,
           ...filters,
-          cursor: pageParam,
-          limit: 20,
+          page: typeof pageParam === 'number' ? pageParam : 1,
+          cursor: typeof pageParam === 'string' ? pageParam : undefined,
+          limit: DEFAULT_PAGE_SIZE,
         },
       }),
-    initialPageParam: null,
-    getNextPageParam: getNextCursor,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => getNextPageParam(lastPage, allPages, DEFAULT_PAGE_SIZE),
     enabled: query.length >= 2,
     staleTime: 2 * 60 * 1000,
   });
@@ -226,17 +248,21 @@ export function useProducerResponse() {
 export function useB2BCatalog() {
   return useInfiniteQuery({
     queryKey: productKeys.b2b,
-    queryFn: async ({ pageParam = null }) => {
+    queryFn: async ({ pageParam = 1 }) => {
       try {
         return await apiClient.get('/products/b2b', {
-          params: { cursor: pageParam, limit: 20 },
+          params: {
+            page: typeof pageParam === 'number' ? pageParam : 1,
+            cursor: typeof pageParam === 'string' ? pageParam : undefined,
+            limit: DEFAULT_PAGE_SIZE,
+          },
         });
       } catch {
         return { items: [], has_more: false, next_cursor: null };
       }
     },
-    initialPageParam: null,
-    getNextPageParam: getNextCursor,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => getNextPageParam(lastPage, allPages, DEFAULT_PAGE_SIZE),
     staleTime: 10 * 60 * 1000,
   });
 }

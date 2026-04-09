@@ -76,7 +76,7 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
   const { user } = useAuth();
-  const { convertAndFormatPrice } = useLocale();
+  const { convertAndFormatPrice, country: localeCountry } = useLocale();
   const { t } = useTranslation();
   const { openConversation } = useChatContext();
 
@@ -124,9 +124,18 @@ export default function ProductDetailPage() {
   const [requestingMarket, setRequestingMarket] = useState(false);
   const [showMarketModal, setShowMarketModal] = useState(false);
   const [marketNotes, setMarketNotes] = useState('');
-  const userCountry = user?.country || 'ES';
-  const productCountries = product?.target_markets || product?.available_countries || [];
-  const isUnavailableInCountry = product && productCountries.length > 0 && !productCountries.includes(userCountry);
+  const normalizeCountryCode = (value) => String(value || '').trim().toUpperCase();
+  const userCountry = normalizeCountryCode(localeCountry || user?.country || 'ES');
+  const productCountries = Array.isArray(product?.target_markets || product?.available_countries)
+    ? (product?.target_markets || product?.available_countries).map(normalizeCountryCode).filter(Boolean)
+    : [];
+  const isUnavailableInCountry = Boolean(
+    product && (
+      product?.is_available_in_country === false ||
+      product?.available_in_country === false ||
+      (productCountries.length > 0 && !productCountries.includes(userCountry))
+    )
+  );
 
   useEffect(() => {
     if (!product?.product_id || !isUnavailableInCountry) return;
@@ -243,7 +252,11 @@ export default function ProductDetailPage() {
 
   const addingRef = React.useRef(false);
   const handleAddToCart = async () => {
-    if (addingRef.current || isOutOfStock) { if (isOutOfStock) toast.error(t('productDetail.outOfStock')); return; }
+    if (addingRef.current || isOutOfStock || isUnavailableInCountry) {
+      if (isOutOfStock) toast.error(t('productDetail.outOfStock'));
+      if (isUnavailableInCountry) toast.error(t('marketRequest.unavailable', 'Este producto aun no esta disponible en tu pais.'));
+      return;
+    }
     addingRef.current = true;
     toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
     try {
@@ -308,11 +321,18 @@ export default function ProductDetailPage() {
   // Check if this product+variant is already in cart
   const cartVariantId = selectedVariant?.variant_id || null;
   const cartPackId = selectedPack?.pack_id || null;
+  const normalizeCartOptionId = (value) => {
+    if (value == null || value === '' || value === '0') return '';
+    return String(value);
+  };
+  const desiredVariantId = normalizeCartOptionId(cartVariantId);
+  const desiredPackId = normalizeCartOptionId(cartPackId);
   const existingCartItem = cartItems.find((item) => {
     if (String(item.product_id) !== String(productId)) return false;
-    if (cartVariantId && String(item.variant_id || '') !== String(cartVariantId)) return false;
-    if (cartPackId && String(item.pack_id || '') !== String(cartPackId)) return false;
-    return true;
+    return (
+      normalizeCartOptionId(item.variant_id) === desiredVariantId &&
+      normalizeCartOptionId(item.pack_id) === desiredPackId
+    );
   });
   const inCartQty = existingCartItem?.quantity || 0;
 
@@ -770,7 +790,7 @@ export default function ProductDetailPage() {
             type="button"
             whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            disabled={isOutOfStock}
+            disabled={isOutOfStock || isUnavailableInCountry}
             aria-label="Reducir cantidad"
             className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
@@ -787,7 +807,7 @@ export default function ProductDetailPage() {
             type="button"
             whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-            disabled={isOutOfStock}
+            disabled={isOutOfStock || isUnavailableInCountry}
             aria-label="Aumentar cantidad"
             className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
@@ -1507,7 +1527,12 @@ export default function ProductDetailPage() {
             <button
               type="button"
               onClick={async () => {
-                if (addingRef.current || isOutOfStock) return;
+                if (addingRef.current || isOutOfStock || isUnavailableInCountry) {
+                  if (isUnavailableInCountry) {
+                    toast.error(t('marketRequest.unavailable', 'Este producto aun no esta disponible en tu pais.'));
+                  }
+                  return;
+                }
                 addingRef.current = true;
                 try {
                   const success = await addToCart(productId, quantity, selectedVariant?.variant_id, selectedPack?.pack_id);
@@ -1516,7 +1541,7 @@ export default function ProductDetailPage() {
                   addingRef.current = false;
                 }
               }}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || isUnavailableInCountry}
               className="flex-1 h-11 bg-white text-stone-950 border border-stone-950 rounded-full text-sm font-semibold transition-colors hover:bg-stone-50 disabled:opacity-50"
             >
               Comprar ahora
@@ -1524,18 +1549,18 @@ export default function ProductDetailPage() {
             <motion.button
               type="button"
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || isUnavailableInCountry}
               whileTap={{ scale: 0.96 }}
               animate={{
                 background: addedToCart
                   ? '#0c0a09'
-                  : isOutOfStock
+                  : (isOutOfStock || isUnavailableInCountry)
                     ? '#f5f5f4'
                     : '#0c0a09',
               }}
               transition={{ duration: 0.3 }}
               className={`flex-1 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold ${
-                isOutOfStock ? 'cursor-not-allowed text-stone-500' : 'text-white'
+                (isOutOfStock || isUnavailableInCountry) ? 'cursor-not-allowed text-stone-500' : 'text-white'
               }`}
               data-testid="mobile-buy-button"
             >

@@ -210,7 +210,7 @@ export default function ProfileHeader({
       /* ignore */
     }
     return [currentAccObj];
-  }, [user, accountsVersion]);
+  }, [user]);
   const currentUserId = String(user?.user_id || user?.id || '');
   const hasAlternativeAccount = useMemo(() => accounts.some(acc => String(acc.user_id || acc.id || '') !== currentUserId && acc.token), [accounts, currentUserId]);
 
@@ -230,7 +230,7 @@ export default function ProfileHeader({
         localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
       }
     } catch {/* ignore */}
-  }, [user?.name, user?.username, user?.profile_image, user?.avatar_url]);
+  }, [user]);
   const handleCloseAccount = useCallback(async acc => {
     setClosingAccount(true);
     const isActive = String(acc.user_id || acc.id || '') === currentUserId;
@@ -329,7 +329,7 @@ export default function ProfileHeader({
     } finally {
       setHighlightSavingName(false);
     }
-  }, [highlightMenu, highlightEditName, onHighlightDeleted, user]);
+  }, [highlightMenu, highlightEditName, onHighlightDeleted, queryClient, user]);
   const handleHighlightDelete = useCallback(() => {
     if (!highlightMenu) return;
     // Route through confirmation modal instead of deleting directly
@@ -384,7 +384,7 @@ export default function ProfileHeader({
     } finally {
       setCreateHighlightSaving(false);
     }
-  }, [createHighlightName, createHighlightSelectedIds, archivedStories, onHighlightDeleted, user]);
+  }, [createHighlightName, createHighlightSelectedIds, archivedStories, onHighlightDeleted, queryClient, user]);
 
   /* 8.2: Delete confirmation from highlight menu redirects to mini modal */
   const handleDeleteWithConfirm = useCallback(hl => {
@@ -409,7 +409,7 @@ export default function ProfileHeader({
     } finally {
       setHighlightDeleting(false);
     }
-  }, [deleteConfirmHighlight, onHighlightDeleted, user]);
+  }, [deleteConfirmHighlight, onHighlightDeleted, queryClient, user]);
 
   /* cleanup long-press timer */
   useEffect(() => {

@@ -23,13 +23,13 @@ export default function ConsentBanner({ onConsent }) {
   }, []);
 
   const accept = () => {
-    try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch {}
+    try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch (e) { /* noop */ }
     setVisible(false);
     onConsent(true);
   };
 
   const reject = () => {
-    try { localStorage.setItem(CONSENT_KEY, 'rejected'); } catch {}
+    try { localStorage.setItem(CONSENT_KEY, 'rejected'); } catch (e) { /* noop */ }
     setVisible(false);
     onConsent(false);
   };

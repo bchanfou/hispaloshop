@@ -164,6 +164,7 @@ function ReelCardInner({
   const [selectedReaction, setSelectedReaction] = useState(null);
   const reactionLongPressRef = useRef(null);
   const isOwner = currentUser && (currentUser.user_id || currentUser.id) === (reel.user?.id || reel.user?.user_id || reel.user_id);
+  const reelId = reel.id || reel.reel_id || reel.post_id;
 
   // Clean up timers on unmount
   const deletedRef = useRef(false);
@@ -171,19 +172,24 @@ function ReelCardInner({
     deletedRef.current = deleted;
   }, [deleted]);
   useEffect(() => {
+    const playTimer = playIconTimer.current;
+    const tapTimer = singleTapTimer.current;
+    const doubleTapTimer = doubleTapHeartTimer.current;
+    const reactionTimer = reactionLongPressRef.current;
+    const undoTimer = undoTimerRef.current;
+
     return () => {
-      clearTimeout(playIconTimer.current);
-      clearTimeout(singleTapTimer.current);
-      clearTimeout(doubleTapHeartTimer.current);
-      clearTimeout(reactionLongPressRef.current);
+      clearTimeout(playTimer);
+      clearTimeout(tapTimer);
+      clearTimeout(doubleTapTimer);
+      clearTimeout(reactionTimer);
       // If reel was marked for deletion and user scrolled away, execute delete now
-      if (deletedRef.current && undoTimerRef.current) {
-        clearTimeout(undoTimerRef.current);
-        const reelId = reel.id || reel.reel_id || reel.post_id;
+      if (deletedRef.current && undoTimer) {
+        clearTimeout(undoTimer);
         if (reelId) apiClient.delete(`/reels/${reelId}`).catch(() => {});
       }
     };
-  }, []);
+  }, [reelId]);
 
   // Track view (fire once per mount)
   const viewTrackedRef = useRef(false);
@@ -201,7 +207,6 @@ function ReelCardInner({
         // Track view once when reel becomes visible
         if (!viewTrackedRef.current) {
           viewTrackedRef.current = true;
-          const reelId = reel.id || reel.reel_id || reel.post_id;
           if (reelId) apiClient.post(`/reels/${reelId}/view`).catch(() => {});
         }
         // In embedded mode, IO controls playback directly.
@@ -224,7 +229,7 @@ function ReelCardInner({
       observer.disconnect();
       video.pause();
     };
-  }, [reel.id, reel.reel_id, reel.post_id, embedded]);
+  }, [reel.id, reel.reel_id, reel.post_id, reelId, embedded]);
 
   // Pause on tab switch (visibilitychange) — resume only if in viewport
   useEffect(() => {

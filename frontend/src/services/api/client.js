@@ -66,6 +66,21 @@ const httpClient = axios.create({
 let isRefreshing = false;
 let failedQueue = []; // { resolve, reject } entries waiting for refresh
 
+function removeStoredAccountByToken(token) {
+  const targetToken = String(token || '');
+  if (!targetToken) return;
+  try {
+    const raw = localStorage.getItem('hsp_accounts');
+    if (!raw) return;
+    const accounts = JSON.parse(raw);
+    if (!Array.isArray(accounts)) return;
+    const filtered = accounts.filter((a) => String(a?.token || '') !== targetToken);
+    localStorage.setItem('hsp_accounts', JSON.stringify(filtered));
+  } catch {
+    // Best effort only.
+  }
+}
+
 function processQueue(error, token = null) {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error);
@@ -201,6 +216,9 @@ httpClient.interceptors.response.use(
         // Refresh failed — reject all queued requests, logout once
         processQueue(refreshError, null);
         if (isAuthInvalidError(refreshError)) {
+          const activeToken = getToken() || '';
+          // Policy 1-B: remove only active broken account, keep other saved accounts.
+          removeStoredAccountByToken(activeToken);
           removeToken();
 
           if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
