@@ -68,7 +68,8 @@ export default function BottomNavBar() {
 
   const shouldHide =
     HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
-    HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`));
+    HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`)) ||
+    /^\/(es|en|ko)\/(productor|distribuidor|influencer|consumidor|about|landing)(\/|$)/.test(location.pathname);
 
 
   useEffect(() => {

@@ -34,9 +34,17 @@ const NO_CHROME_PATHS = [
   '/certificate', '/certificado',
 ];
 
+function normalizePathname(pathname = '') {
+  const match = pathname.match(/^\/(es|en|ko)(\/|$)/);
+  if (!match) return pathname;
+  const stripped = pathname.replace(/^\/(es|en|ko)/, '');
+  return stripped || '/';
+}
+
 function shouldHideChrome(pathname) {
+  const normalizedPath = normalizePathname(pathname);
   return NO_CHROME_PATHS.some((p) =>
-    pathname === p || pathname.startsWith(`${p}/`)
+    normalizedPath === p || normalizedPath.startsWith(`${p}/`)
   );
 }
 

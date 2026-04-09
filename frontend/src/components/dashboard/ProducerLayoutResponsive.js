@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
   User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award, BarChart3,
   TrendingUp, Crown, Search, Globe, Bell, Handshake,
-  Truck, Users, Megaphone
+  Truck, Users, Megaphone, MessageCircle
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ export default function ProducerLayout() {
   const location = useLocation();
   const { t } = useTranslation();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const { data: stats } = useProducerDashboardStats(Boolean(user) && ['producer', 'importer'].includes(user.role));
   const logoutMutation = useDashboardLogout();
   const { data: notifData } = useUnreadNotifications();
@@ -352,6 +353,37 @@ export default function ProducerLayout() {
           </button>
         </div>
       </BottomSheet>
+
+      {/* ===== CHAT BUTTON (Floating) ===== */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+          aria-label="Abrir chat"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </button>
+      )}
+
+      {/* ===== INTERNAL CHAT MODAL ===== */}
+      {chatOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <button
+              onClick={() => setChatOpen(false)}
+              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-600 transition-colors hover:bg-stone-200"
+              aria-label="Cerrar chat"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <InternalChat 
+              userType="producer" 
+              isEmbedded={true}
+              onClose={() => setChatOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
     </ProducerPlanProvider>
   );

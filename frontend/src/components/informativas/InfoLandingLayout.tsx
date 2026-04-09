@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
-import InfoNav from './InfoNav';
+import AppHeader from '../layout/AppHeader';
 import InfoFooter from './InfoFooter';
 import { useScrollToHash } from '../../hooks/useScrollToHash';
 import { useLandingI18n } from '../../hooks/useLandingI18n';
@@ -21,7 +21,7 @@ export default function InfoLandingLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50">
-      <InfoNav />
+      <AppHeader />
       <motion.main
         key={pathname}
         initial={{ opacity: 0 }}
