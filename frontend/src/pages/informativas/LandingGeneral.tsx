@@ -48,7 +48,7 @@ interface RoleCardProps {
   getLocalizedPath: (path: string) => string;
 }
 
-function RoleCard({ item, index, getLocalizedPath }: RoleCardProps) {
+const RoleCard = React.memo(function RoleCard({ item, index, getLocalizedPath }: RoleCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
@@ -77,7 +77,7 @@ function RoleCard({ item, index, getLocalizedPath }: RoleCardProps) {
       </Link>
     </motion.div>
   );
-}
+});
 
 function RolesSection() {
   const { t } = useTranslation();
