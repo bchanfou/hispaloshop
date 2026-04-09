@@ -302,7 +302,7 @@ export default function CustomerProfile() {
   const savePreferences = async () => {
     setSaving(true);
     try {
-      await apiClient.post('/preferences', preferences);
+      await apiClient.put('/notifications/preferences', preferences);
       toast.success(t('success.saved', 'Preferencias guardadas'));
     } catch (error) {
       toast.error(t('errors.generic', 'Error al guardar preferencias'));

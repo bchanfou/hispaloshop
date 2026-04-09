@@ -65,9 +65,7 @@ export default function PlanPage() {
       return;
     }
     try {
-      const data = await apiClient.post('/billing/change-plan', {
-        plan: planId
-      });
+      const data = await apiClient.get('/billing/portal-url');
       if (data.url) window.location.href = data.url;
     } catch {
       toast.error(i18n.t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
@@ -78,9 +76,7 @@ export default function PlanPage() {
     const planId = downgradeTarget;
     setDowngradeTarget(null);
     try {
-      const data = await apiClient.post('/billing/change-plan', {
-        plan: planId
-      });
+      const data = await apiClient.get('/billing/portal-url');
       if (data.url) window.location.href = data.url;
     } catch {
       toast.error(i18n.t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));

@@ -469,8 +469,9 @@ export default function StoresListPage() {
   const fetchStores = useCallback(() => {
     setLoading(true);
     setFetchError(false);
-    const params = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : '';
-    apiClient.get(`/stores${params}`).then(data => {
+    apiClient.get('/stores', {
+      params: debouncedSearch ? { search: debouncedSearch } : undefined,
+    }).then(data => {
       const list = Array.isArray(data) ? data : data?.stores || [];
       setStores(list);
     }).catch(() => {

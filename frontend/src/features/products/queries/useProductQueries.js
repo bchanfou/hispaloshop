@@ -57,13 +57,9 @@ export function useCategory(slug) {
   return useQuery({
     queryKey: productKeys.category(slug),
     queryFn: async () => {
-      try {
-        return await apiClient.get(`/categories/${slug}`);
-      } catch {
-        const categories = await apiClient.get('/categories');
-        const list = Array.isArray(categories) ? categories : (categories?.categories || []);
-        return list.find((category) => category.slug === slug || category.id === slug) || null;
-      }
+      const categories = await apiClient.get('/categories');
+      const list = Array.isArray(categories) ? categories : (categories?.categories || []);
+      return list.find((category) => category.slug === slug || category.id === slug) || null;
     },
     enabled: Boolean(slug),
     staleTime: 10 * 60 * 1000,
@@ -124,7 +120,7 @@ export function useRelatedProducts(productId) {
     queryKey: productKeys.related(productId),
     queryFn: async () => {
       try {
-        return await apiClient.get(`/products/${productId}/related`);
+        return await apiClient.get(`/discovery/related-products/${productId}`);
       } catch {
         return [];
       }
@@ -138,7 +134,7 @@ export function useSearchProducts(query, filters = {}) {
   return useInfiniteQuery({
     queryKey: productKeys.search(query, JSON.stringify(filters)),
     queryFn: ({ pageParam = 1 }) =>
-      apiClient.get('/search', {
+      apiClient.get('/discovery/search', {
         params: {
           q: query,
           ...filters,
@@ -163,7 +159,7 @@ export function useSearchSuggestions(query) {
           params: { q: query },
         });
       } catch {
-        const searchData = await apiClient.get('/search', {
+        const searchData = await apiClient.get('/discovery/search', {
           params: { q: query, limit: 8 },
         });
         const products = Array.isArray(searchData?.products) ? searchData.products : [];
@@ -250,7 +246,7 @@ export function useB2BCatalog() {
     queryKey: productKeys.b2b,
     queryFn: async ({ pageParam = 1 }) => {
       try {
-        return await apiClient.get('/products/b2b', {
+        return await apiClient.get('/products/my-b2b-catalog', {
           params: {
             page: typeof pageParam === 'number' ? pageParam : 1,
             cursor: typeof pageParam === 'string' ? pageParam : undefined,
@@ -272,7 +268,7 @@ export function useB2BProductInfo(productId) {
     queryKey: productKeys.b2bProduct(productId),
     queryFn: async () => {
       try {
-        return await apiClient.get(`/products/b2b/${productId}/moq`);
+        return await apiClient.get(`/products/${productId}/signals`);
       } catch {
         return null;
       }

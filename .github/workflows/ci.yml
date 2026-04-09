@@ -188,6 +188,14 @@ jobs:
           npm ci
           npx playwright install chromium --with-deps
 
+      - name: Preflight staging readiness and latency
+        run: cd frontend && npm run test:smoke:preflight
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.STAGING_URL || 'http://localhost:3000' }}
+          PLAYWRIGHT_API_URL:  ${{ secrets.STAGING_API_URL || 'http://localhost:8000' }}
+          SMOKE_MAX_FRONTEND_MS: '12000'
+          SMOKE_MAX_BACKEND_MS: '5000'
+
       - name: Run the 5 canonical E2E flows
         run: cd frontend && npx playwright test --project=chromium
         env:

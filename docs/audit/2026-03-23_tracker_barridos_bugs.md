@@ -10,12 +10,12 @@ Uso: duplicar las tablas por cada barrido (B1, B2, B3, B4) y mantener evidencia 
 | B1 | 2. Inventario de sintomas | QA + FE + BE | Completado | 0 | 0 | 0 | 10 bugs identificados y registrados | Verde |
 | B1 | 3. Reproduccion controlada | QA + FE + BE | Completado | 0 | 0 | 0 | Reproduccion determinista: smoke 14/14 passing | Verde |
 | B1 | 4. Contratos entre capas | QA + BE | Completado | 0 | 0 | 0 | Backend 127.0.0.1:8000, CSRF/CORS/CSP corregidos | Verde |
-| B1 | 5. Datos e integridad | BE | Pendiente B2 | 0 | 0 | 0 |  | Amarillo |
+| B1 | 5. Datos e integridad | BE | Completado | 0 | 0 | 0 | Evidencias B2: idempotencia/reclaim/refunds + verify backend (2026-04-10) | Verde |
 | B1 | 6. Flujos funcionales criticos | QA + FE | Completado | 0 | 0 | 0 | Precio ELITE OK; button>button corregido en PostCard | Verde |
 | B1 | 7. Seguridad y autorizacion | QA + BE | Completado | 0 | 0 | 0 | Auth suite: 3 passed, 1 skipped (OAuth no configurado en local) | Verde |
 | B1 | 8. Resiliencia e infraestructura | DevOps + QA | Completado | 0 | 0 | 0 | WebKit instalado; OOM mitigado (--max-old-space-size=4096); timeout 60s | Verde |
 | B1 | 9. Rendimiento y capacidad | FE | Completado | 0 | 0 | 0 | Umbral 12s configurable; timeout test 60s; smoke pasa consistentemente | Verde |
-| B1 | 10. Observabilidad | FE + BE | Pendiente B2 | 0 | 0 | 0 |  | Amarillo |
+| B1 | 10. Observabilidad | FE + BE | Completado | 0 | 0 | 0 | Preflight readiness/latencia en CI antes de E2E (2026-04-10) | Verde |
 | B1 | 11. Pruebas y regresion | QA + FE + BE | Completado | 0 | 0 | 0 | Smoke 14/14 passing; auth 3/4 passing (1 skip controlado) | Verde |
 | B1 | 12. Cierre de raiz y prevencion | QA Lead | Completado | 0 | 0 | 0 | Todos los bugs del B1 cerrados; RCA documentada | Verde |
 
@@ -38,8 +38,8 @@ Uso: duplicar las tablas por cada barrido (B1, B2, B3, B4) y mantener evidencia 
 
 | ID Bug | Tipo (Tecnica/Proceso) | Causa raiz | Senal temprana que falto | Accion preventiva | Responsable | Fecha compromiso | Estado |
 |---|---|---|---|---|---|---|---|
-| BUG-0001 | Tecnica | Timeout de carga no absorbido por estrategia de wait estable | Alerta temprana de tiempo de bootstrap ausente en CI | Medir TTFH/TTI en CI y ajustar readiness check | FE | 2026-03-24 | Abierto |
-| BUG-0002 | Tecnica/Proceso | Smoke se ejecuta sin precondicion backend activo | Pipeline no valida dependencias de entorno antes de correr smoke | Agregar preflight de servicios requeridos | DevOps | 2026-03-24 | Abierto |
+| BUG-0001 | Tecnica | Timeout de carga no absorbido por estrategia de wait estable | Alerta temprana de tiempo de bootstrap ausente en CI | Preflight de latencia y readiness implementado en CI (`test:smoke:preflight`) | FE | 2026-04-10 | Cerrado |
+| BUG-0002 | Tecnica/Proceso | Smoke se ejecuta sin precondicion backend activo | Pipeline no valida dependencias de entorno antes de correr smoke | Preflight de servicios requeridos implementado antes de E2E | DevOps | 2026-04-10 | Cerrado |
 
 ## 4) Reporte diario de barrido
 
@@ -47,6 +47,7 @@ Uso: duplicar las tablas por cada barrido (B1, B2, B3, B4) y mantener evidencia 
 |---|---:|---:|---:|---:|---:|---:|---|---|
 | 2026-03-23 | B1 | 8 | 2 | 0 | 5 | 0 | Baseline aun inestable por backend offline y timeout mobile | Bloquear Barrido 2 hasta cerrar BUG-0002, BUG-0005, BUG-0006, BUG-0007 y verificar cierre BUG-0008 |
 | 2026-03-23 | B1 | 2 | 10 | 0 | 0 | 0 | Todos los bugs del Barrido 1 cerrados. Smoke 14/14. Auth 3/4 (1 skip controlado). | GATE B1 SUPERADO — listo para iniciar Barrido 2 |
+| 2026-04-10 | B2 | 0 | 2 | 0 | 0 | 0 | Cierre de pendientes B2 en Datos/Observabilidad + RCA preventiva operativa | GATE B2 SUPERADO |
 
 ## 5) Checklist de cierre por barrido
 

@@ -371,7 +371,7 @@ export default function SearchPage() {
     apiClient.get('/search/trending', {
       params: { limit: 8 }
     }).then(data => {
-      const queries = data?.queries || [];
+      const queries = data?.trending || [];
       if (queries.length > 0) setTrending(queries);
     }).catch(() => {/* Fallback already set via TRENDING_FALLBACK default */});
     apiClient.get('/discovery/trending', {
@@ -395,7 +395,7 @@ export default function SearchPage() {
     const reqId = ++suggestIdRef.current;
     const timer = setTimeout(async () => {
       try {
-        const data = await apiClient.get('/search', {
+        const data = await apiClient.get('/discovery/search', {
           params: {
             q: query.trim(),
             limit: 9
@@ -456,7 +456,7 @@ export default function SearchPage() {
         if (appliedFilters.freeShipping) params.free_shipping = true;
         if (appliedFilters.category) params.category = appliedFilters.category;
         if (appliedFilters.countryOrigin) params.country_origin = appliedFilters.countryOrigin;
-        const data = await apiClient.get('/search', {
+        const data = await apiClient.get('/discovery/search', {
           params
         });
         if (reqId !== searchIdRef.current) return;

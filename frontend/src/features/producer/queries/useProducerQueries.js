@@ -17,7 +17,7 @@ export function useCreateProducerProductMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => apiClient.post('/producer/products', payload),
+    mutationFn: (payload) => apiClient.post('/products', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: producerKeys.products });
     },
@@ -28,7 +28,7 @@ export function useUpdateProducerProductMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, payload }) => apiClient.put(`/producer/products/${productId}`, payload),
+    mutationFn: ({ productId, payload }) => apiClient.put(`/products/${productId}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: producerKeys.products });
     },

@@ -393,7 +393,7 @@ export default function ProducerProducts() {
     let failed = 0;
     for (const id of ids) {
       try {
-        await apiClient.delete(`/producer/products/${id}`);
+        await apiClient.delete(`/products/${id}`);
         deleted++;
       } catch {
         failed++;

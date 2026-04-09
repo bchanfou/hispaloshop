@@ -76,14 +76,7 @@ export default function ImporterCertificatesPage() {
     setLoading(true);
     setError(false);
     try {
-      // Try supplier-certificates endpoint first
-      let data;
-      try {
-        data = await apiClient.get(`/importer/supplier-certificates?producer_id=${producerId}`);
-      } catch {
-        // Fallback: fetch certificates for the specific producer
-        data = await apiClient.get(`/b2b/producers/${producerId}/certificates`);
-      }
+      const data = await apiClient.get(`/importer/supplier-certificates?producer_id=${producerId}`);
       const items = data?.certificates || (Array.isArray(data) ? data : []);
       setCerts(items);
     } catch {

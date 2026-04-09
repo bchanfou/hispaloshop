@@ -179,6 +179,10 @@ export function useUnregisterPushToken() {
  */
 export function useTestPushNotification() {
   return useMutation({
-    mutationFn: () => apiClient.post('/notifications/push/test'),
+    mutationFn: () => apiClient.post('/notifications/admin/send', {
+      user_ids: [],
+      title: 'Test notification',
+      body: 'Manual push test from frontend',
+    }),
   });
 }

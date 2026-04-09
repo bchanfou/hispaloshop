@@ -67,7 +67,9 @@ export default function GroupChatPanel({
   const confirmLeaveWithTransfer = async () => {
     if (!selectedNewAdmin) { toast.error(t('chat.group.selectAdmin', 'Select a new admin')); return; }
     try {
-      await apiClient.post(`/chat/groups/${conversation._id}/transfer-admin`, { new_admin_id: selectedNewAdmin });
+      await apiClient.delete(`/chat/groups/${conversation._id}/members/${currentUserId}`, {
+        params: { new_admin_id: selectedNewAdmin },
+      });
       onLeave();
     } catch { toast.error(t('chat.group.transferError', 'Could not transfer admin role')); }
   };

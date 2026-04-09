@@ -95,7 +95,7 @@ export default function NewConversationPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await apiClient.get('/users/followed-stores');
+        const data = await apiClient.get('/customer/followed-stores');
         if (!cancelled) setFollowedStores(Array.isArray(data) ? data : []);
       } catch {
         if (!cancelled) setFollowedStores([]);

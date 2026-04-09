@@ -46,10 +46,6 @@ export default function CertificatePage() {
 
   useEffect(() => {
     if (!productId) return;
-
-    // Track scan
-    apiClient.post(`/certificates/${productId}/track`, {});
-
     // Fetch certificate data
     loadCertificate();
   }, [productId]);
@@ -57,7 +53,7 @@ export default function CertificatePage() {
   const loadCertificate = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(`/certificates/${productId}`);
+      const response = await apiClient.get(`/certificates/product/${productId}`);
       setData(response);
       
       // Update i18n if language different

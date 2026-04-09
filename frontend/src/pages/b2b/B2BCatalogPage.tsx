@@ -22,8 +22,8 @@ export default function B2BCatalogPage() {
   const fetchCatalog = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiClient.get('/b2b/my-catalog');
-      setProducts(res.data?.products ?? res.data ?? []);
+      const res = await apiClient.get('/products/my-b2b-catalog');
+      setProducts(res?.products ?? []);
     } catch (err) {
       toast.error(i18n.t('b2_b_catalog.errorAlCargarElCatalogoB2b', 'Error al cargar el catálogo B2B'));
     } finally {
@@ -41,11 +41,27 @@ export default function B2BCatalogPage() {
     if (togglingId) return; // prevent double-click
     const nextStatus = item.status === 'active' ? 'paused' : 'active';
     try {
-      setTogglingId(item.id);
-      await apiClient.patch(`/b2b/my-catalog/${item.id}`, {
-        status: nextStatus
-      });
-      setProducts(prev => prev.map(p => p.id === item.id ? {
+      const productId = item.product_id || item.id;
+      setTogglingId(productId);
+
+      if (nextStatus === 'paused') {
+        await apiClient.delete(`/products/${productId}/b2b`);
+      } else {
+        const s = item.b2b_settings || {};
+        await apiClient.put(`/products/${productId}/b2b`, {
+          wholesale_price: Number(s.wholesale_price ?? item.wholesale_price ?? 1),
+          moq: Number(s.moq ?? item.moq ?? item.min_order_quantity ?? 1),
+          wholesale_stock: s.wholesale_stock ?? null,
+          use_product_stock: Boolean(s.use_product_stock ?? true),
+          incoterm: s.incoterm || 'EXW',
+          payment_terms: s.payment_terms || 'prepaid',
+          description: s.description || '',
+          offers_samples: Boolean(s.offers_samples ?? false),
+          max_samples: s.max_samples ?? null,
+        });
+      }
+
+      setProducts(prev => prev.map(p => (p.product_id || p.id) === productId ? {
         ...p,
         status: nextStatus
       } : p));
@@ -116,7 +132,7 @@ export default function B2BCatalogPage() {
       {/* Product list */}
       {!loading && products.map(item => {
       const isActive = item.status === 'active';
-      return <div key={item.id} className="mx-4 mt-3 p-3.5 rounded-2xl border border-stone-200 bg-white">
+      return <div key={item.product_id || item.id} className="mx-4 mt-3 p-3.5 rounded-2xl border border-stone-200 bg-white">
               <div className="flex gap-3">
                 {/* Image */}
                 {item.image_url ? <img src={item.image_url} alt={item.product_name} className="w-[72px] h-[72px] rounded-xl object-cover bg-stone-100 shrink-0" /> : <div className="w-[72px] h-[72px] rounded-xl bg-stone-100 shrink-0 flex items-center justify-center text-stone-500">
@@ -146,11 +162,11 @@ export default function B2BCatalogPage() {
 
               {/* Buttons */}
               <div className="flex gap-2 mt-3">
-                <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-stone-950 text-white text-[13px] font-semibold border-none cursor-pointer transition-colors" onClick={() => navigate(`/b2b/catalog/${item.id}/edit`)}>
+                <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-stone-950 text-white text-[13px] font-semibold border-none cursor-pointer transition-colors" onClick={() => navigate(`/b2b/catalog/${item.product_id || item.id}/edit`)}>
                   <Edit3 size={14} />
                   Editar condiciones B2B
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer transition-colors" disabled={togglingId === item.id} onClick={() => handleToggle(item)}>
+                <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer transition-colors" disabled={togglingId === (item.product_id || item.id)} onClick={() => handleToggle(item)}>
                   {isActive ? <Pause size={14} /> : <Play size={14} />}
                   {isActive ? 'Pausar' : 'Activar'}
                 </button>

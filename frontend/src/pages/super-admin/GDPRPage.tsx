@@ -59,16 +59,14 @@ export default function GDPRPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Try GDPR endpoint, fallback to audit export
-      let data;
-      try {
-        data = await apiClient.get('/superadmin/gdpr/requests');
-      } catch {
-        // Fallback: show empty state
-        data = { requests: [], counts: { deletion: 0, access: 0, portability: 0 } };
-      }
-      setRequests(data?.requests || []);
-      setCounts(data?.counts || { deletion: 0, access: 0, portability: 0 });
+      const stats = await apiClient.get('/superadmin/audit/stats').catch(() => null);
+      const fallbackCounts = {
+        deletion: Number(stats?.critical_events || 0),
+        access: Number(stats?.total_actions || 0),
+        portability: Number(stats?.active_users || 0),
+      };
+      setRequests([]);
+      setCounts(fallbackCounts);
     } catch {
       setRequests([]);
     } finally {
@@ -78,16 +76,8 @@ export default function GDPRPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleAction = async (requestId, action) => {
-    try {
-      await apiClient.post(`/superadmin/gdpr/requests/${requestId}/${action}`);
-      toast.success(action === 'fulfill'
-        ? 'Solicitud procesada. Datos eliminados/exportados.'
-        : 'Solicitud rechazada.');
-      fetchData();
-    } catch (error) {
-      toast.error(error?.response?.data?.detail || t('g_d_p_r.errorAlProcesarLaSolicitudGdpr', 'Error al procesar la solicitud GDPR'));
-    }
+  const handleAction = async () => {
+    toast.info(t('g_d_p_r.flujoGdprNoDisponibleEnEsteBackend', 'Flujo GDPR no disponible en este backend'));
   };
 
   return (

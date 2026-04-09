@@ -57,9 +57,7 @@ export default function InfrastructurePage() {
       // Try dedicated health endpoints first, fall back to a simple config endpoint
       let data = null;
       const t0 = Date.now();
-      data = await apiClient.get('/admin/health').catch(() => null);
-      if (!data) data = await apiClient.get('/config/health').catch(() => null);
-      if (!data) data = await apiClient.get('/config/countries').catch(() => null);
+      data = await apiClient.get('/config/countries').catch(() => null);
       const latency = Date.now() - t0;
 
       const apiOk = data !== null;

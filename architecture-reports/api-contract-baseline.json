@@ -1,0 +1,5 @@
+{
+  "updated_at": "2026-04-10T23:32:00Z",
+  "max_allowed_mismatches": 0,
+  "notes": "Baseline after API contract analyzer fix for leading path params and frontend endpoint realignment; zero mismatches expected."
+}

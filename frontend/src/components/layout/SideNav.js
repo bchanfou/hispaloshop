@@ -124,7 +124,7 @@ function SearchPanel({
           search: q,
           limit: 5
         }
-      }), apiClient.get('/discovery/search-users', {
+      }), apiClient.get('/discovery/search', {
         params: {
           q,
           limit: 5
@@ -134,7 +134,7 @@ function SearchPanel({
         ...p,
         _type: 'product'
       }));
-      const users = (usersRes.status === 'fulfilled' ? usersRes.value?.users || usersRes.value || [] : []).map(u => ({
+      const users = (usersRes.status === 'fulfilled' ? usersRes.value?.creators || usersRes.value?.users || [] : []).map(u => ({
         ...u,
         _type: 'user'
       }));

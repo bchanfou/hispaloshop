@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft, Inbox } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
@@ -195,7 +196,7 @@ export default function ChatsPage() {
   useEffect(() => {
     reloadConversations();
     // Load pending requests count
-    apiClient.get('/chat/requests/count').then(data => {
+    apiClient.get('/internal-chat/requests/count').then(data => {
       setPendingRequests(data?.pending_count || 0);
     }).catch(() => {});
   }, [reloadConversations]);

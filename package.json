@@ -2,8 +2,10 @@
   "scripts": {
     "lint:frontend": "npm --prefix frontend run lint -- --max-warnings=0",
     "build:frontend": "npm --prefix frontend run build",
+    "api:contract:report": "node scripts/analyze-api-contract.mjs",
+    "api:contract:check": "node scripts/check-api-contract-baseline.mjs",
     "verify:backend": "cd backend && pytest tests/test_orders_webhook_checkout_completed_idempotency.py tests/test_orders_webhook_payment_failed.py tests/test_process_payment_confirmed_lock_reclaim.py tests/test_orders_webhook_processed_events.py tests/test_orders_webhook_error_path.py tests/test_checkout_status_fallback_idempotency.py tests/test_refund_concurrency_lock.py tests/test_orders_refund_webhook_sync.py -q",
-    "verify": "npm run lint:frontend && npm run build:frontend && npm run verify:backend",
+    "verify": "npm run lint:frontend && npm run build:frontend && npm run api:contract:report && npm run api:contract:check && npm run verify:backend",
     "verify:full": "npm run verify && cd backend && pytest -q"
   },
   "dependencies": {

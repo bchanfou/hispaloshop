@@ -67,7 +67,7 @@ export default function WishlistSharedPage() {
     const pid = item.product_id ?? item.productId;
     requireAuth(async () => {
       try {
-        await apiClient.post(`/wishlists/shared/${slug}/items/${pid}/purchased`);
+        await apiClient.put(`/wishlists/${list?.wishlist_id}/items/${pid}/purchased`, {});
         setList((prev) => ({
           ...prev,
           items: (prev.items ?? []).map((i) =>

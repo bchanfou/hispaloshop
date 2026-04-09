@@ -27,7 +27,7 @@ export default function ChatRequestsPage() {
   const loadRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiClient.get('/chat/requests?status=pending');
+      const data = await apiClient.get('/internal-chat/requests?status=pending');
       setRequests(data?.requests || []);
     } catch (e) {
       // Silent error
@@ -47,7 +47,7 @@ export default function ChatRequestsPage() {
     
     setProcessing(prev => new Set(prev).add(requestId));
     try {
-      const data = await apiClient.post(`/chat/requests/${requestId}/accept`, {});
+      const data = await apiClient.post(`/internal-chat/requests/${requestId}/accept`, {});
       
       if (data?.conversation_id) {
         toast.success(i18n.t('chat.requestAccepted', 'Solicitud aceptada'));
@@ -72,7 +72,7 @@ export default function ChatRequestsPage() {
     
     setProcessing(prev => new Set(prev).add(requestId));
     try {
-      await apiClient.post(`/chat/requests/${requestId}/decline`, {});
+      await apiClient.post(`/internal-chat/requests/${requestId}/decline`, {});
       
       toast.success(i18n.t('chat.requestDeclined', 'Solicitud rechazada'));
       // Remove from list

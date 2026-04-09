@@ -179,8 +179,12 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       [tabId]: true
     }));
     try {
-      const sep = endpointMap[tabId].includes('?') ? '&' : '?';
-      const res = await apiClient.get(`${endpointMap[tabId]}${sep}skip=${skip}&limit=${PAGE_SIZE}`);
+      const res = await apiClient.get(endpointMap[tabId], {
+        params: {
+          skip,
+          limit: PAGE_SIZE,
+        },
+      });
       const items = Array.isArray(res) ? res : res?.results ?? res?.items ?? res?.data ?? [];
       setData(prev => ({
         ...prev,

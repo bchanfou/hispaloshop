@@ -52,3 +52,54 @@ Scope: Perfil, feed, uploads, producto/tienda/certificado, locale, panel admin/s
 - [ ] Country/language/currency change persists and does not break cart
 - [ ] Super-admin sections open and load data
 - [ ] No blocking console/runtime errors in critical paths
+
+## Phase 2: Contract Closure (2026-04-10)
+
+### Objective
+- Close P1-04 frontend/backend API contract drift and enforce non-regression at CI gate level.
+
+### Work completed
+- Frontend endpoint realignment and dead/unsupported call cleanup in:
+  - `frontend/src/components/chat/GroupChatPanel.tsx`
+  - `frontend/src/hooks/api/useNotifications.js`
+  - `frontend/src/pages/customer/CustomerProfile.tsx`
+  - `frontend/src/pages/CertificatePage.tsx`
+  - `frontend/src/pages/importer/ImporterCertificatesPage.tsx`
+  - `frontend/src/pages/SavedPage.tsx`
+  - `frontend/src/pages/super-admin/GDPRPage.tsx`
+- Analyzer hardening in `scripts/analyze-api-contract.mjs`:
+  - preserve leading route params when parsing backend decorators (avoids false positives for `/{id}/...` routes),
+  - keep mounted prefix expansion from `backend/main.py`.
+
+### Validation evidence
+- `npm run lint:frontend` => pass
+- `npm run build:frontend` => pass
+- `npm run verify` => pass
+- `npm run verify:full` => pass (`251 passed, 1103 skipped, 2 xfailed`)
+- `npm run api:contract:report` => `potential_mismatches=0`
+- `npm run api:contract:check` => pass with enforced baseline
+
+### Gate status
+- Updated `architecture-reports/api-contract-baseline.json`:
+  - `max_allowed_mismatches: 0`
+- Current contract state:
+  - `frontend_calls=751`
+  - `backend_routes=850`
+  - `potential_mismatches=0`
+
+## Phase 2.1: Saved Collections UX Hardening (2026-04-10)
+
+### Objective
+- Avoid dead-end UX in Saved page while collections API is not available in active backend runtime.
+
+### Work completed
+- Updated `frontend/src/pages/SavedPage.tsx`:
+  - disabled the `collections` tab,
+  - added "Pronto" badge,
+  - added info toast on attempted access.
+
+### Validation evidence
+- `npm --prefix frontend run lint -- --max-warnings=0` => pass
+- `npm --prefix frontend run build` => pass
+- `npm run verify:full` => pass (`251 passed, 1103 skipped, 2 xfailed`)
+- `npm run api:contract:check` => pass (`api_contract_current=0`, `api_contract_allowed=0`)

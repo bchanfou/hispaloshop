@@ -65,7 +65,7 @@ export default function GlobalSearch() {
   // Load trending on open
   useEffect(() => {
     if (!open || trending.length) return;
-    apiClient.get('/search/trending').then(d => setTrending(d?.queries || [])).catch(() => {});
+    apiClient.get('/search/trending').then(d => setTrending(d?.trending || [])).catch(() => {});
   }, [open, trending.length]);
 
   // Search with debounce
@@ -73,7 +73,12 @@ export default function GlobalSearch() {
     if (q.length < 2) { setResults(null); return; }
     setLoading(true);
     try {
-      const data = await apiClient.get(`/search?q=${encodeURIComponent(q)}&limit=5`);
+      const data = await apiClient.get('/discovery/search', {
+        params: {
+          q,
+          limit: 5,
+        },
+      });
       setResults(data || {});
       setSelected(-1);
       trackEvent('global_search_performed', { query: q.slice(0, 30), type: tab, results_count: Object.values(data || {}).flat().length });

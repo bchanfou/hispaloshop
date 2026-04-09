@@ -58,7 +58,7 @@ export default function WishlistDetailPage() {
   async function handleRemoveItem(itemId: string) {
     try {
       await apiClient.delete(`/wishlists/${wishlistId}/items/${itemId}`);
-      setWishlist((prev) => prev ? { ...prev, items: prev.items.filter((i) => i.item_id !== itemId) } : prev);
+      setWishlist((prev) => prev ? { ...prev, items: prev.items.filter((i) => i.product_id !== itemId) } : prev);
     } catch {
       toast.error(t('wishlists.removeError', 'No se pudo eliminar'));
     }
@@ -66,7 +66,7 @@ export default function WishlistDetailPage() {
 
   async function handleTogglePurchased(item: WishlistItem) {
     try {
-      await apiClient.put(`/wishlists/${wishlistId}/items/${item.item_id}`, { marked_as_purchased: !item.marked_as_purchased });
+      await apiClient.put(`/wishlists/${wishlistId}/items/${item.product_id}/purchased`, {});
       setWishlist((prev) => prev ? { ...prev, items: prev.items.map((i) => i.item_id === item.item_id ? { ...i, marked_as_purchased: !i.marked_as_purchased } : i) } : prev);
     } catch {
       toast.error(t('wishlists.updateError', 'No se pudo actualizar'));
@@ -253,7 +253,7 @@ export default function WishlistDetailPage() {
                     <Check size={14} className="text-stone-700" />
                   </button>
                   {wishlist.is_owner && (
-                    <button onClick={() => handleRemoveItem(item.item_id)} className="p-1.5 rounded-full border border-stone-200 hover:bg-stone-100 transition-colors" title={t('common.remove', 'Eliminar')}>
+                    <button onClick={() => handleRemoveItem(item.product_id)} className="p-1.5 rounded-full border border-stone-200 hover:bg-stone-100 transition-colors" title={t('common.remove', 'Eliminar')}>
                       <X size={14} className="text-stone-500" />
                     </button>
                   )}

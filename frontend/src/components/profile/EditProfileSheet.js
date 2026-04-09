@@ -2,8 +2,7 @@ import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Check, Globe, Loader2, MapPin, X, Youtube } from 'lucide-react';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
-import { useUpdateProfile } from '../../hooks/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserAvatar } from '../../features/user/hooks';
 import { resolveUserImage, userKeys } from '../../features/user/queries';
 import { getCloudinarySrcSet } from '../../utils/cloudinary';
@@ -52,10 +51,9 @@ export default function EditProfileSheet({
   onClose
 }) {
   const queryClient = useQueryClient();
-  const {
-    mutate,
-    isPending
-  } = useUpdateProfile();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (profileData) => apiClient.put('/customer/profile', profileData),
+  });
   const {
     uploadingAvatar,
     uploadAvatar

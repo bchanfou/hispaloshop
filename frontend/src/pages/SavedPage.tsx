@@ -32,7 +32,8 @@ const TABS = [{
 }, {
   key: 'collections',
   label: 'Colecciones',
-  icon: FolderOpen
+  icon: FolderOpen,
+  disabled: true
 }] as const;
 type TabKey = typeof TABS[number]['key'];
 const PAGE_SIZE = 21;
@@ -79,14 +80,10 @@ async function fetchSavedRecipes({
     nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined
   };
 }
-async function fetchCollections({
-  pageParam = 0
-}) {
-  const res = await apiClient.get(`/users/me/collections?skip=${pageParam}&limit=${PAGE_SIZE}`);
-  const items = Array.isArray(res) ? res : res?.collections || [];
+async function fetchCollections() {
   return {
-    items,
-    nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined
+    items: [],
+    nextSkip: undefined
   };
 }
 const FETCH_MAP: Record<TabKey, (ctx: {
@@ -125,9 +122,17 @@ export default function SavedPage() {
             {TABS.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
-            return <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`relative flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium border-none bg-transparent cursor-pointer transition-colors ${isActive ? 'text-stone-950' : 'text-stone-400 hover:text-stone-600'}`}>
+            const isDisabled = Boolean(tab.disabled);
+            return <button key={tab.key} onClick={() => {
+              if (isDisabled) {
+                toast.info(i18n.t('saved.coleccionesNoDisponiblesTemporalmente', 'Colecciones no disponibles temporalmente'));
+                return;
+              }
+              setActiveTab(tab.key);
+            }} className={`relative flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium border-none bg-transparent transition-colors ${isDisabled ? 'cursor-not-allowed text-stone-300' : 'cursor-pointer'} ${isActive ? 'text-stone-950' : isDisabled ? 'text-stone-300' : 'text-stone-400 hover:text-stone-600'}`}>
                   <Icon size={16} />
                   <span className="hidden sm:inline">{tab.label}</span>
+                  {isDisabled && <span className="ml-1 rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-500">Pronto</span>}
                   {isActive && <motion.div layoutId="saved-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-stone-950 rounded-full" transition={{
                 type: 'spring',
                 stiffness: 500,
@@ -382,9 +387,7 @@ function CollectionsGrid({
   const handleCreate = useCallback(async () => {
     if (!newName.trim()) return;
     try {
-      await apiClient.post('/users/me/collections', {
-        name: newName.trim()
-      });
+      toast.info(i18n.t('saved.coleccionesNoDisponiblesTemporalmente', 'Colecciones no disponibles temporalmente'));
       setNewName('');
       setCreating(false);
       queryClient.invalidateQueries({

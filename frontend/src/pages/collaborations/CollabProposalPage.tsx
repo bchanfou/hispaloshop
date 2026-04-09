@@ -36,27 +36,14 @@ export default function CollabProposalPage() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiClient.get('/products/my');
+        const data = await apiClient.get('/producer/products');
         setProducts((data.products || data || []).slice(0, 50));
       } catch { setProducts([]); }
       finally { setLoadingProducts(false); }
     })();
   }, []);
 
-  // Fetch influencer tier info
-  useEffect(() => {
-    if (!influencerId) return;
-    (async () => {
-      try {
-        const data = await apiClient.get(`/influencer/${influencerId}/public`);
-        const tier = data?.current_tier || 'hercules';
-        const tierMap = { hercules: 3, atenea: 5, zeus: 7 };
-        setInfluencerTier({ name: tier.charAt(0).toUpperCase() + tier.slice(1), rate: tierMap[tier] || 3 });
-      } catch {
-        // fallback
-      }
-    })();
-  }, [influencerId]);
+  // Influencer public tier endpoint is not available in backend; keep safe default.
 
   // Set default commission when tier loads
   useEffect(() => {
