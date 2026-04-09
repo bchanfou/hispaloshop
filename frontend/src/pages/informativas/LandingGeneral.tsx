@@ -17,6 +17,24 @@ import SEO from '../../components/SEO';
 
 const FEATURE_ICONS = [ShoppingBag, Users, Store, TrendingUp, Globe, Heart];
 
+// Helper para generar URLs con prefijo de idioma para landings
+const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+function useLocalizedLandingPath() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'es';
+  
+  return (path: string): string => {
+    // Solo aplicar prefijo para landings y si no es español
+    const isLanding = ['/productor', '/distribuidor', '/influencer', '/consumidor', '/about', '/landing'].some(
+      landing => path === landing || path.startsWith(landing + '/')
+    );
+    if (isLanding && lang !== 'es' && LANDING_LANGS.includes(lang)) {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+}
+
 interface RoleCardData {
   role: string;
   description: string;
@@ -24,7 +42,13 @@ interface RoleCardData {
   to: string;
 }
 
-function RoleCard({ item, index }: { item: RoleCardData; index: number; key?: React.Key }) {
+interface RoleCardProps {
+  item: RoleCardData;
+  index: number;
+  getLocalizedPath: (path: string) => string;
+}
+
+function RoleCard({ item, index, getLocalizedPath }: RoleCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
@@ -45,7 +69,7 @@ function RoleCard({ item, index }: { item: RoleCardData; index: number; key?: Re
         </p>
       </div>
       <Link
-        to={item.to}
+        to={getLocalizedPath(item.to)}
         className="inline-flex items-center gap-2 text-[13px] font-semibold text-stone-950 no-underline group-hover:gap-3 transition-all duration-200"
       >
         {item.cta}
@@ -57,6 +81,7 @@ function RoleCard({ item, index }: { item: RoleCardData; index: number; key?: Re
 
 function RolesSection() {
   const { t } = useTranslation();
+  const getLocalizedPath = useLocalizedLandingPath();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -88,7 +113,7 @@ function RolesSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {Array.isArray(items) && items.map((item, i) => (
-            <RoleCard key={i} item={item} index={i} />
+            <RoleCard key={i} item={item} index={i} getLocalizedPath={getLocalizedPath} />
           ))}
         </div>
       </div>
@@ -98,6 +123,7 @@ function RolesSection() {
 
 export default function LandingGeneral() {
   const { t } = useTranslation();
+  const getLocalizedPath = useLocalizedLandingPath();
 
   const heroData = {
     eyebrow: t('landing.general.hero.eyebrow', 'La comida tiene historia'),
@@ -106,7 +132,7 @@ export default function LandingGeneral() {
     ctaText: t('landing.general.hero.ctaText', 'Explorar productos'),
     ctaTo: t('landing.general.hero.ctaTo', '/discover'),
     secondaryCtaText: t('landing.general.hero.secondaryCtaText', 'Soy productor'),
-    secondaryCtaTo: t('landing.general.hero.secondaryCtaTo', '/productor'),
+    secondaryCtaTo: getLocalizedPath(t('landing.general.hero.secondaryCtaTo', '/productor')),
   };
 
   const featuresEyebrow = t('landing.general.features.eyebrow', 'Por qué hispaloshop');

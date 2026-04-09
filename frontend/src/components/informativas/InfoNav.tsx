@@ -1,9 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ChevronRight, Globe } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../brand/Logo';
 import { useTranslation } from 'react-i18next';
+
+// Helper para generar URLs con prefijo de idioma para landings
+const LANDING_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'ko'];
+function useLocalizedLandingPath() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'es';
+  
+  return (path: string): string => {
+    // Solo aplicar prefijo para landings y si no es español
+    const isLanding = ['/productor', '/distribuidor', '/influencer', '/consumidor', '/about', '/landing'].some(
+      landing => path === landing || path.startsWith(landing + '/')
+    );
+    if (isLanding && lang !== 'es' && LANDING_LANGS.includes(lang)) {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+}
 
 const NAV_LINKS = [
   { labelKey: 'landing.nav.consumidor', fallback: 'Consumidor', to: '/consumidor' },
@@ -14,6 +32,7 @@ const NAV_LINKS = [
 
 export default function InfoNav() {
   const { t } = useTranslation();
+  const getLocalizedPath = useLocalizedLandingPath();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -84,7 +103,7 @@ export default function InfoNav() {
             {NAV_LINKS.map(link => (
               <Link
                 key={link.to}
-                to={link.to}
+                to={getLocalizedPath(link.to)}
                 className="py-1.5 px-4 text-[13px] font-medium text-stone-500 no-underline rounded-full transition-all duration-200 hover:text-stone-950 hover:bg-stone-100"
               >
                 {t(link.labelKey, link.fallback)}
@@ -148,7 +167,7 @@ export default function InfoNav() {
                 {NAV_LINKS.map(link => (
                   <Link
                     key={link.to}
-                    to={link.to}
+                    to={getLocalizedPath(link.to)}
                     onClick={() => setDrawerOpen(false)}
                     className="flex items-center justify-between px-3 py-3.5 rounded-xl no-underline text-[15px] font-medium text-stone-800 transition-colors hover:bg-stone-100"
                   >
