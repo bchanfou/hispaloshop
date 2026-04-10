@@ -1974,44 +1974,57 @@ async def stripe_webhook(request: Request):
                                         {"payout_id": sp["payout_id"]},
                                         {"$set": {"amount": new_amount, "updated_at": now_iso}}
                                     )
+                    # Write a negative ledger entry for the refund — covers the case
+                    # where the refund originates in Stripe Dashboard (not via the
+                    # admin /payments/refund/{order_id} endpoint, which already writes
+                    # its own ledger entry). Without this, dashboard refunds bypass
+                    # the financial ledger.
+                    try:
+                        await write_ledger_event(
+                            db,
+                            event_type="refund",
+                            order_id=order["order_id"],
+                            currency=order.get("currency", "EUR"),
+                            product_subtotal=-refund_amount_eur,
+                            buyer_id=order.get("user_id", ""),
+                            buyer_country=order.get("country", ""),
+                            status="completed",
+                            extra={
+                                "refund_type": "full" if refunded_fully else "partial",
+                                "source": "stripe_webhook",
+                                "stripe_payment_intent_id": payment_intent_id,
+                            },
+                        )
+                    except Exception as ledger_err:
+                        logger.error(f"[WEBHOOK] Failed to write refund ledger entry for {order['order_id']}: {ledger_err}")
+
+                    # Notify customer about the refund (in_app + push + email).
+                    try:
+                        customer_id = order.get("user_id")
+                        if customer_id:
+                            from services.notifications.dispatcher_service import notification_dispatcher
+                            await notification_dispatcher.send_notification(
+                                user_id=customer_id,
+                                title="Pedido reembolsado",
+                                body=f"Tu pedido #{str(order['order_id'])[-8:]} ha sido reembolsado por {refund_amount_eur:.2f} {order.get('currency', 'EUR')}.",
+                                notification_type="order_refunded",
+                                channels=["in_app", "push", "email"],
+                                data={"order_id": order["order_id"]},
+                                action_url=f"/orders/{order['order_id']}",
+                            )
+                    except Exception as notif_err:
+                        logger.warning(f"[WEBHOOK] Failed to send refund notification for {order['order_id']}: {notif_err}")
+
                     logger.info(f"[WEBHOOK] Refund processed for order {order['order_id']}: {new_status}")
                 else:
                     logger.warning(f"[WEBHOOK] charge.refunded: no order found for pi={payment_intent_id}")
 
-        elif event_type == "customer.subscription.created":
-            sub_obj = event.get("data", {}).get("object", {})
-            customer_id = sub_obj.get("customer")
-            plan_amount = sub_obj.get("plan", {}).get("amount", 0)
-            plan_name = "elite" if plan_amount >= 14900 else "pro" if plan_amount >= 7900 else "free"
-            logger.info(f"[WEBHOOK] Subscription created: customer={customer_id}, plan={plan_name}")
-            if customer_id:
-                await db.users.update_one(
-                    {"stripe_customer_id": customer_id},
-                    {"$set": {"subscription_plan": plan_name, "plan": plan_name, "updated_at": datetime.now(timezone.utc)}}
-                )
-
-        elif event_type == "customer.subscription.updated":
-            sub_obj = event.get("data", {}).get("object", {})
-            customer_id = sub_obj.get("customer")
-            status = sub_obj.get("status")
-            plan_amount = sub_obj.get("plan", {}).get("amount", 0)
-            plan_name = "elite" if plan_amount >= 14900 else "pro" if plan_amount >= 7900 else "free"
-            logger.info(f"[WEBHOOK] Subscription updated: customer={customer_id}, plan={plan_name}, status={status}")
-            if customer_id and status == "active":
-                await db.users.update_one(
-                    {"stripe_customer_id": customer_id},
-                    {"$set": {"subscription_plan": plan_name, "plan": plan_name, "updated_at": datetime.now(timezone.utc)}}
-                )
-
-        elif event_type == "customer.subscription.deleted":
-            sub_obj = event.get("data", {}).get("object", {})
-            customer_id = sub_obj.get("customer")
-            logger.info(f"[WEBHOOK] Subscription deleted: customer={customer_id}")
-            if customer_id:
-                await db.users.update_one(
-                    {"stripe_customer_id": customer_id},
-                    {"$set": {"subscription_plan": "free", "plan": "free", "updated_at": datetime.now(timezone.utc)}}
-                )
+        # NOTE: customer.subscription.* events are NOT handled here. The canonical
+        # handler lives in routes/subscriptions.py at /webhooks/stripe-billing and
+        # writes to subscription.plan (uppercase, nested). A duplicate handler used
+        # to live here writing to top-level subscription_plan/plan in lowercase,
+        # causing a desync where get_seller_commission_rate would still see FREE
+        # after a successful upgrade. Removed in section 3.1 verification.
 
         # Mark event as completed (idempotency slot was reserved at top)
         if event_id:

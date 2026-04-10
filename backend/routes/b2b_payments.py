@@ -32,6 +32,22 @@ STRIPE_FEE_FIXED_EUR = 0.25     # €0.25 fixed Stripe fee
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _is_stale_processing(ts_value, stale_seconds: int = 120) -> bool:
+    """True if a webhook processing slot was claimed >stale_seconds ago (likely crashed)."""
+    if not ts_value:
+        return True
+    try:
+        if isinstance(ts_value, str):
+            ts = datetime.fromisoformat(ts_value.replace("Z", "+00:00"))
+        else:
+            ts = ts_value
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - ts).total_seconds() >= stale_seconds
+    except (ValueError, TypeError, AttributeError):
+        return True
+
+
 def _get_accepted_offer(operation: dict) -> dict:
     """Return the last (accepted) offer from the operation's offers array."""
     offers = operation.get("offers", [])
@@ -318,17 +334,48 @@ async def stripe_b2b_webhook(request: Request):
         # See orders.py webhook handler for full rationale.
         if event_id:
             from pymongo.errors import DuplicateKeyError
+            processing_started_at = datetime.now(timezone.utc).isoformat()
             try:
                 await db.processed_webhook_events.insert_one({
                     "event_id": event_id,
                     "event_type": event_type,
                     "source": "b2b",
                     "status": "processing",
-                    "processed_at": datetime.now(timezone.utc).isoformat(),
+                    "processed_at": processing_started_at,
                 })
             except DuplicateKeyError:
-                logger.info("[B2B WEBHOOK] Event %s already processed, skipping", event_id)
-                return {"status": "already_processed"}
+                existing = await db.processed_webhook_events.find_one(
+                    {"event_id": event_id},
+                    {"_id": 0, "status": 1, "processed_at": 1},
+                )
+                if existing and existing.get("status") == "completed":
+                    logger.info("[B2B WEBHOOK] Event %s already completed, skipping", event_id)
+                    return {"status": "already_processed"}
+                # Try to reclaim stale processing slot from a crashed handler.
+                if existing and _is_stale_processing(existing.get("processed_at")):
+                    reclaimed = await db.processed_webhook_events.update_one(
+                        {
+                            "event_id": event_id,
+                            "status": {"$in": ["processing", "failed"]},
+                            "processed_at": existing.get("processed_at"),
+                        },
+                        {
+                            "$set": {
+                                "status": "processing",
+                                "processed_at": processing_started_at,
+                                "recovered": True,
+                            },
+                            "$unset": {"error": "", "failed_at": "", "completed_at": ""},
+                        },
+                    )
+                    if reclaimed.matched_count > 0:
+                        logger.warning("[B2B WEBHOOK] Reclaimed stale event %s for retry", event_id)
+                    else:
+                        logger.info("[B2B WEBHOOK] Event %s currently in progress, skipping duplicate", event_id)
+                        return {"status": "already_processing"}
+                else:
+                    logger.info("[B2B WEBHOOK] Event %s currently in progress, skipping duplicate", event_id)
+                    return {"status": "already_processing"}
 
         data_object = event.get("data", {}).get("object", {})
         metadata = data_object.get("metadata", {})

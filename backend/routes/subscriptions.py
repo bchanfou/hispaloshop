@@ -20,6 +20,7 @@ from services.subscriptions import (
     list_subscription_plans, has_tier_access,
     get_user_subscription_doc,
     record_subscription_event, get_seller_plan_price, get_seller_plan_currency,
+    INFLUENCER_MIN_PAYOUT_EUR, INFLUENCER_PAYOUT_DELAY_DAYS, ATTRIBUTION_LOCK_MONTHS,
 )
 from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
@@ -42,6 +43,22 @@ def require_subscription(min_tier: str):
 def _ensure_stripe_ready():
     if not stripe.api_key:
         raise HTTPException(status_code=503, detail="Stripe no esta configurado")
+
+
+def _billing_is_stale_processing(ts_value, stale_seconds: int = 120) -> bool:
+    """True if a webhook processing slot was claimed >stale_seconds ago (likely crashed)."""
+    if not ts_value:
+        return True
+    try:
+        if isinstance(ts_value, str):
+            ts = datetime.fromisoformat(ts_value.replace("Z", "+00:00"))
+        else:
+            ts = ts_value
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - ts).total_seconds() >= stale_seconds
+    except (ValueError, TypeError, AttributeError):
+        return True
 
 
 def _get_seller_success_route(user: User) -> str:
@@ -212,10 +229,10 @@ async def get_seller_plans():
                 "price": 249,
                 "price_with_vat": 301.29,
                 "currency": "EUR",
-                "commission": "15%",
+                "commission": "17%",
                 "features": [
                     "Todo de Pro +",
-                    "Comision 15%",
+                    "Comision 17%",
                     "Prioridad en homepage",
                     "Matching con influencers Zeus",
                     "IA avanzada: forecast + bundles",
@@ -580,17 +597,48 @@ async def stripe_billing_webhook(request: Request):
     # See orders.py webhook handler for full rationale.
     if event_id:
         from pymongo.errors import DuplicateKeyError
+        processing_started_at = datetime.now(timezone.utc).isoformat()
         try:
             await db.processed_webhook_events.insert_one({
                 "event_id": event_id,
                 "event_type": event_type,
                 "source": "billing",
                 "status": "processing",
-                "processed_at": datetime.now(timezone.utc).isoformat(),
+                "processed_at": processing_started_at,
             })
         except DuplicateKeyError:
-            logger.info(f"[BILLING WEBHOOK] Event {event_id} already processed, skipping")
-            return {"status": "already_processed"}
+            existing = await db.processed_webhook_events.find_one(
+                {"event_id": event_id},
+                {"_id": 0, "status": 1, "processed_at": 1},
+            )
+            if existing and existing.get("status") == "completed":
+                logger.info(f"[BILLING WEBHOOK] Event {event_id} already completed, skipping")
+                return {"status": "already_processed"}
+            # Reclaim stale processing slot from a crashed handler.
+            if existing and _billing_is_stale_processing(existing.get("processed_at")):
+                reclaimed = await db.processed_webhook_events.update_one(
+                    {
+                        "event_id": event_id,
+                        "status": {"$in": ["processing", "failed"]},
+                        "processed_at": existing.get("processed_at"),
+                    },
+                    {
+                        "$set": {
+                            "status": "processing",
+                            "processed_at": processing_started_at,
+                            "recovered": True,
+                        },
+                        "$unset": {"error": "", "failed_at": "", "completed_at": ""},
+                    },
+                )
+                if reclaimed.matched_count > 0:
+                    logger.warning(f"[BILLING WEBHOOK] Reclaimed stale event {event_id} for retry")
+                else:
+                    logger.info(f"[BILLING WEBHOOK] Event {event_id} currently in progress, skipping duplicate")
+                    return {"status": "already_processing"}
+            else:
+                logger.info(f"[BILLING WEBHOOK] Event {event_id} currently in progress, skipping duplicate")
+                return {"status": "already_processing"}
 
     if event_type in ("invoice.paid", "invoice.payment_succeeded"):
         sub_id = data.get("subscription")
@@ -678,9 +726,9 @@ async def get_influencer_tiers():
             }
             for tier in INFLUENCER_TIER_ORDER
         ],
-        "attribution_months": 18,
-        "payout_delay_days": 15,
-        "min_payout_eur": 50,
+        "attribution_months": ATTRIBUTION_LOCK_MONTHS,
+        "payout_delay_days": INFLUENCER_PAYOUT_DELAY_DAYS,
+        "min_payout_eur": INFLUENCER_MIN_PAYOUT_EUR,
     }
 
 
@@ -797,6 +845,39 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
     elite_subscriptions = await db.users.count_documents({'subscription.plan': 'ELITE', 'subscription.plan_status': 'active'})
     free_subscriptions = await db.users.count_documents({'$or': [{'subscription.plan': 'FREE'}, {'subscription': {'$exists': False}}]})
 
+    # Payment health metrics (added in section 3.1)
+    failed_payments_month = await db.orders.count_documents({
+        'created_at': {'$gte': month_start},
+        'status': 'payment_failed',
+    })
+    refunds_month = await db.orders.find(
+        {
+            'created_at': {'$gte': month_start},
+            'status': {'$in': ['refunded', 'partially_refunded']},
+        },
+        {'_id': 0, 'refunded_amount': 1, 'refund_amount': 1, 'currency': 1},
+    ).to_list(2000)
+    refund_amount_month = round(
+        sum(float(r.get('refunded_amount') or r.get('refund_amount') or 0) for r in refunds_month),
+        2,
+    )
+    pending_manual_payouts = await db.scheduled_payouts.count_documents({'status': 'scheduled'})
+    pending_manual_payouts_amount = round(
+        sum(p.get('amount', 0) for p in await db.scheduled_payouts.find(
+            {'status': 'scheduled'},
+            {'_id': 0, 'amount': 1},
+        ).to_list(2000)),
+        2,
+    )
+    failed_webhooks_24h = await db.processed_webhook_events.count_documents({
+        'status': 'failed',
+        'processed_at': {'$gte': (now - timedelta(hours=24)).isoformat()},
+    })
+    stuck_webhooks = await db.processed_webhook_events.count_documents({
+        'status': 'processing',
+        'processed_at': {'$lt': (now - timedelta(minutes=5)).isoformat()},
+    })
+
     return {
         'generated_at': now.isoformat(),
         'kpis': {
@@ -806,7 +887,16 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
             'subscriptions_free': free_subscriptions,
             'subscriptions_pro': pro_subscriptions,
             'subscriptions_elite': elite_subscriptions,
-        }
+        },
+        'payment_health': {
+            'failed_payments_month': failed_payments_month,
+            'refunds_count_month': len(refunds_month),
+            'refund_amount_month': refund_amount_month,
+            'pending_manual_payouts_count': pending_manual_payouts,
+            'pending_manual_payouts_amount': pending_manual_payouts_amount,
+            'failed_webhooks_24h': failed_webhooks_24h,
+            'stuck_webhooks': stuck_webhooks,
+        },
     }
 
 
