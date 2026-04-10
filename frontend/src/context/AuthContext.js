@@ -166,6 +166,19 @@ export function AuthProvider({ children }) {
       if (mountedRef.current) {
         setError(err);
       }
+
+      const activeToken = getToken() || '';
+      if (!user && activeToken) {
+        const fallbackAccount = readStoredAccounts().find((a) => String(a?.token || '') === activeToken);
+        const fallbackUser = normalizeUser(fallbackAccount || null);
+        if (fallbackUser && mountedRef.current) {
+          setUser(fallbackUser);
+        }
+        if (fallbackUser) {
+          return fallbackUser;
+        }
+      }
+
       return user;
     } finally {
       checkingRef.current = false;

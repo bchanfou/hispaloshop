@@ -237,11 +237,6 @@ httpClient.interceptors.response.use(
 );
 
 async function request(config) {
-  if (!isOnline) {
-    const error = new Error('Sin conexión a internet');
-    error.isOffline = true;
-    throw error;
-  }
   const response = await httpClient.request(config);
   return response.data;
 }
