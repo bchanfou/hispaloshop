@@ -96,7 +96,7 @@ export default function MarketCoverage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+        <Loader2 className="w-6 h-6 animate-spin text-white/60" />
       </div>
     );
   }
@@ -106,13 +106,13 @@ export default function MarketCoverage() {
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">Mercados</h1>
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-white/70">
             Activa un país para que los vendedores locales puedan registrarse.
           </p>
         </div>
         <button
           onClick={() => { setLoading(true); fetchData(); }}
-          className="px-3 py-2 bg-white/[0.08] rounded-2xl text-white/60 hover:bg-white/[0.12] transition-colors"
+          className="px-3 py-2 bg-white/[0.08] rounded-2xl text-white/90 hover:bg-white/[0.12] transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -127,9 +127,9 @@ export default function MarketCoverage() {
           { icon: Clock, label: 'Stock global', value: totalStock.toLocaleString() },
         ].map(stat => (
           <SACard key={stat.label} className="!p-4">
-            <stat.icon className="w-4 h-4 text-white/30 mb-2" />
+            <stat.icon className="w-4 h-4 text-white/60 mb-2" />
             <p className="text-xl font-extrabold text-white">{stat.value}</p>
-            <p className="text-[10px] text-white/30">{stat.label}</p>
+            <p className="text-[10px] text-white/65">{stat.label}</p>
           </SACard>
         ))}
       </div>
@@ -159,17 +159,17 @@ export default function MarketCoverage() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-white">{country.name}</p>
                 {isActive && countryData ? (
-                  <p className="text-xs text-white/35">
+                  <p className="text-xs text-white/65">
                     {countryData.active_sellers || 0} vendedores · {countryData.active_products || 0} productos · {(countryData.total_stock || 0).toLocaleString()} stock
                   </p>
                 ) : (
-                  <p className="text-xs text-white/20">Inactivo</p>
+                  <p className="text-xs text-white/55">Inactivo</p>
                 )}
                 {(() => {
                   const cc = countryConfigs.find(c => c.country_code === country.code);
                   const adminId = cc?.admin_user_id;
                   return adminId ? (
-                    <p className="text-[10px] text-white/25 mt-0.5">Admin: {adminId.slice(0, 8)}…</p>
+                    <p className="text-[10px] text-white/55 mt-0.5">Admin: {adminId.slice(0, 8)}…</p>
                   ) : (
                     <div className="mt-0.5 flex items-center gap-2">
                       <button
@@ -181,10 +181,10 @@ export default function MarketCoverage() {
                           setAssigningAdmin(country.code);
                           setAdminInput('');
                         }}
-                        className="text-[10px] text-white/40 hover:text-white/70 underline underline-offset-2"
+                        className="text-[10px] text-white/70 hover:text-white underline underline-offset-2"
                       >Asignar admin</button>
                       {!countryConfigAvailable && (
-                        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-semibold text-white/40">Pronto</span>
+                        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-semibold text-white/70">Pronto</span>
                       )}
                     </div>
                   );
@@ -210,7 +210,7 @@ export default function MarketCoverage() {
                       }}
                       className="text-[10px] bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded-lg"
                     >OK</button>
-                    <button onClick={() => setAssigningAdmin(null)} className="text-[10px] text-white/30 hover:text-white/60">✕</button>
+                    <button onClick={() => setAssigningAdmin(null)} className="text-[10px] text-white/60 hover:text-white">✕</button>
                   </div>
                 )}
                 {(() => {
@@ -235,7 +235,7 @@ export default function MarketCoverage() {
                           toast.error(err?.message || err?.detail || 'Error');
                         }
                       }}
-                      className="text-[10px] text-white/30 hover:text-white/60 mt-0.5 underline underline-offset-2 block"
+                      className="text-[10px] text-white/60 hover:text-white mt-0.5 underline underline-offset-2 block"
                     >
                       Meta semanal: {currentGoal != null ? `${(currentGoal / 100).toLocaleString()}` : 'sin configurar'}
                     </button>
@@ -243,7 +243,7 @@ export default function MarketCoverage() {
                 })()}
               </div>
               {isActive && countryData && (
-                <span className="text-[11px] text-white/30">
+                <span className="text-[11px] text-white/60">
                   SLA {countryData.avg_sla_hours || '—'}h
                 </span>
               )}
@@ -280,7 +280,7 @@ export default function MarketCoverage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-white/30 text-[11px] uppercase tracking-wider">
+                <tr className="text-white/65 text-[11px] uppercase tracking-wider">
                   <th className="text-left py-2 pr-3">País</th>
                   <th className="text-right py-2 px-2">Prods</th>
                   <th className="text-right py-2 px-2">Sellers</th>
@@ -307,7 +307,7 @@ export default function MarketCoverage() {
                       <td className="text-right py-2.5 px-2 text-white/60">{(c.total_stock || 0).toLocaleString()}</td>
                       <td className="text-right py-2.5 px-2 text-white/60">{c.avg_sla_hours}h</td>
                       <td className="text-right py-2.5 px-2">
-                        <span className={c.out_of_stock > 0 ? 'text-[#78716c] font-bold' : 'text-white/30'}>
+                        <span className={c.out_of_stock > 0 ? 'text-[#78716c] font-bold' : 'text-white/60'}>
                           {c.out_of_stock}
                         </span>
                       </td>

@@ -109,12 +109,12 @@ export default function InfrastructurePage() {
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">Infraestructura</h1>
-          <p className="text-sm text-white/40">{t('infrastructure.estadoDeServiciosYConfiguracionDel', 'Estado de servicios y configuración del entorno')}</p>
+          <p className="text-sm text-white/70">{t('infrastructure.estadoDeServiciosYConfiguracionDel', 'Estado de servicios y configuración del entorno')}</p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="px-4 py-2 bg-white/[0.08] rounded-2xl text-sm text-white/60 hover:bg-white/[0.12] transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          className="px-4 py-2 bg-white/[0.08] rounded-2xl text-sm text-white/90 hover:bg-white/[0.12] transition-colors flex items-center gap-1.5 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           Actualizar
@@ -142,7 +142,7 @@ export default function InfrastructurePage() {
         <h3 className="text-[15px] font-bold text-white mb-4">Estado de servicios</h3>
         {loading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+            <Loader2 className="w-5 h-5 animate-spin text-white/60" />
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -156,10 +156,10 @@ export default function InfrastructurePage() {
                   <StatusDot status={h?.status || 'unknown'} />
                   <div>
                     <p className="text-xs font-semibold text-white">{svc.name}</p>
-                    <p className="text-[10px] text-white/30">{svc.description}</p>
+                    <p className="text-[10px] text-white/65">{svc.description}</p>
                   </div>
                   {h?.latency_ms && (
-                    <span className="text-[10px] text-white/30 ml-auto">{h.latency_ms}ms</span>
+                    <span className="text-[10px] text-white/65 ml-auto">{h.latency_ms}ms</span>
                   )}
                 </div>
               );
@@ -176,15 +176,15 @@ export default function InfrastructurePage() {
             <div key={v.key} className="flex items-center justify-between py-2 border-b border-white/[0.06] last:border-0">
               <div>
                 <p className="text-xs font-semibold text-white/60 font-mono">{v.key}</p>
-                <p className="text-[10px] text-white/25">{v.label}</p>
+                <p className="text-[10px] text-white/55">{v.label}</p>
               </div>
-              <span className="text-xs text-white/20 font-mono">
+              <span className="text-xs text-white/55 font-mono">
                 {v.masked ? '••••••••••••' : 'No configurada'}
               </span>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-white/20 mt-3">
+        <p className="text-[11px] text-white/55 mt-3">
           Las variables de entorno se gestionan directamente en Railway/Vercel. Esta vista es solo informativa.
         </p>
       </SACard>
@@ -202,7 +202,7 @@ export default function InfrastructurePage() {
             { label: 'Pagos', value: 'Stripe Connect' },
           ].map(item => (
             <div key={item.label} className="bg-white/[0.04] rounded-2xl px-3 py-2.5">
-              <p className="text-[10px] text-white/30 mb-0.5">{item.label}</p>
+              <p className="text-[10px] text-white/65 mb-0.5">{item.label}</p>
               <p className="text-xs font-semibold text-white">{item.value}</p>
             </div>
           ))}

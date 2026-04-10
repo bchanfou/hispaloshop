@@ -43,7 +43,7 @@ function DeadlineBadge({ deadline }) {
     <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
       isUrgent ? 'bg-stone-200 text-stone-700'
         : isWarning ? 'bg-[#78716c]/20 text-[#78716c]'
-          : 'bg-white/10 text-white/40'
+          : 'bg-white/10 text-white/70'
     }`}>
       {daysLeft > 0 ? `${daysLeft}d restantes` : 'Vencido'}
     </span>
@@ -86,7 +86,7 @@ export default function GDPRPage() {
     <div className="max-w-[800px] mx-auto pb-16">
       <div className="mb-7">
         <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">GDPR & Compliance</h1>
-        <p className="text-sm text-white/40">
+        <p className="text-sm text-white/70">
           Solicitudes de derechos de usuarios bajo el RGPD. Tiempo máximo de respuesta: 30 días.
         </p>
       </div>
@@ -98,7 +98,7 @@ export default function GDPRPage() {
             <p className="text-2xl font-extrabold mb-1" style={{ color: cfg.color }}>
               {counts[type] || 0}
             </p>
-            <p className="text-xs text-white/40">{cfg.label}</p>
+            <p className="text-xs text-white/70">{cfg.label}</p>
           </SACard>
         ))}
       </div>
@@ -106,12 +106,12 @@ export default function GDPRPage() {
       {/* Requests list */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+          <Loader2 className="w-6 h-6 animate-spin text-white/60" />
         </div>
       ) : requests.length === 0 ? (
         <div className="text-center py-16">
-          <Lock className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-[15px] text-white/40">
+          <Lock className="w-10 h-10 text-white/40 mx-auto mb-3" />
+          <p className="text-[15px] text-white/70">
             {gdprBackendAvailable ? 'Sin solicitudes GDPR pendientes' : 'Flujo GDPR no disponible en este backend'}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function GDPRPage() {
                 <div className="flex items-start justify-between mb-2.5">
                   <div>
                     <p className="text-sm font-bold text-white mb-0.5">{cfg.label}</p>
-                    <p className="text-xs text-white/35">
+                    <p className="text-xs text-white/65">
                       {req.user_email || 'usuario@email.com'} · {formatRelativeTime(req.created_at)}
                     </p>
                   </div>
@@ -153,7 +153,7 @@ export default function GDPRPage() {
                   <span className="text-[11px] font-bold text-stone-950">Procesada</span>
                 )}
                 {req.status === 'rejected' && (
-                  <span className="text-[11px] font-bold text-white/30">Rechazada</span>
+                  <span className="text-[11px] font-bold text-white/60">Rechazada</span>
                 )}
               </div>
             );
@@ -169,7 +169,7 @@ export default function GDPRPage() {
             <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-500">Pronto</span>
           )}
         </div>
-        <p className="text-xs text-white/35 mb-3">
+        <p className="text-xs text-white/65 mb-3">
           {gdprBackendAvailable
             ? 'Introduce el user_id para generar un archivo JSON con todos los datos del usuario.'
             : 'La exportación RGPD no está disponible en este backend por ahora.'}
