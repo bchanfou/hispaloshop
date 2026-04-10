@@ -130,7 +130,7 @@ Los datos están en cada componente para desarrollo:
 ## 📝 TODO
 
 - [ ] Conectar con API real
-- [ ] Implementar visor de stories (P3)
+- [x] Implementar visor de stories (P3)
 - [ ] Reproductor reels full-screen vertical
 - [ ] Infinite scroll real con cursor
 - [ ] Pull-to-refresh nativo
