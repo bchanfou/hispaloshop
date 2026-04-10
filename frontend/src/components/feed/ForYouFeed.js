@@ -178,6 +178,47 @@ export default function ForYouFeed() {
   // Estado de error con soporte offline
   if (isError) {
     const hasCachedData = cachedPosts.length > 0;
+
+    if (hasCachedData) {
+      return (
+        <div className="px-4 py-4">
+          <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            {t('feed.cached_fallback', 'Mostrando contenido guardado mientras recuperamos la conexión.')}
+          </div>
+          <button
+            onClick={handleRetry}
+            className="mb-4 w-full h-11 rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-950"
+          >
+            {t('common.retry', 'Reintentar')}
+          </button>
+          <div className="space-y-4">
+            {cachedPosts.map((post) => (
+              <div key={post.id} className="opacity-95">
+                <PostCard
+                  post={{
+                    id: post.id,
+                    user: {
+                      id: post.user_id,
+                      name: post.user_name,
+                      avatar: post.user_profile_image,
+                    },
+                    media: post.image_url ? [{ url: post.image_url, ratio: '1:1' }] : [],
+                    caption: post.caption || '',
+                    likes: post.likes_count || 0,
+                    liked: false,
+                    comments: post.comments_count || 0,
+                    timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
+                  }}
+                  onLike={() => {}}
+                  onComment={() => {}}
+                  onShare={() => {}}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
     
     return (
       <NetworkErrorState

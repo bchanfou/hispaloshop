@@ -30,7 +30,7 @@ async function pingBackend(retries = 0): Promise<boolean> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), PING_TIMEOUT);
     
-    // Intentar con HEAD primero (más ligero), luego GET si falla
+    // Intentar con HEAD primero (más ligero), luego GET si no es concluyente
     let response;
     try {
       response = await fetch(API_PING_URL, {
@@ -39,8 +39,20 @@ async function pingBackend(retries = 0): Promise<boolean> {
         cache: 'no-store',
         headers: { 'X-Network-Check': 'true' }
       });
+      // Aun si HEAD devuelve 4xx, hay conectividad real con el backend/origen.
+      // Solo tratamos 5xx como fallo de disponibilidad del servidor.
+      if (response && response.status < 500) {
+        clearTimeout(timeoutId);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[NetworkStatus] HEAD reachable:', API_PING_URL, response.status);
+        }
+        return true;
+      }
     } catch (headError) {
-      // Si HEAD falla, intentar con GET
+      // Si HEAD falla a nivel de red/CORS/abort, intentar con GET
+    }
+
+    if (!response || response.status >= 500) {
       response = await fetch(API_PING_URL, {
         method: 'GET',
         signal: controller.signal,
@@ -56,7 +68,8 @@ async function pingBackend(retries = 0): Promise<boolean> {
       console.log('[NetworkStatus] Ping success:', API_PING_URL, response.status);
     }
     
-    return response.ok;
+    // 2xx-4xx => hay conectividad real. 5xx => servidor temporalmente no disponible.
+    return response.status < 500;
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.log('[NetworkStatus] Ping failed:', API_PING_URL, error);
