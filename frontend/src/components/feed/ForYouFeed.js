@@ -46,6 +46,19 @@ export default function ForYouFeed() {
   const { isOnline, wasOffline } = useNetworkStatus();
   const [retryCount, setRetryCount] = useState(0);
   const [cachedPosts, setCachedPosts] = useState([]);
+  const prevIsErrorRef = useRef(false);
+
+  // Flatten and dedupe posts
+  const allPosts = useMemo(() => {
+    const raw = (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id);
+    const seen = new Set();
+    return raw.filter((p) => {
+      const key = String(p.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [feedQuery.data]);
 
   // Cargar posts cacheados al inicio
   useEffect(() => {
@@ -73,8 +86,9 @@ export default function ForYouFeed() {
 
   // Incrementar retry count en error
   useEffect(() => {
-    if (feedQuery.isError) {
-      setRetryCount(prev => prev + 1);
+    if (feedQuery.isError && !prevIsErrorRef.current) {
+      const nextRetryCount = retryCount + 1;
+      setRetryCount(nextRetryCount);
 
       const err = feedQuery.error || {};
       recordFeedDiagnostic({
@@ -83,7 +97,7 @@ export default function ForYouFeed() {
         message: err?.message || 'Unknown UI feed error',
         status: err?.status ?? 0,
         code: err?.code ?? null,
-        retryCount,
+        retryCount: nextRetryCount,
         cachedPostsCount: cachedPosts.length,
         hasData: allPosts.length > 0,
         queryIsFetching: feedQuery.isFetching,
@@ -94,6 +108,8 @@ export default function ForYouFeed() {
         diagnosticId: err?.diagnosticId ?? err?.feedDiagnostic?.id ?? null,
       });
     }
+
+    prevIsErrorRef.current = feedQuery.isError;
   }, [
     feedQuery.isError,
     feedQuery.error,
@@ -103,21 +119,9 @@ export default function ForYouFeed() {
     allPosts.length,
     cachedPosts.length,
     isOnline,
-    retryCount,
     wasOffline,
+    retryCount,
   ]);
-
-  // Flatten and dedupe posts
-  const allPosts = useMemo(() => {
-    const raw = (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id);
-    const seen = new Set();
-    return raw.filter((p) => {
-      const key = String(p.id);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }, [feedQuery.data]);
 
   // Pre-compute next reel video URL for each index
   const nextReelUrlByIndex = useMemo(() => {
