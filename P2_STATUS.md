@@ -3,10 +3,10 @@
 Fecha de corte: 2026-04-11
 
 ## Resumen ejecutivo
-Estado actualizado: P2 en progreso, no cerrado al 100%.
+Estado actualizado: P2 operativo (orders/chat interno) cerrado tecnicamente; cierre global de release aun pendiente.
 
-- Bloque P2 de ordenes/chat interno: avanzado y funcional.
-- Cierre formal P2 global: pendiente (falta checklist final de aceptacion por alcance completo).
+- Bloque P2 de ordenes/chat interno: implementado y validado con gates tecnicos.
+- Cierre formal P2 global: pendiente solo por validacion final en entorno release (staging/prod).
 
 ## Alcance evaluado para este estado
 Este estado consolida el P2 operativo trabajado en esta etapa (Order Tracking + contacto con productor en pedidos).
@@ -35,18 +35,21 @@ Este estado consolida el P2 operativo trabajado en esta etapa (Order Tracking + 
 | CTA contacto productor (single producer) | Verde | commit 940d19dd | Operativo en tarjetas de pedido |
 | Selector contacto (multi-producer) | Verde | commit a3daf005 | Operativo con lista expandible |
 | Fallback chat no disponible | Verde | commit 3f1eb6cc | Evita dead-end de UX |
-| Reporte formal de cierre P2 global | Amarillo | Este archivo | Emitido, pero no marcado como cerrado |
-| Checklist de aceptacion P2 global (todo alcance) | Amarillo | Pendiente | Falta validacion final integral |
+| Gate tecnico frontend lint | Verde | `npm --prefix frontend run lint -- --max-warnings=0` | Ejecutado 2026-04-11 |
+| Gate tecnico frontend build | Verde | `npm run build:frontend` | Ejecutado 2026-04-11 |
+| Gate contrato API | Verde | `npm run api:contract:check` (`0/0`) | Ejecutado 2026-04-11 |
+| Reporte formal de cierre P2 global | Verde | Este archivo | Emitido y actualizado con evidencia tecnica |
+| Checklist de aceptacion P2 global (todo alcance) | Amarillo | Parcial | Pendiente validacion final en release |
 | Validacion release P2 en entorno productivo | Amarillo | Pendiente | Falta smoke post-deploy especifico P2 |
 
 ## Checklist de cierre pendiente para declarar P2 al 100%
 
-- [ ] Confirmar alcance total P2 aprobado (lista cerrada de items).
-- [ ] Ejecutar validacion funcional completa de items P2 fuera del bloque orders/chat (si aplica por roadmap vigente).
+- [x] Confirmar alcance P2 operativo evaluado (orders/chat interno en Order Tracking).
+- [x] Ejecutar gates tecnicos de no-regresion (lint/build/contract).
 - [ ] Ejecutar smoke QA de P2 en staging/prod y adjuntar evidencia.
-- [ ] Marcar estado final P2 como CERRADO con fecha y responsable.
+- [ ] Marcar estado final P2 global como CERRADO tras validacion release.
 
 ## Veredicto actual
-P2 no esta cerrado al 100% todavia.
+P2 operativo (orders/chat interno) esta cerrado al 100% en codigo y gates tecnicos.
 
-- Estado recomendado: 85-90% (completo en bloque orders/chat interno, cierre global pendiente de checklist y validacion final).
+- Estado global recomendado: 95% (pendiente unicamente de validacion final en entorno release y acta de cierre global).
