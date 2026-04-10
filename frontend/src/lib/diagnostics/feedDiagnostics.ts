@@ -99,3 +99,15 @@ export function attachDiagnosticToError(error: any, diagnostic: FeedDiagnosticEv
     // Best effort only.
   }
 }
+
+if (typeof window !== 'undefined') {
+  (window as any).__hspGetFeedDiagnostics = getFeedDiagnostics;
+  (window as any).__hspClearFeedDiagnostics = () => {
+    try {
+      window.localStorage.removeItem(BUFFER_KEY);
+    } catch {
+      // Best effort only.
+    }
+    (window as any).__HSP_FEED_DIAGNOSTICS__ = [];
+  };
+}

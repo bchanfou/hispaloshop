@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { WifiOff, RefreshCw, AlertCircle, Database } from 'lucide-react';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { offlineCache } from '../../lib/offlineCache';
+import { toast } from 'sonner';
 
 interface NetworkErrorStateProps {
   error?: Error | null;
@@ -44,6 +45,16 @@ export function NetworkErrorState({
     }
     
     setTimeout(() => setIsRetrying(false), 500);
+  };
+
+  const handleCopyDiagnostic = async () => {
+    if (!diagnosticId) return;
+    try {
+      await navigator.clipboard.writeText(String(diagnosticId));
+      toast.success('Diagnostico copiado');
+    } catch {
+      toast.error('No se pudo copiar el diagnostico');
+    }
   };
 
   const getErrorMessage = () => {
@@ -98,9 +109,17 @@ export function NetworkErrorState({
         </p>
 
         {diagnosticId && (
-          <p className="text-[11px] text-stone-400 mb-4 font-mono">
-            Diagnostico: {diagnosticId}
-          </p>
+          <div className="mb-4">
+            <p className="text-[11px] text-stone-400 font-mono">
+              Diagnostico: {diagnosticId}
+            </p>
+            <button
+              onClick={handleCopyDiagnostic}
+              className="mt-2 text-xs font-medium text-stone-600 underline underline-offset-2"
+            >
+              Copiar ID
+            </button>
+          </div>
         )}
 
         <div className="flex flex-col gap-3 w-full max-w-xs">
