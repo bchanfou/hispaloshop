@@ -159,7 +159,9 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
     const status = primaryError?.status ?? primaryError?.response?.status ?? 0;
     const isRetryableNetworkFailure =
       status === 0 ||
+      status >= 500 ||
       primaryError?.code === 'ECONNABORTED' ||
+      primaryError?.code === 'ERR_NETWORK' ||
       String(primaryError?.message || '').toLowerCase().includes('network');
 
     if (canUseLegacyFallback && isRetryableNetworkFailure) {
