@@ -31,6 +31,32 @@ const ACTIVE_STATUSES = ['pending', 'paid', 'confirmed', 'preparing', 'processin
 const PAST_STATUSES = ['delivered', 'completed', 'cancelled', 'refunded'];
 const PAGE_SIZE = 20;
 
+export function getOrderProducerContacts(items: any[] = []) {
+  return Array.from(
+    new Map(
+      items
+        .map((item: any) => ({
+          id: item?.producer_id || item?.seller_id,
+          name: item?.producer_name || item?.seller_name || item?.store_name || '',
+        }))
+        .filter((p: any) => Boolean(p.id))
+        .map((p: any) => [p.id, p]),
+    ).values(),
+  );
+}
+
+export function getOrderChatAvailability(items: any[] = []) {
+  const producerContacts = getOrderProducerContacts(items);
+  const singleProducer = producerContacts.length === 1 ? producerContacts[0] : null;
+  const hasUnavailableChat = items.length > 0 && producerContacts.length === 0;
+
+  return {
+    producerContacts,
+    singleProducer,
+    hasUnavailableChat,
+  };
+}
+
 function StatusBadge({ status, t }: { status: string; t: any }) {
   const badge = STATUS_BADGES[status] || { label: status, labelKey: '', Icon: Package, cls: 'bg-stone-100 text-stone-400' };
   const { Icon } = badge;
@@ -228,19 +254,7 @@ export default function OrdersPage() {
                 const status = (order.status || '').toLowerCase();
                 const isShipped = status === 'shipped' || status === 'in_transit';
                 const isDelivered = status === 'delivered';
-                const producerContacts = Array.from(
-                  new Map(
-                    items
-                      .map((item: any) => ({
-                        id: item.producer_id || item.seller_id,
-                        name: item.producer_name || item.seller_name || item.store_name || '',
-                      }))
-                      .filter((p: any) => Boolean(p.id))
-                      .map((p: any) => [p.id, p]),
-                  ).values(),
-                );
-                const singleProducer = producerContacts.length === 1 ? producerContacts[0] : null;
-                const hasUnavailableChat = items.length > 0 && producerContacts.length === 0;
+                const { producerContacts, singleProducer, hasUnavailableChat } = getOrderChatAvailability(items);
                 const totalNum = order.total_cents
                   ? order.total_cents / 100
                   : order.total_amount
