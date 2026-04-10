@@ -140,6 +140,11 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
         ? `/feed/category/${categorySlug}`
         : '/feed/foryou';
 
+  const canUseLegacyFallback = !categorySlug;
+  const fallbackType = source === 'following' ? 'following' : 'for_you';
+  const cursorValue = Number(pageParam || 0);
+  const pageFromCursor = Number.isFinite(cursorValue) ? Math.max(1, Math.floor(cursorValue / Math.max(limit, 1)) + 1) : 1;
+
   try {
     const data = await apiClient.get(primaryEndpoint, {
       params: {
@@ -150,7 +155,28 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
     return normalizeFeedPage(data, pageParam ?? null, limit);
   } catch (primaryError: any) {
     console.error('[feed] Primary endpoint failed:', primaryEndpoint, primaryError?.message);
-    // Don't silently return empty data - let the error propagate to show error UI
+
+    const status = primaryError?.status ?? primaryError?.response?.status ?? 0;
+    const isRetryableNetworkFailure =
+      status === 0 ||
+      primaryError?.code === 'ECONNABORTED' ||
+      String(primaryError?.message || '').toLowerCase().includes('network');
+
+    if (canUseLegacyFallback && isRetryableNetworkFailure) {
+      try {
+        const fallbackData = await apiClient.get('/posts/feed', {
+          params: {
+            type: fallbackType,
+            page: pageFromCursor,
+            limit,
+          },
+        });
+        return normalizeFeedPage(fallbackData, pageParam ?? null, limit);
+      } catch (fallbackError: any) {
+        console.error('[feed] Fallback endpoint failed: /posts/feed', fallbackError?.message);
+      }
+    }
+
     throw primaryError;
   }
 }
@@ -164,6 +190,7 @@ export function useFollowingFeed() {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     getPreviousPageParam: (firstPage: NormalizedFeedPage) => firstPage?.prevCursor ?? null,
     staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 }
 
@@ -176,6 +203,7 @@ export function useForYouFeed() {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     getPreviousPageParam: (firstPage: NormalizedFeedPage) => firstPage?.prevCursor ?? null,
     staleTime: 3 * 60 * 1000,
+    retry: 2,
   });
 }
 
@@ -188,6 +216,7 @@ export function useCategoryFeed(categorySlug: string) {
     getNextPageParam: (lastPage: NormalizedFeedPage) => lastPage?.nextCursor ?? null,
     enabled: Boolean(categorySlug),
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 }
 
