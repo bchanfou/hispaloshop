@@ -30,6 +30,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState('');
   const [oauthLoading, setOauthLoading] = useState({ google: false, apple: false });
+  const [googleAuthConfigured, setGoogleAuthConfigured] = useState(true);
 
   const intendedRoute = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -76,6 +77,26 @@ export default function LoginPage() {
 
     return cleanup;
   }, [checkAuth, navigate, t]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const data = await authApi.getGoogleAuthStatus();
+        if (!mounted) return;
+        setGoogleAuthConfigured(Boolean(data?.configured));
+      } catch {
+        if (!mounted) return;
+        // Keep enabled as fallback for older backends.
+        setGoogleAuthConfigured(true);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const validate = () => {
     const e = {};
@@ -168,6 +189,11 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!googleAuthConfigured) {
+      toast.info(t('login.googleNoDisponible', 'Google no está disponible temporalmente.'));
+      return;
+    }
+
     setOauthLoading(prev => ({ ...prev, google: true }));
     try {
       await initGoogleSignIn({
@@ -277,7 +303,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={handleGoogleLogin}
-        disabled={oauthLoading.google}
+        disabled={oauthLoading.google || !googleAuthConfigured}
         aria-label="Continuar con Google"
         className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         whileTap={{ scale: 0.97 }}
@@ -294,6 +320,11 @@ export default function LoginPage() {
         )}
         {oauthLoading.google ? 'Conectando...' : 'Continuar con Google'}
       </motion.button>
+      {!googleAuthConfigured && (
+        <p className="text-xs text-stone-500 text-center mb-4">
+          {t('login.googleNoDisponible', 'Google no está disponible temporalmente.')}
+        </p>
+      )}
 
       {/* Social login — Apple */}
       <motion.button

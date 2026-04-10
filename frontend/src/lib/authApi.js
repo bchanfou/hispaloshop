@@ -76,6 +76,11 @@ export const authApi = {
     return response?.data ?? response;
   },
 
+  async getGoogleAuthStatus() {
+    const response = await apiClient.get('/auth/google/status');
+    return response?.data ?? response;
+  },
+
   async register(payload, options = {}) {
     const params = {};
     if (options.ref) {

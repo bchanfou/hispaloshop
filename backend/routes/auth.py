@@ -1129,6 +1129,20 @@ async def set_role(request: Request, user: User = Depends(get_current_user)):
 # GOOGLE OAUTH - Sistema propio
 # ============================================================================
 
+@router.get("/auth/google/status")
+async def get_google_auth_status(request: Request):
+    """Expose Google OAuth readiness so frontend can disable unavailable flows."""
+    client_id = _resolve_google_client_id()
+    client_secret = _resolve_google_client_secret()
+    backend_url = _get_public_auth_backend_url(request)
+    configured = bool(client_id and client_secret and backend_url)
+
+    return {
+        "configured": configured,
+        "has_client_id": bool(client_id),
+        "has_client_secret": bool(client_secret),
+    }
+
 @router.get("/auth/google/url")
 async def get_google_auth_url(request: Request):
     """Get Google OAuth URL for self-managed authentication"""

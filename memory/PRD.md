@@ -35,7 +35,7 @@ Multi-role digital supermarket supporting customers, sellers (producers), influe
 - **Influencer:** influencer@test.com / password123
 
 ## Remaining Backlog
-- **P0:** Google Auth Rework — Self-managed Google OAuth2 (user postponed, needs Client ID/Secret)
+- **P0:** Google Auth Rework — Self-managed Google OAuth2 (hardening completed; pending Google Client ID/Secret provisioning for full activation)
 
 ## Closed Priorities
 - **P4:** Final System Re-audit — Completed on 2026-04-11 (stability + i18n + API contract re-audit passed)

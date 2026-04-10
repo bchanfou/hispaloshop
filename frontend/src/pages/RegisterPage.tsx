@@ -167,6 +167,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [countryWarning, setCountryWarning] = useState(false);  // non-active country modal
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+  const [googleAuthConfigured, setGoogleAuthConfigured] = useState(true);
 
   // Username availability
   const [usernameStatus, setUsernameStatus] = useState(null);
@@ -215,6 +216,26 @@ export default function RegisterPage() {
     usernameTimer.current = setTimeout(() => checkUsername(form.username), 500);
     return () => clearTimeout(usernameTimer.current);
   }, [form.username, checkUsername]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const data = await authApi.getGoogleAuthStatus();
+        if (!mounted) return;
+        setGoogleAuthConfigured(Boolean(data?.configured));
+      } catch {
+        if (!mounted) return;
+        // Keep enabled as fallback for older backends.
+        setGoogleAuthConfigured(true);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Age validation
   const checkAge = () => {
@@ -390,6 +411,11 @@ export default function RegisterPage() {
   };
 
   const handleGoogleRegister = async () => {
+    if (!googleAuthConfigured) {
+      toast.info(t('register.googleNoDisponible', 'Google no está disponible temporalmente.'));
+      return;
+    }
+
     try {
       const data = await authApi.getGoogleAuthUrl();
       if (data.auth_url && (data.auth_url.startsWith('https://') || data.auth_url.startsWith('http://'))) window.location.href = data.auth_url;
@@ -520,8 +546,9 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={handleGoogleRegister}
+            disabled={!googleAuthConfigured}
             aria-label="Registrarse con Google"
-            className="w-full h-12 flex items-center justify-center gap-2.5 bg-white border border-stone-200 rounded-full text-[15px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+            className="w-full h-12 flex items-center justify-center gap-2.5 bg-white border border-stone-200 rounded-full text-[15px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -531,6 +558,11 @@ export default function RegisterPage() {
             </svg>
             Continuar con Google
           </button>
+          {!googleAuthConfigured && (
+            <p className="text-xs text-stone-500 text-center mt-2">
+              {t('register.googleNoDisponible', 'Google no está disponible temporalmente.')}
+            </p>
+          )}
           <div className="flex items-center gap-4 my-5">
             <div className="flex-1 h-px bg-stone-200" />
             <span className="text-[13px] text-stone-500">o</span>
