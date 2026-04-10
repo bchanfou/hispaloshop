@@ -45,6 +45,11 @@ function normalizeApiError(error) {
   apiError.status = error?.response?.status ?? 0;
   apiError.code = error?.code ?? null;
   apiError.data = error?.response?.data ?? null;
+  apiError.requestId =
+    error?.response?.headers?.['x-request-id'] ||
+    error?.response?.headers?.['x-correlation-id'] ||
+    error?.response?.data?.request_id ||
+    null;
   return apiError;
 }
 

@@ -27,6 +27,7 @@ export function NetworkErrorState({
   const { isOnline, isChecking, checkConnectivity } = useNetworkStatus();
   const [isRetrying, setIsRetrying] = useState(false);
   const [hasCache, setHasCache] = useState(false);
+  const diagnosticId = (error as any)?.diagnosticId || (error as any)?.feedDiagnostic?.id || null;
 
   useEffect(() => {
     setHasCache(offlineCache.hasCachedContent());
@@ -95,6 +96,12 @@ export function NetworkErrorState({
         <p className="text-sm text-stone-500 max-w-xs mb-6">
           {description}
         </p>
+
+        {diagnosticId && (
+          <p className="text-[11px] text-stone-400 mb-4 font-mono">
+            Diagnostico: {diagnosticId}
+          </p>
+        )}
 
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <button

@@ -16,6 +16,7 @@ import PullIndicator from '../../components/ui/PullIndicator';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { offlineCache } from '../../lib/offlineCache';
 import NetworkErrorState from '../ui/NetworkErrorState';
+import { recordFeedDiagnostic } from '../../lib/diagnostics/feedDiagnostics';
 
 /**
  * ForYouFeed — Feed "Para ti" puramente social
@@ -74,8 +75,37 @@ export default function ForYouFeed() {
   useEffect(() => {
     if (feedQuery.isError) {
       setRetryCount(prev => prev + 1);
+
+      const err = feedQuery.error || {};
+      recordFeedDiagnostic({
+        phase: 'feed_ui_error_state',
+        source: 'for_you',
+        message: err?.message || 'Unknown UI feed error',
+        status: err?.status ?? 0,
+        code: err?.code ?? null,
+        retryCount,
+        cachedPostsCount: cachedPosts.length,
+        hasData: allPosts.length > 0,
+        queryIsFetching: feedQuery.isFetching,
+        queryIsRefetching: feedQuery.isRefetching,
+        queryFailureCount: feedQuery.failureCount,
+        isOnline,
+        wasOffline,
+        diagnosticId: err?.diagnosticId ?? err?.feedDiagnostic?.id ?? null,
+      });
     }
-  }, [feedQuery.isError]);
+  }, [
+    feedQuery.isError,
+    feedQuery.error,
+    feedQuery.isFetching,
+    feedQuery.isRefetching,
+    feedQuery.failureCount,
+    allPosts.length,
+    cachedPosts.length,
+    isOnline,
+    retryCount,
+    wasOffline,
+  ]);
 
   // Flatten and dedupe posts
   const allPosts = useMemo(() => {

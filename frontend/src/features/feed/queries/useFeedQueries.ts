@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../services/api/client';
 import { toast } from 'sonner';
+import { attachDiagnosticToError, recordFeedDiagnostic } from '../../../lib/diagnostics/feedDiagnostics';
 
 interface FeedMediaItem {
   url: string;
@@ -164,6 +165,20 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
       primaryError?.code === 'ERR_NETWORK' ||
       String(primaryError?.message || '').toLowerCase().includes('network');
 
+    const primaryDiagnostic = recordFeedDiagnostic({
+      phase: 'feed_primary_failed',
+      source: source || 'for_you',
+      primaryEndpoint,
+      fallbackEndpoint: canUseLegacyFallback ? '/posts/feed' : null,
+      fallbackAttempted: Boolean(canUseLegacyFallback && isRetryableNetworkFailure),
+      pageParam,
+      limit,
+      status,
+      code: primaryError?.code ?? null,
+      message: primaryError?.message || 'Unknown feed error',
+      requestId: primaryError?.requestId ?? null,
+    });
+
     if (canUseLegacyFallback && isRetryableNetworkFailure) {
       try {
         const fallbackData = await apiClient.get('/posts/feed', {
@@ -173,11 +188,43 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
             limit,
           },
         });
+        recordFeedDiagnostic({
+          phase: 'feed_fallback_succeeded',
+          source: source || 'for_you',
+          primaryEndpoint,
+          fallbackEndpoint: '/posts/feed',
+          fallbackAttempted: true,
+          fallbackSucceeded: true,
+          pageParam,
+          limit,
+          status,
+          code: primaryError?.code ?? null,
+          message: primaryError?.message || 'Recovered via fallback',
+          diagnosticId: primaryDiagnostic.id,
+        });
         return normalizeFeedPage(fallbackData, pageParam ?? null, limit);
       } catch (fallbackError: any) {
         console.error('[feed] Fallback endpoint failed: /posts/feed', fallbackError?.message);
+        const fallbackDiagnostic = recordFeedDiagnostic({
+          phase: 'feed_fallback_failed',
+          source: source || 'for_you',
+          primaryEndpoint,
+          fallbackEndpoint: '/posts/feed',
+          fallbackAttempted: true,
+          fallbackSucceeded: false,
+          pageParam,
+          limit,
+          status: fallbackError?.status ?? fallbackError?.response?.status ?? 0,
+          code: fallbackError?.code ?? null,
+          message: fallbackError?.message || 'Fallback failed',
+          requestId: fallbackError?.requestId ?? null,
+          diagnosticId: primaryDiagnostic.id,
+        });
+        attachDiagnosticToError(primaryError, fallbackDiagnostic);
       }
     }
+
+    attachDiagnosticToError(primaryError, primaryDiagnostic);
 
     throw primaryError;
   }
