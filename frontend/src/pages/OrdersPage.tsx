@@ -62,6 +62,7 @@ export default function OrdersPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [total, setTotal] = useState(0);
+  const [expandedContactOrderId, setExpandedContactOrderId] = useState<string | null>(null);
 
   const statusFilter = useMemo(() => {
     if (activeTab === 'active') return ACTIVE_STATUSES.join(',');
@@ -145,6 +146,11 @@ export default function OrdersPage() {
     navigate(`/messages/new?to=${producerId}`);
   };
 
+  const handleToggleContactOptions = (e: React.MouseEvent, orderId: string) => {
+    e.stopPropagation();
+    setExpandedContactOrderId(prev => (prev === orderId ? null : orderId));
+  };
+
   const TABS = [
     { id: 'all' as const,    label: t('order_tracking.tab_all', 'Todos') },
     { id: 'active' as const, label: t('order_tracking.tab_active', 'Activos') },
@@ -222,8 +228,18 @@ export default function OrdersPage() {
                 const status = (order.status || '').toLowerCase();
                 const isShipped = status === 'shipped' || status === 'in_transit';
                 const isDelivered = status === 'delivered';
-                const producerIds = [...new Set(items.map((item: any) => item.producer_id || item.seller_id).filter(Boolean))];
-                const singleProducerId = producerIds.length === 1 ? producerIds[0] : null;
+                const producerContacts = Array.from(
+                  new Map(
+                    items
+                      .map((item: any) => ({
+                        id: item.producer_id || item.seller_id,
+                        name: item.producer_name || item.seller_name || item.store_name || '',
+                      }))
+                      .filter((p: any) => Boolean(p.id))
+                      .map((p: any) => [p.id, p]),
+                  ).values(),
+                );
+                const singleProducer = producerContacts.length === 1 ? producerContacts[0] : null;
                 const totalNum = order.total_cents
                   ? order.total_cents / 100
                   : order.total_amount
@@ -296,9 +312,18 @@ export default function OrdersPage() {
                         {convertAndFormatPrice(totalNum, cur)}
                       </span>
                       <div className="flex items-center gap-2">
-                        {singleProducerId && (
+                        {singleProducer && (
                           <button
-                            onClick={e => handleContactProducer(e, singleProducerId, orderId)}
+                            onClick={e => handleContactProducer(e, singleProducer.id, orderId)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950"
+                          >
+                            <MessageCircle size={12} />
+                            {t('order_tracking.contact_producer', 'Contactar productor')}
+                          </button>
+                        )}
+                        {producerContacts.length > 1 && (
+                          <button
+                            onClick={e => handleToggleContactOptions(e, orderId)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950"
                           >
                             <MessageCircle size={12} />
@@ -328,6 +353,21 @@ export default function OrdersPage() {
                         </span>
                       </div>
                     </div>
+
+                    {producerContacts.length > 1 && expandedContactOrderId === orderId && (
+                      <div className="mt-3 border border-stone-200 rounded-xl p-2 bg-stone-50">
+                        {producerContacts.map((producer: any) => (
+                          <button
+                            key={producer.id}
+                            onClick={e => handleContactProducer(e, producer.id, orderId)}
+                            className="w-full text-left flex items-center gap-2 px-3 py-2 mb-1 last:mb-0 bg-white rounded-lg border border-stone-200 text-xs font-semibold text-stone-950"
+                          >
+                            <MessageCircle size={12} />
+                            {producer.name || producer.id}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
