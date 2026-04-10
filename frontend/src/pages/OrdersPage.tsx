@@ -240,6 +240,7 @@ export default function OrdersPage() {
                   ).values(),
                 );
                 const singleProducer = producerContacts.length === 1 ? producerContacts[0] : null;
+                const hasUnavailableChat = items.length > 0 && producerContacts.length === 0;
                 const totalNum = order.total_cents
                   ? order.total_cents / 100
                   : order.total_amount
@@ -325,6 +326,19 @@ export default function OrdersPage() {
                           <button
                             onClick={e => handleToggleContactOptions(e, orderId)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950"
+                          >
+                            <MessageCircle size={12} />
+                            {t('order_tracking.contact_producer', 'Contactar productor')}
+                          </button>
+                        )}
+                        {hasUnavailableChat && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              toast.info(t('order_tracking.contact_unavailable', 'Chat no disponible para este pedido'));
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-stone-100 border border-stone-200 rounded-full text-xs font-semibold text-stone-500"
+                            title={t('order_tracking.contact_unavailable', 'Chat no disponible para este pedido')}
                           >
                             <MessageCircle size={12} />
                             {t('order_tracking.contact_producer', 'Contactar productor')}
