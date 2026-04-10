@@ -30,8 +30,8 @@ Referencia de alcance:
 - Resultado: `[i18n-guard] OK: no unbound t() calls found.`
 
 3. Contrato API sin drift
-- `frontend_calls=752`
-- `backend_routes=850`
+- `frontend_calls=754`
+- `backend_routes=852`
 - `potential_mismatches=0`
 - `api_contract_current=0`
 - `api_contract_allowed=0`
@@ -43,6 +43,11 @@ Referencia de alcance:
 5. Re-auditoria completa del backend
 - Comando: npm run verify:full
 - Resultado final: `251 passed, 1103 skipped, 2 xfailed`
+
+6. Continuidad P4 (re-check post-hardening auth social)
+- Nueva corrida de `npm run verify` y `npm run verify:full` sobre el codigo actualizado.
+- Resultado: PASS sin regresiones en lint/build/contrato/API/backend.
+- Nota: se mantiene drift de contrato en 0/0 con recuento actualizado de endpoints/calls.
 
 ## Criterios de cierre P4 (estado)
 
