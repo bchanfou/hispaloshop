@@ -13,7 +13,7 @@ import FocusTrap from 'focus-trap-react';
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-white rounded-[14px] border border-stone-200 p-5 ${className}`}>
       {children}
     </div>
   );
@@ -134,7 +134,7 @@ export default function AdminManagement() {
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/[0.08] text-white/60">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
         <User className="w-3 h-3" />
         Admin
       </span>
@@ -159,7 +159,7 @@ export default function AdminManagement() {
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/[0.08] text-white/40">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-600">
             {status}
           </span>
         );
@@ -169,7 +169,7 @@ export default function AdminManagement() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+        <Loader2 className="w-6 h-6 animate-spin text-stone-400" />
       </div>
     );
   }
@@ -179,10 +179,10 @@ export default function AdminManagement() {
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
+          <h1 className="text-2xl font-extrabold tracking-tight text-stone-950 mb-1">
             {t('superAdmin.manageAdmins')}
           </h1>
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-stone-600">
             Gestiona cuentas de administrador y permisos
           </p>
         </div>
@@ -201,7 +201,7 @@ export default function AdminManagement() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-white/30 text-[11px] uppercase tracking-wider border-b border-white/[0.06]">
+              <tr className="text-stone-500 text-[11px] uppercase tracking-wider border-b border-stone-200">
                 <th className="text-left px-5 py-3 font-medium">{t('common.name')}</th>
                 <th className="text-left px-3 py-3 font-medium">{t('common.email')}</th>
                 <th className="text-left px-3 py-3 font-medium">Role</th>
@@ -215,14 +215,14 @@ export default function AdminManagement() {
               {admins.map((admin) => (
                 <tr
                   key={admin.user_id}
-                  className="border-t border-white/[0.06] hover:bg-white/[0.03] transition-colors"
+                  className="border-t border-stone-100 hover:bg-stone-50 transition-colors"
                   data-testid={`admin-row-${admin.user_id}`}
                 >
                   <td className="px-5 py-3">
-                    <span className="font-semibold text-white">{admin.name}</span>
+                    <span className="font-semibold text-stone-900">{admin.name}</span>
                   </td>
                   <td className="px-3 py-3">
-                    <span className="flex items-center gap-1.5 text-white/50 text-xs">
+                    <span className="flex items-center gap-1.5 text-stone-600 text-xs">
                       <Mail className="w-3.5 h-3.5" />
                       {admin.email}
                     </span>
@@ -230,15 +230,15 @@ export default function AdminManagement() {
                   <td className="px-3 py-3">{getRoleBadge(admin.role)}</td>
                   <td className="px-3 py-3 text-xs">
                     {admin.assigned_country ? (
-                      <span className="px-2 py-0.5 bg-white/[0.06] text-white/60 rounded text-xs">
+                      <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded text-xs">
                         {COUNTRIES.find(c => c.code === admin.assigned_country)?.name || admin.assigned_country}
                       </span>
                     ) : (
-                      <span className="text-white/25">Global</span>
+                      <span className="text-stone-400">Global</span>
                     )}
                   </td>
                   <td className="px-3 py-3">{getStatusBadge(admin.status || 'active')}</td>
-                  <td className="px-3 py-3 text-white/35 text-xs">
+                  <td className="px-3 py-3 text-stone-500 text-xs">
                     {admin.created_at ? new Date(admin.created_at).toLocaleDateString('es-ES') : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
@@ -247,7 +247,7 @@ export default function AdminManagement() {
                         {admin.status !== 'suspended' ? (
                           <button
                             onClick={() => handleStatusChange(admin.user_id, 'suspended')}
-                            className="p-1.5 text-white/40 hover:text-[#78716c] hover:bg-white/[0.06] rounded-2xl transition-colors"
+                            className="p-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-100 rounded-2xl transition-colors"
                             title={t('admin.suspend')}
                             data-testid={`suspend-admin-${admin.user_id}`}
                           >
@@ -256,7 +256,7 @@ export default function AdminManagement() {
                         ) : (
                           <button
                             onClick={() => handleStatusChange(admin.user_id, 'active')}
-                            className="p-1.5 text-white/40 hover:text-white hover:bg-white/[0.06] rounded-2xl transition-colors"
+                            className="p-1.5 text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-2xl transition-colors"
                             title={t('admin.reactivate')}
                             data-testid={`activate-admin-${admin.user_id}`}
                           >
@@ -265,7 +265,7 @@ export default function AdminManagement() {
                         )}
                         <button
                           onClick={() => setShowDeleteConfirm(admin)}
-                          className="p-1.5 text-white/40 hover:text-[#0c0a09] hover:bg-white/[0.06] rounded-2xl transition-colors"
+                          className="p-1.5 text-stone-500 hover:text-red-700 hover:bg-red-50 rounded-2xl transition-colors"
                           title="Delete"
                           data-testid={`delete-admin-${admin.user_id}`}
                         >
@@ -274,10 +274,10 @@ export default function AdminManagement() {
                       </div>
                     )}
                     {admin.user_id === user?.user_id && (
-                      <span className="text-xs text-[#0c0a09]">Tú</span>
+                      <span className="text-xs text-stone-700">Tú</span>
                     )}
                     {admin.role === 'super_admin' && admin.user_id !== user?.user_id && (
-                      <span className="text-xs text-white/25">Protegido</span>
+                      <span className="text-xs text-stone-400">Protegido</span>
                     )}
                   </td>
                 </tr>
@@ -288,8 +288,8 @@ export default function AdminManagement() {
 
         {admins.length === 0 && (
           <div className="text-center py-12">
-            <AlertCircle className="w-8 h-8 mx-auto mb-3 text-white/20" />
-            <p className="text-sm text-white/40">{t('common.noData')}</p>
+            <AlertCircle className="w-8 h-8 mx-auto mb-3 text-stone-300" />
+            <p className="text-sm text-stone-500">{t('common.noData')}</p>
           </div>
         )}
       </SACard>
@@ -298,14 +298,14 @@ export default function AdminManagement() {
       {showCreateModal && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-[#ffffff] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="create-admin-modal">
+          <div className="bg-white rounded-2xl border border-stone-200 max-w-md w-full mx-4 p-6" data-testid="create-admin-modal">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="text-lg font-bold text-stone-950">
                 {t('superAdmin.createAdmin')}
               </h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-2 text-white/40 hover:text-white hover:bg-white/[0.06] rounded-2xl transition-colors"
+                className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-2xl transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -319,35 +319,35 @@ export default function AdminManagement() {
               )}
 
               <div>
-                <label className="block text-xs font-medium text-white/40 mb-1.5">
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">
                   {t('common.name')} *
                 </label>
                 <input
                   type="text"
                   value={newAdmin.name}
                   onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#0c0a09]"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-stone-500"
                   placeholder="John Doe"
                   data-testid="admin-name-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-white/40 mb-1.5">
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">
                   {t('common.email')} *
                 </label>
                 <input
                   type="email"
                   value={newAdmin.email}
                   onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#0c0a09]"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-stone-500"
                   placeholder="admin@example.com"
                   data-testid="admin-email-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-white/40 mb-1.5">
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">
                   {t('auth.password')} *
                 </label>
                 <div className="relative">
@@ -355,14 +355,14 @@ export default function AdminManagement() {
                     type={showPassword ? 'text' : 'password'}
                     value={newAdmin.password}
                     onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                    className="w-full px-4 py-2.5 pr-10 bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#0c0a09]"
+                    className="w-full px-4 py-2.5 pr-10 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-stone-500"
                     placeholder="Min. 8 characters"
                     data-testid="admin-password-input"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -370,34 +370,34 @@ export default function AdminManagement() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-white/40 mb-1.5">Role</label>
+                <label className="block text-xs font-medium text-stone-600 mb-1.5">Role</label>
                 <select
                   value={newAdmin.role}
                   onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white text-sm focus:outline-none focus:border-[#0c0a09]"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 text-sm focus:outline-none focus:border-stone-500"
                   data-testid="admin-role-select"
                 >
-                  <option value="admin" className="bg-[#ffffff]">Admin</option>
-                  <option value="super_admin" className="bg-[#ffffff]">Super Admin</option>
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super Admin</option>
                 </select>
               </div>
 
               {newAdmin.role === 'admin' && (
                 <div>
-                  <label className="block text-xs font-medium text-white/40 mb-1.5">
+                  <label className="block text-xs font-medium text-stone-600 mb-1.5">
                     País asignado
                   </label>
                   <select
                     value={newAdmin.assigned_country}
                     onChange={(e) => setNewAdmin({ ...newAdmin, assigned_country: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white text-sm focus:outline-none focus:border-[#0c0a09]"
+                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 text-sm focus:outline-none focus:border-stone-500"
                     data-testid="admin-country-select"
                   >
                     {COUNTRIES.map(country => (
-                      <option key={country.code} value={country.code} className="bg-[#ffffff]">{country.name}</option>
+                      <option key={country.code} value={country.code}>{country.name}</option>
                     ))}
                   </select>
-                  <p className="text-[11px] text-white/20 mt-1.5">
+                  <p className="text-[11px] text-stone-500 mt-1.5">
                     El admin solo verá analytics de este país. Déjalo vacío para acceso global.
                   </p>
                 </div>
@@ -407,7 +407,7 @@ export default function AdminManagement() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2.5 bg-white/[0.06] text-white/60 rounded-2xl hover:bg-white/[0.1] transition-colors text-sm font-medium"
+                  className="flex-1 px-4 py-2.5 bg-stone-100 text-stone-700 rounded-2xl hover:bg-stone-200 transition-colors text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
@@ -430,24 +430,24 @@ export default function AdminManagement() {
       {showDeleteConfirm && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-[#ffffff] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
+          <div className="bg-white rounded-2xl border border-stone-200 max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
             <div className="text-center">
               <div className="w-12 h-12 bg-[#0c0a09]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-[#0c0a09]" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">
+              <h3 className="text-lg font-bold text-stone-950 mb-2">
                 Eliminar cuenta admin
               </h3>
-              <p className="text-sm text-white/50 mb-1">
-                ¿Eliminar a <strong className="text-white">{showDeleteConfirm.name}</strong>?
+              <p className="text-sm text-stone-600 mb-1">
+                ¿Eliminar a <strong className="text-stone-900">{showDeleteConfirm.name}</strong>?
               </p>
-              <p className="text-xs text-white/30 mb-6">
+              <p className="text-xs text-stone-500 mb-6">
                 {t('superAdmin.deleteWarning')}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(null)}
-                  className="flex-1 px-4 py-2.5 bg-white/[0.06] text-white/60 rounded-2xl hover:bg-white/[0.1] transition-colors text-sm font-medium"
+                  className="flex-1 px-4 py-2.5 bg-stone-100 text-stone-700 rounded-2xl hover:bg-stone-200 transition-colors text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
