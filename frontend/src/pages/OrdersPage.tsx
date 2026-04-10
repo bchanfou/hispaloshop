@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Package, Truck, ChevronRight, ExternalLink,
   Loader2, Clock, CheckCircle, X, RefreshCw, CreditCard,
-  PackageCheck, Star,
+  PackageCheck, Star, MessageCircle,
 } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -135,6 +135,16 @@ export default function OrdersPage() {
     }
   };
 
+  const handleContactProducer = (e: React.MouseEvent, producerId: string, orderId: string) => {
+    e.stopPropagation();
+    if (!producerId) {
+      toast.error(t('order_tracking.contact_unavailable', 'Chat no disponible para este pedido'));
+      return;
+    }
+    trackEvent('order_contact_producer_clicked', { order_id: orderId, producer_id: producerId });
+    navigate(`/messages/new?to=${producerId}`);
+  };
+
   const TABS = [
     { id: 'all' as const,    label: t('order_tracking.tab_all', 'Todos') },
     { id: 'active' as const, label: t('order_tracking.tab_active', 'Activos') },
@@ -212,6 +222,8 @@ export default function OrdersPage() {
                 const status = (order.status || '').toLowerCase();
                 const isShipped = status === 'shipped' || status === 'in_transit';
                 const isDelivered = status === 'delivered';
+                const producerIds = [...new Set(items.map((item: any) => item.producer_id || item.seller_id).filter(Boolean))];
+                const singleProducerId = producerIds.length === 1 ? producerIds[0] : null;
                 const totalNum = order.total_cents
                   ? order.total_cents / 100
                   : order.total_amount
@@ -284,6 +296,15 @@ export default function OrdersPage() {
                         {convertAndFormatPrice(totalNum, cur)}
                       </span>
                       <div className="flex items-center gap-2">
+                        {singleProducerId && (
+                          <button
+                            onClick={e => handleContactProducer(e, singleProducerId, orderId)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950"
+                          >
+                            <MessageCircle size={12} />
+                            {t('order_tracking.contact_producer', 'Contactar productor')}
+                          </button>
+                        )}
                         {isDelivered && (
                           <>
                             <Link
