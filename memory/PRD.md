@@ -36,4 +36,6 @@ Multi-role digital supermarket supporting customers, sellers (producers), influe
 
 ## Remaining Backlog
 - **P0:** Google Auth Rework — Self-managed Google OAuth2 (user postponed, needs Client ID/Secret)
-- **P4:** Final System Re-audit — Comprehensive audit of entire application for stability and i18n coverage
+
+## Closed Priorities
+- **P4:** Final System Re-audit — Completed on 2026-04-11 (stability + i18n + API contract re-audit passed)
