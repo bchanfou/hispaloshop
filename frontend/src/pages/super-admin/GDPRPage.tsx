@@ -55,11 +55,13 @@ export default function GDPRPage() {
   const [requests, setRequests] = useState([]);
   const [counts, setCounts] = useState({ deletion: 0, access: 0, portability: 0 });
   const [loading, setLoading] = useState(true);
+  const [gdprBackendAvailable, setGdprBackendAvailable] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const stats = await apiClient.get('/superadmin/audit/stats').catch(() => null);
+      setGdprBackendAvailable(Boolean(stats));
       const fallbackCounts = {
         deletion: Number(stats?.critical_events || 0),
         access: Number(stats?.total_actions || 0),
@@ -109,7 +111,9 @@ export default function GDPRPage() {
       ) : requests.length === 0 ? (
         <div className="text-center py-16">
           <Lock className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-[15px] text-white/40">Sin solicitudes GDPR pendientes</p>
+          <p className="text-[15px] text-white/40">
+            {gdprBackendAvailable ? 'Sin solicitudes GDPR pendientes' : 'Flujo GDPR no disponible en este backend'}
+          </p>
         </div>
       ) : (
         <SACard>
@@ -159,21 +163,32 @@ export default function GDPRPage() {
 
       {/* Export tool */}
       <SACard className="mt-4">
-        <h3 className="text-[15px] font-bold text-white mb-3">Exportar datos de usuario (RGPD Art. 15)</h3>
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="text-[15px] font-bold text-white">Exportar datos de usuario (RGPD Art. 15)</h3>
+          {!gdprBackendAvailable && (
+            <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-500">Pronto</span>
+          )}
+        </div>
         <p className="text-xs text-white/35 mb-3">
-          Introduce el user_id para generar un archivo JSON con todos los datos del usuario.
+          {gdprBackendAvailable
+            ? 'Introduce el user_id para generar un archivo JSON con todos los datos del usuario.'
+            : 'La exportación RGPD no está disponible en este backend por ahora.'}
         </p>
-        <ExportUserTool />
+        <ExportUserTool disabled={!gdprBackendAvailable} />
       </SACard>
     </div>
   );
 }
 
-function ExportUserTool() {
+function ExportUserTool({ disabled = false }) {
   const [userId, setUserId] = useState('');
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
+    if (disabled) {
+      toast.info('Exportación RGPD no disponible temporalmente');
+      return;
+    }
     if (!userId.trim()) {
       toast.error('Introduce un user_id');
       return;
@@ -202,12 +217,13 @@ function ExportUserTool() {
       <input
         value={userId}
         onChange={e => setUserId(e.target.value)}
+        disabled={disabled}
         placeholder="user_id"
-        className="flex-1 px-3.5 py-2.5 bg-[#1c1917] border border-white/10 rounded-2xl text-white text-sm outline-none"
+        className="flex-1 px-3.5 py-2.5 bg-[#1c1917] border border-white/10 rounded-2xl text-white text-sm outline-none disabled:opacity-50"
       />
       <button
         onClick={handleExport}
-        disabled={exporting}
+        disabled={exporting || disabled}
         className="px-5 py-2.5 bg-[#ffffff] rounded-2xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
       >
         {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}

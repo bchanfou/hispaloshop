@@ -103,3 +103,53 @@ Scope: Perfil, feed, uploads, producto/tienda/certificado, locale, panel admin/s
 - `npm --prefix frontend run build` => pass
 - `npm run verify:full` => pass (`251 passed, 1103 skipped, 2 xfailed`)
 - `npm run api:contract:check` => pass (`api_contract_current=0`, `api_contract_allowed=0`)
+
+## Phase 2.2: GDPR UX Hardening (2026-04-10)
+
+### Objective
+- Prevent repeated failed user actions in GDPR page when GDPR backend flow is unavailable.
+
+### Work completed
+- Updated `frontend/src/pages/super-admin/GDPRPage.tsx`:
+  - detect GDPR backend availability from fallback stats request,
+  - show unavailable message in empty state when flow is absent,
+  - disable RGPD export tool and show "Pronto" badge,
+  - guard export action with informative toast when temporarily unavailable.
+
+### Validation evidence
+- `npm --prefix frontend run lint -- --max-warnings=0` => pass
+- `npm --prefix frontend run build` => pass
+- `npm run api:contract:check` => pass (`api_contract_current=0`, `api_contract_allowed=0`)
+
+## Phase 2.3: Market Coverage UX Hardening (2026-04-10)
+
+### Objective
+- Avoid user-facing failed actions when country configuration backend is unavailable.
+
+### Work completed
+- Updated `frontend/src/pages/super-admin/MarketCoverage.tsx`:
+  - added backend availability state for `/superadmin/countries`,
+  - disabled admin assignment and weekly goal actions when unavailable,
+  - added informative toasts and "Pronto" badge in unavailable state.
+
+### Validation evidence
+- `npm --prefix frontend run lint -- --max-warnings=0` => pass
+- `npm --prefix frontend run build` => pass
+- `npm run api:contract:check` => pass (`api_contract_current=0`, `api_contract_allowed=0`)
+
+## Phase 2.4: Plans Config UX Hardening (2026-04-10)
+
+### Objective
+- Prevent failed edit/save actions in plans configuration when plans backend endpoint is unavailable.
+
+### Work completed
+- Updated `frontend/src/pages/super-admin/PlansConfigPage.tsx`:
+  - added availability detection for `/superadmin/plans`,
+  - disabled tier/plan inputs and save action when endpoint is unavailable,
+  - added "Pronto" badge and informative unavailable messaging,
+  - blocked confirm modal path with info toast when unavailable.
+
+### Validation evidence
+- `npm --prefix frontend run lint -- --max-warnings=0` => pass
+- `npm --prefix frontend run build` => pass
+- `npm run api:contract:check` => pass (`api_contract_current=0`, `api_contract_allowed=0`)

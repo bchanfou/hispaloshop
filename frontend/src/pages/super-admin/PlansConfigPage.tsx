@@ -72,6 +72,7 @@ export default function PlansConfigPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [subs, setSubs] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [plansConfigAvailable, setPlansConfigAvailable] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -80,6 +81,7 @@ export default function PlansConfigPage() {
           apiClient.get('/superadmin/overview').catch(() => null),
           apiClient.get('/superadmin/plans').catch(() => null),
         ]);
+        setPlansConfigAvailable(Boolean(config));
         if (overview?.users?.by_role) setSubs(overview.users.by_role);
         if (overview?.plan_distribution) setSubs(prev => ({ ...prev, plan_distribution: overview.plan_distribution }));
         // Hydrate plans from DB config
@@ -144,11 +146,18 @@ export default function PlansConfigPage() {
   return (
     <div className="max-w-[700px] mx-auto pb-16">
       <div className="mb-7">
-        <h1 className="text-2xl font-extrabold tracking-tight text-stone-100 mb-1">
-          Configuración de planes
-        </h1>
+        <div className="mb-1 flex items-center gap-2">
+          <h1 className="text-2xl font-extrabold tracking-tight text-stone-100">
+            Configuración de planes
+          </h1>
+          {!plansConfigAvailable && (
+            <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-500">Pronto</span>
+          )}
+        </div>
         <p className="text-sm text-stone-400">
-          Los cambios se aplican automáticamente en Stripe. Se requiere contraseña del superadmin para confirmar.
+          {plansConfigAvailable
+            ? 'Los cambios se aplican automáticamente en Stripe. Se requiere contraseña del superadmin para confirmar.'
+            : 'La configuración de planes no está disponible en este backend por ahora.'}
         </p>
       </div>
 
@@ -164,8 +173,9 @@ export default function PlansConfigPage() {
             <input
               type="number"
               value={t.rate}
+              disabled={!plansConfigAvailable}
               onChange={e => setTiers(prev => prev.map(x => x.tier === t.tier ? { ...x, rate: Number(e.target.value) } : x))}
-              className="w-16 text-2xl font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+              className="w-16 text-2xl font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center disabled:opacity-50"
               min={1} max={15}
             />
             <span className="text-xl text-stone-500">%</span>
@@ -198,8 +208,9 @@ export default function PlansConfigPage() {
                     <input
                       type="number"
                       value={plan.price}
+                      disabled={!plansConfigAvailable}
                       onChange={e => setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, price: Number(e.target.value) } : p))}
-                      className="w-16 text-base font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+                      className="w-16 text-base font-extrabold text-stone-100 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center disabled:opacity-50"
                       min={1}
                     />
                     <span className="text-stone-500 text-sm">€</span>
@@ -212,8 +223,9 @@ export default function PlansConfigPage() {
                   <input
                     type="number"
                     value={plan.commission_pct}
+                    disabled={!plansConfigAvailable}
                     onChange={e => setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, commission_pct: Number(e.target.value) } : p))}
-                    className="w-12 text-base font-extrabold text-stone-400 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center"
+                    className="w-12 text-base font-extrabold text-stone-400 bg-transparent border-b border-stone-700 focus:border-stone-400 outline-none text-center disabled:opacity-50"
                     min={1} max={50}
                   />
                   <span className="text-stone-500 text-sm">%</span>
@@ -227,8 +239,15 @@ export default function PlansConfigPage() {
       {/* Save Button */}
       <div className="mt-6 flex justify-end">
         <button
-          onClick={() => setShowConfirm(true)}
-          className="px-6 py-2.5 bg-stone-100 text-stone-950 rounded-2xl text-sm font-bold hover:bg-white transition-colors"
+          onClick={() => {
+            if (!plansConfigAvailable) {
+              toast.info('Configuración de planes no disponible temporalmente');
+              return;
+            }
+            setShowConfirm(true);
+          }}
+          disabled={!plansConfigAvailable}
+          className="px-6 py-2.5 bg-stone-100 text-stone-950 rounded-2xl text-sm font-bold hover:bg-white transition-colors disabled:opacity-50"
         >
           Guardar cambios
         </button>

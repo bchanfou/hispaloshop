@@ -42,6 +42,7 @@ export default function MarketCoverage() {
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(null);
   const [countryConfigs, setCountryConfigs] = useState([]);
+  const [countryConfigAvailable, setCountryConfigAvailable] = useState(true);
   const [assigningAdmin, setAssigningAdmin] = useState(null);
   const [adminInput, setAdminInput] = useState('');
 
@@ -50,7 +51,11 @@ export default function MarketCoverage() {
     try {
       const data = await apiClient.get('/superadmin/countries');
       setCountryConfigs(Array.isArray(data) ? data : data?.countries || []);
-    } catch { /* ignore */ }
+      setCountryConfigAvailable(true);
+    } catch {
+      setCountryConfigs([]);
+      setCountryConfigAvailable(false);
+    }
   }, []);
 
   // Derive ALL_COUNTRIES and COUNTRY_META from backend (135 countries)
@@ -166,10 +171,22 @@ export default function MarketCoverage() {
                   return adminId ? (
                     <p className="text-[10px] text-white/25 mt-0.5">Admin: {adminId.slice(0, 8)}…</p>
                   ) : (
-                    <button
-                      onClick={() => { setAssigningAdmin(country.code); setAdminInput(''); }}
-                      className="text-[10px] text-white/40 hover:text-white/70 mt-0.5 underline underline-offset-2"
-                    >Asignar admin</button>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          if (!countryConfigAvailable) {
+                            toast.info('Configuración por país no disponible temporalmente');
+                            return;
+                          }
+                          setAssigningAdmin(country.code);
+                          setAdminInput('');
+                        }}
+                        className="text-[10px] text-white/40 hover:text-white/70 underline underline-offset-2"
+                      >Asignar admin</button>
+                      {!countryConfigAvailable && (
+                        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-semibold text-white/40">Pronto</span>
+                      )}
+                    </div>
                   );
                 })()}
                 {assigningAdmin === country.code && (
@@ -202,6 +219,10 @@ export default function MarketCoverage() {
                   return (
                     <button
                       onClick={async () => {
+                        if (!countryConfigAvailable) {
+                          toast.info('Meta semanal no disponible temporalmente');
+                          return;
+                        }
                         const input = window.prompt(`Objetivo semanal de gamificación para ${country.name} (en céntimos de moneda local, ej: 2000 = €20):`, String(currentGoal ?? 2000));
                         if (input == null) return;
                         const val = parseInt(input, 10);
