@@ -31,6 +31,7 @@ export default function LoginPage() {
   const [loginError, setLoginError] = useState('');
   const [oauthLoading, setOauthLoading] = useState({ google: false, apple: false });
   const [googleAuthConfigured, setGoogleAuthConfigured] = useState(true);
+  const [appleAuthConfigured, setAppleAuthConfigured] = useState(true);
 
   const intendedRoute = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -90,6 +91,16 @@ export default function LoginPage() {
         if (!mounted) return;
         // Keep enabled as fallback for older backends.
         setGoogleAuthConfigured(true);
+      }
+
+      try {
+        const data = await authApi.getAppleAuthStatus();
+        if (!mounted) return;
+        setAppleAuthConfigured(Boolean(data?.configured));
+      } catch {
+        if (!mounted) return;
+        // Keep enabled as fallback for older backends.
+        setAppleAuthConfigured(true);
       }
     })();
 
@@ -237,6 +248,11 @@ export default function LoginPage() {
   };
 
   const handleAppleLogin = async () => {
+    if (!appleAuthConfigured) {
+      toast.info(t('login.appleSignInNoDisponible', 'Apple Sign-In no está disponible en este momento.'));
+      return;
+    }
+
     setOauthLoading(prev => ({ ...prev, apple: true }));
     try {
       await initAppleSignIn({
@@ -330,7 +346,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={handleAppleLogin}
-        disabled={oauthLoading.apple}
+        disabled={oauthLoading.apple || !appleAuthConfigured}
         aria-label="Continuar con Apple"
         className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         whileTap={{ scale: 0.97 }}
@@ -344,6 +360,11 @@ export default function LoginPage() {
         )}
         {oauthLoading.apple ? 'Conectando...' : 'Continuar con Apple'}
       </motion.button>
+      {!appleAuthConfigured && (
+        <p className="text-xs text-stone-500 text-center mb-4">
+          {t('login.appleSignInNoDisponible', 'Apple Sign-In no está disponible en este momento.')}
+        </p>
+      )}
 
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">

@@ -199,8 +199,8 @@ export async function initAppleSignIn(options = {}) {
           redirectURI: 'https://api.hispaloshop.com/api/auth/apple/callback',
         });
         
-        // Send authorization code to backend
-        const response = await fetch(`${API_BASE_URL}/auth/apple/callback`, {
+        // Send identity token/code to dedicated mobile verify endpoint.
+        const response = await fetch(`${API_BASE_URL}/auth/apple/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

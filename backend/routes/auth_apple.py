@@ -117,6 +117,18 @@ async def get_apple_auth_url(request: Request):
     return {"auth_url": auth_url, "state": state}
 
 
+@router.get("/auth/apple/status")
+async def get_apple_auth_status():
+    """Expose Apple Sign-In readiness so frontend can disable unavailable flows."""
+    return {
+        "configured": _is_apple_configured(),
+        "has_client_id": bool(_resolve_apple_client_id()),
+        "has_team_id": bool(_resolve_apple_team_id()),
+        "has_key_id": bool(_resolve_apple_key_id()),
+        "has_private_key": bool(_resolve_apple_private_key()),
+    }
+
+
 @router.post("/auth/apple/callback")
 async def apple_auth_callback(
     request: Request,

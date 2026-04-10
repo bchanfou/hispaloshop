@@ -81,6 +81,11 @@ export const authApi = {
     return response?.data ?? response;
   },
 
+  async getAppleAuthStatus() {
+    const response = await apiClient.get('/auth/apple/status');
+    return response?.data ?? response;
+  },
+
   async register(payload, options = {}) {
     const params = {};
     if (options.ref) {
