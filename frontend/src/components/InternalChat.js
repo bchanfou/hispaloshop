@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
+import ReportButton from './moderation/ReportButton';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { useSwipeToReply } from '../hooks/useSwipeToReply';
 import { useTranslation } from 'react-i18next';
@@ -234,6 +235,12 @@ const MessageBubble = React.memo(function MessageBubble({
             }} className="flex h-9 w-9 items-center justify-center rounded-full text-stone-400 transition-transform hover:scale-110 hover:text-stone-700" aria-label="Eliminar mensaje">
                     <Trash2 size={16} />
                   </button>}
+                {/* Section 3.5b — Report this message (only on messages from others) */}
+                {!isOwn && message?.message_id && (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full text-stone-400">
+                    <ReportButton contentType="message" contentId={message.message_id} contentOwnerId={message?.sender_id} />
+                  </div>
+                )}
               </motion.div>
             </> : null}
         </AnimatePresence>

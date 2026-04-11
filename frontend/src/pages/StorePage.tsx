@@ -4,6 +4,8 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, Clock, ExternalLink, Globe, Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Send, Star, Store, Truck, User } from 'lucide-react';
 import { toast } from 'sonner';
+// @ts-ignore — JS module
+import ReportButton from '../components/moderation/ReportButton';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import ProductCard from '../components/ProductCard';
@@ -287,6 +289,12 @@ export default function StorePage() {
             </h1>
             {store.username && <p className="text-[13px] text-stone-500 mt-0.5 m-0">@{store.username}</p>}
           </div>
+          {/* Section 3.5b — Report this store */}
+          {(store.store_id || store.slug) && (
+            <div className="flex items-center text-stone-500">
+              <ReportButton contentType="store" contentId={store.store_id || store.slug} contentOwnerId={store.user_id} />
+            </div>
+          )}
         </div>
 
         {/* Badges row */}

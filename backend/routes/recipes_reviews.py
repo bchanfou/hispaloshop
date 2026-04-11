@@ -137,6 +137,23 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
                 )
         ingredients.append(item)
 
+    # Section 3.5b — sync AI pre-filter on title + description + cover (raises 403)
+    _recipe_text = " ".join([
+        body.get("title", "") or "",
+        body.get("description", "") or "",
+    ]).strip()
+    from services.moderation_wiring import run_moderation_check
+    try:
+        _ai_decision_rc, _ai_summary_rc = await run_moderation_check(
+            user=user, text=_recipe_text,
+            image_urls=[body.get("image_url")] if body.get("image_url") else None,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("[MOD_PRE] recipe degraded fallback: %s", exc)
+        _ai_decision_rc, _ai_summary_rc = "allow", None
+
     recipe_id = f"recipe_{uuid.uuid4().hex[:12]}"
     # Validate meal_type if provided
     meal_type = body.get("meal_type")
@@ -164,6 +181,21 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
     }
     await db.recipes.insert_one(recipe)
     recipe.pop("_id", None)
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_rc == "flag":
+        try:
+            from services.moderation_wiring import insert_auto_report
+            await insert_auto_report(
+                content_type="recipe",
+                content_id=recipe_id,
+                content_author_id=user.user_id,
+                content_country_code=(getattr(user, "country", None) or "ES").upper(),
+                ai_summary=_ai_summary_rc,
+            )
+        except Exception as exc:
+            logger.warning("[MOD_PRE] recipe auto-report failed: %s", exc)
+
     return recipe
 
 @router.get("/recipes")
@@ -393,6 +425,16 @@ async def get_recipe(recipe_id: str, request: Request, lang: Optional[str] = Non
         enriched_ingredients.append(mapped)
 
     recipe["ingredients"] = enriched_ingredients
+
+    # Section 3.5b — PII redaction at READ time on recipe description
+    # (NOT applied to ingredient names — risk of redacting legitimate brand names)
+    try:
+        from services.serialization_helpers import redact_public_text, language_for
+        language = language_for(lang or recipe.get("source_language") or "es")
+        if isinstance(recipe.get("description"), str):
+            recipe["description"] = redact_public_text(recipe["description"], language)
+    except Exception:
+        pass
 
     # Translate recipe fields if lang differs from source
     if lang:
@@ -811,6 +853,18 @@ async def get_product_reviews(
 
     await _enrich_reviews_with_authors(reviews)
 
+    # Section 3.5b — PII redaction at READ time on review comment + title
+    try:
+        from services.serialization_helpers import redact_public_text, language_for
+        for r in reviews:
+            language = language_for(lang or r.get("user_country") or r.get("country"))
+            if isinstance(r.get("comment"), str):
+                r["comment"] = redact_public_text(r["comment"], language)
+            if isinstance(r.get("title"), str):
+                r["title"] = redact_public_text(r["title"], language)
+    except Exception:
+        pass
+
     # Calculate average rating + distribution from ALL approved reviews
     all_approved = await db.reviews.find(
         {"product_id": product_id, "$or": [{"moderation_status": "approved"}, {"visible": True}], "deleted": {"$ne": True}},
@@ -921,6 +975,18 @@ async def create_product_review(product_id: str, input: ReviewCreateInput, user:
     # Validate images
     images = (input.images or [])[:3]
 
+    # Section 3.5b — sync AI pre-filter (raises 403 on critical block)
+    from services.moderation_wiring import run_moderation_check
+    try:
+        _ai_decision_rv, _ai_summary_rv = await run_moderation_check(
+            user=user, text=comment, image_urls=images,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("[MOD_PRE] review degraded fallback: %s", exc)
+        _ai_decision_rv, _ai_summary_rv = "allow", None
+
     # IA moderation
     moderation_status = "approved"
     moderation_reason = None
@@ -959,6 +1025,20 @@ async def create_product_review(product_id: str, input: ReviewCreateInput, user:
     }
     await db.reviews.insert_one(review)
     review.pop("_id", None)
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_rv == "flag":
+        try:
+            from services.moderation_wiring import insert_auto_report
+            await insert_auto_report(
+                content_type="review",
+                content_id=review_id,
+                content_author_id=user.user_id,
+                content_country_code=(getattr(user, "country", None) or "ES").upper(),
+                ai_summary=_ai_summary_rv,
+            )
+        except Exception as exc:
+            logger.warning("[MOD_PRE] review auto-report failed: %s", exc)
 
     # Recalculate product rating if approved
     if moderation_status == "approved":

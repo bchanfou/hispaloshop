@@ -6460,6 +6460,14 @@
       "food_safety": "Seguridad alimentaria / alérgenos",
       "scam": "Fraude o estafa",
       "other": "Otro motivo"
+    },
+    "blocked": {
+      "title": "Tu publicación no se puede compartir",
+      "body": "Nuestro sistema detectó que el contenido podría infringir nuestras normas de comunidad ({{category}}).",
+      "editButton": "Editar y volver a intentar",
+      "appealButton": "Solicitar revisión humana",
+      "appealConfirm": "Hemos recibido tu solicitud. Un moderador revisará tu caso.",
+      "appealError": "No se pudo enviar la solicitud"
     }
   },
   "helpCenter": {

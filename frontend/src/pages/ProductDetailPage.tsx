@@ -9,6 +9,7 @@ import {
   ShoppingBag, Lock, Clock3, ChefHat, Wheat, ThumbsUp, Globe,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+// @ts-ignore — JS module
 import ReportButton from '../components/moderation/ReportButton';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
@@ -1272,6 +1273,8 @@ export default function ProductDetailPage() {
                   >
                     <ThumbsUp size={13} /> {t('reviews.helpful', 'Util')} {review.helpful_count > 0 ? `(${review.helpful_count})` : ''}
                   </button>
+                  {/* Section 3.5b — Report this review */}
+                  <ReportButton contentType="review" contentId={review.review_id} contentOwnerId={review.user_id} />
                 </div>
                 {/* Producer response */}
                 {review.producer_response && (

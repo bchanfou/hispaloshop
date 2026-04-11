@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import Button from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
+// @ts-ignore — JS module
+import ReportButton from '../components/moderation/ReportButton';
 
 interface Ingredient {
   name: string;
@@ -212,6 +214,12 @@ export default function RecipeDetailPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Section 3.5b — Report this recipe */}
+        {recipe?.recipe_id && (
+          <div className="mb-3 flex justify-end">
+            <ReportButton contentType="recipe" contentId={recipe.recipe_id} contentOwnerId={recipe.author_id || recipe.user_id} />
+          </div>
+        )}
         {/* Meta info */}
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">

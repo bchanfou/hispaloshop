@@ -191,6 +191,24 @@ httpClient.interceptors.response.use(
       showNetworkError('Sin conexión. Comprueba tu red.');
     }
 
+    // Section 3.5b — moderation block. Surface a global event so the
+    // ModerationBlockedModal can render. We DO NOT swallow the error;
+    // the original promise still rejects so the caller's catch runs.
+    if (status === 403) {
+      try {
+        const data = error?.response?.data;
+        const detail = data?.detail || data;
+        if (detail && (detail.error === 'content_blocked_by_moderation' || data?.error === 'content_blocked_by_moderation')) {
+          const payload = detail?.error ? detail : data;
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('moderation:blocked', { detail: payload }));
+          }
+        }
+      } catch {
+        /* never let the interceptor crash */
+      }
+    }
+
     if (status === 401 && originalRequest && !originalRequest._retry) {
       // If a refresh is already in flight, queue this request to retry later
       if (isRefreshing) {

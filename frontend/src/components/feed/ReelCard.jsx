@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { abbreviateCount } from '../../utils/helpers';
 import { timeAgo } from '../../utils/time';
 import { Eye, Heart, MessageCircle, Bookmark, Play, Pause, Plus, Check, Volume2, VolumeX, Send, X as XIcon, Trash2, ShoppingBag, MoreHorizontal, Pencil, UserMinus, Flag } from 'lucide-react';
+import ReportButton from '../moderation/ReportButton';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -703,6 +704,14 @@ function ReelCardInner({
               }}>
                         <UserMinus size={16} /> Dejar de seguir
                       </button>}
+                    {/* Section 3.5b — Report this reel */}
+                    <div className="px-4 py-2">
+                      <ReportButton
+                        contentType="reel"
+                        contentId={reel.id || reel.reel_id || reel.post_id}
+                        contentOwnerId={reel.user?.id || reel.user?.user_id}
+                      />
+                    </div>
                   </>}
               </div>
             </div>
@@ -1036,6 +1045,9 @@ function ReelCardInner({
                         month: 'short'
                       }) : ''}</span>
                           <button onClick={() => handleReplyComment(cId, cName)} className="bg-transparent border-none cursor-pointer px-2 py-1 text-[10px] text-stone-400 font-semibold hover:text-stone-600 min-h-[44px] flex items-center">Responder</button>
+                          {!isOwn && cId && (
+                            <ReportButton contentType="comment" contentId={cId} contentOwnerId={c.user_id} />
+                          )}
                           {isOwn && <button onClick={() => handleDeleteComment(cId)} className="bg-transparent border-none cursor-pointer p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
                               <Trash2 size={12} className="text-stone-300 hover:text-stone-500" />
                             </button>}

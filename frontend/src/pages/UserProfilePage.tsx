@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext';
 import { useUserProfile, useUserFollow } from '../features/user/hooks';
 import { resolveUserImage, useUserHighlightsQuery, userKeys } from '../features/user/queries';
 import ProfileHeader from '../components/profile/ProfileHeader';
+// @ts-ignore
+import ReportButton from '../components/moderation/ReportButton';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import PostViewer from '../components/PostViewer';
@@ -371,6 +373,13 @@ export default function UserProfilePage() {
       <ProfileHeader user={user} isOwn={isOwn} onEditProfile={() => setShowEditProfile(true)} onShare={handleShare} onAvatarChange={handleAvatarChange} onFollowToggle={handleFollowToggle} onMessage={handleMessage} highlights={highlights} onCreateHighlight={() => setShowCreateHighlight(true)} onHighlightDeleted={() => queryClient.invalidateQueries({
         queryKey: userKeys.highlights(highlightsLookupKey)
       })} onSwitchTab={tabId => tabsRef.current?.switchTab(tabId)} onViewOwnStory={handleViewOwnStory} onViewHighlight={handleViewHighlight} onCreateStory={() => navigate('/create/story')} profileStories={profileStories} onViewProfileStory={handleViewProfileStory} />
+
+      {/* Section 3.5b — Report this user */}
+      {!isOwn && user?.user_id && (
+        <div className="px-4 pb-2 flex justify-end">
+          <ReportButton contentType="user" contentId={user.user_id} contentOwnerId={user.user_id} />
+        </div>
+      )}
 
       {/* ── P-11: Mutual followers ── */}
       {!isOwn && user.mutual_followers && user.mutual_followers.length > 0 && <div className="px-4 pb-2 flex items-center gap-2">

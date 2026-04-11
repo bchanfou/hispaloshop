@@ -4746,6 +4746,14 @@
       "food_safety": "Food safety / allergens",
       "scam": "Fraud or scam",
       "other": "Other reason"
+    },
+    "blocked": {
+      "title": "Your post cannot be shared",
+      "body": "Our system detected that the content may violate our community guidelines ({{category}}).",
+      "editButton": "Edit and try again",
+      "appealButton": "Request human review",
+      "appealConfirm": "We received your request. A moderator will review your case.",
+      "appealError": "Could not send the request"
     }
   },
   "helpCenter": {

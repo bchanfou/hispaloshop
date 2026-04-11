@@ -10,6 +10,8 @@ import VerifyEmailWall from '../auth/VerifyEmailWall';
 import { useNavigationDirection } from '../../hooks/useNavigationDirection';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
 import OfflineBanner from './OfflineBanner';
+import RestrictionBanner from '../moderation/RestrictionBanner';
+import ModerationBlockedModal from '../moderation/ModerationBlockedModal';
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -133,13 +135,35 @@ export default function AppLayout({ children }) {
   }
 
   if (hideChrome) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <ModerationBlockedModal />
+      </>
+    );
   }
+
+  // Section 3.5b — RestrictionBanner is hidden on:
+  //  - super-admin / country-admin routes (they have their own dashboards)
+  //  - public/landing routes already filtered out by hideChrome above
+  const restrictionBannerVisible = (
+    user
+    && user.role !== 'super_admin'
+    && user.role !== 'country_admin'
+    && !location.pathname.startsWith('/super-admin')
+    && !location.pathname.startsWith('/country-admin')
+  );
 
   return (
     <>
       {/* Offline detection banner */}
       <OfflineBanner />
+
+      {/* Section 3.5b — moderation restriction banner (conditional) */}
+      {restrictionBannerVisible && <RestrictionBanner />}
+
+      {/* Section 3.5b — global moderation block modal (always mounted, listens via event) */}
+      <ModerationBlockedModal />
 
       {/* Desktop: SideNav (lg+) */}
       <SideNav />

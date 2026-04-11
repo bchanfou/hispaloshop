@@ -35,6 +35,44 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Section 3.5b — synchronous AI pre-filter wiring
+# Imports lazily to avoid circulars; degrades gracefully if unavailable.
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def _premoderate(user, *, text=None, image_urls=None):
+    """Run the section 3.5 AI pre-filter. Returns (decision, ai_summary).
+
+    Raises HTTPException 403 if blocked. Caller publishes content normally
+    on 'allow' and creates an auto-report on 'flag'.
+    """
+    try:
+        from services.moderation_wiring import run_moderation_check
+        return await run_moderation_check(user=user, text=text, image_urls=image_urls)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Hard-fail safe: never break a publish because moderation is broken.
+        logger.warning("[MOD_PRE] degraded fallback: %s", exc)
+        return "allow", None
+
+
+async def _post_publish_autoreport(content_type, content_id, content_author_id, country_code, ai_summary):
+    if not ai_summary:
+        return
+    try:
+        from services.moderation_wiring import insert_auto_report
+        await insert_auto_report(
+            content_type=content_type,
+            content_id=str(content_id),
+            content_author_id=content_author_id,
+            content_country_code=country_code,
+            ai_summary=ai_summary,
+        )
+    except Exception as exc:
+        logger.warning("[MOD_PRE] auto-report insert failed: %s", exc)
+
+
 async def _moderate_content_async(
     collection_name: str,
     doc_id_field: str,
@@ -226,6 +264,16 @@ def _normalize_post_media(post: Dict[str, object]) -> Dict[str, object]:
     else:
         post["type"] = post.get("type") or "post"
         post["post_type"] = post.get("post_type") or "post"
+
+    # Section 3.5b — PII redaction at READ time. Original caption stays in
+    # MongoDB; this only affects the response payload.
+    try:
+        from services.serialization_helpers import redact_public_text, language_for
+        lang = language_for(post.get("user_country") or post.get("country"))
+        if isinstance(post.get("caption"), str):
+            post["caption"] = redact_public_text(post["caption"], lang)
+    except Exception:
+        pass
     return post
 
 
@@ -681,6 +729,11 @@ async def create_reel(
     if custom_cover_url:
         thumbnail_url = custom_cover_url
 
+    # Section 3.5b — sync AI pre-filter on caption + cover image
+    _ai_decision_reel, _ai_summary_reel = await _premoderate(
+        user, text=caption, image_urls=[u for u in [thumbnail_url, custom_cover_url] if u],
+    )
+
     # Fetch profile image for denormalization
     reel_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     reel_id = f"reel_{uuid.uuid4().hex[:12]}"
@@ -766,6 +819,13 @@ async def create_reel(
     asyncio.create_task(_moderate_content_async(
         "reels", "reel_id", reel_id, caption, [reel.get("video_url", "")]
     ))
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_reel == "flag":
+        await _post_publish_autoreport(
+            "reel", reel_id, user.user_id,
+            (getattr(user, "country", None) or "ES").upper(), _ai_summary_reel,
+        )
 
     return {k: v for k, v in reel.items() if k != "_id"}
 
@@ -2075,6 +2135,11 @@ async def create_post(
     if not caption.strip() and not media:
         raise HTTPException(status_code=400, detail="Post must have text or an image")
 
+    # Section 3.5b — sync AI pre-filter (raises 403 on critical block)
+    _ai_decision, _ai_summary = await _premoderate(
+        user, text=caption, image_urls=[m.get("url") for m in media if m.get("url")],
+    )
+
     tagged_products = await _hydrate_tagged_products(requested_tags)
     tagged_product = tagged_products[0] if tagged_products else None
 
@@ -2122,6 +2187,13 @@ async def create_post(
     asyncio.create_task(_moderate_content_async(
         "user_posts", "post_id", post_id, caption, [m.get("url", "") for m in media if m.get("url")]
     ))
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision == "flag":
+        await _post_publish_autoreport(
+            "post", post_id, user.user_id,
+            (getattr(user, "country", None) or "ES").upper(), _ai_summary,
+        )
 
     return _normalize_post_media({k: v for k, v in post.items() if k != "_id"})
 
@@ -2430,6 +2502,16 @@ async def get_post_comments(post_id: str, request: Request, skip: int = 0, limit
             for c in comments:
                 c["is_liked"] = c.get("comment_id") in liked_set
 
+    # Section 3.5b — PII redaction at READ time on comment text
+    try:
+        from services.serialization_helpers import redact_public_text, language_for
+        for c in comments:
+            if isinstance(c.get("text"), str):
+                lang = language_for(c.get("user_country") or c.get("country"))
+                c["text"] = redact_public_text(c["text"], lang)
+    except Exception:
+        pass
+
     return comments
 
 
@@ -2456,6 +2538,10 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
     text = body.get("text", "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="Comment text is required")
+
+    # Section 3.5b — sync AI pre-filter (text-only for comments)
+    _ai_decision_cm, _ai_summary_cm = await _premoderate(user, text=text)
+
     reply_to = body.get("reply_to")  # parent comment ID for threading
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "username": 1})
     comment = {
@@ -2477,6 +2563,14 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
     else:
         await db.post_comments.insert_one(comment)
         await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": 1}})
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_cm == "flag":
+        await _post_publish_autoreport(
+            "comment", comment["comment_id"], user.user_id,
+            (getattr(user, "country", None) or "ES").upper(), _ai_summary_cm,
+        )
+
     # Notify content owner (fire-and-forget, skip self-comment)
     owner_id = post.get("user_id") or post.get("author_id")
     if owner_id and owner_id != user.user_id:
@@ -3393,6 +3487,11 @@ async def create_story(
         result = await cloudinary_upload(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
     image_url = result["url"]
 
+    # Section 3.5b — sync AI pre-filter on caption + image (videos: caption only)
+    _ai_decision_st, _ai_summary_st = await _premoderate(
+        user, text=caption, image_urls=[image_url] if resource_type == "image" else None,
+    )
+
     story_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     story_id = f"story_{uuid.uuid4().hex[:12]}"
     now = datetime.now(timezone.utc)
@@ -3444,6 +3543,13 @@ async def create_story(
     asyncio.create_task(_moderate_content_async(
         "hispalostories", "story_id", story.get("story_id", ""), caption or "", [story.get("media_url", "")]
     ))
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_st == "flag":
+        await _post_publish_autoreport(
+            "story", story_id, user.user_id,
+            (getattr(user, "country", None) or "ES").upper(), _ai_summary_st,
+        )
 
     return {k: v for k, v in story.items() if k != "_id"}
 

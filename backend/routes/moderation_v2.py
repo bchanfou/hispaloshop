@@ -42,7 +42,8 @@ router = APIRouter()
 
 CONTENT_TYPES = (
     "post", "reel", "story", "comment", "review", "product", "user",
-    "community", "message", "recipe", "hashtag", "store",
+    "community", "community_post", "message", "recipe", "hashtag", "store",
+    "self_appeal",
 )
 
 REASONS = (
@@ -338,7 +339,14 @@ async def create_report(payload: ReportCreate, user: User = Depends(get_current_
     await check_and_inc(user.user_id, "create_report")
 
     # Resolve content author + country
-    if payload.content_type == "user":
+    if payload.content_type == "self_appeal":
+        # User is requesting human review of an AI block on their own content.
+        # No content_id lookup — the report is about the user's own intent.
+        author_info = {
+            "user_id": user.user_id,
+            "country": (getattr(user, "country", None) or "ES").upper(),
+        }
+    elif payload.content_type == "user":
         # Reporting a user directly — content_id is the user_id
         if payload.content_id == user.user_id:
             raise HTTPException(status_code=400, detail="No puedes reportarte a ti mismo")

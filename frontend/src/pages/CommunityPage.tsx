@@ -8,6 +8,8 @@ import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag, Flag, Search, X, Heart
 import { trackEvent } from '../utils/analytics';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+// @ts-ignore — JS module
+import ReportButton from '../components/moderation/ReportButton';
 import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
 function formatRelativeTime(dateStr) {
@@ -174,6 +176,11 @@ export default function CommunityPage() {
         <span className="text-[17px] font-bold text-stone-950 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
           {community.name}
         </span>
+        {!isCreator && communityId && (
+          <div className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
+            <ReportButton contentType="community" contentId={communityId} contentOwnerId={community?.creator_id} />
+          </div>
+        )}
         {isCreator && <Link to={`/communities/${slug}/settings`} aria-label={i18n.t('community.configuracion', 'Configuración')} className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
             <Settings size={20} />
           </Link>}

@@ -39,6 +39,38 @@ export default function ReportButton({
   const [reason, setReason] = useState('');
   const [description, setDescription] = useState('');
   const [sending, setSending] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState('');
+  const [uploadingShot, setUploadingShot] = useState(false);
+
+  const handleScreenshot = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      toast.error('Solo JPG o PNG');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Máximo 5MB');
+      return;
+    }
+    setUploadingShot(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/upload', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const url = res?.url || res?.data?.url;
+      if (!url) throw new Error('No URL en respuesta');
+      setScreenshotUrl(url);
+      toast.success('Screenshot adjuntado');
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || err?.message || 'Error subiendo screenshot');
+    } finally {
+      setUploadingShot(false);
+    }
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     if (!reason) return;
@@ -52,6 +84,7 @@ export default function ReportButton({
         content_id: contentId,
         reason,
         description: description || undefined,
+        screenshot_url: screenshotUrl || undefined,
       };
       try {
         await apiClient.post('/moderation/reports', body);
@@ -66,6 +99,7 @@ export default function ReportButton({
       setOpen(false);
       setReason('');
       setDescription('');
+      setScreenshotUrl('');
     } catch (err) {
       const detail = err?.response?.data?.detail;
       toast.error(detail || err.message || i18n.t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
@@ -131,7 +165,41 @@ export default function ReportButton({
 
                 {reason && <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={i18n.t('report_button.anadeUnDetalleOpcional', 'Añade un detalle (opcional)...')} rows={2} className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400" />}
 
-                <button type="submit" disabled={!reason || sending} className="h-12 w-full rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-40">
+                {reason && (
+                  <div className="space-y-2">
+                    <label className="block text-xs font-medium text-stone-500">
+                      {i18n.t('report_button.screenshotOpcional', 'Screenshot (opcional)')}
+                    </label>
+                    {screenshotUrl ? (
+                      <div className="flex items-center gap-2 rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2">
+                        <img src={screenshotUrl} alt="screenshot" className="h-12 w-12 rounded-xl object-cover" />
+                        <span className="flex-1 text-xs text-stone-500 truncate">Adjuntado</span>
+                        <button
+                          type="button"
+                          onClick={() => setScreenshotUrl('')}
+                          className="text-xs text-stone-500 hover:text-stone-950"
+                        >
+                          {i18n.t('report_button.quitar', 'Quitar')}
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="block w-full cursor-pointer rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-3 text-center text-xs text-stone-500 hover:border-stone-400">
+                        {uploadingShot
+                          ? i18n.t('report_button.subiendo', 'Subiendo…')
+                          : i18n.t('report_button.adjuntarScreenshot', 'Adjuntar screenshot (jpg/png, máx 5MB)')}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png"
+                          onChange={handleScreenshot}
+                          disabled={uploadingShot}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                <button type="submit" disabled={!reason || sending || uploadingShot} className="h-12 w-full rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-40">
                   {sending ? 'Enviando…' : 'Enviar reporte'}
                 </button>
               </form>

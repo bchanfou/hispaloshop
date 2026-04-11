@@ -577,6 +577,16 @@ async def get_community_posts(
     for p in posts:
         p["is_liked"] = False
 
+    # Section 3.5b — PII redaction at READ time on community post text
+    try:
+        from services.serialization_helpers import redact_public_text, language_for
+        for p in posts:
+            if isinstance(p.get("text"), str):
+                lang = language_for(p.get("user_country") or p.get("country"))
+                p["text"] = redact_public_text(p["text"], lang)
+    except Exception:
+        pass
+
     # Batch-check liked status in a single query instead of N find_one calls
     if user_id and posts:
         post_ids = [str(p["id"]) for p in posts]
@@ -647,6 +657,18 @@ async def create_community_post(
     if today_posts >= 5:
         raise HTTPException(429, "Máximo 5 publicaciones por día")
 
+    # Section 3.5b — sync AI pre-filter (raises 403 on critical block)
+    from services.moderation_wiring import run_moderation_check
+    try:
+        _ai_decision_cp, _ai_summary_cp = await run_moderation_check(
+            user=user, text=body.text, image_urls=[body.image_url] if body.image_url else None,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("[MOD_PRE] community degraded fallback: %s", exc)
+        _ai_decision_cp, _ai_summary_cp = "allow", None
+
     now = datetime.now(timezone.utc)
     post = {
         "community_id": cid,
@@ -667,6 +689,20 @@ async def create_community_post(
     await db.communities.update_one(
         {"_id": community["_id"]}, {"$inc": {"post_count": 1}}
     )
+
+    # Section 3.5b — auto-report if AI flagged but did not block
+    if _ai_decision_cp == "flag":
+        try:
+            from services.moderation_wiring import insert_auto_report
+            await insert_auto_report(
+                content_type="community_post",
+                content_id=str(result.inserted_id),
+                content_author_id=user.user_id,
+                content_country_code=(getattr(user, "country", None) or "ES").upper(),
+                ai_summary=_ai_summary_cp,
+            )
+        except Exception as exc:
+            logger.warning("[MOD_PRE] community auto-report failed: %s", exc)
 
     # Background moderation
     from services.content_moderation import moderate_post_content

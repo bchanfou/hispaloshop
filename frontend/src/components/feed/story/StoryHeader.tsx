@@ -1,6 +1,8 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { timeAgo } from '../../../utils/time';
+// @ts-ignore — JS module
+import ReportButton from '../../moderation/ReportButton';
 
 interface StoryUser {
   id?: string;
@@ -16,6 +18,8 @@ interface StoryHeaderProps {
   user: StoryUser;
   createdAt?: string;
   paused: boolean;
+  storyId?: string;
+  ownerId?: string;
   onAvatarClick: () => void;
   onClose: () => void;
 }
@@ -24,6 +28,8 @@ export default function StoryHeader({
   user,
   createdAt,
   paused,
+  storyId,
+  ownerId,
   onAvatarClick,
   onClose,
 }: StoryHeaderProps) {
@@ -61,6 +67,15 @@ export default function StoryHeader({
         <span className="text-[10px] text-white/40 font-sans mr-1">
           En pausa
         </span>
+      )}
+      {storyId && (
+        <div className="w-11 h-11 flex items-center justify-center text-white/70">
+          <ReportButton
+            contentType="story"
+            contentId={storyId}
+            contentOwnerId={ownerId}
+          />
+        </div>
       )}
       <button
         onClick={onClose}

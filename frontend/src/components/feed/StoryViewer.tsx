@@ -692,6 +692,8 @@ export default function StoryViewer({
         user={user}
         createdAt={currentItem?.created_at}
         paused={paused}
+        storyId={(currentItem as any)?.story_id || (currentItem as any)?.id}
+        ownerId={(user as any)?.id || (user as any)?.user_id}
         onAvatarClick={() => {
           handleClose();
           navigate(

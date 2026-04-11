@@ -6,6 +6,8 @@ import { ArrowLeft, Hash, AlertTriangle, Image, Play, ChefHat, Clock, Bell, Bell
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
+// @ts-ignore — JS module
+import ReportButton from '../components/moderation/ReportButton';
 import { trackEvent } from '../utils/analytics';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
@@ -203,6 +205,10 @@ export default function HashtagPage() {
               {isFollowingTag ? <BellOff size={14} /> : <Bell size={14} />}
               {isFollowingTag ? 'Siguiendo' : 'Seguir'}
             </button>}
+          {/* Section 3.5b — Report this hashtag */}
+          {currentUser && decodedTag && (
+            <ReportButton contentType="hashtag" contentId={decodedTag} />
+          )}
         </div>
 
         {/* Tabs */}
