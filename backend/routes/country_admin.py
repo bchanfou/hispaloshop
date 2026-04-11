@@ -19,7 +19,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, Depends, Request
 
 from core.database import db
-from core.auth import get_current_user, require_country_admin, _normalize_role
+from core.auth import get_current_user, require_country_admin, _normalize_role, is_acting_as_country as _is_acting_as
 from core.models import User
 from core.constants import SUPPORTED_COUNTRIES
 from services.notifications.dispatcher_service import notification_dispatcher
@@ -43,6 +43,7 @@ async def _audit(
     reason: str = "",
     request: Optional[Request] = None,
     extra: Optional[dict] = None,
+    acting_as_super_admin: bool = False,
 ) -> None:
     """Append an entry to the country_admin_audit collection."""
     ip = ""
@@ -58,6 +59,7 @@ async def _audit(
         "reason": reason,
         "ip": ip,
         "extra": extra or {},
+        "acting_as_super_admin": acting_as_super_admin,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     try:
@@ -97,9 +99,9 @@ def _is_super_admin(user: User) -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/country-admin/overview")
-async def country_admin_overview(user: User = Depends(get_current_user)):
+async def country_admin_overview(request: Request, user: User = Depends(get_current_user)):
     """KPI summary for the admin's country."""
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     now = datetime.now(timezone.utc)
     month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc).isoformat()
 
@@ -249,13 +251,14 @@ async def country_admin_overview(user: User = Depends(get_current_user)):
 
 @router.get("/country-admin/verifications")
 async def list_verifications(
+    request: Request,
     type: Optional[str] = None,
     status: str = "pending",
     limit: int = 50,
     offset: int = 0,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
 
     role_filter = ["producer", "importer"]
     if type in ("producer", "importer"):
@@ -309,7 +312,7 @@ async def approve_verification(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     notes = (body or {}).get("notes", "")
 
     target_query: dict = {"user_id": verification_id}
@@ -356,6 +359,7 @@ async def approve_verification(
         reason=notes,
         request=request,
         extra={"requested_at": str(target.get("created_at", ""))},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "approved", "user_id": verification_id}
 
@@ -367,7 +371,7 @@ async def reject_verification(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     reason = ((body or {}).get("reason") or "").strip()
     notes = (body or {}).get("notes", "")
     if len(reason) < 20:
@@ -418,6 +422,7 @@ async def reject_verification(
         reason=reason,
         request=request,
         extra={"notes": notes, "requested_at": str(target.get("created_at", ""))},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "rejected", "user_id": verification_id, "reason": reason}
 
@@ -428,13 +433,14 @@ async def reject_verification(
 
 @router.get("/country-admin/products")
 async def list_products(
+    request: Request,
     status: str = "pending",
     search: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
 
     query: dict = {}
     if status == "pending":
@@ -475,7 +481,7 @@ async def moderate_product(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     action = ((body or {}).get("action") or "").lower()
     reason = ((body or {}).get("reason") or "").strip()
     if action not in ("approve", "reject", "hide"):
@@ -535,6 +541,7 @@ async def moderate_product(
         target_type="product",
         reason=reason,
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok", "product_id": product_id, "action": action}
 
@@ -545,13 +552,14 @@ async def moderate_product(
 
 @router.get("/country-admin/users")
 async def list_users(
+    request: Request,
     role: Optional[str] = None,
     search: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
 
     query: dict = {}
     if country:
@@ -584,7 +592,7 @@ async def suspend_user(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     reason = ((body or {}).get("reason") or "").strip()
     duration_days = (body or {}).get("duration_days")
     if len(reason) < 20:
@@ -647,6 +655,7 @@ async def suspend_user(
         reason=reason,
         request=request,
         extra={"duration_days": duration_days, "until": until},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "suspended", "user_id": user_id, "until": until}
 
@@ -657,7 +666,7 @@ async def unsuspend_user(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
 
     target_query: dict = {"user_id": user_id}
     if country:
@@ -687,6 +696,7 @@ async def unsuspend_user(
         target_type="user",
         reason="",
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "unsuspended", "user_id": user_id}
 
@@ -697,6 +707,7 @@ async def unsuspend_user(
 
 @router.get("/country-admin/support/tickets")
 async def list_support_tickets(
+    request: Request,
     status: Optional[str] = None,
     priority: Optional[str] = None,
     category: Optional[str] = None,
@@ -705,7 +716,7 @@ async def list_support_tickets(
     offset: int = 0,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     query: dict = {}
     if country:
         query["country_code"] = country
@@ -730,8 +741,8 @@ async def list_support_tickets(
 
 
 @router.get("/country-admin/support/tickets/{ticket_id}")
-async def get_support_ticket(ticket_id: str, user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def get_support_ticket(ticket_id: str, request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     target_query: dict = {"ticket_id": ticket_id}
     if country:
         target_query["country_code"] = country
@@ -760,7 +771,7 @@ async def admin_add_message(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     target_query: dict = {"ticket_id": ticket_id}
     if country:
         target_query["country_code"] = country
@@ -849,6 +860,7 @@ async def admin_add_message(
         target_type="support_ticket",
         reason=mark_status or "",
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok", "message_id": msg["message_id"]}
 
@@ -860,7 +872,7 @@ async def escalate_ticket(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     reason = ((body or {}).get("reason") or "").strip()
     if len(reason) < 30:
         raise HTTPException(status_code=400, detail="Razón mínimo 30 caracteres")
@@ -892,6 +904,7 @@ async def escalate_ticket(
         target_type="support_ticket",
         reason=reason,
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "escalated"}
 
@@ -902,7 +915,7 @@ async def close_ticket(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     target_query: dict = {"ticket_id": ticket_id}
     if country:
         target_query["country_code"] = country
@@ -922,6 +935,7 @@ async def close_ticket(
         target_type="support_ticket",
         reason="manual_close",
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "closed"}
 
@@ -933,7 +947,7 @@ async def tag_ticket(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     tags = (body or {}).get("tags", [])
     if not isinstance(tags, list):
         raise HTTPException(status_code=400, detail="tags must be a list")
@@ -954,13 +968,14 @@ async def tag_ticket(
         reason="",
         request=request,
         extra={"tags": tags},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok", "tags": tags}
 
 
 @router.get("/country-admin/support/metrics")
-async def support_metrics(period: str = "30d", user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def support_metrics(request: Request, period: str = "30d", user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 30)
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
     base_query: dict = {"created_at": {"$gte": cutoff}}
@@ -1027,6 +1042,7 @@ async def support_metrics(period: str = "30d", user: User = Depends(get_current_
 
 @router.get("/country-admin/support/articles")
 async def list_articles_admin(
+    request: Request,
     category: Optional[str] = None,
     role: Optional[str] = None,
     status: Optional[str] = None,
@@ -1034,7 +1050,7 @@ async def list_articles_admin(
     limit: int = 100,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)  # super_admin returns None
+    country = await require_country_admin(user, request)  # super_admin returns None (or cookie-narrowed)
     query: dict = {}
     if category:
         query["category"] = category
@@ -1066,7 +1082,7 @@ async def list_articles_admin(
 
 @router.post("/country-admin/support/articles")
 async def create_article(body: dict, request: Request, user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     slug = ((body or {}).get("slug") or "").strip().lower()
     if not slug or not slug.replace("-", "").isalnum():
         raise HTTPException(status_code=400, detail="slug inválido (lowercase, dashes)")
@@ -1106,13 +1122,14 @@ async def create_article(body: dict, request: Request, user: User = Depends(get_
         reason="",
         request=request,
         extra={"category": doc["category"], "role_target": doc["role_target"], "published": doc["published"]},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok", "slug": slug}
 
 
 @router.put("/country-admin/support/articles/{slug}")
 async def update_article(slug: str, body: dict, request: Request, user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     existing = await db.support_articles.find_one({"slug": slug}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Artículo no encontrado")
@@ -1157,13 +1174,14 @@ async def update_article(slug: str, body: dict, request: Request, user: User = D
         reason="",
         request=request,
         extra={"changed": list(fields.keys())},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok"}
 
 
 @router.delete("/country-admin/support/articles/{slug}")
 async def soft_delete_article(slug: str, request: Request, user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     existing = await db.support_articles.find_one({"slug": slug}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Artículo no encontrado")
@@ -1185,6 +1203,7 @@ async def soft_delete_article(slug: str, request: Request, user: User = Depends(
         target_type="support_article",
         reason="",
         request=request,
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok"}
 
@@ -1199,7 +1218,7 @@ async def update_weekly_goal(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     if not country:
         raise HTTPException(status_code=400, detail="super_admin must use the super-admin endpoint to set per-country goals")
     try:
@@ -1228,6 +1247,7 @@ async def update_weekly_goal(
         reason="",
         request=request,
         extra={"weekly_goal_cents": weekly_goal_cents},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {"status": "ok", "country_code": country, "weekly_goal_cents": weekly_goal_cents}
 
@@ -1238,7 +1258,7 @@ async def update_default_shipping(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     if not country:
         raise HTTPException(status_code=400, detail="super_admin must use the super-admin endpoint")
     try:
@@ -1271,6 +1291,7 @@ async def update_default_shipping(
         reason="",
         request=request,
         extra={"free_shipping_threshold_cents": free_threshold, "default_shipping_fee_cents": default_fee},
+        acting_as_super_admin=_is_acting_as(user, request),
     )
     return {
         "status": "ok",
@@ -1281,8 +1302,8 @@ async def update_default_shipping(
 
 
 @router.get("/country-admin/settings")
-async def get_settings(user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def get_settings(request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     if not country:
         return {"country_code": None, "weekly_goal_cents": 0, "default_shipping": {}}
     config = await db.country_configs.find_one(
@@ -1304,12 +1325,13 @@ async def get_settings(user: User = Depends(get_current_user)):
 
 @router.get("/country-admin/audit-log")
 async def get_audit_log(
+    request: Request,
     action: Optional[str] = None,
     target_type: Optional[str] = None,
     limit: int = 50,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     query: dict = {}
     if country:
         query["country_code"] = country
@@ -1326,8 +1348,8 @@ async def get_audit_log(
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/country-admin/onboarding")
-async def get_onboarding_status(user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def get_onboarding_status(request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "country_admin_onboarded": 1})
     return {
         "country_code": country,
@@ -1336,8 +1358,8 @@ async def get_onboarding_status(user: User = Depends(get_current_user)):
 
 
 @router.patch("/country-admin/onboarding")
-async def mark_onboarded(user: User = Depends(get_current_user)):
-    await require_country_admin(user)
+async def mark_onboarded(request: Request, user: User = Depends(get_current_user)):
+    await require_country_admin(user, request)
     await db.users.update_one(
         {"user_id": user.user_id},
         {"$set": {
@@ -1353,17 +1375,17 @@ async def mark_onboarded(user: User = Depends(get_current_user)):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/country-admin/ai/context")
-async def get_ai_context(user: User = Depends(get_current_user)):
+async def get_ai_context(request: Request, user: User = Depends(get_current_user)):
     """
     Return contextual data for the country admin's AI assistant (Iris).
     The frontend assistant uses this to enrich its system prompt.
     """
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     if not country:
         # super_admin has no scope — return a global flag and let UI handle it.
         return {"country_code": None, "global": True}
 
-    overview_kpis = await country_admin_overview(user)
+    overview_kpis = await country_admin_overview(request, user)
     country_meta = SUPPORTED_COUNTRIES.get(country, {})
 
     # Top 5 sellers by GMV in the country (last 90 days)

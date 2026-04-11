@@ -113,11 +113,23 @@ async def require_founder(user: User) -> User:
     return user
 
 
-async def require_country_admin(user: User) -> Optional[str]:
+async def require_country_admin(user: User, request: Optional[Request] = None) -> Optional[str]:
     """
     Require country_admin (or admin with assigned_country) access. Returns the
-    country code (ISO-2) the admin is scoped to. super_admin gets None — they
-    see all countries (callers must handle the None case explicitly).
+    country code (ISO-2) the admin is scoped to. super_admin gets None (global
+    view) by default — callers must handle the None case explicitly.
+
+    Section 3.6.5b — Act-as-country-admin semantics:
+      If `request` is provided AND the caller is a super_admin AND the
+      `super_admin_acting_as_country` cookie is set to a valid 2-letter ISO
+      country code, this returns that code (narrowing the super_admin's view
+      to a single country as if they were a real country admin). Format-only
+      validation — the cookie-set endpoint upstream already verifies the code
+      is a supported country.
+
+      Real country_admin / admin users IGNORE the cookie — their scoping is
+      always their own `assigned_country`. This prevents a hypothetical
+      session-hijack from trivially elevating cross-country access.
 
     Raises 403 if:
       - user has no admin role, OR
@@ -130,6 +142,14 @@ async def require_country_admin(user: User) -> Optional[str]:
     role = _normalize_role(getattr(user, 'role', None))
 
     if role == "super_admin":
+        # Cookie-driven narrowing for super_admin "act as country admin" mode.
+        if request is not None:
+            try:
+                acting = request.cookies.get('super_admin_acting_as_country')
+            except Exception:
+                acting = None
+            if acting and len(acting) == 2 and acting.isalpha():
+                return acting.upper()
         return None
 
     if role not in ("admin", "country_admin"):
@@ -148,6 +168,28 @@ async def require_country_admin(user: User) -> Optional[str]:
             detail="Admin account has no assigned country. Contact super_admin to configure your country scope.",
         )
     return str(assigned_country).upper()
+
+
+def is_acting_as_country(user, request: Optional[Request]) -> bool:
+    """
+    Section 3.6.5b — True if the caller is a super_admin currently using the
+    `super_admin_acting_as_country` cookie. Used to flag entries written to
+    `country_admin_audit` so forensics can distinguish real country admin
+    actions from super admin overrides.
+
+    Real country_admin / admin users always return False (the cookie is
+    ignored for them — see require_country_admin docstring).
+    """
+    if request is None:
+        return False
+    role = _normalize_role(getattr(user, 'role', None) if not isinstance(user, dict) else user.get('role'))
+    if role != 'super_admin':
+        return False
+    try:
+        acting = request.cookies.get('super_admin_acting_as_country')
+    except Exception:
+        return False
+    return bool(acting and len(acting) == 2 and acting.isalpha())
 
 
 async def get_optional_user(request: Request) -> Optional[User]:

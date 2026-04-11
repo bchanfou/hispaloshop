@@ -28,7 +28,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from core.database import db
-from core.auth import get_current_user, require_super_admin, require_country_admin
+from core.auth import get_current_user, require_super_admin, require_country_admin, is_acting_as_country
 from core.models import User
 from services.rate_limit_v2 import check_and_inc
 
@@ -326,8 +326,11 @@ async def _apply_action_effects(action: dict) -> None:
         pass
 
 
-async def _audit_mod(action: str, target_id: str, country_code: Optional[str], actor_id: str, reason: str = "") -> None:
-    """Mirror moderation actions into country_admin_audit so dashboards see them."""
+async def _audit_mod(action: str, target_id: str, country_code: Optional[str], actor_id: str, reason: str = "", *, acting_as_super_admin: bool = False) -> None:
+    """Mirror moderation actions into country_admin_audit so dashboards see them.
+
+    Section 3.6.5b: `acting_as_super_admin` flag distinguishes a super_admin
+    using the act-as-country cookie from a real country admin."""
     try:
         await db.country_admin_audit.insert_one({
             "log_id": f"caudit_{uuid.uuid4().hex[:16]}",
@@ -339,6 +342,7 @@ async def _audit_mod(action: str, target_id: str, country_code: Optional[str], a
             "reason": reason,
             "ip": "",
             "extra": {},
+            "acting_as_super_admin": acting_as_super_admin,
             "timestamp": _now_iso(),
         })
     except Exception as exc:
@@ -552,6 +556,7 @@ async def list_my_actions(user: User = Depends(get_current_user)):
 
 @router.get("/country-admin/moderation/queue")
 async def cadmin_queue(
+    request: Request,
     status: Optional[str] = "pending",
     priority: Optional[int] = None,
     content_type: Optional[str] = None,
@@ -561,7 +566,7 @@ async def cadmin_queue(
     offset: int = 0,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     query: dict = {}
     if country:
         query["content_country_code"] = country
@@ -585,8 +590,8 @@ async def cadmin_queue(
 
 
 @router.get("/country-admin/moderation/queue/auto-flagged")
-async def cadmin_auto_flagged(user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def cadmin_auto_flagged(request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     query: dict = {"ai_flagged": True, "status": "pending"}
     if country:
         query["content_country_code"] = country
@@ -595,8 +600,8 @@ async def cadmin_auto_flagged(user: User = Depends(get_current_user)):
 
 
 @router.get("/country-admin/moderation/reports/{report_id}")
-async def cadmin_get_report(report_id: str, user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def cadmin_get_report(report_id: str, request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     target_query = {"report_id": report_id}
     if country:
         target_query["content_country_code"] = country
@@ -619,7 +624,7 @@ async def cadmin_resolve_report(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     if payload.action_type not in ACTION_TYPES:
         raise HTTPException(status_code=400, detail="action_type inválido")
     target_query = {"report_id": report_id}
@@ -685,6 +690,7 @@ async def cadmin_resolve_report(
         country_code=country,
         actor_id=user.user_id,
         reason=payload.reason[:200],
+        acting_as_super_admin=is_acting_as_country(user, request),
     )
     return {"status": "ok", "action_id": action["action_id"]}
 
@@ -696,7 +702,7 @@ async def cadmin_dismiss_report(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     target_query = {"report_id": report_id}
     if country:
         target_query["content_country_code"] = country
@@ -725,7 +731,10 @@ async def cadmin_dismiss_report(
         upsert=True,
     )
 
-    await _audit_mod("moderation_dismiss", report_id, country, user.user_id, reason)
+    await _audit_mod(
+        "moderation_dismiss", report_id, country, user.user_id, reason,
+        acting_as_super_admin=is_acting_as_country(user, request),
+    )
     return {"status": "dismissed", "reporter_dismissed_30d": dismissed_30d}
 
 
@@ -736,7 +745,7 @@ async def cadmin_escalate_report(
     request: Request,
     user: User = Depends(get_current_user),
 ):
-    country = await require_country_admin(user)
+    country = await require_country_admin(user, request)
     reason = ((body or {}).get("reason") or "").strip()
     if len(reason) < 30:
         raise HTTPException(status_code=400, detail="Razón mínimo 30 caracteres")
@@ -756,13 +765,16 @@ async def cadmin_escalate_report(
             "escalation_reason": reason,
         }},
     )
-    await _audit_mod("moderation_escalate", report_id, country, user.user_id, reason)
+    await _audit_mod(
+        "moderation_escalate", report_id, country, user.user_id, reason,
+        acting_as_super_admin=is_acting_as_country(user, request),
+    )
     return {"status": "escalated"}
 
 
 @router.get("/country-admin/moderation/metrics")
-async def cadmin_metrics(period: str = "30d", user: User = Depends(get_current_user)):
-    country = await require_country_admin(user)
+async def cadmin_metrics(request: Request, period: str = "30d", user: User = Depends(get_current_user)):
+    country = await require_country_admin(user, request)
     days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 30)
     cutoff = (_now() - timedelta(days=days)).isoformat()
     base_q: dict = {"created_at": {"$gte": cutoff}}
