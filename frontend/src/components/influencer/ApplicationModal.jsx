@@ -473,7 +473,7 @@ export default function ApplicationModal({
                                   {FOLLOWER_OPTIONS.map(range => {
                               const selected = form.followerRange === range;
                               return <button key={range} type="button" onClick={() => updateField('followerRange', range)} className={`rounded-[22px] border px-4 py-4 text-left transition-all ${selected ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}>
-                                        <p className="font-semibold text-stone-900">{range}</p>
+                                        <p className="font-semibold text-stone-950">{range}</p>
                                       </button>;
                             })}
                                 </div>

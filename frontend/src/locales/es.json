@@ -1,4 +1,7 @@
 {
+  "influencer_fiscal": {
+    "disclaimer": "HispaloShop opera desde Estados Unidos. No retenemos impuestos locales. Eres responsable de tu declaración fiscal."
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",

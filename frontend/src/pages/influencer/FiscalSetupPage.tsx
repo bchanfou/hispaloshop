@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Upload, FileCheck, AlertTriangle, Loader2, Check, X, CreditCard, Building2, Clock, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Upload, FileCheck, AlertTriangle, Loader2, Check, X, CreditCard, Building2, Clock, ChevronDown, Info } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
@@ -354,6 +354,16 @@ export default function FiscalSetupPage() {
         })}
       </div>
 
+      {/* Fiscal provisional disclaimer (US LLC — no withholding) */}
+      <div className="mb-5 border border-stone-200 bg-stone-50 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <Info className="w-4 h-4 shrink-0 mt-0.5 text-stone-600" />
+          <p className="text-xs leading-relaxed text-stone-600">
+            {t('influencer_fiscal.disclaimer', 'HispaloShop opera desde Estados Unidos. No retenemos impuestos locales. Eres responsable de tu declaración fiscal.')}
+          </p>
+        </div>
+      </div>
+
       {/* Blocked banner */}
       {isBlocked && <div className="p-4 mb-5 bg-stone-100 rounded-2xl shadow-sm">
           <div className="flex items-start gap-3">
@@ -614,7 +624,7 @@ export default function FiscalSetupPage() {
       <button onClick={async () => {
         try {
           await apiClient.post('/influencer/fiscal/complete-verification', {});
-          trackEvent('influencer_fiscal_configured', { country: selectedCountry });
+          trackEvent('influencer_fiscal_configured', { country });
           toast.success(t('fiscal_setup.configuracionFiscalGuardadaAfiliados', 'Configuración fiscal guardada. Afiliados activados.'));
           await refreshUser();
           navigate('/influencer/links');

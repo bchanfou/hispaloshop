@@ -1,4 +1,7 @@
 {
+  "influencer_fiscal": {
+    "disclaimer": "HispaloShop operates from the United States. We do not withhold local taxes. You are responsible for your own tax filing."
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",

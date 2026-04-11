@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, ChevronRight, X, AlertCircle } from 'lucide-react';
+import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, ChevronRight, X, AlertCircle, Info, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
@@ -116,6 +116,7 @@ export default function PayoutsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const PAYOUTS_PER_PAGE = 10;
+  const MINIMUM_WITHDRAWAL = 20; // €20 synced with WithdrawalPage
   const fetchPayouts = useCallback(async () => {
     try {
       const data = await apiClient.get('/influencer/payouts');
@@ -237,7 +238,7 @@ export default function PayoutsPage() {
       <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-stone-950">Cobros</h1>
-          <button onClick={() => setShowWithdrawalModal(true)} disabled={!stats || (stats.available_to_withdraw ?? stats.pending_eur ?? 0) < 20} className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-40 border-none cursor-pointer">
+          <button onClick={() => setShowWithdrawalModal(true)} disabled={!stats || (stats.available_to_withdraw ?? stats.pending_eur ?? 0) < MINIMUM_WITHDRAWAL} className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-40 border-none cursor-pointer">
             Solicitar retirada
           </button>
         </div>
@@ -254,20 +255,30 @@ export default function PayoutsPage() {
               <p className="text-4xl font-extrabold tracking-tight text-white mb-1">
                 {convertAndFormatPrice(Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0))}
               </p>
-              {(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0) >= 20 ? <p className="text-sm text-stone-400 mb-4">
-                  <span className="text-white">✓</span> Listo para cobrar
+              {(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0) >= MINIMUM_WITHDRAWAL ? <p className="text-sm text-stone-400 mb-4 inline-flex items-center gap-1.5 justify-center">
+                  <Check className="w-3.5 h-3.5 text-white" /> Listo para cobrar
                 </p> : <p className="text-sm text-stone-500 mb-4">
-                  Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0)))} de poder solicitar tu cobro
+                  Estás a {convertAndFormatPrice(Math.max(0, MINIMUM_WITHDRAWAL - Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0)))} de poder solicitar tu cobro
                 </p>}
 
               {/* Stripe Connect CTA */}
               {!stats?.has_stripe_connect ? <button onClick={connectStripe} disabled={connectingStripe} className="bg-white text-stone-950 rounded-full px-6 py-3 text-sm font-bold hover:bg-stone-100 transition-colors disabled:opacity-50">
-                  {connectingStripe ? 'Conectando...' : 'Conectar cuenta bancaria →'}
+                  {connectingStripe ? 'Conectando...' : 'Conectar cuenta bancaria'}
                 </button> : <div className="flex items-center justify-center gap-2 text-xs text-stone-500">
-                  <span className="text-white">✓</span>
+                  <Check className="w-3.5 h-3.5 text-white" />
                   Cuenta bancaria conectada
                 </div>}
             </>}
+        </div>
+
+        {/* Fiscal provisional disclaimer (US LLC — no withholding) */}
+        <div className="mb-5 border border-stone-200 bg-stone-50 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <Info className="w-4 h-4 shrink-0 mt-0.5 text-stone-600" />
+            <p className="text-xs leading-relaxed text-stone-600">
+              {t('influencer_fiscal.disclaimer', 'HispaloShop opera desde Estados Unidos. No retenemos impuestos locales. Eres responsable de tu declaración fiscal.')}
+            </p>
+          </div>
         </div>
 
         {/* Next payout / D+15 pending */}
