@@ -67,7 +67,7 @@ export function getDefaultRoute(user, onboardingCompleted = true) {
       return '/admin';
 
     case 'super_admin':
-      return '/super-admin';
+      return '/super-admin/overview';
 
     default:
       return '/';

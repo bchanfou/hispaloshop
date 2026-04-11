@@ -92,6 +92,27 @@ async def require_super_admin(user: User):
         raise HTTPException(status_code=403, detail="Super admin access required")
 
 
+async def require_founder(user: User) -> User:
+    """
+    Require founder access. Founder = super_admin with is_founder=True on the
+    user document. Used for the most destructive actions: commission rate
+    changes, kill switches, global force-logout, etc.
+
+    Raises 403 if the caller is not a super_admin OR if is_founder is not set.
+    """
+    role = _normalize_role(getattr(user, 'role', None))
+    if role != "super_admin":
+        raise HTTPException(status_code=403, detail="Founder access required")
+
+    user_doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "is_founder": 1},
+    )
+    if not (user_doc or {}).get("is_founder", False):
+        raise HTTPException(status_code=403, detail="Founder access required")
+    return user
+
+
 async def require_country_admin(user: User) -> Optional[str]:
     """
     Require country_admin (or admin with assigned_country) access. Returns the

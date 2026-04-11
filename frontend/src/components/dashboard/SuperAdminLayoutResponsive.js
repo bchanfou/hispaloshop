@@ -1,21 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   Shield, ArrowLeft, LogOut, Users, BarChart3,
   TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert,
-  Zap, Lock, Settings, Receipt
+  Zap, Lock, Settings, Receipt, ScrollText, Activity, Power, FileText,
+  AlertOctagon, X, Sparkles
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
 import { useDashboardLogout } from '../../features/dashboard/queries';
+import { apiClient } from '../../services/api/client';
 
 export default function SuperAdminLayoutResponsive() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [actingAs, setActingAs] = useState(null);
   const logoutMutation = useDashboardLogout();
+  const isFounder = Boolean(user?.is_founder);
+
+  // Read the act-as cookie state on mount.
+  useEffect(() => {
+    if (!user || user.role !== 'super_admin') return;
+    apiClient.get('/super-admin/act-as-country-admin')
+      .then((data) => setActingAs(data?.acting_as || null))
+      .catch(() => setActingAs(null));
+  }, [user]);
+
+  const handleStopActAs = async () => {
+    try {
+      await apiClient.delete('/super-admin/act-as-country-admin');
+      setActingAs(null);
+      navigate('/super-admin/overview');
+    } catch (e) { /* ignore */ }
+  };
 
   const handleLogout = async () => {
     try {
@@ -27,20 +47,33 @@ export default function SuperAdminLayoutResponsive() {
     }
   };
 
+  // Section 3.3: dashboard nav with new globals.
   const allNavItems = [
-    { to: '/super-admin', icon: Shield, label: 'Global', shortLabel: 'Global', end: true },
-    { to: '/super-admin/markets', icon: Globe, label: t('breadcrumbs.countries', 'Países'), shortLabel: 'Países' },
-    { to: '/super-admin/admins', icon: Users, label: 'Admins', shortLabel: 'Admins' },
-    { to: '/super-admin/finance', icon: Wallet, label: 'Finanzas', shortLabel: 'Finanzas' },
-    { to: '/admin/payouts', icon: Receipt, label: 'Payouts', shortLabel: 'Payouts' },
-    { to: '/super-admin/plans', icon: Zap, label: 'Planes', shortLabel: 'Planes' },
-    { to: '/super-admin/users', icon: Users, label: 'Usuarios', shortLabel: 'Usuarios' },
-    { to: '/super-admin/content', icon: Package, label: 'Contenido', shortLabel: 'Contenido' },
-    { to: '/super-admin/gdpr', icon: Lock, label: 'GDPR', shortLabel: 'GDPR' },
-    { to: '/super-admin/infrastructure', icon: Settings, label: 'Infraestructura', shortLabel: 'Infra' },
-    { to: '/super-admin/insights', icon: BarChart3, label: t('store.stats', 'Estadísticas'), shortLabel: 'Stats' },
-    { to: '/super-admin/escalation', icon: ShieldAlert, label: 'Escalaciones', shortLabel: 'Escalar' },
+    { to: '/super-admin/overview', icon: Shield, label: t('superAdmin.nav.overview', 'Visión Global'), shortLabel: 'Global' },
+    { to: '/super-admin/markets', icon: Globe, label: t('superAdmin.nav.markets', 'Mercados'), shortLabel: 'Países' },
+    { to: '/super-admin/comparison', icon: BarChart3, label: t('superAdmin.nav.comparison', 'Comparativa'), shortLabel: 'Comparativa' },
+    { to: '/super-admin/finance', icon: Wallet, label: t('superAdmin.nav.financeDashboard', 'Finanzas'), shortLabel: 'Finanzas' },
+    { to: '/super-admin/finance/ledger', icon: FileText, label: t('superAdmin.nav.ledger', 'Ledger global'), shortLabel: 'Ledger' },
+    { to: '/super-admin/growth', icon: TrendingUp, label: t('superAdmin.nav.growth', 'Crecimiento'), shortLabel: 'Growth' },
+    { to: '/super-admin/audit', icon: ScrollText, label: t('superAdmin.nav.audit', 'Auditoría Global'), shortLabel: 'Auditoría' },
+    { to: '/super-admin/system/health', icon: Activity, label: t('superAdmin.nav.health', 'Health'), shortLabel: 'Health' },
+    { to: '/super-admin/system/crons', icon: Zap, label: t('superAdmin.nav.crons', 'Crons'), shortLabel: 'Crons' },
+    { to: '/super-admin/system/exchange-rates', icon: TrendingUp, label: t('superAdmin.nav.exchangeRates', 'Exchange rates'), shortLabel: 'Rates' },
+    { to: '/super-admin/admins', icon: Users, label: t('superAdmin.nav.admins', 'Admins'), shortLabel: 'Admins' },
+    { to: '/super-admin/users', icon: Users, label: t('superAdmin.nav.users', 'Usuarios'), shortLabel: 'Users' },
+    { to: '/super-admin/plans', icon: Receipt, label: t('superAdmin.nav.plans', 'Planes'), shortLabel: 'Planes' },
+    { to: '/super-admin/content', icon: Package, label: t('superAdmin.nav.content', 'Contenido'), shortLabel: 'Contenido' },
+    { to: '/super-admin/gdpr', icon: Lock, label: t('superAdmin.nav.gdpr', 'GDPR'), shortLabel: 'GDPR' },
+    { to: '/super-admin/act-as-country', icon: Sparkles, label: t('superAdmin.nav.actAs', 'Actuar como país'), shortLabel: 'Act as' },
+    { to: '/super-admin/escalation', icon: ShieldAlert, label: t('superAdmin.nav.escalation', 'Escalaciones'), shortLabel: 'Escalar' },
   ];
+
+  if (isFounder) {
+    allNavItems.push(
+      { to: '/super-admin/system/kill-switches', icon: Power, label: t('superAdmin.nav.killSwitches', 'Kill switches'), shortLabel: 'Kill', founderOnly: true },
+      { to: '/super-admin/founder-console', icon: AlertOctagon, label: t('superAdmin.nav.founder', 'Founder console'), shortLabel: 'Founder', founderOnly: true },
+    );
+  }
 
   const mobileNavItems = [
     ...allNavItems.slice(0, 4),
@@ -149,6 +182,26 @@ export default function SuperAdminLayoutResponsive() {
 
       {/* ===== MAIN CONTENT ===== */}
       <main className="md:ml-[220px] min-h-screen">
+        {actingAs && (
+          <div className="bg-amber-500/15 border-b border-amber-400/30 text-amber-200 text-sm px-6 py-3 flex items-center justify-between">
+            <span>
+              {t('superAdmin.actingAsBanner', 'Estás viendo {{country}} como super admin.', { country: actingAs })}
+            </span>
+            <button
+              onClick={handleStopActAs}
+              className="inline-flex items-center gap-1 text-xs text-amber-100 hover:text-white font-medium"
+            >
+              <X className="w-3.5 h-3.5" />
+              {t('superAdmin.stopActingAs', 'Volver a super admin')}
+            </button>
+          </div>
+        )}
+        {isFounder && (
+          <div className="bg-red-500/10 border-b border-red-500/30 text-red-200 text-xs px-6 py-2 flex items-center gap-2">
+            <AlertOctagon className="w-3.5 h-3.5" />
+            <span>{t('superAdmin.founderBanner', 'Cuenta founder activa. Acciones críticas habilitadas.')}</span>
+          </div>
+        )}
         <div className="pt-[100px] pb-[76px] md:pt-0 md:pb-0">
           <div className="p-4 md:p-7">
             <Outlet />

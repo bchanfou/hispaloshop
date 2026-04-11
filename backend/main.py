@@ -83,6 +83,7 @@ from routes.onboarding import router as onboarding_router
 from routes.producer_verification import router as producer_verification_router
 from routes.admin_verification import router as admin_verification_router
 from routes.country_admin import router as country_admin_router
+from routes.super_admin import router as super_admin_router
 from routes.ai import router as ai_router
 from routes.frontend_compat import router as frontend_compat_router
 from routes.rfq import router as rfq_router
@@ -257,6 +258,12 @@ app.add_middleware(RequestLoggingMiddleware)
 # 5. Request correlation ID (UUID per request, X-Request-ID header)
 app.add_middleware(RequestIDMiddleware)
 
+# 6. Kill switch middleware — founder can flip platform-level brakes via
+#    /super-admin/system/kill-switch (section 3.3). Reads from db.platform_config
+#    with a 10s in-process cache so the cost is negligible.
+from middleware.kill_switch import KillSwitchMiddleware
+app.add_middleware(KillSwitchMiddleware)
+
 # ============================================
 # API Routes - Stack MongoDB (Funcional)
 # ============================================
@@ -322,6 +329,7 @@ app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 app.include_router(producer_verification_router, prefix="/api", tags=["verification"])
 app.include_router(admin_verification_router, prefix="/api", tags=["admin-verification"])
 app.include_router(country_admin_router, prefix="/api", tags=["country-admin"])
+app.include_router(super_admin_router, prefix="/api", tags=["super-admin"])
 
 # Content Moderation Routes (Fase 24)
 app.include_router(content_moderation_router, prefix="/api", tags=["content-moderation"])

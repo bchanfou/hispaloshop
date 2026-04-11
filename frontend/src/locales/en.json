@@ -4485,5 +4485,140 @@
       "q3": "Give me a summary for my weekly report",
       "q4": "Which seller has the worst SLA?"
     }
+  },
+  "superAdmin": {
+    "actingAsBanner": "You are viewing {{country}} as super admin.",
+    "stopActingAs": "Back to super admin",
+    "founderBanner": "Founder account active. Critical actions enabled.",
+    "noData": "No data",
+    "topCountriesGmv": "Top 5 countries by GMV",
+    "nav": {
+      "overview": "Global view",
+      "markets": "Markets",
+      "comparison": "Comparison",
+      "financeDashboard": "Finance",
+      "ledger": "Global ledger",
+      "growth": "Growth",
+      "audit": "Global audit",
+      "health": "Health",
+      "crons": "Crons",
+      "exchangeRates": "Exchange rates",
+      "killSwitches": "Kill switches",
+      "founder": "Founder console",
+      "admins": "Admins",
+      "users": "Users",
+      "plans": "Plans",
+      "content": "Content",
+      "gdpr": "GDPR",
+      "actAs": "Act as country",
+      "escalation": "Escalations"
+    },
+    "kpi": {
+      "gmvMonth": "GMV month",
+      "orders": "Orders month",
+      "sellers": "Active sellers",
+      "countries": "Active countries",
+      "pendingVerifGlobal": "Pending verifs",
+      "refundRate": "Refund rate",
+      "health": "Health",
+      "exchange": "Exchange rates"
+    },
+    "overview": {
+      "title": "Global view",
+      "subtitle": "Multi-country marketplace at a glance."
+    },
+    "comparison": {
+      "title": "Country comparison",
+      "subtitle": "Comparable metrics across all active markets."
+    },
+    "metric": {
+      "gmv": "GMV",
+      "orders": "Orders",
+      "sellers": "Sellers",
+      "refundRate": "Refund rate"
+    },
+    "ledger": {
+      "title": "Global ledger",
+      "subtitle": "Financial movements across the platform."
+    },
+    "audit": {
+      "title": "Global audit",
+      "subtitle": "Country and super admin actions unified.",
+      "allSeverity": "All severities",
+      "empty": "No results"
+    },
+    "kill": {
+      "title": "Kill switches",
+      "subtitle": "Platform brakes for emergencies. Founder-only.",
+      "warning": "Activating a kill switch impacts ALL users in ALL countries. Use only in real incidents.",
+      "registrations": "Block new registrations",
+      "checkout": "Block checkout",
+      "readonly": "Read-only mode (except super admin)",
+      "all": "Close entire platform",
+      "history": "Recent history",
+      "noHistory": "No changes recorded.",
+      "confirmEnable": "Enable kill switch",
+      "confirmDisable": "Disable kill switch",
+      "confirmBody": "You are about to {{action}} flag",
+      "reasonLabel": "Reason (minimum 30 characters)",
+      "typeFlagLabel": "Type the flag name to confirm",
+      "reasonMin": "Reason must be at least 30 characters",
+      "typeFlag": "Type the flag name exactly",
+      "applied": "Kill switch applied",
+      "error": "Error applying kill switch"
+    },
+    "crons": {
+      "title": "Crons",
+      "subtitle": "Manually trigger scheduled jobs.",
+      "confirm": "Run this cron now?",
+      "error": "Cron error"
+    },
+    "health": {
+      "title": "Health",
+      "subtitle": "Critical service status.",
+      "exchangeWarn": "No data in DB. Reconcile manually.",
+      "thirdPartyNote": "Check manually from Infrastructure."
+    },
+    "rates": {
+      "title": "Exchange rates",
+      "subtitle": "ECB rates used by the ledger and USD conversion.",
+      "reconcileNow": "Reconcile now",
+      "reconciled": "Rates reconciled with ECB",
+      "error": "Reconcile error",
+      "diffTitle": "Changes in last reconciliation",
+      "empty": "No data. Reconcile to fetch ECB rates.",
+      "toUsd": "Rate → USD"
+    }
+  },
+  "founder": {
+    "title": "Founder console",
+    "subtitle": "Critical actions exclusive to the founder.",
+    "warning": "Commission rates are INVIOLABLE. Changing them affects all future splits and breaks consistency with the historical ledger. Only change as part of an agreed migration.",
+    "commissions": "Commissions",
+    "ackLabel": "I confirm this breaks historical ledger consistency",
+    "passwordPlaceholder": "Founder password",
+    "applyRates": "Apply new commissions",
+    "criticalActions": "Critical actions",
+    "logoutReason": "Force logout reason (min 30)",
+    "forceLogoutAll": "Force logout all users",
+    "clearCache": "Clear in-memory caches",
+    "mustAck": "You must accept the acknowledge",
+    "passwordRequired": "Founder password required",
+    "ratesUpdated": "Commissions updated",
+    "reasonMin30": "Reason min 30 characters",
+    "confirmLogoutAll": "This will log out ALL users. Sure?",
+    "confirmClearCache": "Clear all backend in-memory caches?",
+    "error": "Error"
+  },
+  "actAs": {
+    "title": "Act as country admin",
+    "subtitle": "Visit a country dashboard without losing super admin permissions.",
+    "currentlyActing": "Currently acting as",
+    "stop": "Stop acting",
+    "body": "Pick a country and enter as its country admin. Cookie expires in 1 hour.",
+    "choose": "Pick country…",
+    "start": "Start acting",
+    "started": "Acting as {{c}}",
+    "stopped": "Back to super admin"
   }
 }

@@ -357,6 +357,22 @@ async def _create_indexes():
     except Exception:
         pass
 
+    # Super admin audit log + platform config + cron run history (section 3.3)
+    try:
+        await db.super_admin_audit.create_index([("timestamp", -1)])
+        await db.super_admin_audit.create_index([("admin_user_id", 1), ("timestamp", -1)])
+        await db.super_admin_audit.create_index([("severity", 1), ("timestamp", -1)])
+        await db.super_admin_audit.create_index("action")
+        logger.info("  OK: super_admin_audit indexes")
+    except Exception:
+        pass
+
+    try:
+        await db.cron_runs.create_index([("name", 1), ("ran_at", -1)])
+        logger.info("  OK: cron_runs indexes")
+    except Exception:
+        pass
+
     # Country configs — seed if empty
     await db.country_configs.create_index("country_code", unique=True)
     existing = await db.country_configs.count_documents({})

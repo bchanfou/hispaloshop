@@ -6199,5 +6199,140 @@
       "q3": "Dame un resumen para mi reporte semanal",
       "q4": "¿Qué seller tiene peor SLA?"
     }
+  },
+  "superAdmin": {
+    "actingAsBanner": "Estás viendo {{country}} como super admin.",
+    "stopActingAs": "Volver a super admin",
+    "founderBanner": "Cuenta founder activa. Acciones críticas habilitadas.",
+    "noData": "Sin datos",
+    "topCountriesGmv": "Top 5 países por GMV",
+    "nav": {
+      "overview": "Visión Global",
+      "markets": "Mercados",
+      "comparison": "Comparativa",
+      "financeDashboard": "Finanzas",
+      "ledger": "Ledger global",
+      "growth": "Crecimiento",
+      "audit": "Auditoría Global",
+      "health": "Health",
+      "crons": "Crons",
+      "exchangeRates": "Exchange rates",
+      "killSwitches": "Kill switches",
+      "founder": "Founder console",
+      "admins": "Admins",
+      "users": "Usuarios",
+      "plans": "Planes",
+      "content": "Contenido",
+      "gdpr": "GDPR",
+      "actAs": "Actuar como país",
+      "escalation": "Escalaciones"
+    },
+    "kpi": {
+      "gmvMonth": "GMV mes",
+      "orders": "Pedidos mes",
+      "sellers": "Sellers activos",
+      "countries": "Países activos",
+      "pendingVerifGlobal": "Verifs pendientes",
+      "refundRate": "Refund rate",
+      "health": "Health",
+      "exchange": "Exchange rates"
+    },
+    "overview": {
+      "title": "Visión global",
+      "subtitle": "Marketplace multi-país en un vistazo."
+    },
+    "comparison": {
+      "title": "Comparativa de países",
+      "subtitle": "Métricas comparables entre todos los mercados activos."
+    },
+    "metric": {
+      "gmv": "GMV",
+      "orders": "Pedidos",
+      "sellers": "Sellers",
+      "refundRate": "Refund rate"
+    },
+    "ledger": {
+      "title": "Ledger global",
+      "subtitle": "Movimientos financieros de toda la plataforma."
+    },
+    "audit": {
+      "title": "Auditoría global",
+      "subtitle": "Acciones de country admins y super admins unificadas.",
+      "allSeverity": "Todas las severidades",
+      "empty": "Sin resultados"
+    },
+    "kill": {
+      "title": "Kill switches",
+      "subtitle": "Frenos de plataforma para emergencias. Founder-only.",
+      "warning": "Activar un kill switch impacta a TODOS los usuarios de TODOS los países. Úsalo solo en incidentes reales.",
+      "registrations": "Bloquear registros nuevos",
+      "checkout": "Bloquear checkout",
+      "readonly": "Modo solo-lectura (excepto super admin)",
+      "all": "Cerrar plataforma completa",
+      "history": "Historial reciente",
+      "noHistory": "Sin cambios registrados.",
+      "confirmEnable": "Activar kill switch",
+      "confirmDisable": "Desactivar kill switch",
+      "confirmBody": "Vas a {{action}} el flag",
+      "reasonLabel": "Motivo (mínimo 30 caracteres)",
+      "typeFlagLabel": "Escribe el nombre del flag para confirmar",
+      "reasonMin": "El motivo debe tener al menos 30 caracteres",
+      "typeFlag": "Escribe el nombre del flag exactamente",
+      "applied": "Kill switch aplicado",
+      "error": "Error aplicando kill switch"
+    },
+    "crons": {
+      "title": "Crons",
+      "subtitle": "Disparar manualmente tareas programadas.",
+      "confirm": "¿Ejecutar este cron ahora?",
+      "error": "Error en cron"
+    },
+    "health": {
+      "title": "Health",
+      "subtitle": "Estado de servicios críticos.",
+      "exchangeWarn": "Sin datos en BD. Reconciliar manualmente.",
+      "thirdPartyNote": "Verificar manualmente desde Infraestructura."
+    },
+    "rates": {
+      "title": "Exchange rates",
+      "subtitle": "Tasas ECB usadas por el ledger y conversión a USD.",
+      "reconcileNow": "Reconciliar ahora",
+      "reconciled": "Tasas reconciliadas con ECB",
+      "error": "Error reconciliando",
+      "diffTitle": "Cambios en la última reconciliación",
+      "empty": "Sin datos. Reconcilia para descargar las tasas ECB.",
+      "toUsd": "Rate → USD"
+    }
+  },
+  "founder": {
+    "title": "Founder console",
+    "subtitle": "Acciones críticas exclusivas del founder.",
+    "warning": "Las tasas de comisión son INVIOLABLES. Cambiarlas afecta a todos los splits futuros y crea inconsistencia con el ledger histórico. Solo cambiar en migración acordada.",
+    "commissions": "Comisiones",
+    "ackLabel": "Confirmo que esto rompe la consistencia histórica del ledger",
+    "passwordPlaceholder": "Password founder",
+    "applyRates": "Aplicar nuevas comisiones",
+    "criticalActions": "Acciones críticas",
+    "logoutReason": "Motivo del force logout (min 30)",
+    "forceLogoutAll": "Forzar logout de todos los usuarios",
+    "clearCache": "Limpiar caches en memoria",
+    "mustAck": "Debes aceptar el acknowledge",
+    "passwordRequired": "Password founder requerida",
+    "ratesUpdated": "Comisiones actualizadas",
+    "reasonMin30": "Motivo mínimo 30 caracteres",
+    "confirmLogoutAll": "Esto cerrará la sesión de TODOS los usuarios. ¿Seguro?",
+    "confirmClearCache": "¿Limpiar todos los caches en memoria del backend?",
+    "error": "Error"
+  },
+  "actAs": {
+    "title": "Actuar como country admin",
+    "subtitle": "Visita el dashboard de un país sin perder permisos super admin.",
+    "currentlyActing": "Actualmente estás actuando como",
+    "stop": "Dejar de actuar",
+    "body": "Selecciona un país y entra como si fueras su country admin. La cookie expira en 1 hora.",
+    "choose": "Elegir país…",
+    "start": "Empezar a actuar",
+    "started": "Actuando como {{c}}",
+    "stopped": "Vuelta a super admin"
   }
 }

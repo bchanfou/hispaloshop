@@ -133,6 +133,17 @@ const PlansConfigPage = lazy(() => import('./pages/super-admin/PlansConfigPage')
 const GDPRPage = lazy(() => import('./pages/super-admin/GDPRPage'));
 const InfrastructurePage = lazy(() => import('./pages/super-admin/InfrastructurePage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
+const SuperAdminGlobalOverview = lazy(() => import('./pages/super-admin/SuperAdminGlobalOverview'));
+const SuperAdminCountriesComparison = lazy(() => import('./pages/super-admin/SuperAdminCountriesComparison'));
+const SuperAdminLedger = lazy(() => import('./pages/super-admin/SuperAdminLedger'));
+const SuperAdminAuditGlobal = lazy(() => import('./pages/super-admin/SuperAdminAuditGlobal'));
+const SuperAdminKillSwitches = lazy(() => import('./pages/super-admin/SuperAdminKillSwitches'));
+const SuperAdminCrons = lazy(() => import('./pages/super-admin/SuperAdminCrons'));
+const SuperAdminHealth = lazy(() => import('./pages/super-admin/SuperAdminHealth'));
+const SuperAdminExchangeRates = lazy(() => import('./pages/super-admin/SuperAdminExchangeRates'));
+const FounderConsole = lazy(() => import('./pages/super-admin/FounderConsole'));
+const SuperAdminCountryActAs = lazy(() => import('./pages/super-admin/SuperAdminCountryActAs'));
+const FounderRoute = lazy(() => import('./components/auth/FounderRoute'));
 const CountryAdminLayout = lazy(() => import('./components/dashboard/CountryAdminLayout'));
 const CountryAdminOverview = lazy(() => import('./pages/country-admin/CountryAdminOverview'));
 const CountryAdminVerifications = lazy(() => import('./pages/country-admin/CountryAdminVerifications'));
@@ -683,7 +694,22 @@ function AppRouter() {
                   </ProtectedRoute>
                 )}
               >
-                <Route index element={<SuperAdminOverviewPage />} />
+                {/* Section 3.3 — global super admin landing */}
+                <Route index element={<Navigate to="/super-admin/overview" replace />} />
+                <Route path="overview" element={<SuperAdminGlobalOverview />} />
+                <Route path="comparison" element={<SuperAdminCountriesComparison />} />
+                <Route path="audit" element={<SuperAdminAuditGlobal />} />
+                <Route path="growth" element={<AdminGrowthAnalytics />} />
+                <Route path="finance/ledger" element={<SuperAdminLedger />} />
+                <Route path="system/health" element={<SuperAdminHealth />} />
+                <Route path="system/crons" element={<SuperAdminCrons />} />
+                <Route path="system/exchange-rates" element={<SuperAdminExchangeRates />} />
+                <Route path="system/kill-switches" element={<FounderRoute><SuperAdminKillSwitches /></FounderRoute>} />
+                <Route path="founder-console" element={<FounderRoute><FounderConsole /></FounderRoute>} />
+                <Route path="act-as-country" element={<SuperAdminCountryActAs />} />
+
+                {/* Pre-3.3 pages — kept for compatibility */}
+                <Route path="legacy-overview" element={<SuperAdminOverviewPage />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="content" element={<ContentManagement />} />
                 <Route path="insights" element={<InsightsDashboard />} />
