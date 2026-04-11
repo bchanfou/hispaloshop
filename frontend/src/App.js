@@ -163,6 +163,8 @@ const CountryAdminVerifications = lazy(() => import('./pages/country-admin/Count
 const CountryAdminProducts = lazy(() => import('./pages/country-admin/CountryAdminProducts'));
 const CountryAdminUsers = lazy(() => import('./pages/country-admin/CountryAdminUsers'));
 const CountryAdminSupport = lazy(() => import('./pages/country-admin/CountryAdminSupport'));
+const CountryAdminKnowledgeBase = lazy(() => import('./pages/country-admin/CountryAdminKnowledgeBase'));
+const CountryAdminKnowledgeBaseEditor = lazy(() => import('./pages/country-admin/CountryAdminKnowledgeBaseEditor'));
 const CountryAdminAuditLog = lazy(() => import('./pages/country-admin/CountryAdminAuditLog'));
 const CountryAdminSettings = lazy(() => import('./pages/country-admin/CountryAdminSettings'));
 
@@ -760,6 +762,9 @@ function AppRouter() {
                 <Route path="users" element={<CountryAdminUsers />} />
                 <Route path="support" element={<CountryAdminSupport />} />
                 <Route path="support/:ticketId" element={<CountryAdminSupportTicketDetail />} />
+                <Route path="knowledge-base" element={<CountryAdminKnowledgeBase />} />
+                <Route path="knowledge-base/new" element={<CountryAdminKnowledgeBaseEditor />} />
+                <Route path="knowledge-base/:slug/edit" element={<CountryAdminKnowledgeBaseEditor />} />
                 <Route path="moderation" element={<CountryAdminModeration />} />
                 <Route path="audit" element={<CountryAdminAuditLog />} />
                 <Route path="settings" element={<CountryAdminSettings />} />

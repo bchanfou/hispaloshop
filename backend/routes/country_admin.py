@@ -1018,28 +1018,55 @@ async def support_metrics(period: str = "30d", user: User = Depends(get_current_
 async def list_articles_admin(
     category: Optional[str] = None,
     role: Optional[str] = None,
+    status: Optional[str] = None,
+    search: Optional[str] = None,
     limit: int = 100,
     user: User = Depends(get_current_user),
 ):
-    await require_country_admin(user)  # super_admin OK too
+    country = await require_country_admin(user)  # super_admin returns None
     query: dict = {}
     if category:
         query["category"] = category
     if role:
         query["role_target"] = role
+    if status == "published":
+        query["published"] = True
+    elif status == "draft":
+        query["published"] = False
+    # Country scoping: country admins only see their country + global ('all').
+    # Super admins see everything.
+    if country:
+        query["country_target"] = {"$in": [country.lower(), "all"]}
+    if search:
+        safe = search.strip()
+        if safe:
+            # Case-insensitive regex on multi-language titles + slug.
+            import re as _re
+            pattern = _re.escape(safe)
+            query["$or"] = [
+                {"slug": {"$regex": pattern, "$options": "i"}},
+                {"title": {"$regex": pattern, "$options": "i"}},
+                {"title_en": {"$regex": pattern, "$options": "i"}},
+                {"title_ko": {"$regex": pattern, "$options": "i"}},
+            ]
     items = await db.support_articles.find(query, {"_id": 0}).sort("updated_at", -1).limit(min(200, max(1, limit))).to_list(200)
     return {"items": items}
 
 
 @router.post("/country-admin/support/articles")
 async def create_article(body: dict, request: Request, user: User = Depends(get_current_user)):
-    await require_country_admin(user)
+    country = await require_country_admin(user)
     slug = ((body or {}).get("slug") or "").strip().lower()
     if not slug or not slug.replace("-", "").isalnum():
         raise HTTPException(status_code=400, detail="slug inválido (lowercase, dashes)")
     exists = await db.support_articles.find_one({"slug": slug})
     if exists:
-        raise HTTPException(status_code=400, detail="slug ya existe")
+        raise HTTPException(status_code=409, detail="slug ya existe")
+    # Country scoping: a country admin can only create 'all' or their own
+    # country. Super admins (country=None) can target any country.
+    requested_country = (body.get("country_target") or "all").lower()
+    if country and requested_country not in ("all", country.lower()):
+        raise HTTPException(status_code=403, detail="country_target fuera de tu país")
     now_iso = datetime.now(timezone.utc).isoformat()
     doc = {
         "slug": slug,
@@ -1051,7 +1078,7 @@ async def create_article(body: dict, request: Request, user: User = Depends(get_
         "body_ko": body.get("body_ko", ""),
         "category": body.get("category", "other"),
         "role_target": body.get("role_target", "all"),
-        "country_target": body.get("country_target", "all"),
+        "country_target": requested_country,
         "published": bool(body.get("published", True)),
         "view_count": 0,
         "created_at": now_iso,
@@ -1059,12 +1086,30 @@ async def create_article(body: dict, request: Request, user: User = Depends(get_
         "created_by": user.user_id,
     }
     await db.support_articles.insert_one(doc)
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action="kb_article_created",
+        target_id=slug,
+        target_type="support_article",
+        reason="",
+        request=request,
+        extra={"category": doc["category"], "role_target": doc["role_target"], "published": doc["published"]},
+    )
     return {"status": "ok", "slug": slug}
 
 
 @router.put("/country-admin/support/articles/{slug}")
 async def update_article(slug: str, body: dict, request: Request, user: User = Depends(get_current_user)):
-    await require_country_admin(user)
+    country = await require_country_admin(user)
+    existing = await db.support_articles.find_one({"slug": slug}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    # Country scoping on the existing doc.
+    if country:
+        existing_country = (existing.get("country_target") or "all").lower()
+        if existing_country not in ("all", country.lower()):
+            raise HTTPException(status_code=403, detail="Artículo fuera de tu país")
     fields = {}
     for k in ("title", "title_en", "title_ko", "body", "body_en", "body_ko",
               "category", "role_target", "country_target", "published"):
@@ -1072,20 +1117,64 @@ async def update_article(slug: str, body: dict, request: Request, user: User = D
             fields[k] = body[k]
     if not fields:
         raise HTTPException(status_code=400, detail="Nothing to update")
+    # Country scoping on the new country_target (if changing).
+    if country and "country_target" in fields:
+        new_country = (fields["country_target"] or "all").lower()
+        if new_country not in ("all", country.lower()):
+            raise HTTPException(status_code=403, detail="country_target fuera de tu país")
+        fields["country_target"] = new_country
     fields["updated_at"] = datetime.now(timezone.utc).isoformat()
     fields["updated_by"] = user.user_id
     result = await db.support_articles.update_one({"slug": slug}, {"$set": fields})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    # Determine whether this is a publish / unpublish transition for audit.
+    audit_action = "kb_article_updated"
+    if "published" in fields:
+        was_published = bool(existing.get("published", False))
+        now_published = bool(fields["published"])
+        if now_published and not was_published:
+            audit_action = "kb_article_published"
+        elif was_published and not now_published:
+            audit_action = "kb_article_unpublished"
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action=audit_action,
+        target_id=slug,
+        target_type="support_article",
+        reason="",
+        request=request,
+        extra={"changed": list(fields.keys())},
+    )
     return {"status": "ok"}
 
 
 @router.delete("/country-admin/support/articles/{slug}")
-async def soft_delete_article(slug: str, user: User = Depends(get_current_user)):
-    await require_country_admin(user)
-    result = await db.support_articles.update_one({"slug": slug}, {"$set": {"published": False, "updated_at": datetime.now(timezone.utc).isoformat()}})
+async def soft_delete_article(slug: str, request: Request, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user)
+    existing = await db.support_articles.find_one({"slug": slug}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    if country:
+        existing_country = (existing.get("country_target") or "all").lower()
+        if existing_country not in ("all", country.lower()):
+            raise HTTPException(status_code=403, detail="Artículo fuera de tu país")
+    result = await db.support_articles.update_one(
+        {"slug": slug},
+        {"$set": {"published": False, "updated_at": datetime.now(timezone.utc).isoformat(), "updated_by": user.user_id}},
+    )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action="kb_article_deleted",
+        target_id=slug,
+        target_type="support_article",
+        reason="",
+        request=request,
+    )
     return {"status": "ok"}
 
 

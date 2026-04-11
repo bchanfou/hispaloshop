@@ -6179,6 +6179,7 @@
       "users": "Usuarios",
       "moderation": "Moderación",
       "support": "Soporte",
+      "knowledgeBase": "Centro de Ayuda",
       "audit": "Auditoría",
       "settings": "Configuración"
     },
@@ -6233,6 +6234,109 @@
       "title": "Soporte",
       "subtitle": "Tickets de soporte de tu país.",
       "placeholder": "Conectado en sección 3.4. La estructura está lista; los tickets se enlazarán cuando el sistema de tickets country-scoped esté en producción."
+    },
+    "knowledgeBase": {
+      "title": "Centro de Ayuda",
+      "subtitle": "Gestiona los artículos de ayuda de {{country}}",
+      "newArticle": "Nuevo artículo",
+      "noArticles": "Aún no hay artículos para tu país.",
+      "createFirst": "Crea el primero",
+      "notFound": "Artículo no encontrado",
+      "confirmDelete": "¿Eliminar este artículo?",
+      "confirmDeleteBody": "El artículo quedará oculto para los usuarios. Esta acción queda registrada en la auditoría.",
+      "confirmUnpublish": "¿Despublicar este artículo?",
+      "confirmUnpublishBody": "Dejará de aparecer en el Centro de Ayuda público. Podrás volver a publicarlo más tarde.",
+      "filters": {
+        "category": "Categoría",
+        "roleTarget": "Rol",
+        "status": "Estado",
+        "search": "Buscar por slug o título...",
+        "statusOptions": {
+          "all": "Todos los estados",
+          "published": "Publicados",
+          "draft": "Borradores"
+        }
+      },
+      "table": {
+        "slug": "Slug",
+        "title": "Título",
+        "category": "Categoría",
+        "roleTarget": "Rol",
+        "views": "Vistas",
+        "status": "Estado",
+        "lastEdit": "Editado",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "edit": "Editar",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "delete": "Eliminar"
+      },
+      "status": {
+        "published": "Publicado",
+        "draft": "Borrador"
+      },
+      "editor": {
+        "breadcrumb": {
+          "kb": "Centro de Ayuda",
+          "new": "Nuevo",
+          "edit": "Editar"
+        },
+        "cancel": "Cancelar",
+        "saveDraft": "Guardar borrador",
+        "publish": "Publicar",
+        "preview": "Previsualizar",
+        "publishToggle": "Estado",
+        "fields": {
+          "slug": "Slug",
+          "slugPlaceholder": "ejemplo-de-articulo",
+          "category": "Categoría",
+          "roleTarget": "Rol destino",
+          "countryTarget": "País destino",
+          "title": "Título",
+          "body": "Cuerpo (Markdown)"
+        },
+        "tabs": {
+          "untranslated": "Sin traducir"
+        },
+        "validation": {
+          "slugRequired": "Slug obligatorio",
+          "slugInvalid": "Slug inválido: solo minúsculas, números y guiones",
+          "slugTaken": "Ese slug ya existe",
+          "atLeastOneLang": "Completa al menos un idioma (título + cuerpo)",
+          "esRequiredForPublish": "Para publicar, el español es obligatorio",
+          "categoryRequired": "Categoría obligatoria",
+          "roleTargetRequired": "Rol obligatorio"
+        },
+        "success": {
+          "created": "Artículo creado",
+          "updated": "Artículo actualizado",
+          "published": "Artículo publicado",
+          "unpublished": "Artículo despublicado",
+          "deleted": "Artículo eliminado"
+        }
+      },
+      "categories": {
+        "order_issue": "Problemas con pedido",
+        "payment_issue": "Pagos",
+        "account_issue": "Cuenta",
+        "fiscal_issue": "Fiscal",
+        "product_complaint": "Queja de producto",
+        "b2b_operation": "Operación B2B",
+        "other": "Otros"
+      },
+      "roles": {
+        "customer": "Cliente",
+        "producer": "Productor",
+        "influencer": "Influencer",
+        "importer": "Importador",
+        "all": "Todos"
+      },
+      "countryTarget": {
+        "all": "Todos los países",
+        "country": "Solo {{country}}"
+      }
     },
     "audit": {
       "title": "Auditoría",

@@ -4465,6 +4465,7 @@
       "users": "Users",
       "moderation": "Moderation",
       "support": "Support",
+      "knowledgeBase": "Help Center",
       "audit": "Audit log",
       "settings": "Settings"
     },
@@ -4519,6 +4520,109 @@
       "title": "Support",
       "subtitle": "Support tickets for your country.",
       "placeholder": "Wired in section 3.4. Structure is ready; tickets will appear once the country-scoped ticket system ships."
+    },
+    "knowledgeBase": {
+      "title": "Help Center",
+      "subtitle": "Manage the help articles for {{country}}",
+      "newArticle": "New article",
+      "noArticles": "No articles for your country yet.",
+      "createFirst": "Create the first one",
+      "notFound": "Article not found",
+      "confirmDelete": "Delete this article?",
+      "confirmDeleteBody": "The article will be hidden from users. This action is recorded in the audit log.",
+      "confirmUnpublish": "Unpublish this article?",
+      "confirmUnpublishBody": "It will no longer appear in the public Help Center. You can republish it later.",
+      "filters": {
+        "category": "Category",
+        "roleTarget": "Role",
+        "status": "Status",
+        "search": "Search by slug or title...",
+        "statusOptions": {
+          "all": "All statuses",
+          "published": "Published",
+          "draft": "Drafts"
+        }
+      },
+      "table": {
+        "slug": "Slug",
+        "title": "Title",
+        "category": "Category",
+        "roleTarget": "Role",
+        "views": "Views",
+        "status": "Status",
+        "lastEdit": "Edited",
+        "actions": "Actions"
+      },
+      "actions": {
+        "edit": "Edit",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "delete": "Delete"
+      },
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "editor": {
+        "breadcrumb": {
+          "kb": "Help Center",
+          "new": "New",
+          "edit": "Edit"
+        },
+        "cancel": "Cancel",
+        "saveDraft": "Save draft",
+        "publish": "Publish",
+        "preview": "Preview",
+        "publishToggle": "Status",
+        "fields": {
+          "slug": "Slug",
+          "slugPlaceholder": "example-article",
+          "category": "Category",
+          "roleTarget": "Target role",
+          "countryTarget": "Target country",
+          "title": "Title",
+          "body": "Body (Markdown)"
+        },
+        "tabs": {
+          "untranslated": "Untranslated"
+        },
+        "validation": {
+          "slugRequired": "Slug is required",
+          "slugInvalid": "Invalid slug: lowercase letters, numbers and dashes only",
+          "slugTaken": "That slug already exists",
+          "atLeastOneLang": "Fill in at least one language (title + body)",
+          "esRequiredForPublish": "To publish, Spanish is required",
+          "categoryRequired": "Category is required",
+          "roleTargetRequired": "Role is required"
+        },
+        "success": {
+          "created": "Article created",
+          "updated": "Article updated",
+          "published": "Article published",
+          "unpublished": "Article unpublished",
+          "deleted": "Article deleted"
+        }
+      },
+      "categories": {
+        "order_issue": "Order issue",
+        "payment_issue": "Payment",
+        "account_issue": "Account",
+        "fiscal_issue": "Fiscal",
+        "product_complaint": "Product complaint",
+        "b2b_operation": "B2B operation",
+        "other": "Other"
+      },
+      "roles": {
+        "customer": "Customer",
+        "producer": "Producer",
+        "influencer": "Influencer",
+        "importer": "Importer",
+        "all": "All"
+      },
+      "countryTarget": {
+        "all": "All countries",
+        "country": "Only {{country}}"
+      }
     },
     "audit": {
       "title": "Audit log",
