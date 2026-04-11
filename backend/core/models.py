@@ -46,6 +46,9 @@ class User(BaseModel):
     vat_cif: Optional[str] = None
     stripe_account_id: Optional[str] = None
     approved: bool = False
+    # Section 3.6.2b — opt-in B2C selling for importers (default: B2B-only).
+    # When True, the importer's sidebar exposes producer/B2C management items.
+    has_b2c_store: bool = False
 
     # Compatibilidad: el repositorio mezcla acceso tipo objeto y tipo dict.
     def __getitem__(self, key: str):

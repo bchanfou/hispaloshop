@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Truck, ExternalLink, Search, ChevronDown, MessageCircle, PackageCheck } from 'lucide-react';
+import { Loader2, Truck, ExternalLink, Search, ChevronDown, MessageCircle, PackageCheck, Check, ArrowRight, Inbox } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -264,8 +264,8 @@ function B2BOrderCard({
 
         {/* Confirmed by producer — approve & pay */}
         {order.status === 'confirmed_by_producer' && <div className="bg-stone-50 shadow-sm rounded-2xl p-3 mb-3">
-            <p className="text-sm font-bold text-stone-950 mb-1">
-              ✓ El productor confirmó disponibilidad
+            <p className="text-sm font-bold text-stone-950 mb-1 inline-flex items-center gap-1">
+              <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} /> El productor confirmó disponibilidad
             </p>
             <p className="text-xs text-stone-500 mb-2">
               Precio final: {fmtPrice(order.confirmed_unit_price || order.unit_price, order.currency)}/{order.unit || 'ud'}
@@ -273,7 +273,7 @@ function B2BOrderCard({
             </p>
             <div className="flex gap-2">
               <button onClick={handleApproveAndPay} disabled={processing} className="flex-1 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-medium rounded-2xl transition-colors flex items-center justify-center gap-1">
-                {processing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✓ Aprobar y pagar →'}
+                {processing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Aprobar y pagar <ArrowRight className="w-3.5 h-3.5" /></>}
               </button>
               <button onClick={handleReject} className="px-3 py-2 border border-stone-200 rounded-2xl text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors">
                 Rechazar
@@ -333,10 +333,10 @@ export default function ImporterOrdersPage() {
       {loading ? <div className="space-y-3">
           {Array(3).fill(0).map((_, i) => <div key={i} className="h-28 rounded-2xl bg-stone-100 animate-pulse" />)}
         </div> : orders.length === 0 ? <div className="text-center py-16">
-          <p className="text-3xl mb-2">📭</p>
+          <Inbox className="w-10 h-10 text-stone-300 mx-auto mb-2" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-stone-950">Sin pedidos B2B</p>
-          <Link to="/importer/catalog" className="inline-flex items-center mt-3 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
-            Explorar catálogo →
+          <Link to="/importer/catalog" className="inline-flex items-center gap-1 mt-3 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
+            Explorar catálogo <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div> : orders.map(order => <B2BOrderCard key={order.id} order={order} onRefresh={fetchOrders} />)}
     </div>;

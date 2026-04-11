@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, X, Loader2, Filter, AlertTriangle, ChevronLeft, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Search, X, Loader2, Filter, AlertTriangle, ChevronLeft, ExternalLink, ShieldCheck, Package, BadgeCheck, ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -95,13 +95,15 @@ const COUNTRIES = [{
   value: 'BR',
   label: 'Brasil'
 }];
-const CERT_ICONS = {
-  ecologico: '🌿',
-  vegano: '🌱',
-  halal: '☪️',
-  sin_gluten: '🌾',
-  sin_lactosa: '🥛',
-  dop: '🏆'
+// Section 3.6.2: replaced emoji icons with short text labels (Lucide-only rule).
+// Cert pills render as compact stone badges throughout the page.
+const CERT_LABELS = {
+  ecologico: 'BIO',
+  vegano: 'V',
+  halal: 'H',
+  sin_gluten: 'GF',
+  sin_lactosa: 'LF',
+  dop: 'DOP'
 };
 function B2BProductCard({
   product,
@@ -114,11 +116,11 @@ function B2BProductCard({
       {/* Image */}
       <div className="relative aspect-square">
         {product.images?.[0] ? <img loading="lazy" src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-stone-100 flex items-center justify-center">
-            <span className="text-3xl text-stone-300">📦</span>
+            <Package className="w-8 h-8 text-stone-300" strokeWidth={1.5} />
           </div>}
         {(product.certifications?.length || 0) > 0 && <div className="absolute top-1.5 left-1.5 flex gap-1">
-            {product.certifications.slice(0, 2).map(cert => <span key={cert} className="text-sm bg-white/90 rounded px-1">
-                {CERT_ICONS[cert] || '🏅'}
+            {product.certifications.slice(0, 2).map(cert => <span key={cert} className="text-[10px] font-semibold bg-white/90 text-stone-700 rounded-full px-1.5 py-0.5">
+                {CERT_LABELS[cert] || cert.slice(0, 3).toUpperCase()}
               </span>)}
           </div>}
       </div>
@@ -195,7 +197,7 @@ function ProductDetailModal({
         {/* Large image */}
         <div className="relative aspect-[4/3] bg-stone-100">
           {product.images?.[0] ? <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl text-stone-300">📦</span>
+              <Package className="w-12 h-12 text-stone-300" strokeWidth={1.5} />
             </div>}
         </div>
 
@@ -248,7 +250,7 @@ function ProductDetailModal({
               <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2">Certificaciones</p>
               <div className="flex flex-wrap gap-2">
                 {product.certifications.map(cert => <span key={cert} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 rounded-full text-xs font-medium text-stone-700">
-                    <span>{CERT_ICONS[cert] || '🏅'}</span>
+                    <BadgeCheck className="w-3.5 h-3.5 text-stone-600" strokeWidth={1.8} />
                     {cert.replace(/_/g, ' ')}
                   </span>)}
               </div>
@@ -269,8 +271,8 @@ function ProductDetailModal({
           </div>
 
           {/* CTA */}
-          <button onClick={() => onRequestOffer(product)} className="w-full py-3 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
-            Solicitar oferta →
+          <button onClick={() => onRequestOffer(product)} className="w-full py-3 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors inline-flex items-center justify-center gap-1.5">
+            Solicitar oferta <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </motion.div>
@@ -383,8 +385,8 @@ function B2BOrderRequestModal({
               </p>
               {product.b2b_prices.map((tier, i) => {
             const isActive = quantity >= tier.min_quantity && (!product.b2b_prices[i + 1] || quantity < product.b2b_prices[i + 1].min_quantity);
-            return <div key={i} className={`flex justify-between py-1 text-sm ${isActive ? 'font-bold text-stone-950' : 'text-stone-500'}`}>
-                    <span>{isActive ? '→ ' : ''}{tier.min_quantity}+ {product.unit || 'uds'}</span>
+            return <div key={i} className={`flex items-center justify-between py-1 text-sm ${isActive ? 'font-bold text-stone-950' : 'text-stone-500'}`}>
+                    <span className="inline-flex items-center gap-1">{isActive && <ArrowRight className="w-3 h-3" />}{tier.min_quantity}+ {product.unit || 'uds'}</span>
                     <span>{convertAndFormatPrice((tier.unit_price_cents || 0) / 100, 'EUR')}/{product.unit || 'ud'}</span>
                   </div>;
           })}
@@ -412,7 +414,7 @@ function B2BOrderRequestModal({
           <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej: Necesito entrega urgente, packaging especial..." rows={2} className="w-full border border-stone-200 rounded-2xl p-3 text-sm resize-none focus:outline-none focus:border-stone-400 mb-4" />
 
           <button onClick={handleSubmit} disabled={submitting} className="w-full py-3 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-2xl transition-colors flex items-center justify-center gap-2">
-            {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</> : 'Enviar solicitud al productor →'}
+            {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</> : <>Enviar solicitud al productor <ArrowRight className="w-4 h-4" /></>}
           </button>
 
           <p className="text-[11px] text-stone-400 text-center mt-3 leading-relaxed">
@@ -547,8 +549,8 @@ export default function ImporterCatalogPage() {
             {COUNTRIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
 
-          {hasActiveFilters && <button onClick={clearFilters} className="px-3 py-1.5 rounded-full border border-stone-200 bg-stone-100 text-xs text-stone-700 font-medium cursor-pointer shrink-0">
-              ✕ Limpiar
+          {hasActiveFilters && <button onClick={clearFilters} className="px-3 py-1.5 rounded-full border border-stone-200 bg-stone-100 text-xs text-stone-700 font-medium cursor-pointer shrink-0 inline-flex items-center gap-1">
+              <X className="w-3 h-3" /> Limpiar
             </button>}
         </div>
       </div>
@@ -563,7 +565,7 @@ export default function ImporterCatalogPage() {
         </div> : loading && products.length === 0 ? <div className="grid grid-cols-2 gap-3">
           {Array(6).fill(0).map((_, i) => <div key={i} className="h-60 rounded-2xl bg-stone-100 animate-pulse" />)}
         </div> : filteredProducts.length === 0 ? <div className="text-center py-16">
-          <p className="text-3xl mb-2">🔍</p>
+          <Search className="w-10 h-10 text-stone-300 mx-auto mb-2" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-stone-950">Sin resultados</p>
           <p className="text-sm text-stone-500">Prueba con otros filtros</p>
         </div> : <>

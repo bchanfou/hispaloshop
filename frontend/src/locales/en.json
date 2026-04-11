@@ -86,7 +86,11 @@
     "orders": "Orders",
     "visits": "Visits",
     "products": "Products",
-    "accountPending": "Account pending approval"
+    "accountPending": "Account pending approval",
+    "more": "More",
+    "goToLogin": "Go to login",
+    "notifications": "Notifications",
+    "errorTryAgain": "Something went wrong. Please try again."
   },
   "home": {
     "heroTitle": "Empower Local Commerce, Transform Your Community",
@@ -3756,7 +3760,24 @@
   "settings": {
     "account_switched": "Account switched",
     "switch_error": "Error switching account",
-    "switch_account": "Switch account"
+    "switch_account": "Switch account",
+    "rolesFeatures": {
+      "title": "Roles & features",
+      "subtitle": "Enable additional features for your importer account.",
+      "importerOnly": "This setting is only available for importer accounts.",
+      "b2cMode": {
+        "title": "B2C seller mode",
+        "description": "Enable this if you also want to sell products directly to end consumers alongside your B2B activity.",
+        "enable": "Enable",
+        "disable": "Disable",
+        "confirmTitle": "Disable B2C mode",
+        "confirmDisable": "Disable",
+        "disableWarning": "This only hides the sidebar entries. No products or store data are deleted.",
+        "enabledToast": "B2C seller mode enabled",
+        "disabledToast": "B2C seller mode disabled",
+        "configureStore": "Set up my store"
+      }
+    }
   },
   "profile_tabs": {
     "no_reviews": "No reviews yet"
@@ -4169,7 +4190,51 @@
     "importCertificate": "Import certificate",
     "distributionAgreement": "Distribution agreement",
     "vatVerified": "VAT verified",
-    "sourcingPriority": "Priority sourcing"
+    "sourcingPriority": "Priority sourcing",
+    "layout": {
+      "header": {
+        "title": "Importer Panel",
+        "roleBadge": "Importer"
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "dashboardShort": "Home",
+        "catalog": "Sourcing Catalog",
+        "catalogShort": "Catalog",
+        "operations": "B2B Operations",
+        "operationsShort": "Operations",
+        "orders": "My Orders",
+        "ordersShort": "Orders",
+        "certificates": "Certificates",
+        "certificatesShort": "Certs",
+        "opportunities": "Market Opportunities",
+        "opportunitiesShort": "Market",
+        "commercialAi": "Pedro AI",
+        "commercialAiShort": "Pedro",
+        "profile": "My Company",
+        "profileShort": "Company",
+        "documents": "Documents",
+        "documentsShort": "Docs",
+        "plan": "Plan",
+        "planShort": "Plan",
+        "settings": "Settings",
+        "settingsShort": "Settings",
+        "b2cMode": "B2C Seller Mode",
+        "b2cProducts": "My Products",
+        "b2cProductsShort": "Products",
+        "b2cOrders": "B2C Orders",
+        "b2cOrdersShort": "B2C",
+        "b2cStore": "My Store",
+        "b2cStoreShort": "Store"
+      },
+      "planFooter": {
+        "elite": "ELITE plan active",
+        "currentPlan": "Current plan",
+        "upgradeCta": "Upgrade to ELITE"
+      },
+      "accessDenied": "Access denied. An importer account is required.",
+      "openChat": "Open chat"
+    }
   },
   "promotion": {
     "title": "Product promotion",

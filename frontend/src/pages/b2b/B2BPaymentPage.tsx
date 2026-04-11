@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Loader2, Shield, Check, AlertCircle, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Shield, Check, AlertCircle, ShieldAlert } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -260,8 +260,8 @@ export default function B2BPaymentPage() {
                 {operation?.quantity} {operation?.unit}
               </p>
             </div>
-            <span className="bg-stone-100 text-stone-950 rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">
-              Contrato firmado ✓
+            <span className="inline-flex items-center gap-1 bg-stone-100 text-stone-950 rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">
+              Contrato firmado <Check size={12} strokeWidth={2.5} />
             </span>
           </div>
 
@@ -352,8 +352,9 @@ export default function B2BPaymentPage() {
               <Check size={24} className="text-white" />
             </div>
 
-            <p className="text-[15px] font-semibold text-stone-950 m-0">
-              {paymentType === 'deposit' ? '✓ Anticipo recibido' : '✓ Pago recibido'} · {fmt.format(successAmount ?? buyerTotal)}
+            <p className="text-[15px] font-semibold text-stone-950 m-0 inline-flex items-center gap-1.5">
+              <Check size={16} strokeWidth={2.5} />
+              {paymentType === 'deposit' ? 'Anticipo recibido' : 'Pago recibido'} · {fmt.format(successAmount ?? buyerTotal)}
             </p>
 
             {paymentType === 'deposit' && (
@@ -364,9 +365,9 @@ export default function B2BPaymentPage() {
 
             <button
               onClick={() => navigate(`/b2b/tracking/${operationId}`)}
-              className="w-full h-[46px] bg-stone-950 text-white border-none rounded-full text-[15px] font-semibold cursor-pointer"
+              className="w-full h-[46px] bg-stone-950 text-white border-none rounded-full text-[15px] font-semibold cursor-pointer inline-flex items-center justify-center gap-1.5"
             >
-              Ir al seguimiento →
+              Ir al seguimiento <ArrowRight size={16} />
             </button>
           </div>
         )}

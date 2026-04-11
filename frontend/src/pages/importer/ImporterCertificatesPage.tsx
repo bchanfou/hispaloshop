@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Download, Loader2, ExternalLink, Award, AlertTriangle } from 'lucide-react';
+import { Search, Download, Loader2, ExternalLink, Award, AlertTriangle, XCircle, CheckCircle, Check, ArrowRight } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -24,8 +24,8 @@ function CertificateRow({
   const isWarning = cert.days_until_expiry != null && cert.days_until_expiry > 30 && cert.days_until_expiry <= 60;
   return <div className={`bg-white rounded-2xl p-3.5 flex items-center gap-3 border ${isExpired ? 'border-stone-400' : isExpiring ? 'border-stone-200' : 'border-stone-200'}`}>
       {/* Status icon */}
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg ${isExpired ? 'bg-stone-200' : isExpiring ? 'bg-stone-100' : 'bg-stone-50'}`}>
-        {isExpired ? '❌' : isExpiring ? '⚠️' : '✅'}
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isExpired ? 'bg-stone-200' : isExpiring ? 'bg-stone-100' : 'bg-stone-50'}`}>
+        {isExpired ? <XCircle className="w-5 h-5 text-stone-700" strokeWidth={1.8} /> : isExpiring ? <AlertTriangle className="w-5 h-5 text-stone-700" strokeWidth={1.8} /> : <CheckCircle className="w-5 h-5 text-stone-700" strokeWidth={1.8} />}
       </div>
 
       {/* Info */}
@@ -42,8 +42,8 @@ function CertificateRow({
       </div>
 
       {/* Verified badge */}
-      {cert.is_verified && <span className="text-[10px] bg-stone-100 text-stone-600 rounded-full px-2 py-0.5 font-medium shrink-0">
-          ✓ Verificado
+      {cert.is_verified && <span className="text-[10px] bg-stone-100 text-stone-600 rounded-full px-2 py-0.5 font-medium shrink-0 inline-flex items-center gap-1">
+          <Check className="w-3 h-3" strokeWidth={2.5} /> Verificado
         </span>}
 
       {/* Actions */}
@@ -101,8 +101,8 @@ export default function ImporterCertificatesPage() {
         <div className="bg-white shadow-sm rounded-2xl p-8 text-center max-w-sm w-full">
           <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
           <p className="text-sm font-semibold text-stone-950 mb-1">{i18n.t('importer_certificates.seleccionaUnProveedorParaVerSusCer', 'Selecciona un proveedor para ver sus certificados')}</p>
-          <Link to="/b2b/marketplace" className="inline-block mt-4 text-sm font-medium text-stone-950 underline underline-offset-2">
-            Ir al directorio B2B →
+          <Link to="/b2b/marketplace" className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-stone-950 underline underline-offset-2">
+            Ir al directorio B2B <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>;

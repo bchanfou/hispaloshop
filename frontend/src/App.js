@@ -35,7 +35,8 @@ import { FeedTabProvider } from './context/FeedTabContext';
 import { UploadQueueProvider } from './context/UploadQueueContext';
 import UploadProgressBanner from './components/upload/UploadProgressBanner';
 import GlobalSearch from './components/GlobalSearch';
-import { ProducerPlanProvider } from './context/ProducerPlanContext';
+// ProducerPlanProvider is now applied inside ProducerLayout / ImporterLayout
+// (Section 3.6.2b) — no longer imported directly here.
 import { usePushNotifications } from './hooks/usePushNotifications';
 import { useNavigationDirection } from './hooks/useNavigationDirection';
 
@@ -103,6 +104,8 @@ const GamificationPage = lazy(() => import('./pages/settings/GamificationPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const PayoutSettingsPage = lazy(() => import('./pages/settings/PayoutSettingsPage'));
 const AIAssistantsPage = lazy(() => import('./pages/settings/AIAssistantsPage'));
+// Section 3.6.2b — settings page that exposes the importer B2C-mode toggle.
+const RolesFeaturesPage = lazy(() => import('./pages/settings/RolesFeaturesPage'));
 const FollowersPage = lazy(() => import('./pages/FollowersPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
@@ -172,6 +175,10 @@ const CommunitySettingsPage = lazy(() => import('./pages/CommunitySettingsPage')
 const HashtagPage = lazy(() => import('./pages/HashtagPage'));
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
+// Section 3.6.2b — dedicated importer layout + dual-role wrapper for shared
+// /b2b/* and /producer/* routes (so importers stay inside the importer chrome).
+const ImporterLayout = lazy(() => import('./components/dashboard/ImporterLayoutResponsive'));
+const DualRoleLayout = lazy(() => import('./components/dashboard/DualRoleLayout'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverview'));
 const ProducerProducts = lazy(() => import('./pages/producer/ProducerProducts'));
 const ProducerCertificates = lazy(() => import('./pages/producer/ProducerCertificates'));
@@ -516,6 +523,7 @@ function AppRouter() {
               <Route path="/settings/addresses" element={<AddressesPage />} />
               <Route path="/settings/gamification" element={<GamificationPage />} />
               <Route path="/settings/ai-assistants" element={<AIAssistantsPage />} />
+              <Route path="/settings/roles-features" element={<ProtectedRoute requireOnboarding={false}><RolesFeaturesPage /></ProtectedRoute>} />
               <Route path="/loyalty" element={<ProtectedRoute><LoyaltyPage /></ProtectedRoute>} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
@@ -594,33 +602,55 @@ function AppRouter() {
               <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/importer/register" element={<Navigate to="/importer/onboarding" replace />} />
+              {/* Section 3.6.2b — all /importer/* pages now nest under
+                  ImporterLayout (sidebar + identity). Producer pages reused
+                  by importers (profile/store/products/orders/plan) are
+                  accessed via the /producer/* block below, which uses
+                  DualRoleLayout to render inside ImporterLayout for
+                  importer users. */}
               <Route
-                path="/importer/dashboard"
+                path="/importer"
                 element={(
                   <ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}>
-                    <ImporterDashboardPage />
+                    <ImporterLayout />
                   </ProtectedRoute>
                 )}
-              />
+              >
+                <Route index element={<Navigate to="/importer/dashboard" replace />} />
+                <Route path="dashboard" element={<ImporterDashboardPage />} />
+                <Route path="catalog" element={<ImporterCatalogPage />} />
+                <Route path="orders" element={<ImporterOrdersPage />} />
+                <Route path="certificates" element={<ImporterCertificatesPage />} />
+                <Route path="opportunities" element={<ImporterOpportunitiesPage />} />
+                <Route path="commercial-ai" element={<EliteRoute><CommercialAIPage /></EliteRoute>} />
+                <Route path="brands" element={<Navigate to="/producer/store" replace />} />
+                <Route path="quotes" element={<Navigate to="/producer/orders" replace />} />
+              </Route>
+              {/* Section 3.6.2b — /b2b/* routes are dual-role: producers see
+                  ProducerLayout chrome, importers see ImporterLayout chrome.
+                  All B2B pages live under this single nested block so the
+                  layout logic stays in one place. */}
               <Route
-                path="/importer/certificates"
+                path="/b2b"
                 element={(
-                  <ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}>
-                    <ImporterCertificatesPage />
+                  <ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}>
+                    <DualRoleLayout />
                   </ProtectedRoute>
                 )}
-              />
-              <Route path="/importer/catalog" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterCatalogPage /></ProtectedRoute>} />
-              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ProducerPlanProvider><EliteRoute><CommercialAIPage /></EliteRoute></ProducerPlanProvider></ProtectedRoute>} />
-              <Route path="/importer/opportunities" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterOpportunitiesPage /></ProtectedRoute>} />
-              <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
-              <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
-              <Route path="/b2b/catalog" element={<B2BCatalogPage />} />
-              <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
-              <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
-              <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
-              <Route path="/b2b/chat" element={<B2BChatPage />} />
-              <Route path="/b2b/chat/:conversationId" element={<B2BChatPage />} />
+              >
+                <Route path="catalog" element={<B2BCatalogPage />} />
+                <Route path="marketplace" element={<B2BMarketplacePage />} />
+                <Route path="producers" element={<Navigate to="/b2b/marketplace" replace />} />
+                <Route path="quotes" element={<B2BQuotesHistoryPage />} />
+                <Route path="chat" element={<B2BChatPage />} />
+                <Route path="chat/:conversationId" element={<B2BChatPage />} />
+                <Route path="offer/new" element={<B2BOfferPage />} />
+                <Route path="contract/:operationId" element={<B2BContractPage />} />
+                <Route path="payment/:operationId" element={<B2BPaymentPage />} />
+                <Route path="tracking/:operationId" element={<B2BTrackingPage />} />
+                <Route path="operations" element={<B2BOperationsDashboard />} />
+                <Route path="dispute/:operationId" element={<B2BDisputePage />} />
+              </Route>
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
@@ -792,11 +822,14 @@ function AppRouter() {
               <Route path="/admin/analitica" element={<Navigate to="/super-admin/analytics" replace />} />
               <Route path="/admin/escalaciones" element={<Navigate to="/super-admin/escalation" replace />} />
 
+              {/* Section 3.6.2b — /producer/* is dual-role: producers see
+                  ProducerLayout, importers see ImporterLayout (via
+                  DualRoleLayout). The page contents are unchanged. */}
               <Route
                 path="/producer"
                 element={(
                   <ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}>
-                    <ProducerLayout />
+                    <DualRoleLayout />
                   </ProtectedRoute>
                 )}
               >
@@ -946,12 +979,9 @@ function AppRouter() {
               <Route path="/messages/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
               <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
               <Route path="/documents" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><SignedDocumentsPage /></ProtectedRoute>} />
-              <Route path="/b2b/offer/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BOfferPage /></ProtectedRoute>} />
-              <Route path="/b2b/contract/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BContractPage /></ProtectedRoute>} />
-              <Route path="/b2b/payment/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BPaymentPage /></ProtectedRoute>} />
-              <Route path="/b2b/tracking/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BTrackingPage /></ProtectedRoute>} />
-              <Route path="/b2b/operations" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BOperationsDashboard /></ProtectedRoute>} />
-              <Route path="/b2b/dispute/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BDisputePage /></ProtectedRoute>} />
+              {/* Section 3.6.2b — moved into the /b2b nested DualRoleLayout
+                  block above. Kept this comment so future grep finds the
+                  legacy location. */}
               <Route path="/settings/signature" element={<SignatureSettingsPage />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />
@@ -959,10 +989,12 @@ function AppRouter() {
               <Route path="/dashboard/influencer/new" element={<Navigate to="/influencer/dashboard" replace />} />
               <Route path="/dashboard/producer/new" element={<Navigate to="/producer" replace />} />
               <Route path="/dashboard/importer/new" element={<Navigate to="/importer/dashboard" replace />} />
-              <Route path="/importer/orders" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterOrdersPage /></ProtectedRoute>} />
+              {/* Section 3.6.2b — /importer/orders moved into the nested
+                  ImporterLayout block above. These remain as legacy
+                  redirects for deep links. */}
               <Route path="/importer/orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/importer/products/new" element={<Navigate to="/producer/products" replace />} />
-              <Route path="/importer/analytics" element={<Navigate to="/producer" replace />} />
+              <Route path="/importer/analytics" element={<Navigate to="/importer/dashboard" replace />} />
               {/* /checkout is now a real page, defined above */}
               <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />

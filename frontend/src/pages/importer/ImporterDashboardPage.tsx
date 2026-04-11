@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, Factory, Store, Search, Award, FileCheck, ArrowRight, AlertTriangle, Loader2, Globe, MessageCircle, TrendingUp, Eye, Plus, Clock, ChevronRight, BarChart3, PenTool, FileText, KeyRound, CreditCard } from 'lucide-react';
+import { Package, ShoppingBag, Factory, Store, Search, Award, FileCheck, ArrowRight, AlertTriangle, Loader2, Globe, MessageCircle, TrendingUp, Eye, Plus, Clock, ChevronRight, BarChart3, PenTool, FileText, KeyRound, CreditCard, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
@@ -86,7 +86,7 @@ function ImporterPlanCard({
       </div>
       <div className="space-y-1.5 mb-4">
         {['Agente Comercial IA para importadores', 'Matching con productores globales', i18n.t('importer_dashboard.contratosB2bGeneradosAutomaticamente', 'Contratos B2B generados automáticamente'), 'Comisión reducida al 17%'].map(f => <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
-            <span className="font-bold text-stone-950">✓</span> {f}
+            <Check className="w-3 h-3 shrink-0 text-stone-950" strokeWidth={2.5} /> {f}
           </p>)}
       </div>
       <Link to="/settings/plan" className="block w-full text-center py-2.5 text-sm font-medium transition-colors bg-stone-950 text-white rounded-2xl">
@@ -344,7 +344,7 @@ export default function ImporterDashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
             <KPICard icon={TrendingUp} value={convertAndFormatPrice(stats?.volume_month || 0, 'EUR')} label="Ventas B2C" description={`${stats?.store_orders || 0} pedidos`} href="/producer/orders" />
             <KPICard icon={Package} value={stats?.store_orders || 0} label="Pedidos" description={`${pendingB2cOrders.length} pendientes`} href="/producer/orders" />
-            <KPICard icon={Eye} value={stats?.follower_count || 0} label="Seguidores tienda" href="/producer/store-profile" />
+            <KPICard icon={Eye} value={stats?.follower_count || 0} label="Seguidores tienda" href="/producer/store" />
             <KPICard icon={BarChart3} value={stats?.total_products || 0} label="Productos activos" description={`${stats?.pending_products || 0} pendientes`} href="/producer/products" />
           </div>
 
@@ -386,7 +386,7 @@ export default function ImporterDashboardPage() {
           <div className="mb-5">
             <h2 className="text-sm font-bold mb-3 text-stone-950">{i18n.t('sellerAI.quickActions', 'Acciones rápidas')}</h2>
             <div className="grid grid-cols-2 gap-2">
-              <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store-profile" />
+              <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store" />
               <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="primary" />
             </div>
           </div>

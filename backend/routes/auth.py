@@ -209,6 +209,9 @@ def _sanitize_user_doc(user_doc: dict) -> dict:
         sanitized["onboarding_completed"] = bool(sanitized.get("onboarding_completed", True))
         sanitized["onboarding_step"] = int(sanitized.get("onboarding_step", 0) or 0)
     sanitized.setdefault("followers_count", len(sanitized.get("followers", [])))
+    # Section 3.6.2b — importers default to B2B-only; legacy users without the
+    # field are coerced to False so the frontend sidebar hides B2C items.
+    sanitized["has_b2c_store"] = bool(sanitized.get("has_b2c_store", False))
     # Normalize avatar field — backend stores profile_image/picture, frontend reads avatar_url
     avatar = sanitized.get("avatar_url") or sanitized.get("profile_image") or sanitized.get("picture") or ""
     sanitized["avatar_url"] = avatar

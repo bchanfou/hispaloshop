@@ -382,10 +382,13 @@ function StepRevisar({
   const incotermObj = INCOTERMS.find(i => i.code === form.incoterm);
   const qty = Number(form.quantity) || 0;
   const price = Number(form.price_per_unit) || 0;
-  const subtotal = qty * price;
-  const commission = subtotal * 0.03;
-  const stripe = subtotal * 0.014;
-  const net = subtotal - commission - stripe;
+  const subtotalCents = Math.round(qty * price * 100);
+  const commissionCents = Math.round(subtotalCents * 3 / 100);
+  const stripeCents = Math.round(subtotalCents * 14 / 1000) + 25; // 1.4% + 0.25€
+  const subtotal = subtotalCents / 100;
+  const commission = commissionCents / 100;
+  const stripe = stripeCents / 100;
+  const net = (subtotalCents - commissionCents - stripeCents) / 100;
   return <div className="flex flex-col gap-5">
       {/* Product summary card */}
       <div className="bg-white rounded-xl shadow-sm p-4">

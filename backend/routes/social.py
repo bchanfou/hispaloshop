@@ -3402,6 +3402,12 @@ async def patch_user_me(request: Request, user: User = Depends(get_current_user)
     if "interests" in body and isinstance(body["interests"], list):
         update_fields["interests"] = [str(i)[:50] for i in body["interests"][:20]]
 
+    # Section 3.6.2b — importers can opt in/out of B2C selling. Only honoured
+    # for users with the importer role; ignored silently otherwise so the
+    # endpoint stays role-agnostic.
+    if "has_b2c_store" in body and getattr(user, "role", None) == "importer":
+        update_fields["has_b2c_store"] = bool(body["has_b2c_store"])
+
     # Onboarding completion — require email verification for customers
     if body.get("onboarding_completed") is True:
         if getattr(user, "role", None) == "customer":

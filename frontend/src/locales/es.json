@@ -86,7 +86,11 @@
     "orders": "Pedidos",
     "visits": "Visitas",
     "products": "Productos",
-    "accountPending": "Cuenta pendiente de aprobación"
+    "accountPending": "Cuenta pendiente de aprobación",
+    "more": "Mas",
+    "goToLogin": "Ir a Login",
+    "notifications": "Notificaciones",
+    "errorTryAgain": "Hubo un error. Intenta de nuevo."
   },
   "home": {
     "heroTitle": "Impulsa el Comercio Local, Transforma tu Comunidad",
@@ -4109,7 +4113,24 @@
   "settings": {
     "account_switched": "Cuenta cambiada",
     "switch_error": "Error al cambiar de cuenta",
-    "switch_account": "Cambiar cuenta"
+    "switch_account": "Cambiar cuenta",
+    "rolesFeatures": {
+      "title": "Roles y funcionalidades",
+      "subtitle": "Activa funcionalidades adicionales para tu cuenta de importador.",
+      "importerOnly": "Esta configuracion solo esta disponible para cuentas de importador.",
+      "b2cMode": {
+        "title": "Modo vendedor B2C",
+        "description": "Activa esta opcion si quieres vender productos directamente a consumidores finales ademas de tu actividad B2B.",
+        "enable": "Activar",
+        "disable": "Desactivar",
+        "confirmTitle": "Desactivar modo B2C",
+        "confirmDisable": "Desactivar",
+        "disableWarning": "Esto solo oculta los accesos del sidebar. No elimina productos ni datos de tienda.",
+        "enabledToast": "Modo vendedor B2C activado",
+        "disabledToast": "Modo vendedor B2C desactivado",
+        "configureStore": "Configurar mi tienda"
+      }
+    }
   },
   "signature_settings": {
     "dibujaTuFirmaAntesDeGuardar": "Dibuja tu firma antes de guardar",
@@ -5883,7 +5904,51 @@
     "importCertificate": "Certificado de importacion",
     "distributionAgreement": "Acuerdo de distribucion",
     "vatVerified": "VAT verificado",
-    "sourcingPriority": "Sourcing prioritario"
+    "sourcingPriority": "Sourcing prioritario",
+    "layout": {
+      "header": {
+        "title": "Panel Importador",
+        "roleBadge": "Importador"
+      },
+      "sidebar": {
+        "dashboard": "Panel",
+        "dashboardShort": "Panel",
+        "catalog": "Catalogo Sourcing",
+        "catalogShort": "Catalogo",
+        "operations": "Operaciones B2B",
+        "operationsShort": "Operaciones",
+        "orders": "Mis Pedidos",
+        "ordersShort": "Pedidos",
+        "certificates": "Certificados",
+        "certificatesShort": "Certs",
+        "opportunities": "Oportunidades de mercado",
+        "opportunitiesShort": "Oportunidades",
+        "commercialAi": "Pedro AI",
+        "commercialAiShort": "Pedro",
+        "profile": "Mi Empresa",
+        "profileShort": "Empresa",
+        "documents": "Documentos",
+        "documentsShort": "Docs",
+        "plan": "Plan",
+        "planShort": "Plan",
+        "settings": "Configuracion",
+        "settingsShort": "Config",
+        "b2cMode": "Modo vendedor B2C",
+        "b2cProducts": "Mis Productos",
+        "b2cProductsShort": "Productos",
+        "b2cOrders": "Pedidos B2C",
+        "b2cOrdersShort": "B2C",
+        "b2cStore": "Mi Tienda",
+        "b2cStoreShort": "Tienda"
+      },
+      "planFooter": {
+        "elite": "Plan ELITE activo",
+        "currentPlan": "Plan actual",
+        "upgradeCta": "Mejorar a ELITE"
+      },
+      "accessDenied": "Acceso denegado. Se requiere cuenta de importador.",
+      "openChat": "Abrir chat"
+    }
   },
   "promotion": {
     "title": "Promocion de productos",

@@ -86,7 +86,11 @@
     "accountPending": "ê³„ì • ìŠ¹ì¸ ëŒ€ê¸° ì¤‘",
     "seeOriginal": "Ver original",
     "seeTranslation": "Ver traducción",
-    "translatedFrom": "Traducido del {{language}}"
+    "translatedFrom": "Traducido del {{language}}",
+    "more": "더보기",
+    "goToLogin": "로그인 페이지로",
+    "notifications": "알림",
+    "errorTryAgain": "오류가 발생했습니다. 다시 시도해주세요."
   },
   "home": {
     "heroTitle": "ì§€ì—­ ìƒì—…ì„ ê°•í™”í•˜ê³ , ì»¤ë®¤ë‹ˆí‹°ë¥¼ ë³€í™”ì‹œí‚¤ì„¸ìš”",
@@ -3650,7 +3654,24 @@
   "settings": {
     "account_switched": "계정이 전환되었습니다",
     "switch_error": "계정 전환 오류",
-    "switch_account": "계정 전환"
+    "switch_account": "계정 전환",
+    "rolesFeatures": {
+      "title": "역할 및 기능",
+      "subtitle": "수입업체 계정에 추가 기능을 활성화하세요.",
+      "importerOnly": "이 설정은 수입업체 계정에서만 사용할 수 있습니다.",
+      "b2cMode": {
+        "title": "B2C 판매자 모드",
+        "description": "B2B 활동 외에 최종 소비자에게 직접 제품을 판매하려면 활성화하세요.",
+        "enable": "활성화",
+        "disable": "비활성화",
+        "confirmTitle": "B2C 모드 비활성화",
+        "confirmDisable": "비활성화",
+        "disableWarning": "사이드바 항목만 숨겨집니다. 제품이나 매장 데이터는 삭제되지 않습니다.",
+        "enabledToast": "B2C 판매자 모드 활성화됨",
+        "disabledToast": "B2C 판매자 모드 비활성화됨",
+        "configureStore": "내 매장 설정"
+      }
+    }
   },
   "profile_tabs": {
     "no_reviews": "아직 리뷰가 없습니다"
@@ -4141,7 +4162,51 @@
     "importCertificate": "수입 인증서",
     "distributionAgreement": "유통 계약",
     "vatVerified": "VAT 인증됨",
-    "sourcingPriority": "우선 소싱"
+    "sourcingPriority": "우선 소싱",
+    "layout": {
+      "header": {
+        "title": "수입업체 패널",
+        "roleBadge": "수입업체"
+      },
+      "sidebar": {
+        "dashboard": "대시보드",
+        "dashboardShort": "홈",
+        "catalog": "소싱 카탈로그",
+        "catalogShort": "카탈로그",
+        "operations": "B2B 거래",
+        "operationsShort": "거래",
+        "orders": "내 주문",
+        "ordersShort": "주문",
+        "certificates": "인증서",
+        "certificatesShort": "인증",
+        "opportunities": "시장 기회",
+        "opportunitiesShort": "기회",
+        "commercialAi": "Pedro AI",
+        "commercialAiShort": "Pedro",
+        "profile": "내 회사",
+        "profileShort": "회사",
+        "documents": "문서",
+        "documentsShort": "문서",
+        "plan": "플랜",
+        "planShort": "플랜",
+        "settings": "설정",
+        "settingsShort": "설정",
+        "b2cMode": "B2C 판매자 모드",
+        "b2cProducts": "내 상품",
+        "b2cProductsShort": "상품",
+        "b2cOrders": "B2C 주문",
+        "b2cOrdersShort": "B2C",
+        "b2cStore": "내 매장",
+        "b2cStoreShort": "매장"
+      },
+      "planFooter": {
+        "elite": "ELITE 플랜 활성",
+        "currentPlan": "현재 플랜",
+        "upgradeCta": "ELITE로 업그레이드"
+      },
+      "accessDenied": "접근이 거부되었습니다. 수입업체 계정이 필요합니다.",
+      "openChat": "채팅 열기"
+    }
   },
   "promotion": {
     "title": "제품 홍보",
