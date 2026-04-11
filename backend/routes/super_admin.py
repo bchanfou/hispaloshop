@@ -559,6 +559,8 @@ ALLOWED_CRONS = {
     "tier-recalculation": ("services.subscriptions", "recalculate_influencer_tier_for_all"),
     "fiscal-quarterly": ("services.modelo190_service", "generate_quarterly_report_async"),
     "story-cleanup": ("services.post_service", "cleanup_expired_stories"),
+    # M-5 (section 3.6.4): moderation auto-action sweep. YAML wiring deferred to 5.4.
+    "moderation-auto-actions": ("routes.moderation_v2", "run_moderation_auto_actions_sweep"),
 }
 
 

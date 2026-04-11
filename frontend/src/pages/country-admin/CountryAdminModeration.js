@@ -2,26 +2,39 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../services/api/client';
 import { toast } from 'sonner';
-import { Loader2, Flag, AlertTriangle, Check, X, Eye, EyeOff, ShieldAlert, Ban } from 'lucide-react';
+import { Loader2, Flag, AlertTriangle, Check, X, Eye, EyeOff, ShieldAlert, Ban, Sparkles, MessageSquareWarning } from 'lucide-react';
 
 const PRIORITY_BADGE = {
-  5: 'bg-red-500/15 text-red-700 border-red-500/40',
-  4: 'bg-amber-500/15 text-amber-700 border-amber-500/40',
-  3: 'bg-stone-200 text-stone-700',
-  2: 'bg-stone-100 text-stone-600',
+  5: 'bg-stone-950 text-white',
+  4: 'bg-stone-800 text-white',
+  3: 'bg-stone-200 text-stone-800',
+  2: 'bg-stone-100 text-stone-700',
   1: 'bg-stone-100 text-stone-500',
 };
 
 const ACTION_BUTTONS = [
-  { type: 'dismiss', label: 'Dismiss', icon: X, variant: 'secondary' },
-  { type: 'warning', label: 'Warning', icon: AlertTriangle, variant: 'secondary' },
-  { type: 'hide', label: 'Hide', icon: EyeOff, variant: 'secondary' },
-  { type: 'remove', label: 'Remove', icon: X, variant: 'danger' },
-  { type: 'restrict_features', label: 'Restrict 7d', icon: ShieldAlert, variant: 'secondary' },
-  { type: 'suspend', label: 'Suspend 14d', icon: Ban, variant: 'danger' },
-  { type: 'shadow_ban', label: 'Shadow ban', icon: Eye, variant: 'danger' },
-  { type: 'ban', label: 'Ban', icon: Ban, variant: 'danger' },
+  { type: 'dismiss', labelKey: 'moderation.action.dismiss', label: 'Descartar', icon: X, variant: 'secondary' },
+  { type: 'warning', labelKey: 'moderation.action.warning', label: 'Advertencia', icon: AlertTriangle, variant: 'secondary' },
+  { type: 'hide', labelKey: 'moderation.action.hide', label: 'Ocultar', icon: EyeOff, variant: 'secondary' },
+  { type: 'remove', labelKey: 'moderation.action.remove', label: 'Eliminar', icon: X, variant: 'danger' },
+  { type: 'restrict_features', labelKey: 'moderation.action.restrict7d', label: 'Restringir 7d', icon: ShieldAlert, variant: 'secondary' },
+  { type: 'suspend', labelKey: 'moderation.action.suspend14d', label: 'Suspender 14d', icon: Ban, variant: 'danger' },
+  { type: 'shadow_ban', labelKey: 'moderation.action.shadowBan', label: 'Shadow ban', icon: Eye, variant: 'danger' },
+  { type: 'ban', labelKey: 'moderation.action.ban', label: 'Bannear', icon: Ban, variant: 'danger' },
 ];
+
+function AiFlaggedBadge({ confidence }) {
+  const { t } = useTranslation();
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200"
+      title={confidence != null ? `${t('moderation.aiConfidence', 'Confianza IA')}: ${Math.round(confidence * 100)}%` : ''}
+    >
+      <Sparkles className="w-3 h-3" strokeWidth={2} />
+      AI
+    </span>
+  );
+}
 
 export default function CountryAdminModeration() {
   const { t } = useTranslation();
@@ -37,15 +50,22 @@ export default function CountryAdminModeration() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const url = tab === 'auto-flagged'
-        ? '/country-admin/moderation/queue/auto-flagged'
-        : '/country-admin/moderation/queue?status=pending';
+      let url;
+      if (tab === 'auto-flagged') {
+        url = '/country-admin/moderation/queue/auto-flagged';
+      } else if (tab === 'self-appeals') {
+        url = '/country-admin/moderation/queue?status=pending&content_type=self_appeal';
+      } else {
+        url = '/country-admin/moderation/queue?status=pending';
+      }
       const data = await apiClient.get(url);
       setItems(data?.items || []);
+    } catch {
+      toast.error(t('moderation.loadError', 'No se pudo cargar la lista'));
     } finally {
       setLoading(false);
     }
-  }, [tab]);
+  }, [tab, t]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -86,7 +106,7 @@ export default function CountryAdminModeration() {
       setSelected(null); setAction(null); setReason('');
       await load();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err?.message || 'Error');
+      toast.error(err?.response?.data?.detail || err?.message || t('countryAdmin.actionError', 'No se pudo completar la acción'));
     } finally {
       setSubmitting(false);
     }
@@ -95,7 +115,21 @@ export default function CountryAdminModeration() {
   const TABS = [
     { value: 'queue', label: t('moderation.tabQueue', 'Cola pendiente') },
     { value: 'auto-flagged', label: t('moderation.tabAutoFlagged', 'Auto-flagged') },
+    { value: 'self-appeals', label: t('moderation.tabSelfAppeals', 'Apelaciones IA') },
   ];
+
+  const renderRowMeta = (r) => (
+    <>
+      <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_BADGE[r.priority] || PRIORITY_BADGE[1]}`}>P{r.priority}</span>
+      {r.ai_flagged && <AiFlaggedBadge confidence={r.ai_confidence} />}
+      {r.content_type === 'self_appeal' && (
+        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">
+          <MessageSquareWarning className="w-3 h-3" strokeWidth={2} />
+          {t('moderation.selfAppealBadge', 'Apelación')}
+        </span>
+      )}
+    </>
+  );
 
   return (
     <div className="space-y-6">
@@ -119,13 +153,13 @@ export default function CountryAdminModeration() {
             <p className="text-2xl font-semibold text-stone-950">{metrics.resolved}</p>
           </div>
           <div className="bg-white border border-stone-200 rounded-2xl p-4">
-            <p className="text-xs text-stone-500">{t('moderation.dismissed30d', 'Dismissed 30d')}</p>
+            <p className="text-xs text-stone-500">{t('moderation.dismissed30d', 'Descartados 30d')}</p>
             <p className="text-2xl font-semibold text-stone-950">{metrics.dismissed}</p>
           </div>
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {TABS.map((tb) => (
           <button
             key={tb.value}
@@ -143,41 +177,74 @@ export default function CountryAdminModeration() {
         ) : items.length === 0 ? (
           <p className="p-12 text-center text-sm text-stone-500">{t('moderation.empty', 'Sin reports en esta cola.')}</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
-              <tr>
-                <th className="text-left px-4 py-3">P</th>
-                <th className="text-left px-4 py-3">{t('moderation.contentType', 'Tipo')}</th>
-                <th className="text-left px-4 py-3">{t('moderation.reasonCol', 'Razón')}</th>
-                <th className="text-left px-4 py-3">{t('moderation.reporter', 'Reporter')}</th>
-                <th className="text-left px-4 py-3">{t('common.date', 'Fecha')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {items.map((r) => (
-                <tr key={r.report_id} className="hover:bg-stone-50 cursor-pointer" onClick={() => openReport(r)}>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full border ${PRIORITY_BADGE[r.priority] || PRIORITY_BADGE[1]}`}>P{r.priority}</span>
-                  </td>
-                  <td className="px-4 py-3 text-stone-950 capitalize">{r.content_type}</td>
-                  <td className="px-4 py-3 text-stone-700">{t(`moderation.reasons.${r.reason}`, r.reason)}</td>
-                  <td className="px-4 py-3 text-stone-500 text-xs">{(r.reporter_user_id || '').slice(-8)}</td>
-                  <td className="px-4 py-3 text-stone-500 text-xs">{new Date(r.created_at).toLocaleString()}</td>
+          <>
+            {/* Desktop table (md+) */}
+            <table className="hidden md:table w-full text-sm">
+              <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
+                <tr>
+                  <th className="text-left px-4 py-3">{t('moderation.priorityCol', 'Prio')}</th>
+                  <th className="text-left px-4 py-3">{t('moderation.contentType', 'Tipo')}</th>
+                  <th className="text-left px-4 py-3">{t('moderation.reasonCol', 'Razón')}</th>
+                  <th className="text-left px-4 py-3">{t('moderation.reporter', 'Reporter')}</th>
+                  <th className="text-left px-4 py-3">{t('common.date', 'Fecha')}</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {items.map((r) => (
+                  <tr
+                    key={r.report_id}
+                    className="hover:bg-stone-50 cursor-pointer"
+                    onClick={() => openReport(r)}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">{renderRowMeta(r)}</div>
+                    </td>
+                    <td className="px-4 py-3 text-stone-950 capitalize">{r.content_type}</td>
+                    <td className="px-4 py-3 text-stone-700">{t(`moderation.reasons.${r.reason}`, r.reason)}</td>
+                    <td className="px-4 py-3 text-stone-500 text-xs">{(r.reporter_user_id || '').slice(-8)}</td>
+                    <td className="px-4 py-3 text-stone-500 text-xs">{new Date(r.created_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile cards (M-6) */}
+            <ul className="md:hidden divide-y divide-stone-100">
+              {items.map((r) => (
+                <li
+                  key={r.report_id}
+                  className="p-4 active:bg-stone-50 cursor-pointer"
+                  onClick={() => openReport(r)}
+                >
+                  <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                    {renderRowMeta(r)}
+                  </div>
+                  <p className="font-medium text-stone-950 capitalize text-sm">
+                    {r.content_type} · {t(`moderation.reasons.${r.reason}`, r.reason)}
+                  </p>
+                  {r.description && (
+                    <p className="text-xs text-stone-600 mt-1 line-clamp-2">{r.description}</p>
+                  )}
+                  <p className="text-[11px] text-stone-500 mt-2">
+                    {t('moderation.reporter', 'Reporter')}: {(r.reporter_user_id || '').slice(-8)} ·{' '}
+                    {new Date(r.created_at).toLocaleString()}
+                  </p>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </>
         )}
       </div>
 
       {/* Detail modal */}
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => { if (!action) setSelected(null); }}>
-          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end md:items-center justify-center p-0 md:p-4" onClick={() => { if (!action) setSelected(null); }}>
+          <div className="bg-white rounded-t-2xl md:rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b border-stone-200">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <Flag className="w-4 h-4 text-stone-500" />
                 <p className="text-xs text-stone-500 font-mono">{selected.report.report_id}</p>
+                {selected.report.ai_flagged && <AiFlaggedBadge confidence={selected.report.ai_confidence} />}
               </div>
               <h3 className="text-lg font-semibold text-stone-950 capitalize">
                 {selected.report.content_type} · {t(`moderation.reasons.${selected.report.reason}`, selected.report.reason)}
@@ -200,11 +267,13 @@ export default function CountryAdminModeration() {
                 <div className="bg-stone-50 rounded-xl p-3">
                   <p className="text-xs text-stone-500 mb-2">{t('moderation.authorHistory', 'Historial del autor')}</p>
                   <p className="text-xs text-stone-700">
-                    Warnings 30d: {selected.author_state.warnings_last_30d || 0} ·
-                    {selected.author_state.is_banned ? ' baneado' : ''}
-                    {selected.author_state.is_shadow_banned ? ' shadow' : ''}
+                    {t('moderation.warnings30d', 'Warnings 30d')}: {selected.author_state.warnings_last_30d || 0}
+                    {selected.author_state.is_banned ? ` · ${t('moderation.banned', 'baneado')}` : ''}
+                    {selected.author_state.is_shadow_banned ? ` · ${t('moderation.shadow', 'shadow')}` : ''}
                   </p>
-                  <p className="text-xs text-stone-500 mt-1">{(selected.author_actions || []).length} acciones previas</p>
+                  <p className="text-xs text-stone-500 mt-1">
+                    {t('moderation.priorActions', '{{n}} acciones previas', { n: (selected.author_actions || []).length })}
+                  </p>
                 </div>
               )}
 
@@ -220,14 +289,14 @@ export default function CountryAdminModeration() {
                           : 'border border-stone-200 text-stone-700 hover:bg-stone-100'
                       }`}
                     >
-                      <b.icon className="w-4 h-4" /> {b.label}
+                      <b.icon className="w-4 h-4" /> {t(b.labelKey, b.label)}
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm font-semibold text-stone-950">
-                    {t('moderation.actionPicked', 'Acción')}: {action.type}
+                    {t('moderation.actionPicked', 'Acción')}: {t(`moderation.action.${action.type}`, action.type)}
                   </p>
                   <textarea
                     value={reason}
@@ -236,6 +305,7 @@ export default function CountryAdminModeration() {
                     placeholder={t('moderation.reasonPh', 'Razón de la decisión...')}
                     className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm"
                   />
+                  <p className="text-xs text-stone-400">{reason.length} / 10</p>
                   <div className="flex justify-end gap-2">
                     <button onClick={() => { setAction(null); setReason(''); }} className="px-4 py-2 rounded-xl border border-stone-200 text-sm">{t('common.cancel', 'Cancelar')}</button>
                     <button

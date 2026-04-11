@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TrendingUp, Users, ShieldCheck, RotateCcw, Clock, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, ShieldCheck, RotateCcw, Clock, AlertTriangle, Headphones, Flag, Sparkles, Timer } from 'lucide-react';
+import { apiClient } from '../../services/api/client';
 
 function KpiCard({ icon: Icon, label, value, sub }) {
   return (
@@ -21,6 +22,26 @@ function KpiCard({ icon: Icon, label, value, sub }) {
 export default function CountryAdminOverview() {
   const { t } = useTranslation();
   const { overview } = useOutletContext() || {};
+  const [supportMetrics, setSupportMetrics] = useState(null);
+  const [modMetrics, setModMetrics] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [s, m] = await Promise.all([
+          apiClient.get('/country-admin/support/metrics?period=30d').catch(() => null),
+          apiClient.get('/country-admin/moderation/metrics?period=30d').catch(() => null),
+        ]);
+        if (cancelled) return;
+        setSupportMetrics(s);
+        setModMetrics(m);
+      } catch {
+        /* tolerate failures — overview KPIs are still shown */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   if (!overview) {
     return (
@@ -51,7 +72,7 @@ export default function CountryAdminOverview() {
         </p>
       </header>
 
-      {/* KPI cards */}
+      {/* Marketplace KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           icon={TrendingUp}
@@ -73,6 +94,30 @@ export default function CountryAdminOverview() {
           icon={RotateCcw}
           label={t('countryAdmin.kpi.refundRate', 'Refund rate')}
           value={fmtPct(k.refund_rate_pct)}
+        />
+      </div>
+
+      {/* Operations KPI cards (F-4 + reports/auto-flagged) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          icon={Headphones}
+          label={t('countryAdmin.kpi.openTickets', 'Tickets abiertos')}
+          value={supportMetrics?.open_count ?? '—'}
+        />
+        <KpiCard
+          icon={Timer}
+          label={t('countryAdmin.kpi.slaAtRisk', 'SLA en riesgo')}
+          value={supportMetrics?.sla_at_risk ?? '—'}
+        />
+        <KpiCard
+          icon={Flag}
+          label={t('countryAdmin.kpi.pendingReports', 'Reports pendientes')}
+          value={modMetrics?.pending ?? '—'}
+        />
+        <KpiCard
+          icon={Sparkles}
+          label={t('countryAdmin.kpi.aiFlagged', 'Auto-flagged sin revisar')}
+          value={modMetrics?.auto_flagged ?? '—'}
         />
       </div>
 

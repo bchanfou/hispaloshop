@@ -14,14 +14,15 @@ const PRIORITY_BADGE = {
 };
 
 function slaIndicator(ticket) {
-  if (ticket.first_response_at) return { color: 'bg-emerald-500', label: 'OK' };
-  if (!ticket.sla_first_response_due) return { color: 'bg-stone-300', label: '—' };
+  // Stone palette: filled = OK, ringed = at risk, solid black = breach.
+  if (ticket.first_response_at) return { color: 'bg-stone-400', label: 'OK' };
+  if (!ticket.sla_first_response_due) return { color: 'bg-stone-200', label: '—' };
   const due = new Date(ticket.sla_first_response_due);
   const now = new Date();
   const diffMin = (due - now) / 60000;
-  if (diffMin < 0) return { color: 'bg-red-500', label: 'breach' };
-  if (diffMin < 60) return { color: 'bg-amber-500', label: 'risk' };
-  return { color: 'bg-emerald-500', label: 'OK' };
+  if (diffMin < 0) return { color: 'bg-stone-950 ring-2 ring-stone-300', label: 'breach' };
+  if (diffMin < 60) return { color: 'bg-stone-700 ring-2 ring-stone-200', label: 'risk' };
+  return { color: 'bg-stone-400', label: 'OK' };
 }
 
 export default function CountryAdminSupport() {
@@ -133,43 +134,72 @@ export default function CountryAdminSupport() {
         ) : items.length === 0 ? (
           <p className="p-12 text-center text-sm text-stone-500">{t('countryAdmin.support.empty', 'No hay tickets en este estado.')}</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-              <tr>
-                <th className="text-left px-4 py-3">SLA</th>
-                <th className="text-left px-4 py-3">Ticket</th>
-                <th className="text-left px-4 py-3">{t('countryAdmin.support.user', 'Usuario')}</th>
-                <th className="text-left px-4 py-3">{t('countryAdmin.support.priority', 'Prioridad')}</th>
-                <th className="text-left px-4 py-3">{t('countryAdmin.support.lastUpdate', 'Última actividad')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
+          <>
+            {/* Desktop table */}
+            <table className="hidden md:table w-full text-sm">
+              <thead className="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="text-left px-4 py-3">SLA</th>
+                  <th className="text-left px-4 py-3">Ticket</th>
+                  <th className="text-left px-4 py-3">{t('countryAdmin.support.user', 'Usuario')}</th>
+                  <th className="text-left px-4 py-3">{t('countryAdmin.support.priority', 'Prioridad')}</th>
+                  <th className="text-left px-4 py-3">{t('countryAdmin.support.lastUpdate', 'Última actividad')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {items.map((it) => {
+                  const ind = slaIndicator(it);
+                  return (
+                    <tr key={it.ticket_id} className="hover:bg-stone-50">
+                      <td className="px-4 py-3">
+                        <span className={`inline-block w-2 h-2 rounded-full ${ind.color}`} title={ind.label} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link to={`/country-admin/support/${it.ticket_id}`} className="block">
+                          <p className="text-xs text-stone-400 font-mono">{it.ticket_number}</p>
+                          <p className="font-medium text-stone-950 truncate max-w-md">{it.subject}</p>
+                          <p className="text-xs text-stone-500">{t(`support.cat.${it.category}`, it.category)}</p>
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-stone-700 text-xs">{it.user_role}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_BADGE[it.priority] || 'bg-stone-100 text-stone-700'}`}>
+                          {it.priority}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-stone-500 text-xs">{new Date(it.updated_at).toLocaleString()}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Mobile cards */}
+            <ul className="md:hidden divide-y divide-stone-100">
               {items.map((it) => {
                 const ind = slaIndicator(it);
                 return (
-                  <tr key={it.ticket_id} className="hover:bg-stone-50">
-                    <td className="px-4 py-3">
-                      <span className={`inline-block w-2 h-2 rounded-full ${ind.color}`} title={ind.label} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Link to={`/country-admin/support/${it.ticket_id}`} className="block">
-                        <p className="text-xs text-stone-400 font-mono">{it.ticket_number}</p>
-                        <p className="font-medium text-stone-950 truncate max-w-md">{it.subject}</p>
-                        <p className="text-xs text-stone-500">{t(`support.cat.${it.category}`, it.category)}</p>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-stone-700 text-xs">{it.user_role}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_BADGE[it.priority] || 'bg-stone-100 text-stone-700'}`}>
-                        {it.priority}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-stone-500 text-xs">{new Date(it.updated_at).toLocaleString()}</td>
-                  </tr>
+                  <li key={it.ticket_id}>
+                    <Link to={`/country-admin/support/${it.ticket_id}`} className="block p-4 active:bg-stone-50">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-block w-2 h-2 rounded-full ${ind.color}`} title={ind.label} />
+                          <span className="text-xs text-stone-400 font-mono">{it.ticket_number}</span>
+                        </div>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${PRIORITY_BADGE[it.priority] || 'bg-stone-100 text-stone-700'}`}>
+                          {it.priority}
+                        </span>
+                      </div>
+                      <p className="font-medium text-stone-950 text-sm">{it.subject}</p>
+                      <p className="text-xs text-stone-500 mt-1">
+                        {t(`support.cat.${it.category}`, it.category)} · {it.user_role} · {new Date(it.updated_at).toLocaleString()}
+                      </p>
+                    </Link>
+                  </li>
                 );
               })}
-            </tbody>
-          </table>
+            </ul>
+          </>
         )}
       </div>
     </div>

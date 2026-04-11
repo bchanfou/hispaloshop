@@ -132,6 +132,56 @@ async def _get_user_state(user_id: str) -> dict:
     }
 
 
+async def run_moderation_auto_actions_sweep() -> dict:
+    """
+    Cron entry point for the moderation auto-action sweep (M-5).
+
+    Re-evaluates thresholds for every user that received a warning in the
+    last 30 days. Idempotent: _evaluate_thresholds itself only inserts the
+    auto restrict/suspend rows when the user has *not* yet been actioned for
+    the current threshold window, and uses upserts on user_moderation_state.
+
+    YAML wiring is deferred to section 5.4 — for now this can be triggered
+    manually from the super-admin "Run cron" UI (whitelist in super_admin.py).
+
+    Returns a small summary dict for the cron_runs log.
+    """
+    cutoff_30d = (_now() - timedelta(days=30)).isoformat()
+    try:
+        user_ids = await db.moderation_actions.distinct(
+            "target_user_id",
+            {
+                "action_type": "warning",
+                "applied_at": {"$gte": cutoff_30d},
+                "reverted": False,
+            },
+        )
+    except Exception as exc:
+        logger.error("[MOD-CRON] distinct() failed: %s", exc)
+        return {"status": "error", "error": str(exc)}
+
+    evaluated = 0
+    errors = 0
+    for uid in user_ids:
+        if not uid:
+            continue
+        try:
+            await _evaluate_thresholds(uid)
+            evaluated += 1
+        except Exception as exc:
+            errors += 1
+            logger.warning("[MOD-CRON] _evaluate_thresholds(%s) failed: %s", uid, exc)
+
+    summary = {
+        "status": "ok",
+        "evaluated_users": evaluated,
+        "errors": errors,
+        "ran_at": _now_iso(),
+    }
+    logger.info("[MOD-CRON] sweep complete: %s", summary)
+    return summary
+
+
 async def _evaluate_thresholds(user_id: str) -> None:
     """
     Inline auto-action evaluator. Called after a warning is added. Checks
