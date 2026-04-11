@@ -252,7 +252,7 @@ export default function SuperAdminLayoutResponsive() {
         onClose={() => setMoreMenuOpen(false)}
         title={t('common.moreOptions', 'Más opciones')}
       >
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 bg-[#1A1D27]">
           {moreMenuItems.map((item) => (
             <NavLink
               key={item.to}
@@ -260,24 +260,24 @@ export default function SuperAdminLayoutResponsive() {
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-4 p-4 rounded-2xl transition-colors ${
-                  isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
+                  isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/[0.06]'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
-                <item.icon className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
+              <div className="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center">
+                <item.icon className="w-5 h-5 text-white/70" strokeWidth={1.5} />
               </div>
-              <p className="font-medium text-stone-950">{item.label}</p>
+              <p className="font-medium text-white">{item.label}</p>
             </NavLink>
           ))}
           <button
             onClick={() => { setMoreMenuOpen(false); handleLogout(); }}
-            className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-100 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/[0.06] w-full text-left"
           >
-            <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
+            <div className="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-white/70" strokeWidth={1.5} />
             </div>
-            <p className="font-medium text-stone-700">{t('common.logout', 'Cerrar sesión')}</p>
+            <p className="font-medium text-white/70">{t('common.logout', 'Cerrar sesión')}</p>
           </button>
         </div>
       </BottomSheet>

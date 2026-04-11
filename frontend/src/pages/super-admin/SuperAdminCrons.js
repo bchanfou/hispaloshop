@@ -38,8 +38,9 @@ export default function SuperAdminCrons() {
   };
 
   const StatusIcon = ({ status }) => {
-    if (status === 'success') return <CheckCircle2 className="w-4 h-4 text-emerald-300" />;
-    if (status === 'failed') return <XCircle className="w-4 h-4 text-red-300" />;
+    // Stone-only per 3.6.5 (contrast via brightness instead of colour).
+    if (status === 'success') return <CheckCircle2 className="w-4 h-4 text-white" />;
+    if (status === 'failed') return <XCircle className="w-4 h-4 text-white/50" />;
     return <Clock className="w-4 h-4 text-white/40" />;
   };
 

@@ -23,9 +23,10 @@ export default function SuperAdminHealth() {
   }, []);
 
   const StatusBadge = ({ ok, warn = false }) => {
-    if (warn) return <span className="inline-flex items-center gap-1 text-xs text-amber-300"><AlertCircle className="w-3.5 h-3.5" /> warning</span>;
-    if (ok) return <span className="inline-flex items-center gap-1 text-xs text-emerald-300"><CheckCircle2 className="w-3.5 h-3.5" /> ok</span>;
-    return <span className="inline-flex items-center gap-1 text-xs text-red-300"><XCircle className="w-3.5 h-3.5" /> down</span>;
+    // 3.6.5: stone shades via brightness, not hue.
+    if (warn) return <span className="inline-flex items-center gap-1 text-xs text-white/70"><AlertCircle className="w-3.5 h-3.5" /> warning</span>;
+    if (ok) return <span className="inline-flex items-center gap-1 text-xs text-white"><CheckCircle2 className="w-3.5 h-3.5" /> ok</span>;
+    return <span className="inline-flex items-center gap-1 text-xs text-white/40"><XCircle className="w-3.5 h-3.5" /> down</span>;
   };
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-white/40 animate-spin" /></div>;
@@ -54,7 +55,7 @@ export default function SuperAdminHealth() {
           {data?.kill_switches_active?.length > 0 ? (
             <>
               <StatusBadge ok={false} warn={true} />
-              <p className="text-xs text-amber-300 mt-2">Activos: {data.kill_switches_active.join(', ')}</p>
+              <p className="text-xs text-white/70 mt-2">Activos: {data.kill_switches_active.join(', ')}</p>
             </>
           ) : (
             <StatusBadge ok={true} />

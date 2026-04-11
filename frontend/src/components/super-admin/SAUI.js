@@ -83,10 +83,11 @@ export function SAKpiCard({ icon: Icon, label, value, sub }) {
 }
 
 export function SeverityBadge({ severity }) {
+  // Stone palette for audit table (protocol 3.6.5: no red/amber in audit badges).
   const map = {
-    info: 'bg-white/[0.08] text-white/70 border-white/[0.12]',
-    warning: 'bg-amber-500/15 text-amber-200 border-amber-500/40',
-    critical: 'bg-red-500/15 text-red-200 border-red-500/40',
+    info: 'bg-white/[0.06] text-white/60 border-white/[0.10]',
+    warning: 'bg-white/[0.10] text-white/80 border-white/[0.18]',
+    critical: 'bg-white/[0.18] text-white border-white/[0.30]',
   };
   const cls = map[severity] || map.info;
   return (

@@ -237,7 +237,7 @@ export default function SuperAdminSupport() {
                     </td>
                     <td className="px-4 py-3 text-white/80">{b.country_code}</td>
                     <td className="px-4 py-3 text-white/60 text-xs">{(b.assigned_admin_id || '—').slice(-8)}</td>
-                    <td className="px-4 py-3 text-red-300">{b.sla_first_response_met === false ? 'first_response' : 'resolution'}</td>
+                    <td className="px-4 py-3 text-white/80">{b.sla_first_response_met === false ? 'first_response' : 'resolution'}</td>
                   </tr>
                 ))}
               </tbody>

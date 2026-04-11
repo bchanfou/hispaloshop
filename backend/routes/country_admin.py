@@ -944,6 +944,17 @@ async def tag_ticket(
     result = await db.support_tickets.update_one(target_query, {"$set": {"tags": tags, "updated_at": datetime.now(timezone.utc).isoformat()}})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    # Section 3.6.5: close audit gap — all mutating endpoints must log to _audit.
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action="support_ticket_tagged",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason="",
+        request=request,
+        extra={"tags": tags},
+    )
     return {"status": "ok", "tags": tags}
 
 

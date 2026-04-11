@@ -6446,7 +6446,11 @@
       "pendingVerifGlobal": "Verifs pendientes",
       "refundRate": "Refund rate",
       "health": "Health",
-      "exchange": "Exchange rates"
+      "exchange": "Exchange rates",
+      "supportGlobal": "Soporte global",
+      "supportNoData": "Top países de tickets",
+      "moderationGlobal": "Moderación global",
+      "fpRate": "Tasa falsos positivos"
     },
     "overview": {
       "title": "Visión global",

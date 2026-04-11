@@ -83,7 +83,7 @@ export default function SuperAdminCountriesComparison() {
                   <td className="px-4 py-3 text-right text-white/80">{r.sellers}</td>
                   <td className="px-4 py-3 text-right text-white/80">{r.refund_rate_pct}%</td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`text-xs px-2 py-0.5 rounded-full border ${r.is_active ? 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40' : 'bg-white/[0.04] text-white/40 border-white/[0.08]'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full border ${r.is_active ? 'bg-white/[0.10] text-white border-white/[0.20]' : 'bg-white/[0.04] text-white/40 border-white/[0.08]'}`}>
                       {r.is_active ? 'active' : 'inactive'}
                     </span>
                   </td>

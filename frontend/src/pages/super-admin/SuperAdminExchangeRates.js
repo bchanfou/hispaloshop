@@ -63,7 +63,7 @@ export default function SuperAdminExchangeRates() {
                 <span className="text-white">{cur}</span>
                 <span className="text-white/40">{vals.before ?? '—'}</span>
                 <span>→</span>
-                <span className="text-emerald-300">{vals.after ?? '—'}</span>
+                <span className="text-white">{vals.after ?? '—'}</span>
               </div>
             ))}
           </div>

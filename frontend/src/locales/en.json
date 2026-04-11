@@ -4732,7 +4732,11 @@
       "pendingVerifGlobal": "Pending verifs",
       "refundRate": "Refund rate",
       "health": "Health",
-      "exchange": "Exchange rates"
+      "exchange": "Exchange rates",
+      "supportGlobal": "Global support",
+      "supportNoData": "Top ticket countries",
+      "moderationGlobal": "Global moderation",
+      "fpRate": "False-positive rate"
     },
     "overview": {
       "title": "Global view",
