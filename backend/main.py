@@ -85,6 +85,7 @@ from routes.admin_verification import router as admin_verification_router
 from routes.country_admin import router as country_admin_router
 from routes.super_admin import router as super_admin_router
 from routes.support_v2 import router as support_v2_router
+from routes.moderation_v2 import router as moderation_v2_router
 from routes.ai import router as ai_router
 from routes.frontend_compat import router as frontend_compat_router
 from routes.rfq import router as rfq_router
@@ -332,6 +333,7 @@ app.include_router(admin_verification_router, prefix="/api", tags=["admin-verifi
 app.include_router(country_admin_router, prefix="/api", tags=["country-admin"])
 app.include_router(super_admin_router, prefix="/api", tags=["super-admin"])
 app.include_router(support_v2_router, prefix="/api", tags=["support-v2"])
+app.include_router(moderation_v2_router, prefix="/api", tags=["moderation-v2"])
 
 # Content Moderation Routes (Fase 24)
 app.include_router(content_moderation_router, prefix="/api", tags=["content-moderation"])

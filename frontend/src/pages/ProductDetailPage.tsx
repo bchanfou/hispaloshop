@@ -9,6 +9,7 @@ import {
   ShoppingBag, Lock, Clock3, ChefHat, Wheat, ThumbsUp, Globe,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import ReportButton from '../components/moderation/ReportButton';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
@@ -403,6 +404,11 @@ export default function ProductDetailPage() {
           </button>
 
           <div className="flex items-center gap-2">
+            {product && (
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100">
+                <ReportButton contentType="product" contentId={product.product_id} contentOwnerId={product.producer_id} />
+              </div>
+            )}
             <button
               type="button"
               onClick={handleShare}

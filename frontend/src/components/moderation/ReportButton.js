@@ -6,25 +6,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
-const REASONS = [{
-  key: 'spam',
-  label: 'Spam o contenido repetitivo'
-}, {
-  key: 'misleading',
-  label: "Información engañosa"
-}, {
-  key: 'offensive',
-  label: 'Contenido ofensivo'
-}, {
-  key: 'fraud',
-  label: 'Fraude o estafa'
-}, {
-  key: 'copyright',
-  label: "Violación de derechos de autor"
-}, {
-  key: 'other',
-  label: 'Otro motivo'
-}];
+// Section 3.5: 13 canonical reason categories. Legacy keys are mapped at submit time.
+const REASONS = [
+  { key: 'spam', label: 'Spam o contenido repetitivo' },
+  { key: 'harassment', label: 'Acoso o bullying' },
+  { key: 'hate_speech', label: 'Discurso de odio' },
+  { key: 'nsfw_adult', label: 'Contenido sexual / desnudez' },
+  { key: 'nsfw_violence', label: 'Violencia gráfica' },
+  { key: 'illegal_content', label: 'Contenido ilegal' },
+  { key: 'misinformation', label: 'Información engañosa' },
+  { key: 'intellectual_property', label: 'Violación de derechos de autor' },
+  { key: 'impersonation', label: 'Suplantación de identidad' },
+  { key: 'personal_info', label: 'Información personal de terceros' },
+  { key: 'food_safety', label: 'Seguridad alimentaria / alérgenos' },
+  { key: 'scam', label: 'Fraude o estafa' },
+  { key: 'other', label: 'Otro motivo' },
+];
 
 /**
  * ReportButton — reusable report trigger.
@@ -47,19 +44,31 @@ export default function ReportButton({
     if (!reason) return;
     setSending(true);
     try {
-      await apiClient.post(`/moderation/report`, {
+      // Section 3.5 endpoint /moderation/reports (was /moderation/report).
+      // Falls back to the legacy path if the new one returns 404 so existing
+      // backends keep working during the rollout.
+      const body = {
         content_type: contentType,
         content_id: contentId,
-        content_owner_id: contentOwnerId,
         reason,
-        description
-      });
+        description: description || undefined,
+      };
+      try {
+        await apiClient.post('/moderation/reports', body);
+      } catch (err1) {
+        if (err1?.response?.status === 404) {
+          await apiClient.post('/moderation/report', { ...body, content_owner_id: contentOwnerId });
+        } else {
+          throw err1;
+        }
+      }
       toast.success('Reporte enviado. Lo revisaremos en breve.');
       setOpen(false);
       setReason('');
       setDescription('');
     } catch (err) {
-      toast.error(err.message || i18n.t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
+      const detail = err?.response?.data?.detail;
+      toast.error(detail || err.message || i18n.t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
     } finally {
       setSending(false);
     }

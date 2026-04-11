@@ -88,6 +88,7 @@ export default function CountryAdminLayout() {
     { to: '/country-admin/verifications', icon: ShieldCheck, label: t('countryAdmin.nav.verifications', 'Verificaciones'), badge: overview?.kpis?.pending_verifications },
     { to: '/country-admin/products', icon: Package, label: t('countryAdmin.nav.products', 'Productos') },
     { to: '/country-admin/users', icon: Users, label: t('countryAdmin.nav.users', 'Usuarios') },
+    { to: '/country-admin/moderation', icon: ShieldCheck, label: t('countryAdmin.nav.moderation', 'Moderación') },
     { to: '/country-admin/support', icon: HeadphonesIcon, label: t('countryAdmin.nav.support', 'Soporte') },
     { to: '/country-admin/audit', icon: ScrollText, label: t('countryAdmin.nav.audit', 'Auditoría') },
     { to: '/country-admin/settings', icon: Settings, label: t('countryAdmin.nav.settings', 'Configuración') },

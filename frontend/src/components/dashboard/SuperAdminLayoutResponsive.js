@@ -57,6 +57,7 @@ export default function SuperAdminLayoutResponsive() {
     { to: '/super-admin/growth', icon: TrendingUp, label: t('superAdmin.nav.growth', 'Crecimiento'), shortLabel: 'Growth' },
     { to: '/super-admin/audit', icon: ScrollText, label: t('superAdmin.nav.audit', 'Auditoría Global'), shortLabel: 'Auditoría' },
     { to: '/super-admin/support', icon: HeadphonesIcon, label: t('superAdmin.nav.support', 'Soporte global'), shortLabel: 'Support' },
+    { to: '/super-admin/moderation', icon: ShieldAlert, label: t('superAdmin.nav.moderation', 'Moderación'), shortLabel: 'Mod' },
     { to: '/super-admin/system/health', icon: Activity, label: t('superAdmin.nav.health', 'Health'), shortLabel: 'Health' },
     { to: '/super-admin/system/crons', icon: Zap, label: t('superAdmin.nav.crons', 'Crons'), shortLabel: 'Crons' },
     { to: '/super-admin/system/exchange-rates', icon: TrendingUp, label: t('superAdmin.nav.exchangeRates', 'Exchange rates'), shortLabel: 'Rates' },

@@ -4472,6 +4472,28 @@
       "other": "기타"
     }
   },
+  "moderation": {
+    "report": "신고",
+    "reportTitle": "콘텐츠 신고",
+    "reasonLabel": "사유",
+    "submit": "신고 보내기",
+    "reportSent": "신고를 보냈습니다. 감사합니다.",
+    "reasons": {
+      "spam": "스팸 또는 반복 콘텐츠",
+      "harassment": "괴롭힘",
+      "hate_speech": "혐오 표현",
+      "nsfw_adult": "성인 / 노출 콘텐츠",
+      "nsfw_violence": "잔혹한 폭력",
+      "illegal_content": "불법 콘텐츠",
+      "misinformation": "허위 정보",
+      "intellectual_property": "저작권 침해",
+      "impersonation": "신원 도용",
+      "personal_info": "타인의 개인 정보",
+      "food_safety": "식품 안전 / 알레르기",
+      "scam": "사기",
+      "other": "기타"
+    }
+  },
   "helpCenter": {
     "title": "고객 지원 센터",
     "subtitle": "자주 묻는 질문에 대한 빠른 답변.",

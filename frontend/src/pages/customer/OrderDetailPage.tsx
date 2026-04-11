@@ -562,9 +562,9 @@ export default function OrderDetailPage() {
                     </div>
                   ) : null}
 
-                  {/* Report problem */}
+                  {/* Report problem (F-1 — section 3.5) */}
                   <button
-                    onClick={() => navigate(`/support/new?order_id=${orderId}`)}
+                    onClick={() => navigate(`/support/new?category=order_issue&order_id=${orderId}`)}
                     className="w-full h-12 bg-white border border-stone-200 rounded-2xl text-sm font-semibold text-stone-950 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <AlertCircle size={16} />

@@ -413,6 +413,45 @@ async def _create_indexes():
     except Exception as exc:
         logger.warning("[SUPPORT] KB seed skipped: %s", exc)
 
+    # Moderation v2 (section 3.5)
+    try:
+        await db.content_reports.create_index([("content_country_code", 1), ("status", 1), ("created_at", -1)])
+        await db.content_reports.create_index([("reporter_user_id", 1), ("created_at", -1)])
+        await db.content_reports.create_index([("content_author_id", 1), ("created_at", -1)])
+        await db.content_reports.create_index([("content_type", 1), ("content_id", 1)])
+        await db.content_reports.create_index([("status", 1), ("priority", -1), ("created_at", -1)])
+        logger.info("  OK: content_reports indexes")
+    except Exception:
+        pass
+    try:
+        await db.moderation_actions.create_index([("target_user_id", 1), ("applied_at", -1)])
+        await db.moderation_actions.create_index([("target_content_id", 1), ("applied_at", -1)])
+        await db.moderation_actions.create_index([("actor_id", 1), ("applied_at", -1)])
+        await db.moderation_actions.create_index([("action_type", 1), ("applied_at", -1)])
+        await db.moderation_actions.create_index("action_id", unique=True)
+        logger.info("  OK: moderation_actions indexes")
+    except Exception:
+        pass
+    try:
+        await db.moderation_appeals.create_index("action_id", unique=True)
+        await db.moderation_appeals.create_index([("appellant_user_id", 1), ("created_at", -1)])
+        await db.moderation_appeals.create_index([("status", 1), ("created_at", -1)])
+        logger.info("  OK: moderation_appeals indexes")
+    except Exception:
+        pass
+    try:
+        await db.user_moderation_state.create_index("user_id", unique=True)
+        logger.info("  OK: user_moderation_state index")
+    except Exception:
+        pass
+    try:
+        # TTL index — Mongo will purge expired counters automatically.
+        await db.rate_limit_counters_v2.create_index("expires_at", expireAfterSeconds=0)
+        await db.rate_limit_counters_v2.create_index([("user_id", 1), ("action", 1)])
+        logger.info("  OK: rate_limit_counters_v2 indexes (TTL)")
+    except Exception:
+        pass
+
     # Country configs — seed if empty
     await db.country_configs.create_index("country_code", unique=True)
     existing = await db.country_configs.count_documents({})

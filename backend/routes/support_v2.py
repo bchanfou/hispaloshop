@@ -248,6 +248,10 @@ async def create_ticket(payload: TicketCreate, user: User = Depends(get_current_
     ticket_id = f"tk_{uuid.uuid4().hex[:14]}"
     ticket_number = await _next_ticket_number()
 
+    # bug_report tickets auto-escalate to super admin (section 3.5 follow-up)
+    auto_escalate = payload.category == "bug_report"
+    initial_status = "escalated" if auto_escalate else ("awaiting_admin" if assigned_admin else "open")
+
     ticket = {
         "ticket_id": ticket_id,
         "ticket_number": ticket_number,
@@ -257,9 +261,12 @@ async def create_ticket(payload: TicketCreate, user: User = Depends(get_current_
         "subject": payload.subject.strip(),
         "category": payload.category,
         "priority": priority,
-        "status": "awaiting_admin" if assigned_admin else "open",
+        "status": initial_status,
+        "escalated_to_super_admin": auto_escalate,
+        "escalation_reason": "Auto: bug_report category" if auto_escalate else None,
+        "escalated_at": now_iso if auto_escalate else None,
         "country_code": country_code,
-        "assigned_admin_id": assigned_admin,
+        "assigned_admin_id": assigned_admin if not auto_escalate else None,
         "created_at": now_iso,
         "updated_at": now_iso,
         "first_response_at": None,
@@ -269,8 +276,6 @@ async def create_ticket(payload: TicketCreate, user: User = Depends(get_current_
         "sla_resolution_due": sla["sla_resolution_due"],
         "sla_first_response_met": None,
         "sla_resolution_met": None,
-        "escalated_to_super_admin": False,
-        "escalation_reason": None,
         "related_order_id": payload.related_order_id,
         "related_product_id": payload.related_product_id,
         "related_b2b_operation_id": payload.related_b2b_operation_id,

@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus, ShoppingBag } from 'lucide-react';
+import ReportButton from '../moderation/ReportButton';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import apiClient from '../../services/api/client';
@@ -499,19 +500,9 @@ function PostCardInner({
           }}>
                   <UserMinus size={16} /> Dejar de seguir
                 </button>
-                <button className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left" onClick={async () => {
-            try {
-              await apiClient.post(`/posts/${post.id}/report`, {
-                reason: 'inappropriate'
-              });
-              toast.success('Reporte enviado');
-            } catch (err) {
-              toast.error('Error al reportar');
-            }
-            setShowMenu(false);
-          }}>
-                  <Flag size={16} /> Reportar
-                </button>
+                <div className="px-4 py-2">
+                  <ReportButton contentType="post" contentId={post.id} contentOwnerId={user?.id || user?.user_id} />
+                </div>
               </>}
           </div>
         </>}
