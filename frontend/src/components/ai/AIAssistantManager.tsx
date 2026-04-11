@@ -19,7 +19,7 @@ const HispalAI = React.lazy(() => import('./HispalAI'));
 const RebecaAI = React.lazy(() => import('./RebecaAI'));
 
 /* ── Constants ── */
-const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup', '/country-admin', '/importer'];
+const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup', '/country-admin', '/importer', '/influencer'];
 const BUTTON_SIZE = 56;
 const BUTTON_GAP = 12;
 const RETRACT_DELAY = 30000; // 30s

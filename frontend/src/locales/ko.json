@@ -1355,7 +1355,41 @@
     "backToStore": "ìƒì ìœ¼ë¡œ ëŒì•„ê°€ê¸°",
     "loadError": "ëŒ€ì‹œë³´ë“œ ë¡œë”© ì˜¤ë¥˜",
     "codeCopied": "ì½”ë“œê°€ ë³µì‚¬ë˜ì—ˆìŠµë‹ˆë‹¤!",
-    "stripeError": "Stripe ì—°ê²° ì˜¤ë¥˜"
+    "stripeError": "Stripe ì—°ê²° ì˜¤ë¥˜",
+    "layout": {
+      "header": {
+        "title": "인플루언서 대시보드",
+        "thisMonth": "이번 달",
+        "logout": "로그아웃",
+        "tierBadge": {
+          "hercules": "헤라클레스",
+          "atenea": "아테나",
+          "zeus": "제우스"
+        }
+      },
+      "sidebar": {
+        "dashboard": "대시보드",
+        "links": "내 링크",
+        "insights": "인사이트",
+        "commissions": "수수료",
+        "payouts": "지급",
+        "discountCode": "내 할인 코드",
+        "aiAssistant": "페드로 AI",
+        "publicProfile": "내 공개 프로필",
+        "education": "교육",
+        "fiscalSetup": "세금 설정",
+        "settings": "설정"
+      },
+      "tier": {
+        "progressLabel": "다음 등급",
+        "nextLevel": "{{tier}}까지 {{n}}건 더"
+      },
+      "mobile": {
+        "more": "더보기"
+      },
+      "accessDenied": "액세스가 거부되었습니다. 인플루언서 계정이 필요합니다.",
+      "openChat": "채팅 열기"
+    }
   },
   "ai": {
     "greeting": "ì•ˆë…•í•˜ì„¸ìš”! ì €ëŠ” David AI, ë‹¹ì‹ ì˜ ê°œì¸ ì‡¼í•‘ ì–´ì‹œìŠ¤í„´íŠ¸ìž…ë‹ˆë‹¤. ì˜¤ëŠ˜ ë¬´ì—‡ì„ ì°¾ìœ¼ì‹œë‚˜ìš”?",

@@ -1523,7 +1523,41 @@
     "backToStore": "Back to store",
     "loadError": "Error loading dashboard",
     "codeCopied": "Code copied!",
-    "stripeError": "Error connecting to Stripe"
+    "stripeError": "Error connecting to Stripe",
+    "layout": {
+      "header": {
+        "title": "Influencer Dashboard",
+        "thisMonth": "This month",
+        "logout": "Log out",
+        "tierBadge": {
+          "hercules": "Hercules",
+          "atenea": "Athena",
+          "zeus": "Zeus"
+        }
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "links": "My Links",
+        "insights": "Insights",
+        "commissions": "Commissions",
+        "payouts": "Payouts",
+        "discountCode": "My discount code",
+        "aiAssistant": "Pedro AI",
+        "publicProfile": "My public profile",
+        "education": "Education",
+        "fiscalSetup": "Tax setup",
+        "settings": "Settings"
+      },
+      "tier": {
+        "progressLabel": "Next tier",
+        "nextLevel": "{{n}} more sales for {{tier}}"
+      },
+      "mobile": {
+        "more": "More"
+      },
+      "accessDenied": "Access denied. Influencer account required.",
+      "openChat": "Open chat"
+    }
   },
   "ai": {
     "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",

@@ -1262,7 +1262,41 @@
     "backToStore": "Volver a la tienda",
     "loadError": "Error al cargar el dashboard",
     "codeCopied": "¡Código copiado!",
-    "stripeError": "Error al conectar con Stripe"
+    "stripeError": "Error al conectar con Stripe",
+    "layout": {
+      "header": {
+        "title": "Panel Influencer",
+        "thisMonth": "Este mes",
+        "logout": "Cerrar sesión",
+        "tierBadge": {
+          "hercules": "Hércules",
+          "atenea": "Atenea",
+          "zeus": "Zeus"
+        }
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "links": "Mis Links",
+        "insights": "Insights",
+        "commissions": "Comisiones",
+        "payouts": "Cobros",
+        "discountCode": "Mi código de descuento",
+        "aiAssistant": "Pedro AI",
+        "publicProfile": "Mi perfil público",
+        "education": "Educación",
+        "fiscalSetup": "Datos fiscales",
+        "settings": "Configuración"
+      },
+      "tier": {
+        "progressLabel": "Siguiente nivel",
+        "nextLevel": "{{n}} ventas más para {{tier}}"
+      },
+      "mobile": {
+        "more": "Más"
+      },
+      "accessDenied": "Acceso denegado. Se requiere cuenta de influencer.",
+      "openChat": "Abrir chat"
+    }
   },
   "ai": {
     "greeting": "Hola! Soy David AI, tu asistente personal de compras. Qu buscas hoy",

@@ -894,79 +894,32 @@ function AppRouter() {
                 <Route path="support" element={<CustomerSupport />} />
               </Route>
 
+              {/* Section 3.6.3b — all /influencer/* pages now nest under
+                  InfluencerLayoutResponsive (sidebar + identity + TierBadge).
+                  Dropped items in 3.6.3b: commissions, discount-code,
+                  ai-assistant, education — target pages do not exist. */}
               <Route
-                path="/influencer/dashboard"
+                path="/influencer"
                 element={(
                   <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <InfluencerDashboard />
-                    </InfluencerLayoutResponsive>
+                    <InfluencerLayoutResponsive />
                   </ProtectedRoute>
                 )}
-              />
-              <Route
-                path="/influencer/insights"
-                element={(
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <InfluencerInsights />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                )}
-              />
-              <Route path="/influencer/opportunities" element={<Navigate to="/influencer/dashboard" replace />} />
-              <Route
-                path="/influencer/links"
-                element={
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <AffiliateLinksPage />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/influencer/payouts"
-                element={
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <PayoutsPage />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/influencer/fiscal-setup"
-                element={
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <FiscalSetupPage />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/influencer/withdraw"
-                element={
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <WithdrawalPage />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/influencer/earnings" element={<Navigate to="/influencer/payouts" replace />} />
-              <Route path="/influencer/perks" element={<Navigate to="/influencer/dashboard" replace />} />
-              <Route
-                path="/influencer/stripe-connect"
-                element={(
-                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
-                    <InfluencerLayoutResponsive>
-                      <InfluencerDashboard />
-                    </InfluencerLayoutResponsive>
-                  </ProtectedRoute>
-                )}
-              />
+              >
+                <Route index element={<Navigate to="/influencer/dashboard" replace />} />
+                <Route path="dashboard" element={<InfluencerDashboard />} />
+                <Route path="insights" element={<InfluencerInsights />} />
+                <Route path="links" element={<AffiliateLinksPage />} />
+                <Route path="payouts" element={<PayoutsPage />} />
+                <Route path="fiscal-setup" element={<FiscalSetupPage />} />
+                <Route path="withdraw" element={<WithdrawalPage />} />
+                {/* Legacy aliases — kept inside the nested block so they
+                    inherit the layout chrome. */}
+                <Route path="opportunities" element={<Navigate to="/influencer/dashboard" replace />} />
+                <Route path="earnings" element={<Navigate to="/influencer/payouts" replace />} />
+                <Route path="perks" element={<Navigate to="/influencer/dashboard" replace />} />
+                <Route path="stripe-connect" element={<InfluencerDashboard />} />
+              </Route>
 
               <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
