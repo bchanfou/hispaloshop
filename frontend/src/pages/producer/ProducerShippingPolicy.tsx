@@ -65,7 +65,7 @@ export default function ProducerShippingPolicy() {
     }
   };
   if (loading) {
-    return <div className="py-10 text-center text-stone-500">Cargando...</div>;
+    return <div className="py-10 text-center text-stone-500">{i18n.t('common.loading', 'Cargando...')}</div>;
   }
   return <div className="max-w-2xl space-y-6">
       <div>

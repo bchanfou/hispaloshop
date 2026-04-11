@@ -36,6 +36,7 @@ function KpiCard({
     </div>;
 }
 export default function ProducerInsights() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
@@ -104,10 +105,10 @@ export default function ProducerInsights() {
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {loading ? <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-stone-400">Cargando…</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-stone-400">{t('common.loading', 'Cargando…')}</td>
                   </tr> : products.length === 0 ? <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-sm text-stone-400">
-                      Sin datos para este período
+                      {t('producer_insights.sinDatosParaEstePeriodo', 'Sin datos para este período')}
                     </td>
                   </tr> : products.map(p => <tr key={p.product_id} className="hover:bg-stone-50">
                       <td className="px-4 py-3">

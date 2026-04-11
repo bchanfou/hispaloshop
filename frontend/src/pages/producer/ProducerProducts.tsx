@@ -1608,7 +1608,7 @@ export default function ProducerProducts() {
             <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
           </button>
           {isBlocked && (
-            <div className="absolute right-0 top-full mt-1 px-3 py-1.5 text-xs text-white bg-stone-800 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+            <div className="absolute right-0 top-full mt-1 px-3 py-1.5 text-xs text-white bg-stone-800 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
               {t('producerProducts.verifyFirst', 'Verifica tu cuenta primero')}
             </div>
           )}

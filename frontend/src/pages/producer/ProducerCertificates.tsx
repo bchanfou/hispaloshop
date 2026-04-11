@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle, Upload, FileText, Info, Check, Save, Send, AlertCircle, Eye, ExternalLink, Leaf, Sprout, Wheat, Handshake, MapPin, Dna, ClipboardList } from 'lucide-react';
+import { FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle, Upload, FileText, Info, Check, Save, Send, AlertCircle, Eye, ExternalLink, Leaf, Sprout, Wheat, Handshake, MapPin, Dna, ClipboardList, BadgeCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 
@@ -21,11 +21,11 @@ const CERTIFICATE_TYPES = [{
 }, {
   id: 'halal',
   label: 'Halal',
-  emoji: '☪️'
+  Icon: BadgeCheck
 }, {
   id: 'kosher',
   label: 'Kosher',
-  emoji: '✡️'
+  Icon: BadgeCheck
 }, {
   id: 'fairTrade',
   label: 'Comercio Justo',
@@ -295,7 +295,7 @@ export default function ProducerCertificates() {
                   ...formData,
                   certificate_type: type.id
                 })} className={`p-4 rounded-2xl border-2 transition-all text-left ${formData.certificate_type === type.id ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-200'}`} data-testid={`cert-type-${type.id}`}>
-                          <span className="mb-2 block">{type.Icon ? <type.Icon size={24} className="text-stone-600" /> : <span className="text-2xl">{type.emoji}</span>}</span>
+                          <span className="mb-2 block">{type.Icon ? <type.Icon size={24} className="text-stone-600" /> : <BadgeCheck size={24} className="text-stone-600" />}</span>
                           <span className="font-medium text-sm text-stone-950">{type.label}</span>
                         </button>)}
                     </div>

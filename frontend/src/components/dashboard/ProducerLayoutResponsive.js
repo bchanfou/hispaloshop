@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
   User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award, BarChart3,
   TrendingUp, Crown, Search, Globe, Bell, Handshake,
-  Truck, Users, Megaphone, MessageCircle
+  Truck, Megaphone, MessageCircle
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +53,6 @@ export default function ProducerLayout() {
     { to: '/producer/insights', icon: BarChart3, label: 'Insights', shortLabel: 'Insights' },
     { to: '/producer/analytics', icon: TrendingUp, label: t('producer_analytics.analitica', 'Analitica'), shortLabel: 'Analitica' },
     { to: '/producer/shipping', icon: Truck, label: t('producer_layout.shipping', 'Envios'), shortLabel: 'Envios' },
-    { to: '/producer/community', icon: Users, label: t('producer_layout.community', 'Comunidad'), shortLabel: 'Comunidad' },
     { to: '/producer/plan', icon: Crown, label: 'Mi Plan', shortLabel: 'Plan' },
     { to: '/producer/promotion', icon: Megaphone, label: t('producer_layout.promotion', 'Promocion'), shortLabel: 'Promo' },
     { to: '/settings', icon: Settings, label: t('common.settings', 'Configuracion'), shortLabel: 'Config' },
