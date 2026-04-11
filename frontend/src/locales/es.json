@@ -6334,5 +6334,85 @@
     "start": "Empezar a actuar",
     "started": "Actuando como {{c}}",
     "stopped": "Vuelta a super admin"
+  },
+  "support": {
+    "new": {
+      "title": "Nuevo ticket de soporte",
+      "subtitle": "Describe el problema y nuestro equipo te responderá lo antes posible."
+    },
+    "tickets": {
+      "title": "Mis tickets",
+      "subtitle": "Historial de tus solicitudes de soporte.",
+      "new": "Nuevo ticket",
+      "empty": "No tienes tickets de soporte todavía."
+    },
+    "category": "Categoría",
+    "subject": "Asunto",
+    "subjectPh": "Resumen breve del problema",
+    "subjectShort": "El asunto es muy corto",
+    "description": "Descripción",
+    "descriptionPh": "Explica qué pasó, cuándo, qué esperabas...",
+    "bodyShort": "Describe el problema con más detalle",
+    "linkedOrder": "Pedido relacionado",
+    "submit": "Enviar ticket",
+    "created": "Ticket creado",
+    "error": "No se pudo crear el ticket",
+    "send": "Enviar",
+    "sendError": "Error enviando mensaje",
+    "replyPh": "Escribe tu respuesta...",
+    "notFound": "Ticket no encontrado",
+    "closedHint": "Cerrado. Puedes reabrirlo dentro de 30 días si el problema persiste.",
+    "reopen": "Reabrir",
+    "reopened": "Ticket reabierto",
+    "reopenError": "No se pudo reabrir",
+    "relatedArticles": "Artículos relacionados",
+    "aiThinking": "Analizando...",
+    "aiHint": "Escribe al menos 200 caracteres y te sugerimos artículos.",
+    "selfResolveTitle": "¿Esto te ayuda?",
+    "selfResolveBody": "Antes de abrir un ticket, échale un ojo al primer artículo recomendado. Suele resolver casos similares.",
+    "csat": {
+      "title": "¿Cómo fue la atención?",
+      "subtitle": "Tu valoración nos ayuda a mejorar.",
+      "commentPh": "Comentario opcional..."
+    },
+    "csatThanks": "Gracias por tu valoración",
+    "csatError": "Error enviando valoración",
+    "cat": {
+      "order_issue": "Problema con pedido",
+      "payment_issue": "Problema con pago",
+      "account_issue": "Cuenta o login",
+      "fiscal_issue": "Fiscal / facturas",
+      "product_complaint": "Queja sobre un producto",
+      "seller_dispute": "Disputa con vendedor",
+      "b2b_operation": "Operación B2B",
+      "feature_request": "Sugerencia",
+      "bug_report": "Bug del producto",
+      "other": "Otro"
+    },
+    "status": {
+      "open": "abierto",
+      "awaiting_admin": "esperando admin",
+      "awaiting_user": "esperando respuesta",
+      "in_progress": "en progreso",
+      "escalated": "escalado",
+      "resolved": "resuelto",
+      "closed": "cerrado",
+      "reopened": "reabierto"
+    }
+  },
+  "helpCenter": {
+    "title": "Centro de ayuda",
+    "subtitle": "Respuestas rápidas a las preguntas más comunes.",
+    "searchPh": "Busca un artículo...",
+    "noArticles": "No se encontraron artículos.",
+    "stillNeedHelp": "¿Aún tienes dudas?",
+    "openTicket": "Crear un ticket",
+    "back": "Volver al centro de ayuda",
+    "notFound": "Artículo no encontrado",
+    "roleAll": "Todos",
+    "roleCustomer": "Soy customer",
+    "roleProducer": "Soy seller",
+    "roleImporter": "Soy importer",
+    "roleInfluencer": "Soy influencer"
   }
 }

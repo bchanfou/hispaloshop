@@ -4620,5 +4620,85 @@
     "start": "Start acting",
     "started": "Acting as {{c}}",
     "stopped": "Back to super admin"
+  },
+  "support": {
+    "new": {
+      "title": "New support ticket",
+      "subtitle": "Describe the issue and our team will get back to you as soon as possible."
+    },
+    "tickets": {
+      "title": "My tickets",
+      "subtitle": "History of your support requests.",
+      "new": "New ticket",
+      "empty": "You have no support tickets yet."
+    },
+    "category": "Category",
+    "subject": "Subject",
+    "subjectPh": "Brief summary of the issue",
+    "subjectShort": "Subject is too short",
+    "description": "Description",
+    "descriptionPh": "Explain what happened, when, what you expected...",
+    "bodyShort": "Describe the issue in more detail",
+    "linkedOrder": "Linked order",
+    "submit": "Submit ticket",
+    "created": "Ticket created",
+    "error": "Could not create ticket",
+    "send": "Send",
+    "sendError": "Error sending message",
+    "replyPh": "Type your reply...",
+    "notFound": "Ticket not found",
+    "closedHint": "Closed. You can reopen within 30 days if the issue persists.",
+    "reopen": "Reopen",
+    "reopened": "Ticket reopened",
+    "reopenError": "Could not reopen",
+    "relatedArticles": "Related articles",
+    "aiThinking": "Analyzing...",
+    "aiHint": "Write at least 200 characters and we will suggest articles.",
+    "selfResolveTitle": "Does this help?",
+    "selfResolveBody": "Before opening a ticket, take a look at the first recommended article. It often solves similar cases.",
+    "csat": {
+      "title": "How was the support?",
+      "subtitle": "Your rating helps us improve.",
+      "commentPh": "Optional comment..."
+    },
+    "csatThanks": "Thanks for your feedback",
+    "csatError": "Error submitting rating",
+    "cat": {
+      "order_issue": "Order issue",
+      "payment_issue": "Payment issue",
+      "account_issue": "Account or login",
+      "fiscal_issue": "Fiscal / invoices",
+      "product_complaint": "Product complaint",
+      "seller_dispute": "Seller dispute",
+      "b2b_operation": "B2B operation",
+      "feature_request": "Feature request",
+      "bug_report": "Bug report",
+      "other": "Other"
+    },
+    "status": {
+      "open": "open",
+      "awaiting_admin": "awaiting admin",
+      "awaiting_user": "awaiting reply",
+      "in_progress": "in progress",
+      "escalated": "escalated",
+      "resolved": "resolved",
+      "closed": "closed",
+      "reopened": "reopened"
+    }
+  },
+  "helpCenter": {
+    "title": "Help center",
+    "subtitle": "Quick answers to the most common questions.",
+    "searchPh": "Search articles...",
+    "noArticles": "No articles found.",
+    "stillNeedHelp": "Still need help?",
+    "openTicket": "Open a ticket",
+    "back": "Back to help center",
+    "notFound": "Article not found",
+    "roleAll": "All",
+    "roleCustomer": "I'm a customer",
+    "roleProducer": "I'm a seller",
+    "roleImporter": "I'm an importer",
+    "roleInfluencer": "I'm an influencer"
   }
 }

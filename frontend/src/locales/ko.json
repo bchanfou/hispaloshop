@@ -4457,5 +4457,34 @@
       "q3": "주간 보고서 요약을 주세요",
       "q4": "어느 판매자의 SLA가 가장 나쁘나요?"
     }
+  },
+  "support": {
+    "cat": {
+      "order_issue": "주문 문제",
+      "payment_issue": "결제 문제",
+      "account_issue": "계정 또는 로그인",
+      "fiscal_issue": "세금 / 청구서",
+      "product_complaint": "상품 불만",
+      "seller_dispute": "판매자 분쟁",
+      "b2b_operation": "B2B 운영",
+      "feature_request": "기능 요청",
+      "bug_report": "버그 신고",
+      "other": "기타"
+    }
+  },
+  "helpCenter": {
+    "title": "고객 지원 센터",
+    "subtitle": "자주 묻는 질문에 대한 빠른 답변.",
+    "searchPh": "기사 검색...",
+    "noArticles": "기사를 찾을 수 없습니다.",
+    "stillNeedHelp": "더 도움이 필요하신가요?",
+    "openTicket": "티켓 만들기",
+    "back": "고객 지원 센터로 돌아가기",
+    "notFound": "기사를 찾을 수 없음",
+    "roleAll": "전체",
+    "roleCustomer": "고객입니다",
+    "roleProducer": "판매자입니다",
+    "roleImporter": "수입자입니다",
+    "roleInfluencer": "인플루언서입니다"
   }
 }

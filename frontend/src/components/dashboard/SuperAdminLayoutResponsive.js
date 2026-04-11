@@ -5,7 +5,7 @@ import {
   Shield, ArrowLeft, LogOut, Users, BarChart3,
   TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert,
   Zap, Lock, Settings, Receipt, ScrollText, Activity, Power, FileText,
-  AlertOctagon, X, Sparkles
+  AlertOctagon, X, Sparkles, HeadphonesIcon
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
@@ -56,6 +56,7 @@ export default function SuperAdminLayoutResponsive() {
     { to: '/super-admin/finance/ledger', icon: FileText, label: t('superAdmin.nav.ledger', 'Ledger global'), shortLabel: 'Ledger' },
     { to: '/super-admin/growth', icon: TrendingUp, label: t('superAdmin.nav.growth', 'Crecimiento'), shortLabel: 'Growth' },
     { to: '/super-admin/audit', icon: ScrollText, label: t('superAdmin.nav.audit', 'Auditoría Global'), shortLabel: 'Auditoría' },
+    { to: '/super-admin/support', icon: HeadphonesIcon, label: t('superAdmin.nav.support', 'Soporte global'), shortLabel: 'Support' },
     { to: '/super-admin/system/health', icon: Activity, label: t('superAdmin.nav.health', 'Health'), shortLabel: 'Health' },
     { to: '/super-admin/system/crons', icon: Zap, label: t('superAdmin.nav.crons', 'Crons'), shortLabel: 'Crons' },
     { to: '/super-admin/system/exchange-rates', icon: TrendingUp, label: t('superAdmin.nav.exchangeRates', 'Exchange rates'), shortLabel: 'Rates' },

@@ -697,22 +697,396 @@ async def unsuspend_user(
 
 @router.get("/country-admin/support/tickets")
 async def list_support_tickets(
-    status: str = "open",
+    status: Optional[str] = None,
+    priority: Optional[str] = None,
+    category: Optional[str] = None,
+    search: Optional[str] = None,
     limit: int = 50,
+    offset: int = 0,
     user: User = Depends(get_current_user),
 ):
     country = await require_country_admin(user)
     query: dict = {}
-    if status in ("open", "in_progress", "resolved", "closed"):
-        query["status"] = status
     if country:
         query["country_code"] = country
-
+    if status:
+        query["status"] = status
+    if priority:
+        query["priority"] = priority
+    if category:
+        query["category"] = category
+    if search:
+        query["$or"] = [
+            {"subject": {"$regex": search, "$options": "i"}},
+            {"ticket_number": {"$regex": search, "$options": "i"}},
+        ]
+    limit = min(200, max(1, limit))
     try:
-        items = await db.support_tickets.find(query, {"_id": 0}).sort("created_at", -1).limit(min(200, max(1, limit))).to_list(200)
+        total = await db.support_tickets.count_documents(query)
+        items = await db.support_tickets.find(query, {"_id": 0}).sort("updated_at", -1).skip(max(0, offset)).limit(limit).to_list(limit)
     except Exception:
-        items = []
-    return {"items": items, "total": len(items), "wired_in": "3.4"}
+        items, total = [], 0
+    return {"items": items, "total": total, "limit": limit, "offset": offset}
+
+
+@router.get("/country-admin/support/tickets/{ticket_id}")
+async def get_support_ticket(ticket_id: str, user: User = Depends(get_current_user)):
+    country = await require_country_admin(user)
+    target_query: dict = {"ticket_id": ticket_id}
+    if country:
+        target_query["country_code"] = country
+    ticket = await db.support_tickets.find_one(target_query, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    messages = await db.support_messages.find({"ticket_id": ticket_id}, {"_id": 0}).sort("created_at", 1).to_list(500)
+    # Mark user messages as read by admin
+    await db.support_messages.update_many(
+        {"ticket_id": ticket_id, "sender_role": "user", "read_by_admin": False},
+        {"$set": {"read_by_admin": True}},
+    )
+    # User snapshot for the sidebar
+    user_doc = await db.users.find_one(
+        {"user_id": ticket.get("user_id")},
+        {"_id": 0, "user_id": 1, "name": 1, "email": 1, "role": 1, "country": 1, "picture": 1, "created_at": 1},
+    )
+    history_count = await db.support_tickets.count_documents({"user_id": ticket.get("user_id")})
+    return {"ticket": ticket, "messages": messages, "user_snapshot": user_doc, "user_ticket_count": history_count}
+
+
+@router.post("/country-admin/support/tickets/{ticket_id}/messages")
+async def admin_add_message(
+    ticket_id: str,
+    body: dict,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    country = await require_country_admin(user)
+    target_query: dict = {"ticket_id": ticket_id}
+    if country:
+        target_query["country_code"] = country
+    ticket = await db.support_tickets.find_one(target_query, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+
+    text = ((body or {}).get("body") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Mensaje vacío")
+    is_internal = bool((body or {}).get("is_internal_note", False))
+    mark_status = (body or {}).get("mark_status")
+
+    # Validate attachments inline
+    raw_atts = (body or {}).get("attachments") or []
+    cleaned_atts: list = []
+    for a in raw_atts[:5]:
+        ct = (a.get("content_type") or "").lower()
+        size = int(a.get("size") or 0)
+        if ct not in {"image/jpeg", "image/png", "application/pdf"}:
+            raise HTTPException(status_code=400, detail="Tipo de archivo no permitido")
+        if size <= 0 or size > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Adjunto excede 5MB")
+        cleaned_atts.append({"url": a.get("url", ""), "filename": a.get("filename", ""),
+                             "size": size, "content_type": ct})
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    msg = {
+        "message_id": f"msg_{uuid.uuid4().hex[:14]}",
+        "ticket_id": ticket_id,
+        "sender_id": user.user_id,
+        "sender_role": "admin",
+        "body": text,
+        "attachments": cleaned_atts,
+        "created_at": now_iso,
+        "read_by_user": False,
+        "read_by_admin": True,
+        "is_internal_note": is_internal,
+    }
+    await db.support_messages.insert_one(msg)
+
+    update: dict = {"updated_at": now_iso}
+    if not ticket.get("first_response_at") and not is_internal:
+        update["first_response_at"] = now_iso
+        # SLA met evaluation
+        try:
+            due_dt = datetime.fromisoformat(str(ticket.get("sla_first_response_due", "")).replace("Z", "+00:00"))
+            now_dt = datetime.now(timezone.utc)
+            update["sla_first_response_met"] = bool(now_dt <= due_dt)
+        except Exception:
+            update["sla_first_response_met"] = True
+    if mark_status in ("in_progress", "awaiting_user", "resolved"):
+        update["status"] = mark_status
+        if mark_status == "resolved":
+            update["resolved_at"] = now_iso
+            try:
+                due_dt = datetime.fromisoformat(str(ticket.get("sla_resolution_due", "")).replace("Z", "+00:00"))
+                update["sla_resolution_met"] = bool(datetime.now(timezone.utc) <= due_dt)
+            except Exception:
+                update["sla_resolution_met"] = True
+    elif not is_internal:
+        update["status"] = "awaiting_user"
+    await db.support_tickets.update_one({"ticket_id": ticket_id}, {"$set": update})
+
+    # Notify user (only for non-internal messages)
+    if not is_internal:
+        try:
+            from services.notifications.dispatcher_service import notification_dispatcher
+            await notification_dispatcher.send_notification(
+                user_id=ticket.get("user_id", ""),
+                title="Nueva respuesta de soporte",
+                body=f"#{ticket['ticket_number']} · {text[:80]}",
+                notification_type="support_ticket_replied_admin" if mark_status != "resolved" else "support_ticket_resolved",
+                channels=["in_app", "push", "email"],
+                data={"ticket_id": ticket_id},
+                action_url=f"/support/tickets/{ticket_id}",
+            )
+        except Exception:
+            pass
+
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action=f"support_message_{'internal' if is_internal else 'admin'}",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason=mark_status or "",
+        request=request,
+    )
+    return {"status": "ok", "message_id": msg["message_id"]}
+
+
+@router.post("/country-admin/support/tickets/{ticket_id}/escalate")
+async def escalate_ticket(
+    ticket_id: str,
+    body: dict,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    country = await require_country_admin(user)
+    reason = ((body or {}).get("reason") or "").strip()
+    if len(reason) < 30:
+        raise HTTPException(status_code=400, detail="Razón mínimo 30 caracteres")
+    target_query: dict = {"ticket_id": ticket_id}
+    if country:
+        target_query["country_code"] = country
+    ticket = await db.support_tickets.find_one(target_query, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.support_tickets.update_one(
+        {"ticket_id": ticket_id},
+        {"$set": {
+            "status": "escalated",
+            "escalated_to_super_admin": True,
+            "escalation_reason": reason,
+            "escalated_at": now_iso,
+            "escalated_by": user.user_id,
+            "updated_at": now_iso,
+        }},
+    )
+    # Audit
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action="support_ticket_escalated",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason=reason,
+        request=request,
+    )
+    return {"status": "escalated"}
+
+
+@router.post("/country-admin/support/tickets/{ticket_id}/close")
+async def close_ticket(
+    ticket_id: str,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    country = await require_country_admin(user)
+    target_query: dict = {"ticket_id": ticket_id}
+    if country:
+        target_query["country_code"] = country
+    ticket = await db.support_tickets.find_one(target_query, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.support_tickets.update_one(
+        {"ticket_id": ticket_id},
+        {"$set": {"status": "closed", "closed_at": now_iso, "updated_at": now_iso}},
+    )
+    await _audit(
+        admin_user_id=user.user_id,
+        country_code=country,
+        action="support_ticket_closed",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason="manual_close",
+        request=request,
+    )
+    return {"status": "closed"}
+
+
+@router.post("/country-admin/support/tickets/{ticket_id}/tag")
+async def tag_ticket(
+    ticket_id: str,
+    body: dict,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    country = await require_country_admin(user)
+    tags = (body or {}).get("tags", [])
+    if not isinstance(tags, list):
+        raise HTTPException(status_code=400, detail="tags must be a list")
+    tags = [str(t)[:30] for t in tags][:10]
+    target_query: dict = {"ticket_id": ticket_id}
+    if country:
+        target_query["country_code"] = country
+    result = await db.support_tickets.update_one(target_query, {"$set": {"tags": tags, "updated_at": datetime.now(timezone.utc).isoformat()}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    return {"status": "ok", "tags": tags}
+
+
+@router.get("/country-admin/support/metrics")
+async def support_metrics(period: str = "30d", user: User = Depends(get_current_user)):
+    country = await require_country_admin(user)
+    days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 30)
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    base_query: dict = {"created_at": {"$gte": cutoff}}
+    if country:
+        base_query["country_code"] = country
+
+    open_query = dict(base_query)
+    open_query["status"] = {"$in": ["open", "awaiting_admin", "in_progress", "awaiting_user", "reopened"]}
+    open_count = await db.support_tickets.count_documents(open_query)
+
+    sla_at_risk_query = dict(base_query)
+    sla_at_risk_query["first_response_at"] = None
+    sla_at_risk_query["sla_first_response_due"] = {"$lt": datetime.now(timezone.utc).isoformat()}
+    sla_at_risk = await db.support_tickets.count_documents(sla_at_risk_query)
+
+    resolved_query = dict(base_query)
+    resolved_query["status"] = {"$in": ["resolved", "closed"]}
+    resolved_count = await db.support_tickets.count_documents(resolved_query)
+
+    # Average first response time (in minutes), for tickets that have first_response_at
+    fr_query = dict(base_query)
+    fr_query["first_response_at"] = {"$ne": None}
+    fr_tickets = await db.support_tickets.find(fr_query, {"_id": 0, "created_at": 1, "first_response_at": 1}).limit(2000).to_list(2000)
+    diffs = []
+    for t in fr_tickets:
+        try:
+            c = datetime.fromisoformat(str(t["created_at"]).replace("Z", "+00:00"))
+            f = datetime.fromisoformat(str(t["first_response_at"]).replace("Z", "+00:00"))
+            diffs.append((f - c).total_seconds() / 60)
+        except Exception:
+            continue
+    avg_first_response_minutes = round(sum(diffs) / len(diffs), 1) if diffs else None
+
+    # CSAT
+    csat_query: dict = {"created_at": {"$gte": cutoff}}
+    if country:
+        csat_query["country_code"] = country
+    csat_docs = await db.support_csat.find(csat_query, {"_id": 0, "rating": 1}).to_list(2000)
+    csat_avg = round(sum(c["rating"] for c in csat_docs) / len(csat_docs), 2) if csat_docs else None
+
+    # By category breakdown
+    by_category_pipeline = [
+        {"$match": base_query},
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ]
+    try:
+        by_category = await db.support_tickets.aggregate(by_category_pipeline).to_list(20)
+    except Exception:
+        by_category = []
+
+    return {
+        "period": period,
+        "open_count": open_count,
+        "sla_at_risk": sla_at_risk,
+        "resolved_count": resolved_count,
+        "avg_first_response_minutes": avg_first_response_minutes,
+        "csat_avg": csat_avg,
+        "by_category": by_category,
+    }
+
+
+# ── Knowledge base management (country admin + super admin) ──────────────
+
+@router.get("/country-admin/support/articles")
+async def list_articles_admin(
+    category: Optional[str] = None,
+    role: Optional[str] = None,
+    limit: int = 100,
+    user: User = Depends(get_current_user),
+):
+    await require_country_admin(user)  # super_admin OK too
+    query: dict = {}
+    if category:
+        query["category"] = category
+    if role:
+        query["role_target"] = role
+    items = await db.support_articles.find(query, {"_id": 0}).sort("updated_at", -1).limit(min(200, max(1, limit))).to_list(200)
+    return {"items": items}
+
+
+@router.post("/country-admin/support/articles")
+async def create_article(body: dict, request: Request, user: User = Depends(get_current_user)):
+    await require_country_admin(user)
+    slug = ((body or {}).get("slug") or "").strip().lower()
+    if not slug or not slug.replace("-", "").isalnum():
+        raise HTTPException(status_code=400, detail="slug inválido (lowercase, dashes)")
+    exists = await db.support_articles.find_one({"slug": slug})
+    if exists:
+        raise HTTPException(status_code=400, detail="slug ya existe")
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "slug": slug,
+        "title": body.get("title", ""),
+        "title_en": body.get("title_en", ""),
+        "title_ko": body.get("title_ko", ""),
+        "body": body.get("body", ""),
+        "body_en": body.get("body_en", ""),
+        "body_ko": body.get("body_ko", ""),
+        "category": body.get("category", "other"),
+        "role_target": body.get("role_target", "all"),
+        "country_target": body.get("country_target", "all"),
+        "published": bool(body.get("published", True)),
+        "view_count": 0,
+        "created_at": now_iso,
+        "updated_at": now_iso,
+        "created_by": user.user_id,
+    }
+    await db.support_articles.insert_one(doc)
+    return {"status": "ok", "slug": slug}
+
+
+@router.put("/country-admin/support/articles/{slug}")
+async def update_article(slug: str, body: dict, request: Request, user: User = Depends(get_current_user)):
+    await require_country_admin(user)
+    fields = {}
+    for k in ("title", "title_en", "title_ko", "body", "body_en", "body_ko",
+              "category", "role_target", "country_target", "published"):
+        if k in body:
+            fields[k] = body[k]
+    if not fields:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+    fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+    fields["updated_by"] = user.user_id
+    result = await db.support_articles.update_one({"slug": slug}, {"$set": fields})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    return {"status": "ok"}
+
+
+@router.delete("/country-admin/support/articles/{slug}")
+async def soft_delete_article(slug: str, user: User = Depends(get_current_user)):
+    await require_country_admin(user)
+    result = await db.support_articles.update_one({"slug": slug}, {"$set": {"published": False, "updated_at": datetime.now(timezone.utc).isoformat()}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Artículo no encontrado")
+    return {"status": "ok"}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

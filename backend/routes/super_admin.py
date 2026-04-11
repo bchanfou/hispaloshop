@@ -905,3 +905,285 @@ async def alias_market_coverage(user: User = Depends(get_current_user)):
     await require_super_admin(user)
     from routes.admin_dashboard import get_market_coverage
     return await get_market_coverage(user)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Support — global super admin endpoints (section 3.4)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/super-admin/support/tickets/global")
+async def support_tickets_global(
+    country_code: Optional[str] = None,
+    status: Optional[str] = None,
+    priority: Optional[str] = None,
+    category: Optional[str] = None,
+    assigned_admin_id: Optional[str] = None,
+    search: Optional[str] = None,
+    limit: int = 100,
+    offset: int = 0,
+    user: User = Depends(get_current_user),
+):
+    await require_super_admin(user)
+    query: dict = {}
+    if country_code:
+        query["country_code"] = country_code.upper()
+    if status:
+        query["status"] = status
+    if priority:
+        query["priority"] = priority
+    if category:
+        query["category"] = category
+    if assigned_admin_id:
+        query["assigned_admin_id"] = assigned_admin_id
+    if search:
+        query["$or"] = [
+            {"subject": {"$regex": search, "$options": "i"}},
+            {"ticket_number": {"$regex": search, "$options": "i"}},
+        ]
+    limit = min(500, max(1, limit))
+    total = await db.support_tickets.count_documents(query)
+    items = await db.support_tickets.find(query, {"_id": 0}).sort("updated_at", -1).skip(max(0, offset)).limit(limit).to_list(limit)
+    return {"items": items, "total": total, "limit": limit, "offset": offset}
+
+
+@router.get("/super-admin/support/tickets/escalated")
+async def support_tickets_escalated(user: User = Depends(get_current_user)):
+    await require_super_admin(user)
+    items = await db.support_tickets.find(
+        {"escalated_to_super_admin": True, "status": {"$nin": ["resolved", "closed"]}},
+        {"_id": 0},
+    ).sort("escalated_at", -1).limit(200).to_list(200)
+    return {"items": items, "total": len(items)}
+
+
+@router.post("/super-admin/support/tickets/{ticket_id}/super-respond")
+async def super_respond_ticket(
+    ticket_id: str,
+    body: dict,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    await require_super_admin(user)
+    text = ((body or {}).get("body") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Mensaje vacío")
+    ticket = await db.support_tickets.find_one({"ticket_id": ticket_id}, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    msg = {
+        "message_id": f"msg_{uuid.uuid4().hex[:14]}",
+        "ticket_id": ticket_id,
+        "sender_id": user.user_id,
+        "sender_role": "admin",
+        "body": text,
+        "attachments": [],
+        "created_at": now_iso,
+        "read_by_user": False,
+        "read_by_admin": True,
+        "is_internal_note": False,
+        "from_super_admin": True,
+    }
+    await db.support_messages.insert_one(msg)
+    update: dict = {"updated_at": now_iso, "status": "awaiting_user"}
+    if not ticket.get("first_response_at"):
+        update["first_response_at"] = now_iso
+    await db.support_tickets.update_one({"ticket_id": ticket_id}, {"$set": update})
+
+    try:
+        from services.notifications.dispatcher_service import notification_dispatcher
+        await notification_dispatcher.send_notification(
+            user_id=ticket.get("user_id", ""),
+            title="Respuesta del equipo de Hispaloshop",
+            body=f"#{ticket['ticket_number']} · {text[:80]}",
+            notification_type="support_ticket_replied_admin",
+            channels=["in_app", "push", "email"],
+            data={"ticket_id": ticket_id},
+            action_url=f"/support/tickets/{ticket_id}",
+        )
+    except Exception:
+        pass
+
+    await _super_audit(
+        admin_user_id=user.user_id,
+        action="support_super_respond",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason=text[:200],
+        severity="info",
+        request=request,
+    )
+    return {"status": "ok", "message_id": msg["message_id"]}
+
+
+@router.post("/super-admin/support/tickets/{ticket_id}/reassign")
+async def reassign_ticket(
+    ticket_id: str,
+    body: dict,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    await require_super_admin(user)
+    new_admin_id = ((body or {}).get("new_admin_id") or "").strip()
+    reason = ((body or {}).get("reason") or "").strip()
+    if not new_admin_id or len(reason) < 20:
+        raise HTTPException(status_code=400, detail="new_admin_id y reason (≥20) requeridos")
+    ticket = await db.support_tickets.find_one({"ticket_id": ticket_id}, {"_id": 0})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    await db.support_tickets.update_one(
+        {"ticket_id": ticket_id},
+        {"$set": {
+            "assigned_admin_id": new_admin_id,
+            "escalated_to_super_admin": False,
+            "status": "awaiting_admin",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    await _super_audit(
+        admin_user_id=user.user_id,
+        action="support_ticket_reassigned",
+        target_id=ticket_id,
+        target_type="support_ticket",
+        reason=reason,
+        severity="warning",
+        payload_diff={"new_admin_id": new_admin_id, "previous": ticket.get("assigned_admin_id")},
+        request=request,
+    )
+    return {"status": "reassigned"}
+
+
+@router.get("/super-admin/support/metrics/global")
+async def support_metrics_global(
+    period: str = "30d",
+    group_by: str = "country",
+    user: User = Depends(get_current_user),
+):
+    await require_super_admin(user)
+    days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 30)
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+    open_count = await db.support_tickets.count_documents({
+        "created_at": {"$gte": cutoff},
+        "status": {"$in": ["open", "awaiting_admin", "in_progress", "awaiting_user", "reopened", "escalated"]},
+    })
+    breaches = await db.support_tickets.count_documents({
+        "created_at": {"$gte": cutoff},
+        "first_response_at": None,
+        "sla_first_response_due": {"$lt": datetime.now(timezone.utc).isoformat()},
+    })
+    csat_docs = await db.support_csat.find({"created_at": {"$gte": cutoff}}, {"_id": 0, "rating": 1, "country_code": 1, "assigned_admin_id": 1}).to_list(5000)
+    csat_avg = round(sum(c["rating"] for c in csat_docs) / len(csat_docs), 2) if csat_docs else None
+
+    group_field = "country_code" if group_by == "country" else "assigned_admin_id"
+    pipeline = [
+        {"$match": {"created_at": {"$gte": cutoff}}},
+        {"$group": {
+            "_id": f"${group_field}",
+            "tickets": {"$sum": 1},
+            "resolved": {"$sum": {"$cond": [{"$in": ["$status", ["resolved", "closed"]]}, 1, 0]}},
+        }},
+        {"$sort": {"tickets": -1}},
+    ]
+    try:
+        ranking = await db.support_tickets.aggregate(pipeline).to_list(50)
+    except Exception:
+        ranking = []
+
+    return {
+        "period": period,
+        "open_count": open_count,
+        "sla_breaches": breaches,
+        "csat_avg": csat_avg,
+        "csat_count": len(csat_docs),
+        "ranking": ranking,
+        "group_by": group_by,
+    }
+
+
+@router.get("/super-admin/support/sla-breaches")
+async def support_sla_breaches(period: str = "30d", user: User = Depends(get_current_user)):
+    await require_super_admin(user)
+    days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 30)
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    items = await db.support_tickets.find(
+        {
+            "created_at": {"$gte": cutoff},
+            "$or": [
+                {"sla_first_response_met": False},
+                {"sla_resolution_met": False},
+            ],
+        },
+        {"_id": 0},
+    ).sort("created_at", -1).limit(500).to_list(500)
+    return {"items": items, "total": len(items)}
+
+
+@router.post("/super-admin/support/sla-monitor/run")
+async def run_sla_monitor(request: Request, user: User = Depends(get_current_user)):
+    """
+    Manual trigger for the SLA monitor. The cron job in section 3.4 calls
+    this same logic — it scans tickets whose first-response SLA expired
+    without a first response, marks them as breached, and dispatches
+    notifications to the assigned admin.
+
+    Also auto-closes tickets in `awaiting_user` whose last update is older
+    than AUTO_CLOSE_AWAITING_USER_DAYS (7 days).
+    """
+    await require_super_admin(user)
+    now = datetime.now(timezone.utc)
+    now_iso = now.isoformat()
+
+    breached_first = await db.support_tickets.find(
+        {
+            "first_response_at": None,
+            "sla_first_response_due": {"$lt": now_iso},
+            "sla_first_response_met": None,
+            "status": {"$nin": ["closed", "resolved"]},
+        },
+        {"_id": 0, "ticket_id": 1, "ticket_number": 1, "assigned_admin_id": 1},
+    ).limit(500).to_list(500)
+    for t in breached_first:
+        await db.support_tickets.update_one(
+            {"ticket_id": t["ticket_id"]},
+            {"$set": {"sla_first_response_met": False}},
+        )
+        if t.get("assigned_admin_id"):
+            try:
+                from services.notifications.dispatcher_service import notification_dispatcher
+                await notification_dispatcher.send_notification(
+                    user_id=t["assigned_admin_id"],
+                    title="SLA breach",
+                    body=f"Ticket #{t.get('ticket_number')} ha excedido el SLA de primera respuesta",
+                    notification_type="support_ticket_sla_breach",
+                    channels=["in_app", "push"],
+                    data={"ticket_id": t["ticket_id"]},
+                    action_url="/country-admin/support",
+                )
+            except Exception:
+                pass
+
+    # Auto-close awaiting_user tickets older than 7 days
+    cutoff = (now - timedelta(days=7)).isoformat()
+    closed = await db.support_tickets.update_many(
+        {
+            "status": "awaiting_user",
+            "updated_at": {"$lt": cutoff},
+        },
+        {"$set": {"status": "closed", "closed_at": now_iso, "updated_at": now_iso}},
+    )
+
+    await _super_audit(
+        admin_user_id=user.user_id,
+        action="support_sla_monitor_run",
+        target_type="support",
+        reason="manual",
+        severity="info",
+        payload_diff={"breached": len(breached_first), "auto_closed": closed.modified_count},
+        request=request,
+    )
+    return {
+        "breached_first_response": len(breached_first),
+        "auto_closed": closed.modified_count,
+    }

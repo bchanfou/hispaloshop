@@ -373,6 +373,46 @@ async def _create_indexes():
     except Exception:
         pass
 
+    # Support tickets / messages / articles / csat (section 3.4)
+    try:
+        await db.support_tickets.create_index([("user_id", 1), ("created_at", -1)])
+        await db.support_tickets.create_index([("country_code", 1), ("status", 1), ("priority", 1)])
+        await db.support_tickets.create_index([("assigned_admin_id", 1), ("status", 1)])
+        await db.support_tickets.create_index([("status", 1), ("sla_first_response_due", 1)])
+        await db.support_tickets.create_index("ticket_number", unique=True)
+        logger.info("  OK: support_tickets indexes")
+    except Exception:
+        pass
+    try:
+        await db.support_messages.create_index([("ticket_id", 1), ("created_at", 1)])
+        await db.support_messages.create_index("sender_id")
+        logger.info("  OK: support_messages indexes")
+    except Exception:
+        pass
+    try:
+        await db.support_articles.create_index("slug", unique=True)
+        await db.support_articles.create_index([("category", 1), ("role_target", 1), ("country_target", 1)])
+        try:
+            await db.support_articles.create_index([("title", "text"), ("body", "text")])
+        except Exception:
+            pass
+        logger.info("  OK: support_articles indexes")
+    except Exception:
+        pass
+    try:
+        await db.support_csat.create_index("ticket_id", unique=True)
+        await db.support_csat.create_index([("country_code", 1), ("created_at", -1)])
+        logger.info("  OK: support_csat indexes")
+    except Exception:
+        pass
+
+    # Seed the knowledge base with starter articles if empty.
+    try:
+        from services.support_seed import seed_kb_articles
+        await seed_kb_articles()
+    except Exception as exc:
+        logger.warning("[SUPPORT] KB seed skipped: %s", exc)
+
     # Country configs — seed if empty
     await db.country_configs.create_index("country_code", unique=True)
     existing = await db.country_configs.count_documents({})

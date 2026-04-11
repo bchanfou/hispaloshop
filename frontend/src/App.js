@@ -143,6 +143,13 @@ const SuperAdminHealth = lazy(() => import('./pages/super-admin/SuperAdminHealth
 const SuperAdminExchangeRates = lazy(() => import('./pages/super-admin/SuperAdminExchangeRates'));
 const FounderConsole = lazy(() => import('./pages/super-admin/FounderConsole'));
 const SuperAdminCountryActAs = lazy(() => import('./pages/super-admin/SuperAdminCountryActAs'));
+const SuperAdminSupport = lazy(() => import('./pages/super-admin/SuperAdminSupport'));
+const SupportNewPage = lazy(() => import('./pages/support/SupportNewPage'));
+const SupportTicketsPage = lazy(() => import('./pages/support/SupportTicketsPage'));
+const SupportTicketDetailPage = lazy(() => import('./pages/support/SupportTicketDetailPage'));
+const HelpCenterPage = lazy(() => import('./pages/help/HelpCenterPage'));
+const HelpArticlePage = lazy(() => import('./pages/help/HelpArticlePage'));
+const CountryAdminSupportTicketDetail = lazy(() => import('./pages/country-admin/CountryAdminSupportTicketDetail'));
 const FounderRoute = lazy(() => import('./components/auth/FounderRoute'));
 const CountryAdminLayout = lazy(() => import('./components/dashboard/CountryAdminLayout'));
 const CountryAdminOverview = lazy(() => import('./pages/country-admin/CountryAdminOverview'));
@@ -617,7 +624,34 @@ function AppRouter() {
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
               <Route path="/terms" element={<Navigate to="/legal/terminos" replace />} />
               <Route path="/privacy" element={<Navigate to="/legal/privacidad" replace />} />
-              <Route path="/help" element={<Navigate to="/contacto" replace />} />
+              {/* Help center (public) — section 3.4 */}
+              <Route path="/help" element={<HelpCenterPage />} />
+              <Route path="/help/:slug" element={<HelpArticlePage />} />
+              {/* Support (authenticated) — section 3.4 */}
+              <Route
+                path="/support/new"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer', 'producer', 'importer', 'influencer', 'admin', 'country_admin', 'super_admin']} requireOnboarding={false}>
+                    <SupportNewPage />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/support/tickets"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer', 'producer', 'importer', 'influencer', 'admin', 'country_admin', 'super_admin']} requireOnboarding={false}>
+                    <SupportTicketsPage />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/support/tickets/:ticketId"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer', 'producer', 'importer', 'influencer', 'admin', 'country_admin', 'super_admin']} requireOnboarding={false}>
+                    <SupportTicketDetailPage />
+                  </ProtectedRoute>
+                )}
+              />
               <Route path="/blog" element={<BlogIndexPage />} />
               <Route path="/blog/:slug" element={<BlogArticlePage />} />
               <Route path="/press" element={<Navigate to="/" replace />} />
@@ -682,6 +716,7 @@ function AppRouter() {
                 <Route path="products" element={<CountryAdminProducts />} />
                 <Route path="users" element={<CountryAdminUsers />} />
                 <Route path="support" element={<CountryAdminSupport />} />
+                <Route path="support/:ticketId" element={<CountryAdminSupportTicketDetail />} />
                 <Route path="audit" element={<CountryAdminAuditLog />} />
                 <Route path="settings" element={<CountryAdminSettings />} />
               </Route>
@@ -707,6 +742,7 @@ function AppRouter() {
                 <Route path="system/kill-switches" element={<FounderRoute><SuperAdminKillSwitches /></FounderRoute>} />
                 <Route path="founder-console" element={<FounderRoute><FounderConsole /></FounderRoute>} />
                 <Route path="act-as-country" element={<SuperAdminCountryActAs />} />
+                <Route path="support" element={<SuperAdminSupport />} />
 
                 {/* Pre-3.3 pages — kept for compatibility */}
                 <Route path="legacy-overview" element={<SuperAdminOverviewPage />} />
