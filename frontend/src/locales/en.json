@@ -4332,5 +4332,158 @@
     "tryDifferentSearch": "Try different search terms",
     "tryAnotherCountry": "Try another country",
     "viewFullMap": "View full map"
+  },
+  "countryAdmin": {
+    "title": "Country panel",
+    "role": "Country admin",
+    "globalScope": "Global view",
+    "accessDenied": "Access denied. This area is for country administrators.",
+    "loadError": "Could not load list",
+    "actionError": "Could not complete the action",
+    "reasonMin20": "Reason must be at least 20 characters",
+    "weeklyGoal": "Weekly goal",
+    "noGoal": "No goal set",
+    "actionItems": "Today's action items",
+    "overdueVerifications": "{{n}} verifications overdue >24h",
+    "reportedProducts": "{{n}} reported products",
+    "openTickets": "{{n}} open support tickets",
+    "allClear": "All clear. Nothing urgent.",
+    "approved": "Verification approved",
+    "rejected": "Verification rejected",
+    "approveTitle": "Approve verification",
+    "rejectTitle": "Reject verification",
+    "rejectReason": "Reason (minimum 20 characters)",
+    "rejectReasonPh": "E.g. incomplete docs, expired certificate...",
+    "notes": "Internal notes (optional)",
+    "noVerifications": "No pending verifications.",
+    "nav": {
+      "overview": "Home",
+      "verifications": "Verifications",
+      "products": "Products",
+      "users": "Users",
+      "support": "Support",
+      "audit": "Audit log",
+      "settings": "Settings"
+    },
+    "kpi": {
+      "gmvMonth": "GMV month",
+      "activeSellers": "Active sellers",
+      "pendingVerifications": "Pending verifications",
+      "refundRate": "Refund rate"
+    },
+    "overview": {
+      "title": "Home",
+      "subtitle": "Local marketplace health at a glance."
+    },
+    "verifications": {
+      "title": "Verifications",
+      "subtitle": "Approve or reject new sellers in your country."
+    },
+    "products": {
+      "title": "Products",
+      "subtitle": "Moderate your country's catalog.",
+      "statusPending": "Pending",
+      "statusReported": "Reported",
+      "statusActive": "Active",
+      "statusHidden": "Hidden",
+      "empty": "No products to show.",
+      "approveTitle": "Approve product",
+      "rejectTitle": "Reject product",
+      "hideTitle": "Hide product",
+      "moderated": "Product moderated"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage users in your country.",
+      "allRoles": "All roles",
+      "empty": "No users.",
+      "suspendedBadge": "Suspended",
+      "activeBadge": "Active",
+      "suspend": "Suspend",
+      "unsuspend": "Reactivate",
+      "suspendTitle": "Suspend user",
+      "unsuspendTitle": "Reactivate user",
+      "reason": "Reason (minimum 20 characters)",
+      "duration": "Duration (days, empty = permanent)",
+      "suspended": "User suspended",
+      "unsuspended": "User reactivated"
+    },
+    "support": {
+      "title": "Support",
+      "subtitle": "Support tickets for your country.",
+      "placeholder": "Wired in section 3.4. Structure is ready; tickets will appear once the country-scoped ticket system ships."
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Transparent history of your moderation actions.",
+      "allActions": "All actions",
+      "empty": "No audit entries.",
+      "col": {
+        "timestamp": "Date",
+        "action": "Action",
+        "target": "Target",
+        "reason": "Reason"
+      },
+      "actions": {
+        "verification_approved": "Verification approved",
+        "verification_rejected": "Verification rejected",
+        "product_approve": "Product approved",
+        "product_reject": "Product rejected",
+        "product_hide": "Product hidden",
+        "user_suspended": "User suspended",
+        "user_unsuspended": "User reactivated",
+        "weekly_goal_updated": "Weekly goal updated",
+        "default_shipping_updated": "Default shipping updated"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Local marketplace defaults.",
+      "weeklyGoalTitle": "Weekly GMV goal",
+      "weeklyGoalHelp": "How much GMV in local currency you want to hit each week.",
+      "shippingTitle": "Default shipping",
+      "shippingHelp": "Suggested shipping defaults for new sellers in your country.",
+      "freeThreshold": "Free shipping threshold",
+      "defaultFee": "Default shipping fee",
+      "savedGoal": "Goal saved",
+      "savedShipping": "Shipping saved"
+    },
+    "filter": {
+      "all": "All",
+      "producers": "Producers",
+      "importers": "Importers"
+    },
+    "col": {
+      "business": "Business",
+      "role": "Type",
+      "requestedAt": "Requested",
+      "actions": "Actions",
+      "user": "User",
+      "status": "Status"
+    },
+    "onboarding": {
+      "welcome": "Welcome",
+      "welcomeTitle": "You are the country admin for {{country}}",
+      "welcomeBody": "Your role is to approve sellers, moderate content and watch the health of the local marketplace.",
+      "step1Title": "Review pending verifications",
+      "step1Body": "Your main job: approve or reject new producers and importers who want to sell in your country.",
+      "step2Title": "Configure the weekly goal",
+      "step2Body": "Set how much GMV you want to hit each week. Helps you track progress and gives Iris context for recommendations.",
+      "step3Title": "Get familiar with the audit log",
+      "step3Body": "Every action you take (approve, reject, suspend) is logged. It is transparent and traceable.",
+      "start": "Start"
+    },
+    "iris": {
+      "subtitle": "Country admin assistant",
+      "intro": "Hi, I'm Iris. I have the current context of your country. Ask me anything.",
+      "placeholder": "Ask Iris…",
+      "open": "Open Iris",
+      "noReply": "No reply",
+      "error": "I can't reply right now. Try again in a few minutes.",
+      "q1": "Why did GMV drop this month?",
+      "q2": "Which reported products should I review first?",
+      "q3": "Give me a summary for my weekly report",
+      "q4": "Which seller has the worst SLA?"
+    }
   }
 }

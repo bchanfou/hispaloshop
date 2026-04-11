@@ -4304,5 +4304,158 @@
     "tryDifferentSearch": "다른 검색어를 시도하세요",
     "tryAnotherCountry": "다른 국가를 시도하세요",
     "viewFullMap": "전체 지도 보기"
+  },
+  "countryAdmin": {
+    "title": "국가 관리 패널",
+    "role": "국가 관리자",
+    "globalScope": "전역 보기",
+    "accessDenied": "접근 거부됨. 이 영역은 국가 관리자 전용입니다.",
+    "loadError": "목록을 불러올 수 없습니다",
+    "actionError": "작업을 완료할 수 없습니다",
+    "reasonMin20": "사유는 최소 20자 이상이어야 합니다",
+    "weeklyGoal": "주간 목표",
+    "noGoal": "목표 없음",
+    "actionItems": "오늘 처리할 항목",
+    "overdueVerifications": "24시간 초과 검증 {{n}}건",
+    "reportedProducts": "신고된 상품 {{n}}건",
+    "openTickets": "열린 지원 티켓 {{n}}건",
+    "allClear": "모두 정상입니다. 긴급 항목 없음.",
+    "approved": "검증 승인됨",
+    "rejected": "검증 거부됨",
+    "approveTitle": "검증 승인",
+    "rejectTitle": "검증 거부",
+    "rejectReason": "사유 (최소 20자)",
+    "rejectReasonPh": "예: 서류 미비, 인증서 만료...",
+    "notes": "내부 메모 (선택)",
+    "noVerifications": "대기 중인 검증이 없습니다.",
+    "nav": {
+      "overview": "홈",
+      "verifications": "검증",
+      "products": "상품",
+      "users": "사용자",
+      "support": "지원",
+      "audit": "감사 로그",
+      "settings": "설정"
+    },
+    "kpi": {
+      "gmvMonth": "월간 GMV",
+      "activeSellers": "활성 판매자",
+      "pendingVerifications": "대기 중인 검증",
+      "refundRate": "환불률"
+    },
+    "overview": {
+      "title": "홈",
+      "subtitle": "지역 마켓플레이스 상태 한눈에."
+    },
+    "verifications": {
+      "title": "검증",
+      "subtitle": "국가의 신규 판매자를 승인 또는 거부합니다."
+    },
+    "products": {
+      "title": "상품",
+      "subtitle": "국가 카탈로그를 관리합니다.",
+      "statusPending": "대기",
+      "statusReported": "신고됨",
+      "statusActive": "활성",
+      "statusHidden": "숨김",
+      "empty": "표시할 상품이 없습니다.",
+      "approveTitle": "상품 승인",
+      "rejectTitle": "상품 거부",
+      "hideTitle": "상품 숨기기",
+      "moderated": "상품 처리됨"
+    },
+    "users": {
+      "title": "사용자",
+      "subtitle": "국가의 사용자를 관리합니다.",
+      "allRoles": "모든 역할",
+      "empty": "사용자가 없습니다.",
+      "suspendedBadge": "정지됨",
+      "activeBadge": "활성",
+      "suspend": "정지",
+      "unsuspend": "재활성화",
+      "suspendTitle": "사용자 정지",
+      "unsuspendTitle": "사용자 재활성화",
+      "reason": "사유 (최소 20자)",
+      "duration": "기간 (일, 비워두면 영구)",
+      "suspended": "사용자 정지됨",
+      "unsuspended": "사용자 재활성화됨"
+    },
+    "support": {
+      "title": "지원",
+      "subtitle": "국가의 지원 티켓.",
+      "placeholder": "섹션 3.4에서 연결됩니다. 구조는 준비되었으며, 국가별 티켓 시스템이 출시되면 표시됩니다."
+    },
+    "audit": {
+      "title": "감사 로그",
+      "subtitle": "관리 작업의 투명한 기록.",
+      "allActions": "모든 작업",
+      "empty": "감사 항목이 없습니다.",
+      "col": {
+        "timestamp": "날짜",
+        "action": "작업",
+        "target": "대상",
+        "reason": "사유"
+      },
+      "actions": {
+        "verification_approved": "검증 승인",
+        "verification_rejected": "검증 거부",
+        "product_approve": "상품 승인",
+        "product_reject": "상품 거부",
+        "product_hide": "상품 숨김",
+        "user_suspended": "사용자 정지",
+        "user_unsuspended": "사용자 재활성화",
+        "weekly_goal_updated": "주간 목표 업데이트",
+        "default_shipping_updated": "기본 배송 업데이트"
+      }
+    },
+    "settings": {
+      "title": "설정",
+      "subtitle": "지역 마켓플레이스 기본값.",
+      "weeklyGoalTitle": "주간 GMV 목표",
+      "weeklyGoalHelp": "매주 달성하고자 하는 현지 통화 GMV.",
+      "shippingTitle": "기본 배송",
+      "shippingHelp": "신규 판매자를 위한 권장 배송 기본값.",
+      "freeThreshold": "무료 배송 기준",
+      "defaultFee": "기본 배송비",
+      "savedGoal": "목표 저장됨",
+      "savedShipping": "배송 저장됨"
+    },
+    "filter": {
+      "all": "전체",
+      "producers": "생산자",
+      "importers": "수입자"
+    },
+    "col": {
+      "business": "사업체",
+      "role": "유형",
+      "requestedAt": "요청일",
+      "actions": "작업",
+      "user": "사용자",
+      "status": "상태"
+    },
+    "onboarding": {
+      "welcome": "환영합니다",
+      "welcomeTitle": "{{country}}의 국가 관리자입니다",
+      "welcomeBody": "판매자 승인, 콘텐츠 관리, 지역 마켓플레이스의 건전성을 감독하는 역할입니다.",
+      "step1Title": "대기 중인 검증 검토",
+      "step1Body": "주요 업무: 국가에서 판매를 원하는 신규 생산자 및 수입자를 승인하거나 거부합니다.",
+      "step2Title": "주간 목표 설정",
+      "step2Body": "매주 달성할 GMV를 설정합니다. 진행 상황 측정과 Iris의 맞춤 권장 사항에 도움이 됩니다.",
+      "step3Title": "감사 로그 익히기",
+      "step3Body": "모든 작업(승인, 거부, 정지)이 감사 로그에 기록됩니다. 투명하고 추적 가능합니다.",
+      "start": "시작"
+    },
+    "iris": {
+      "subtitle": "국가 관리자 어시스턴트",
+      "intro": "안녕하세요, Iris입니다. 국가의 현재 컨텍스트를 가지고 있습니다. 무엇이든 물어보세요.",
+      "placeholder": "Iris에게 질문하세요…",
+      "open": "Iris 열기",
+      "noReply": "응답 없음",
+      "error": "지금 응답할 수 없습니다. 잠시 후 다시 시도하세요.",
+      "q1": "이번 달 GMV가 왜 떨어졌나요?",
+      "q2": "어떤 신고된 상품을 먼저 검토해야 하나요?",
+      "q3": "주간 보고서 요약을 주세요",
+      "q4": "어느 판매자의 SLA가 가장 나쁘나요?"
+    }
   }
 }

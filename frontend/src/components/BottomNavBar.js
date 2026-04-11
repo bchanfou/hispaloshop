@@ -22,6 +22,7 @@ const HIDDEN_ON_PATHS = [
 const HIDDEN_ON_PREFIXES = [
   '/admin',
   '/super-admin',
+  '/country-admin',
   '/dashboard',
   '/producer',
   '/importer',

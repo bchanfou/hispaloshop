@@ -133,6 +133,14 @@ const PlansConfigPage = lazy(() => import('./pages/super-admin/PlansConfigPage')
 const GDPRPage = lazy(() => import('./pages/super-admin/GDPRPage'));
 const InfrastructurePage = lazy(() => import('./pages/super-admin/InfrastructurePage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
+const CountryAdminLayout = lazy(() => import('./components/dashboard/CountryAdminLayout'));
+const CountryAdminOverview = lazy(() => import('./pages/country-admin/CountryAdminOverview'));
+const CountryAdminVerifications = lazy(() => import('./pages/country-admin/CountryAdminVerifications'));
+const CountryAdminProducts = lazy(() => import('./pages/country-admin/CountryAdminProducts'));
+const CountryAdminUsers = lazy(() => import('./pages/country-admin/CountryAdminUsers'));
+const CountryAdminSupport = lazy(() => import('./pages/country-admin/CountryAdminSupport'));
+const CountryAdminAuditLog = lazy(() => import('./pages/country-admin/CountryAdminAuditLog'));
+const CountryAdminSettings = lazy(() => import('./pages/country-admin/CountryAdminSettings'));
 
 const CollabProposalPage = lazy(() => import('./pages/collaborations/CollabProposalPage'));
 const SignedDocumentsPage = lazy(() => import('./pages/documents/SignedDocumentsPage'));
@@ -648,6 +656,24 @@ function AppRouter() {
                 <Route path="moderation" element={<AdminModerationPage />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
+
+              <Route
+                path="/country-admin"
+                element={(
+                  <ProtectedRoute allowedRoles={['admin', 'country_admin', 'super_admin']} requireOnboarding={false}>
+                    <CountryAdminLayout />
+                  </ProtectedRoute>
+                )}
+              >
+                <Route index element={<Navigate to="/country-admin/overview" replace />} />
+                <Route path="overview" element={<CountryAdminOverview />} />
+                <Route path="verifications" element={<CountryAdminVerifications />} />
+                <Route path="products" element={<CountryAdminProducts />} />
+                <Route path="users" element={<CountryAdminUsers />} />
+                <Route path="support" element={<CountryAdminSupport />} />
+                <Route path="audit" element={<CountryAdminAuditLog />} />
+                <Route path="settings" element={<CountryAdminSettings />} />
+              </Route>
 
               <Route
                 path="/super-admin"

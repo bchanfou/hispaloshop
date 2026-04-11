@@ -10,6 +10,7 @@ function normalizeRole(rawRole) {
     superadmin: 'super_admin',
     consumer: 'customer',
     seller: 'producer',
+    countryadmin: 'country_admin',
   };
 
   return roleMap[role] || role;
@@ -43,22 +44,31 @@ export function getDefaultRoute(user, onboardingCompleted = true) {
   switch (role) {
     case 'customer':
       return '/';
-    
+
     case 'producer':
       return '/producer';
 
     case 'importer':
       return '/importer/dashboard';
-    
+
     case 'influencer':
       return '/influencer/dashboard';
-    
+
+    case 'country_admin':
+      return '/country-admin/overview';
+
     case 'admin':
+      // Admins with an assigned country are country admins — send them to
+      // the dedicated dashboard. Global admins (no country) keep the
+      // legacy /admin platform dashboard.
+      if (user.assigned_country) {
+        return '/country-admin/overview';
+      }
       return '/admin';
 
     case 'super_admin':
       return '/super-admin';
-    
+
     default:
       return '/';
   }
@@ -83,8 +93,9 @@ export function hasRouteAccess(route, role) {
     producer: ['/producer', '/dashboard', '/pending-approval'],
     importer: ['/producer', '/importer', '/dashboard', '/pending-approval'],
     influencer: ['/influencer', '/dashboard', '/pending-approval'],
-    admin: ['/admin', '/dashboard'],
-    super_admin: ['/admin', '/super-admin', '/dashboard'],
+    country_admin: ['/country-admin', '/dashboard'],
+    admin: ['/admin', '/country-admin', '/dashboard'],
+    super_admin: ['/admin', '/super-admin', '/country-admin', '/dashboard'],
   };
   
   const allowedRoutes = roleRoutes[normalizedRole] || [];

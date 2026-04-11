@@ -6046,5 +6046,158 @@
     "tryDifferentSearch": "Intenta con otros términos",
     "tryAnotherCountry": "Prueba con otro país",
     "viewFullMap": "Ver mapa completo"
+  },
+  "countryAdmin": {
+    "title": "Panel de país",
+    "role": "Country admin",
+    "globalScope": "Vista global",
+    "accessDenied": "Acceso denegado. Esta área es para administradores de país.",
+    "loadError": "No se pudo cargar la lista",
+    "actionError": "No se pudo completar la acción",
+    "reasonMin20": "El motivo debe tener al menos 20 caracteres",
+    "weeklyGoal": "Objetivo semanal",
+    "noGoal": "Sin objetivo",
+    "actionItems": "Acciones requeridas hoy",
+    "overdueVerifications": "{{n}} verificaciones pendientes >24h",
+    "reportedProducts": "{{n}} productos reportados",
+    "openTickets": "{{n}} tickets de soporte abiertos",
+    "allClear": "Todo bajo control. Sin acciones urgentes.",
+    "approved": "Verificación aprobada",
+    "rejected": "Verificación rechazada",
+    "approveTitle": "Aprobar verificación",
+    "rejectTitle": "Rechazar verificación",
+    "rejectReason": "Motivo (mínimo 20 caracteres)",
+    "rejectReasonPh": "Ej: documentación incompleta, certificado expirado...",
+    "notes": "Notas internas (opcional)",
+    "noVerifications": "No hay verificaciones pendientes.",
+    "nav": {
+      "overview": "Inicio",
+      "verifications": "Verificaciones",
+      "products": "Productos",
+      "users": "Usuarios",
+      "support": "Soporte",
+      "audit": "Auditoría",
+      "settings": "Configuración"
+    },
+    "kpi": {
+      "gmvMonth": "GMV mes",
+      "activeSellers": "Sellers activos",
+      "pendingVerifications": "Verificaciones pendientes",
+      "refundRate": "Refund rate"
+    },
+    "overview": {
+      "title": "Inicio",
+      "subtitle": "Salud del marketplace local en un vistazo."
+    },
+    "verifications": {
+      "title": "Verificaciones",
+      "subtitle": "Aprueba o rechaza nuevos sellers de tu país."
+    },
+    "products": {
+      "title": "Productos",
+      "subtitle": "Modera el catálogo de tu país.",
+      "statusPending": "Pendientes",
+      "statusReported": "Reportados",
+      "statusActive": "Activos",
+      "statusHidden": "Ocultos",
+      "empty": "No hay productos que mostrar.",
+      "approveTitle": "Aprobar producto",
+      "rejectTitle": "Rechazar producto",
+      "hideTitle": "Ocultar producto",
+      "moderated": "Producto moderado"
+    },
+    "users": {
+      "title": "Usuarios",
+      "subtitle": "Gestiona a los usuarios de tu país.",
+      "allRoles": "Todos los roles",
+      "empty": "No hay usuarios.",
+      "suspendedBadge": "Suspendido",
+      "activeBadge": "Activo",
+      "suspend": "Suspender",
+      "unsuspend": "Reactivar",
+      "suspendTitle": "Suspender usuario",
+      "unsuspendTitle": "Reactivar usuario",
+      "reason": "Motivo (mínimo 20 caracteres)",
+      "duration": "Duración (días, vacío = permanente)",
+      "suspended": "Usuario suspendido",
+      "unsuspended": "Usuario reactivado"
+    },
+    "support": {
+      "title": "Soporte",
+      "subtitle": "Tickets de soporte de tu país.",
+      "placeholder": "Conectado en sección 3.4. La estructura está lista; los tickets se enlazarán cuando el sistema de tickets country-scoped esté en producción."
+    },
+    "audit": {
+      "title": "Auditoría",
+      "subtitle": "Historial transparente de tus acciones de moderación.",
+      "allActions": "Todas las acciones",
+      "empty": "Sin entradas de auditoría.",
+      "col": {
+        "timestamp": "Fecha",
+        "action": "Acción",
+        "target": "Objetivo",
+        "reason": "Motivo"
+      },
+      "actions": {
+        "verification_approved": "Verificación aprobada",
+        "verification_rejected": "Verificación rechazada",
+        "product_approve": "Producto aprobado",
+        "product_reject": "Producto rechazado",
+        "product_hide": "Producto ocultado",
+        "user_suspended": "Usuario suspendido",
+        "user_unsuspended": "Usuario reactivado",
+        "weekly_goal_updated": "Objetivo semanal actualizado",
+        "default_shipping_updated": "Envío por defecto actualizado"
+      }
+    },
+    "settings": {
+      "title": "Configuración",
+      "subtitle": "Defaults locales del marketplace.",
+      "weeklyGoalTitle": "Objetivo semanal de GMV",
+      "weeklyGoalHelp": "Cuánto GMV en moneda local quieres alcanzar cada semana.",
+      "shippingTitle": "Envío por defecto",
+      "shippingHelp": "Sugerencias de envío para los nuevos sellers de tu país.",
+      "freeThreshold": "Umbral de envío gratis",
+      "defaultFee": "Coste de envío por defecto",
+      "savedGoal": "Objetivo guardado",
+      "savedShipping": "Envío guardado"
+    },
+    "filter": {
+      "all": "Todos",
+      "producers": "Productores",
+      "importers": "Importadores"
+    },
+    "col": {
+      "business": "Negocio",
+      "role": "Tipo",
+      "requestedAt": "Solicitado",
+      "actions": "Acciones",
+      "user": "Usuario",
+      "status": "Estado"
+    },
+    "onboarding": {
+      "welcome": "Bienvenido",
+      "welcomeTitle": "Eres el country admin de {{country}}",
+      "welcomeBody": "Tu rol es aprobar sellers, moderar contenido y vigilar la salud del marketplace local.",
+      "step1Title": "Revisa verificaciones pendientes",
+      "step1Body": "Tu trabajo principal: aprobar o rechazar a los nuevos productores e importadores que quieren vender en tu país.",
+      "step2Title": "Configura el objetivo semanal",
+      "step2Body": "Define cuánto GMV quieres alcanzar cada semana. Te ayuda a medir el progreso y a Iris a darte recomendaciones contextualizadas.",
+      "step3Title": "Familiarízate con la auditoría",
+      "step3Body": "Cada acción que hagas (aprobar, rechazar, suspender) queda registrada en el log de auditoría. Es transparente y trazable.",
+      "start": "Empezar"
+    },
+    "iris": {
+      "subtitle": "Asistente para country admins",
+      "intro": "Hola, soy Iris. Tengo el contexto actual de tu país. Pregúntame lo que quieras.",
+      "placeholder": "Pregunta a Iris…",
+      "open": "Abrir Iris",
+      "noReply": "Sin respuesta",
+      "error": "No pude responder ahora mismo. Intenta de nuevo en unos minutos.",
+      "q1": "¿Por qué bajó el GMV este mes?",
+      "q2": "¿Qué productos reportados debo revisar primero?",
+      "q3": "Dame un resumen para mi reporte semanal",
+      "q4": "¿Qué seller tiene peor SLA?"
+    }
   }
 }

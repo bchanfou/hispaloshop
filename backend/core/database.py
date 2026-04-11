@@ -348,6 +348,15 @@ async def _create_indexes():
     except Exception:
         pass
 
+    # Country admin audit log — for transparency dashboard
+    try:
+        await db.country_admin_audit.create_index([("country_code", 1), ("timestamp", -1)])
+        await db.country_admin_audit.create_index([("admin_user_id", 1), ("timestamp", -1)])
+        await db.country_admin_audit.create_index("action")
+        logger.info("  OK: country_admin_audit indexes")
+    except Exception:
+        pass
+
     # Country configs — seed if empty
     await db.country_configs.create_index("country_code", unique=True)
     existing = await db.country_configs.count_documents({})

@@ -20,7 +20,7 @@ import OfflineBanner from './OfflineBanner';
 const NO_CHROME_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
   '/signup', '/onboarding',
-  '/admin', '/super-admin',
+  '/admin', '/super-admin', '/country-admin',
   '/producer', '/importer',
   '/dashboard', '/customer',
   '/influencer/dashboard', '/influencer/insights', '/influencer/profile',

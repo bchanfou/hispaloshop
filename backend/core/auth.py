@@ -24,6 +24,7 @@ def _normalize_role(raw_role: Optional[str]) -> str:
         'superadmin': 'super_admin',
         'consumer': 'customer',
         'seller': 'producer',
+        'countryadmin': 'country_admin',
     }
     return role_map.get(role, role)
 
@@ -89,6 +90,43 @@ async def require_super_admin(user: User):
     """Raise 403 if user is not super_admin."""
     if _normalize_role(getattr(user, 'role', None)) != "super_admin":
         raise HTTPException(status_code=403, detail="Super admin access required")
+
+
+async def require_country_admin(user: User) -> Optional[str]:
+    """
+    Require country_admin (or admin with assigned_country) access. Returns the
+    country code (ISO-2) the admin is scoped to. super_admin gets None — they
+    see all countries (callers must handle the None case explicitly).
+
+    Raises 403 if:
+      - user has no admin role, OR
+      - user is admin/country_admin but has no assigned_country.
+
+    The role 'country_admin' is treated as a strict alias for an admin scoped
+    to one country. Existing 'admin' users with assigned_country are accepted
+    too — there is no migration required.
+    """
+    role = _normalize_role(getattr(user, 'role', None))
+
+    if role == "super_admin":
+        return None
+
+    if role not in ("admin", "country_admin"):
+        raise HTTPException(status_code=403, detail="Country admin access required")
+
+    # Read assigned_country from the user doc directly — the User pydantic model
+    # may not include this field.
+    user_doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "assigned_country": 1},
+    )
+    assigned_country = (user_doc or {}).get("assigned_country")
+    if not assigned_country:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin account has no assigned country. Contact super_admin to configure your country scope.",
+        )
+    return str(assigned_country).upper()
 
 
 async def get_optional_user(request: Request) -> Optional[User]:
