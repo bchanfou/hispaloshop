@@ -2482,12 +2482,19 @@ async def get_post_comments(post_id: str, request: Request, skip: int = 0, limit
     post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
     if post:
         await _check_content_privacy(post, current_user)
+    # Section 3.6.6 — F-01: keep soft-deleted comments in the list (preserve thread) but replace
+    # the body with a placeholder client-side. Backend returns the `deleted` flag.
     comments = await db.post_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     is_reel_fallback = False
     if not comments and post_id.startswith("reel_"):
         # Reel appearing in feed — comments are in reel_comments keyed by reel_id
         comments = await db.reel_comments.find({"reel_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
         is_reel_fallback = True
+
+    # Redact soft-deleted bodies (placeholder rendering happens client-side)
+    for c in comments:
+        if c.get("deleted"):
+            c["text"] = ""
 
     # Hydrate is_liked for all comments (post and reel)
     if current_user and comments:
@@ -2599,7 +2606,11 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
 
 @router.put("/comments/{comment_id}")
 async def edit_comment(comment_id: str, request: Request, user: User = Depends(get_current_user)):
-    """Edit own comment. Searches post_comments first, then reel_comments."""
+    """Edit own comment. Searches post_comments first, then reel_comments.
+
+    Section 3.6.6 — F-01. Returns 404 for non-authors (not 403) to avoid leaking existence.
+    Sets edited=True + edited_at for UI badge.
+    """
     comment = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0})
     is_reel_comment = False
     if not comment:
@@ -2607,63 +2618,100 @@ async def edit_comment(comment_id: str, request: Request, user: User = Depends(g
         is_reel_comment = True
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+    if comment.get("deleted"):
+        raise HTTPException(status_code=404, detail="Comment not found")
     if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
-        raise HTTPException(status_code=403, detail="Not your comment")
+        # 404 (not 403) to avoid leaking existence.
+        raise HTTPException(status_code=404, detail="Comment not found")
     body = await request.json()
     text = body.get("text", "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="Comment text required")
-    update_doc = {"$set": {"text": sanitize_text(text[:500]), "edited_at": datetime.now(timezone.utc).isoformat()}}
+    now = datetime.now(timezone.utc).isoformat()
+    update_doc = {"$set": {
+        "text": sanitize_text(text[:500]),
+        "edited": True,
+        "edited_at": now,
+        "updated_at": now,
+    }}
     if is_reel_comment:
         await db.reel_comments.update_one({"comment_id": comment_id}, update_doc)
     else:
         await db.post_comments.update_one({"comment_id": comment_id}, update_doc)
-    return {"status": "updated"}
+    return {"status": "updated", "edited": True, "edited_at": now}
+
+
+@router.patch("/comments/{comment_id}")
+async def patch_comment(comment_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Edit own comment (PATCH alias for PUT /comments/{id}). Section 3.6.6 — F-01."""
+    return await edit_comment(comment_id, request, user)
+
+
+async def _soft_delete_comment(comment_id: str, collection, user: User, post_id: Optional[str] = None):
+    """Shared soft-delete logic. Section 3.6.6 — F-01. Returns 404 for non-author."""
+    query = {"comment_id": comment_id}
+    if post_id and collection is db.post_comments:
+        query["post_id"] = post_id
+    if post_id and collection is db.reel_comments:
+        query["reel_id"] = post_id
+    comment = await collection.find_one(query, {"_id": 0})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment.get("deleted"):
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=404, detail="Comment not found")
+    now = datetime.now(timezone.utc).isoformat()
+    await collection.update_one(
+        {"comment_id": comment_id},
+        {"$set": {
+            "deleted": True,
+            "deleted_at": now,
+            "updated_at": now,
+        }},
+    )
+    return comment
+
 
 @router.delete("/posts/{post_id}/comments/{comment_id}")
 async def delete_comment_nested(post_id: str, comment_id: str, user: User = Depends(get_current_user)):
-    """Delete own comment (nested route). Handles both post and reel comments."""
+    """Soft-delete own comment (nested route). Section 3.6.6 — F-01. Preserves thread structure."""
     is_reel = post_id.startswith("reel_")
 
     if is_reel:
-        comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": post_id}, {"_id": 0})
-        if not comment:
-            raise HTTPException(status_code=404, detail="Comment not found")
-        if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
-            raise HTTPException(status_code=403, detail="Not your comment")
-        await db.reel_comments.delete_one({"comment_id": comment_id})
+        await _soft_delete_comment(comment_id, db.reel_comments, user, post_id=post_id)
         await db.reels.update_one({"reel_id": post_id}, {"$inc": {"comments_count": -1}})
         return {"status": "deleted"}
 
-    comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id}, {"_id": 0})
-    if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
-    if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
-        raise HTTPException(status_code=403, detail="Not your comment")
-    await db.post_comments.delete_one({"comment_id": comment_id})
+    await _soft_delete_comment(comment_id, db.post_comments, user, post_id=post_id)
     await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": -1}})
     return {"status": "deleted"}
 
+
 @router.delete("/comments/{comment_id}")
 async def delete_comment(comment_id: str, user: User = Depends(get_current_user)):
-    """Delete own comment (legacy flat route). Searches post_comments first, then reel_comments."""
-    comment = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+    """Soft-delete own comment (legacy flat route). Section 3.6.6 — F-01."""
+    # Search post_comments first, then reel_comments
+    raw = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0, "user_id": 1, "post_id": 1, "deleted": 1})
     is_reel_comment = False
-    if not comment:
-        comment = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+    if not raw:
+        raw = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0, "user_id": 1, "reel_id": 1, "post_id": 1, "deleted": 1})
         is_reel_comment = True
-    if not comment:
+    if not raw:
         raise HTTPException(status_code=404, detail="Comment not found")
-    if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
-        raise HTTPException(status_code=403, detail="Not your comment")
+    if raw.get("deleted"):
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if raw["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=404, detail="Comment not found")
     if is_reel_comment:
-        await db.reel_comments.delete_one({"comment_id": comment_id})
-        reel_id = comment.get("reel_id") or comment.get("post_id")
+        await _soft_delete_comment(comment_id, db.reel_comments, user)
+        reel_id = raw.get("reel_id") or raw.get("post_id")
         if reel_id:
             await db.reels.update_one({"reel_id": reel_id}, {"$inc": {"comments_count": -1}})
     else:
-        await db.post_comments.delete_one({"comment_id": comment_id})
-        await db.user_posts.update_one({"post_id": comment["post_id"]}, {"$inc": {"comments_count": -1}})
+        await _soft_delete_comment(comment_id, db.post_comments, user)
+        if raw.get("post_id"):
+            await db.user_posts.update_one({"post_id": raw["post_id"]}, {"$inc": {"comments_count": -1}})
     return {"status": "deleted"}
 
 @router.get("/users/by-username/{username}")

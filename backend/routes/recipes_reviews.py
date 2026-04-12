@@ -1189,13 +1189,86 @@ async def toggle_helpful(
         return {"helpful": True, "helpful_count": (review.get("helpful_count") or 0) + 1}
 
 
+# ── PATCH review (edit own text/rating) ─────────────────────────
+
+@router.patch("/products/{product_id}/reviews/{review_id}")
+async def edit_product_review(
+    product_id: str, review_id: str, request: Request, user: User = Depends(get_current_user),
+):
+    """Edit own review (comment, title, rating). Only the author can edit.
+
+    Section 3.6.6 — F-01. Returns 404 (not 403) for non-authors so existence isn't leaked.
+    """
+    review = await db.reviews.find_one(
+        {"review_id": review_id, "product_id": product_id, "deleted": {"$ne": True}},
+        {"_id": 0, "review_id": 1, "user_id": 1, "rating": 1, "comment": 1, "title": 1},
+    )
+    if not review:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+
+    # 404 (not 403) for non-author to avoid leaking existence.
+    if review.get("user_id") != user.user_id:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+
+    body = await request.json()
+    new_comment = (body.get("comment") or "").strip()
+    new_title = (body.get("title") or "").strip() or None
+    new_rating = body.get("rating")
+
+    if not new_comment or len(new_comment) < 10:
+        raise HTTPException(status_code=400, detail="La reseña debe tener al menos 10 caracteres")
+    if new_rating is not None:
+        try:
+            new_rating = int(new_rating)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="Rating inválido")
+        if new_rating < 1 or new_rating > 5:
+            raise HTTPException(status_code=400, detail="Rating debe estar entre 1 y 5")
+
+    # Run same moderation pipeline on edit as on create
+    moderation_status = "approved"
+    try:
+        from services.content_moderation import moderate_review
+        mod_result = await moderate_review(new_comment, new_rating or review.get("rating", 5))
+        moderation_status = mod_result.get("status", "approved")
+    except Exception as e:
+        logger.warning("[REVIEWS] Edit moderation error, defaulting to pending: %s", e)
+        moderation_status = "pending"
+
+    now = datetime.now(timezone.utc).isoformat()
+    update_doc = {
+        "comment": new_comment[:2000],
+        "title": (new_title or "")[:100] or None,
+        "edited": True,
+        "edited_at": now,
+        "updated_at": now,
+        "moderation_status": moderation_status,
+        "visible": moderation_status == "approved",
+    }
+    if new_rating is not None:
+        update_doc["rating"] = new_rating
+
+    await db.reviews.update_one({"review_id": review_id}, {"$set": update_doc})
+
+    # Recalculate if rating changed
+    if new_rating is not None and new_rating != review.get("rating"):
+        await _recalculate_product_rating(product_id)
+
+    updated = await db.reviews.find_one({"review_id": review_id}, {"_id": 0})
+    return updated
+
+
 # ── DELETE review (soft) ─────────────────────────────────────────
 
 @router.delete("/products/{product_id}/reviews/{review_id}")
 async def delete_product_review(
     product_id: str, review_id: str, user: User = Depends(get_current_user),
 ):
-    """Soft-delete a review. Author or admin can delete."""
+    """Soft-delete a review. Only the author can delete (admins use moderation endpoints).
+
+    Section 3.6.6 — F-01. Returns 404 (not 403) for non-authors. Marks deleted=True;
+    GET filters preserve these out of public lists.
+    """
     review = await db.reviews.find_one(
         {"review_id": review_id, "product_id": product_id, "deleted": {"$ne": True}},
         {"_id": 0, "review_id": 1, "user_id": 1},
@@ -1206,11 +1279,13 @@ async def delete_product_review(
     is_author = review.get("user_id") == user.user_id
     is_admin = getattr(user, "role", None) in ("admin", "super_admin")
     if not is_author and not is_admin:
-        raise HTTPException(status_code=403, detail="No autorizado")
+        # 404 (not 403) to avoid leaking existence.
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
 
+    now = datetime.now(timezone.utc).isoformat()
     await db.reviews.update_one(
         {"review_id": review_id},
-        {"$set": {"deleted": True, "visible": False, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        {"$set": {"deleted": True, "deleted_at": now, "visible": False, "updated_at": now}},
     )
 
     # Recalculate product rating
