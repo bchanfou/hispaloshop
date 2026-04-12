@@ -24,12 +24,19 @@ vi.mock('../lib/sentry', () => ({
 vi.mock('../lib/auth', () => ({
   TOKEN_KEY: 'hsp_token',
   getToken: vi.fn(() => localStorage.getItem('hsp_token')),
+  setToken: vi.fn((token) => {
+    localStorage.setItem('hsp_token', token);
+  }),
   removeToken: vi.fn(() => {
     localStorage.removeItem('hsp_token');
     localStorage.removeItem('hsp_refresh');
     localStorage.removeItem('hispalo_access_token');
     localStorage.removeItem('hispalo_user');
   }),
+  // B6 (4.5d): AuthContext.logout() now auto-switches using isTokenExpired.
+  // Treat tokens starting with "bad-" as expired so the invalid-token test
+  // exercises the "no valid fallback" path.
+  isTokenExpired: vi.fn((token) => String(token || '').startsWith('bad-')),
 }));
 
 import { AuthProvider, useAuth } from '../context/AuthContext';
@@ -63,7 +70,9 @@ describe('AuthProvider multi-account', () => {
     localStorage.clear();
   });
 
-  it('logout removes the active account from saved accounts', async () => {
+  it('logout removes the active account and auto-switches token to a remaining valid account', async () => {
+    // B6 (4.5d): logout() now mirrors logoutAccount() — closes only the active
+    // account and auto-switches token to the first valid saved account.
     localStorage.setItem('hsp_token', 'token-1');
     localStorage.setItem('hsp_accounts', JSON.stringify([
       { user_id: 'u1', username: 'alice', token: 'token-1' },
@@ -91,7 +100,8 @@ describe('AuthProvider multi-account', () => {
       ]);
     });
 
-    expect(localStorage.getItem('hsp_token')).toBeNull();
+    // Token should have auto-switched to bob's token (not cleared).
+    expect(localStorage.getItem('hsp_token')).toBe('token-2');
   });
 
   it('invalid saved account is removed and current session is restored on switch failure', async () => {
@@ -128,6 +138,10 @@ describe('AuthProvider multi-account', () => {
   });
 
   it('logout of active account switches to another valid saved account', async () => {
+    // logoutAccount triggers a full-page reload (window.location.href = '/'),
+    // which jsdom cannot simulate. So we assert on the persisted side-effects:
+    // the fallback token is installed, and hsp_accounts reflects the removal
+    // of the active account.
     localStorage.setItem('hsp_token', 'token-1');
     localStorage.setItem('hsp_accounts', JSON.stringify([
       { user_id: 'u1', username: 'alice', token: 'token-1' },
@@ -135,8 +149,7 @@ describe('AuthProvider multi-account', () => {
     ]));
 
     mockAuthApi.getCurrentUser
-      .mockResolvedValueOnce({ user_id: 'u1', username: 'alice', role: 'customer' })
-      .mockResolvedValueOnce({ user_id: 'u2', username: 'bob', role: 'customer' });
+      .mockResolvedValueOnce({ user_id: 'u1', username: 'alice', role: 'customer' });
     mockAuthApi.logout.mockResolvedValueOnce({ ok: true });
 
     render(
@@ -152,10 +165,9 @@ describe('AuthProvider multi-account', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('username')).toHaveTextContent('bob');
+      expect(localStorage.getItem('hsp_token')).toBe('token-2');
     });
 
-    expect(localStorage.getItem('hsp_token')).toBe('token-2');
     expect(JSON.parse(localStorage.getItem('hsp_accounts') || '[]')).toEqual([
       expect.objectContaining({ user_id: 'u2', username: 'bob', token: 'token-2' }),
     ]);

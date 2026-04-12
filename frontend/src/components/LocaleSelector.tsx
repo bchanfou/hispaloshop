@@ -309,12 +309,7 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
             onClick={() => setShowLanguageDialog(true)}
             testId="language-selector-mobile"
           />
-          <MobileTriggerButton
-            icon={DollarSign}
-            label={`${currencies[currency]?.symbol} ${currency}`}
-            onClick={() => setShowCurrencyDialog(true)}
-            testId="currency-selector-mobile"
-          />
+          {/* B13 (4.5d): currency selector hidden — currency is fixed by country. */}
 
           <MobileDialogSelector
             isOpen={showCountryDialog}
@@ -390,21 +385,6 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
             </DialogContent>
           </Dialog>
 
-          <MobileDialogSelector
-            isOpen={showCurrencyDialog}
-            onClose={setShowCurrencyDialog}
-            title={t('locale.selectCurrency')}
-            items={Object.entries(currencies)}
-            selectedValue={currency}
-            onSelect={handleCurrencyChange}
-            renderItem={(code: string, data: any) => (
-              <>
-                <span className="text-xl font-bold w-8">{data.symbol}</span>
-                <span className="flex-1 text-left font-medium">{code}</span>
-                <span className="text-sm text-stone-600">{data.name}</span>
-              </>
-            )}
-          />
         </div>
       ) : (
         <div className="relative" ref={desktopRef}>
@@ -431,16 +411,7 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
                   <Languages className="w-4 h-4" />
                   <span className="text-[11px] font-semibold text-stone-700 uppercase">{language}</span>
                 </button>
-                <button
-                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 inline-flex items-center rounded ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
-                  onClick={() => setDesktopMenu((prev) => (prev === 'currency' ? null : 'currency'))}
-                  data-testid="currency-selector"
-                  type="button"
-                  aria-label={t('locale.selectCurrency')}
-                >
-                  <DollarSign className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold text-stone-700">{currency}</span>
-                </button>
+                {/* B13 (4.5d): currency selector hidden — derived from country. */}
               </>
             ) : (
               <>
@@ -452,10 +423,7 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
                 <DesktopTrigger menu="language" icon={Languages} testId="language-selector">
                   <span className="uppercase">{language}</span>
                 </DesktopTrigger>
-
-                <DesktopTrigger menu="currency" icon={DollarSign} testId="currency-selector">
-                  <span>{currency}</span>
-                </DesktopTrigger>
+                {/* B13 (4.5d): currency selector hidden — derived from country. */}
               </>
             )}
           </div>
@@ -521,20 +489,6 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
             )}
           </DesktopMenu>
 
-          <DesktopMenu isOpen={desktopMenu === 'currency'} title={t('locale.selectCurrency')}>
-            {Object.entries(currencies).map(([code, data]: [string, any]) => (
-              <button
-                key={code}
-                onClick={() => handleCurrencyChange(code)}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${currency === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
-                data-testid={`currency-option-${code}`}
-              >
-                <span className="text-base w-6">{data.symbol}</span>
-                <span className="flex-1">{code}</span>
-                {currency === code && <Check className="w-4 h-4 text-stone-950" />}
-              </button>
-            ))}
-          </DesktopMenu>
         </div>
       )}
 

@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye, HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2, Link2, Receipt, CreditCard, Store, Globe, Check, MapPin, Trophy, Download, Moon, UserPlus, Users, Cookie, Pause } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { removeToken } from '../../lib/auth';
 import apiClient from '../../services/api/client';
 import { trackEvent } from '../../utils/analytics';
 import { useTranslation } from 'react-i18next';
@@ -142,10 +141,9 @@ export default function SettingsPage() {
         return;
       }
     }
-    // Fallback: full logout (no other accounts or logoutAccount not available)
-    // logout() clears tokens + does a full page reload to /login
-    removeToken();
-    localStorage.removeItem('hsp_accounts');
+    // Fallback: normal logout of the current account only.
+    // logout() now preserves other saved accounts and auto-switches when possible.
+    // B6 fix (4.5d): do NOT wipe hsp_accounts here — that closed ALL accounts.
     logout();
   };
   const handleDeleteAccount = async () => {
@@ -157,12 +155,9 @@ export default function SettingsPage() {
           email_confirmation: deleteEmail
         }
       });
-      removeToken();
-      localStorage.removeItem('hsp_accounts');
+      // Account deleted server-side. Use logout() which now removes ONLY this
+      // account from hsp_accounts and auto-switches to a remaining valid one.
       logout();
-      navigate('/login', {
-        replace: true
-      });
     } catch (e) {
       toast.error(e?.response?.data?.detail || i18n.t('settings.errorAlEliminarLaCuenta', 'Error al eliminar la cuenta'));
       setDeleting(false);
@@ -173,10 +168,8 @@ export default function SettingsPage() {
     try {
       const res = await apiClient.post('/account/deactivate');
       toast.success(res?.data?.message || 'Cuenta desactivada. Tienes 30 dias para recuperarla.');
-      removeToken();
-      localStorage.removeItem('hsp_accounts');
+      // Use logout() which preserves other saved accounts and auto-switches.
       logout();
-      navigate('/login', { replace: true });
     } catch (e) {
       toast.error(e?.response?.data?.detail || 'Error al desactivar la cuenta');
       setDeactivating(false);

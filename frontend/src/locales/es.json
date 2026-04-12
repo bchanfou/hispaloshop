@@ -2512,6 +2512,7 @@
     }
   },
   "chat": {
+    "personalNotes": "Notas personales",
     "attach_image": "Imagen",
     "attach_audio": "Audio",
     "attach_product": "Producto",
@@ -4978,6 +4979,9 @@
     "tipsParaMejorarTusConversiones": "Tips para mejorar tus conversiones"
   },
   "internal_chat": {
+    "sinConexion": "Sin conexion a internet.",
+    "sesionExpirada": "Tu sesion ha expirado. Inicia sesion de nuevo.",
+    "errorDelServidor": "Error del servidor. Intentalo de nuevo.",
     "imagenCompartidaEnElChat": "Imagen compartida en el chat",
     "noSePudoCargarLaImagen": "No se pudo cargar la imagen",
     "pegaUnEnlaceDeProductoOSuId": "Pega un enlace de producto o su ID.",

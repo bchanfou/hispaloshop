@@ -303,28 +303,53 @@ export function AuthProvider({ children }) {
     }
   }, [setUser]);
 
+  // Normal "logout" — closes ONLY the active account. If other saved
+  // accounts remain, auto-switches to the first valid one (IG/Twitter behavior).
+  // Falls back to /login only when no other valid account exists.
+  // B6 fix (4.5d): previously logout() navigated to /login even when other
+  // accounts existed, which the founder perceived as "all accounts closed".
   const logout = useCallback(async () => {
     const currentId = accountId(user);
     try {
       await authApi.logout();
     } catch (logoutError) {
-      // silently handled
-    } finally {
-      if (currentId) {
-        removeStoredAccountById(currentId);
-      }
-      // Clear all cached data from previous session
-      queryClient.clear();
-      // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
-      removeToken();
-      // Clear producer plan cache so next user doesn't see previous user's plan
-      try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
-      setSentryUser(null);
-      // Full page reload to destroy all stale React state, closures, and mounted components.
-      // Without this, components with captured user references can show ghost data.
-      window.location.href = '/login';
+      // silently handled — server-side cookie invalidation is best-effort
     }
-  }, [user, queryClient]);
+
+    // Remove ONLY the current account from stored accounts — never wipe the list.
+    if (currentId) {
+      removeStoredAccountById(currentId);
+    }
+
+    // Look for a valid fallback account to auto-switch to.
+    const remaining = readStoredAccounts().filter((a) => a?.token);
+    const validFallback = remaining.find((a) => !isTokenExpired(a.token));
+
+    // Clear caches scoped to the session we're leaving (safe for both paths)
+    queryClient.clear();
+    try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
+
+    if (validFallback) {
+      // Auto-switch: set fallback token and reload. Same pattern as switchAccount
+      // to avoid cookie mismatch between the just-logged-out session and the
+      // fallback account.
+      localStorage.setItem(TOKEN_KEY, validFallback.token);
+      authDebug('logout:fallback-reload', {
+        fallbackId: accountId(validFallback),
+        fallbackUsername: validFallback?.username || null,
+      });
+      window.location.href = '/';
+      return;
+    }
+
+    // No valid fallback — drop to login, clean up any stale entries.
+    for (const stale of remaining) {
+      removeStoredAccountById(stale.user_id || stale.id);
+    }
+    removeToken();
+    setSentryUser(null);
+    window.location.href = '/login';
+  }, [user, queryClient, authDebug]);
 
   const switchAccount = useCallback(async (account) => {
     authDebug('switch:start', {

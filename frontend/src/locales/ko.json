@@ -2795,6 +2795,7 @@
     "sharePost": "게시물 공유"
   },
   "chat": {
+    "personalNotes": "개인 메모",
     "attach_image": "이미지",
     "attach_audio": "오디오",
     "attach_product": "상품",
@@ -6376,6 +6377,9 @@
     "tipsParaMejorarTusConversiones": "Tips para mejorar tus conversiones"
   },
   "internal_chat": {
+    "sinConexion": "인터넷 연결이 없습니다.",
+    "sesionExpirada": "세션이 만료되었습니다. 다시 로그인해 주세요.",
+    "errorDelServidor": "서버 오류입니다. 다시 시도해 주세요.",
     "imagenCompartidaEnElChat": "Imagen compartida en el chat",
     "noSePudoCargarLaImagen": "No se pudo cargar la imagen",
     "pegaUnEnlaceDeProductoOSuId": "Pega un enlace de producto o su ID.",

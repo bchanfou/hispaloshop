@@ -339,33 +339,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               </div>
             </AccordionRow>
 
-            {/* Divisa */}
-            <AccordionRow
-              icon={<span className="text-lg w-5 text-center">💱</span>}
-              label={t('hamburger.divisa', 'Divisa')}
-              value={currentCurrency.code}
-              isOpen={openAccordion === 'currency'}
-              onToggle={() => { setLocaleSearch(''); setOpenAccordion(openAccordion === 'currency' ? null : 'currency'); }}
-            >
-              <input
-                type="text"
-                placeholder={t('hamburger.buscarDivisa', 'Buscar divisa...')}
-                value={localeSearch}
-                onChange={e => setLocaleSearch(e.target.value)}
-                className="w-full px-3 py-2 mb-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
-              />
-              <div className="max-h-60 overflow-y-auto">
-                {CURRENCIES.filter(c => !localeSearch || c.name.toLowerCase().includes(localeSearch.toLowerCase()) || c.code.toLowerCase().includes(localeSearch.toLowerCase())).map(c => {
-                  const isActive = locale?.currency === c.code;
-                  return <AccordionOption
-                    key={c.code}
-                    label={`${c.symbol} ${c.code} — ${c.name}`}
-                    isActive={isActive}
-                    onClick={() => { locale?.updateCurrency?.(c.code); setOpenAccordion(null); setLocaleSearch(''); }}
-                  />;
-                })}
-              </div>
-            </AccordionRow>
+            {/* B13 (4.5d): Divisa accordion hidden — currency is fixed by country. */}
 
             <Divider />
 

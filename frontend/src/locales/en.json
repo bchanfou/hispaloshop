@@ -2626,6 +2626,7 @@
     }
   },
   "chat": {
+    "personalNotes": "Personal notes",
     "attach_image": "Image",
     "attach_audio": "Audio",
     "attach_product": "Product",
@@ -6221,6 +6222,9 @@
     "tipsParaMejorarTusConversiones": "Tips para mejorar tus conversiones"
   },
   "internal_chat": {
+    "sinConexion": "No internet connection.",
+    "sesionExpirada": "Your session has expired. Please log in again.",
+    "errorDelServidor": "Server error. Please try again.",
     "imagenCompartidaEnElChat": "Imagen compartida en el chat",
     "noSePudoCargarLaImagen": "No se pudo cargar la imagen",
     "pegaUnEnlaceDeProductoOSuId": "Pega un enlace de producto o su ID.",

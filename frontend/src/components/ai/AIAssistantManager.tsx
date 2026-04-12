@@ -39,8 +39,8 @@ const LS_STATE = 'hsp_ai_button_state';
 
 const AI_DEFS = [
   { id: 'david', color: '#0c0a09', icon: Sparkles, type: 'drawer', label: 'David AI' },
-  { id: 'rebeca', color: '#0a3d2e', icon: TrendingUp, type: 'drawer', label: 'Rebeca AI', minPlan: 'PRO', roles: ['producer', 'importer'] },
-  { id: 'pedro', color: '#b45309', icon: Crown, type: 'navigate', href: '/producer/commercial-ai', label: 'Pedro AI', minPlan: 'ELITE', roles: ['producer', 'importer'] },
+  { id: 'rebeca', color: '#57534e', icon: TrendingUp, type: 'drawer', label: 'Rebeca AI', minPlan: 'PRO', roles: ['producer', 'importer'] },
+  { id: 'pedro', color: '#a8a29e', icon: Crown, type: 'navigate', href: '/producer/commercial-ai', label: 'Pedro AI', minPlan: 'ELITE', roles: ['producer', 'importer'] },
 ];
 
 const PLAN_ORDER = { FREE: 0, PRO: 1, ELITE: 2 };
@@ -178,7 +178,7 @@ export default function AIAssistantManager() {
   const handleDrag = useCallback((_, info) => {
     const dx = Math.abs(info.offset.x);
     const dy = Math.abs(info.offset.y);
-    if (dx > 5 || dy > 5) isDragging.current = true;
+    if (dx > 10 || dy > 10) isDragging.current = true;
   }, []);
 
   const handleDragEnd = useCallback((_, info) => {
@@ -215,7 +215,12 @@ export default function AIAssistantManager() {
   const handleButtonClick = useCallback(() => {
     if (isDragging.current) return;
     if (buttonState === 'strip') {
-      // Expand to full button first
+      // Single AI: go straight to panel (skip full button state)
+      if (!hasMultipleAIs && availableAIs.length === 1) {
+        openAI(availableAIs[0]);
+        return;
+      }
+      // Multiple AIs: expand to full button first (need to show stack)
       setButtonState('full');
       const newX = getXForSide(side, BUTTON_SIZE);
       controls.start({
@@ -295,7 +300,7 @@ export default function AIAssistantManager() {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               onClick={handleButtonClick}
-              className={`flex items-center justify-center bg-stone-950/80 backdrop-blur-sm text-white/70 shadow-md cursor-pointer hover:opacity-100 transition-opacity ${
+              className={`flex items-center justify-center bg-stone-950/80 backdrop-blur-sm text-white/70 shadow-md ring-1 ring-white/20 cursor-pointer hover:opacity-100 transition-opacity ${
                 side === 'right' ? 'rounded-l-xl' : 'rounded-r-xl'
               }`}
               style={{ width: STRIP_W, height: STRIP_H }}
@@ -329,15 +334,19 @@ export default function AIAssistantManager() {
 
         {/* ── Multi-AI stack popover ── */}
         <AnimatePresence>
-          {showStack && buttonState === 'full' && (
+          {showStack && buttonState === 'full' && (() => {
+            const stackDown = posY < window.innerHeight / 2;
+            return (
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              initial={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.9 }}
+              exit={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="absolute flex flex-col items-center"
+              className={`absolute flex flex-col items-center ${stackDown ? 'flex-col' : 'flex-col-reverse'}`}
               style={{
-                bottom: BUTTON_SIZE + STACK_GAP,
+                ...(stackDown
+                  ? { top: BUTTON_SIZE + STACK_GAP }
+                  : { bottom: BUTTON_SIZE + STACK_GAP }),
                 left: '50%',
                 transform: 'translateX(-50%)',
                 gap: STACK_GAP,
@@ -368,7 +377,7 @@ export default function AIAssistantManager() {
                 );
               })}
             </motion.div>
-          )}
+          );})()}
         </AnimatePresence>
       </motion.div>
     </>

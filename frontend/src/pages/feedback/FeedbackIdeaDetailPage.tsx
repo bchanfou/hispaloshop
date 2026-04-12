@@ -57,10 +57,14 @@ export default function FeedbackIdeaDetailPage() {
     try {
       setCommentsLoading(true);
       const res = await apiClient.get(`/feedback/ideas/${idea.idea_id}/comments`);
-      const data = res?.data || res;
-      setComments(data?.items || []);
-    } catch {
-      // silently fail
+      // Backend wraps responses as { success, data: { items, total, ... } }
+      // but older/alternate paths may return flat { items }. Handle both.
+      const payload = res?.data?.items ? res.data : (res?.items ? res : (res?.data || res));
+      setComments(Array.isArray(payload?.items) ? payload.items : []);
+    } catch (err) {
+      // B3 (4.5d): surface fetch failure instead of silently hiding it — previously
+      // the founder saw an empty list with no feedback when the GET failed.
+      console.warn('[feedback] fetchComments failed', err);
     } finally {
       setCommentsLoading(false);
     }
@@ -69,14 +73,47 @@ export default function FeedbackIdeaDetailPage() {
   useEffect(() => { fetchIdea(); }, [fetchIdea]);
   useEffect(() => { fetchComments(); }, [fetchComments]);
 
+  // B4 (4.5d): optimistic vote — update UI immediately, revert on server error.
+  // Previously the counter waited for the round-trip, which the founder saw as
+  // "lag / pesado" when voting on ideas.
   const handleVote = async (voteType) => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'like' } }));
       return;
     }
+    if (!idea?.idea_id) return;
+
+    const prevSnapshot = {
+      user_vote: idea.user_vote,
+      user_voted: idea.user_voted,
+      vote_count: idea.vote_count,
+      upvote_count: idea.upvote_count,
+      downvote_count: idea.downvote_count,
+    };
+
+    // Compute optimistic next state: same voteType again toggles off.
+    const wasUp = prevSnapshot.user_vote === 'up';
+    const wasDown = prevSnapshot.user_vote === 'down';
+    const toggleOff = (voteType === 'up' && wasUp) || (voteType === 'down' && wasDown);
+    const nextUserVote = toggleOff ? null : voteType;
+    const upDelta = (nextUserVote === 'up' ? 1 : 0) - (wasUp ? 1 : 0);
+    const downDelta = (nextUserVote === 'down' ? 1 : 0) - (wasDown ? 1 : 0);
+    const nextUp = Math.max(0, (prevSnapshot.upvote_count ?? 0) + upDelta);
+    const nextDown = Math.max(0, (prevSnapshot.downvote_count ?? 0) + downDelta);
+
+    setIdea(prev => ({
+      ...prev,
+      user_vote: nextUserVote,
+      user_voted: nextUserVote !== null,
+      vote_count: nextUp - nextDown,
+      upvote_count: nextUp,
+      downvote_count: nextDown,
+    }));
+
     try {
       const res = await apiClient.post(`/feedback/ideas/${idea.idea_id}/vote`, { vote_type: voteType });
       const data = res?.data || res;
+      // Reconcile with server truth (authoritative).
       setIdea(prev => ({
         ...prev,
         user_vote: data.user_vote,
@@ -85,27 +122,47 @@ export default function FeedbackIdeaDetailPage() {
         upvote_count: data.upvote_count,
         downvote_count: data.downvote_count,
       }));
-    } catch {
-      toast.error(t('feedback.errorVoting', 'Error al votar'));
+    } catch (err) {
+      // Revert optimistic update on failure.
+      setIdea(prev => ({ ...prev, ...prevSnapshot }));
+      toast.error(err?.response?.data?.detail || t('feedback.errorVoting', 'Error al votar'));
     }
   };
 
+  // B3 (4.5d): harden comment submit — guard against missing idea_id, unwrap
+  // { success, data: comment } envelope defensively, surface error detail.
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!user) {
       window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'comment' } }));
       return;
     }
-    if (!newComment.trim()) return;
+    const body = newComment.trim();
+    if (!body) return;
+    if (!idea?.idea_id) {
+      toast.error(t('feedback.detail.errorComment', 'Error al comentar'));
+      return;
+    }
     setSubmittingComment(true);
     try {
-      const res = await apiClient.post(`/feedback/ideas/${idea.idea_id}/comments`, { body: newComment.trim() });
-      const comment = res?.data || res;
-      setComments(prev => [...prev, comment]);
+      const res: any = await apiClient.post(
+        `/feedback/ideas/${idea.idea_id}/comments`,
+        { body },
+      );
+      // Response shape is { success: true, data: commentObj }. Unwrap robustly.
+      const comment = res?.data?.comment_id ? res.data : (res?.comment_id ? res : (res?.data || res));
+      if (!comment?.comment_id) {
+        // Defensive: server didn't return a usable comment — refetch list so
+        // the founder at least sees their comment appear if it was saved.
+        await fetchComments();
+      } else {
+        setComments(prev => [...prev, comment]);
+      }
       setNewComment('');
-      setIdea(prev => ({ ...prev, comment_count: (prev.comment_count || 0) + 1 }));
-    } catch (err) {
-      toast.error(err?.response?.data?.detail || t('feedback.detail.errorComment', 'Error al comentar'));
+      setIdea(prev => ({ ...prev, comment_count: (prev?.comment_count || 0) + 1 }));
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail || err?.data?.detail || err?.message;
+      toast.error(detail || t('feedback.detail.errorComment', 'Error al comentar'));
     } finally {
       setSubmittingComment(false);
     }

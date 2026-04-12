@@ -121,7 +121,7 @@ export default function AIAssistantsPage() {
       {/* Rebeca AI */}
       <div className="bg-white rounded-2xl border border-stone-200 p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-[#0a3d2e] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center">
             <TrendingUp className="w-4 h-4 text-white" />
           </div>
           <h2 className="text-sm font-semibold text-stone-950">Rebeca AI</h2>
@@ -148,7 +148,7 @@ export default function AIAssistantsPage() {
       {/* Pedro AI */}
       <div className="bg-white rounded-2xl border border-stone-200 p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-[#b45309] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-stone-400 flex items-center justify-center">
             <Crown className="w-4 h-4 text-white" />
           </div>
           <h2 className="text-sm font-semibold text-stone-950">Pedro AI</h2>

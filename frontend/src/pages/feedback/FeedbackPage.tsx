@@ -85,6 +85,8 @@ export default function FeedbackPage() {
     fetchIdeas(1, false);
   }, [fetchIdeas]);
 
+  // B4 (4.5d): optimistic vote update in the list — the counter pill now
+  // flips instantly without waiting for the round-trip. Reverts on server error.
   const handleVote = async (ideaId, voteType, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -92,6 +94,31 @@ export default function FeedbackPage() {
       window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'like' } }));
       return;
     }
+
+    const snapshot = items.find(i => i.idea_id === ideaId);
+    if (!snapshot) return;
+
+    const wasUp = snapshot.user_vote === 'up';
+    const wasDown = snapshot.user_vote === 'down';
+    const toggleOff = (voteType === 'up' && wasUp) || (voteType === 'down' && wasDown);
+    const nextUserVote = toggleOff ? null : voteType;
+    const upDelta = (nextUserVote === 'up' ? 1 : 0) - (wasUp ? 1 : 0);
+    const downDelta = (nextUserVote === 'down' ? 1 : 0) - (wasDown ? 1 : 0);
+    const nextUp = Math.max(0, (snapshot.upvote_count ?? 0) + upDelta);
+    const nextDown = Math.max(0, (snapshot.downvote_count ?? 0) + downDelta);
+
+    const optimistic = {
+      user_vote: nextUserVote,
+      user_voted: nextUserVote !== null,
+      vote_count: nextUp - nextDown,
+      upvote_count: nextUp,
+      downvote_count: nextDown,
+    };
+
+    setItems(prev => prev.map(item =>
+      item.idea_id === ideaId ? { ...item, ...optimistic } : item,
+    ));
+
     try {
       const res = await apiClient.post(`/feedback/ideas/${ideaId}/vote`, { vote_type: voteType });
       const data = res?.data || res;
@@ -101,8 +128,12 @@ export default function FeedbackPage() {
               upvote_count: data.upvote_count, downvote_count: data.downvote_count }
           : item
       ));
-    } catch {
-      toast.error(t('feedback.errorVoting', 'Error al votar'));
+    } catch (err) {
+      // Revert optimistic update.
+      setItems(prev => prev.map(item =>
+        item.idea_id === ideaId ? { ...item, ...snapshot } : item,
+      ));
+      toast.error(err?.response?.data?.detail || t('feedback.errorVoting', 'Error al votar'));
     }
   };
 

@@ -38,9 +38,13 @@ export function LocaleProvider({ children }) {
   });
   // Sync initial language with i18n instance to avoid race condition
   const [language, setLanguage] = useState(() => i18n.language || defaultLanguage);
+  // B13 (4.5d): Currency is DERIVED from country — no user override.
+  // ES→EUR, KR→KRW, US→USD, GB→GBP, etc. Selector is hidden in production UI.
+  // Seeded from country on init; kept in sync inside updateCountry.
   const [currency, setCurrency] = useState(() => {
-    const saved = localStorage.getItem('hispaloshop_currency');
-    return saved || 'EUR';
+    const savedCountry = localStorage.getItem('hispaloshop_country') || 'ES';
+    const fallback = FALLBACK_COUNTRIES[savedCountry]?.currency;
+    return fallback || 'EUR';
   });
   
   // Locale configuration from backend
@@ -94,16 +98,18 @@ export function LocaleProvider({ children }) {
       
       // For guests: Check localStorage first, then use config defaults
       const savedCountry = localStorage.getItem('hispaloshop_country');
-      const savedCurrency = localStorage.getItem('hispaloshop_currency');
-      
+      const effectiveCountry = savedCountry || config.default_country || 'ES';
+
       if (!savedCountry) {
-        // No saved country, use config default
-        setCountry(config.default_country || 'ES');
+        setCountry(effectiveCountry);
       }
-      if (!savedCurrency) {
-        // No saved currency, use config default
-        setCurrency(config.default_currency || 'EUR');
-      }
+
+      // B13 (4.5d): Currency is FIXED by country — never from localStorage override.
+      const merged = { ...FALLBACK_COUNTRIES, ...configCountries };
+      const derivedCurrency = merged[effectiveCountry]?.currency || config.default_currency || 'EUR';
+      setCurrency(derivedCurrency);
+      // Clean up any legacy override (harmless if absent).
+      try { localStorage.removeItem('hispaloshop_currency'); } catch { /* noop */ }
       
       // For language: Check saved first, then keep current (which may be auto-detected)
       const savedLang = localStorage.getItem('hispaloshop_language');
@@ -123,9 +129,10 @@ export function LocaleProvider({ children }) {
       setCurrencies(FALLBACK_CURRENCIES);
 
       const savedCountry = localStorage.getItem('hispaloshop_country');
-      const savedCurrency = localStorage.getItem('hispaloshop_currency');
+      const effectiveCountry = savedCountry || 'ES';
       if (!savedCountry) setCountry('ES');
-      if (!savedCurrency) setCurrency('EUR');
+      // B13: currency derived from country, no override.
+      setCurrency(FALLBACK_COUNTRIES[effectiveCountry]?.currency || 'EUR');
     } finally {
       setLoading(false);
     }
@@ -135,12 +142,21 @@ export function LocaleProvider({ children }) {
     try {
       const userLocale = await apiClient.get('/user/locale');
       
-      if (userLocale.country) setCountry(userLocale.country);
+      if (userLocale.country) {
+        setCountry(userLocale.country);
+        // B13 (4.5d): derive currency from country, ignore any server-sent currency override.
+        const derived = (FALLBACK_COUNTRIES[userLocale.country]?.currency)
+          || countries[userLocale.country]?.currency
+          || 'EUR';
+        setCurrency(derived);
+      } else if (userLocale.currency) {
+        // No country from server but currency present — accept as best-effort.
+        setCurrency(userLocale.currency);
+      }
       if (userLocale.language) {
         setLanguage(userLocale.language);
         localStorage.setItem('hispaloshop_language', userLocale.language);
       }
-      if (userLocale.currency) setCurrency(userLocale.currency);
     } catch (error) {
       // silently handled
     }
@@ -198,14 +214,14 @@ export function LocaleProvider({ children }) {
   const updateCountry = useCallback(async (newCountry) => {
     const oldCountry = country;
     setCountry(newCountry);
-    
-    // Auto-update currency based on country
-    const countryCurrency = countries[newCountry]?.currency;
-    if (countryCurrency) {
-      setCurrency(countryCurrency);
-      localStorage.setItem('hispaloshop_currency', countryCurrency);
-    }
-    
+
+    // B13 (4.5d): currency is FIXED by country — always derive, never persist override.
+    const countryCurrency = countries[newCountry]?.currency
+      || FALLBACK_COUNTRIES[newCountry]?.currency
+      || 'EUR';
+    setCurrency(countryCurrency);
+    try { localStorage.removeItem('hispaloshop_currency'); } catch { /* noop */ }
+
     // Always save to localStorage for persistence
     localStorage.setItem('hispaloshop_country', newCountry);
     
@@ -248,21 +264,13 @@ export function LocaleProvider({ children }) {
     }
   }, [user]);
 
+  // B13 (4.5d): Currency selector is hidden in production UI — currency is
+  // derived from country. This function is kept for back-compat (any legacy
+  // caller) but is now a no-op beyond updating local state; it does NOT
+  // persist an override to localStorage or the server.
   const updateCurrency = useCallback(async (newCurrency) => {
     setCurrency(newCurrency);
-    
-    // Always save to localStorage for persistence
-    localStorage.setItem('hispaloshop_currency', newCurrency);
-    
-    // Save to backend if user is logged in
-    if (user) {
-      try {
-        await apiClient.put('/user/locale', { currency: newCurrency });
-      } catch (error) {
-        // silently handled
-      }
-    }
-  }, [user]);
+  }, []);
 
   const getCountryFlag = useCallback((countryCode) => {
     return countries[countryCode]?.flag || '🌍';

@@ -57,24 +57,70 @@ export function NetworkErrorState({
     }
   };
 
+  // B5 (4.5d): classify by status code + navigator.onLine instead of always
+  // showing "Sin conexión". This component is used across feeds/dashboards
+  // where founder was seeing "Error de conexión" for 401/403/404/500 errors.
   const getErrorMessage = () => {
-    if (!isOnline) {
+    const status = (error as any)?.status ?? (error as any)?.response?.status;
+    const code = (error as any)?.code;
+
+    if (!isOnline || code === 'ERR_NETWORK') {
       return {
-        title: 'Sin conexión a internet',
-        description: 'No se pudo conectar con el servidor. Verifica tu conexión WiFi o datos móviles.',
+        title: 'Sin conexión',
+        description: 'Comprueba tu conexión WiFi o datos móviles e inténtalo de nuevo.',
         icon: WifiOff,
-        color: 'text-amber-500',
-        bgColor: 'bg-amber-50'
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
       };
     }
 
-    if (error?.message?.includes('timeout') || error?.message?.includes('ECONNABORTED')) {
+    if (code === 'ECONNABORTED' || error?.message?.toLowerCase().includes('timeout')) {
       return {
-        title: 'Conexión lenta',
-        description: 'El servidor está tardando en responder. Inténtalo de nuevo.',
+        title: 'El servidor tarda en responder',
+        description: 'La petición ha tardado demasiado. Vuelve a intentarlo en unos segundos.',
         icon: AlertCircle,
-        color: 'text-orange-500',
-        bgColor: 'bg-orange-50'
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
+      };
+    }
+
+    if (status === 401) {
+      return {
+        title: 'Inicia sesión',
+        description: 'Esta acción requiere que hayas iniciado sesión.',
+        icon: AlertCircle,
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
+      };
+    }
+
+    if (status === 403) {
+      return {
+        title: 'Sin permisos',
+        description: 'No tienes permisos para ver este contenido.',
+        icon: AlertCircle,
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
+      };
+    }
+
+    if (status === 404) {
+      return {
+        title: 'No encontrado',
+        description: 'El contenido que buscas no existe o ha sido eliminado.',
+        icon: AlertCircle,
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
+      };
+    }
+
+    if (status && status >= 500) {
+      return {
+        title: 'Error del servidor',
+        description: 'Nuestros servidores están teniendo problemas. Vuelve a intentarlo en unos minutos.',
+        icon: AlertCircle,
+        color: 'text-stone-600',
+        bgColor: 'bg-stone-100',
       };
     }
 
@@ -82,8 +128,8 @@ export function NetworkErrorState({
       title: 'Error al cargar',
       description: error?.message || 'Ha ocurrido un error inesperado. Inténtalo de nuevo.',
       icon: AlertCircle,
-      color: 'text-red-500',
-      bgColor: 'bg-red-50'
+      color: 'text-stone-600',
+      bgColor: 'bg-stone-100',
     };
   };
 

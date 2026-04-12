@@ -92,7 +92,7 @@ function UpgradeBanner() {
 
       <button
         onClick={() => navigate('/producer/plan')}
-        className="px-8 py-3.5 rounded-full bg-[#b45309] text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03] hover:bg-[#78350f]"
+        className="px-8 py-3.5 rounded-full bg-stone-950 text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03] hover:bg-stone-800"
       >
         Actualizar a ELITE
       </button>
@@ -332,7 +332,7 @@ export default function CommercialAIPage() {
           <h1 className="text-[32px] font-bold text-stone-950 tracking-tight m-0">
             Pedro AI
           </h1>
-          <span className="px-3 py-1 rounded-full bg-[#b45309]/10 text-[#b45309] text-[11px] font-bold tracking-wide">
+          <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-950 text-[11px] font-bold tracking-wide">
             ELITE
           </span>
         </div>
@@ -351,7 +351,7 @@ export default function CommercialAIPage() {
           <Bell size={14} />
           Alertas
           {alertCount > 0 && (
-            <span className={`ml-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${hasUrgentAlerts ? 'bg-[#b45309]' : 'bg-stone-600'}`}>
+            <span className={`ml-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ${hasUrgentAlerts ? 'bg-stone-950' : 'bg-stone-600'}`}>
               {alertCount}
             </span>
           )}
@@ -588,7 +588,7 @@ export default function CommercialAIPage() {
                               onClick={() => { closePanel(); handleSend(`${action.title}. ${action.action}.`); }}
                               className="flex w-full items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 text-left hover:border-stone-300 transition-all"
                             >
-                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b45309] text-[11px] font-bold text-white">{action.priority}</span>
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-950 text-[11px] font-bold text-white">{action.priority}</span>
                               <div className="flex-1 min-w-0">
                                 <p className="text-[13px] font-medium text-stone-950">{action.title}</p>
                                 <p className="mt-0.5 text-[11px] text-stone-500">{action.why}</p>
@@ -705,7 +705,7 @@ export default function CommercialAIPage() {
               Claude Sonnet — análisis avanzado
             </p>
           </div>
-          <div className="ml-auto w-2 h-2 rounded-full bg-[#b45309]" />
+          <div className="ml-auto w-2 h-2 rounded-full bg-stone-950" />
         </div>
 
         {/* Messages Area */}

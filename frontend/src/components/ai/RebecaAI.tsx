@@ -92,7 +92,7 @@ function parseMarkdownSafe(text: string): string {
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-2">
-      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#0a3d2e]">
+      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-stone-950">
         <span className="text-[10px] font-semibold text-white">R</span>
       </div>
       <div className="flex gap-1 rounded-2xl rounded-bl-[4px] bg-stone-100 px-4 py-3">
@@ -332,7 +332,7 @@ export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => vo
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={() => { setIsOpen(true); trackEvent('rebeca_opened'); }}
-            className="fixed bottom-[88px] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#0a3d2e] shadow-[0_4px_24px_rgba(0,0,0,0.20)] transition-transform hover:scale-105 active:scale-95"
+            className="fixed bottom-[88px] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 shadow-[0_4px_24px_rgba(0,0,0,0.20)] transition-transform hover:scale-105 active:scale-95"
             aria-label="Abrir Rebeca"
           >
             <TrendingUp className="h-6 w-6 text-white" />
@@ -381,13 +381,13 @@ export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => vo
               {/* Header */}
               <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0a3d2e]">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-950">
                     <span className="text-sm font-semibold text-white">R</span>
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span id="rebeca-dialog-title" className="text-[15px] font-semibold text-stone-950">Rebeca</span>
-                      <span className="h-2 w-2 rounded-full bg-[#0a3d2e]" />
+                      <span className="h-2 w-2 rounded-full bg-stone-950" />
                     </div>
                     <p className="truncate text-[11px] text-stone-500">Tu asesora comercial</p>
                   </div>
@@ -401,7 +401,7 @@ export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => vo
                   >
                     <Bell className="h-4 w-4" />
                     {alertCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0a3d2e] px-1 text-[9px] font-bold text-white">
+                      <span className="absolute top-0.5 right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-stone-950 px-1 text-[9px] font-bold text-white">
                         {alertCount}
                       </span>
                     )}
@@ -609,7 +609,7 @@ export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => vo
                                         }}
                                         className="flex w-full items-start gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-left transition-all hover:border-stone-300 hover:shadow-sm active:scale-[0.98]"
                                       >
-                                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0a3d2e] text-[10px] font-bold text-white">
+                                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-950 text-[10px] font-bold text-white">
                                           {action.priority}
                                         </span>
                                         <div className="min-w-0 flex-1">
@@ -799,7 +799,7 @@ export default function RebecaAI({ onRequestClose }: { onRequestClose?: () => vo
                   return (
                     <div key={key} className={`mb-3 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                       {!isUser && (
-                        <div className="mr-2 mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#0a3d2e]">
+                        <div className="mr-2 mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-stone-950">
                           <span className="text-[10px] font-semibold text-white">R</span>
                         </div>
                       )}

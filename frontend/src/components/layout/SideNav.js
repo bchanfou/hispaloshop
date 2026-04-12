@@ -15,27 +15,21 @@ function LocaleDropdowns() {
   const {
     language,
     country,
-    currency,
     languages,
     countries,
-    currencies,
     updateLanguage,
     updateCountry,
-    updateCurrency
   } = useLocale();
-  const selectClass = 'w-full text-xs text-stone-600 bg-transparent border border-stone-200 rounded-xl px-2 py-1.5 focus:outline-none focus:border-stone-400 cursor-pointer';
+  // B11 + B13 (4.5d): stone-palette native selects for country/language.
+  // Currency selector hidden — currency is derived from country.
+  const selectClass = 'w-full text-xs text-stone-700 bg-white border border-stone-200 rounded-xl px-2 py-1.5 focus:outline-none focus:border-stone-400 hover:border-stone-300 cursor-pointer';
   return <div className="px-3 pb-3 space-y-1.5 border-t border-stone-100 pt-3">
       <select value={language} onChange={e => updateLanguage(e.target.value)} className={selectClass} aria-label="Idioma">
         {Object.entries(languages || {}).map(([code, data]) => <option key={code} value={code}>{data.native || code}</option>)}
       </select>
-      <div className="grid grid-cols-2 gap-1.5">
-        <select value={country} onChange={e => updateCountry(e.target.value)} className={selectClass} aria-label="País">
-          {Object.entries(countries || {}).map(([code, data]) => <option key={code} value={code}>{data.name || code}</option>)}
-        </select>
-        <select value={currency} onChange={e => updateCurrency(e.target.value)} className={selectClass} aria-label="Moneda">
-          {Object.entries(currencies || {}).map(([code, data]) => <option key={code} value={code}>{data.symbol || ''} {code}</option>)}
-        </select>
-      </div>
+      <select value={country} onChange={e => updateCountry(e.target.value)} className={selectClass} aria-label="País">
+        {Object.entries(countries || {}).map(([code, data]) => <option key={code} value={code}>{data.name || code}</option>)}
+      </select>
     </div>;
 }
 const NAV_ITEMS = [{

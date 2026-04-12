@@ -52,7 +52,7 @@ export default function B2BQuickActions({ onCreateOffer, onAttachDoc, visible })
           whiteSpace: 'nowrap',
         }}
       >
-        📎 Adjuntar doc.
+        Adjuntar doc.
       </button>
     </div>
   );

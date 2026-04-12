@@ -1,6 +1,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { ArrowLeft, Check, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, ShoppingCart, Trash2, Users, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
 import SharedListPanel from './chat/SharedListPanel';
 import { toast } from 'sonner';
@@ -684,6 +684,53 @@ function DirectorySheet({
       </motion.div>
     </AnimatePresence>;
 }
+/* ── Swipeable conversation row (swipe-left to reveal delete) ── */
+function SwipeableConversationRow({ children, onDelete }) {
+  const [confirming, setConfirming] = useState(false);
+  const rowControls = useAnimation();
+  const deleteWidth = 80;
+  const dragThreshold = 50;
+
+  return (
+    <div className="relative overflow-hidden">
+      {/* Delete action behind */}
+      <div className="absolute inset-y-0 right-0 flex items-center" style={{ width: deleteWidth }}>
+        <button
+          type="button"
+          onClick={() => {
+            if (confirming) return;
+            setConfirming(true);
+            onDelete().finally(() => setConfirming(false));
+          }}
+          className="flex h-full w-full items-center justify-center bg-stone-800 text-white text-xs font-semibold"
+          aria-label={i18n.t('common.delete', 'Eliminar')}
+        >
+          {confirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+        </button>
+      </div>
+      {/* Draggable content */}
+      <motion.div
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: -deleteWidth, right: 0 }}
+        dragElastic={0.1}
+        dragMomentum={false}
+        onDragEnd={(_, info) => {
+          if (info.offset.x < -dragThreshold) {
+            rowControls.start({ x: -deleteWidth, transition: { type: 'spring', stiffness: 300, damping: 30 } });
+          } else {
+            rowControls.start({ x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } });
+          }
+        }}
+        animate={rowControls}
+        className="relative bg-white touch-pan-y"
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 export default function InternalChat({
   isEmbedded = false,
   onClose = null,
@@ -766,9 +813,18 @@ export default function InternalChat({
   }), [conversations]);
   const directoryUsers = useMemo(() => {
     const registry = new Map();
+    // Add self for personal notes / self-chat
+    if (user?.user_id) {
+      registry.set(user.user_id, {
+        user_id: user.user_id,
+        name: `${user.name || user.username || 'Yo'} (${i18n.t('chat.personalNotes', 'Notas personales')})`,
+        role: user.role || 'customer',
+        avatar: user.profile_image || user.avatar_url || null
+      });
+    }
     [...(Array.isArray(producers) ? producers : []), ...(Array.isArray(influencers) ? influencers : [])].forEach(entry => {
       const userId = entry?.user_id || entry?.producer_id || entry?.influencer_id;
-      if (!userId || userId === user?.user_id || registry.has(userId)) return;
+      if (!userId || registry.has(userId)) return;
       registry.set(userId, {
         user_id: userId,
         name: entry?.name || entry?.store_name || entry?.username || 'Usuario',
@@ -776,8 +832,8 @@ export default function InternalChat({
         avatar: entry?.profile_image || entry?.avatar_url || entry?.logo || null
       });
     });
-    return Array.from(registry.values()).slice(0, 8);
-  }, [influencers, producers, user?.user_id]);
+    return Array.from(registry.values()).slice(0, 9);
+  }, [influencers, producers, user]);
   const filteredDirectoryUsers = useMemo(() => {
     const query = deferredDirectorySearchValue.trim().toLowerCase();
     return directoryUsers.filter(entry => {
@@ -1362,7 +1418,15 @@ export default function InternalChat({
       if (sharedItemToSend) {
         setPendingSharedItem(sharedItemToSend);
       }
-      toast.error(error?.message || i18n.t('internal_chat.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje.'));
+      const status = error?.status ?? error?.response?.status;
+      const msg = !error?.response && !status
+        ? i18n.t('internal_chat.sinConexion', 'Sin conexion a internet.')
+        : status === 401
+        ? i18n.t('internal_chat.sesionExpirada', 'Tu sesion ha expirado. Inicia sesion de nuevo.')
+        : status >= 500
+        ? i18n.t('internal_chat.errorDelServidor', 'Error del servidor. Intentalo de nuevo.')
+        : error?.message || i18n.t('internal_chat.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje.');
+      toast.error(msg);
     }
   }, [activeConversation?.type, composerValue, pendingImage, pendingSharedItem, replyingTo, scheduleReloadConversations, setCacheWithEviction, selectedConversationId, sendHttpMessage, sendTyping, uploadImage, user?.name, user?.user_id]);
   const handleAttachImage = useCallback(async event => {
@@ -1484,37 +1548,39 @@ export default function InternalChat({
 
       {/* ── Inbox sidebar ── */}
       <div className={`flex h-full min-h-0 flex-col border-r border-stone-100 bg-white ${activeConversation ? 'hidden lg:flex lg:w-[340px]' : 'w-full'}`}>
-        {/* ── Header IG-style 48px ── */}
-        <div className="flex h-12 shrink-0 items-center justify-between px-4 border-b border-stone-100">
-          {onClose ? <button type="button" onClick={onClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Cerrar chat">
-              <X className="h-5 w-5" strokeWidth={2} />
-            </button> : <div className="w-9" />}
-          <span className="text-[15px] font-semibold tracking-tight text-stone-950">Mensajes</span>
-          <button type="button" onClick={() => setIsDirectoryOpen(true)} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Nuevo mensaje">
-            <PenSquare className="h-5 w-5" strokeWidth={1.8} />
-          </button>
-        </div>
-
-        {/* ── Search bar flat pill ── */}
-        <div className="px-3 py-2 shrink-0">
-          <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
-            <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
-            <input type="search" value={searchValue} onChange={event => setSearchValue(event.target.value)} placeholder="Buscar" className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400" aria-label={i18n.t('internal_chat.buscarConversacion', 'Buscar conversación')} />
-          </label>
-        </div>
-
-        {/* ── Inbox tabs: Messages | Requests ── */}
-        {requestConversations.length > 0 ? <div className="flex border-b border-stone-100 px-4 shrink-0">
-            <button type="button" onClick={() => setInboxTab('messages')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'messages' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
-              {i18n.t('chat.tab_messages', 'Mensajes')}
-            </button>
-            <button type="button" onClick={() => setInboxTab('requests')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'requests' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
-              {i18n.t('chat.tab_requests', 'Solicitudes')} ({requestConversations.length})
-            </button>
-          </div> : null}
-
-        {/* ── Conversation list flat rows ── */}
+        {/* ── Scrollable inbox: header + search + tabs + conversations ── */}
         <div className="flex-1 overflow-y-auto">
+          {/* ── Header IG-style 48px (scrolls away) ── */}
+          <div className="flex h-12 items-center justify-between px-4 border-b border-stone-100">
+            {onClose ? <button type="button" onClick={onClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Cerrar chat">
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button> : <div className="w-9" />}
+            <span className="text-[15px] font-semibold tracking-tight text-stone-950">Mensajes</span>
+            <button type="button" onClick={() => setIsDirectoryOpen(true)} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Nuevo mensaje">
+              <PenSquare className="h-5 w-5" strokeWidth={1.8} />
+            </button>
+          </div>
+
+          {/* ── Search bar flat pill ── */}
+          <div className="px-3 py-2">
+            <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
+              <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
+              <input type="search" value={searchValue} onChange={event => setSearchValue(event.target.value)} placeholder="Buscar" className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400" aria-label={i18n.t('internal_chat.buscarConversacion', 'Buscar conversación')} />
+            </label>
+          </div>
+
+          {/* ── Inbox tabs: Messages | Requests ── */}
+          {requestConversations.length > 0 ? <div className="flex border-b border-stone-100 px-4">
+              <button type="button" onClick={() => setInboxTab('messages')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'messages' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
+                {i18n.t('chat.tab_messages', 'Mensajes')}
+              </button>
+              <button type="button" onClick={() => setInboxTab('requests')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'requests' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
+                {i18n.t('chat.tab_requests', 'Solicitudes')} ({requestConversations.length})
+              </button>
+            </div> : null}
+
+          {/* ── Conversation list flat rows ── */}
+          <div>
           {filteredConversations.length > 0 ? <div>
               {filteredConversations.map(conversation => {
             const isActive = conversation.conversation_id === selectedConversationId;
@@ -1565,6 +1631,7 @@ export default function InternalChat({
                 Nuevo mensaje
               </button>
             </div>}
+          </div>
         </div>
       </div>
 
