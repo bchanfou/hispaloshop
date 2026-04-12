@@ -98,18 +98,18 @@ def test_offer_input_rejects_excessive_validity():
 # ── Test 2: Fee calculation (3% platform + 1.4% Stripe = 4.4%) ──────────────
 
 def test_fee_calculation_is_correct():
-    """Total fees must be 3% platform + 1.4% Stripe = 4.4%."""
+    """Section 3.8 model: 3% platform fee added on top (paid by importer),
+    producer receives 100% of subtotal. net_total == total_price."""
     assert PLATFORM_FEE_PCT == 3.0
     assert STRIPE_FEE_PCT == 1.4
-    total_fee = PLATFORM_FEE_PCT + STRIPE_FEE_PCT
-    assert total_fee == pytest.approx(4.4)
 
     offer = _make_offer(quantity=100, price_per_unit=10.0)
     doc = _build_offer_doc(offer, version=1, created_by="user_test")
 
-    assert doc["total_price"] == pytest.approx(1000.0)
-    expected_net = round(1000.0 * (1 - 4.4 / 100), 2)
-    assert doc["net_total"] == pytest.approx(expected_net)
+    subtotal = 1000.0
+    assert doc["total_price"] == pytest.approx(subtotal)
+    # net_total = subtotal (producer receives 100%, fee is on top for buyer)
+    assert doc["net_total"] == pytest.approx(subtotal)
     assert doc["platform_fee_pct"] == 3.0
     assert doc["stripe_fee_pct"] == 1.4
 
