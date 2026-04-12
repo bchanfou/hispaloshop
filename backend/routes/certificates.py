@@ -110,20 +110,85 @@ async def get_certified_products():
 
 
 @router.get("/certificates/product/{product_id}")
-async def get_certificate(product_id: str, lang: Optional[str] = None):
-    """Get certificate for a product, optionally translated to the specified language"""
+async def get_certificate(product_id: str, lang: Optional[str] = None, request: Request = None):
+    """
+    Get certificate for a product with enriched product/store/translation data.
+    Bug 2 fix (4.3b): returns the same structure as certificates_public.py
+    so CertificatePage.tsx renders correctly.
+    """
     cert = await db.certificates.find_one(
         {"product_id": product_id, "approved": True},
         {"_id": 0}
     )
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
-    
-    # Apply translation if language is specified
-    if lang and lang in SUPPORTED_LANGUAGES:
-        cert = await TranslationService.get_certificate_in_language(cert['certificate_id'], lang)
-    
-    return cert
+
+    # Enrich with product data
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Determine target language
+    target_lang = lang or "es"
+    if not lang and request:
+        accept = request.headers.get("accept-language", "")
+        if "ko" in accept:
+            target_lang = "ko"
+        elif "en" in accept:
+            target_lang = "en"
+
+    # Fetch store/producer
+    seller_id = product.get("producer_id") or product.get("seller_id")
+    store = None
+    if seller_id:
+        store = await db.stores.find_one({"producer_id": seller_id}, {"_id": 0})
+        if not store:
+            store = await db.store_profiles.find_one({"producer_id": seller_id}, {"_id": 0})
+
+    # Translation (use cached if available)
+    source_lang = product.get("language", "es")
+    translated = None
+    was_translated = False
+    if target_lang != source_lang:
+        cached = await db.product_translations.find_one(
+            {"product_id": product_id, "target_lang": target_lang}, {"_id": 0}
+        )
+        if cached:
+            translated = cached
+            was_translated = True
+
+    return {
+        "certificate_id": cert.get("certificate_id"),
+        "product_id": product_id,
+        "type": cert.get("type"),
+        "issued_at": cert.get("issued_at"),
+        "verification_hash": cert.get("verification_hash"),
+        "product": {
+            "product_id": product.get("product_id"),
+            "name": translated.get("name", product.get("name")) if translated else product.get("name"),
+            "description": translated.get("description", product.get("description")) if translated else product.get("description"),
+            "images": product.get("images", []),
+            "price": product.get("price"),
+            "currency": product.get("currency", "EUR"),
+            "unit": product.get("unit"),
+            "ingredients": translated.get("ingredients", product.get("ingredients")) if translated else product.get("ingredients"),
+            "allergens": translated.get("allergens", product.get("allergens")) if translated else product.get("allergens"),
+            "nutrition": product.get("nutrition"),
+            "certifications": product.get("certifications", []),
+            "origin_country": product.get("origin_country") or product.get("country_origin"),
+        },
+        "store": {
+            "name": (store or {}).get("store_name") or (store or {}).get("name", ""),
+            "slug": (store or {}).get("slug", ""),
+            "logo": (store or {}).get("logo_url") or (store or {}).get("logo", ""),
+            "location": (store or {}).get("location", ""),
+        } if store else None,
+        "translation": {
+            "target_lang": target_lang,
+            "source_lang": source_lang,
+            "was_translated": was_translated,
+        },
+    }
 
 @router.get("/certificates/{cert_id}/verify")
 async def verify_certificate(cert_id: str, lang: Optional[str] = "es", request: Request = None):

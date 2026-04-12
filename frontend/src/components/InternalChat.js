@@ -1,7 +1,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, UserPlus, UtensilsCrossed, Video, X } from 'lucide-react';
+import { ArrowLeft, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
@@ -103,7 +103,15 @@ function MessageStatus({
       {isOwn && label ? <span>{label}</span> : null}
     </div>;
 }
-const REACTION_EMOJIS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
+const REACTIONS = [
+  { key: '❤️', icon: Heart, label: 'love' },
+  { key: '😂', icon: Smile, label: 'laugh' },
+  { key: '😮', icon: AlertCircle, label: 'wow' },
+  { key: '😢', icon: Frown, label: 'sad' },
+  { key: '😡', icon: Angry, label: 'angry' },
+  { key: '👍', icon: ThumbsUp, label: 'like' },
+];
+const REACTION_ICON_MAP = Object.fromEntries(REACTIONS.map(r => [r.key, r]));
 function ReplyPreviewInline({
   preview
 }) {
@@ -113,7 +121,7 @@ function ReplyPreviewInline({
       <div className="min-w-0 flex-1">
         <p className="truncate text-[12px] font-semibold text-stone-950">{preview.sender_name}</p>
         <p className="truncate text-[12px] text-stone-500">
-          {preview.media_url && !preview.content ? '📷 Foto' : preview.content}
+          {preview.media_url && !preview.content ? 'Foto' : preview.content}
         </p>
       </div>
     </div>;
@@ -198,7 +206,7 @@ const MessageBubble = React.memo(function MessageBubble({
           </motion.button> : null}
       </AnimatePresence>
 
-      <div ref={elRef} className={`relative min-w-0 max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div ref={elRef} className={`relative min-w-[80px] max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? <>
@@ -225,8 +233,8 @@ const MessageBubble = React.memo(function MessageBubble({
             duration: 0.15,
             ease: [0, 0, 0.2, 1]
           }} className={`absolute bottom-full z-50 mb-2 flex items-center gap-1 rounded-full border border-stone-100 bg-white px-2 py-1.5 shadow-[0_8px_28px_rgba(15,15,15,0.15)] ${isOwn ? 'right-0' : 'left-0'}`}>
-                {REACTION_EMOJIS.map(emoji => <button key={emoji} type="button" onClick={() => handleReact(emoji)} className={`flex h-9 w-9 items-center justify-center rounded-full text-[20px] transition-transform hover:scale-125 active:scale-110 ${existingReaction === emoji ? 'bg-stone-100' : ''}`}>
-                    {emoji}
+                {REACTIONS.map(r => <button key={r.key} type="button" onClick={() => handleReact(r.key)} className={`flex h-9 w-9 items-center justify-center rounded-full transition-transform hover:scale-125 active:scale-110 ${existingReaction === r.key ? 'bg-stone-100' : ''}`}>
+                    <r.icon size={20} className="text-stone-700" />
                   </button>)}
                 {/* CH-02: Delete button in long-press menu */}
                 {canDelete && <button type="button" onClick={() => {
@@ -271,6 +279,15 @@ const MessageBubble = React.memo(function MessageBubble({
             e.target.className = 'hidden';
           }} className="max-w-[260px] object-cover" />
             </div> : null}
+          {/* Document attachment render (Bug 10 fix) */}
+          {message?.file_url && !message.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+            <a href={message.file_url} target="_blank" rel="noopener noreferrer"
+               className={`flex items-center gap-2 px-3 py-2.5 mb-1.5 rounded-[18px] transition-colors ${isOwn ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'}`}>
+              <Paperclip className={`w-4 h-4 shrink-0 ${isOwn ? 'text-stone-400' : 'text-stone-500'}`} />
+              <span className={`text-[13px] truncate flex-1 ${isOwn ? 'text-white' : 'text-stone-700'}`}>{message.file_name || 'Documento'}</span>
+              <Download className={`w-4 h-4 shrink-0 ${isOwn ? 'text-stone-400' : 'text-stone-400'}`} />
+            </a>
+          )}
           {/* Audio player bubble */}
           {message?.audio_url || message?.audio_expired ? <AudioPlayerBubble audioUrl={message.audio_url} duration={message.audio_duration || 0} expiresAt={message.audio_expires_at} expired={!!message.audio_expired} isOwn={isOwn} /> : null}
           {message?.content && !message?.audio_url && !message?.audio_expired ? <div className={`px-3.5 py-2.5 text-[15px] leading-[1.4] whitespace-pre-wrap break-words ${isOwn ? `${hasReplyPreview ? 'rounded-b-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-br-[4px]'} bg-stone-950 text-white` : `${hasReplyPreview ? 'rounded-b-[20px] rounded-bl-[4px]' : 'rounded-[20px] rounded-bl-[4px]'} bg-stone-100 text-stone-950`}`} style={{
@@ -297,7 +314,7 @@ const MessageBubble = React.memo(function MessageBubble({
           stiffness: 400,
           damping: 20
         }} className={`mt-1 flex w-fit items-center gap-0.5 rounded-full border border-stone-100 bg-white px-1.5 py-0.5 shadow-sm ${isOwn ? 'ml-auto' : ''}`}>
-              {[...new Set(allReactions.map(r => r.emoji))].map(emoji => <span key={emoji} className="text-[14px]">{emoji}</span>)}
+              {[...new Set(allReactions.map(r => r.emoji))].map(emoji => { const mapped = REACTION_ICON_MAP[emoji]; return mapped ? <mapped.icon key={emoji} size={14} className="text-stone-600" /> : <span key={emoji} className="text-[14px]">{emoji}</span>; })}
               {allReactions.length > 1 && <span className="text-[11px] text-stone-400 ml-0.5">{allReactions.length}</span>}
             </motion.div> : null}
         </AnimatePresence>
@@ -1276,7 +1293,7 @@ export default function InternalChat({
       conversation_id: selectedConversationId,
       sender_id: user?.user_id,
       sender_name: user?.name,
-      content: `📎 ${file.name}`,
+      content: file.name,
       message_type: 'document',
       status: 'sent',
       created_at: new Date().toISOString()
@@ -1296,7 +1313,7 @@ export default function InternalChat({
       if (!fileUrl) throw new Error('No file URL returned');
       const saved = await sendHttpMessage({
         conversation_id: selectedConversationId,
-        content: `📎 ${uploadRes.file_name || file.name}`,
+        content: uploadRes.file_name || file.name,
         file_url: fileUrl,
         file_name: uploadRes.file_name || file.name,
         file_type: uploadRes.file_type || file.type,
@@ -1448,14 +1465,10 @@ export default function InternalChat({
 
               {/* Action icons */}
               <div className="flex shrink-0 items-center gap-0.5">
-                <button type="button" onClick={() => toast('Llamadas de voz próximamente', {
-              icon: '📞'
-            })} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.llamadaDeVozProximamente', 'Llamada de voz (próximamente)')}>
+                <button type="button" onClick={() => toast('Llamadas de voz proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.llamadaDeVozProximamente', 'Llamada de voz (próximamente)')}>
                   <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
-                <button type="button" onClick={() => toast('Videollamadas próximamente', {
-              icon: '📹'
-            })} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}>
+                <button type="button" onClick={() => toast('Videollamadas proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}>
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
                 </button>
                 {/* CH-03: Delete conversation */}
@@ -1547,7 +1560,7 @@ export default function InternalChat({
                           {replyingTo.sender_id === user?.user_id ? 'Tú' : replyingTo.sender_name}
                         </p>
                         <p className="truncate text-[12px] text-stone-500">
-                          {replyingTo.media_url && !replyingTo.content ? '📷 Foto' : replyingTo.content}
+                          {replyingTo.media_url && !replyingTo.content ? 'Foto' : replyingTo.content}
                         </p>
                       </div>
                       <button type="button" onClick={cancelReply} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600 transition-colors active:bg-stone-300" aria-label="Cancelar respuesta">

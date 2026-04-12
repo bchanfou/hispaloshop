@@ -117,7 +117,7 @@ export default function GlobalSearch() {
     const addSection = (key, arr, urlFn) => {
       (arr || []).forEach(item => items.push({ ...item, _type: key, _url: urlFn(item) }));
     };
-    if (tab === 'all' || tab === 'users') addSection('users', results.creators || results.users, u => `/@${u.username || u.user_id}`);
+    if (tab === 'all' || tab === 'users') addSection('users', results.creators || results.users, u => `/${u.username || u.user_id}`);
     if (tab === 'all' || tab === 'stores') addSection('stores', results.stores, s => `/store/${s.slug || s.store_slug || s.store_id}`);
     if (tab === 'all' || tab === 'communities') addSection('communities', results.communities, c => `/communities/${c.slug}`);
     if (tab === 'all' || tab === 'hashtags') addSection('hashtags', results.hashtags, h => `/hashtag/${h.tag}`);

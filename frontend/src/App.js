@@ -394,8 +394,8 @@ function AuthRedirect({ children }) {
 }
 
 function CrossBorderNoticeWrapper() {
-  const { user } = useAuth();
-  if (!user?.country) return null;
+  const { user, initialized } = useAuth();
+  if (!initialized || !user?.country) return null;
   return <CrossBorderNotice userCountry={user.country} />;
 }
 

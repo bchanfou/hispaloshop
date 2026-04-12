@@ -211,6 +211,19 @@ export default function ForYouFeed() {
 
   // Estado de error con soporte offline
   if (isError) {
+    // Bug 4 fix: distinguish auth errors from network errors
+    const errorStatus = error?.response?.status;
+    if (errorStatus === 401 || errorStatus === 403) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+          <p className="text-sm text-stone-500 mb-4">Inicia sesion para ver tu feed personalizado</p>
+          <a href="/login" className="px-6 py-3 bg-stone-950 text-white text-sm font-semibold rounded-full hover:bg-stone-800 transition-colors">
+            Iniciar sesion
+          </a>
+        </div>
+      );
+    }
+
     const hasCachedData = cachedPosts.length > 0;
 
     if (hasCachedData) {

@@ -315,6 +315,15 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
             },
             {"_id": 0},
         )
+        # Fallback: try matching by slug or _id (Bug extra fix, 4.3b)
+        if not product:
+            product = await db.products.find_one(
+                {
+                    "slug": product_id,
+                    **_public_product_filter(),
+                },
+                {"_id": 0},
+            )
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
     

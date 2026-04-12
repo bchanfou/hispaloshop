@@ -507,7 +507,9 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
     # Hydrate user info (avatar, verified, etc.) — single batch query
     result = await _hydrate_feed_users(result, current_user, following_ids)
 
-    return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
+    # has_more: fetch limit+1, return limit, check if extra exists
+    has_more = len(result) >= limit
+    return {"posts": result[:limit], "items": result[:limit], "total": len(result[:limit]), "has_more": has_more}
 
 
 @router.get("/feed/following")
@@ -564,7 +566,8 @@ async def feed_following(request: Request, limit: int = 20, cursor: Optional[str
         # Hydrate user info
         result = await _hydrate_feed_users(result, current_user, set(following_ids))
 
-        return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
+        has_more = len(result) >= limit
+        return {"posts": result[:limit], "items": result[:limit], "total": len(result[:limit]), "has_more": has_more}
     except Exception as e:
         logger.error(f"Following feed error: {e}")
         return {"posts": [], "items": [], "total": 0, "has_more": False}

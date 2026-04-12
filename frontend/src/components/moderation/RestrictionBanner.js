@@ -10,11 +10,11 @@ const CACHE_TTL = 5 * 60 * 1000;
 
 export default function RestrictionBanner() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, initialized } = useAuth();
   const [state, setState] = useState(_cache.state);
 
   useEffect(() => {
-    if (!user) { setState(null); return; }
+    if (!initialized || !user) { setState(null); return; }
     const now = Date.now();
     if (_cache.state && (now - _cache.fetchedAt) < CACHE_TTL) {
       setState(_cache.state);

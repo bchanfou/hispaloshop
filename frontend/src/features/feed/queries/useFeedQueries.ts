@@ -126,7 +126,7 @@ function normalizeFeedPage(data: any, pageParam: string | null, limit: number = 
     nextCursor:
       data?.nextCursor ??
       data?.next_cursor ??
-      (hasMore ? String(items.length + Number(pageParam || 0)) : null),
+      null,
     prevCursor: data?.prevCursor ?? data?.prev_cursor ?? null,
     hasMore,
     limit,

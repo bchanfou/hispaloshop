@@ -42,14 +42,16 @@ export default function RegistrationPromptModal() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
-  const { register, user } = useAuth();
+  const { register, user, initialized } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Don't render until auth state is resolved (Bug 1 fix)
   // Close if user becomes logged in (e.g. via another tab)
   useEffect(() => {
     if (user && open) setOpen(false);
   }, [user, open]);
+  if (!initialized) return null;
 
   // Listen for the global event dispatched by the API client
   useEffect(() => {
