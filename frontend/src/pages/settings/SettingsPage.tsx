@@ -143,12 +143,10 @@ export default function SettingsPage() {
       }
     }
     // Fallback: full logout (no other accounts or logoutAccount not available)
+    // logout() clears tokens + does a full page reload to /login
     removeToken();
     localStorage.removeItem('hsp_accounts');
     logout();
-    navigate('/login', {
-      replace: true
-    });
   };
   const handleDeleteAccount = async () => {
     if (deleteEmail !== user?.email) return;

@@ -310,7 +310,7 @@ export default function LoginPage() {
       {/* Session expired message */}
       {sessionExpired && (
         <p className="text-sm text-stone-950 text-center px-4 py-3 mb-6 bg-stone-100 rounded-2xl">
-          Tu sesión ha expirado. Inicia sesión de nuevo.
+          {t('errors.sessionExpired', 'Tu sesion ha expirado. Inicia sesion de nuevo.')}
         </p>
       )}
 

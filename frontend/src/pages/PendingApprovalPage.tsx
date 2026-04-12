@@ -9,10 +9,12 @@ import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
 export default function PendingApprovalPage() {
   const {
-    user
+    user,
+    loading
   } = useAuth();
   const canVerify = user?.role === 'producer' || user?.role === 'importer';
   const canFiscalSetup = user?.role === 'influencer';
+  if (loading) return <div className="min-h-screen bg-stone-50 flex items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" /></div>;
   return <div className="min-h-screen bg-stone-50 flex flex-col">
       <Header />
       <main className="flex-1 flex items-center justify-center px-4 py-12">

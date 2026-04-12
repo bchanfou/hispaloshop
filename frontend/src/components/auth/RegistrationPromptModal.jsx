@@ -46,12 +46,10 @@ export default function RegistrationPromptModal() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Don't render until auth state is resolved (Bug 1 fix)
   // Close if user becomes logged in (e.g. via another tab)
   useEffect(() => {
     if (user && open) setOpen(false);
   }, [user, open]);
-  if (!initialized) return null;
 
   // Listen for the global event dispatched by the API client
   useEffect(() => {
@@ -72,6 +70,9 @@ export default function RegistrationPromptModal() {
     setPassword('');
     setBusy(false);
   }, []);
+
+  // Don't render until auth state is resolved (all hooks must be above this)
+  if (!initialized) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

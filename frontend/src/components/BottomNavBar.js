@@ -55,7 +55,7 @@ export function resolveOpenChatTarget(detail) {
 
 
 export default function BottomNavBar() {
-  const { user } = useAuth();
+  const { user, initialized } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -243,7 +243,9 @@ export default function BottomNavBar() {
             onClick={(e) => handleNavClick(e, isProfile)}
             className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
-            {profileImage && !profileAvatarError ? (
+            {!initialized ? (
+              <div className="h-[24px] w-[24px] animate-pulse rounded-full bg-stone-100" />
+            ) : profileImage && !profileAvatarError ? (
               <div className={`h-[24px] w-[24px] overflow-hidden rounded-full transition-all ${
                 isProfile
                   ? 'ring-[2px] ring-stone-950 ring-offset-[2px] ring-offset-white'

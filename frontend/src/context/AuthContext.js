@@ -197,6 +197,18 @@ export function AuthProvider({ children }) {
     };
   }, [checkAuth]);
 
+  // Multi-tab sync: detect token removal from another tab and force logout
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === TOKEN_KEY && !e.newValue && e.oldValue) {
+        // Token was removed in another tab — reload to clean state
+        window.location.href = '/login';
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const login = useCallback(async (credentials) => {
     setLoading(true);
     setError(null);
@@ -293,14 +305,12 @@ export function AuthProvider({ children }) {
       removeToken();
       // Clear producer plan cache so next user doesn't see previous user's plan
       try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
-      if (mountedRef.current) {
-        setUser(null);
-        setError(null);
-        setInitialized(true);
-      }
       setSentryUser(null);
+      // Full page reload to destroy all stale React state, closures, and mounted components.
+      // Without this, components with captured user references can show ghost data.
+      window.location.href = '/login';
     }
-  }, [setUser, user, queryClient]);
+  }, [user, queryClient]);
 
   const resolveUserFromActiveToken = useCallback(async () => {
     const currentUser = await authApi.getCurrentUser();

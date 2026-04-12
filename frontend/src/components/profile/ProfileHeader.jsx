@@ -248,8 +248,8 @@ export default function ProfileHeader({
           toast.success('Sesion cerrada. Cambiado a otra cuenta.');
           navigate('/');
         } else {
-          toast.success('Sesion cerrada');
-          navigate('/login');
+          // No remaining accounts — full reload to destroy stale state
+          window.location.href = '/login';
         }
         return;
       }

@@ -400,7 +400,8 @@ function CrossBorderNoticeWrapper() {
 }
 
 function HomeRoute() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null;
   if (user) {
     return <FeedLayout><HomePage /></FeedLayout>;
   }

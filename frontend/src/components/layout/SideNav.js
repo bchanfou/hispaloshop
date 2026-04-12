@@ -346,11 +346,11 @@ export default function SideNav() {
   const handleLogout = useCallback(async () => {
     try {
       if (logout) await logout();
-      navigate('/login');
     } catch {
-      navigate('/login');
+      // logout() does window.location.href = '/login' — fallback if it somehow fails
+      window.location.href = '/login';
     }
-  }, [logout, navigate]);
+  }, [logout]);
 
   // Close search and more on route change
   useEffect(() => {

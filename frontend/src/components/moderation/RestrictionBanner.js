@@ -26,7 +26,7 @@ export default function RestrictionBanner() {
         setState(data);
       })
       .catch(() => setState(null));
-  }, [user]);
+  }, [user, initialized]);
 
   if (!state) return null;
   if (!state.restrictions_active && !state.suspended && !state.is_banned) return null;

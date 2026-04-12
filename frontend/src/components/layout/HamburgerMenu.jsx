@@ -38,7 +38,7 @@ function useLocalizedLandingPath() {
 export default function HamburgerMenu({ isOpen, onClose }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, initialized } = useAuth();
   const locale = useLocale();
   const [openAccordion, setOpenAccordion] = useState(null);
   const [localeSearch, setLocaleSearch] = useState('');
@@ -90,8 +90,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
   const handleLogout = () => {
     onClose();
-    logout();
-    navigate('/');
+    logout(); // Does window.location.href = '/login'
   };
 
   const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
@@ -157,7 +156,15 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             {/* ── MI CUENTA ── */}
             <SectionLabel>{t('hamburger.miCuenta', 'MI CUENTA')}</SectionLabel>
 
-            {user ? <>
+            {!initialized ? <div className="px-5 py-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-stone-100" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3 w-24 animate-pulse rounded-full bg-stone-100" />
+                    <div className="h-2.5 w-16 animate-pulse rounded-full bg-stone-100" />
+                  </div>
+                </div>
+              </div> : user ? <>
               {/* User info row */}
               <Link
                 to={profileUsername ? `/${profileUsername}` : profileUserId ? `/profile/${profileUserId}` : '/profile'}

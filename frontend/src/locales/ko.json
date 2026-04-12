@@ -1732,7 +1732,7 @@
     "network": "Error de red. Por favor, verifica tu conexión.",
     "notFound": "No encontrado",
     "unauthorized": "Inicia sesión para continuar",
-    "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+    "sessionExpired": "세션이 만료되었습니다. 다시 로그인해 주세요.",
     "outOfStock": "Agotado",
     "invalidCode": "Código de descuento inválido",
     "minimumOrder": "No se alcanza el mínimo del pedido",
