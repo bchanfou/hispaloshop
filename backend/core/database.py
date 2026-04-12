@@ -653,6 +653,14 @@ async def _create_indexes():
     await db.shared_lists.create_index("conversation_id", unique=True)
     logger.info("  OK: shared_lists indexes")
 
+    # Market Interest Requests (section 4.3f)
+    await db.market_interest_requests.create_index([("product_id", 1), ("consumer_country", 1)])
+    await db.market_interest_requests.create_index([("consumer_id", 1), ("product_id", 1)], unique=True, sparse=True)
+    await db.market_interest_requests.create_index([("producer_id", 1), ("status", 1)])
+    await db.market_interest_requests.create_index([("consumer_country", 1), ("status", 1), ("created_at", -1)])
+    await db.market_interest_requests.create_index("created_at")
+    logger.info("  OK: market_interest_requests indexes")
+
     logger.info("All indexes created successfully")
 
 

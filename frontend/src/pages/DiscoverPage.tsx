@@ -8,7 +8,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Loader2, Flower2, Sun, Leaf, Snowflake, MapPin, Lightbulb, Users, UserPlus, ChefHat, Star, Map, Hash } from 'lucide-react';
+import { RefreshCw, Loader2, Flower2, Sun, Leaf, Snowflake, MapPin, Lightbulb, Users, UserPlus, ChefHat, Star, Map, Hash, TrendingUp, ShoppingBag } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -33,8 +33,8 @@ import HorizontalStrip from '../components/discover/HorizontalStrip';
 import { ProductCard, ProducerCard, CommunityCard, RecipeCard, AvatarCard } from '../components/discover/cards';
 
 const CHIP_VISIBILITY = {
-  all:          ['seasonal', 'near_you', 'for_you', 'communities', 'new_producers', 'recipes', 'creators', 'map'],
-  products:     ['seasonal', 'for_you'],
+  all:          ['seasonal', 'near_you', 'for_you', 'community_requests', 'communities', 'new_producers', 'recipes', 'creators', 'map'],
+  products:     ['seasonal', 'for_you', 'community_requests'],
   stores:       ['near_you', 'new_producers', 'map'],
   communities:  ['communities'],
   recipes:      ['recipes'],
@@ -54,6 +54,8 @@ export default function DiscoverPage() {
   const [forYouExtra, setForYouExtra] = useState([]);
   const [forYouLoading, setForYouLoading] = useState(false);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
+  const [communityRequests, setCommunityRequests] = useState([]);
+  const [requestedIds, setRequestedIds] = useState(new Set());
 
   const fetchBundle = useCallback(async () => {
     setLoading(true);
@@ -69,6 +71,9 @@ export default function DiscoverPage() {
       setForYouExtra([]);
       trackEvent('discover_viewed', { country, chip_filter: activeChip });
       apiClient.get('/hashtags/trending?limit=8').then(d => setTrendingHashtags(d?.hashtags || [])).catch(() => {});
+      if (country) {
+        apiClient.get(`/market-requests/trending?country=${country}&limit=6`).then(d => setCommunityRequests(d || [])).catch(() => setCommunityRequests([]));
+      }
     } catch (err) {
       setError(err);
     } finally {
@@ -169,6 +174,40 @@ export default function DiscoverPage() {
                   </button>
                 </div>
               )}
+            </DiscoverSection>
+          )}
+
+          {show('community_requests') && communityRequests.length > 0 && (
+            <DiscoverSection id="community_requests" icon={TrendingUp} titleKey="communityRequests" titleFallback={t('discover.communityRequests.title', 'Lo que tu comunidad pide')} loading={loading} isEmpty={false}>
+              <HorizontalStrip items={communityRequests} renderItem={(req) => (
+                <div className="flex w-[180px] shrink-0 flex-col overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-sm">
+                  <div className="relative aspect-square bg-stone-100" onClick={() => navigate(`/products/${req.product_id}`)}>
+                    {req.product_image ? <img src={req.product_image} alt={req.product_name} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center"><ShoppingBag size={24} className="text-stone-300" /></div>}
+                  </div>
+                  <div className="p-3">
+                    <p className="truncate text-sm font-medium text-stone-950 cursor-pointer" onClick={() => navigate(`/products/${req.product_id}`)}>{req.product_name}</p>
+                    <p className="mt-1 text-xs font-bold text-stone-950">{req.count} {t('discover.communityRequests.count', 'personas lo piden')}</p>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (requestedIds.has(req.product_id)) return;
+                        if (!user) { window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'market_request' } })); return; }
+                        try {
+                          await apiClient.post('/market-requests', { product_id: req.product_id });
+                          setRequestedIds(prev => new Set([...prev, req.product_id]));
+                          setCommunityRequests(prev => prev.map(r => r.product_id === req.product_id ? { ...r, count: r.count + 1 } : r));
+                        } catch (err) {
+                          if (err?.response?.status === 409) setRequestedIds(prev => new Set([...prev, req.product_id]));
+                        }
+                      }}
+                      disabled={requestedIds.has(req.product_id)}
+                      className={`mt-2 w-full rounded-full py-2 text-xs font-semibold transition-colors min-h-[36px] ${requestedIds.has(req.product_id) ? 'bg-stone-100 text-stone-400' : 'bg-stone-950 text-white active:bg-stone-800'}`}
+                    >
+                      {requestedIds.has(req.product_id) ? t('discover.communityRequests.alreadyRequested', 'Ya lo pediste') : t('discover.communityRequests.requestButton', 'Yo tambien lo quiero')}
+                    </button>
+                  </div>
+                </div>
+              )} />
             </DiscoverSection>
           )}
 

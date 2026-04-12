@@ -300,6 +300,46 @@ async def get_store_products(
     
     return {"products": products, "total": total}
 
+@router.get("/store/{slug}/unavailable-count")
+async def get_unavailable_count(slug: str, country: str = "ES"):
+    """Count products from this store not available in the viewer's country."""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0, "producer_id": 1, "country": 1})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    # If viewer is from the same country as the store, all products are implicitly available
+    if (store.get("country") or "").upper() == country.upper():
+        return {"count": 0, "product_ids": []}
+
+    # Products that don't have inventory_by_country entry for the viewer's country with active=true and stock>0
+    pipeline = [
+        {"$match": {"producer_id": store["producer_id"], "status": {"$ne": "deleted"}}},
+        {"$project": {
+            "_id": 0, "product_id": 1, "name": 1, "images": 1, "price": 1, "currency": 1,
+            "available": {
+                "$gt": [
+                    {"$size": {"$filter": {
+                        "input": {"$ifNull": ["$inventory_by_country", []]},
+                        "as": "inv",
+                        "cond": {"$and": [
+                            {"$eq": ["$$inv.country_code", country.upper()]},
+                            {"$eq": ["$$inv.active", True]},
+                            {"$gt": ["$$inv.stock", 0]},
+                        ]}
+                    }}},
+                    0
+                ]
+            }
+        }},
+        {"$match": {"available": False}},
+    ]
+    unavailable = await db.products.aggregate(pipeline).to_list(200)
+    return {
+        "count": len(unavailable),
+        "products": [{"product_id": p["product_id"], "name": p.get("name"), "image": (p.get("images") or [None])[0], "price": p.get("price"), "currency": p.get("currency")} for p in unavailable[:50]],
+    }
+
+
 @router.get("/store/{slug}/reviews")
 async def get_store_reviews(slug: str, limit: int = 20, offset: int = 0):
     """Get reviews for all products in a store"""

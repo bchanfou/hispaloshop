@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, Clock, ExternalLink, Globe, Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Send, Star, Store, Truck, User } from 'lucide-react';
+import { AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, Clock, ExternalLink, Globe, Heart, Info, Loader2, Mail, MapPin, MessageCircle, Package, Phone, Search, Send, Star, Store, Truck, User } from 'lucide-react';
 import { toast } from 'sonner';
 // @ts-ignore — JS module
 import ReportButton from '../components/moderation/ReportButton';
@@ -37,6 +37,9 @@ export default function StorePage() {
   const [descExpanded, setDescExpanded] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [productSearch, setProductSearch] = useState('');
+  const [unavailable, setUnavailable] = useState(null);
+  const [showUnavailable, setShowUnavailable] = useState(false);
+  const [bulkRequesting, setBulkRequesting] = useState(false);
   const requestedProductId = searchParams.get('product');
 
   /* ── Data fetching ── */
@@ -171,6 +174,27 @@ export default function StorePage() {
   useEffect(() => {
     if (store?.slug) trackEvent('store_viewed', { store_slug: store.slug, producer_id: store.producer_id });
   }, [store?.slug]);
+
+  // Unavailable products in viewer's country
+  useEffect(() => {
+    if (!storeSlug || !user?.country) return;
+    apiClient.get(`/store/${storeSlug}/unavailable-count`, { params: { country: user.country } })
+      .then(d => setUnavailable(d))
+      .catch(() => setUnavailable(null));
+  }, [storeSlug, user?.country]);
+
+  const handleBulkRequest = async () => {
+    if (!unavailable?.products?.length) return;
+    if (!window.confirm(i18n.t('store.unavailableProducts.confirmAll', '¿Solicitar los {{n}} productos?').replace('{{n}}', unavailable.products.length))) return;
+    setBulkRequesting(true);
+    let ok = 0;
+    for (const p of unavailable.products) {
+      try { await apiClient.post('/market-requests', { product_id: p.product_id }); ok++; } catch { /* skip duplicates */ }
+    }
+    setBulkRequesting(false);
+    if (ok > 0) toast.success(`${ok} productos solicitados`);
+    setUnavailable(prev => prev ? { ...prev, count: 0, products: [] } : null);
+  };
 
   const tabs = [{
     id: 'products',
@@ -364,6 +388,35 @@ export default function StorePage() {
 
         {/* ════ TAB: PRODUCTOS ════ */}
         {activeTab === 'products' && <>
+            {/* Unavailable in your country banner */}
+            {unavailable && unavailable.count > 0 && (
+              <div className="mb-3 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                <p className="text-sm text-stone-700">
+                  {i18n.t('store.unavailableProducts.banner', 'Este productor tiene {{n}} productos no disponibles en tu pais').replace('{{n}}', unavailable.count)}
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <button onClick={() => setShowUnavailable(!showUnavailable)} className="rounded-full bg-white border border-stone-200 px-3.5 py-2 text-xs font-semibold text-stone-700 min-h-[36px]">
+                    {showUnavailable ? i18n.t('store.unavailableProducts.showAll', 'Ver todos') : i18n.t('store.unavailableProducts.viewAll', 'Ver cuales')}
+                  </button>
+                  <button onClick={handleBulkRequest} disabled={bulkRequesting} className="rounded-full bg-stone-950 px-3.5 py-2 text-xs font-semibold text-white min-h-[36px] disabled:opacity-50">
+                    {bulkRequesting ? <Loader2 size={14} className="animate-spin mx-auto" /> : i18n.t('store.unavailableProducts.requestAll', 'Pedir todos')}
+                  </button>
+                </div>
+                {showUnavailable && unavailable.products?.length > 0 && (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {unavailable.products.map(p => (
+                      <div key={p.product_id} className="flex items-center gap-2 rounded-xl bg-white p-2 border border-stone-100">
+                        {p.image && <img src={p.image} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" />}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-medium text-stone-950">{p.name}</p>
+                          {p.price != null && <p className="text-[10px] text-stone-500">{p.price} {p.currency || 'EUR'}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {/* Category filter pills */}
             {productCategories.length > 1 && <div className="flex gap-2 overflow-x-auto mb-3 pb-1 scrollbar-hide">
                 {productCategories.map(cat => <button key={cat} onClick={() => setCategoryFilter(cat)} className={`shrink-0 px-3.5 py-2.5 min-h-[44px] rounded-full text-xs font-semibold cursor-pointer transition-colors ${categoryFilter === cat ? 'border-none bg-stone-950 text-white' : 'border border-stone-200 bg-white text-stone-950'}`}>

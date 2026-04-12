@@ -508,7 +508,12 @@
     "digitalCertTitle": "Certificado digital",
     "digitalCertDesc": "Escanea el QR de nuestros productos para ver toda la info en tu idioma.",
     "videoTitle": "VIDEO",
-    "watchVideo": "Ver video de presentacion"
+    "watchVideo": "Ver video de presentacion",
+    "unavailableProducts.banner": "Este productor tiene {{n}} productos no disponibles en tu pais",
+    "unavailableProducts.viewAll": "Ver cuales",
+    "unavailableProducts.showAll": "Ver todos",
+    "unavailableProducts.requestAll": "Pedir todos",
+    "unavailableProducts.confirmAll": "¿Solicitar los {{n}} productos?"
   },
   "cart": {
     "title": "Tu carrito",
@@ -2110,7 +2115,12 @@
     "retry": "Reintentar",
     "seasonNow": "Temporada",
     "yourZone": "tu zona",
-    "viewFullMap": "Ver mapa completo"
+    "viewFullMap": "Ver mapa completo",
+    "communityRequests.title": "Lo que tu comunidad pide",
+    "communityRequests.subtitle": "Otros usuarios en tu pais estan pidiendo estos productos",
+    "communityRequests.count": "personas lo piden",
+    "communityRequests.requestButton": "Yo tambien lo quiero",
+    "communityRequests.alreadyRequested": "Ya lo pediste"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -2836,7 +2846,11 @@
     "section_recipes": "Recetas",
     "see_all_products": "Ver todos los productos",
     "see_all_results": "Ver todos los resultados",
-    "to_close": "para cerrar"
+    "to_close": "para cerrar",
+    "product.unavailable": "No disponible",
+    "product.request": "Pedir",
+    "product.requested": "Solicitado",
+    "product.requestCount": "{{n}} personas lo piden"
   },
   "influencerAI": {
     "inputPlaceholder": "Describe que contenido necesitas..."
@@ -5866,6 +5880,10 @@
     "distributionAgreement": "Acuerdo de distribucion",
     "vatVerified": "VAT verificado",
     "sourcingPriority": "Sourcing prioritario",
+    "opportunities.fulfill": "Ya lo introduje",
+    "opportunities.fulfillConfirm": "¿Confirmar que {{product}} ya esta disponible en {{country}}?",
+    "opportunities.fulfilled": "{{n}} usuarios seran notificados",
+    "opportunities.done": "Cumplida",
     "layout": {
       "header": {
         "title": "Panel Importador",

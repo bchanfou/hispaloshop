@@ -6,6 +6,7 @@ import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, Trendi
 import apiClient from '../services/api/client';
 import { abbreviateCount } from '../utils/helpers';
 import { useLocale } from '../context/LocaleContext';
+import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import { toast } from 'sonner';
@@ -216,12 +217,31 @@ function RowSkeleton() {
 
 /* ── Result Components ── */
 function ProductCardLocal({
-  p
+  p,
+  userCountry
 }) {
   const {
     convertAndFormatPrice
   } = useLocale();
+  const [requested, setRequested] = useState(false);
   const img = p.images?.[0] || p.image_url;
+
+  // Check if product is available in user's country
+  const inv = p.inventory_by_country || [];
+  const isAvailable = !userCountry || inv.some(i => i.country_code === userCountry && i.active && i.stock > 0) || inv.length === 0;
+
+  const handleRequest = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await apiClient.post('/market-requests', { product_id: p.product_id || p.id });
+      setRequested(true);
+    } catch (err) {
+      if (err?.response?.status === 409) setRequested(true);
+      else toast.error('Error');
+    }
+  };
+
   return <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline shadow-sm">
       <div className="overflow-hidden bg-stone-100 aspect-[4/5]">
         {img ? <img src={img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" /> : <div className="flex h-full w-full items-center justify-center">
@@ -234,6 +254,22 @@ function ProductCardLocal({
         {p.price != null && <p className="mt-0.5 text-sm font-bold text-stone-950">
             {convertAndFormatPrice(p.display_price || p.price, p.display_currency || p.currency || 'EUR')}
           </p>}
+        {!isAvailable && (
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-medium text-stone-600">
+              {i18n.t('search.product.unavailable', 'No disponible')}
+            </span>
+            {requested ? (
+              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] text-stone-400 flex items-center gap-0.5">
+                <Check size={10} /> {i18n.t('search.product.requested', 'Solicitado')}
+              </span>
+            ) : (
+              <button onClick={handleRequest} className="rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-medium text-white border-none cursor-pointer min-h-[20px]">
+                {i18n.t('search.product.request', 'Pedir')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </Link>;
 }
@@ -290,6 +326,7 @@ function SectionHeader({
 /* ── Main ── */
 export default function SearchPage() {
   const navigate = useNavigate();
+  const { user: searchUser } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef(null);
   // Restore URL params on mount
@@ -847,7 +884,7 @@ export default function SearchPage() {
             {showProducts && <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {sortedProducts.map(p => <ProductCardLocal key={p.product_id || p.id} p={p} />)}
+                  {sortedProducts.map(p => <ProductCardLocal key={p.product_id || p.id} p={p} userCountry={searchUser?.country} />)}
                 </div>
               </section>}
             {showRecipes && <section>

@@ -127,8 +127,22 @@ export function AuthProvider({ children }) {
       setError(null);
     }
 
-    // Always hit /auth/me: Google OAuth establishes session via httpOnly cookie
-    // and may not have a localStorage token yet.
+    // Guard: if no localStorage token AND not in an OAuth callback,
+    // skip /auth/me to prevent a stale httpOnly cookie from creating a ghost session.
+    // OAuth callbacks arrive with ?code= or ?state= params and may only have a cookie.
+    const hasToken = !!getToken();
+    const search = window.location.search || '';
+    const isOAuthCallback = search.includes('code=') || search.includes('state=');
+
+    if (!hasToken && !isOAuthCallback) {
+      if (mountedRef.current) {
+        setUser(null);
+        setLoading(false);
+        setInitialized(true);
+      }
+      checkingRef.current = false;
+      return null;
+    }
 
     try {
       const currentUser = await authApi.getCurrentUser();

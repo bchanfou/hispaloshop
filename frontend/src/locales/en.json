@@ -886,7 +886,12 @@
     "sinResenas": "Sin reseñas",
     "estaTiendaNoTieneProductosAun": "Esta tienda no tiene productos aún",
     "estaTiendaNoHaCompartidoRecetasAun": "Esta tienda no ha compartido recetas aún",
-    "anonimo": "Anónimo"
+    "anonimo": "Anónimo",
+    "unavailableProducts.banner": "This producer has {{n}} products not available in your country",
+    "unavailableProducts.viewAll": "See which",
+    "unavailableProducts.showAll": "Show all",
+    "unavailableProducts.requestAll": "Request all",
+    "unavailableProducts.confirmAll": "Request all {{n}} products?"
   },
   "cart": {
     "title": "Your cart",
@@ -2224,7 +2229,12 @@
     "retry": "Retry",
     "seasonNow": "Season",
     "yourZone": "your area",
-    "viewFullMap": "View full map"
+    "viewFullMap": "View full map",
+    "communityRequests.title": "What your community wants",
+    "communityRequests.subtitle": "Other users in your country are requesting these products",
+    "communityRequests.count": "people want this",
+    "communityRequests.requestButton": "I want this too",
+    "communityRequests.alreadyRequested": "Already requested"
   },
   "notifications": {
     "title": "Notifications",
@@ -2952,7 +2962,11 @@
     "section_recipes": "Recipes",
     "see_all_products": "See all products",
     "see_all_results": "See all results",
-    "to_close": "to close"
+    "to_close": "to close",
+    "product.unavailable": "Not available",
+    "product.request": "Request",
+    "product.requested": "Requested",
+    "product.requestCount": "{{n}} people want this"
   },
   "influencerAI": {
     "inputPlaceholder": "Describe what content you need..."
@@ -4388,6 +4402,10 @@
     "distributionAgreement": "Distribution agreement",
     "vatVerified": "VAT verified",
     "sourcingPriority": "Priority sourcing",
+    "opportunities.fulfill": "Already introduced",
+    "opportunities.fulfillConfirm": "Confirm that {{product}} is now available in {{country}}?",
+    "opportunities.fulfilled": "{{n}} users will be notified",
+    "opportunities.done": "Fulfilled",
     "layout": {
       "header": {
         "title": "Importer Panel",

@@ -8,8 +8,8 @@
   --color-text-primary: #FFFFFF;
   --color-text-muted:   #555555;
   --color-text-subtle:  #333333;
-  --color-accent:       #1B6B40;
-  --color-accent-muted: rgba(27,107,64,0.2);
+  --color-accent:       #d6d3d1;
+  --color-accent-muted: rgba(214,211,209,0.2);
 }
 
 .superadmin-theme {

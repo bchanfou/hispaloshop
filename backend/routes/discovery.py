@@ -112,7 +112,7 @@ async def discovery_search(
         products, recipes, stores, creators, communities, hashtags = await asyncio.gather(
             db.products.find(
                 {"name": {"$regex": safe_q, "$options": "i"}, "$or": [{"status": "active"}, {"approved": True}]},
-                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "currency": 1, "display_price": 1, "display_currency": 1, "producer_name": 1},
+                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "currency": 1, "display_price": 1, "display_currency": 1, "producer_name": 1, "country": 1, "inventory_by_country": 1},
             ).limit(limit).to_list(limit),
             db.recipes.find(
                 {"title": {"$regex": safe_q, "$options": "i"}, "status": "active"},

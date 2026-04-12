@@ -1094,7 +1094,17 @@ async def logout(request: Request):
         if result.deleted_count == 0:
             await db.user_sessions.delete_one({"session_token": session_token})
     response = JSONResponse(content={"message": "Logged out"})
-    response.delete_cookie("session_token", path="/")
+    # Must match the exact attributes used in _set_session_cookie so the browser
+    # actually removes the httpOnly cookie. Without matching httponly/samesite/secure,
+    # browsers (especially Chrome) silently ignore the deletion.
+    is_secure = _is_secure_request(request)
+    response.delete_cookie(
+        "session_token",
+        path="/",
+        httponly=True,
+        samesite="lax",
+        secure=is_secure,
+    )
     return response
 
 

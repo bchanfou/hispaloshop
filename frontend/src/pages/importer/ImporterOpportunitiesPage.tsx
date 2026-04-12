@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { Globe, TrendingUp, Lock, MessageCircle, Loader2, Crown } from 'lucide-react';
+import { Globe, TrendingUp, Lock, MessageCircle, Loader2, Crown, CheckCircle2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -16,6 +16,22 @@ export default function ImporterOpportunitiesPage() {
   const { openConversation } = useChatContext();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fulfilledIds, setFulfilledIds] = useState(new Set());
+
+  const handleFulfill = async (opp) => {
+    const confirmMsg = t('importer.opportunities.fulfillConfirm', '¿Confirmar que {{product}} ya está disponible en {{country}}?')
+      .replace('{{product}}', opp.product_name).replace('{{country}}', opp.consumer_country);
+    if (!window.confirm(confirmMsg)) return;
+    try {
+      const res = await apiClient.post(`/market-requests/${opp.product_id}/fulfill`, { country: opp.consumer_country });
+      const notified = res?.notified || res?.data?.notified || 0;
+      setFulfilledIds(prev => new Set([...prev, opp.product_id]));
+      toast.success(t('importer.opportunities.fulfilled', '{{n}} usuarios seran notificados').replace('{{n}}', notified));
+      trackEvent('market_opportunity_fulfilled', { product_id: opp.product_id, country: opp.consumer_country, notified });
+    } catch {
+      toast.error('Error');
+    }
+  };
 
   useEffect(() => {
     apiClient.get('/market-requests/opportunities')
@@ -96,11 +112,20 @@ export default function ImporterOpportunitiesPage() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-lg font-bold text-stone-950">{opp.count}</span>
-                {opp.producer_id && (
-                  <button onClick={() => handleContact(opp)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-stone-950 text-white rounded-full hover:bg-stone-800 transition-colors">
-                    <MessageCircle className="w-3.5 h-3.5" /> {t('marketOpportunities.contact', 'Contactar')}
+                {fulfilledIds.has(opp.product_id) ? (
+                  <span className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-stone-400 bg-stone-100 rounded-full">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {t('importer.opportunities.done', 'Cumplida')}
+                  </span>
+                ) : <>
+                  <button onClick={() => handleFulfill(opp)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-stone-100 text-stone-700 rounded-full hover:bg-stone-200 transition-colors min-h-[36px]">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {t('importer.opportunities.fulfill', 'Ya lo introduje')}
                   </button>
-                )}
+                  {opp.producer_id && (
+                    <button onClick={() => handleContact(opp)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-stone-950 text-white rounded-full hover:bg-stone-800 transition-colors min-h-[36px]">
+                      <MessageCircle className="w-3.5 h-3.5" /> {t('marketOpportunities.contact', 'Contactar')}
+                    </button>
+                  )}
+                </>}
               </div>
             </div>
           ))}
