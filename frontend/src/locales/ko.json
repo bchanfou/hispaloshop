@@ -2791,6 +2791,7 @@
     "section_products": "상품",
     "section_recipes": "레시피",
     "see_all_products": "모든 상품 보기",
+    "see_all_results": "모든 결과 보기",
     "to_close": "닫기"
   },
   "influencerAI": {
@@ -4339,52 +4340,118 @@
     "configuracion": "설정"
   },
   "feedback": {
-    "title": "Feedback & Ideas",
-    "submitButton": "Send feedback",
-    "submitNew": "Send feedback or idea",
-    "loading": "Loading...",
-    "loadMore": "Load more",
-    "emptyState": "No feedback yet",
-    "emptyStateSub": "Be the first to send an idea!",
-    "errorLoading": "Error loading feedback",
-    "errorVoting": "Error voting",
-    "voteRegistered": "Vote registered!",
-    "titleLabel": "Title",
-    "descriptionLabel": "Description",
-    "typeLabel": "Type",
-    "types": {
-      "bug": "Bug",
-      "feature": "Feature",
-      "improvement": "Improvement",
-      "other": "Other"
+    "title": "아이디어 및 제안",
+    "subtitle": "HispaloShop 개선에 도움을 주세요",
+    "proposeButton": "아이디어 제안",
+    "loginToPropose": "로그인하여 제안하기",
+    "searchPlaceholder": "아이디어 검색...",
+    "loading": "로딩 중...",
+    "loadMore": "더 보기",
+    "emptyState": "아직 아이디어가 없습니다",
+    "emptyStateSub": "첫 번째로 제안해 보세요!",
+    "ideasCount": "개 아이디어",
+    "errorVoting": "투표 오류",
+    "categories": {
+      "ux": "UX",
+      "feature": "기능",
+      "content": "콘텐츠",
+      "commerce": "커머스",
+      "b2b": "B2B",
+      "mobile": "모바일",
+      "i18n": "언어",
+      "other": "기타"
     },
-    "statuses": {
-      "pending": "Pending",
-      "under_review": "Under review",
-      "planned": "Planned",
-      "in_progress": "In progress",
-      "done": "Completed",
-      "declined": "Declined"
+    "status": {
+      "new": "신규",
+      "under_review": "검토 중",
+      "planned": "계획됨",
+      "in_progress": "진행 중",
+      "implemented": "구현됨",
+      "declined": "거절됨"
     },
     "sort": {
-      "popular": "Most voted",
-      "trending": "Trending",
-      "newest": "Newest"
+      "popular": "인기순",
+      "recent": "최신순",
+      "mine": "내 아이디어"
     },
     "filters": {
-      "allTypes": "All types",
-      "features": "Features",
-      "improvements": "Improvements",
-      "bugs": "Bugs",
-      "others": "Others"
+      "all": "전체",
+      "allStatuses": "전체"
     },
     "validation": {
-      "titleMinLength": "Title must be at least 5 characters",
-      "descMinLength": "Description must be at least 20 characters"
+      "titleMinLength": "제목은 최소 5자 이상이어야 합니다",
+      "descMinLength": "설명은 최소 20자 이상이어야 합니다"
     },
     "placeholders": {
-      "title": "Summarize your idea in one sentence",
-      "description": "Describe your idea in detail. The more context, the better."
+      "title": "아이디어를 한 문장으로 요약하세요",
+      "description": "아이디어를 상세히 설명하세요. 맥락이 많을수록 좋습니다."
+    },
+    "detail": {
+      "errorLoading": "아이디어 로딩 오류",
+      "comments": "댓글",
+      "noComments": "아직 댓글이 없습니다. 첫 번째가 되어보세요.",
+      "commentPlaceholder": "댓글을 작성하세요...",
+      "loginToComment": "로그인하여 댓글 달기",
+      "errorComment": "댓글 작성 오류",
+      "edit": "수정",
+      "delete": "삭제",
+      "editComment": "수정",
+      "deleteComment": "삭제",
+      "adminNote": "팀 노트",
+      "mergedBanner": "이 아이디어는 다음과 병합되었습니다",
+      "mainIdea": "원본 아이디어",
+      "deleted": "아이디어 삭제됨",
+      "confirmDeleteTitle": "아이디어 삭제",
+      "confirmDeleteBody": "이 작업은 되돌릴 수 없습니다.",
+      "cancel": "취소",
+      "confirmDelete": "삭제"
+    },
+    "editor": {
+      "newTitle": "아이디어 제안",
+      "editTitle": "아이디어 수정",
+      "titleLabel": "제목",
+      "descLabel": "설명",
+      "categoryLabel": "카테고리",
+      "cancel": "취소",
+      "publish": "아이디어 게시",
+      "save": "변경사항 저장",
+      "published": "아이디어 게시됨",
+      "saved": "변경사항 저장됨",
+      "errorSubmit": "제출 오류",
+      "errorLoading": "아이디어 로딩 오류",
+      "notAuthor": "작성자만 수정할 수 있습니다",
+      "minChars": "최소 20자"
+    },
+    "admin": {
+      "title": "사용자 피드백",
+      "subtitle": "커뮤니티의 아이디어와 제안",
+      "totalIdeas": "전체 아이디어",
+      "unreviewed": "미검토",
+      "newThisWeek": "이번 주 신규",
+      "implemented": "구현됨",
+      "topVoted": "투표 상위",
+      "noIdeas": "아이디어 없음",
+      "searchPlaceholder": "아이디어 검색...",
+      "allStatuses": "모든 상태",
+      "allCategories": "모든 카테고리",
+      "changeStatus": "상태 변경",
+      "changeStatusTitle": "상태 변경",
+      "statusNotePlaceholder": "공개 노트 (선택사항)",
+      "statusUpdated": "상태 업데이트됨",
+      "closeDuplicate": "중복",
+      "closeDuplicateTitle": "중복으로 닫기",
+      "closeDuplicateDesc": "원본 아이디어를 선택하세요:",
+      "closeDuplicateBtn": "중복으로 닫기",
+      "duplicateClosed": "중복으로 닫힘",
+      "searchTarget": "원본 아이디어 검색...",
+      "willBeClosedAs": "의 중복으로 닫힙니다",
+      "noResults": "결과 없음",
+      "merged": "중복",
+      "viewPublic": "보기",
+      "cancel": "취소",
+      "update": "업데이트",
+      "prev": "이전",
+      "next": "다음"
     }
   },
   "cards": {
@@ -4438,6 +4505,7 @@
       "moderation": "모더레이션",
       "support": "지원",
       "knowledgeBase": "도움말 센터",
+      "feedback": "피드백",
       "audit": "감사 로그",
       "settings": "설정"
     },

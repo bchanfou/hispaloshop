@@ -233,7 +233,10 @@ const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const ChatRequestsPage = lazy(() => import('./pages/chat/ChatRequestsPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
-const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
+const FeedbackPage = lazy(() => import('./pages/feedback/FeedbackPage'));
+const FeedbackIdeaDetailPage = lazy(() => import('./pages/feedback/FeedbackIdeaDetailPage'));
+const FeedbackIdeaEditorPage = lazy(() => import('./pages/feedback/FeedbackIdeaEditorPage'));
+const CountryAdminFeedback = lazy(() => import('./pages/country-admin/CountryAdminFeedback'));
 const ActivityPage = lazy(() => import('./pages/ActivityPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const ChatToastContainer = lazy(() => import('./components/notifications/ChatToastContainer'));
@@ -550,7 +553,10 @@ function AppRouter() {
               <Route path="/communities/:slug/settings" element={<CommunitySettingsPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-              <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
+              <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/feedback/new" element={<ProtectedRoute><FeedbackIdeaEditorPage /></ProtectedRoute>} />
+              <Route path="/feedback/:slug/edit" element={<ProtectedRoute><FeedbackIdeaEditorPage /></ProtectedRoute>} />
+              <Route path="/feedback/:slug" element={<FeedbackIdeaDetailPage />} />
               <Route path="/activity" element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
@@ -766,6 +772,7 @@ function AppRouter() {
                 <Route path="knowledge-base/new" element={<CountryAdminKnowledgeBaseEditor />} />
                 <Route path="knowledge-base/:slug/edit" element={<CountryAdminKnowledgeBaseEditor />} />
                 <Route path="moderation" element={<CountryAdminModeration />} />
+                <Route path="feedback" element={<CountryAdminFeedback />} />
                 <Route path="audit" element={<CountryAdminAuditLog />} />
                 <Route path="settings" element={<CountryAdminSettings />} />
               </Route>
@@ -857,7 +864,7 @@ function AppRouter() {
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
                 <Route path="analytics" element={<ProducerAnalytics />} />
                 <Route path="plan" element={<ProducerPlanPage />} />
-                <Route path="b2b-requests" element={<ProducerB2BRequestsPage />} />
+                <Route path="b2b-requests" element={<EliteRoute><ProducerB2BRequestsPage /></EliteRoute>} />
                 <Route path="verification" element={<ProducerVerificationPage />} />
                 <Route path="promotions" element={<Navigate to="/producer/promotion" replace />} />
                 <Route path="promotion" element={<PromotionPage />} />

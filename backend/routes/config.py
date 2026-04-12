@@ -26,9 +26,9 @@ router = APIRouter()
 # Canonical plan definitions. Admin can override via DB `plans_config` collection.
 _PLANS_DEFAULTS = {
     "seller_plans": {
-        "FREE":  {"commission_rate": 0.20, "price_monthly_eur": 0,   "shipping_base_cents": 590, "shipping_free_threshold_cents": None, "label": "Free"},
-        "PRO":   {"commission_rate": 0.18, "price_monthly_eur": 79,  "shipping_base_cents": 390, "shipping_free_threshold_cents": 3000, "label": "Pro"},
-        "ELITE": {"commission_rate": 0.17, "price_monthly_eur": 249, "shipping_base_cents": 290, "shipping_free_threshold_cents": 2000, "label": "Elite"},
+        "FREE":  {"commission_rate": 0.20, "price_monthly_eur": 0,   "price_annual_eur": 0,    "shipping_base_cents": 590, "shipping_free_threshold_cents": None, "label": "Free"},
+        "PRO":   {"commission_rate": 0.18, "price_monthly_eur": 79,  "price_annual_eur": 806,  "shipping_base_cents": 390, "shipping_free_threshold_cents": 3000, "label": "Pro"},
+        "ELITE": {"commission_rate": 0.17, "price_monthly_eur": 249, "price_annual_eur": 2540, "shipping_base_cents": 290, "shipping_free_threshold_cents": 2000, "label": "Elite"},
     },
     "influencer_tiers": {
         "hercules": {"commission_rate": 0.03, "label": "Hercules"},

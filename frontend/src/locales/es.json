@@ -2916,6 +2916,7 @@
     "section_products": "Productos",
     "section_recipes": "Recetas",
     "see_all_products": "Ver todos los productos",
+    "see_all_results": "Ver todos los resultados",
     "to_close": "para cerrar"
   },
   "influencerAI": {
@@ -4016,7 +4017,11 @@
     "esperandoElPagoDelComprador": "Esperando el pago del comprador...",
     "recibirasUnaNotificacionCuandoElPag": "Recibirás una notificación cuando el pago se procese",
     "losFondosEstanRetenidosHastaQueSub": "Los fondos están retenidos hasta que subas la documentación de envío",
-    "comisionHispaloshop3": "Comisión Hispaloshop (3%)"
+    "comisionHispaloshop3": "Comision HispaloShop (3%)",
+    "comisionPlataforma": "Comision de plataforma",
+    "precioListado": "Precio listado",
+    "recibiras": "RECIBIRAS",
+    "sinDeduccion": "100% del precio listado. Sin deducciones."
   },
   "b2_b_quotes_history": {
     "rfqsDeImportadoresInteresadosEnTus": "RFQs de importadores interesados en tus productos",
@@ -6081,52 +6086,118 @@
     "configuracion": "Configuración"
   },
   "feedback": {
-    "title": "Feedback & Ideas",
-    "submitButton": "Send feedback",
-    "submitNew": "Send feedback or idea",
-    "loading": "Loading...",
-    "loadMore": "Load more",
-    "emptyState": "No feedback yet",
-    "emptyStateSub": "Be the first to send an idea!",
-    "errorLoading": "Error loading feedback",
-    "errorVoting": "Error voting",
-    "voteRegistered": "Vote registered!",
-    "titleLabel": "Title",
-    "descriptionLabel": "Description",
-    "typeLabel": "Type",
-    "types": {
-      "bug": "Bug",
+    "title": "Ideas y Sugerencias",
+    "subtitle": "Ayudanos a mejorar HispaloShop",
+    "proposeButton": "Proponer idea",
+    "loginToPropose": "Inicia sesion para proponer",
+    "searchPlaceholder": "Buscar ideas...",
+    "loading": "Cargando...",
+    "loadMore": "Cargar mas",
+    "emptyState": "Aun no hay ideas",
+    "emptyStateSub": "Se el primero en proponer una!",
+    "ideasCount": "ideas",
+    "errorVoting": "Error al votar",
+    "categories": {
+      "ux": "UX",
       "feature": "Feature",
-      "improvement": "Improvement",
-      "other": "Other"
+      "content": "Contenido",
+      "commerce": "Comercio",
+      "b2b": "B2B",
+      "mobile": "Mobile",
+      "i18n": "Idiomas",
+      "other": "Otra"
     },
-    "statuses": {
-      "pending": "Pending",
-      "under_review": "Under review",
-      "planned": "Planned",
-      "in_progress": "In progress",
-      "done": "Completed",
-      "declined": "Declined"
+    "status": {
+      "new": "Nueva",
+      "under_review": "En revision",
+      "planned": "Planificada",
+      "in_progress": "En progreso",
+      "implemented": "Implementada",
+      "declined": "Descartada"
     },
     "sort": {
-      "popular": "Most voted",
-      "trending": "Trending",
-      "newest": "Newest"
+      "popular": "Mas votadas",
+      "recent": "Mas recientes",
+      "mine": "Mis ideas"
     },
     "filters": {
-      "allTypes": "All types",
-      "features": "Features",
-      "improvements": "Improvements",
-      "bugs": "Bugs",
-      "others": "Others"
+      "all": "Todas",
+      "allStatuses": "Todas"
     },
     "validation": {
-      "titleMinLength": "Title must be at least 5 characters",
-      "descMinLength": "Description must be at least 20 characters"
+      "titleMinLength": "El titulo debe tener al menos 5 caracteres",
+      "descMinLength": "La descripcion debe tener al menos 20 caracteres"
     },
     "placeholders": {
-      "title": "Summarize your idea in one sentence",
-      "description": "Describe your idea in detail. The more context, the better."
+      "title": "Resume tu idea en una frase",
+      "description": "Describe tu idea con detalle. Cuanto mas contexto, mejor."
+    },
+    "detail": {
+      "errorLoading": "Error al cargar la idea",
+      "comments": "Comentarios",
+      "noComments": "Sin comentarios aun. Se el primero.",
+      "commentPlaceholder": "Escribe un comentario...",
+      "loginToComment": "Inicia sesion para comentar",
+      "errorComment": "Error al comentar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "editComment": "Editar",
+      "deleteComment": "Eliminar",
+      "adminNote": "Nota del equipo",
+      "mergedBanner": "Esta idea fue fusionada con",
+      "mainIdea": "la idea principal",
+      "deleted": "Idea eliminada",
+      "confirmDeleteTitle": "Eliminar idea",
+      "confirmDeleteBody": "Esta accion no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirmDelete": "Eliminar"
+    },
+    "editor": {
+      "newTitle": "Proponer idea",
+      "editTitle": "Editar idea",
+      "titleLabel": "Titulo",
+      "descLabel": "Descripcion",
+      "categoryLabel": "Categoria",
+      "cancel": "Cancelar",
+      "publish": "Publicar idea",
+      "save": "Guardar cambios",
+      "published": "Idea publicada",
+      "saved": "Cambios guardados",
+      "errorSubmit": "Error al enviar",
+      "errorLoading": "Error al cargar la idea",
+      "notAuthor": "Solo el autor puede editar",
+      "minChars": "minimo 20"
+    },
+    "admin": {
+      "title": "Feedback de usuarios",
+      "subtitle": "Ideas y sugerencias de la comunidad",
+      "totalIdeas": "Total ideas",
+      "unreviewed": "Sin revisar",
+      "newThisWeek": "Nuevas esta semana",
+      "implemented": "Implementadas",
+      "topVoted": "Top por votos",
+      "noIdeas": "No hay ideas",
+      "searchPlaceholder": "Buscar ideas...",
+      "allStatuses": "Todos los estados",
+      "allCategories": "Todas las categorias",
+      "changeStatus": "Cambiar estado",
+      "changeStatusTitle": "Cambiar estado",
+      "statusNotePlaceholder": "Nota publica (opcional)",
+      "statusUpdated": "Estado actualizado",
+      "closeDuplicate": "Duplicada",
+      "closeDuplicateTitle": "Cerrar como duplicada",
+      "closeDuplicateDesc": "Selecciona la idea principal:",
+      "closeDuplicateBtn": "Cerrar como duplicada",
+      "duplicateClosed": "Cerrada como duplicada",
+      "searchTarget": "Buscar idea principal...",
+      "willBeClosedAs": "sera cerrada como duplicada de",
+      "noResults": "Sin resultados",
+      "merged": "Duplicada",
+      "viewPublic": "Ver",
+      "cancel": "Cancelar",
+      "update": "Actualizar",
+      "prev": "Anterior",
+      "next": "Siguiente"
     }
   },
   "cards": {
@@ -6180,6 +6251,7 @@
       "moderation": "Moderación",
       "support": "Soporte",
       "knowledgeBase": "Centro de Ayuda",
+      "feedback": "Feedback",
       "audit": "Auditoría",
       "settings": "Configuración"
     },

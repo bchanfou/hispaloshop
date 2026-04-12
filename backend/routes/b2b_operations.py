@@ -82,15 +82,9 @@ def _build_offer_doc(
     """Build a normalised offer sub-document."""
     now = datetime.now(timezone.utc)
     total_price = round(data.quantity * data.price_per_unit, 2)
-    fee_pct = PLATFORM_FEE_PCT + STRIPE_FEE_PCT
-    # NOTE: PLATFORM_FEE_PCT and STRIPE_FEE_PCT are floats; wrap the factor in
-    # Decimal(str(...)) before multiplying to avoid "unsupported operand type(s)
-    # for *: 'decimal.Decimal' and 'float'" at runtime (would crash any offer creation).
-    net_total = float((
-        Decimal(str(total_price))
-        * Decimal(str(100 - fee_pct))
-        / Decimal("100")
-    ).quantize(Decimal("0.01")))
+    # Section 3.8: Producer receives 100% of listed price. The 3% platform fee
+    # is added on top for the buyer, not deducted from the seller.
+    net_total = total_price
     expires_at = now + timedelta(days=data.validity_days)
 
     return {
@@ -175,6 +169,11 @@ async def create_operation(
         buyer_id = user_id
         seller_id = body.counterpart_id
     elif role == "producer":
+        # Section 3.8: B2B requires ELITE plan for producers (sellers)
+        user_doc = await db.users.find_one({"user_id": user_id}, {"subscription.plan": 1})
+        plan = (user_doc or {}).get("subscription", {}).get("plan", "FREE").upper()
+        if plan != "ELITE":
+            raise HTTPException(status_code=403, detail="B2B requiere plan ELITE")
         buyer_id = body.counterpart_id
         seller_id = user_id
     else:

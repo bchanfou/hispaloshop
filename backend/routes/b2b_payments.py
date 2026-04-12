@@ -90,17 +90,22 @@ def _calculate_amounts(offer: dict, payment_type: str):
 
 def _calculate_fees(amount: float):
     """
-    Calculate Stripe fee (passed to buyer) and platform fee.
+    Calculate Stripe fee and platform fee for B2B transactions.
     Returns (stripe_fee, platform_fee, buyer_total, seller_amount).
-    Uses Decimal to avoid float drift on large B2B transactions.
+
+    Commission model (Section 3.8):
+      - Platform fee 3% is paid by the BUYER on top of the listed price.
+      - Producer/seller receives 100% of the listed price (zero deduction).
+      - Stripe fee is calculated on (amount + platform_fee) since that's what Stripe processes.
     """
     from decimal import Decimal, ROUND_HALF_UP
     _q = Decimal("0.01")
     amt = Decimal(str(amount))
-    stripe_fee = (amt * Decimal(str(STRIPE_FEE_PCT)) / Decimal("100") + Decimal(str(STRIPE_FEE_FIXED_EUR))).quantize(_q, rounding=ROUND_HALF_UP)
     platform_fee = (amt * Decimal(str(PLATFORM_FEE_PCT)) / Decimal("100")).quantize(_q, rounding=ROUND_HALF_UP)
-    buyer_total = (amt + stripe_fee).quantize(_q, rounding=ROUND_HALF_UP)
-    seller_amount = (amt - platform_fee).quantize(_q, rounding=ROUND_HALF_UP)
+    charge_base = amt + platform_fee  # total that goes through Stripe
+    stripe_fee = (charge_base * Decimal(str(STRIPE_FEE_PCT)) / Decimal("100") + Decimal(str(STRIPE_FEE_FIXED_EUR))).quantize(_q, rounding=ROUND_HALF_UP)
+    buyer_total = (amt + platform_fee + stripe_fee).quantize(_q, rounding=ROUND_HALF_UP)
+    seller_amount = amt  # 100% of listed price
     return float(stripe_fee), float(platform_fee), float(buyer_total), float(seller_amount)
 
 

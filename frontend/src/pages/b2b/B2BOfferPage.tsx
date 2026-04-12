@@ -260,12 +260,12 @@ function StepPrecio({
   const price = Number(form.price_per_unit) || 0;
   const subtotalCents = Math.round(qty * price * 100);
   const commissionCents = Math.round(subtotalCents * 3 / 100);
-  const stripeCents = Math.round(subtotalCents * 14 / 1000) + 25; // 1.4% + 0.25€
-  const netCents = subtotalCents - commissionCents - stripeCents;
+  const chargeBaseCents = subtotalCents + commissionCents;
+  const stripeCents = Math.round(chargeBaseCents * 14 / 1000) + 25; // 1.4% + 0.25€ on (subtotal + commission)
   const subtotal = subtotalCents / 100;
   const commission = commissionCents / 100;
   const stripe = stripeCents / 100;
-  const net = netCents / 100;
+  const buyerTotal = subtotal + commission + stripe;
   return <div className="flex flex-col gap-5">
       <div>
         <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Precio por unidad *</label>
@@ -285,13 +285,17 @@ function StepPrecio({
           <div className="text-[13px] font-semibold text-stone-950 mb-3">
             Desglose
           </div>
-          {[[`Subtotal (${qty} × ${fmt(price, form.currency)})`, fmt(subtotal, form.currency)], ['Comisión (3%)', `−${fmt(commission, form.currency)}`], ['Stripe (1,4% + 0,25€)', `−${fmt(stripe, form.currency)}`]].map(([l, v]) => <div key={l} className="flex justify-between text-[13px] text-stone-500 mb-1.5">
+          {[[`Subtotal (${qty} × ${fmt(price, form.currency)})`, fmt(subtotal, form.currency)], ['Comision HispaloShop (3%)', `+${fmt(commission, form.currency)}`], ['Stripe (1,4% + 0,25)', `+${fmt(stripe, form.currency)}`]].map(([l, v]) => <div key={l} className="flex justify-between text-[13px] text-stone-500 mb-1.5">
               <span>{l}</span>
               <span>{v}</span>
             </div>)}
           <div className="flex justify-between text-sm font-semibold text-stone-950 border-t border-stone-200 pt-2 mt-1">
-            <span>Total neto</span>
-            <span>{fmt(net, form.currency)}</span>
+            <span>Total a pagar (importador)</span>
+            <span>{fmt(buyerTotal, form.currency)}</span>
+          </div>
+          <div className="flex justify-between text-xs text-stone-500 mt-1.5">
+            <span>Recibes (productor)</span>
+            <span>{fmt(subtotal, form.currency)}</span>
           </div>
         </motion.div>}
 
@@ -384,11 +388,12 @@ function StepRevisar({
   const price = Number(form.price_per_unit) || 0;
   const subtotalCents = Math.round(qty * price * 100);
   const commissionCents = Math.round(subtotalCents * 3 / 100);
-  const stripeCents = Math.round(subtotalCents * 14 / 1000) + 25; // 1.4% + 0.25€
+  const chargeBaseCents = subtotalCents + commissionCents;
+  const stripeCents = Math.round(chargeBaseCents * 14 / 1000) + 25;
   const subtotal = subtotalCents / 100;
   const commission = commissionCents / 100;
   const stripe = stripeCents / 100;
-  const net = (subtotalCents - commissionCents - stripeCents) / 100;
+  const buyerTotal = subtotal + commission + stripe;
   return <div className="flex flex-col gap-5">
       {/* Product summary card */}
       <div className="bg-white rounded-xl shadow-sm p-4">
@@ -460,13 +465,17 @@ function StepRevisar({
               <Percent size={12} className="text-stone-500" />
               <span className="text-xs font-medium text-stone-500">Desglose</span>
             </div>
-            {[['Subtotal', fmt(subtotal, form.currency)], ['Comisión (3%)', `−${fmt(commission, form.currency)}`], ['Stripe (1,4% + 0,25€)', `−${fmt(stripe, form.currency)}`]].map(([l, v]) => <div key={l} className="flex justify-between text-xs text-stone-500 mb-1">
+            {[['Subtotal', fmt(subtotal, form.currency)], ['Comision HispaloShop (3%)', `+${fmt(commission, form.currency)}`], ['Stripe (1,4% + 0,25)', `+${fmt(stripe, form.currency)}`]].map(([l, v]) => <div key={l} className="flex justify-between text-xs text-stone-500 mb-1">
                 <span>{l}</span>
                 <span>{v}</span>
               </div>)}
             <div className="flex justify-between text-sm font-semibold text-stone-950 border-t border-stone-200 pt-1.5 mt-1">
-              <span>Neto productor</span>
-              <span>{fmt(net, form.currency)}</span>
+              <span>Total importador</span>
+              <span>{fmt(buyerTotal, form.currency)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-stone-500 mt-1">
+              <span>Recibes (productor)</span>
+              <span>{fmt(subtotal, form.currency)}</span>
             </div>
           </div>}
       </div>

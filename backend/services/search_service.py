@@ -61,28 +61,48 @@ class SearchService:
         self,
         query: str,
         country: str,
-        limit: int
+        limit: int,
+        searcher_id: str = None
     ) -> List[Dict]:
         """Busca usuarios por username o nombre."""
-        # Búsqueda por username (exacto o parcial)
-        users = await db.users.find({
+        safe_q = re.escape(query)
+        filter_q = {
             "$or": [
-                {"username": {"$regex": f"^{query}", "$options": "i"}},
-                {"username": {"$regex": query, "$options": "i"}},
-                {"name": {"$regex": query, "$options": "i"}}
+                {"username": {"$regex": f"^{safe_q}", "$options": "i"}},
+                {"username": {"$regex": safe_q, "$options": "i"}},
+                {"name": {"$regex": safe_q, "$options": "i"}}
             ],
-            "role": {"$ne": "admin"}  # Excluir admins de búsqueda pública
-        }).limit(limit).to_list(length=limit)
-        
+            "role": {"$nin": ["admin", "super_admin", "country_admin"]},
+            "status": {"$ne": "pending_deletion"},
+        }
+
+        # Exclude blocked users if searcher is known
+        if searcher_id:
+            searcher = await db.users.find_one({"user_id": searcher_id}, {"blocked_users": 1})
+            blocked = searcher.get("blocked_users", []) if searcher else []
+            if blocked:
+                filter_q["user_id"] = {"$nin": blocked}
+
+        projection = {
+            "_id": 0, "user_id": 1, "username": 1, "name": 1,
+            "picture": 1, "profile_image": 1, "avatar_url": 1,
+            "role": 1, "is_verified": 1, "followers_count": 1,
+            "is_private": 1, "bio": 1,
+        }
+        users = await db.users.find(filter_q, projection).limit(limit).to_list(length=limit)
+
         return [{
-            "id": u["_id"],
+            "id": u.get("user_id", u.get("_id")),
+            "user_id": u.get("user_id"),
             "type": "user",
             "username": u.get("username"),
             "name": u.get("name") or u.get("username"),
-            "avatar": u.get("profile_image") or u.get("avatar_url"),
+            "avatar": u.get("picture") or u.get("profile_image") or u.get("avatar_url"),
             "role": u.get("role"),
             "is_verified": u.get("is_verified", False),
-            "followers_count": u.get("followers_count", 0)
+            "is_private": u.get("is_private", False),
+            "followers_count": u.get("followers_count", 0),
+            "bio": (u.get("bio") or "")[:80] if not u.get("is_private") else "",
         } for u in users]
     
     async def _search_stores(
@@ -92,11 +112,12 @@ class SearchService:
         limit: int
     ) -> List[Dict]:
         """Busca tiendas por nombre o slug."""
+        safe_q = re.escape(query)
         stores = await db.stores.find({
             "$or": [
-                {"name": {"$regex": query, "$options": "i"}},
-                {"slug": {"$regex": query, "$options": "i"}},
-                {"description": {"$regex": query, "$options": "i"}}
+                {"name": {"$regex": safe_q, "$options": "i"}},
+                {"slug": {"$regex": safe_q, "$options": "i"}},
+                {"description": {"$regex": safe_q, "$options": "i"}}
             ],
             "is_active": True
         }).limit(limit).to_list(length=limit)
@@ -119,21 +140,22 @@ class SearchService:
         limit: int
     ) -> List[Dict]:
         """Busca productos por nombre, descripción o tags."""
+        safe_q = re.escape(query)
         # Usar índice de texto si existe, fallback a regex
         try:
             products = await db.products.find(
-                {"status": "active"},
+                {"$text": {"$search": query}, "status": "active"},
                 {"score": {"$meta": "textScore"}}
             ).sort([("score", {"$meta": "textScore"})]).limit(limit).to_list(length=limit)
-        except:
+        except Exception:
             # Fallback a regex
             products = await db.products.find({
                 "status": "active",
                 "$or": [
-                    {"name": {"$regex": query, "$options": "i"}},
-                    {"description": {"$regex": query, "$options": "i"}},
+                    {"name": {"$regex": safe_q, "$options": "i"}},
+                    {"description": {"$regex": safe_q, "$options": "i"}},
                     {"tags": {"$in": [query]}},
-                    {"category": {"$regex": query, "$options": "i"}}
+                    {"category": {"$regex": safe_q, "$options": "i"}}
                 ]
             }).limit(limit).to_list(length=limit)
         
@@ -157,13 +179,14 @@ class SearchService:
         limit: int
     ) -> List[Dict]:
         """Busca recetas por título, descripción o ingredientes."""
+        safe_q = re.escape(query)
         recipes = await db.recipes.find({
             "status": "published",
             "$or": [
-                {"title": {"$regex": query, "$options": "i"}},
-                {"description": {"$regex": query, "$options": "i"}},
+                {"title": {"$regex": safe_q, "$options": "i"}},
+                {"description": {"$regex": safe_q, "$options": "i"}},
                 {"tags": {"$in": [query]}},
-                {"ingredients.name": {"$regex": query, "$options": "i"}}
+                {"ingredients.name": {"$regex": safe_q, "$options": "i"}}
             ]
         }).sort("ratings.avg", -1).limit(limit).to_list(length=limit)
         
@@ -188,8 +211,9 @@ class SearchService:
         # Si el query no empieza con #, buscar igual
         hashtag_query = query.lstrip("#")
         
+        safe_q = re.escape(hashtag_query)
         hashtags = await db.hashtags.find({
-            "tag": {"$regex": f"^{hashtag_query}", "$options": "i"}
+            "tag": {"$regex": f"^{safe_q}", "$options": "i"}
         }).sort("posts_count", -1).limit(limit).to_list(length=limit)
         
         return [{
@@ -207,10 +231,11 @@ class SearchService:
         limit: int
     ) -> List[Dict]:
         """Busca posts por caption o hashtags."""
+        safe_q = re.escape(query)
         posts = await db.posts.find({
             "status": "published",
             "$or": [
-                {"caption": {"$regex": query, "$options": "i"}},
+                {"caption": {"$regex": safe_q, "$options": "i"}},
                 {"hashtags": {"$in": [query]}}
             ]
         }).sort("created_at", -1).limit(limit).to_list(length=limit)

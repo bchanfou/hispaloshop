@@ -76,7 +76,8 @@ function usePlans(isImporter) {
     return {
       key,
       name: api.label || key,
-      price: api.price_monthly_eur ?? (key === 'FREE' ? 0 : key === 'PRO' ? 79 : 249),
+      priceMonthly: api.price_monthly_eur ?? (key === 'FREE' ? 0 : key === 'PRO' ? 79 : 249),
+      priceAnnual: api.price_annual_eur ?? (key === 'FREE' ? 0 : key === 'PRO' ? 806 : 2540),
       commissionRate: api.commission_rate ?? (key === 'FREE' ? 0.20 : key === 'PRO' ? 0.18 : 0.17),
       commission: `${Math.round((api.commission_rate ?? 0.20) * 100)}%`,
       icon: meta.icon,
@@ -88,10 +89,12 @@ function usePlans(isImporter) {
 }
 
 /* ── Plan Card ── */
-function PlanCard({ plan, plans, currentPlan, isCancelling, onUpgrade, changing }) {
+function PlanCard({ plan, plans, currentPlan, isCancelling, onUpgrade, changing, isAnnual }) {
   const isCurrent = currentPlan === plan.key;
   const isDowngrade = (PLAN_ORDER[currentPlan] || 0) > (PLAN_ORDER[plan.key] || 0);
   const Icon = plan.icon;
+  const displayPrice = isAnnual ? plan.priceAnnual : plan.priceMonthly;
+  const isFree = plan.priceMonthly === 0;
   return (
     <div className={`bg-white rounded-2xl border-2 p-5 relative transition-all flex flex-col ${isCurrent ? 'border-stone-950' : 'border-stone-200'}`}>
       {plan.popular && !isCurrent && (
@@ -117,10 +120,18 @@ function PlanCard({ plan, plans, currentPlan, isCancelling, onUpgrade, changing 
       <div className="mb-4">
         <div className="flex items-baseline gap-1">
           <span className="text-3xl font-extrabold text-stone-950 tracking-tight">
-            {plan.price === 0 ? 'Gratis' : `${plan.price}\u20ac`}
+            {isFree ? 'Gratis' : `${displayPrice}\u20ac`}
           </span>
-          {plan.price > 0 && <span className="text-sm text-stone-500">/mes</span>}
+          {!isFree && <span className="text-sm text-stone-500">{isAnnual ? '/ano' : '/mes'}</span>}
         </div>
+        {isAnnual && !isFree && (
+          <p className="text-xs text-stone-500 mt-0.5">
+            {Math.round(plan.priceAnnual / 12)}{'\u20ac'}/mes equivalente - <span className="font-semibold text-stone-950">Ahorra 15%</span>
+          </p>
+        )}
+        {!isAnnual && !isFree && plan.priceMonthly > 0 && (
+          <p className="text-xs text-stone-400 mt-0.5">7 dias de prueba gratis</p>
+        )}
         <p className="text-sm text-stone-500 mt-1">
           Comision por venta: <strong className="text-stone-950">{plan.commission}</strong>
         </p>
@@ -315,10 +326,13 @@ export default function ProducerPlanPage() {
   const [changing, setChanging] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(planData?.billing_cycle === 'yearly');
+  const [changingInterval, setChangingInterval] = useState(false);
 
   const isTrialing = planData?.plan_status === 'trialing';
   const isPastDue = planData?.plan_status === 'past_due';
   const isCancelledPending = planData?.cancel_at_period_end === true;
+  const currentBillingCycle = planData?.billing_cycle || 'monthly';
 
   useEffect(() => {
     trackEvent('plans_viewed', { current_plan: currentPlan });
@@ -326,10 +340,11 @@ export default function ProducerPlanPage() {
 
   const handleUpgrade = async (newPlan) => {
     setChanging(true);
-    trackEvent('plan_upgrade_started', { from_plan: currentPlan, to_plan: newPlan });
+    const interval = isAnnual ? 'year' : 'month';
+    trackEvent('plan_upgrade_started', { from_plan: currentPlan, to_plan: newPlan, interval });
     try {
       if (!planData?.stripe_subscription_id && newPlan !== 'FREE') {
-        const data = await apiClient.post('/sellers/me/plan/subscribe', { plan: newPlan });
+        const data = await apiClient.post('/sellers/me/plan/subscribe', { plan: newPlan, interval });
         if (data.checkout_url) {
           window.location.href = data.checkout_url;
           return;
@@ -344,6 +359,20 @@ export default function ProducerPlanPage() {
       toast.error(err.message || 'Error al cambiar plan');
     } finally {
       setChanging(false);
+    }
+  };
+
+  const handleChangeInterval = async () => {
+    const newInterval = currentBillingCycle === 'yearly' ? 'month' : 'year';
+    setChangingInterval(true);
+    try {
+      await apiClient.post('/sellers/me/plan/change-interval', { interval: newInterval });
+      toast.success(newInterval === 'year' ? 'Cambiado a facturacion anual' : 'Cambiado a facturacion mensual');
+      refetch();
+    } catch (err) {
+      toast.error(err.message || 'Error al cambiar intervalo');
+    } finally {
+      setChangingInterval(false);
     }
   };
 
@@ -426,6 +455,22 @@ export default function ProducerPlanPage() {
         </div>
       )}
 
+      {/* Billing toggle: Monthly / Annual */}
+      <div className="flex items-center justify-center gap-3">
+        <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-stone-950' : 'text-stone-400'}`}>Mensual</span>
+        <button
+          onClick={() => setIsAnnual(!isAnnual)}
+          className={`relative w-14 h-7 rounded-full transition-colors ${isAnnual ? 'bg-stone-950' : 'bg-stone-200'}`}
+          aria-label="Toggle annual billing"
+        >
+          <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-0'}`} />
+        </button>
+        <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-stone-950' : 'text-stone-400'}`}>
+          Anual
+          <span className="ml-1.5 text-xs bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full font-semibold">-15%</span>
+        </span>
+      </div>
+
       {/* Plan cards — 3-col grid on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {plans.map((plan) => (
@@ -437,6 +482,7 @@ export default function ProducerPlanPage() {
             isCancelling={isCancelledPending}
             onUpgrade={handleUpgrade}
             changing={changing}
+            isAnnual={isAnnual}
           />
         ))}
       </div>
@@ -462,6 +508,12 @@ export default function ProducerPlanPage() {
                 {planData?.commission_rate ? `${(planData.commission_rate * 100).toFixed(0)}%` : '\u2014'}
               </span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-stone-500">Ciclo</span>
+              <span className="font-medium text-stone-950">
+                {currentBillingCycle === 'yearly' ? 'Anual' : 'Mensual'}
+              </span>
+            </div>
             {planData?.current_period_end && (
               <div className="flex justify-between">
                 <span className="text-stone-500">Proximo cobro</span>
@@ -473,9 +525,17 @@ export default function ProducerPlanPage() {
           </div>
 
           <button
+            onClick={handleChangeInterval}
+            disabled={changingInterval}
+            className="mt-3 w-full py-2.5 text-sm font-medium border border-stone-200 rounded-full hover:bg-stone-50 transition-colors disabled:opacity-50"
+          >
+            {changingInterval ? 'Cambiando...' : currentBillingCycle === 'yearly' ? 'Cambiar a mensual' : 'Cambiar a anual (ahorra 15%)'}
+          </button>
+
+          <button
             onClick={() => setShowCancelModal(true)}
             disabled={cancelling}
-            className="mt-4 w-full py-2 text-sm text-stone-500 hover:text-stone-950 transition-colors disabled:opacity-50"
+            className="mt-2 w-full py-2 text-sm text-stone-500 hover:text-stone-950 transition-colors disabled:opacity-50"
           >
             {cancelling ? 'Cancelando...' : 'Cancelar suscripcion'}
           </button>
@@ -499,8 +559,12 @@ export default function ProducerPlanPage() {
           <strong className="text-stone-950">Que pasa si falla el pago?</strong><br />
           Tienes 3 dias de gracia para actualizar tu metodo de pago antes de que tu plan baje a FREE.
         </p>
+        <p>
+          <strong className="text-stone-950">Facturacion anual?</strong><br />
+          Ahorra un 15% pagando anualmente. Puedes cambiar entre mensual y anual en cualquier momento. Stripe calcula la diferencia automaticamente.
+        </p>
         <p className="text-xs text-stone-400 pt-2 border-t border-stone-200">
-          Todos los precios son en EUR e incluyen IVA. Facturacion mensual.
+          Todos los precios son en EUR e incluyen IVA. El trial de 7 dias solo aplica al plan mensual.
         </p>
       </div>
 

@@ -135,9 +135,17 @@ const TABS = [{
   label: 'Personas',
   icon: Users
 }, {
+  key: 'communities',
+  label: 'Comunidades',
+  icon: Users
+}, {
   key: 'recipes',
   label: 'Recetas',
   icon: ChefHat
+}, {
+  key: 'hashtags',
+  label: 'Hashtags',
+  icon: Hash
 }];
 const SORT_OPTIONS = [{
   value: 'relevance',
@@ -284,29 +292,40 @@ export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef(null);
+  // Restore URL params on mount
+  const initSort = searchParams.get('sort') || 'relevance';
+  const initTab = searchParams.get('tab') || 'all';
+  const initMinPrice = searchParams.get('min_price') || '';
+  const initMaxPrice = searchParams.get('max_price') || '';
+  const initCerts = searchParams.get('certifications') ? searchParams.get('certifications').split(',') : [];
+  const initInStock = searchParams.get('in_stock') === '1';
+  const initFreeShipping = searchParams.get('free_shipping') === '1';
+  const initCategory = searchParams.get('category') || '';
+  const initCountryOrigin = searchParams.get('country_origin') || '';
+
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState(getHistory);
-  const [activeTab, setActiveTab] = useState('all');
-  const [sortBy, setSortBy] = useState('relevance');
+  const [activeTab, setActiveTab] = useState(initTab);
+  const [sortBy, setSortBy] = useState(initSort);
   const [showFilters, setShowFilters] = useState(false);
-  const [filterMinPrice, setFilterMinPrice] = useState('');
-  const [filterMaxPrice, setFilterMaxPrice] = useState('');
-  const [filterCerts, setFilterCerts] = useState([]);
-  const [filterInStock, setFilterInStock] = useState(false);
-  const [filterFreeShipping, setFilterFreeShipping] = useState(false);
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterCountryOrigin, setFilterCountryOrigin] = useState('');
+  const [filterMinPrice, setFilterMinPrice] = useState(initMinPrice);
+  const [filterMaxPrice, setFilterMaxPrice] = useState(initMaxPrice);
+  const [filterCerts, setFilterCerts] = useState(initCerts);
+  const [filterInStock, setFilterInStock] = useState(initInStock);
+  const [filterFreeShipping, setFilterFreeShipping] = useState(initFreeShipping);
+  const [filterCategory, setFilterCategory] = useState(initCategory);
+  const [filterCountryOrigin, setFilterCountryOrigin] = useState(initCountryOrigin);
   // Applied filters (only set when user clicks "Aplicar")
   const [appliedFilters, setAppliedFilters] = useState({
-    minPrice: '',
-    maxPrice: '',
-    certs: [],
-    inStock: false,
-    freeShipping: false,
-    category: '',
-    countryOrigin: '',
+    minPrice: initMinPrice,
+    maxPrice: initMaxPrice,
+    certs: initCerts,
+    inStock: initInStock,
+    freeShipping: initFreeShipping,
+    category: initCategory,
+    countryOrigin: initCountryOrigin,
   });
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
@@ -314,6 +333,8 @@ export default function SearchPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestIdRef = useRef(0);
   const searchIdRef = useRef(0);
+  const suggestAbortRef = useRef(null);
+  const searchAbortRef = useRef(null);
   const hasActiveFilters = useMemo(() => {
     return appliedFilters.minPrice !== '' || appliedFilters.maxPrice !== '' || appliedFilters.certs.length > 0 || appliedFilters.inStock || appliedFilters.freeShipping || appliedFilters.category !== '' || appliedFilters.countryOrigin !== '';
   }, [appliedFilters]);
@@ -394,15 +415,20 @@ export default function SearchPage() {
     }
     const reqId = ++suggestIdRef.current;
     const timer = setTimeout(async () => {
+      // Abort previous suggestion request
+      if (suggestAbortRef.current) suggestAbortRef.current.abort();
+      const controller = new AbortController();
+      suggestAbortRef.current = controller;
       try {
         const data = await apiClient.get('/discovery/search', {
           params: {
             q: query.trim(),
             limit: 9
-          }
+          },
+          signal: controller.signal,
         });
-        if (reqId !== suggestIdRef.current) return;
-        const hasAny = (data?.products?.length || 0) + (data?.creators?.length || 0) + (data?.stores?.length || 0) > 0;
+        if (reqId !== suggestIdRef.current || controller.signal.aborted) return;
+        const hasAny = (data?.products?.length || 0) + (data?.creators?.length || 0) + (data?.stores?.length || 0) + (data?.communities?.length || 0) + (data?.hashtags?.length || 0) > 0;
         if (hasAny) {
           setSuggestions({
             products: (data.products || []).slice(0, 3),
@@ -414,13 +440,14 @@ export default function SearchPage() {
           setSuggestions(null);
           setShowSuggestions(false);
         }
-      } catch {
+      } catch (err) {
+        if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
         if (reqId === suggestIdRef.current) {
           setSuggestions(null);
           setShowSuggestions(false);
         }
       }
-    }, 200);
+    }, 300);
     return () => clearTimeout(timer);
   }, [query]);
   const handleSuggestionSelect = useCallback((item, type) => {
@@ -441,6 +468,11 @@ export default function SearchPage() {
     }
     const reqId = ++searchIdRef.current;
     const timer = setTimeout(async () => {
+      // Abort previous search
+      if (searchAbortRef.current) searchAbortRef.current.abort();
+      const controller = new AbortController();
+      searchAbortRef.current = controller;
+
       setLoading(true);
       try {
         const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
@@ -457,12 +489,14 @@ export default function SearchPage() {
         if (appliedFilters.category) params.category = appliedFilters.category;
         if (appliedFilters.countryOrigin) params.country_origin = appliedFilters.countryOrigin;
         const data = await apiClient.get('/discovery/search', {
-          params
+          params,
+          signal: controller.signal,
         });
-        if (reqId !== searchIdRef.current) return;
+        if (reqId !== searchIdRef.current || controller.signal.aborted) return;
         setResults(data);
         // Reflect all filters in URL for shareable links
         const urlParams = { q: query.trim() };
+        if (activeTab !== 'all') urlParams.tab = activeTab;
         if (sortParam) urlParams.sort = sortParam;
         if (appliedFilters.minPrice) urlParams.min_price = appliedFilters.minPrice;
         if (appliedFilters.maxPrice) urlParams.max_price = appliedFilters.maxPrice;
@@ -473,15 +507,16 @@ export default function SearchPage() {
         if (appliedFilters.countryOrigin) urlParams.country_origin = appliedFilters.countryOrigin;
         setSearchParams(urlParams, { replace: true });
       } catch (err) {
+        if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
         if (reqId !== searchIdRef.current) return;
         setResults(null);
         toast.error(i18n.t('search.errorAlBuscarIntentaloDeNuevo', 'Error al buscar. Inténtalo de nuevo.'));
       } finally {
-        if (reqId === searchIdRef.current) setLoading(false);
+        if (reqId === searchIdRef.current && !controller.signal.aborted) setLoading(false);
       }
-    }, 200);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [query, sortBy, appliedFilters, setSearchParams]);
+  }, [query, sortBy, appliedFilters, activeTab, setSearchParams]);
 
   // S-03: Single search function — useEffect above handles the actual search.
   // handleSubmit just saves history and hides suggestions; the useEffect triggers on query/sort/filters change.
@@ -516,13 +551,17 @@ export default function SearchPage() {
   const safeRecipes = Array.isArray(results?.recipes) ? results.recipes : [];
   const safeStores = Array.isArray(results?.stores) ? results.stores : [];
   const safeCreators = Array.isArray(results?.creators) ? results.creators : [];
+  const safeCommunities = Array.isArray(results?.communities) ? results.communities : [];
+  const safeHashtags = Array.isArray(results?.hashtags) ? results.hashtags : [];
   const counts = {
     products: safeProducts.length,
     recipes: safeRecipes.length,
     stores: safeStores.length,
-    creators: safeCreators.length
+    creators: safeCreators.length,
+    communities: safeCommunities.length,
+    hashtags: safeHashtags.length,
   };
-  const totalCount = counts.products + counts.recipes + counts.stores + counts.creators;
+  const totalCount = counts.products + counts.recipes + counts.stores + counts.creators + counts.communities + counts.hashtags;
   const hasResults = totalCount > 0;
 
   // S-07: Backend handles sorting via `sort` param — no client-side re-sort needed.
@@ -532,6 +571,8 @@ export default function SearchPage() {
   const showRecipes = (activeTab === 'all' || activeTab === 'recipes') && counts.recipes > 0;
   const showStores = (activeTab === 'all' || activeTab === 'stores') && counts.stores > 0;
   const showCreators = (activeTab === 'all' || activeTab === 'creators') && counts.creators > 0;
+  const showCommunities = (activeTab === 'all' || activeTab === 'communities') && counts.communities > 0;
+  const showHashtags = (activeTab === 'all' || activeTab === 'hashtags') && counts.hashtags > 0;
   return <div className="min-h-screen bg-white">
       <SEO title="Buscar — Hispaloshop" description={i18n.t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.')} />
 
@@ -824,6 +865,31 @@ export default function SearchPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {safeStores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
                 </div>
+              </section>}
+            {showCommunities && <section>
+                <SectionHeader icon={Users} label="Comunidades" count={counts.communities} />
+                {safeCommunities.map(c => <Link key={c.slug} to={`/communities/${c.slug}`} className="flex items-center gap-3 border-b border-stone-100 py-2.5 no-underline last:border-b-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-stone-100">
+                      {c.cover_image ? <img src={c.cover_image} alt={c.name} loading="lazy" className="h-full w-full object-cover" /> : <Users size={18} className="text-stone-400" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-stone-950">{c.name}</p>
+                      {c.description && <p className="mt-0.5 truncate text-xs text-stone-500">{c.description.slice(0, 60)}</p>}
+                    </div>
+                    <span className="shrink-0 text-xs text-stone-400">{c.member_count || 0} miembros</span>
+                  </Link>)}
+              </section>}
+            {showHashtags && <section>
+                <SectionHeader icon={Hash} label="Hashtags" count={counts.hashtags} />
+                {safeHashtags.map(h => <Link key={h.tag} to={`/hashtag/${encodeURIComponent(h.tag)}`} className="flex items-center gap-3 border-b border-stone-100 py-2.5 no-underline last:border-b-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-100">
+                      <Hash size={18} className="text-stone-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-stone-950">#{h.tag}</p>
+                    </div>
+                    {h.posts_count > 0 && <span className="shrink-0 text-xs text-stone-400">{h.posts_count} posts</span>}
+                  </Link>)}
               </section>}
           </motion.div>}
 

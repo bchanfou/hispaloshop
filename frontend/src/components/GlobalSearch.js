@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
-import { Search, X, Users, Store, Hash, ShoppingBag, ChefHat, Loader2, Clock, TrendingUp, Trash2 } from 'lucide-react';
+import { Search, X, Users, Store, Hash, ShoppingBag, ChefHat, Loader2, Clock, TrendingUp, Trash2, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
@@ -44,6 +44,7 @@ export default function GlobalSearch() {
   const [history, setHistory] = useState(getHistory);
   const [trending, setTrending] = useState([]);
   const inputRef = useRef(null);
+  const abortRef = useRef(null);
   const navigate = useNavigate();
 
   // Cmd+K / Ctrl+K shortcut
@@ -65,31 +66,49 @@ export default function GlobalSearch() {
   // Load trending on open
   useEffect(() => {
     if (!open || trending.length) return;
-    apiClient.get('/search/trending').then(d => setTrending(d?.trending || [])).catch(() => {});
+    apiClient.get('/search/trending').then(d => {
+      const items = d?.trending || [];
+      // trending items can be {query, count} objects or plain strings
+      setTrending(items.map(i => typeof i === 'string' ? i : i.query || '').filter(Boolean));
+    }).catch(() => {});
   }, [open, trending.length]);
 
-  // Search with debounce
+  // Search with 300ms debounce + AbortController
   const search = useCallback(async (q) => {
     if (q.length < 2) { setResults(null); return; }
+
+    // Abort previous request
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     try {
       const data = await apiClient.get('/discovery/search', {
-        params: {
-          q,
-          limit: 5,
-        },
+        params: { q, limit: 5 },
+        signal: controller.signal,
       });
+      if (controller.signal.aborted) return;
       setResults(data || {});
       setSelected(-1);
-      trackEvent('global_search_performed', { query: q.slice(0, 30), type: tab, results_count: Object.values(data || {}).flat().length });
-    } catch { setResults({}); }
-    finally { setLoading(false); }
+      trackEvent('global_search_performed', { query: q.slice(0, 30), type: tab });
+    } catch (err) {
+      if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
+      setResults({});
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
+    }
   }, [tab]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => search(query), 200);
+    const timeout = setTimeout(() => search(query), 300);
     return () => clearTimeout(timeout);
   }, [query, search]);
+
+  // Cleanup abort on unmount
+  useEffect(() => {
+    return () => { if (abortRef.current) abortRef.current.abort(); };
+  }, []);
 
   // Flatten results for keyboard nav
   const flatResults = useMemo(() => {
@@ -99,10 +118,10 @@ export default function GlobalSearch() {
       (arr || []).forEach(item => items.push({ ...item, _type: key, _url: urlFn(item) }));
     };
     if (tab === 'all' || tab === 'users') addSection('users', results.creators || results.users, u => `/@${u.username || u.user_id}`);
-    if (tab === 'all' || tab === 'stores') addSection('stores', results.stores, s => `/store/${s.slug || s.store_id}`);
-    if (tab === 'all' || tab === 'communities') addSection('communities', results.communities, c => `/community/${c.slug}`);
-    if (tab === 'all' || tab === 'hashtags') addSection('hashtags', results.hashtags, h => `/hashtag/${h.tag || h.slug}`);
-    if (tab === 'all' || tab === 'products') addSection('products', results.products, p => `/product/${p.slug || p.product_id}`);
+    if (tab === 'all' || tab === 'stores') addSection('stores', results.stores, s => `/store/${s.slug || s.store_slug || s.store_id}`);
+    if (tab === 'all' || tab === 'communities') addSection('communities', results.communities, c => `/communities/${c.slug}`);
+    if (tab === 'all' || tab === 'hashtags') addSection('hashtags', results.hashtags, h => `/hashtag/${h.tag}`);
+    if (tab === 'all' || tab === 'products') addSection('products', results.products, p => `/products/${p.product_id}`);
     if (tab === 'all' || tab === 'recipes') addSection('recipes', results.recipes, r => `/recipes/${r.recipe_id}`);
     return items;
   }, [results, tab]);
@@ -158,16 +177,23 @@ export default function GlobalSearch() {
           const globalIdx = flatResults.indexOf(item);
           return (
             <button key={`${item._type}-${i}`} onClick={() => handleSelect(item)} className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${globalIdx === selected ? 'bg-stone-50' : 'hover:bg-stone-50'}`}>
-              {item.avatar || item.logo || item.image || item.cover_image ? (
-                <img src={item.avatar || item.logo || item.image || item.cover_image} alt="" className="w-9 h-9 rounded-full object-cover bg-stone-100 shrink-0" />
+              {item.avatar || item.picture || item.logo || item.image || item.cover_image || (item.images && item.images[0]) ? (
+                <img src={item.avatar || item.picture || item.profile_image || item.logo || item.image || item.cover_image || (item.images && item.images[0])} alt="" className="w-9 h-9 rounded-full object-cover bg-stone-100 shrink-0" />
               ) : (
                 <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
                   <Icon size={16} className="text-stone-400" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-stone-950 truncate">{item._type === 'hashtags' ? `#${item.tag || item.name}` : item.name || item.title || item.username}</p>
-                <p className="text-[11px] text-stone-400 truncate">{item.username ? `@${item.username}` : item.location || item.slug || (item.member_count ? `${item.member_count} miembros` : item.price ? `${Number(item.price).toFixed(2)} €` : '')}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[13px] font-medium text-stone-950 truncate">
+                    {item._type === 'hashtags' ? `#${item.tag || item.name}` : item.name || item.title || item.username}
+                  </p>
+                  {item.is_private && <Lock size={10} className="text-stone-400 shrink-0" />}
+                </div>
+                <p className="text-[11px] text-stone-400 truncate">
+                  {item.username ? `@${item.username}` : item.location || item.slug || (item.member_count != null ? `${item.member_count} miembros` : item.posts_count != null ? `${item.posts_count} posts` : item.price ? `${Number(item.price).toFixed(2)} ${item.currency || '\u20AC'}` : '')}
+                </p>
               </div>
             </button>
           );
@@ -242,9 +268,9 @@ export default function GlobalSearch() {
                 {(tab === 'all' || tab === 'hashtags') && renderSection(t('search.section_hashtags', 'Hashtags'), Hash, flatResults.filter(r => r._type === 'hashtags'))}
                 {(tab === 'all' || tab === 'products') && renderSection(t('search.section_products', 'Productos'), ShoppingBag, flatResults.filter(r => r._type === 'products'))}
                 {(tab === 'all' || tab === 'recipes') && renderSection(t('search.section_recipes', 'Recetas'), ChefHat, flatResults.filter(r => r._type === 'recipes'))}
-                {tab === 'all' && (results?.products?.length || 0) > 0 && (
+                {hasQuery && flatResults.length > 0 && (
                   <button onClick={handleSubmit} className="w-full py-3 text-center text-[13px] font-medium text-stone-500 bg-transparent border-none cursor-pointer hover:text-stone-950 hover:bg-stone-50 transition-colors">
-                    {t('search.see_all_products', 'Ver todos los productos')} →
+                    {t('search.see_all_results', 'Ver todos los resultados')} →
                   </button>
                 )}
               </>
@@ -253,7 +279,7 @@ export default function GlobalSearch() {
 
           {/* Footer */}
           <div className="px-4 py-2 border-t border-stone-100 flex items-center justify-between text-[10px] text-stone-400 shrink-0">
-            <span>⌘K / Ctrl+K</span>
+            <span>Ctrl+K</span>
             <span>Esc {t('search.to_close', 'para cerrar')}</span>
           </div>
         </div>

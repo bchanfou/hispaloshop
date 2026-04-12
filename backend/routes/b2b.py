@@ -18,6 +18,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["B2B"])
 
 
+async def _require_producer_elite(user):
+    """Raise 403 if producer doesn't have ELITE plan. Importers pass through (B2B is their core function)."""
+    if user.role in ("importer",):
+        return  # Importers can always access B2B (buyer side)
+    if user.role in ("producer",):
+        db = get_db()
+        user_doc = await db.users.find_one({"user_id": user.user_id}, {"subscription.plan": 1})
+        plan = (user_doc or {}).get("subscription", {}).get("plan", "FREE").upper()
+        if plan != "ELITE":
+            raise HTTPException(status_code=403, detail="B2B requiere plan ELITE")
+
+
 @router.get("/catalog")
 async def get_b2b_catalog(
     category: Optional[str] = None,
@@ -558,6 +570,7 @@ async def get_producer_b2b_requests(
     """Get B2B requests received by the authenticated producer."""
     if current_user.role not in ["producer"]:
         raise HTTPException(status_code=403, detail="Producers only")
+    await _require_producer_elite(current_user)
 
     db = get_db()
 
@@ -629,6 +642,7 @@ async def confirm_b2b_request(
     """Producer confirms availability and price for a B2B request."""
     if current_user.role != "producer":
         raise HTTPException(status_code=403, detail="Producers only")
+    await _require_producer_elite(current_user)
     if body.confirmed_unit_price <= 0:
         raise HTTPException(status_code=400, detail="Precio debe ser positivo")
 
@@ -678,6 +692,7 @@ async def reject_b2b_request(
     """Producer rejects a B2B request."""
     if current_user.role != "producer":
         raise HTTPException(status_code=403, detail="Producers only")
+    await _require_producer_elite(current_user)
 
     db = get_db()
 
@@ -725,6 +740,7 @@ async def ship_b2b_request(
     """Producer marks a paid B2B order as shipped with tracking."""
     if current_user.role != "producer":
         raise HTTPException(status_code=403, detail="Producers only")
+    await _require_producer_elite(current_user)
 
     db = get_db()
 

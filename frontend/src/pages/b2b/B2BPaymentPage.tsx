@@ -283,10 +283,11 @@ export default function B2BPaymentPage() {
           {isBuyer && (
             <>
               <Row label="Subtotal" value={fmt.format(totalBruto)} />
-              <Row label="Fee Stripe (1,4% + 0,25€)" value={`+${fmt.format(stripeFee)}`} />
+              <Row label={t('b2_b_payment.comisionHispaloshop3', 'Comision HispaloShop (3%)')} value={`+${fmt.format(platformFee)}`} />
               <p className="text-[10px] text-stone-500 -mt-1.5 pl-3 m-0">
-                ↳ Asumido por el comprador
+                ↳ {t('b2_b_payment.comisionPlataforma', 'Comision de plataforma')}
               </p>
+              <Row label="Fee Stripe" value={`+${fmt.format(stripeFee)}`} />
               <hr className="border-none border-t border-stone-200 my-1" />
               <div className="flex justify-between items-center">
                 <span className="text-sm font-bold text-stone-950">TOTAL A PAGAR</span>
@@ -297,16 +298,15 @@ export default function B2BPaymentPage() {
 
           {isSeller && (
             <>
-              <Row label="Precio bruto" value={fmt.format(totalBruto)} />
-              <Row label={t('b2_b_payment.comisionHispaloshop3', 'Comisión Hispaloshop (3%)')} value={`−${fmt.format(platformFee)}`} />
-              <p className="text-[10px] text-stone-500 -mt-1.5 pl-3 m-0">
-                ↳ Comisión de plataforma
-              </p>
+              <Row label={t('b2_b_payment.precioListado', 'Precio listado')} value={fmt.format(totalBruto)} />
               <hr className="border-none border-t border-stone-200 my-1" />
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-stone-950">RECIBIRÁS</span>
+                <span className="text-sm font-bold text-stone-950">{t('b2_b_payment.recibiras', 'RECIBIRAS')}</span>
                 <span className="text-[15px] font-bold text-stone-950">{fmt.format(sellerReceives)}</span>
               </div>
+              <p className="text-[10px] text-stone-500 mt-1 m-0">
+                {t('b2_b_payment.sinDeduccion', '100% del precio listado. Sin deducciones.')}
+              </p>
             </>
           )}
         </div>

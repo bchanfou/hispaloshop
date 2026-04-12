@@ -144,6 +144,13 @@ async def _create_indexes():
     await db.users.create_index("influencer_data.affiliate_code", unique=True, sparse=True)
     await db.users.create_index("stripe_account_id", sparse=True)
     await db.users.create_index("created_at")
+    await db.users.create_index(
+        [("name", "text"), ("username", "text")],
+        weights={"name": 10, "username": 5},
+        name="users_text_search",
+        default_language="none",
+    )
+    logger.info("  OK: users text index")
     logger.info("  OK: users indexes")
     
     # Products - índices para búsquedas y filtros
@@ -572,7 +579,7 @@ async def _create_indexes():
     logger.info("  OK: search_trending indexes")
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # FEEDBACK - User feedback and feature requests
+    # FEEDBACK - User feedback and feature requests (legacy collection)
     # ═══════════════════════════════════════════════════════════════════════════
     await db.feedback.create_index("user_id")
     await db.feedback.create_index("status")
@@ -581,6 +588,26 @@ async def _create_indexes():
     await db.feedback.create_index([("is_public", 1), ("created_at", -1)])
     await db.feedback.create_index([("user_id", 1), ("created_at", -1)])
     logger.info("  OK: feedback indexes")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # FEEDBACK IDEAS — Section 3.7 public idea board
+    # ═══════════════════════════════════════════════════════════════════════════
+    await db.feedback_ideas.create_index("slug", unique=True)
+    await db.feedback_ideas.create_index([("status", 1), ("vote_count", -1), ("created_at", -1)])
+    await db.feedback_ideas.create_index([("category", 1), ("status", 1)])
+    await db.feedback_ideas.create_index([("author_id", 1), ("created_at", -1)])
+    await db.feedback_ideas.create_index([("country_code", 1), ("status", 1), ("vote_count", -1)])
+    logger.info("  OK: feedback_ideas indexes")
+
+    # FEEDBACK VOTES
+    await db.feedback_votes.create_index([("idea_id", 1), ("user_id", 1)], unique=True)
+    await db.feedback_votes.create_index([("user_id", 1), ("created_at", -1)])
+    logger.info("  OK: feedback_votes indexes")
+
+    # FEEDBACK COMMENTS
+    await db.feedback_comments.create_index([("idea_id", 1), ("created_at", 1)])
+    await db.feedback_comments.create_index("author_id")
+    logger.info("  OK: feedback_comments indexes")
 
     logger.info("All indexes created successfully")
 

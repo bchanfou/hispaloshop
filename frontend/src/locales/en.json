@@ -2897,6 +2897,7 @@
     "section_products": "Products",
     "section_recipes": "Recipes",
     "see_all_products": "See all products",
+    "see_all_results": "See all results",
     "to_close": "to close"
   },
   "influencerAI": {
@@ -4367,44 +4368,43 @@
     "configuracion": "Settings"
   },
   "feedback": {
-    "title": "Feedback & Ideas",
-    "submitButton": "Send feedback",
-    "submitNew": "Send feedback or idea",
+    "title": "Ideas & Suggestions",
+    "subtitle": "Help us improve HispaloShop",
+    "proposeButton": "Propose idea",
+    "loginToPropose": "Sign in to propose",
+    "searchPlaceholder": "Search ideas...",
     "loading": "Loading...",
     "loadMore": "Load more",
-    "emptyState": "No feedback yet",
-    "emptyStateSub": "Be the first to send an idea!",
-    "errorLoading": "Error loading feedback",
+    "emptyState": "No ideas yet",
+    "emptyStateSub": "Be the first to propose one!",
+    "ideasCount": "ideas",
     "errorVoting": "Error voting",
-    "voteRegistered": "Vote registered!",
-    "titleLabel": "Title",
-    "descriptionLabel": "Description",
-    "typeLabel": "Type",
-    "types": {
-      "bug": "Bug",
+    "categories": {
+      "ux": "UX",
       "feature": "Feature",
-      "improvement": "Improvement",
+      "content": "Content",
+      "commerce": "Commerce",
+      "b2b": "B2B",
+      "mobile": "Mobile",
+      "i18n": "Languages",
       "other": "Other"
     },
-    "statuses": {
-      "pending": "Pending",
+    "status": {
+      "new": "New",
       "under_review": "Under review",
       "planned": "Planned",
       "in_progress": "In progress",
-      "done": "Completed",
+      "implemented": "Implemented",
       "declined": "Declined"
     },
     "sort": {
       "popular": "Most voted",
-      "trending": "Trending",
-      "newest": "Newest"
+      "recent": "Most recent",
+      "mine": "My ideas"
     },
     "filters": {
-      "allTypes": "All types",
-      "features": "Features",
-      "improvements": "Improvements",
-      "bugs": "Bugs",
-      "others": "Others"
+      "all": "All",
+      "allStatuses": "All"
     },
     "validation": {
       "titleMinLength": "Title must be at least 5 characters",
@@ -4413,6 +4413,73 @@
     "placeholders": {
       "title": "Summarize your idea in one sentence",
       "description": "Describe your idea in detail. The more context, the better."
+    },
+    "detail": {
+      "errorLoading": "Error loading idea",
+      "comments": "Comments",
+      "noComments": "No comments yet. Be the first.",
+      "commentPlaceholder": "Write a comment...",
+      "loginToComment": "Sign in to comment",
+      "errorComment": "Error posting comment",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editComment": "Edit",
+      "deleteComment": "Delete",
+      "adminNote": "Team note",
+      "mergedBanner": "This idea was merged with",
+      "mainIdea": "the main idea",
+      "deleted": "Idea deleted",
+      "confirmDeleteTitle": "Delete idea",
+      "confirmDeleteBody": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete"
+    },
+    "editor": {
+      "newTitle": "Propose idea",
+      "editTitle": "Edit idea",
+      "titleLabel": "Title",
+      "descLabel": "Description",
+      "categoryLabel": "Category",
+      "cancel": "Cancel",
+      "publish": "Publish idea",
+      "save": "Save changes",
+      "published": "Idea published",
+      "saved": "Changes saved",
+      "errorSubmit": "Error submitting",
+      "errorLoading": "Error loading idea",
+      "notAuthor": "Only the author can edit",
+      "minChars": "minimum 20"
+    },
+    "admin": {
+      "title": "User Feedback",
+      "subtitle": "Ideas and suggestions from the community",
+      "totalIdeas": "Total ideas",
+      "unreviewed": "Unreviewed",
+      "newThisWeek": "New this week",
+      "implemented": "Implemented",
+      "topVoted": "Top by votes",
+      "noIdeas": "No ideas",
+      "searchPlaceholder": "Search ideas...",
+      "allStatuses": "All statuses",
+      "allCategories": "All categories",
+      "changeStatus": "Change status",
+      "changeStatusTitle": "Change status",
+      "statusNotePlaceholder": "Public note (optional)",
+      "statusUpdated": "Status updated",
+      "closeDuplicate": "Duplicate",
+      "closeDuplicateTitle": "Close as duplicate",
+      "closeDuplicateDesc": "Select the main idea:",
+      "closeDuplicateBtn": "Close as duplicate",
+      "duplicateClosed": "Closed as duplicate",
+      "searchTarget": "Search main idea...",
+      "willBeClosedAs": "will be closed as duplicate of",
+      "noResults": "No results",
+      "merged": "Duplicate",
+      "viewPublic": "View",
+      "cancel": "Cancel",
+      "update": "Update",
+      "prev": "Previous",
+      "next": "Next"
     }
   },
   "cards": {
@@ -4466,6 +4533,7 @@
       "moderation": "Moderation",
       "support": "Support",
       "knowledgeBase": "Help Center",
+      "feedback": "Feedback",
       "audit": "Audit log",
       "settings": "Settings"
     },

@@ -20,7 +20,9 @@ from services.subscriptions import (
     list_subscription_plans, has_tier_access,
     get_user_subscription_doc,
     record_subscription_event, get_seller_plan_price, get_seller_plan_currency,
+    get_seller_plan_price_annual, get_seller_stripe_price_id,
     INFLUENCER_MIN_PAYOUT_EUR, INFLUENCER_PAYOUT_DELAY_DAYS, ATTRIBUTION_LOCK_MONTHS,
+    ANNUAL_DISCOUNT_PCT,
 )
 from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
@@ -270,16 +272,22 @@ async def create_subscription(request: Request, user: User = Depends(get_current
     _ensure_stripe_ready()
     body = await request.json()
     plan_key = body.get("plan", "PRO").upper()
+    interval = body.get("interval", "month")  # "month" or "year"
 
     if plan_key not in SELLER_PLANS or plan_key == "FREE":
         raise HTTPException(status_code=400, detail="Plan invalido. Usa PRO o ELITE.")
+    if interval not in ("month", "year"):
+        raise HTTPException(status_code=400, detail="Intervalo invalido. Usa 'month' o 'year'.")
 
     plan = SELLER_PLANS[plan_key]
-    if not plan.get("stripe_price_id"):
+    price_id_key = "stripe_price_id_annual" if interval == "year" else "stripe_price_id"
+    if not plan.get(price_id_key):
         await ensure_stripe_products(db)
         plan = SELLER_PLANS[plan_key]
-    if not plan.get("stripe_price_id"):
+    if not plan.get(price_id_key):
         raise HTTPException(status_code=500, detail="Stripe not configured for this plan")
+
+    stripe_price_id = plan[price_id_key]
 
     # Get or create Stripe customer
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1, "email": 1})
@@ -296,15 +304,20 @@ async def create_subscription(request: Request, user: User = Depends(get_current
     origin = request.headers.get("origin", "https://www.hispaloshop.com")
     success_route = _get_seller_success_route(user)
 
+    # Trial only for monthly subscriptions (Section 3.8: annual has NO trial)
+    subscription_data = {"metadata": {"user_id": user.user_id, "plan": plan_key, "interval": interval}}
+    if interval == "month":
+        subscription_data["trial_period_days"] = 7
+
     session = stripe.checkout.Session.create(
         customer=customer_id,
         mode="subscription",
         payment_method_types=["card"],
-        line_items=[{"price": plan["stripe_price_id"], "quantity": 1}],
-        subscription_data={"trial_period_days": 7, "metadata": {"user_id": user.user_id, "plan": plan_key}},
+        line_items=[{"price": stripe_price_id, "quantity": 1}],
+        subscription_data=subscription_data,
         success_url=f"{origin}{success_route}?subscription=success",
         cancel_url=f"{origin}{success_route}?subscription=cancel",
-        metadata={"user_id": user.user_id, "plan": plan_key},
+        metadata={"user_id": user.user_id, "plan": plan_key, "interval": interval},
     )
 
     return {"checkout_url": session.url, "session_id": session.id}
@@ -317,6 +330,7 @@ async def create_inline_subscription(request: Request, user: User = Depends(get_
     _ensure_stripe_ready()
     body = await request.json()
     plan_key = str(body.get("plan", "")).upper()
+    interval = body.get("interval", "month")  # "month" or "year"
     payment_method_id = body.get("payment_method_id")
     billing_name = body.get("billing_name") or user.name
     billing_email = body.get("billing_email") or user.email
@@ -324,6 +338,8 @@ async def create_inline_subscription(request: Request, user: User = Depends(get_
 
     if plan_key not in SELLER_PLANS or plan_key == "FREE":
         raise HTTPException(status_code=400, detail="Plan invalido. Usa PRO o ELITE.")
+    if interval not in ("month", "year"):
+        raise HTTPException(status_code=400, detail="Intervalo invalido. Usa 'month' o 'year'.")
     if not payment_method_id:
         raise HTTPException(status_code=400, detail="Falta el metodo de pago")
 
@@ -359,16 +375,18 @@ async def create_inline_subscription(request: Request, user: User = Depends(get_
         metadata={"user_id": user.user_id, "role": user.role},
     )
 
+    unit_price = get_seller_plan_price_annual(plan_key) if interval == "year" else get_seller_plan_price(plan_key)
+
     try:
         subscription = stripe.Subscription.create(
             customer=customer_id,
             items=[{
                 "price_data": {
                     "currency": get_seller_plan_currency(plan_key),
-                    "unit_amount": int(round(get_seller_plan_price(plan_key) * 100)),
-                    "recurring": {"interval": "month"},
+                    "unit_amount": int(round(unit_price * 100)),
+                    "recurring": {"interval": interval},
                     "product_data": {
-                        "name": f"Hispaloshop {str(user.role).capitalize()} {plan_key}",
+                        "name": f"Hispaloshop {str(user.role).capitalize()} {plan_key} ({'Anual' if interval == 'year' else 'Mensual'})",
                         "metadata": {"user_id": user.user_id, "plan": plan_key},
                     },
                 }
@@ -379,7 +397,7 @@ async def create_inline_subscription(request: Request, user: User = Depends(get_
                 "payment_method_types": ["card"],
                 "save_default_payment_method": "on_subscription",
             },
-            metadata={"user_id": user.user_id, "plan": plan_key, "role": user.role},
+            metadata={"user_id": user.user_id, "plan": plan_key, "role": user.role, "interval": interval},
             expand=["latest_invoice.payment_intent"],
         )
     except stripe.error.StripeError as exc:
@@ -398,7 +416,7 @@ async def create_inline_subscription(request: Request, user: User = Depends(get_
         {"user_id": user.user_id},
         {"$set": {
             "subscription.plan": plan_key,
-            "subscription.billing_cycle": "monthly",
+            "subscription.billing_cycle": "yearly" if interval == "year" else "monthly",
             "subscription.commission_rate": get_seller_commission_rate(plan_key),
             "subscription.plan_status": "pending_payment" if payment_status in {"requires_action", "requires_confirmation"} else subscription.get("status", "active"),
             "subscription.stripe_customer_id": customer_id,
@@ -461,6 +479,63 @@ async def confirm_inline_subscription(request: Request, user: User = Depends(get
         "plan": plan_key,
         "status": subscription_status or payment_status or "active",
     }
+
+
+@router.post("/sellers/me/plan/change-interval")
+async def change_billing_interval(request: Request, user: User = Depends(get_current_user)):
+    """Switch between monthly and annual billing. Stripe handles proration."""
+    await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
+    body = await request.json()
+    new_interval = body.get("interval")  # "month" or "year"
+
+    if new_interval not in ("month", "year"):
+        raise HTTPException(status_code=400, detail="Intervalo invalido. Usa 'month' o 'year'.")
+
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1}) or {}
+    sub_doc = user_doc.get("subscription", {})
+    stripe_sub_id = sub_doc.get("stripe_subscription_id")
+    plan_key = (sub_doc.get("plan") or "FREE").upper()
+
+    if not stripe_sub_id or plan_key == "FREE":
+        raise HTTPException(status_code=400, detail="No tienes una suscripcion activa")
+
+    # Get or create the target Stripe Price ID
+    plan = SELLER_PLANS.get(plan_key)
+    if not plan:
+        raise HTTPException(status_code=400, detail="Plan no encontrado")
+    price_id_key = "stripe_price_id_annual" if new_interval == "year" else "stripe_price_id"
+    if not plan.get(price_id_key):
+        await ensure_stripe_products(db)
+        plan = SELLER_PLANS[plan_key]
+    target_price_id = plan.get(price_id_key)
+    if not target_price_id:
+        raise HTTPException(status_code=500, detail="Stripe Price ID no configurado para este intervalo")
+
+    try:
+        stripe_sub = stripe.Subscription.retrieve(stripe_sub_id)
+        item_id = stripe_sub["items"]["data"][0]["id"]
+
+        stripe.Subscription.modify(
+            stripe_sub_id,
+            items=[{"id": item_id, "price": target_price_id}],
+            proration_behavior="create_prorations",
+            metadata={**stripe_sub.get("metadata", {}), "interval": new_interval},
+        )
+    except stripe.error.StripeError as exc:
+        raise HTTPException(status_code=400, detail=exc.user_message or "Error al cambiar intervalo de facturacion") from exc
+
+    new_billing_cycle = "yearly" if new_interval == "year" else "monthly"
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "subscription.billing_cycle": new_billing_cycle,
+            "subscription.updated_at": datetime.now(timezone.utc).isoformat(),
+        }}
+    )
+    await record_subscription_event(db, user.user_id, "billing_interval_changed", {"from": sub_doc.get("billing_cycle"), "to": new_billing_cycle})
+
+    return {"success": True, "billing_cycle": new_billing_cycle, "interval": new_interval}
 
 
 @router.post("/sellers/me/plan/change")

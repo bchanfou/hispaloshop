@@ -1,313 +1,550 @@
 """
-Feedback Service — User feedback and feature requests with voting.
+Feedback Service — Public idea board with voting, comments, and admin management.
 
-Features:
-- Submit feedback (bug, feature, improvement, other)
-- Vote on feedback (1 vote per user per item)
-- Status workflow: pending → under_review → planned → in_progress → done → declined
-- Auto-prioritization by votes + recency
-- Admin moderation
+Section 3.7 — User Feedback System (público con votos)
+
+Collections:
+  feedback_ideas   — user-submitted ideas with denormalized vote/comment counts
+  feedback_votes   — one row per user per idea (unique constraint)
+  feedback_comments — threaded comments on ideas (soft-delete)
+
+Status workflow: new → under_review → planned → in_progress → implemented → declined
+Categories: ux, feature, content, commerce, b2b, mobile, i18n, other
 """
 import logging
+import re
+import unicodedata
 from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Optional, Literal
-from bson import ObjectId
+from typing import Dict, List, Optional, Literal
+from uuid import uuid4
 
 from core.database import db
+from services.notifications.dispatcher_service import notification_dispatcher
 
 logger = logging.getLogger(__name__)
 
-FeedbackType = Literal["bug", "feature", "improvement", "other"]
-FeedbackStatus = Literal["pending", "under_review", "planned", "in_progress", "done", "declined"]
+IdeaCategory = Literal["ux", "feature", "content", "commerce", "b2b", "mobile", "i18n", "other"]
+IdeaStatus = Literal["new", "under_review", "planned", "in_progress", "implemented", "declined"]
+
+VALID_CATEGORIES = {"ux", "feature", "content", "commerce", "b2b", "mobile", "i18n", "other"}
+VALID_STATUSES = {"new", "under_review", "planned", "in_progress", "implemented", "declined"}
+
+
+def _slugify(text: str) -> str:
+    """Generate URL-friendly slug from title."""
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    text = text.lower().strip()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"[\s_]+", "-", text)
+    text = re.sub(r"-+", "-", text).strip("-")
+    return text[:80] or "idea"
 
 
 class FeedbackService:
-    """Service for managing user feedback and feature requests."""
-    
-    VOTE_WEIGHT = {
-        "consumer": 1,
-        "producer": 2,
-        "influencer": 1,
-        "importer": 2,
-        "admin": 0,  # Admins don't vote, they decide
-        "super_admin": 0
-    }
-    
-    async def submit_feedback(
+    """Public feedback / idea board service."""
+
+    # ─── Ideas ────────────────────────────────────────────────────────────
+
+    async def create_idea(
         self,
         user_id: str,
-        user_role: str,
-        feedback_type: FeedbackType,
         title: str,
         description: str,
-        category: Optional[str] = None
+        category: str,
     ) -> Dict:
-        """
-        Submit new feedback.
-        
-        Args:
-            user_id: ID of the user submitting
-            user_role: Role of the user
-            feedback_type: bug, feature, improvement, other
-            title: Short title (max 100 chars)
-            description: Detailed description (max 2000 chars)
-            category: Optional category (ui, checkout, chat, etc.)
-        
-        Returns:
-            Dict with feedback info
-        """
-        # Validation
-        title = title.strip()[:100]
+        """Create a new idea. Returns the created doc."""
+        title = title.strip()[:120]
         description = description.strip()[:2000]
-        
         if len(title) < 5:
             raise ValueError("El título debe tener al menos 5 caracteres")
         if len(description) < 20:
             raise ValueError("La descripción debe tener al menos 20 caracteres")
-        
-        # Rate limit: max 5 feedback per day per user
-        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        count_today = await db.feedback.count_documents({
-            "user_id": user_id,
-            "created_at": {"$gte": today}
+        if category not in VALID_CATEGORIES:
+            raise ValueError(f"Categoría inválida: {category}")
+
+        # Rate limit: max 5 ideas/day
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        count_today = await db.feedback_ideas.count_documents({
+            "author_id": user_id,
+            "created_at": {"$gte": today_start},
         })
         if count_today >= 5:
-            raise ValueError("Límite diario alcanzado (5 feedbacks por día)")
-        
-        feedback_doc = {
-            "_id": str(ObjectId()),
-            "user_id": user_id,
-            "user_role": user_role,
-            "type": feedback_type,
+            raise ValueError("Límite diario alcanzado (5 ideas por día)")
+
+        # Fetch author info
+        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "name": 1, "picture": 1, "country": 1})
+        if not user_doc:
+            raise ValueError("Usuario no encontrado")
+
+        # Generate unique slug
+        base_slug = _slugify(title)
+        slug = base_slug
+        suffix = 1
+        while await db.feedback_ideas.find_one({"slug": slug}):
+            slug = f"{base_slug}-{suffix}"
+            suffix += 1
+
+        idea_id = str(uuid4())
+        now = datetime.now(timezone.utc)
+
+        doc = {
+            "idea_id": idea_id,
+            "slug": slug,
+            "author_id": user_id,
+            "author_name": user_doc.get("name", "Usuario"),
+            "author_avatar": user_doc.get("picture"),
             "title": title,
             "description": description,
             "category": category,
-            "status": "pending",
-            "votes": 0,
-            "vote_weight": 0,
-            "voters": [],  # List of {user_id, weight, voted_at}
-            "admin_notes": "",
-            "created_at": datetime.now(timezone.utc),
-            "updated_at": datetime.now(timezone.utc),
-            "is_public": True  # Can be hidden by admin
+            "status": "new",
+            "status_note": None,
+            "status_changed_at": None,
+            "status_changed_by": None,
+            "vote_count": 0,
+            "comment_count": 0,
+            "country_code": (user_doc.get("country") or "ES").upper(),
+            "created_at": now,
+            "updated_at": now,
+            "merged_into": None,
         }
-        
-        await db.feedback.insert_one(feedback_doc)
-        
-        logger.info(f"[Feedback] New {feedback_type} submitted by {user_id}: {title[:50]}")
-        
-        return {
-            "feedback_id": feedback_doc["_id"],
-            "title": title,
-            "status": "pending",
-            "message": "Feedback enviado correctamente"
-        }
-    
-    async def vote_feedback(self, feedback_id: str, user_id: str, user_role: str) -> Dict:
-        """
-        Vote on a feedback item (toggle vote).
-        
-        Returns:
-            Dict with new vote count and whether user voted
-        """
-        weight = self.VOTE_WEIGHT.get(user_role, 1)
-        
-        feedback = await db.feedback.find_one({"_id": feedback_id})
-        if not feedback:
-            raise ValueError("Feedback no encontrado")
-        
-        if not feedback.get("is_public", True):
-            raise ValueError("Este feedback no acepta votos")
-        
-        # Check if user already voted
-        existing_vote = next((v for v in feedback.get("voters", []) if v["user_id"] == user_id), None)
-        
-        if existing_vote:
-            # Remove vote (toggle off)
-            await db.feedback.update_one(
-                {"_id": feedback_id},
-                {
-                    "$pull": {"voters": {"user_id": user_id}},
-                    "$inc": {"votes": -1, "vote_weight": -weight},
-                    "$set": {"updated_at": datetime.now(timezone.utc)}
-                }
-            )
-            new_count = feedback["votes"] - 1
-            voted = False
-        else:
-            # Add vote
-            vote_doc = {
-                "user_id": user_id,
-                "weight": weight,
-                "voted_at": datetime.now(timezone.utc)
-            }
-            await db.feedback.update_one(
-                {"_id": feedback_id},
-                {
-                    "$push": {"voters": vote_doc},
-                    "$inc": {"votes": 1, "vote_weight": weight},
-                    "$set": {"updated_at": datetime.now(timezone.utc)}
-                }
-            )
-            new_count = feedback["votes"] + 1
-            voted = True
-        
-        return {
-            "feedback_id": feedback_id,
-            "votes": new_count,
-            "voted": voted
-        }
-    
-    async def get_feedback_list(
-        self,
-        user_id: Optional[str] = None,
-        feedback_type: Optional[FeedbackType] = None,
-        status: Optional[FeedbackStatus] = None,
-        sort_by: str = "popular",  # popular, newest, trending
-        page: int = 1,
-        limit: int = 20
-    ) -> Dict:
-        """
-        Get paginated feedback list.
-        
-        Returns:
-            Dict with items, total, has_more
-        """
-        try:
-            # Build query
-            query = {"is_public": True}
-            if feedback_type:
-                query["type"] = feedback_type
-            if status:
-                query["status"] = status
-            
-            # Sort
-            if sort_by == "newest":
-                sort_field = [("created_at", -1)]
-            elif sort_by == "trending":
-                # Trending = votes in last 7 days
-                sort_field = [("vote_weight", -1), ("created_at", -1)]
-            else:  # popular
-                sort_field = [("votes", -1), ("created_at", -1)]
-            
-            # Fetch
-            skip = (page - 1) * limit
-            cursor = db.feedback.find(query).sort(sort_field).skip(skip).limit(limit + 1)
-            items = await cursor.to_list(length=limit + 1)
-            
-            has_more = len(items) > limit
-            items = items[:limit]
-            
-            # Enrich with user vote status
-            for item in items:
-                item["feedback_id"] = item.pop("_id")
-                if user_id:
-                    item["user_voted"] = any(v["user_id"] == user_id for v in item.get("voters", []))
-                else:
-                    item["user_voted"] = False
-                # Don't send full voters list to client
-                item["voter_count"] = len(item.get("voters", []))
-                del item["voters"]
-            
-            total = await db.feedback.count_documents(query)
-            
-            return {
-                "items": items,
-                "total": total,
-                "page": page,
-                "has_more": has_more
-            }
-        except Exception as e:
-            logger.error(f"[Feedback] Error getting feedback list: {e}")
-            # Return empty result on error - don't break the UI
-            return {
-                "items": [],
-                "total": 0,
-                "page": page,
-                "has_more": False
-            }
-    
-    async def get_feedback_detail(self, feedback_id: str, user_id: Optional[str] = None) -> Optional[Dict]:
-        """Get single feedback details."""
-        feedback = await db.feedback.find_one({"_id": feedback_id})
-        if not feedback:
+        await db.feedback_ideas.insert_one({**doc, "_id": idea_id})
+
+        logger.info(f"[Feedback] New idea '{title[:50]}' by {user_id}")
+        return doc
+
+    async def get_idea_by_slug(self, slug: str, user_id: Optional[str] = None) -> Optional[Dict]:
+        """Get idea detail by slug. Includes user_voted flag if user_id provided."""
+        idea = await db.feedback_ideas.find_one({"slug": slug}, {"_id": 0})
+        if not idea:
             return None
-        
-        feedback["feedback_id"] = feedback.pop("_id")
-        
-        # Add user vote status
+
+        # Check if merged
+        if idea.get("merged_into"):
+            target = await db.feedback_ideas.find_one({"idea_id": idea["merged_into"]}, {"_id": 0, "slug": 1, "title": 1})
+            idea["merged_into_slug"] = target.get("slug") if target else None
+            idea["merged_into_title"] = target.get("title") if target else None
+
+        # User voted?
         if user_id:
-            feedback["user_voted"] = any(v["user_id"] == user_id for v in feedback.get("voters", []))
+            vote = await db.feedback_votes.find_one({"idea_id": idea["idea_id"], "user_id": user_id})
+            idea["user_voted"] = vote is not None
         else:
-            feedback["user_voted"] = False
-        
-        # Limit voters info
-        feedback["voter_count"] = len(feedback.get("voters", []))
-        # Only show recent 10 voters publicly
-        recent_voters = sorted(
-            feedback.get("voters", []),
-            key=lambda x: x.get("voted_at", datetime.min),
-            reverse=True
-        )[:10]
-        feedback["recent_voters"] = [{"user_id": v["user_id"], "voted_at": v["voted_at"]} for v in recent_voters]
-        del feedback["voters"]
-        
-        return feedback
-    
-    async def update_status(
+            idea["user_voted"] = False
+
+        # Status history — recent changes from the idea doc itself (lightweight)
+        return idea
+
+    async def list_ideas(
         self,
-        feedback_id: str,
-        new_status: FeedbackStatus,
-        admin_notes: Optional[str] = None
-    ) -> bool:
-        """Admin: update feedback status."""
-        update = {
-            "$set": {
-                "status": new_status,
-                "updated_at": datetime.now(timezone.utc)
-            }
-        }
-        if admin_notes is not None:
-            update["$set"]["admin_notes"] = admin_notes[:500]
-        
-        result = await db.feedback.update_one(
-            {"_id": feedback_id},
-            update
-        )
-        
-        if result.modified_count:
-            logger.info(f"[Feedback] Status changed to {new_status} for {feedback_id}")
-        
-        return result.modified_count > 0
-    
-    async def get_admin_stats(self) -> Dict:
-        """Get feedback statistics for admin dashboard."""
-        pipeline = [
-            {"$match": {"is_public": True}},
-            {"$group": {
-                "_id": "$status",
-                "count": {"$sum": 1}
-            }}
-        ]
-        status_counts = {}
-        async for doc in db.feedback.aggregate(pipeline):
-            status_counts[doc["_id"]] = doc["count"]
-        
-        # Top voted items
-        top_items = await db.feedback.find(
-            {"is_public": True}
-        ).sort([("votes", -1)]).limit(5).to_list(length=5)
-        
-        # Recent submissions
-        recent = await db.feedback.find(
-            {"is_public": True}
-        ).sort([("created_at", -1)]).limit(5).to_list(length=5)
-        
+        status: Optional[str] = None,
+        category: Optional[str] = None,
+        sort: str = "popular",
+        search: Optional[str] = None,
+        author_id: Optional[str] = None,
+        country_code: Optional[str] = None,
+        user_id: Optional[str] = None,
+        page: int = 1,
+        limit: int = 20,
+    ) -> Dict:
+        """List ideas with filtering, sorting, pagination."""
+        limit = min(100, max(1, limit))
+        query: dict = {"merged_into": None}  # exclude merged ideas
+
+        if status and status in VALID_STATUSES:
+            query["status"] = status
+        if category and category in VALID_CATEGORIES:
+            query["category"] = category
+        if author_id:
+            query["author_id"] = author_id
+        if country_code:
+            query["country_code"] = country_code.upper()
+        if search:
+            query["$or"] = [
+                {"title": {"$regex": re.escape(search), "$options": "i"}},
+                {"description": {"$regex": re.escape(search), "$options": "i"}},
+            ]
+
+        # Sort
+        if sort == "recent":
+            sort_spec = [("created_at", -1)]
+        elif sort == "mine" and user_id:
+            query["author_id"] = user_id
+            sort_spec = [("created_at", -1)]
+        else:  # popular (default)
+            sort_spec = [("vote_count", -1), ("created_at", -1)]
+
+        skip = (page - 1) * limit
+        total = await db.feedback_ideas.count_documents(query)
+        items = await db.feedback_ideas.find(query, {"_id": 0}).sort(sort_spec).skip(skip).limit(limit).to_list(limit)
+
+        # Enrich with user_voted
+        if user_id and items:
+            idea_ids = [i["idea_id"] for i in items]
+            user_votes = await db.feedback_votes.find(
+                {"idea_id": {"$in": idea_ids}, "user_id": user_id}
+            ).to_list(len(idea_ids))
+            voted_set = {v["idea_id"] for v in user_votes}
+            for item in items:
+                item["user_voted"] = item["idea_id"] in voted_set
+        else:
+            for item in items:
+                item["user_voted"] = False
+
         return {
-            "by_status": status_counts,
-            "total": sum(status_counts.values()),
-            "top_voted": [{"id": str(i["_id"]), "title": i["title"], "votes": i["votes"]} for i in top_items],
-            "recent": [{"id": str(i["_id"]), "title": i["title"], "type": i["type"]} for i in recent]
+            "items": items,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "has_more": (skip + limit) < total,
+        }
+
+    async def update_idea(self, idea_id: str, user_id: str, title: Optional[str], description: Optional[str], category: Optional[str]) -> Dict:
+        """Author edits own idea."""
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+        if idea["author_id"] != user_id:
+            raise ValueError("Solo el autor puede editar esta idea")
+
+        updates: dict = {"updated_at": datetime.now(timezone.utc)}
+        if title is not None:
+            title = title.strip()[:120]
+            if len(title) < 5:
+                raise ValueError("El título debe tener al menos 5 caracteres")
+            updates["title"] = title
+        if description is not None:
+            description = description.strip()[:2000]
+            if len(description) < 20:
+                raise ValueError("La descripción debe tener al menos 20 caracteres")
+            updates["description"] = description
+        if category is not None:
+            if category not in VALID_CATEGORIES:
+                raise ValueError(f"Categoría inválida: {category}")
+            updates["category"] = category
+
+        await db.feedback_ideas.update_one({"idea_id": idea_id}, {"$set": updates})
+        return {**idea, **updates}
+
+    async def delete_idea(self, idea_id: str, user_id: str) -> bool:
+        """Soft-delete own idea. Blocked if >5 votes."""
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+        if idea["author_id"] != user_id:
+            raise ValueError("Solo el autor puede eliminar esta idea")
+        if idea.get("vote_count", 0) > 5:
+            raise ValueError("No puedes eliminar una idea con más de 5 votos. Contacta a un administrador.")
+        # Hard delete since it's the author's own idea with few votes
+        await db.feedback_ideas.delete_one({"idea_id": idea_id})
+        await db.feedback_votes.delete_many({"idea_id": idea_id})
+        await db.feedback_comments.delete_many({"idea_id": idea_id})
+        return True
+
+    # ─── Votes ────────────────────────────────────────────────────────────
+
+    async def toggle_vote(self, idea_id: str, user_id: str) -> Dict:
+        """Toggle vote on an idea. Returns new state."""
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0, "vote_count": 1, "merged_into": 1})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+        if idea.get("merged_into"):
+            raise ValueError("Esta idea fue fusionada. Vota en la idea principal.")
+
+        existing = await db.feedback_votes.find_one({"idea_id": idea_id, "user_id": user_id})
+        if existing:
+            # Remove vote
+            await db.feedback_votes.delete_one({"idea_id": idea_id, "user_id": user_id})
+            await db.feedback_ideas.update_one(
+                {"idea_id": idea_id},
+                {"$inc": {"vote_count": -1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
+            )
+            return {"idea_id": idea_id, "voted": False, "vote_count": max(0, idea["vote_count"] - 1)}
+        else:
+            # Rate limit: max 50 votes/day
+            today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            votes_today = await db.feedback_votes.count_documents({
+                "user_id": user_id, "created_at": {"$gte": today_start}
+            })
+            if votes_today >= 50:
+                raise ValueError("Límite diario de votos alcanzado (50 por día)")
+
+            await db.feedback_votes.insert_one({
+                "vote_id": str(uuid4()),
+                "idea_id": idea_id,
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc),
+            })
+            await db.feedback_ideas.update_one(
+                {"idea_id": idea_id},
+                {"$inc": {"vote_count": 1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
+            )
+            return {"idea_id": idea_id, "voted": True, "vote_count": idea["vote_count"] + 1}
+
+    # ─── Comments ─────────────────────────────────────────────────────────
+
+    async def add_comment(self, idea_id: str, user_id: str, body: str) -> Dict:
+        """Add comment to idea."""
+        body = body.strip()[:500]
+        if not body:
+            raise ValueError("El comentario no puede estar vacío")
+
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0, "idea_id": 1, "author_id": 1, "title": 1})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+
+        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "name": 1, "picture": 1})
+        if not user_doc:
+            raise ValueError("Usuario no encontrado")
+
+        comment_id = str(uuid4())
+        now = datetime.now(timezone.utc)
+        comment = {
+            "comment_id": comment_id,
+            "idea_id": idea_id,
+            "author_id": user_id,
+            "author_name": user_doc.get("name", "Usuario"),
+            "author_avatar": user_doc.get("picture"),
+            "body": body,
+            "created_at": now,
+            "edited": False,
+            "edited_at": None,
+            "deleted": False,
+        }
+        await db.feedback_comments.insert_one({**comment, "_id": comment_id})
+        await db.feedback_ideas.update_one(
+            {"idea_id": idea_id},
+            {"$inc": {"comment_count": 1}, "$set": {"updated_at": now}}
+        )
+
+        # Notify idea author (if commenter is not the author)
+        if idea["author_id"] != user_id:
+            try:
+                await notification_dispatcher.send_notification(
+                    user_id=idea["author_id"],
+                    title="Nuevo comentario en tu idea",
+                    body=f"{user_doc.get('name', 'Alguien')} comentó en \"{idea['title'][:60]}\"",
+                    notification_type="feedback_idea_commented",
+                    channels=["in_app", "push"],
+                    data={"idea_id": idea_id},
+                    action_url=f"/feedback/{idea_id}",
+                )
+            except Exception as e:
+                logger.warning(f"[Feedback] Failed to send comment notification: {e}")
+
+        return comment
+
+    async def list_comments(self, idea_id: str, page: int = 1, limit: int = 50) -> Dict:
+        """List comments for an idea."""
+        limit = min(100, max(1, limit))
+        skip = (page - 1) * limit
+        query = {"idea_id": idea_id}
+        total = await db.feedback_comments.count_documents(query)
+        items = await db.feedback_comments.find(query, {"_id": 0}).sort("created_at", 1).skip(skip).limit(limit).to_list(limit)
+        return {"items": items, "total": total, "page": page, "has_more": (skip + limit) < total}
+
+    async def edit_comment(self, comment_id: str, user_id: str, body: str) -> Dict:
+        """Edit own comment."""
+        body = body.strip()[:500]
+        if not body:
+            raise ValueError("El comentario no puede estar vacío")
+
+        comment = await db.feedback_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+        if not comment:
+            raise ValueError("Comentario no encontrado")
+        if comment["author_id"] != user_id:
+            raise ValueError("Solo el autor puede editar este comentario")
+        if comment.get("deleted"):
+            raise ValueError("No se puede editar un comentario eliminado")
+
+        now = datetime.now(timezone.utc)
+        await db.feedback_comments.update_one(
+            {"comment_id": comment_id},
+            {"$set": {"body": body, "edited": True, "edited_at": now}}
+        )
+        return {**comment, "body": body, "edited": True, "edited_at": now}
+
+    async def delete_comment(self, comment_id: str, user_id: str) -> bool:
+        """Soft-delete own comment."""
+        comment = await db.feedback_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+        if not comment:
+            raise ValueError("Comentario no encontrado")
+        if comment["author_id"] != user_id:
+            raise ValueError("Solo el autor puede eliminar este comentario")
+        if comment.get("deleted"):
+            return True
+
+        await db.feedback_comments.update_one(
+            {"comment_id": comment_id},
+            {"$set": {"deleted": True, "body": ""}}
+        )
+        await db.feedback_ideas.update_one(
+            {"idea_id": comment["idea_id"]},
+            {"$inc": {"comment_count": -1}}
+        )
+        return True
+
+    # ─── Country Admin ────────────────────────────────────────────────────
+
+    async def admin_change_status(
+        self,
+        idea_id: str,
+        new_status: str,
+        admin_id: str,
+        status_note: Optional[str] = None,
+    ) -> Dict:
+        """Country admin changes idea status. Sends notifications."""
+        if new_status not in VALID_STATUSES:
+            raise ValueError(f"Estado inválido: {new_status}")
+
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+
+        now = datetime.now(timezone.utc)
+        updates = {
+            "status": new_status,
+            "status_note": (status_note or "").strip()[:500] or None,
+            "status_changed_at": now,
+            "status_changed_by": admin_id,
+            "updated_at": now,
+        }
+        await db.feedback_ideas.update_one({"idea_id": idea_id}, {"$set": updates})
+
+        # Notify author about status change
+        try:
+            status_labels = {
+                "new": "Nueva",
+                "under_review": "En revisión",
+                "planned": "Planificada",
+                "in_progress": "En progreso",
+                "implemented": "Implementada",
+                "declined": "Descartada",
+            }
+            await notification_dispatcher.send_notification(
+                user_id=idea["author_id"],
+                title="Tu idea cambió de estado",
+                body=f"\"{idea['title'][:60]}\" → {status_labels.get(new_status, new_status)}",
+                notification_type="feedback_idea_status_changed",
+                channels=["in_app", "push"],
+                data={"idea_id": idea_id, "new_status": new_status},
+                action_url=f"/feedback/{idea.get('slug', idea_id)}",
+            )
+        except Exception as e:
+            logger.warning(f"[Feedback] Failed to send status notification: {e}")
+
+        # If implemented → notify ALL voters
+        if new_status == "implemented":
+            try:
+                voter_docs = await db.feedback_votes.find(
+                    {"idea_id": idea_id}, {"user_id": 1}
+                ).to_list(10000)
+                for vd in voter_docs:
+                    if vd["user_id"] != idea["author_id"]:  # author already notified above
+                        await notification_dispatcher.send_notification(
+                            user_id=vd["user_id"],
+                            title="Una idea que votaste fue implementada",
+                            body=f"\"{idea['title'][:60]}\" ya está disponible",
+                            notification_type="feedback_idea_implemented",
+                            channels=["in_app", "push"],
+                            data={"idea_id": idea_id},
+                            action_url=f"/feedback/{idea.get('slug', idea_id)}",
+                        )
+            except Exception as e:
+                logger.warning(f"[Feedback] Failed to send implemented notifications: {e}")
+
+        return {**idea, **updates}
+
+    async def admin_close_as_duplicate(
+        self,
+        idea_id: str,
+        target_idea_id: str,
+        admin_id: str,
+    ) -> Dict:
+        """Close idea as duplicate pointing to target idea. No vote transfer (V1 simplified)."""
+        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0})
+        if not idea:
+            raise ValueError("Idea no encontrada")
+        target = await db.feedback_ideas.find_one({"idea_id": target_idea_id}, {"_id": 0})
+        if not target:
+            raise ValueError("Idea principal no encontrada")
+        if idea_id == target_idea_id:
+            raise ValueError("No puedes fusionar una idea consigo misma")
+
+        now = datetime.now(timezone.utc)
+        await db.feedback_ideas.update_one(
+            {"idea_id": idea_id},
+            {"$set": {
+                "merged_into": target_idea_id,
+                "status": "declined",
+                "status_note": f"Duplicada de \"{target['title'][:80]}\"",
+                "status_changed_at": now,
+                "status_changed_by": admin_id,
+                "updated_at": now,
+            }}
+        )
+
+        # Notify the author
+        try:
+            await notification_dispatcher.send_notification(
+                user_id=idea["author_id"],
+                title="Tu idea fue fusionada",
+                body=f"\"{idea['title'][:60]}\" fue marcada como duplicada de \"{target['title'][:40]}\"",
+                notification_type="feedback_idea_merged",
+                channels=["in_app", "push"],
+                data={"idea_id": idea_id, "target_idea_id": target_idea_id},
+                action_url=f"/feedback/{target.get('slug', target_idea_id)}",
+            )
+        except Exception as e:
+            logger.warning(f"[Feedback] Failed to send merge notification: {e}")
+
+        return {"merged_into": target_idea_id, "target_slug": target.get("slug")}
+
+    async def admin_metrics(self, country_code: Optional[str] = None) -> Dict:
+        """KPIs for admin dashboard."""
+        match: dict = {"merged_into": None}
+        if country_code:
+            match["country_code"] = country_code.upper()
+
+        # By status
+        pipeline = [
+            {"$match": match},
+            {"$group": {"_id": "$status", "count": {"$sum": 1}}},
+        ]
+        by_status: dict = {}
+        async for doc in db.feedback_ideas.aggregate(pipeline):
+            by_status[doc["_id"]] = doc["count"]
+
+        # By category
+        pipeline_cat = [
+            {"$match": match},
+            {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        ]
+        by_category: dict = {}
+        async for doc in db.feedback_ideas.aggregate(pipeline_cat):
+            by_category[doc["_id"]] = doc["count"]
+
+        total = sum(by_status.values())
+
+        # Top 10 by votes
+        top_voted = await db.feedback_ideas.find(match, {"_id": 0}).sort([("vote_count", -1)]).limit(10).to_list(10)
+
+        # New this week
+        week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+        new_this_week = await db.feedback_ideas.count_documents({**match, "created_at": {"$gte": week_ago}})
+
+        # Unreviewed (status = new)
+        unreviewed = by_status.get("new", 0)
+
+        return {
+            "total": total,
+            "by_status": by_status,
+            "by_category": by_category,
+            "top_voted": [
+                {"idea_id": i["idea_id"], "slug": i["slug"], "title": i["title"], "vote_count": i["vote_count"], "status": i["status"]}
+                for i in top_voted
+            ],
+            "new_this_week": new_this_week,
+            "unreviewed": unreviewed,
         }
 
 

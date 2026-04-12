@@ -19,10 +19,12 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 # ── Plan definitions (defaults — overridden by DB plans_config if available) ──
 
 SELLER_PLANS = {
-    "FREE":  {"price_monthly": 0,   "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
-    "PRO":   {"price_monthly": 79,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
-    "ELITE": {"price_monthly": 249, "currency": "eur", "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
+    "FREE":  {"price_monthly": 0,   "price_annual": 0,    "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None, "stripe_price_id_annual": None},
+    "PRO":   {"price_monthly": 79,  "price_annual": 806,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None, "stripe_price_id_annual": None},
+    "ELITE": {"price_monthly": 249, "price_annual": 2540, "currency": "eur", "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None, "stripe_price_id_annual": None},
 }
+# Annual = monthly × 12 × 0.85 (15% discount, rounded to nearest EUR)
+ANNUAL_DISCOUNT_PCT = 15
 
 # In-memory cache for DB-sourced plan config (refreshed on startup + every 5 min)
 _plans_cache = {"data": None, "fetched_at": None}
@@ -213,11 +215,14 @@ async def ensure_stripe_products(db):
     """Create Stripe products/prices for seller subscriptions if they don't exist."""
     config = await db.stripe_config.find_one({"config_id": "subscription_products"})
     if config and config.get("initialized"):
-        # Load saved price IDs
+        # Load saved price IDs (monthly + annual)
         for plan_key, price_id in config.get("price_ids", {}).items():
             if plan_key in SELLER_PLANS:
                 SELLER_PLANS[plan_key]["stripe_price_id"] = price_id
-        logger.info(f"[SUBSCRIPTIONS] Loaded existing Stripe price IDs")
+        for plan_key, price_id in config.get("price_ids_annual", {}).items():
+            if plan_key in SELLER_PLANS:
+                SELLER_PLANS[plan_key]["stripe_price_id_annual"] = price_id
+        logger.info("[SUBSCRIPTIONS] Loaded existing Stripe price IDs")
         return
 
     if not stripe.api_key:
@@ -227,24 +232,39 @@ async def ensure_stripe_products(db):
     try:
         product = stripe.Product.create(
             name="Hispaloshop Seller Plan",
-            description="Monthly seller subscription for Hispaloshop marketplace",
+            description="Seller subscription for Hispaloshop marketplace",
         )
         logger.info(f"[SUBSCRIPTIONS] Created Stripe product: {product.id}")
 
         price_ids = {}
+        price_ids_annual = {}
         for plan_key, plan in SELLER_PLANS.items():
             if plan["price_monthly"] == 0:
                 continue
-            price = stripe.Price.create(
+            # Monthly price
+            price_m = stripe.Price.create(
                 product=product.id,
                 unit_amount=int(round(plan["price_monthly"] * 100)),
                 currency=plan.get("currency", "eur"),
                 recurring={"interval": "month"},
-                metadata={"plan": plan_key},
+                metadata={"plan": plan_key, "interval": "month"},
             )
-            SELLER_PLANS[plan_key]["stripe_price_id"] = price.id
-            price_ids[plan_key] = price.id
-            logger.info(f"[SUBSCRIPTIONS] Created price for {plan_key}: {price.id}")
+            SELLER_PLANS[plan_key]["stripe_price_id"] = price_m.id
+            price_ids[plan_key] = price_m.id
+            logger.info(f"[SUBSCRIPTIONS] Created monthly price for {plan_key}: {price_m.id}")
+
+            # Annual price (15% off)
+            annual_amount = plan.get("price_annual", int(round(plan["price_monthly"] * 12 * 0.85)))
+            price_y = stripe.Price.create(
+                product=product.id,
+                unit_amount=int(round(annual_amount * 100)),
+                currency=plan.get("currency", "eur"),
+                recurring={"interval": "year"},
+                metadata={"plan": plan_key, "interval": "year"},
+            )
+            SELLER_PLANS[plan_key]["stripe_price_id_annual"] = price_y.id
+            price_ids_annual[plan_key] = price_y.id
+            logger.info(f"[SUBSCRIPTIONS] Created annual price for {plan_key}: {price_y.id}")
 
         await db.stripe_config.update_one(
             {"config_id": "subscription_products"},
@@ -252,6 +272,7 @@ async def ensure_stripe_products(db):
                 "config_id": "subscription_products",
                 "product_id": product.id,
                 "price_ids": price_ids,
+                "price_ids_annual": price_ids_annual,
                 "initialized": True,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }},
@@ -261,6 +282,24 @@ async def ensure_stripe_products(db):
         logger.error(f"[SUBSCRIPTIONS] Stripe API error creating products: {e}")
     except Exception as e:
         logger.error(f"[SUBSCRIPTIONS] Unexpected error creating Stripe products: {e}")
+
+
+def get_seller_plan_price_annual(plan: str) -> float:
+    """Get annual price for a seller plan."""
+    db_plans = _plans_cache.get("data") or {}
+    if plan in db_plans:
+        return db_plans[plan].get("price_annual", 0)
+    return SELLER_PLANS.get(plan, SELLER_PLANS["FREE"]).get("price_annual", 0)
+
+
+def get_seller_stripe_price_id(plan: str, interval: str = "month") -> str:
+    """Get the appropriate Stripe Price ID for a plan + interval."""
+    p = SELLER_PLANS.get(plan)
+    if not p:
+        return None
+    if interval == "year":
+        return p.get("stripe_price_id_annual")
+    return p.get("stripe_price_id")
 
 
 def get_seller_commission_rate(plan: str) -> float:

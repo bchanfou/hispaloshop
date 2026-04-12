@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard, ShieldCheck, Package, Users, HeadphonesIcon,
-  BookOpen, ScrollText, Settings, ArrowLeft, LogOut, Menu, X
+  BookOpen, ScrollText, Settings, ArrowLeft, LogOut, Menu, X, Lightbulb
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -91,6 +91,7 @@ export default function CountryAdminLayout() {
     { to: '/country-admin/moderation', icon: ShieldCheck, label: t('countryAdmin.nav.moderation', 'Moderación') },
     { to: '/country-admin/support', icon: HeadphonesIcon, label: t('countryAdmin.nav.support', 'Soporte') },
     { to: '/country-admin/knowledge-base', icon: BookOpen, label: t('countryAdmin.nav.knowledgeBase', 'Centro de Ayuda') },
+    { to: '/country-admin/feedback', icon: Lightbulb, label: t('countryAdmin.nav.feedback', 'Feedback') },
     { to: '/country-admin/audit', icon: ScrollText, label: t('countryAdmin.nav.audit', 'Auditoría') },
     { to: '/country-admin/settings', icon: Settings, label: t('countryAdmin.nav.settings', 'Configuración') },
   ];

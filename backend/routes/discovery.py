@@ -106,37 +106,56 @@ async def discovery_search(
 ):
     """Autocomplete search for DiscoverPage — returns mixed results."""
     if not q.strip():
-        return {"products": [], "recipes": [], "stores": [], "creators": [], "total": 0}
+        return {"products": [], "recipes": [], "stores": [], "creators": [], "communities": [], "hashtags": [], "total": 0}
     safe_q = re.escape(q.strip()[:100])
     try:
-        products, recipes, stores, creators = await asyncio.gather(
+        products, recipes, stores, creators, communities, hashtags = await asyncio.gather(
             db.products.find(
                 {"name": {"$regex": safe_q, "$options": "i"}, "$or": [{"status": "active"}, {"approved": True}]},
-                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1},
+                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "currency": 1, "display_price": 1, "display_currency": 1, "producer_name": 1},
             ).limit(limit).to_list(limit),
             db.recipes.find(
                 {"title": {"$regex": safe_q, "$options": "i"}, "status": "active"},
-                {"_id": 0, "recipe_id": 1, "title": 1, "image_url": 1},
+                {"_id": 0, "recipe_id": 1, "title": 1, "image_url": 1, "cover_image": 1, "prep_time_minutes": 1},
             ).limit(limit).to_list(limit),
             db.store_profiles.find(
                 {"name": {"$regex": safe_q, "$options": "i"}},
-                {"_id": 0, "store_id": 1, "name": 1, "slug": 1, "logo": 1, "location": 1},
+                {"_id": 0, "store_id": 1, "name": 1, "slug": 1, "logo": 1, "location": 1, "store_slug": 1},
             ).limit(limit).to_list(limit),
             db.users.find(
-                {"name": {"$regex": safe_q, "$options": "i"}, "role": {"$in": ["producer", "influencer", "importer"]}},
-                {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
+                {
+                    "$or": [
+                        {"name": {"$regex": safe_q, "$options": "i"}},
+                        {"username": {"$regex": safe_q, "$options": "i"}},
+                    ],
+                    "role": {"$nin": ["admin", "super_admin", "country_admin"]},
+                    "status": {"$ne": "pending_deletion"},
+                },
+                {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "picture": 1, "role": 1, "is_verified": 1, "is_private": 1, "followers_count": 1, "bio": 1},
             ).limit(limit).to_list(limit),
+            db.communities.find(
+                {"name": {"$regex": safe_q, "$options": "i"}},
+                {"_id": 0, "slug": 1, "name": 1, "description": 1, "member_count": 1, "cover_image": 1, "is_private": 1},
+            ).limit(limit).to_list(limit),
+            db.hashtags.find(
+                {"tag": {"$regex": f"^{safe_q}", "$options": "i"}},
+                {"_id": 0, "tag": 1, "posts_count": 1},
+            ).sort("posts_count", -1).limit(limit).to_list(limit),
             return_exceptions=True,
         )
+        safe = lambda x: x if not isinstance(x, Exception) else []
+        all_results = [products, recipes, stores, creators, communities, hashtags]
         return {
-            "products": products if not isinstance(products, Exception) else [],
-            "recipes": recipes if not isinstance(recipes, Exception) else [],
-            "stores": stores if not isinstance(stores, Exception) else [],
-            "creators": creators if not isinstance(creators, Exception) else [],
-            "total": sum(len(x) for x in [products, recipes, stores, creators] if not isinstance(x, Exception)),
+            "products": safe(products),
+            "recipes": safe(recipes),
+            "stores": safe(stores),
+            "creators": safe(creators),
+            "communities": safe(communities),
+            "hashtags": safe(hashtags),
+            "total": sum(len(x) for x in all_results if not isinstance(x, Exception)),
         }
     except Exception:
-        return {"products": [], "recipes": [], "stores": [], "creators": [], "total": 0}
+        return {"products": [], "recipes": [], "stores": [], "creators": [], "communities": [], "hashtags": [], "total": 0}
 
 
 # ── Explore sections ───────────────────────────────────────────────────────────
