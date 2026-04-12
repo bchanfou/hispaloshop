@@ -12,6 +12,8 @@ import { useSwipeBack } from '../../hooks/useSwipeBack';
 import OfflineBanner from './OfflineBanner';
 import RestrictionBanner from '../moderation/RestrictionBanner';
 import ModerationBlockedModal from '../moderation/ModerationBlockedModal';
+// Section 3.6.7 — Bloque 2: global registration prompt for non-logged users.
+import RegistrationPromptModal from '../auth/RegistrationPromptModal';
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -139,6 +141,7 @@ export default function AppLayout({ children }) {
       <>
         {children}
         <ModerationBlockedModal />
+        <RegistrationPromptModal />
       </>
     );
   }
@@ -164,6 +167,9 @@ export default function AppLayout({ children }) {
 
       {/* Section 3.5b — global moderation block modal (always mounted, listens via event) */}
       <ModerationBlockedModal />
+
+      {/* Section 3.6.7 — Bloque 2: registration prompt for non-logged users */}
+      <RegistrationPromptModal />
 
       {/* Desktop: SideNav (lg+) */}
       <SideNav />

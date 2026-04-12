@@ -210,6 +210,28 @@ httpClient.interceptors.response.use(
     }
 
     if (status === 401 && originalRequest && !originalRequest._retry) {
+      // Section 3.6.7 — Bloque 2: if the user was never logged in (no token),
+      // dispatch the registration prompt event instead of trying to refresh or
+      // redirecting to /login. Public pages work without auth; the 401 means the
+      // user tried an action that requires auth (like, comment, follow, etc.).
+      const hadToken = Boolean(getToken());
+      if (!hadToken) {
+        if (typeof window !== 'undefined') {
+          const method = (originalRequest.method || '').toUpperCase();
+          const action = method === 'DELETE' ? 'default'
+            : originalRequest.url?.includes('/like') ? 'like'
+            : originalRequest.url?.includes('/comment') ? 'comment'
+            : originalRequest.url?.includes('/follow') ? 'follow'
+            : originalRequest.url?.includes('/save') ? 'save'
+            : originalRequest.url?.includes('/cart') ? 'buy'
+            : 'default';
+          window.dispatchEvent(new CustomEvent('auth:prompt_registration', {
+            detail: { action, url: originalRequest.url, method },
+          }));
+        }
+        return Promise.reject(normalizeApiError(error));
+      }
+
       // If a refresh is already in flight, queue this request to retry later
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

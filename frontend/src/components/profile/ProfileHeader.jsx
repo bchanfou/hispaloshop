@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronDown, MoreHorizontal, Camera, ExternalLink, MapPin, MessageCircle, Store, Send, Check, Plus, Copy, Package, Star, ShoppingBag, UserPlus, Flag, ShieldBan, LogOut, Pencil, Trash2, Globe, Youtube } from 'lucide-react';
+import { ChevronLeft, ChevronDown, MoreHorizontal, Camera, ExternalLink, MapPin, MessageCircle, Store, Send, Check, Plus, Copy, Package, Star, ShoppingBag, UserPlus, Flag, ShieldBan, VolumeX, LogOut, Pencil, Trash2, Globe, Youtube } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
@@ -1156,6 +1156,16 @@ export default function ProfileHeader({
 
               <div className="my-3 h-px bg-stone-200" />
 
+              {/* Section 3.6.7 — Bloque 5: mute user (silencioso) */}
+              <OptionRow label={`Silenciar a @${user?.username}`} icon={<VolumeX size={20} />} muted onClick={async () => {
+            setShowOptionsSheet(false);
+            try {
+              await apiClient.post(`/users/${user?.user_id}/mute`);
+              toast.success(`Has silenciado a @${user?.username}`);
+            } catch {
+              toast.error('Error al silenciar');
+            }
+          }} />
               <OptionRow label={`Bloquear a @${user?.username}`} icon={<ShieldBan size={20} />} muted onClick={async () => {
             setShowOptionsSheet(false);
             try {

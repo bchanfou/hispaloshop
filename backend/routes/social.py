@@ -4243,6 +4243,45 @@ async def unblock_user(user_id: str, user: User = Depends(get_current_user)):
     return {"status": "unblocked"}
 
 
+# ── Section 3.6.7 — Bloque 5: user mute (silencioso, no notifica) ─────
+
+@router.post("/users/{user_id}/mute")
+async def mute_user(user_id: str, user: User = Depends(get_current_user)):
+    """Mute a user — their posts/stories/reels disappear from the muter's feed.
+    The muted user is NOT notified. Relationship stays intact."""
+    if user_id == user.user_id:
+        raise HTTPException(400, "No puedes silenciarte a ti mismo")
+    await db.user_mutes.update_one(
+        {"muter_id": user.user_id, "muted_id": user_id},
+        {"$set": {"muter_id": user.user_id, "muted_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    return {"status": "muted"}
+
+
+@router.delete("/users/{user_id}/mute")
+async def unmute_user(user_id: str, user: User = Depends(get_current_user)):
+    """Remove mute on a user."""
+    await db.user_mutes.delete_one({"muter_id": user.user_id, "muted_id": user_id})
+    return {"status": "unmuted"}
+
+
+@router.get("/users/me/muted")
+async def get_muted_users(user: User = Depends(get_current_user)):
+    """List users the current user has muted."""
+    muted = await db.user_mutes.find(
+        {"muter_id": user.user_id}, {"_id": 0, "muted_id": 1, "created_at": 1},
+    ).sort("created_at", -1).to_list(500)
+    if not muted:
+        return {"users": []}
+    muted_ids = [m["muted_id"] for m in muted]
+    users = await db.users.find(
+        {"user_id": {"$in": muted_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1},
+    ).to_list(len(muted_ids))
+    return {"users": users}
+
+
 @router.post("/users/{user_id}/report")
 async def report_user(user_id: str, request: Request, user: User = Depends(get_current_user)):
     body = await request.json()
