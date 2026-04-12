@@ -270,12 +270,12 @@ export function CrossBorderNotice({ userCountry }) {
     if (!userCountry || userCountry === 'US') return;
     try {
       if (localStorage.getItem('hsp_cross_border_accepted')) return;
-    } catch {}
+    } catch { /* noop */ }
     setVisible(true);
   }, [userCountry]);
 
   const accept = async () => {
-    try { localStorage.setItem('hsp_cross_border_accepted', 'true'); } catch {}
+    try { localStorage.setItem('hsp_cross_border_accepted', 'true'); } catch { /* noop */ }
     setVisible(false);
     // Log consent
     const cookieId = getCookieId();
@@ -284,7 +284,7 @@ export function CrossBorderNotice({ userCountry }) {
         cookie_id: cookieId,
         consents: [{ type: 'cross_border_transfer', granted: true }],
       });
-    } catch {}
+    } catch { /* noop */ }
   };
 
   if (!visible) return null;

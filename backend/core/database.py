@@ -648,6 +648,11 @@ async def _create_indexes():
     await db.tax_forms.create_index("user_id", unique=True)
     logger.info("  OK: tax_forms indexes")
 
+    # Shared shopping lists (section 4.3e)
+    await db.shared_lists.create_index("list_id", unique=True, sparse=True)
+    await db.shared_lists.create_index("conversation_id", unique=True)
+    logger.info("  OK: shared_lists indexes")
+
     logger.info("All indexes created successfully")
 
 

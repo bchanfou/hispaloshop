@@ -230,7 +230,7 @@ export function AuthProvider({ children }) {
         upsertStoredAccount(toAccountObject(normalizedUser, token));
 
         // GDPR 4.1: Link anonymous cookie consents to authenticated user
-        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch {}
+        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch { /* noop */ }
       }
 
       // GDPR 4.1: Reactivated account toast
@@ -273,7 +273,7 @@ export function AuthProvider({ children }) {
         upsertStoredAccount(toAccountObject(normalizedUser, token));
 
         // GDPR 4.1: Link anonymous cookie consents to authenticated user
-        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch {}
+        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch { /* noop */ }
       }
 
       return { ...data, user: normalizedUser };

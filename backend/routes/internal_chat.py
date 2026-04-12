@@ -1072,3 +1072,314 @@ async def decline_chat_request(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+# ─── Shared Shopping Lists ─────────────────────────────────────────────────────
+
+async def _verify_list_participant(conversation_id: str, user_id: str):
+    """Verify user is a participant in the conversation. Returns conv or raises 404."""
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user_id
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conv
+
+
+async def _insert_list_system_message(conversation_id: str, user_name: str, text: str):
+    """Insert a system message into the conversation for list actions."""
+    now = datetime.now(timezone.utc).isoformat()
+    msg_id = f"msg_{uuid.uuid4().hex[:12]}"
+    encrypted = encrypt_message(text)
+    await db.internal_messages.insert_one({
+        "message_id": msg_id,
+        "conversation_id": conversation_id,
+        "sender_id": "system",
+        "sender_name": "Sistema",
+        "content": encrypted,
+        "message_type": "system",
+        "status": "sent",
+        "created_at": now,
+    })
+    await db.internal_conversations.update_one(
+        {"conversation_id": conversation_id},
+        {"$set": {"updated_at": now, "last_message": {"content": text, "created_at": now, "sender_id": "system"}}}
+    )
+
+
+@router.post("/internal-chat/conversations/{conversation_id}/list")
+async def create_or_get_list(
+    conversation_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Create a shared shopping list for a conversation (idempotent)."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    existing = await db.shared_lists.find_one({"conversation_id": conversation_id}, {"_id": 0})
+    if existing:
+        return existing
+
+    now = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "list_id": str(uuid.uuid4()),
+        "conversation_id": conversation_id,
+        "created_by": user.user_id,
+        "created_at": now,
+        "updated_at": now,
+        "items": [],
+    }
+    await db.shared_lists.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@router.get("/internal-chat/conversations/{conversation_id}/list")
+async def get_list(
+    conversation_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Get the shared list for a conversation."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    doc = await db.shared_lists.find_one({"conversation_id": conversation_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="List not found")
+    return doc
+
+
+@router.post("/internal-chat/conversations/{conversation_id}/list/items")
+async def add_list_item(
+    conversation_id: str,
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Add an item to the shared list."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    lst = await db.shared_lists.find_one({"conversation_id": conversation_id})
+    if not lst:
+        raise HTTPException(status_code=404, detail="List not found")
+    if len(lst.get("items", [])) >= 100:
+        raise HTTPException(status_code=400, detail="Lista llena (maximo 100 items)")
+
+    body = await request.json()
+    item_type = body.get("type", "freetext")
+    now = datetime.now(timezone.utc).isoformat()
+
+    item = {
+        "item_id": str(uuid.uuid4()),
+        "type": item_type,
+        "product_id": None,
+        "product_name": None,
+        "product_image": None,
+        "product_price": None,
+        "product_currency": None,
+        "freetext": None,
+        "notes": body.get("notes"),
+        "purchased": False,
+        "purchased_by": None,
+        "purchased_at": None,
+        "in_cart": False,
+        "added_by": user.user_id,
+        "added_by_name": user.name or user.username or "Usuario",
+        "added_at": now,
+    }
+
+    display_name = ""
+    if item_type == "product":
+        product_id = body.get("product_id")
+        if not product_id:
+            raise HTTPException(status_code=400, detail="product_id required for type product")
+        product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "name": 1, "images": 1, "price": 1, "currency": 1})
+        if not product:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        item["product_id"] = product_id
+        item["product_name"] = product.get("name", "")
+        item["product_image"] = (product.get("images") or [None])[0]
+        item["product_price"] = product.get("price")
+        item["product_currency"] = product.get("currency", "EUR")
+        display_name = item["product_name"]
+    else:
+        freetext = (body.get("freetext") or "").strip()[:200]
+        if not freetext:
+            raise HTTPException(status_code=400, detail="freetext required for type freetext")
+        item["freetext"] = freetext
+        display_name = freetext
+
+    await db.shared_lists.update_one(
+        {"conversation_id": conversation_id},
+        {"$push": {"items": item}, "$set": {"updated_at": now}}
+    )
+
+    user_display = user.name or user.username or "Alguien"
+    await _insert_list_system_message(conversation_id, user_display, f"{user_display} añadió {display_name} a la lista")
+
+    return item
+
+
+@router.patch("/internal-chat/conversations/{conversation_id}/list/items/{item_id}")
+async def update_list_item(
+    conversation_id: str,
+    item_id: str,
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Update a list item: toggle purchased, edit notes, toggle in_cart."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    lst = await db.shared_lists.find_one({"conversation_id": conversation_id})
+    if not lst:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    item = next((i for i in lst.get("items", []) if i["item_id"] == item_id), None)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    body = await request.json()
+    now = datetime.now(timezone.utc).isoformat()
+    updates = {}
+
+    if "purchased" in body:
+        new_purchased = bool(body["purchased"])
+        if new_purchased and not item.get("purchased"):
+            updates["items.$.purchased"] = True
+            updates["items.$.purchased_by"] = user.user_id
+            updates["items.$.purchased_at"] = now
+            display_name = item.get("product_name") or item.get("freetext") or "item"
+            user_display = user.name or user.username or "Alguien"
+            await _insert_list_system_message(conversation_id, user_display, f"{user_display} compró {display_name}")
+        elif not new_purchased and item.get("purchased"):
+            updates["items.$.purchased"] = False
+            updates["items.$.purchased_by"] = None
+            updates["items.$.purchased_at"] = None
+            display_name = item.get("product_name") or item.get("freetext") or "item"
+            user_display = user.name or user.username or "Alguien"
+            await _insert_list_system_message(conversation_id, user_display, f"{user_display} desmarcó {display_name}")
+
+    if "notes" in body:
+        updates["items.$.notes"] = (body["notes"] or "")[:200]
+
+    if "in_cart" in body:
+        updates["items.$.in_cart"] = bool(body["in_cart"])
+
+    if updates:
+        updates["updated_at"] = now
+        await db.shared_lists.update_one(
+            {"conversation_id": conversation_id, "items.item_id": item_id},
+            {"$set": updates}
+        )
+
+    updated = await db.shared_lists.find_one({"conversation_id": conversation_id}, {"_id": 0})
+    return next((i for i in updated.get("items", []) if i["item_id"] == item_id), {})
+
+
+@router.delete("/internal-chat/conversations/{conversation_id}/list/items/{item_id}")
+async def delete_list_item(
+    conversation_id: str,
+    item_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Remove an item from the shared list."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    lst = await db.shared_lists.find_one({"conversation_id": conversation_id})
+    if not lst:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    item = next((i for i in lst.get("items", []) if i["item_id"] == item_id), None)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.shared_lists.update_one(
+        {"conversation_id": conversation_id},
+        {"$pull": {"items": {"item_id": item_id}}, "$set": {"updated_at": now}}
+    )
+
+    display_name = item.get("product_name") or item.get("freetext") or "item"
+    user_display = user.name or user.username or "Alguien"
+    await _insert_list_system_message(conversation_id, user_display, f"{user_display} quitó {display_name} de la lista")
+
+    return {"success": True}
+
+
+@router.post("/internal-chat/conversations/{conversation_id}/list/add-all-to-cart")
+async def add_all_to_cart(
+    conversation_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Add all non-purchased product items to the user's cart."""
+    await _verify_list_participant(conversation_id, user.user_id)
+
+    lst = await db.shared_lists.find_one({"conversation_id": conversation_id})
+    if not lst:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    product_items = [i for i in lst.get("items", [])
+                     if i.get("type") == "product" and i.get("product_id")
+                     and not i.get("purchased") and not i.get("in_cart")]
+
+    added_count = 0
+    failed = []
+    now = datetime.now(timezone.utc).isoformat()
+
+    for item in product_items:
+        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0, "name": 1, "images": 1, "price": 1, "seller_id": 1, "seller_type": 1})
+        if not product:
+            failed.append({"item_id": item["item_id"], "product_name": item.get("product_name", ""), "reason": "Producto no encontrado"})
+            continue
+
+        stock_ok = True
+        stock_doc = await db.products.find_one({"product_id": item["product_id"], "stock": {"$gt": 0}})
+        if not stock_doc:
+            failed.append({"item_id": item["item_id"], "product_name": item.get("product_name", ""), "reason": "Sin stock"})
+            continue
+
+        # Add to cart
+        cart = await db.carts.find_one({"user_id": user.user_id})
+        if not cart:
+            await db.carts.insert_one({
+                "user_id": user.user_id,
+                "items": [],
+                "created_at": now,
+                "updated_at": now,
+            })
+
+        existing_cart_item = None
+        if cart:
+            existing_cart_item = next((ci for ci in cart.get("items", []) if ci.get("product_id") == item["product_id"]), None)
+
+        if existing_cart_item:
+            await db.carts.update_one(
+                {"user_id": user.user_id, "items.product_id": item["product_id"]},
+                {"$inc": {"items.$.quantity": 1}, "$set": {"updated_at": now}}
+            )
+        else:
+            price_cents = int((product.get("price") or 0) * 100)
+            cart_item = {
+                "product_id": item["product_id"],
+                "product_name": product.get("name", ""),
+                "product_image": (product.get("images") or [None])[0],
+                "seller_id": product.get("seller_id"),
+                "seller_type": product.get("seller_type", "producer"),
+                "quantity": 1,
+                "unit_price_cents": price_cents,
+                "total_price_cents": price_cents,
+                "variant_id": None,
+                "pack_id": None,
+                "added_at": now,
+            }
+            await db.carts.update_one(
+                {"user_id": user.user_id},
+                {"$push": {"items": cart_item}, "$set": {"updated_at": now}}
+            )
+
+        # Mark in_cart on the list item
+        await db.shared_lists.update_one(
+            {"conversation_id": conversation_id, "items.item_id": item["item_id"]},
+            {"$set": {"items.$.in_cart": True, "updated_at": now}}
+        )
+        added_count += 1
+
+    return {"added_count": added_count, "failed": failed}
+

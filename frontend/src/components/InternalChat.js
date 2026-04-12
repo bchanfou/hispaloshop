@@ -1,7 +1,8 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Check, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, Users, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
+import { ArrowLeft, Check, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, ShoppingCart, Trash2, Users, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
+import SharedListPanel from './chat/SharedListPanel';
 import { toast } from 'sonner';
 import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
@@ -166,6 +167,13 @@ const MessageBubble = React.memo(function MessageBubble({
     onReact?.(message.message_id, emoji);
     setShowPicker(false);
   };
+
+  // System messages (list actions, join/leave, etc.)
+  if (message?.message_type === 'system') {
+    return <div className="flex justify-center py-1.5">
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-[12px] text-stone-400">{message.content}</span>
+    </div>;
+  }
 
   // CH-02: Delete own message (within 5 min window)
   const canDelete = isOwn && message?.created_at && Date.now() - new Date(message.created_at).getTime() < 300_000;
@@ -709,6 +717,7 @@ export default function InternalChat({
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [inboxTab, setInboxTab] = useState('messages'); // 'messages' | 'requests'
   const [showGroupPanel, setShowGroupPanel] = useState(false);
+  const [isSharedListOpen, setIsSharedListOpen] = useState(false);
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchQuery, setMessageSearchQuery] = useState('');
   const [messageSearchResults, setMessageSearchResults] = useState([]);
@@ -1582,6 +1591,10 @@ export default function InternalChat({
                 <button type="button" onClick={() => { setShowMessageSearch(s => !s); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.searchMessages', 'Buscar mensajes')}>
                   <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />
                 </button>
+                {/* Shopping list */}
+                <button type="button" onClick={() => setIsSharedListOpen(true)} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.shoppingList', 'Lista de compras')}>
+                  <ShoppingCart className="h-[17px] w-[17px]" strokeWidth={1.8} />
+                </button>
                 {/* CH-03: Delete conversation */}
                 <button type="button" onClick={handleDeleteConversation} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.eliminarConversacion', 'Eliminar conversación')}>
                   <Trash2 className="h-[16px] w-[16px]" strokeWidth={1.8} />
@@ -1750,9 +1763,9 @@ export default function InternalChat({
                 setIsComposerActionsOpen(false);
                 toast(i18n.t('chat.location_coming_soon', 'Ubicación disponible próximamente'));
               }} />
-                    <ComposerActionButton icon={Heart} label={i18n.t('chat.attach_wishlist', 'Wishlist')} onClick={() => {
+                    <ComposerActionButton icon={ShoppingCart} label={i18n.t('chat.shoppingList', 'Lista de compras')} onClick={() => {
                 setIsComposerActionsOpen(false);
-                toast(i18n.t('chat.wishlist_coming_soon', 'Wishlist disponible próximamente'));
+                setIsSharedListOpen(true);
               }} />
                     <ComposerActionButton icon={FileText} label={i18n.t('chat.attach_document', 'Documento')} onClick={() => {
                 docInputRef.current?.click();
@@ -1887,5 +1900,6 @@ export default function InternalChat({
       <DirectorySheet open={isDirectoryOpen} onClose={() => setIsDirectoryOpen(false)} users={filteredDirectoryUsers} loading={loadingDirectory} onStartConversation={startConversationWithUser} onGroupCreated={async (convId) => { reloadConversations(); if (convId) { await loadConversation(convId); } }} startingConversation={startingConversation} searchValue={directorySearchValue} onSearchChange={setDirectorySearchValue} roleFilter={directoryRoleFilter} onRoleFilterChange={setDirectoryRoleFilter} />
       <ShareItemSheet open={isShareSheetOpen} shareType={shareSheetType} inputValue={shareInputValue} onInputChange={setShareInputValue} onClose={closeShareSheet} onSubmit={handleLoadSharePreview} isLoading={loadingSharePreview} preview={sharePreview} onAttach={attachSharedItemToComposer} />
       {activeConversation?.type === 'group' ? <GroupChatPanel isOpen={showGroupPanel} onClose={() => setShowGroupPanel(false)} conversation={activeConversation} currentUserId={user?.user_id} onLeave={() => { setShowGroupPanel(false); setSelectedConversationId(null); reloadConversations(); }} onMuteToggle={() => reloadConversations()} /> : null}
+      <SharedListPanel isOpen={isSharedListOpen} onClose={() => setIsSharedListOpen(false)} conversationId={selectedConversationId} />
     </div>;
 }
