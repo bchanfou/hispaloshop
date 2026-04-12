@@ -30,11 +30,31 @@ def _normalize_role(raw_role: Optional[str]) -> str:
 
 
 async def get_current_user(request: Request, authorization: Optional[str] = Header(None)) -> User:
-    """Authenticate via session token (cookie or Authorization header)."""
-    session_token = request.cookies.get('session_token')
-    if not session_token and authorization:
-        if authorization.startswith('Bearer '):
-            session_token = authorization.replace('Bearer ', '')
+    """Authenticate via session token (Authorization header or cookie).
+
+    Section 3.6.6 — F-14: prefers the Authorization Bearer header over the
+    httpOnly cookie when both are present. Rationale: the browser only stores
+    one ``session_token`` cookie per origin, so when a user has multiple saved
+    accounts the cookie always points to whichever account logged in most
+    recently. The frontend account-switcher updates ``localStorage.hsp_token``
+    (which becomes the Bearer header) but cannot rewrite the cookie. With
+    cookie-first precedence, switching to a non-active saved account silently
+    returned the cookie's user — making multi-account effectively broken for
+    the second-and-onwards accounts in a session.
+
+    Header-first preserves cookie-only flows as a fallback (single-account
+    browsing, server-rendered links, refresh) and is security-neutral: against
+    same-origin XSS the cookie was already exfiltratable via
+    ``fetch(..., {credentials: 'include'})``, so the precedence change does
+    not weaken any existing threat model.
+    """
+    session_token: Optional[str] = None
+    if authorization and authorization.startswith('Bearer '):
+        candidate = authorization.replace('Bearer ', '').strip()
+        if candidate:
+            session_token = candidate
+    if not session_token:
+        session_token = request.cookies.get('session_token')
     if not session_token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 

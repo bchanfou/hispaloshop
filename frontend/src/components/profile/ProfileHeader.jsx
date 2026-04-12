@@ -597,7 +597,7 @@ export default function ProfileHeader({
           display: 'none'
         } : {}} onClick={user?.has_active_story ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`) : undefined} />
           {isOwn && <>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarFile} className="hidden" />
+              <input ref={fileInputRef} type="file" accept="image/*" capture="user" onChange={handleAvatarFile} className="hidden" />
               <button onClick={onCreateStory || (() => fileInputRef.current?.click())} aria-label={onCreateStory ? 'Crear story' : 'Cambiar foto de perfil'} className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm">
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
