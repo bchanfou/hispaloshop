@@ -597,7 +597,7 @@ export default function ProfileHeader({
           display: 'none'
         } : {}} onClick={user?.has_active_story ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`) : undefined} />
           {isOwn && <>
-              <input ref={fileInputRef} type="file" accept="image/*" capture="user" onChange={handleAvatarFile} className="hidden" />
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarFile} className="hidden" />
               <button onClick={onCreateStory || (() => fileInputRef.current?.click())} aria-label={onCreateStory ? 'Crear story' : 'Cambiar foto de perfil'} className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm">
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
@@ -873,7 +873,7 @@ export default function ProfileHeader({
       {/* ── 6. HIGHLIGHTS (Instagram style circles) ──────────────── */}
       {(isOwn || highlights.length > 0) && <div className="flex gap-4 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none scrollbar-hide snap-x">
           {isOwn && <div className="flex flex-col items-center gap-1.5 snap-start">
-              <button onClick={onCreateHighlight || handleOpenCreateHighlight} aria-label="Crear historia destacada" className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-stone-200">
+              <button onClick={onCreateHighlight || handleOpenCreateHighlight} aria-label="Crear historia destacada" className="flex h-[100px] w-[80px] shrink-0 items-center justify-center rounded-2xl border border-stone-200">
                 <Plus size={22} className="text-stone-400" />
               </button>
               <span className="text-[11px] text-stone-500">Nuevo</span>
@@ -891,10 +891,10 @@ export default function ProfileHeader({
       }} className="relative flex shrink-0 flex-col items-center gap-1.5 cursor-pointer snap-start" onClick={() => onViewHighlight?.(hl)} onPointerDown={isOwn ? () => handleHighlightLongPressStart(hl) : undefined} onPointerUp={isOwn ? handleHighlightLongPressEnd : undefined} onPointerLeave={isOwn ? handleHighlightLongPressEnd : undefined} role="button" tabIndex={0} onKeyDown={e => {
         if (e.key === 'Enter') onViewHighlight?.(hl);
       }}>
-              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
-                {hl.cover_url || hl.image ? <img src={hl.cover_url || hl.image} alt={hl.title} className="h-[64px] w-[64px] rounded-full object-cover" /> : <span className="text-lg text-stone-400">✦</span>}
+              <div className="flex h-[100px] w-[80px] items-center justify-center rounded-2xl bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
+                {hl.cover_url || hl.image ? <img src={hl.cover_url || hl.image} alt={hl.title} className="h-[100px] w-[80px] rounded-2xl object-cover" /> : <span className="text-lg text-stone-400">✦</span>}
               </div>
-              <span className="max-w-[64px] truncate text-[11px] text-stone-950">
+              <span className="max-w-[80px] truncate text-[11px] text-stone-950">
                 {hl.title?.slice(0, 15)}
               </span>
             </motion.div>)}

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, ChevronUp, MessageCircle, MoreHorizontal, Pencil, Trash2,
+  ArrowLeft, ThumbsUp, ThumbsDown, MessageCircle, MoreHorizontal, Pencil, Trash2,
   Send, AlertTriangle, Clock, User as UserIcon,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
@@ -69,15 +69,22 @@ export default function FeedbackIdeaDetailPage() {
   useEffect(() => { fetchIdea(); }, [fetchIdea]);
   useEffect(() => { fetchComments(); }, [fetchComments]);
 
-  const handleVote = async () => {
+  const handleVote = async (voteType) => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'like' } }));
       return;
     }
     try {
-      const res = await apiClient.post(`/feedback/ideas/${idea.idea_id}/vote`, {});
+      const res = await apiClient.post(`/feedback/ideas/${idea.idea_id}/vote`, { vote_type: voteType });
       const data = res?.data || res;
-      setIdea(prev => ({ ...prev, user_voted: data.voted, vote_count: data.vote_count }));
+      setIdea(prev => ({
+        ...prev,
+        user_vote: data.user_vote,
+        user_voted: data.user_vote !== null,
+        vote_count: data.vote_count,
+        upvote_count: data.upvote_count,
+        downvote_count: data.downvote_count,
+      }));
     } catch {
       toast.error(t('feedback.errorVoting', 'Error al votar'));
     }
@@ -223,18 +230,38 @@ export default function FeedbackIdeaDetailPage() {
       <div className="p-4 max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl p-5 shadow-sm">
           <div className="flex items-start gap-4">
-            {/* Vote button */}
-            <button
-              onClick={handleVote}
-              className={`flex flex-col items-center gap-0.5 min-w-[52px] min-h-[52px] p-3 rounded-xl transition-colors ${
-                idea.user_voted
-                  ? 'bg-stone-950 text-white'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              <ChevronUp size={22} />
-              <span className="text-sm font-bold">{idea.vote_count || 0}</span>
-            </button>
+            {/* Vote buttons */}
+            <div className="flex flex-col items-center gap-1">
+              <button
+                onClick={() => handleVote('up')}
+                title={t('feedback.voteUpTooltip', 'A favor de esta idea')}
+                className={`flex items-center justify-center min-w-[48px] min-h-[48px] p-2.5 rounded-xl transition-colors ${
+                  idea.user_vote === 'up'
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                <ThumbsUp size={20} />
+              </button>
+              <span className="text-sm font-bold text-stone-950">{idea.vote_count ?? 0}</span>
+              <button
+                onClick={() => handleVote('down')}
+                title={t('feedback.voteDownTooltip', 'En contra de esta idea')}
+                className={`flex items-center justify-center min-w-[48px] min-h-[48px] p-2.5 rounded-xl transition-colors ${
+                  idea.user_vote === 'down'
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                <ThumbsDown size={20} />
+              </button>
+              {(user?.role === 'country_admin' || user?.role === 'admin' || user?.role === 'super_admin') && (
+                <div className="flex items-center gap-2 text-[10px] text-stone-400 mt-0.5">
+                  <span>{idea.upvote_count ?? 0} up</span>
+                  <span>{idea.downvote_count ?? 0} down</span>
+                </div>
+              )}
+            </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">

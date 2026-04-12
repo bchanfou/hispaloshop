@@ -54,7 +54,7 @@ function EmptyFollowing() {
   );
 }
 
-function FollowingFeed() {
+function FollowingFeed({ storiesHeader }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -375,6 +375,7 @@ function FollowingFeed() {
           increaseViewportBy={{ top: 0, bottom: 1500 }}
           style={{ height: 'calc(100vh - 52px - 64px)' }}
           components={{
+            Header: () => storiesHeader || null,
             Footer: () => {
               if (feedQuery.isFetchingNextPage) return <FeedSkeleton count={2} />;
               if (!hasMore && allPosts.length > 0) return (

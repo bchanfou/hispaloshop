@@ -2654,7 +2654,15 @@
     "remove_member": "Remove member",
     "select_new_admin": "Select a new admin",
     "member_removed": "Member removed",
-    "group_reported": "Group reported"
+    "group_reported": "Group reported",
+    "createGroup": "Create group",
+    "groupName": "Group name",
+    "selectMembers": "Next",
+    "membersSelected": "selected",
+    "createGroupButton": "Create group",
+    "searchMessages": "Search messages",
+    "searchPlaceholder": "Search in this conversation...",
+    "noMessagesFound": "No messages found"
   },
   "freshSave": {
     "lastDay": "LAST DAY -50%",
@@ -4512,6 +4520,11 @@
     "emptyStateSub": "Be the first to propose one!",
     "ideasCount": "ideas",
     "errorVoting": "Error voting",
+    "voteUp": "Upvote",
+    "voteDown": "Downvote",
+    "voteUpTooltip": "In favor of this idea",
+    "voteDownTooltip": "Against this idea",
+    "score": "Net score",
     "categories": {
       "ux": "UX",
       "feature": "Feature",

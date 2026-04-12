@@ -195,7 +195,7 @@ export default function EditProfilePage() {
               <Camera size={24} className="text-white" />
             </div>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" capture="user" onChange={handleAvatarSelect} className="hidden" />
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarSelect} className="hidden" />
         </div>
 
         {/* ── Form Fields ── */}

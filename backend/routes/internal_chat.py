@@ -105,6 +105,43 @@ async def get_conversation_messages(
     messages = [decrypt_message_dict(m) for m in messages]
     return list(reversed(messages))
 
+@router.get("/internal-chat/conversations/{conversation_id}/messages/search")
+async def search_conversation_messages(
+    conversation_id: str,
+    q: str = "",
+    limit: int = 20,
+    user: User = Depends(get_current_user)
+):
+    """Search messages within a conversation by text content."""
+    import re as _re
+    query_text = q.strip()
+    if not query_text:
+        return {"messages": [], "total": 0, "has_more": False}
+
+    # Verify user is participant
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user.user_id
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    escaped = _re.escape(query_text)
+    search_query = {
+        "conversation_id": conversation_id,
+        "content": {"$regex": escaped, "$options": "i"}
+    }
+    total = await db.internal_messages.count_documents(search_query)
+    messages = await db.internal_messages.find(
+        search_query, {"_id": 0, "message_id": 1, "content": 1, "sender_id": 1, "sender_name": 1, "created_at": 1}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+
+    # Decrypt message content
+    messages = [decrypt_message_dict(m) for m in messages]
+
+    return {"messages": messages, "total": total, "has_more": total > limit}
+
+
 @router.post("/internal-chat/messages")
 async def send_internal_message(
     input: InternalMessageCreate,

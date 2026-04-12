@@ -36,7 +36,7 @@ class FeedItemBoundary extends Component {
   render() { return this.state.hasError ? null : this.props.children; }
 }
 
-export default function ForYouFeed() {
+export default function ForYouFeed({ storiesHeader }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -519,8 +519,9 @@ export default function ForYouFeed() {
           }}
           overscan={3}
           increaseViewportBy={{ top: 0, bottom: 1500 }}
-          style={{ height: 'calc(100vh - 52px - 64px - 48px)' }} // Ajustado por tabs
+          style={{ height: 'calc(100vh - 52px - 64px)' }}
           components={{
+            Header: () => storiesHeader || null,
             Footer: () => {
               if (feedQuery.isFetchingNextPage) return <FeedSkeleton count={2} />;
               if (!hasMore && allPosts.length > 0) return (

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Plus, ChevronUp, MessageCircle, Search, Lightbulb, User as UserIcon,
+  ArrowLeft, Plus, ThumbsUp, ThumbsDown, MessageCircle, Search, Lightbulb, User as UserIcon,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -85,7 +85,7 @@ export default function FeedbackPage() {
     fetchIdeas(1, false);
   }, [fetchIdeas]);
 
-  const handleVote = async (ideaId, e) => {
+  const handleVote = async (ideaId, voteType, e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!user) {
@@ -93,11 +93,12 @@ export default function FeedbackPage() {
       return;
     }
     try {
-      const res = await apiClient.post(`/feedback/ideas/${ideaId}/vote`, {});
+      const res = await apiClient.post(`/feedback/ideas/${ideaId}/vote`, { vote_type: voteType });
       const data = res?.data || res;
       setItems(prev => prev.map(item =>
         item.idea_id === ideaId
-          ? { ...item, user_voted: data.voted, vote_count: data.vote_count }
+          ? { ...item, user_vote: data.user_vote, user_voted: data.user_vote !== null, vote_count: data.vote_count,
+              upvote_count: data.upvote_count, downvote_count: data.downvote_count }
           : item
       ));
     } catch {
@@ -245,18 +246,32 @@ export default function FeedbackPage() {
                     className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-3">
-                      {/* Vote button */}
-                      <button
-                        onClick={(e) => handleVote(item.idea_id, e)}
-                        className={`flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] p-2 rounded-xl transition-colors ${
-                          item.user_voted
-                            ? 'bg-stone-950 text-white'
-                            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                        }`}
-                      >
-                        <ChevronUp size={18} />
-                        <span className="text-xs font-semibold">{item.vote_count || 0}</span>
-                      </button>
+                      {/* Vote buttons */}
+                      <div className="flex flex-col items-center gap-0.5">
+                        <button
+                          onClick={(e) => handleVote(item.idea_id, 'up', e)}
+                          title={t('feedback.voteUpTooltip', 'A favor de esta idea')}
+                          className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-xl transition-colors ${
+                            item.user_vote === 'up'
+                              ? 'bg-stone-950 text-white'
+                              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          }`}
+                        >
+                          <ThumbsUp size={18} />
+                        </button>
+                        <span className="text-xs font-bold text-stone-950">{item.vote_count ?? 0}</span>
+                        <button
+                          onClick={(e) => handleVote(item.idea_id, 'down', e)}
+                          title={t('feedback.voteDownTooltip', 'En contra de esta idea')}
+                          className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-xl transition-colors ${
+                            item.user_vote === 'down'
+                              ? 'bg-stone-950 text-white'
+                              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          }`}
+                        >
+                          <ThumbsDown size={18} />
+                        </button>
+                      </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">

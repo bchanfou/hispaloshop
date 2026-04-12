@@ -231,7 +231,7 @@ export default function EditProfileSheet({
                   <button type="button" onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-900 shadow-sm" aria-label="Cambiar foto">
                     <Camera className="h-3.5 w-3.5" />
                   </button>
-                  <input ref={avatarInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handleAvatarChange} />
+                  <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </div>
                 <button type="button" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar} className="mt-2 text-[13px] font-semibold text-stone-950 active:opacity-50 disabled:opacity-50">
                   {uploadingAvatar ? 'Subiendo...' : 'Cambiar foto'}

@@ -434,7 +434,7 @@ export default function CreateReelPage() {
         </div>
 
         <input ref={fileInputRef} type="file" accept="video/*" onChange={handleFileSelect} className="hidden" />
-        <input ref={cameraInputRef} type="file" accept="video/*" capture="environment" onChange={handleFileSelect} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="video/*" onChange={handleFileSelect} className="hidden" />
       </div>;
   }
 

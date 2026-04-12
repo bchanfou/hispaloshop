@@ -696,7 +696,7 @@ export default function CreateStoryPage() {
 
       {/* Hidden inputs — gallery + camera (separate for reliable capture) */}
       <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileSelect} className="hidden" />
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
+      <input ref={cameraInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
       {/* TopBar — glass morphism */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top,8px)+8px)] pb-2">

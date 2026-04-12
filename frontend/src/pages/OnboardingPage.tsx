@@ -221,7 +221,7 @@ export default function OnboardingPage() {
             {profilePhotoPreview ? <img src={profilePhotoPreview} alt="Preview" className="w-full h-full object-cover" /> : <Camera size={28} className="text-stone-400" />}
           </div>
         </label>
-        <input id="avatar-upload" type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoSelect} />
+        <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
         {profilePhotoPreview && <button type="button" onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }} className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4 py-2 px-3 min-h-[44px]">{t('onboarding.removePhoto', 'Quitar foto')}</button>}
         <div className="w-full mt-2">
           <div className="flex items-center justify-between mb-1.5">

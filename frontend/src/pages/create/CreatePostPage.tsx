@@ -629,7 +629,7 @@ export default function CreatePostPage() {
 
         {/* Hidden inputs */}
         <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
-        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="image/*" onChange={handleFiles} className="hidden" />
       </div>;
   const renderStep2 = () => {
     const tabs = [{

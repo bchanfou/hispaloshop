@@ -2540,7 +2540,15 @@
     "remove_member": "Eliminar miembro",
     "select_new_admin": "Selecciona un nuevo administrador",
     "member_removed": "Miembro eliminado",
-    "group_reported": "Grupo reportado"
+    "group_reported": "Grupo reportado",
+    "createGroup": "Crear grupo",
+    "groupName": "Nombre del grupo",
+    "selectMembers": "Siguiente",
+    "membersSelected": "seleccionados",
+    "createGroupButton": "Crear grupo",
+    "searchMessages": "Buscar mensajes",
+    "searchPlaceholder": "Buscar en esta conversacion...",
+    "noMessagesFound": "No se encontraron mensajes"
   },
   "freshSave": {
     "lastDay": "ULTIMO DIA -50%",
@@ -5990,6 +5998,11 @@
     "emptyStateSub": "Se el primero en proponer una!",
     "ideasCount": "ideas",
     "errorVoting": "Error al votar",
+    "voteUp": "A favor",
+    "voteDown": "En contra",
+    "voteUpTooltip": "A favor de esta idea",
+    "voteDownTooltip": "En contra de esta idea",
+    "score": "Puntuacion neta",
     "categories": {
       "ux": "UX",
       "feature": "Feature",

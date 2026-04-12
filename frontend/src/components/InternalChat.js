@@ -1,7 +1,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
+import { ArrowLeft, Check, Clapperboard, FileText, Heart, Images, Loader2, MapPin, Mic, Package, PenSquare, Phone, Search, Reply, Send, ShoppingBag, Trash2, Users, UserPlus, UtensilsCrossed, Video, X, ThumbsUp, Smile, AlertCircle, Frown, Angry, Camera, Paperclip, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
@@ -510,82 +510,165 @@ function DirectorySheet({
   users,
   loading,
   onStartConversation,
+  onGroupCreated,
   startingConversation,
   searchValue,
   onSearchChange,
   roleFilter,
   onRoleFilterChange
 }) {
+  const [mode, setMode] = useState('chat'); // 'chat' | 'group'
+  const [groupStep, setGroupStep] = useState(1); // 1 = select members, 2 = name
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [groupName, setGroupName] = useState('');
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const groupAvatarRef = useRef(null);
+  const [groupAvatarFile, setGroupAvatarFile] = useState(null);
+  const [groupAvatarPreview, setGroupAvatarPreview] = useState(null);
+
+  const resetGroup = () => { setMode('chat'); setGroupStep(1); setSelectedMembers([]); setGroupName(''); setGroupAvatarFile(null); setGroupAvatarPreview(null); };
+  const handleClose = () => { resetGroup(); onClose(); };
+
+  const toggleMember = (userId) => {
+    setSelectedMembers(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
+  };
+
+  const handleCreateGroup = async () => {
+    if (!groupName.trim() || selectedMembers.length < 1) return;
+    setCreatingGroup(true);
+    try {
+      let avatar_url = null;
+      if (groupAvatarFile) {
+        const formData = new FormData();
+        formData.append('file', groupAvatarFile);
+        const uploadRes = await apiClient.post('/internal-chat/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        avatar_url = uploadRes?.data?.url || uploadRes?.url;
+      }
+      const res = await apiClient.post('/internal-chat/groups/private', {
+        name: groupName.trim(),
+        member_ids: selectedMembers,
+        avatar_url,
+      });
+      const data = res?.data || res;
+      toast.success(i18n.t('chat.group_created', 'Grupo creado'));
+      handleClose();
+      if (onGroupCreated) onGroupCreated(data.conversation_id || data.group_id);
+    } catch {
+      toast.error('Error al crear el grupo');
+    } finally {
+      setCreatingGroup(false);
+    }
+  };
+
+  const handleAvatarSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error(i18n.t('internal_chat.laImagenNoPuedeSuperar5Mb', 'La imagen no puede superar 5 MB')); return; }
+    setGroupAvatarFile(file);
+    setGroupAvatarPreview(URL.createObjectURL(file));
+  };
+
   if (!open) return null;
   return <AnimatePresence>
-      <motion.div initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} exit={{
-      opacity: 0
-    }} className="absolute inset-0 z-30 flex items-end justify-center bg-stone-950/24 p-3 backdrop-blur-sm md:items-center md:p-6">
-        <motion.div initial={{
-        opacity: 0,
-        y: 24,
-        scale: 0.98
-      }} animate={{
-        opacity: 1,
-        y: 0,
-        scale: 1
-      }} exit={{
-        opacity: 0,
-        y: 16,
-        scale: 0.98
-      }} transition={{
-        duration: 0.2,
-        ease: 'easeOut'
-      }} className="flex max-h-[86vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-[0_8px_40px_rgba(15,23,42,0.12)]">
-          {/* Compact header */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-end justify-center bg-stone-950/24 p-3 backdrop-blur-sm md:items-center md:p-6">
+        <motion.div initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.98 }} transition={{ duration: 0.2, ease: 'easeOut' }} className="flex max-h-[86vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-[0_8px_40px_rgba(15,23,42,0.12)]">
+          {/* Header */}
           <div className="flex h-12 shrink-0 items-center justify-between border-b border-stone-100 px-4">
-            <span className="text-[15px] font-semibold text-stone-950">Nuevo mensaje</span>
-            <button type="button" onClick={onClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Cerrar nuevo mensaje">
+            {mode === 'group' && groupStep === 2 ? <button type="button" onClick={() => setGroupStep(1)} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100">
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+              </button> : <span className="text-[15px] font-semibold text-stone-950">
+                {mode === 'group' ? i18n.t('chat.createGroup', 'Crear grupo') : 'Nuevo mensaje'}
+              </span>}
+            {mode === 'group' && groupStep === 2 && <span className="text-[15px] font-semibold text-stone-950">{i18n.t('chat.groupName', 'Nombre del grupo')}</span>}
+            <button type="button" onClick={handleClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Cerrar">
               <X className="h-4 w-4" strokeWidth={2} />
             </button>
           </div>
 
-          {/* Search + filters */}
-          <div className="shrink-0 border-b border-stone-100 px-3 py-2.5">
-            <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
-              <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
-              <input type="search" value={searchValue} onChange={event => onSearchChange(event.target.value)} placeholder="Buscar nombre o rol" className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400" aria-label="Buscar usuario en directorio" />
-            </label>
-            <div className="mt-2.5 flex flex-wrap gap-1.5 px-0.5">
-              <FilterChip label="Todos" active={roleFilter === 'all'} onClick={() => onRoleFilterChange('all')} />
-              <FilterChip label="Productores" active={roleFilter === 'producer'} onClick={() => onRoleFilterChange('producer')} />
-              <FilterChip label="Influencers" active={roleFilter === 'influencer'} onClick={() => onRoleFilterChange('influencer')} />
-            </div>
-          </div>
+          {/* Mode toggle (Chat / Grupo) — only on step 1 */}
+          {groupStep === 1 && <div className="flex shrink-0 border-b border-stone-100">
+              <button type="button" onClick={() => { setMode('chat'); setSelectedMembers([]); }} className={`flex-1 py-2.5 text-center text-[13px] font-semibold transition-colors ${mode === 'chat' ? 'text-stone-950 border-b-2 border-stone-950' : 'text-stone-400'}`}>
+                Chat
+              </button>
+              <button type="button" onClick={() => setMode('group')} className={`flex-1 py-2.5 text-center text-[13px] font-semibold transition-colors ${mode === 'group' ? 'text-stone-950 border-b-2 border-stone-950' : 'text-stone-400'}`}>
+                {i18n.t('chat.createGroup', 'Grupo')}
+              </button>
+            </div>}
 
-          <div className="flex-1 overflow-y-auto">
-            {loading ? <div className="space-y-px px-4 py-3">
-                {[0, 1, 2, 3].map(value => <div key={value} className="flex items-center gap-3 py-3">
-                    <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-stone-100" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 w-28 animate-pulse rounded-full bg-stone-100" />
-                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-stone-100" />
-                    </div>
-                  </div>)}
-              </div> : users.length > 0 ? <div>
-                {users.map(entry => <button key={entry.user_id} type="button" onClick={() => onStartConversation(entry.user_id)} disabled={startingConversation} className="flex w-full min-h-[64px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60">
-                    <ChatAvatar src={entry.avatar} name={entry.name} alt={`Avatar de ${entry.name}`} size="h-11 w-11" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium text-stone-950">{entry.name}</p>
-                      <p className="truncate text-[12px] text-stone-400">
-                        {getRoleLabel(entry.role) || i18n.t('internal_chat.miembroDeLaComunidad', 'Miembro de la comunidad')}
-                      </p>
-                    </div>
-                    {startingConversation ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-stone-400" /> : <UserPlus className="h-4 w-4 shrink-0 text-stone-300" strokeWidth={1.8} />}
-                  </button>)}
-              </div> : <div className="py-8">
-                <EmptyState title="No hay resultados" description={i18n.t('internal_chat.pruebaConOtroNombreOCambiaElFiltr', 'Prueba con otro nombre o cambia el filtro.')} />
-              </div>}
-          </div>
+          {/* Step 2: Group name + avatar */}
+          {mode === 'group' && groupStep === 2 ? <div className="flex flex-col items-center gap-4 px-5 py-6 flex-1">
+              <button type="button" onClick={() => groupAvatarRef.current?.click()} className="flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 border border-dashed border-stone-200 overflow-hidden">
+                {groupAvatarPreview ? <img src={groupAvatarPreview} alt="" className="h-full w-full object-cover" /> : <Camera size={24} className="text-stone-400" />}
+              </button>
+              <input ref={groupAvatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
+              <input type="text" value={groupName} onChange={e => setGroupName(e.target.value.slice(0, 50))} maxLength={50} placeholder={i18n.t('chat.groupName', 'Nombre del grupo')} className="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-400 placeholder:text-stone-400" autoFocus />
+              <span className="text-[11px] text-stone-400">{selectedMembers.length} {i18n.t('chat.membersSelected', 'seleccionados')}</span>
+              <button type="button" onClick={handleCreateGroup} disabled={!groupName.trim() || creatingGroup} className="w-full rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50 min-h-[44px]">
+                {creatingGroup ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : i18n.t('chat.createGroupButton', 'Crear grupo')}
+              </button>
+            </div> : <>
+              {/* Search + filters */}
+              <div className="shrink-0 border-b border-stone-100 px-3 py-2.5">
+                <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
+                  <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
+                  <input type="search" value={searchValue} onChange={event => onSearchChange(event.target.value)} placeholder="Buscar nombre o rol" className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400" aria-label="Buscar usuario en directorio" />
+                </label>
+                <div className="mt-2.5 flex flex-wrap gap-1.5 px-0.5">
+                  <FilterChip label="Todos" active={roleFilter === 'all'} onClick={() => onRoleFilterChange('all')} />
+                  <FilterChip label="Productores" active={roleFilter === 'producer'} onClick={() => onRoleFilterChange('producer')} />
+                  <FilterChip label="Influencers" active={roleFilter === 'influencer'} onClick={() => onRoleFilterChange('influencer')} />
+                </div>
+              </div>
+
+              {/* Selected members pills (group mode) */}
+              {mode === 'group' && selectedMembers.length > 0 && <div className="flex shrink-0 flex-wrap gap-1.5 border-b border-stone-100 px-3 py-2">
+                  {selectedMembers.map(uid => {
+                    const u = users.find(e => e.user_id === uid);
+                    return <span key={uid} className="flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[12px] text-stone-700">
+                        {u?.name || uid}
+                        <button type="button" onClick={() => toggleMember(uid)} className="ml-0.5"><X className="h-3 w-3" /></button>
+                      </span>;
+                  })}
+                </div>}
+
+              {/* User list */}
+              <div className="flex-1 overflow-y-auto">
+                {loading ? <div className="space-y-px px-4 py-3">
+                    {[0, 1, 2, 3].map(value => <div key={value} className="flex items-center gap-3 py-3">
+                        <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-stone-100" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-28 animate-pulse rounded-full bg-stone-100" />
+                          <div className="h-2.5 w-16 animate-pulse rounded-full bg-stone-100" />
+                        </div>
+                      </div>)}
+                  </div> : users.length > 0 ? <div>
+                    {users.map(entry => {
+                      const isSelected = selectedMembers.includes(entry.user_id);
+                      return <button key={entry.user_id} type="button" onClick={() => mode === 'group' ? toggleMember(entry.user_id) : onStartConversation(entry.user_id)} disabled={mode === 'chat' && startingConversation} className="flex w-full min-h-[64px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60">
+                          <ChatAvatar src={entry.avatar} name={entry.name} alt={`Avatar de ${entry.name}`} size="h-11 w-11" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[14px] font-medium text-stone-950">{entry.name}</p>
+                            <p className="truncate text-[12px] text-stone-400">
+                              {getRoleLabel(entry.role) || i18n.t('internal_chat.miembroDeLaComunidad', 'Miembro de la comunidad')}
+                            </p>
+                          </div>
+                          {mode === 'group' ? <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${isSelected ? 'bg-stone-950 border-stone-950' : 'border-stone-300'}`}>
+                              {isSelected && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+                            </div> : startingConversation ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-stone-400" /> : <UserPlus className="h-4 w-4 shrink-0 text-stone-300" strokeWidth={1.8} />}
+                        </button>;
+                    })}
+                  </div> : <div className="py-8">
+                    <EmptyState title="No hay resultados" description={i18n.t('internal_chat.pruebaConOtroNombreOCambiaElFiltr', 'Prueba con otro nombre o cambia el filtro.')} />
+                  </div>}
+              </div>
+
+              {/* Group mode: Next button */}
+              {mode === 'group' && <div className="shrink-0 border-t border-stone-100 p-3">
+                  <button type="button" onClick={() => setGroupStep(2)} disabled={selectedMembers.length < 1} className="w-full rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50 min-h-[44px]">
+                    {i18n.t('chat.selectMembers', 'Siguiente')} ({selectedMembers.length})
+                  </button>
+                </div>}
+            </>}
         </motion.div>
       </motion.div>
     </AnimatePresence>;
@@ -626,6 +709,10 @@ export default function InternalChat({
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [inboxTab, setInboxTab] = useState('messages'); // 'messages' | 'requests'
   const [showGroupPanel, setShowGroupPanel] = useState(false);
+  const [showMessageSearch, setShowMessageSearch] = useState(false);
+  const [messageSearchQuery, setMessageSearchQuery] = useState('');
+  const [messageSearchResults, setMessageSearchResults] = useState([]);
+  const [messageSearchLoading, setMessageSearchLoading] = useState(false);
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingSharedItem, setPendingSharedItem] = useState(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
@@ -1106,6 +1193,26 @@ export default function InternalChat({
       toast.error(i18n.t('internal_chat.errorAlEliminarLaConversacion', 'Error al eliminar la conversación'));
     }
   }, [selectedConversationId, deleteConversation, reloadConversations]);
+  // ── Message search within conversation ──
+  const messageSearchTimerRef = useRef(null);
+  const handleMessageSearch = useCallback((value) => {
+    setMessageSearchQuery(value);
+    if (messageSearchTimerRef.current) clearTimeout(messageSearchTimerRef.current);
+    if (!value.trim()) { setMessageSearchResults([]); setMessageSearchLoading(false); return; }
+    setMessageSearchLoading(true);
+    messageSearchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await apiClient.get(`/internal-chat/conversations/${selectedConversationId}/messages/search`, { params: { q: value.trim(), limit: 20 } });
+        const data = res?.data || res;
+        setMessageSearchResults(data?.messages || []);
+      } catch {
+        setMessageSearchResults([]);
+      } finally {
+        setMessageSearchLoading(false);
+      }
+    }, 400);
+  }, [selectedConversationId]);
+
   const openShareSheet = useCallback(type => {
     setShareSheetType(type);
     setShareInputValue('');
@@ -1471,6 +1578,10 @@ export default function InternalChat({
                 <button type="button" onClick={() => toast('Videollamadas proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}>
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
                 </button>
+                {/* Message search */}
+                <button type="button" onClick={() => { setShowMessageSearch(s => !s); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.searchMessages', 'Buscar mensajes')}>
+                  <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />
+                </button>
                 {/* CH-03: Delete conversation */}
                 <button type="button" onClick={handleDeleteConversation} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.eliminarConversacion', 'Eliminar conversación')}>
                   <Trash2 className="h-[16px] w-[16px]" strokeWidth={1.8} />
@@ -1480,6 +1591,45 @@ export default function InternalChat({
                   </button> : null}
               </div>
             </div>
+
+            {/* Message search overlay */}
+            {showMessageSearch && <div className="border-b border-stone-100 bg-white px-3 py-2 shrink-0">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                  <input
+                    type="text"
+                    value={messageSearchQuery}
+                    onChange={(e) => handleMessageSearch(e.target.value)}
+                    placeholder={i18n.t('chat.searchPlaceholder', 'Buscar en esta conversacion...')}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2 pl-9 pr-8 text-sm text-stone-950 outline-none focus:border-stone-400 placeholder:text-stone-400"
+                    autoFocus
+                  />
+                  <button type="button" onClick={() => { setShowMessageSearch(false); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <X className="h-4 w-4 text-stone-400" />
+                  </button>
+                </div>
+                {messageSearchQuery.trim() && <div className="mt-2 max-h-[240px] overflow-y-auto rounded-xl border border-stone-100 bg-white">
+                    {messageSearchLoading ? <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-4 w-4 animate-spin text-stone-400" />
+                      </div> : messageSearchResults.length === 0 ? <p className="py-4 text-center text-sm text-stone-400">{i18n.t('chat.noMessagesFound', 'No se encontraron mensajes')}</p> : messageSearchResults.map((msg) => {
+                        const idx = (msg.content || '').toLowerCase().indexOf(messageSearchQuery.toLowerCase());
+                        const before = (msg.content || '').slice(Math.max(0, idx - 20), idx);
+                        const match = (msg.content || '').slice(idx, idx + messageSearchQuery.length);
+                        const after = (msg.content || '').slice(idx + messageSearchQuery.length, idx + messageSearchQuery.length + 30);
+                        return <button key={msg.message_id} type="button" onClick={() => {
+                          const el = document.getElementById(`msg-${msg.message_id}`);
+                          if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('bg-stone-100'); setTimeout(() => el.classList.remove('bg-stone-100'), 2000); }
+                          else toast(msg.content?.slice(0, 80), { duration: 3000 });
+                        }} className="flex w-full flex-col gap-0.5 border-b border-stone-50 px-3 py-2.5 text-left transition-colors hover:bg-stone-50 last:border-b-0">
+                            <span className="text-[11px] font-medium text-stone-500">{msg.sender_name}</span>
+                            <span className="text-sm text-stone-700">
+                              {before}<span className="font-bold text-stone-950">{match}</span>{after}
+                            </span>
+                            <span className="text-[10px] text-stone-400">{msg.created_at ? new Date(msg.created_at).toLocaleString() : ''}</span>
+                          </button>;
+                      })}
+                  </div>}
+              </div>}
 
             {/* Request inbox banner */}
             {activeConversation?.is_request && activeConversation?.request_status === 'pending' ? <div className="flex items-center justify-between gap-2 border-b border-stone-100 bg-stone-50 px-4 py-3 shrink-0">
@@ -1734,7 +1884,7 @@ export default function InternalChat({
           </>}
       </div>
 
-      <DirectorySheet open={isDirectoryOpen} onClose={() => setIsDirectoryOpen(false)} users={filteredDirectoryUsers} loading={loadingDirectory} onStartConversation={startConversationWithUser} startingConversation={startingConversation} searchValue={directorySearchValue} onSearchChange={setDirectorySearchValue} roleFilter={directoryRoleFilter} onRoleFilterChange={setDirectoryRoleFilter} />
+      <DirectorySheet open={isDirectoryOpen} onClose={() => setIsDirectoryOpen(false)} users={filteredDirectoryUsers} loading={loadingDirectory} onStartConversation={startConversationWithUser} onGroupCreated={async (convId) => { reloadConversations(); if (convId) { await loadConversation(convId); } }} startingConversation={startingConversation} searchValue={directorySearchValue} onSearchChange={setDirectorySearchValue} roleFilter={directoryRoleFilter} onRoleFilterChange={setDirectoryRoleFilter} />
       <ShareItemSheet open={isShareSheetOpen} shareType={shareSheetType} inputValue={shareInputValue} onInputChange={setShareInputValue} onClose={closeShareSheet} onSubmit={handleLoadSharePreview} isLoading={loadingSharePreview} preview={sharePreview} onAttach={attachSharedItemToComposer} />
       {activeConversation?.type === 'group' ? <GroupChatPanel isOpen={showGroupPanel} onClose={() => setShowGroupPanel(false)} conversation={activeConversation} currentUserId={user?.user_id} onLeave={() => { setShowGroupPanel(false); setSelectedConversationId(null); reloadConversations(); }} onMuteToggle={() => reloadConversations()} /> : null}
     </div>;

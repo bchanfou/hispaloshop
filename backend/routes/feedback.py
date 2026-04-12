@@ -34,6 +34,9 @@ class ChangeStatusBody(BaseModel):
 class CloseAsDuplicateBody(BaseModel):
     target_idea_id: str
 
+class VoteBody(BaseModel):
+    vote_type: Literal["up", "down"] = "up"
+
 class AddCommentBody(BaseModel):
     body: str = Field(..., min_length=1, max_length=500)
 
@@ -122,10 +125,10 @@ async def delete_idea(idea_id: str, user: User = Depends(get_current_user)):
 
 
 @router.post("/ideas/{idea_id}/vote")
-async def toggle_vote(idea_id: str, user: User = Depends(get_current_user)):
-    """Toggle vote on idea (auth required)."""
+async def toggle_vote(idea_id: str, payload: VoteBody = VoteBody(), user: User = Depends(get_current_user)):
+    """Vote up or down on idea (auth required). Same vote_type again removes the vote."""
     try:
-        result = await feedback_service.toggle_vote(idea_id, user.user_id)
+        result = await feedback_service.toggle_vote(idea_id, user.user_id, payload.vote_type)
         return {"success": True, "data": result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -307,11 +310,13 @@ async def legacy_list(
 
 
 @router.post("/{feedback_id}/vote")
-async def legacy_vote(feedback_id: str, user: User = Depends(get_current_user)):
+async def legacy_vote(feedback_id: str, payload: VoteBody = VoteBody(), user: User = Depends(get_current_user)):
     """Legacy: vote by feedback_id (which is now idea_id)."""
     try:
-        result = await feedback_service.toggle_vote(feedback_id, user.user_id)
-        return {"success": True, "data": {"voted": result["voted"], "votes": result["vote_count"]}}
+        result = await feedback_service.toggle_vote(feedback_id, user.user_id, payload.vote_type)
+        return {"success": True, "data": {"voted": result["user_vote"] is not None, "votes": result["vote_count"],
+                                          "user_vote": result["user_vote"], "upvote_count": result["upvote_count"],
+                                          "downvote_count": result["downvote_count"]}}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

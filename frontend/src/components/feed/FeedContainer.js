@@ -82,9 +82,6 @@ export default function FeedContainer() {
         </div>
       </div>
 
-      {/* Stories Bar - debajo de los tabs */}
-      <StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />
-
       {/* Story Viewer Modal */}
       {storyViewerOpen && (
         <StoryViewer
@@ -94,12 +91,12 @@ export default function FeedContainer() {
         />
       )}
 
-      {/* Feed Content */}
+      {/* Feed Content — StoriesBar rendered inside each feed's scroll container */}
       <div className="flex-1 overflow-hidden">
         {activeTab === 'following' ? (
-          <FollowingFeed />
+          <FollowingFeed storiesHeader={<StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />} />
         ) : (
-          <ForYouFeed />
+          <ForYouFeed storiesHeader={<StoriesBar onStoryClick={handleStoryClick} onCreateStory={handleCreateStory} />} />
         )}
       </div>
     </div>

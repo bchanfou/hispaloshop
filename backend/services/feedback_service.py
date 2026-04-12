@@ -124,12 +124,19 @@ class FeedbackService:
             idea["merged_into_slug"] = target.get("slug") if target else None
             idea["merged_into_title"] = target.get("title") if target else None
 
-        # User voted?
+        # User vote state
         if user_id:
             vote = await db.feedback_votes.find_one({"idea_id": idea["idea_id"], "user_id": user_id})
+            idea["user_vote"] = vote.get("vote_type", "up") if vote else None
             idea["user_voted"] = vote is not None
         else:
+            idea["user_vote"] = None
             idea["user_voted"] = False
+
+        # Ensure upvote/downvote counts exist (backward compat)
+        if "upvote_count" not in idea:
+            idea["upvote_count"] = idea.get("vote_count", 0)
+            idea["downvote_count"] = 0
 
         # Status history — recent changes from the idea doc itself (lightweight)
         return idea
@@ -177,18 +184,26 @@ class FeedbackService:
         total = await db.feedback_ideas.count_documents(query)
         items = await db.feedback_ideas.find(query, {"_id": 0}).sort(sort_spec).skip(skip).limit(limit).to_list(limit)
 
-        # Enrich with user_voted
+        # Enrich with user_vote
         if user_id and items:
             idea_ids = [i["idea_id"] for i in items]
             user_votes = await db.feedback_votes.find(
                 {"idea_id": {"$in": idea_ids}, "user_id": user_id}
             ).to_list(len(idea_ids))
-            voted_set = {v["idea_id"] for v in user_votes}
+            vote_map = {v["idea_id"]: v.get("vote_type", "up") for v in user_votes}
             for item in items:
-                item["user_voted"] = item["idea_id"] in voted_set
+                item["user_vote"] = vote_map.get(item["idea_id"])
+                item["user_voted"] = item["idea_id"] in vote_map
+                if "upvote_count" not in item:
+                    item["upvote_count"] = item.get("vote_count", 0)
+                    item["downvote_count"] = 0
         else:
             for item in items:
+                item["user_vote"] = None
                 item["user_voted"] = False
+                if "upvote_count" not in item:
+                    item["upvote_count"] = item.get("vote_count", 0)
+                    item["downvote_count"] = 0
 
         return {
             "items": items,
@@ -242,43 +257,84 @@ class FeedbackService:
 
     # ─── Votes ────────────────────────────────────────────────────────────
 
-    async def toggle_vote(self, idea_id: str, user_id: str) -> Dict:
-        """Toggle vote on an idea. Returns new state."""
-        idea = await db.feedback_ideas.find_one({"idea_id": idea_id}, {"_id": 0, "vote_count": 1, "merged_into": 1})
+    async def toggle_vote(self, idea_id: str, user_id: str, vote_type: str = "up") -> Dict:
+        """Vote up/down on an idea. Same vote_type again removes the vote. Switching type updates it."""
+        idea = await db.feedback_ideas.find_one(
+            {"idea_id": idea_id},
+            {"_id": 0, "vote_count": 1, "upvote_count": 1, "downvote_count": 1, "merged_into": 1}
+        )
         if not idea:
             raise ValueError("Idea no encontrada")
         if idea.get("merged_into"):
             raise ValueError("Esta idea fue fusionada. Vota en la idea principal.")
 
+        upvote_count = idea.get("upvote_count", idea.get("vote_count", 0))
+        downvote_count = idea.get("downvote_count", 0)
+        now = datetime.now(timezone.utc)
+
         existing = await db.feedback_votes.find_one({"idea_id": idea_id, "user_id": user_id})
         if existing:
-            # Remove vote
-            await db.feedback_votes.delete_one({"idea_id": idea_id, "user_id": user_id})
-            await db.feedback_ideas.update_one(
-                {"idea_id": idea_id},
-                {"$inc": {"vote_count": -1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
-            )
-            return {"idea_id": idea_id, "voted": False, "vote_count": max(0, idea["vote_count"] - 1)}
+            old_type = existing.get("vote_type", "up")
+            if old_type == vote_type:
+                # Same type — remove vote
+                await db.feedback_votes.delete_one({"idea_id": idea_id, "user_id": user_id})
+                if vote_type == "up":
+                    upvote_count = max(0, upvote_count - 1)
+                else:
+                    downvote_count = max(0, downvote_count - 1)
+                await db.feedback_ideas.update_one(
+                    {"idea_id": idea_id},
+                    {"$set": {"upvote_count": upvote_count, "downvote_count": downvote_count,
+                              "vote_count": upvote_count - downvote_count, "updated_at": now}}
+                )
+                return {"idea_id": idea_id, "user_vote": None, "vote_count": upvote_count - downvote_count,
+                        "upvote_count": upvote_count, "downvote_count": downvote_count}
+            else:
+                # Switch vote type
+                await db.feedback_votes.update_one(
+                    {"idea_id": idea_id, "user_id": user_id},
+                    {"$set": {"vote_type": vote_type, "created_at": now}}
+                )
+                if vote_type == "up":
+                    upvote_count += 1
+                    downvote_count = max(0, downvote_count - 1)
+                else:
+                    downvote_count += 1
+                    upvote_count = max(0, upvote_count - 1)
+                await db.feedback_ideas.update_one(
+                    {"idea_id": idea_id},
+                    {"$set": {"upvote_count": upvote_count, "downvote_count": downvote_count,
+                              "vote_count": upvote_count - downvote_count, "updated_at": now}}
+                )
+                return {"idea_id": idea_id, "user_vote": vote_type, "vote_count": upvote_count - downvote_count,
+                        "upvote_count": upvote_count, "downvote_count": downvote_count}
         else:
-            # Rate limit: max 50 votes/day
-            today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            # New vote — rate limit: max 50 votes/day
+            today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
             votes_today = await db.feedback_votes.count_documents({
                 "user_id": user_id, "created_at": {"$gte": today_start}
             })
             if votes_today >= 50:
-                raise ValueError("Límite diario de votos alcanzado (50 por día)")
+                raise ValueError("Limite diario de votos alcanzado (50 por dia)")
 
             await db.feedback_votes.insert_one({
                 "vote_id": str(uuid4()),
                 "idea_id": idea_id,
                 "user_id": user_id,
-                "created_at": datetime.now(timezone.utc),
+                "vote_type": vote_type,
+                "created_at": now,
             })
+            if vote_type == "up":
+                upvote_count += 1
+            else:
+                downvote_count += 1
             await db.feedback_ideas.update_one(
                 {"idea_id": idea_id},
-                {"$inc": {"vote_count": 1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
+                {"$set": {"upvote_count": upvote_count, "downvote_count": downvote_count,
+                          "vote_count": upvote_count - downvote_count, "updated_at": now}}
             )
-            return {"idea_id": idea_id, "voted": True, "vote_count": idea["vote_count"] + 1}
+            return {"idea_id": idea_id, "user_vote": vote_type, "vote_count": upvote_count - downvote_count,
+                    "upvote_count": upvote_count, "downvote_count": downvote_count}
 
     # ─── Comments ─────────────────────────────────────────────────────────
 

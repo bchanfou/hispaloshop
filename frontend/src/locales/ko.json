@@ -2823,7 +2823,15 @@
     "remove_member": "멤버 제거",
     "select_new_admin": "새 관리자 선택",
     "member_removed": "멤버 제거됨",
-    "group_reported": "그룹 신고됨"
+    "group_reported": "그룹 신고됨",
+    "createGroup": "그룹 만들기",
+    "groupName": "그룹 이름",
+    "selectMembers": "다음",
+    "membersSelected": "명 선택됨",
+    "createGroupButton": "그룹 만들기",
+    "searchMessages": "메시지 검색",
+    "searchPlaceholder": "이 대화에서 검색...",
+    "noMessagesFound": "메시지를 찾을 수 없습니다"
   },
   "freshSave": {
     "lastDay": "ULTIMO DIA -50%",
@@ -4805,6 +4813,11 @@
     "emptyStateSub": "첫 번째로 제안해 보세요!",
     "ideasCount": "개 아이디어",
     "errorVoting": "투표 오류",
+    "voteUp": "찬성",
+    "voteDown": "반대",
+    "voteUpTooltip": "이 아이디어에 찬성",
+    "voteDownTooltip": "이 아이디어에 반대",
+    "score": "순 점수",
     "categories": {
       "ux": "UX",
       "feature": "기능",
