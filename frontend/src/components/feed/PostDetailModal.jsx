@@ -9,6 +9,10 @@ import { timeAgo } from '../../utils/time';
 import { useAutocomplete } from '../../hooks/useAutocomplete';
 import MentionDropdown from './MentionDropdown';
 import { useTranslation } from 'react-i18next';
+// Section 3.6.6 — F-01: shared comment edit/delete UI primitives.
+import CommentActionsMenu from '../comments/CommentActionsMenu';
+import EditableCommentText from '../comments/EditableCommentText';
+import ConfirmDeleteDialog from '../comments/ConfirmDeleteDialog';
 
 /* ── Single comment row (memoized) ── */
 import i18n from "../../locales/i18n";
@@ -20,11 +24,18 @@ const CommentRow = memo(function CommentRow({
   liked,
   onReply,
   isReply,
-  parentUsername
+  parentUsername,
+  // Section 3.6.6 — F-01 wiring.
+  isEditing,
+  isSaving,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit
 }) {
   const avatar = comment.user_profile_image || comment.avatar || comment.avatar_url;
   const name = comment.user_name || comment.username || 'Usuario';
   const text = comment.text || comment.content || '';
+  const isDeleted = comment.deleted === true;
   return <div className={`flex gap-3 py-2.5 group ${isReply ? 'ml-8' : ''}`}>
       <Link to={`/${comment.username || comment.user_id}`} className="shrink-0">
         {avatar ? <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
@@ -33,13 +44,34 @@ const CommentRow = memo(function CommentRow({
       </Link>
       <div className="flex-1 min-w-0">
         {isReply && parentUsername && <p className="text-[11px] text-stone-400 mb-0.5">↳ respondiendo a @{parentUsername}</p>}
-        <p className="text-[13px] leading-relaxed text-stone-950">
-          <Link to={`/${comment.username || comment.user_id}`} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
-            {name}
-          </Link>
-          {text}
-        </p>
-        <div className="flex items-center gap-3 mt-1">
+        {/* Header line with username + body. In edit mode the body becomes a textarea. */}
+        {isEditing ? <>
+            <Link to={`/${comment.username || comment.user_id}`} className="font-semibold no-underline text-[13px] text-stone-950 hover:underline">
+              {name}
+            </Link>
+            <div className="mt-1">
+              <EditableCommentText
+                text={text}
+                editing
+                saving={isSaving}
+                onSave={onSaveEdit}
+                onCancel={onCancelEdit}
+                minLength={1}
+                maxLength={500}
+              />
+            </div>
+          </> : <p className="text-[13px] leading-relaxed text-stone-950">
+            <Link to={`/${comment.username || comment.user_id}`} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
+              {name}
+            </Link>
+            <EditableCommentText
+              text={text}
+              edited={comment.edited === true}
+              deleted={isDeleted}
+              textClassName="text-[13px] leading-relaxed text-stone-950"
+            />
+          </p>}
+        {!isEditing && !isDeleted && <div className="flex items-center gap-3 mt-1">
           <span className="text-[11px] text-stone-400">{timeAgo(comment.created_at)}</span>
           <button onClick={() => onLike(comment.comment_id || comment.id)} className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]">
             <Heart size={14} className={liked ? 'text-stone-950 fill-stone-950' : 'text-stone-400'} strokeWidth={1.8} />
@@ -48,10 +80,15 @@ const CommentRow = memo(function CommentRow({
           <button onClick={() => onReply?.(comment.comment_id || comment.id, comment.username || comment.user_name || name)} className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center">
             Responder
           </button>
-          {isOwner && <button onClick={() => onDelete(comment.comment_id || comment.id)} className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-stone-950 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-              <Trash2 size={12} className="text-stone-950 hover:text-stone-700" />
-            </button>}
-        </div>
+          {isOwner && <CommentActionsMenu
+            onEdit={() => onStartEdit?.(comment.comment_id || comment.id)}
+            onDelete={() => onDelete(comment.comment_id || comment.id)}
+            ariaLabel={i18n.t('comments.actions.menu', 'Más opciones')}
+          />}
+        </div>}
+        {isDeleted && <div className="flex items-center gap-3 mt-1">
+          <span className="text-[11px] text-stone-400">{timeAgo(comment.deleted_at || comment.updated_at || comment.created_at)}</span>
+        </div>}
       </div>
     </div>;
 });
@@ -153,7 +190,13 @@ function CommentsPanel({
   navigate,
   hasMoreComments,
   loadingMore,
-  onLoadMore
+  onLoadMore,
+  // Section 3.6.6 — F-01 wiring.
+  editingCommentId,
+  savingCommentId,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit
 }) {
   const userObj = post?.user || {};
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
@@ -230,11 +273,38 @@ function CommentsPanel({
         const cId = comment.comment_id || comment.id;
         const childReplies = replyMap[cId] || [];
         return <React.Fragment key={cId || comment._id}>
-                <CommentRow comment={comment} isOwner={user?.user_id === comment.user_id} onDelete={onDelete} onLike={onLike} liked={likedComments.has(cId)} onReply={onReply} />
+                <CommentRow
+                  comment={comment}
+                  isOwner={user?.user_id === comment.user_id}
+                  onDelete={onDelete}
+                  onLike={onLike}
+                  liked={likedComments.has(cId)}
+                  onReply={onReply}
+                  isEditing={editingCommentId === cId}
+                  isSaving={savingCommentId === cId}
+                  onStartEdit={onStartEdit}
+                  onCancelEdit={onCancelEdit}
+                  onSaveEdit={(text) => onSaveEdit?.(cId, text)}
+                />
                 {childReplies.map(reply => {
             const rId = reply.comment_id || reply.id;
             const parent = parentMap[reply.reply_to || reply.parent_id];
-            return <CommentRow key={rId || reply._id} comment={reply} isOwner={user?.user_id === reply.user_id} onDelete={onDelete} onLike={onLike} liked={likedComments.has(rId)} onReply={onReply} isReply parentUsername={parent?.username || parent?.user_name} />;
+            return <CommentRow
+              key={rId || reply._id}
+              comment={reply}
+              isOwner={user?.user_id === reply.user_id}
+              onDelete={onDelete}
+              onLike={onLike}
+              liked={likedComments.has(rId)}
+              onReply={onReply}
+              isReply
+              parentUsername={parent?.username || parent?.user_name}
+              isEditing={editingCommentId === rId}
+              isSaving={savingCommentId === rId}
+              onStartEdit={onStartEdit}
+              onCancelEdit={onCancelEdit}
+              onSaveEdit={(text) => onSaveEdit?.(rId, text)}
+            />;
           })}
               </React.Fragment>;
       });
@@ -482,53 +552,114 @@ export default function PostDetailModal({
       if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
     };
   }, []);
-  const handleDelete = useCallback(commentId => {
-    // Capture deleted comment from current state via setter callback
-    let deletedComment = null;
-    setComments(prev => {
-      deletedComment = prev.find(c => (c.comment_id || c.id) === commentId);
-      return prev.filter(c => (c.comment_id || c.id) !== commentId);
-    });
-    setPost(prev => prev ? {
+  // Section 3.6.6 — F-01: confirm-before-delete + 5s undo, replaces the
+  // previous click-to-instant-delete UX. The actual API call now soft-deletes
+  // server-side (commit 38249815) so the row stays in place as a placeholder.
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [savingCommentId, setSavingCommentId] = useState(null);
+
+  const handleDelete = useCallback((commentId) => {
+    // Open confirm modal; the actual delete happens in handleConfirmDelete.
+    setDeleteTargetId(commentId);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    const commentId = deleteTargetId;
+    if (!commentId) return;
+    setDeleteTargetId(null);
+
+    // Optimistic: mark the comment as soft-deleted in place. Preserves the
+    // thread slot. Toast offers Deshacer for 5s before the API call fires.
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.comment_id || c.id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, deleted: true, deleted_at: new Date().toISOString() };
+    }));
+    setPost((prev) => prev ? {
       ...prev,
-      comments_count: Math.max(0, (prev.comments_count || 1) - 1)
+      comments_count: Math.max(0, (prev.comments_count || 1) - 1),
     } : prev);
 
-    // Undo toast — 3s before actual API call
     let undone = false;
-    toast('Comentario eliminado', {
+    toast(i18n.t('comments.deletedToast', 'Comentario eliminado'), {
       action: {
-        label: 'Deshacer',
+        label: i18n.t('common.undo', 'Deshacer'),
         onClick: () => {
           undone = true;
           clearTimeout(deleteTimerRef.current);
-          if (deletedComment) {
-            setComments(prev => [deletedComment, ...prev]);
-            setPost(prev => prev ? {
+          if (original) {
+            setComments((prev) => prev.map((c) => {
+              const cId = c.comment_id || c.id;
+              return cId === commentId ? original : c;
+            }));
+            setPost((prev) => prev ? {
               ...prev,
-              comments_count: (prev.comments_count || 0) + 1
+              comments_count: (prev.comments_count || 0) + 1,
             } : prev);
           }
-        }
+        },
       },
-      duration: 3000
+      duration: 5000,
     });
+
     deleteTimerRef.current = setTimeout(async () => {
       if (undone) return;
       try {
         await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
       } catch (err) {
-        if (deletedComment) {
-          setComments(prev => [deletedComment, ...prev]);
-          setPost(prev => prev ? {
+        if (original) {
+          setComments((prev) => prev.map((c) => {
+            const cId = c.comment_id || c.id;
+            return cId === commentId ? original : c;
+          }));
+          setPost((prev) => prev ? {
             ...prev,
-            comments_count: (prev.comments_count || 0) + 1
+            comments_count: (prev.comments_count || 0) + 1,
           } : prev);
         }
-        toast.error('Error al eliminar');
+        toast.error(i18n.t('comments.deleteError', 'Error al eliminar'));
       }
-    }, 3500);
-  }, [postId]);
+    }, 5500);
+  }, [deleteTargetId, postId]);
+
+  const handleStartEdit = useCallback((commentId) => {
+    setEditingCommentId(commentId);
+  }, []);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingCommentId(null);
+  }, []);
+
+  const handleSaveEdit = useCallback(async (commentId, newText) => {
+    if (!commentId || !newText) return;
+    setSavingCommentId(commentId);
+    // Optimistic update.
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.comment_id || c.id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, text: newText, edited: true, edited_at: new Date().toISOString() };
+    }));
+    try {
+      await apiClient.patch(`/comments/${commentId}`, { text: newText });
+      setEditingCommentId(null);
+    } catch (err) {
+      // Rollback.
+      if (original) {
+        setComments((prev) => prev.map((c) => {
+          const cId = c.comment_id || c.id;
+          return cId === commentId ? original : c;
+        }));
+      }
+      toast.error(i18n.t('comments.editError', 'No se pudo guardar el cambio'));
+    } finally {
+      setSavingCommentId(null);
+    }
+  }, []);
   const likingCommentRef = useRef(new Set());
   const handleLikeComment = async commentId => {
     if (likingCommentRef.current.has(commentId)) return;
@@ -774,7 +905,7 @@ export default function PostDetailModal({
 
             {/* Caption + Comments inline */}
             <div className="px-4 pb-4">
-              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} />
+              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} editingCommentId={editingCommentId} savingCommentId={savingCommentId} onStartEdit={handleStartEdit} onCancelEdit={handleCancelEdit} onSaveEdit={handleSaveEdit} />
             </div>
           </div>
 
@@ -840,7 +971,7 @@ export default function PostDetailModal({
 
             {/* I3 — Comments area: flex-1 + overflow-y-auto so it scrolls independently */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1">
-              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} />
+              <CommentsPanel post={post} comments={comments} commentsLoading={commentsLoading} user={user} onDelete={handleDelete} onLike={handleLikeComment} likedComments={likedComments} onReply={handleReply} onClose={onClose} navigate={navigate} hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments} editingCommentId={editingCommentId} savingCommentId={savingCommentId} onStartEdit={handleStartEdit} onCancelEdit={handleCancelEdit} onSaveEdit={handleSaveEdit} />
             </div>
 
             {/* Actions + engagement */}
@@ -873,6 +1004,14 @@ export default function PostDetailModal({
             </div>}
           </div>
         </motion.div>
+        {/* Section 3.6.6 — F-01: confirm-before-delete dialog */}
+        <ConfirmDeleteDialog
+          open={Boolean(deleteTargetId)}
+          onCancel={() => setDeleteTargetId(null)}
+          onConfirm={handleConfirmDelete}
+          title={i18n.t('comments.confirmDelete.title', '¿Eliminar comentario?')}
+          message={i18n.t('comments.confirmDelete.message', 'Se ocultará del hilo. Tendrás 5s para deshacer.')}
+        />
       </motion.div>
     </AnimatePresence>;
 }

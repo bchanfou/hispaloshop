@@ -24,10 +24,19 @@ import {
   useProductPurchaseOptions,
   useProductReviews as useProductReviewsHook,
 } from '../features/products/hooks';
+// Section 3.6.6 — F-01: review edit/delete mutations.
+import {
+  useEditProductReview,
+  useDeleteProductReview,
+} from '../features/products/queries/useProductQueries';
 import { useChatContext } from '../context/chat/ChatProvider';
 import apiClient from '../services/api/client';
 import B2BProductModal from '../components/b2b/B2BProductModal';
 import { trackEvent } from '../utils/analytics';
+// Section 3.6.6 — F-01: shared comment/review edit primitives.
+import CommentActionsMenu from '../components/comments/CommentActionsMenu';
+import EditableCommentText from '../components/comments/EditableCommentText';
+import ConfirmDeleteDialog from '../components/comments/ConfirmDeleteDialog';
 
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
@@ -102,6 +111,43 @@ export default function ProductDetailPage() {
     canReview, canReviewReason, reviewOrderId,
     isSubmitting: submittingReview, submitReview, toggleHelpful,
   } = useProductReviewsHook(productId, reviewSort);
+
+  // Section 3.6.6 — F-01: review edit/delete state.
+  const editReviewMutation = useEditProductReview();
+  const deleteReviewMutation = useDeleteProductReview();
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [deleteReviewTarget, setDeleteReviewTarget] = useState(null);
+
+  const handleStartEditReview = useCallback((reviewId) => {
+    setEditingReviewId(reviewId);
+  }, []);
+  const handleCancelEditReview = useCallback(() => {
+    setEditingReviewId(null);
+  }, []);
+  const handleSaveReviewEdit = useCallback(async (review, newComment) => {
+    try {
+      await editReviewMutation.mutateAsync({
+        productId,
+        reviewId: review.review_id,
+        comment: newComment,
+        title: review.title || undefined,
+        rating: review.rating,
+      });
+      setEditingReviewId(null);
+    } catch {
+      toast.error(t('reviews.editError', 'No se pudo guardar la reseña'));
+    }
+  }, [editReviewMutation, productId, t]);
+  const handleConfirmDeleteReview = useCallback(async () => {
+    const reviewId = deleteReviewTarget;
+    if (!reviewId) return;
+    setDeleteReviewTarget(null);
+    try {
+      await deleteReviewMutation.mutateAsync({ productId, reviewId });
+    } catch {
+      toast.error(t('reviews.deleteError', 'No se pudo eliminar la reseña'));
+    }
+  }, [deleteReviewMutation, deleteReviewTarget, productId, t]);
 
   const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
   const normalizedAverageRating = Number(averageRating || 0);
@@ -1212,7 +1258,12 @@ export default function ProductDetailPage() {
         {/* Reviews List */}
         {reviews.length > 0 ? (
           <div className="flex flex-col gap-2.5">
-            {reviews.map((review) => (
+            {reviews.map((review) => {
+              const isOwnReview = Boolean(user && (user.user_id === review.user_id || user.id === review.user_id));
+              const isEditingThis = editingReviewId === review.review_id;
+              const isSavingThis = isEditingThis && editReviewMutation.isPending;
+              const isDeletedReview = review.deleted === true;
+              return (
               <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl shadow-sm bg-white p-3.5">
                 {/* Header */}
                 <div className="mb-2 flex items-center justify-between">
@@ -1234,28 +1285,63 @@ export default function ProductDetailPage() {
                             <Check size={10} strokeWidth={2.5} /> {t('reviews.verified_badge', 'Compra verificada')}
                           </span>
                         )}
+                        {review.edited === true && !isDeletedReview && (
+                          <span className="text-[11px] text-stone-400">
+                            {t('comments.editedBadge', '(editado)')}
+                          </span>
+                        )}
                       </div>
                       <p className="text-[11px] text-stone-400">
                         {review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    {[1,2,3,4,5].map(s => (
-                      <Star key={s} size={12} className={s <= review.rating ? 'fill-stone-950 text-stone-950' : 'text-stone-200'} />
-                    ))}
+                  <div className="flex items-center gap-1.5">
+                    {!isDeletedReview && (
+                      <div className="flex items-center gap-0.5">
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} size={12} className={s <= review.rating ? 'fill-stone-950 text-stone-950' : 'text-stone-200'} />
+                        ))}
+                      </div>
+                    )}
+                    {/* Section 3.6.6 — F-01: actions menu (own reviews only) */}
+                    {isOwnReview && !isDeletedReview && !isEditingThis && (
+                      <CommentActionsMenu
+                        onEdit={() => handleStartEditReview(review.review_id)}
+                        onDelete={() => setDeleteReviewTarget(review.review_id)}
+                        ariaLabel={t('reviews.actions.menu', 'Acciones de la reseña')}
+                      />
+                    )}
                   </div>
                 </div>
-                {/* Title */}
-                {review.title && (
+                {/* Title (read mode only) */}
+                {!isEditingThis && !isDeletedReview && review.title && (
                   <p className="text-sm font-semibold text-stone-950 mb-1">{review.title}</p>
                 )}
                 {/* Comment */}
-                <p className="text-[13px] leading-relaxed text-stone-500">
-                  {review.comment || review.text}
-                </p>
+                {isDeletedReview ? (
+                  <EditableCommentText
+                    text=""
+                    deleted
+                    deletedClassName="text-[13px] italic text-stone-400"
+                  />
+                ) : isEditingThis ? (
+                  <EditableCommentText
+                    text={review.comment || review.text || ''}
+                    editing
+                    saving={isSavingThis}
+                    onSave={(newText) => handleSaveReviewEdit(review, newText)}
+                    onCancel={handleCancelEditReview}
+                    minLength={10}
+                    maxLength={2000}
+                  />
+                ) : (
+                  <p className="text-[13px] leading-relaxed text-stone-500">
+                    {review.comment || review.text}
+                  </p>
+                )}
                 {/* Images */}
-                {review.images && review.images.length > 0 && (
+                {!isDeletedReview && !isEditingThis && review.images && review.images.length > 0 && (
                   <div className="flex gap-2 mt-2">
                     {review.images.map((img, idx) => (
                       <div key={idx} className="w-16 h-16 rounded-xl bg-stone-100 overflow-hidden">
@@ -1265,6 +1351,7 @@ export default function ProductDetailPage() {
                   </div>
                 )}
                 {/* Helpful */}
+                {!isDeletedReview && !isEditingThis && (
                 <div className="mt-2.5 flex items-center gap-3">
                   <button
                     type="button"
@@ -1276,8 +1363,9 @@ export default function ProductDetailPage() {
                   {/* Section 3.5b — Report this review */}
                   <ReportButton contentType="review" contentId={review.review_id} contentOwnerId={review.user_id} />
                 </div>
+                )}
                 {/* Producer response */}
-                {review.producer_response && (
+                {!isDeletedReview && review.producer_response && (
                   <div className="mt-3 pt-3 border-t border-stone-100">
                     <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1">
                       {t('reviews.producer_response', 'Respuesta del productor')}
@@ -1288,7 +1376,8 @@ export default function ProductDetailPage() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-2xl shadow-sm bg-white p-8 text-center">
@@ -1589,6 +1678,15 @@ export default function ProductDetailPage() {
       </div>
     </div>
     {product && <AddToWishlistModal isOpen={showWishlistModal} onClose={() => setShowWishlistModal(false)} productId={product.product_id} productName={product.name} />}
+    {/* Section 3.6.6 — F-01: confirm-before-delete dialog for own reviews */}
+    <ConfirmDeleteDialog
+      open={Boolean(deleteReviewTarget)}
+      onCancel={() => setDeleteReviewTarget(null)}
+      onConfirm={handleConfirmDeleteReview}
+      busy={deleteReviewMutation.isPending}
+      title={t('reviews.confirmDelete.title', '¿Eliminar tu reseña?')}
+      message={t('reviews.confirmDelete.message', 'Quedará marcada como eliminada y dejará de ser visible para otros usuarios.')}
+    />
     </>
   );
 }

@@ -227,6 +227,94 @@ export function useHelpfulVote() {
   });
 }
 
+// Section 3.6.6 — F-01: edit + delete own product reviews. Backend lives in
+// commit 38249815 (PATCH/DELETE /products/{id}/reviews/{rid}) with soft-delete
+// + 404-not-403 author check.
+export function useEditProductReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, reviewId, comment, title, rating }) =>
+      apiClient.patch(`/products/${productId}/reviews/${reviewId}`, {
+        comment,
+        title,
+        rating,
+      }),
+    onMutate: async ({ productId, reviewId, comment, title, rating }) => {
+      // Optimistic: patch the review in cache; rollback in onError.
+      const queryKeys = productKeys.reviews(productId);
+      // Cover all sort variants currently cached.
+      const snapshots = [];
+      const queries = queryClient.getQueriesData({ queryKey: queryKeys });
+      for (const [key, data] of queries) {
+        snapshots.push([key, data]);
+        if (!data) continue;
+        const reviews = data?.reviews || data?.items || [];
+        const next = reviews.map((r) =>
+          r.review_id === reviewId
+            ? { ...r, comment, title, rating: rating ?? r.rating, edited: true, edited_at: new Date().toISOString() }
+            : r,
+        );
+        queryClient.setQueryData(key, {
+          ...data,
+          ...(data.reviews ? { reviews: next } : { items: next }),
+        });
+      }
+      return { snapshots };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (!ctx?.snapshots) return;
+      for (const [key, data] of ctx.snapshots) {
+        queryClient.setQueryData(key, data);
+      }
+    },
+    onSettled: (_data, _err, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: productKeys.reviews(variables.productId),
+      });
+    },
+  });
+}
+
+export function useDeleteProductReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, reviewId }) =>
+      apiClient.delete(`/products/${productId}/reviews/${reviewId}`),
+    onMutate: async ({ productId, reviewId }) => {
+      const queryKeys = productKeys.reviews(productId);
+      const snapshots = [];
+      const queries = queryClient.getQueriesData({ queryKey: queryKeys });
+      for (const [key, data] of queries) {
+        snapshots.push([key, data]);
+        if (!data) continue;
+        const reviews = data?.reviews || data?.items || [];
+        // Per F-01: keep the row, mark deleted to render placeholder.
+        const next = reviews.map((r) =>
+          r.review_id === reviewId
+            ? { ...r, deleted: true, deleted_at: new Date().toISOString() }
+            : r,
+        );
+        queryClient.setQueryData(key, {
+          ...data,
+          ...(data.reviews ? { reviews: next } : { items: next }),
+        });
+      }
+      return { snapshots };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (!ctx?.snapshots) return;
+      for (const [key, data] of ctx.snapshots) {
+        queryClient.setQueryData(key, data);
+      }
+    },
+    onSettled: (_data, _err, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: productKeys.reviews(variables.productId),
+      });
+    },
+  });
+}
+
 export function useProducerResponse() {
   const queryClient = useQueryClient();
 
