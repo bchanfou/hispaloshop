@@ -110,6 +110,8 @@ export default function CreateCommunityPage() {
     cover_image: null,
     logo_url: null,
     rules: [],
+    // Section 3.6.6c — F-03: public/private community type.
+    type: 'public',
   });
   const [tagInput, setTagInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -369,6 +371,32 @@ export default function CreateCommunityPage() {
               <span className="absolute bottom-2 right-2.5 text-[11px] text-stone-500">
                 {form.description.length}/300
               </span>
+            </div>
+          </FormField>
+
+          {/* Section 3.6.6c — F-03: Community type (public / private) */}
+          <FormField label={i18n.t('create_community.tipoDeComunidad', 'Tipo de comunidad')}>
+            <div className="flex gap-2">
+              {[
+                { value: 'public', label: i18n.t('create_community.publica', 'Pública'), desc: i18n.t('create_community.publicaDesc', 'Cualquiera puede unirse y ver el contenido') },
+                { value: 'private', label: i18n.t('create_community.privada', 'Privada'), desc: i18n.t('create_community.privadaDesc', 'Solo miembros aprobados pueden ver el contenido') },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => update('type', opt.value)}
+                  className={`flex-1 p-3 rounded-xl text-left cursor-pointer transition-all border-[1.5px] ${
+                    form.type === opt.value
+                      ? 'border-stone-950 bg-white'
+                      : 'border-stone-200 bg-stone-50'
+                  }`}
+                >
+                  <p className={`text-[13px] font-semibold m-0 ${form.type === opt.value ? 'text-stone-950' : 'text-stone-600'}`}>
+                    {opt.label}
+                  </p>
+                  <p className="text-[11px] text-stone-500 m-0 mt-0.5">{opt.desc}</p>
+                </button>
+              ))}
             </div>
           </FormField>
 

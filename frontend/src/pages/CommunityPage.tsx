@@ -12,6 +12,10 @@ import apiClient from '../services/api/client';
 import ReportButton from '../components/moderation/ReportButton';
 import { useTranslation } from 'react-i18next';
 import i18n from "../locales/i18n";
+// Section 3.6.6c — F-01: shared comment edit/delete primitives.
+import CommentActionsMenu from '../components/comments/CommentActionsMenu';
+import EditableCommentText from '../components/comments/EditableCommentText';
+import ConfirmDeleteDialog from '../components/comments/ConfirmDeleteDialog';
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -764,7 +768,7 @@ const CommunityPostCard = ({
     </div>;
 };
 
-/* ── C-01: Comments Section ── */
+/* ── C-01: Comments Section (with F-01 edit/delete) ── */
 const CommentsSection = ({
   postId,
   onCountChange
@@ -778,6 +782,13 @@ const CommentsSection = ({
   const [posting, setPosting] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  // Section 3.6.6c — F-01: edit + delete state for community comments.
+  const [editingId, setEditingId] = useState(null);
+  const [savingId, setSavingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const deleteTimerRef = useRef(null);
+  useEffect(() => () => { if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current); }, []);
+
   const fetchComments = useCallback(async (p = 1) => {
     try {
       const res = await apiClient.get(`/community-posts/${postId}/comments?page=${p}&limit=20`);
@@ -808,6 +819,66 @@ const CommentsSection = ({
       setPosting(false);
     }
   };
+
+  const handleConfirmDelete = useCallback(() => {
+    const commentId = deleteTarget;
+    if (!commentId) return;
+    setDeleteTarget(null);
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.id || c._id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, deleted: true, deleted_at: new Date().toISOString() };
+    }));
+    onCountChange?.((n) => Math.max(0, n - 1));
+    let undone = false;
+    toast(i18n.t('comments.deletedToast', 'Comentario eliminado'), {
+      action: { label: i18n.t('common.undo', 'Deshacer'), onClick: () => {
+        undone = true;
+        clearTimeout(deleteTimerRef.current);
+        if (original) {
+          setComments((prev) => prev.map((c) => (c.id || c._id) === commentId ? original : c));
+          onCountChange?.((n) => n + 1);
+        }
+      }},
+      duration: 5000,
+    });
+    deleteTimerRef.current = setTimeout(async () => {
+      if (undone) return;
+      try {
+        await apiClient.delete(`/community-posts/${postId}/comments/${commentId}`);
+      } catch {
+        if (original) {
+          setComments((prev) => prev.map((c) => (c.id || c._id) === commentId ? original : c));
+          onCountChange?.((n) => n + 1);
+        }
+        toast.error(i18n.t('comments.deleteError', 'Error al eliminar'));
+      }
+    }, 5500);
+  }, [deleteTarget, postId, onCountChange]);
+
+  const handleSaveEdit = useCallback(async (commentId, newText) => {
+    if (!commentId || !newText) return;
+    setSavingId(commentId);
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.id || c._id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, text: newText, edited: true, edited_at: new Date().toISOString() };
+    }));
+    try {
+      await apiClient.patch(`/community-posts/${postId}/comments/${commentId}`, { text: newText });
+      setEditingId(null);
+    } catch {
+      if (original) setComments((prev) => prev.map((c) => (c.id || c._id) === commentId ? original : c));
+      toast.error(i18n.t('comments.editError', 'No se pudo guardar el cambio'));
+    } finally {
+      setSavingId(null);
+    }
+  }, [postId]);
+
   return <motion.div initial={{
     height: 0,
     opacity: 0
@@ -824,16 +895,30 @@ const CommentsSection = ({
         {loading ? <div className="flex justify-center py-3">
             <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
           </div> : comments.length === 0 ? <p className="text-[13px] text-stone-400 text-center py-2 m-0">{i18n.t('feed.noComments', 'Sin comentarios aún')}</p> : <>
-            {comments.map(c => <div key={c.id || c._id} className="flex gap-2">
-                <img src={c.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.author_username || 'U')}&size=28&background=e7e5e4&color=78716c`} className="w-7 h-7 rounded-full shrink-0 object-cover" alt="" />
+            {comments.map(c => {
+              const cId = c.id || c._id;
+              const isOwn = user?.user_id === c.author_id;
+              const isDeleted = c.deleted === true;
+              const isEditingThis = editingId === cId;
+              const isSavingThis = savingId === cId;
+              return <div key={cId} className="flex gap-2">
+                <img loading="lazy" src={c.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.author_username || 'U')}&size=28&background=e7e5e4&color=78716c`} className="w-7 h-7 rounded-full shrink-0 object-cover" alt="" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] m-0">
+                  {isEditingThis ? <>
+                    <span className="font-semibold text-[12px] text-stone-950">{c.author_username}</span>
+                    <EditableCommentText text={c.text || ''} editing saving={isSavingThis} onSave={(t) => handleSaveEdit(cId, t)} onCancel={() => setEditingId(null)} />
+                  </> : <p className="text-[12px] m-0">
                     <span className="font-semibold text-stone-950">{c.author_username}</span>{' '}
-                    <span className="text-stone-700">{c.text}</span>
-                  </p>
-                  <p className="text-[10px] text-stone-400 m-0 mt-0.5">{formatRelativeTime(c.created_at)}</p>
+                    <EditableCommentText text={c.text || ''} edited={c.edited === true} deleted={isDeleted} textClassName="text-[12px] text-stone-700" deletedClassName="text-[12px] italic text-stone-400" editedBadgeClassName="text-[10px] text-stone-400 ml-1" />
+                  </p>}
+                  {!isEditingThis && !isDeleted && <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-stone-400">{formatRelativeTime(c.created_at)}</span>
+                    {isOwn && <CommentActionsMenu onEdit={() => setEditingId(cId)} onDelete={() => setDeleteTarget(cId)} iconColor="text-stone-300" hoverColor="hover:text-stone-500" triggerSize={28} />}
+                  </div>}
+                  {isDeleted && <span className="text-[10px] text-stone-400 block mt-0.5">{formatRelativeTime(c.deleted_at || c.created_at)}</span>}
                 </div>
-              </div>)}
+              </div>;
+            })}
             {hasMore && <button onClick={() => fetchComments(page + 1)} className="text-[12px] text-stone-400 font-medium bg-transparent border-none cursor-pointer p-0 hover:text-stone-600 transition-colors">
                 Ver más comentarios
               </button>}
@@ -849,6 +934,14 @@ const CommentsSection = ({
             {posting ? '...' : 'Publicar'}
           </button>
         </div>}
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={i18n.t('comments.confirmDelete.title', '¿Eliminar comentario?')}
+        message={i18n.t('comments.confirmDelete.message', 'Se ocultará del hilo. Tendrás 5s para deshacer.')}
+      />
     </motion.div>;
 };
 

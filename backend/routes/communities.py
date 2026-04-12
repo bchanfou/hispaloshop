@@ -1103,6 +1103,79 @@ async def create_comment(post_id: str, body: CreateCommentBody, request: Request
     return {"id": str(result.inserted_id), "ok": True}
 
 
+# ── Section 3.6.6c — F-01: edit + delete community comments ─────
+
+@router.patch("/community-posts/{post_id}/comments/{comment_id}")
+async def edit_community_comment(
+    post_id: str, comment_id: str, request: Request,
+):
+    """Edit own community comment. Returns 404 for non-authors (anti-leak).
+
+    Section 3.6.6c — mirrors the pattern in social.py commit 38249815.
+    """
+    user = await get_current_user(request)
+    db = get_db()
+
+    comment = await db.community_post_comments.find_one(
+        {"_id": _oid(comment_id), "post_id": post_id, "deleted": {"$ne": True}},
+    )
+    if not comment:
+        raise HTTPException(404, "Comment not found")
+    if comment.get("author_id") != user.user_id:
+        raise HTTPException(404, "Comment not found")
+
+    body = await request.json()
+    new_text = (body.get("text") or "").strip()
+    if not new_text:
+        raise HTTPException(400, "El comentario no puede estar vacío")
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.community_post_comments.update_one(
+        {"_id": _oid(comment_id)},
+        {"$set": {
+            "text": sanitize_text(new_text[:500]),
+            "edited": True,
+            "edited_at": now,
+            "updated_at": now,
+        }},
+    )
+
+    updated = await db.community_post_comments.find_one({"_id": _oid(comment_id)})
+    return _str_id(updated) if updated else {"ok": True}
+
+
+@router.delete("/community-posts/{post_id}/comments/{comment_id}")
+async def delete_community_comment(
+    post_id: str, comment_id: str, request: Request,
+):
+    """Soft-delete own community comment. Preserves thread structure.
+
+    Section 3.6.6c — mirrors social.py soft-delete pattern.
+    """
+    user = await get_current_user(request)
+    db = get_db()
+
+    comment = await db.community_post_comments.find_one(
+        {"_id": _oid(comment_id), "post_id": post_id, "deleted": {"$ne": True}},
+    )
+    if not comment:
+        raise HTTPException(404, "Comment not found")
+    if comment.get("author_id") != user.user_id:
+        is_admin = getattr(user, "role", None) in ("admin", "super_admin")
+        if not is_admin:
+            raise HTTPException(404, "Comment not found")
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.community_post_comments.update_one(
+        {"_id": _oid(comment_id)},
+        {"$set": {"deleted": True, "deleted_at": now, "updated_at": now}},
+    )
+
+    await db.community_posts.update_one(
+        {"_id": _oid(post_id)}, {"$inc": {"comments_count": -1}},
+    )
+
+    return {"ok": True}
 
 
 # REPORT_REASONS, REPORT_TYPES, CreateReportBody — moved above create_report endpoint
