@@ -136,7 +136,7 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "price_monthly": 249,
         "price_yearly": 2688.12,
         "commission_rate": 0.17,
-        "features": ["advanced_analytics", "hi_ai_price_optimization", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
+        "features": ["advanced_analytics", "hi_ai_price_optimization", "commercial_ai_agent", "b2b_international"],
         "limits": {"products": -1},
     },
     {
@@ -169,7 +169,7 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "price_monthly": 249,
         "price_yearly": 2688.12,
         "commission_rate": 0.17,
-        "features": ["advanced_analytics", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
+        "features": ["advanced_analytics", "commercial_ai_agent", "b2b_international"],
         "limits": {"products": -1},
     },
 ]

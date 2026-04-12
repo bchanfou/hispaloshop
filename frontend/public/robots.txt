@@ -1,4 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /settings
+Disallow: /producer
+Disallow: /importer
+Disallow: /influencer
+Disallow: /country-admin
+Disallow: /super-admin
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /api/
+Disallow: /messages
 
 Sitemap: https://hispaloshop.com/sitemap.xml

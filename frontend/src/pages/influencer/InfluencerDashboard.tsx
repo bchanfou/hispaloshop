@@ -444,7 +444,7 @@ export default function InfluencerDashboard() {
       </div>;
   }
   const tierPercent = Number(dashboard.commission_value || (dashboard.commission_rate || 0) * 100 || 0);
-  const influencerExampleAmount = Math.round(18 * tierPercent / 100 * 100) / 100;
+  const influencerExampleAmount = Math.round(100 * tierPercent) / 100;
   return <div className="min-h-screen bg-stone-50">
       <div className="max-w-[975px] mx-auto px-4 py-4 md:py-8">
         {/* Header — H1 with influencer name at top */}
@@ -829,9 +829,7 @@ export default function InfluencerDashboard() {
                   <div className="mt-2 text-xs p-2 text-stone-500 bg-white rounded-xl">
                     <p className="font-medium">{t('influencer.example')}:</p>
                     <p>- {t('influencer.sale')}: {convertAndFormatPrice(100)}</p>
-                    <p>- {t('influencer.sellerReceives')}: {convertAndFormatPrice(82)}</p>
-                    <p>- {t('influencer.platformFee')}: {convertAndFormatPrice(18)}</p>
-                    <p>- <strong>{t('influencer.yourCommission')}: {convertAndFormatPrice(influencerExampleAmount)}</strong> ({tierPercent}% de {convertAndFormatPrice(18)})</p>
+                    <p>- <strong>{t('influencer.yourCommission')}: {convertAndFormatPrice(influencerExampleAmount)}</strong> ({tierPercent}% {i18n.t('influencer.ofSalePrice', 'del precio de venta')})</p>
                   </div>
                 </div>
 

@@ -2467,7 +2467,7 @@
     "benefit2": "Dashboard de conversiones en tiempo real",
     "benefit3": "Payout automático cada 15 días (min $50)",
     "benefit4": "Atribución 18 meses por cada cliente referido",
-    "benefit5": "Matching automático con productores de tu nicho",
+    "benefit5": "Directorio de productores verificados en tu nicho",
     "benefit6": "Herramientas de contenido con IA",
     "faq": "Preguntas frecuentes",
     "faq1q": "Cuánto dura mi comisión",
@@ -2991,6 +2991,7 @@
     "nuevaColeccion": "Nueva colección"
   },
   "login": {
+    "cuentaAnadida": "Cuenta añadida",
     "errorAlIniciarSesionConGoogle": "Error al iniciar sesión con Google.",
     "tuContrasena": "Tu contraseña",
     "elEmailEsObligatorio": "El email es obligatorio",
@@ -4500,7 +4501,6 @@
               "Todo lo de Pro",
               "Agente comercial IA",
               "B2B internacional",
-              "Manager dedicado",
               "Comisión más baja: 17%"
             ]
           }
@@ -5299,12 +5299,12 @@
     "herramientasDeIaParaMarketing": "Herramientas de IA para marketing",
     "recomendacionesDinamicasDePrecioPor": "Recomendaciones dinámicas de precio por zona geográfica",
     "analiticaAvanzadaDeVentas": "Analítica avanzada de ventas",
-    "matchingAutomaticoConHasta5Influenc": "Matching automático con hasta 5 influencers locales",
+    "matchingAutomaticoConHasta5Influenc": "Conexión con hasta 5 influencers locales",
     "paraCooperativasYProductoresConAmbi": "Para cooperativas y productores con ambición global.",
     "prediccionDeDemandaPorPaisYTempora": "Predicción de demanda por país y temporada",
     "analisisDeMercadosInternacionalesPr": "Análisis de mercados internacionales (precio, competencia, oportunidad)",
     "deteccionPreventivaDeRiesgoDeDesaba": "Detección preventiva de riesgo de desabastecimiento",
-    "matchingDirectoConImportadoresVerifi": "Matching directo con importadores verificados de otros países",
+    "matchingDirectoConImportadoresVerifi": "Directorio de importadores verificados de otros países",
     "generacionAutomaticaDeContratosB2bE": "Generación automática de contratos B2B en PDF",
     "analisisDeRegulacionesYArancelesPor": "Análisis de regulaciones y aranceles por mercado destino",
     "creacionDeDossieresDeExportacion": "Creación de dossieres de exportación",
@@ -5966,7 +5966,7 @@
     "empty": "No hay solicitudes en tu mercado todavia.",
     "contact": "Contactar",
     "seeMore": "Quieres ver todas las oportunidades?",
-    "upgradeCta": "Actualiza a PRO para ver la lista completa.",
+    "upgradeCta": "Actualiza a ELITE para ver la lista completa.",
     "viewPlans": "Ver planes"
   },
   "hamburger": {

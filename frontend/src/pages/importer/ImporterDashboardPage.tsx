@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 /* ─── Shared Components ─── */
 import i18n from "../../locales/i18n";
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
 function KPICard({
   label,
   value,
@@ -75,6 +76,14 @@ function ImporterPlanCard({
         <ArrowRight className="w-5 h-5 shrink-0 text-white/45" />
       </Link>;
   }
+  const { data: planConfig } = usePlanConfig();
+  const elitePrice = planConfig?.seller_plans?.ELITE?.price_monthly_eur ?? 249;
+  const eliteFeatures = [
+    i18n.t('importer_dashboard.eliteFeatureAI', 'Agente Comercial IA para importadores'),
+    i18n.t('importer_dashboard.eliteFeatureDirectory', 'Acceso prioritario al directorio de productores'),
+    i18n.t('importer_dashboard.eliteFeatureContracts', 'Contratos B2B integrados'),
+    i18n.t('importer_dashboard.eliteFeatureMarket', 'Market Interest Requests + 72h de ventaja'),
+  ];
   return <div className="p-4 bg-white rounded-2xl border-2 border-stone-200">
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-bold text-stone-950">
@@ -85,12 +94,12 @@ function ImporterPlanCard({
         </span>
       </div>
       <div className="space-y-1.5 mb-4">
-        {['Agente Comercial IA para importadores', 'Matching con productores globales', i18n.t('importer_dashboard.contratosB2bGeneradosAutomaticamente', 'Contratos B2B generados automáticamente'), 'Comisión reducida al 17%'].map(f => <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
+        {eliteFeatures.map(f => <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
             <Check className="w-3 h-3 shrink-0 text-stone-950" strokeWidth={2.5} /> {f}
           </p>)}
       </div>
       <Link to="/settings/plan" className="block w-full text-center py-2.5 text-sm font-medium transition-colors bg-stone-950 text-white rounded-2xl">
-        Actualizar a ELITE · 249 €/mes <ArrowRight className="w-4 h-4 inline ml-1" />
+        {i18n.t('importer_dashboard.upgradeElite', 'Actualizar a ELITE')} · {elitePrice} €/{i18n.t('common.month', 'mes')} <ArrowRight className="w-4 h-4 inline ml-1" />
       </Link>
     </div>;
 }

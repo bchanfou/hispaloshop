@@ -2739,7 +2739,7 @@
     "benefit2": "Dashboard de conversiones en tiempo real",
     "benefit3": "Payout automático cada 15 días (min $50)",
     "benefit4": "Atribución 18 meses por cada cliente referido",
-    "benefit5": "Matching automático con productores de tu nicho",
+    "benefit5": "니치 분야의 인증된 생산자 디렉토리",
     "benefit6": "Herramientas de contenido con IA",
     "faq": "Preguntas frecuentes",
     "faq1q": "Cuánto dura mi comisión",
@@ -4781,7 +4781,7 @@
     "empty": "아직 귀하의 시장에 요청이 없습니다.",
     "contact": "연락",
     "seeMore": "모든 기회를 보시겠습니까?",
-    "upgradeCta": "PRO로 업그레이드하여 전체 목록을 확인하세요.",
+    "upgradeCta": "ELITE로 업그레이드하여 전체 목록을 확인하세요.",
     "viewPlans": "플랜 보기"
   },
   "hamburger": {
@@ -5445,6 +5445,7 @@
     "nuevaColeccion": "Nueva colección"
   },
   "login": {
+    "cuentaAnadida": "계정이 추가되었습니다",
     "errorAlIniciarSesionConGoogle": "Error al iniciar sesión con Google.",
     "tuContrasena": "Tu contraseña",
     "elEmailEsObligatorio": "El email es obligatorio",
@@ -6713,7 +6714,7 @@
     "herramientasDeIaParaMarketing": "Herramientas de IA para marketing",
     "recomendacionesDinamicasDePrecioPor": "Recomendaciones dinámicas de precio por zona geográfica",
     "analiticaAvanzadaDeVentas": "Analítica avanzada de ventas",
-    "matchingAutomaticoConHasta5Influenc": "Matching automático con hasta 5 influencers locales",
+    "matchingAutomaticoConHasta5Influenc": "최대 5명의 로컬 인플루언서와 연결",
     "paraCooperativasYProductoresConAmbi": "Para cooperativas y productores con ambición global.",
     "prediccionDeDemandaPorPaisYTempora": "Predicción de demanda por país y temporada",
     "analisisDeMercadosInternacionalesPr": "Análisis de mercados internacionales (precio, competencia, oportunidad)",

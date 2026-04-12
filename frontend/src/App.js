@@ -388,8 +388,11 @@ const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));
 /** Redirect authenticated users away from login/register */
 function AuthRedirect({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <RouteLoader />;
-  if (user) return <Navigate to="/" replace />;
+  // Allow logged-in users through when adding another account
+  const params = new URLSearchParams(location.search);
+  if (user && params.get('add_account') !== 'true') return <Navigate to="/" replace />;
   return children;
 }
 

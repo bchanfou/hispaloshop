@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next';
 const SELLER_PLANS = [
   { id: 'producer_free', name: 'Productor FREE', price: 0, commission_pct: 20 },
   { id: 'producer_pro', name: 'Productor PRO', price: 79, commission_pct: 18 },
-  { id: 'producer_elite', name: 'Productor ELITE', price: 249, commission_pct: 15 },
+  { id: 'producer_elite', name: 'Productor ELITE', price: 249, commission_pct: 17 },
   { id: 'importer_free', name: 'Importador FREE', price: 0, commission_pct: 20 },
   { id: 'importer_pro', name: 'Importador PRO', price: 79, commission_pct: 18 },
-  { id: 'importer_elite', name: 'Importador ELITE', price: 249, commission_pct: 15 },
+  { id: 'importer_elite', name: 'Importador ELITE', price: 249, commission_pct: 17 },
 ];
 
 const INFLUENCER_TIERS = [

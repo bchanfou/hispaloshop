@@ -2581,7 +2581,7 @@
     "benefit2": "Real-time conversion dashboard",
     "benefit3": "Automatic payout every 15 days (min $50)",
     "benefit4": "18-month attribution per referred customer",
-    "benefit5": "Automatic matching with producers in your niche",
+    "benefit5": "Verified producer directory in your niche",
     "benefit6": "AI content creation tools",
     "faq": "Frequently asked questions",
     "faq1q": "How long does my commission last?",
@@ -3316,7 +3316,6 @@
               "Everything in Pro",
               "Commercial AI agent",
               "International B2B",
-              "Dedicated manager",
               "Lowest commission: 17%"
             ]
           }
@@ -4488,7 +4487,7 @@
     "empty": "No requests in your market yet.",
     "contact": "Contact",
     "seeMore": "Want to see all opportunities?",
-    "upgradeCta": "Upgrade to PRO to see the full list.",
+    "upgradeCta": "Upgrade to ELITE to see the full list.",
     "viewPlans": "View plans"
   },
   "hamburger": {
@@ -5291,6 +5290,7 @@
     "nuevaColeccion": "Nueva colección"
   },
   "login": {
+    "cuentaAnadida": "Account added",
     "errorAlIniciarSesionConGoogle": "Error al iniciar sesión con Google.",
     "tuContrasena": "Tu contraseña",
     "elEmailEsObligatorio": "El email es obligatorio",
@@ -6541,7 +6541,7 @@
     "herramientasDeIaParaMarketing": "Herramientas de IA para marketing",
     "recomendacionesDinamicasDePrecioPor": "Recomendaciones dinámicas de precio por zona geográfica",
     "analiticaAvanzadaDeVentas": "Analítica avanzada de ventas",
-    "matchingAutomaticoConHasta5Influenc": "Matching automático con hasta 5 influencers locales",
+    "matchingAutomaticoConHasta5Influenc": "Connection with up to 5 local influencers",
     "paraCooperativasYProductoresConAmbi": "Para cooperativas y productores con ambición global.",
     "prediccionDeDemandaPorPaisYTempora": "Predicción de demanda por país y temporada",
     "analisisDeMercadosInternacionalesPr": "Análisis de mercados internacionales (precio, competencia, oportunidad)",

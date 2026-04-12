@@ -33,7 +33,7 @@ export const PRODUCER_PLANS = {
     accentClass: 'border-stone-600 bg-white shadow-[0_26px_60px_-38px_rgba(80,80,80,0.45)] lg:scale-[1.04]',
     buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
     summary: "Para productores serios que quieren escalar sin locura.",
-    features: ["Herramientas de IA para marketing", 'Genera copy, optimiza fotos y traduce a 5 idiomas', "Recomendaciones dinámicas de precio por zona geográfica", "Analítica avanzada de ventas", "Matching automático con hasta 5 influencers locales", 'Comisión reducida al 18%', 'Soporte prioritario por email']
+    features: ["Herramientas de IA para marketing", 'Genera copy, optimiza fotos y traduce a 5 idiomas', "Recomendaciones dinámicas de precio por zona geográfica", "Analítica avanzada de ventas", "Conexión con hasta 5 influencers locales", 'Comisión reducida al 18%', 'Soporte prioritario por email']
   },
   elite: {
     key: 'elite',

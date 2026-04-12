@@ -30,7 +30,6 @@ function getPlanFeatures(isImporter) {
         isImporter ? 'Pedro AI (agente de sourcing)' : 'Pedro AI (agente internacional)',
         isImporter ? 'Sourcing prioritario' : 'Promocion internacional',
         'B2B marketplace',
-        'Manager dedicado',
       ],
     },
     PRO: {
@@ -47,7 +46,6 @@ function getPlanFeatures(isImporter) {
         isImporter ? 'Pedro AI (agente de sourcing)' : 'Pedro AI (agente internacional)',
         isImporter ? 'Sourcing prioritario' : 'Promocion internacional',
         'B2B marketplace',
-        'Manager dedicado',
       ],
     },
     ELITE: {
@@ -57,7 +55,6 @@ function getPlanFeatures(isImporter) {
         isImporter ? 'Pedro AI (agente de sourcing)' : 'Pedro AI (agente internacional)',
         isImporter ? 'Sourcing prioritario' : 'Promocion internacional',
         'B2B marketplace',
-        'Manager dedicado',
         'Comision mas baja',
       ],
       missing: [],

@@ -135,8 +135,8 @@ export default function ImporterOpportunitiesPage() {
       {isTeaser && (
         <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-center">
           <p className="text-sm font-semibold text-stone-950 mb-2">{t('marketOpportunities.seeMore', 'Quieres ver todas las oportunidades?')}</p>
-          <p className="text-xs text-stone-500 mb-4">{t('marketOpportunities.upgradeCta', 'Actualiza a PRO para ver la lista completa.')}</p>
-          <Link to="/producer/plan" className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors inline-block no-underline">
+          <p className="text-xs text-stone-500 mb-4">{t('marketOpportunities.upgradeCta', 'Actualiza a ELITE para ver la lista completa.')}</p>
+          <Link to="/settings/plan" className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors inline-block no-underline">
             {t('marketOpportunities.viewPlans', 'Ver planes')}
           </Link>
         </div>

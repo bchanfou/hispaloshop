@@ -10,7 +10,7 @@ import i18n from "../../locales/i18n";
 import { usePlanConfig } from '../../hooks/api/usePlanConfig';
 
 const PLAN_STATIC = {
-  FREE: { features: ['Hasta 10 productos', "Perfil de tienda básico", 'Soporte por email', "Analíticas básicas"] },
+  FREE: { features: ['Productos ilimitados', "Perfil de tienda básico", 'Soporte por email', "Analíticas básicas"] },
   PRO: { features: ['Productos ilimitados', 'Perfil de tienda completo', 'Soporte prioritario', "Analíticas avanzadas", 'Envío gratis desde 30€', 'Certificados digitales'] },
   ELITE: { features: ['Todo lo de PRO', 'Tienda destacada', 'IA comercial avanzada', "Generación de contratos", 'B2B marketplace', 'Firma digital ilimitada'] },
 };

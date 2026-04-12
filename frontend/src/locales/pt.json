@@ -2703,6 +2703,7 @@
     "nuevaColeccion": "Nova coleção"
   },
   "login": {
+    "cuentaAnadida": "Conta adicionada",
     "errorAlIniciarSesionConGoogle": "Erro ao iniciar sessão com o Google.",
     "tuContrasena": "Sua senha",
     "elEmailEsObligatorio": "É necessário enviar um e-mail.",
@@ -4055,7 +4056,6 @@
               "Tudo do Pro",
               "Agente comercial IA",
               "B2B internacional",
-              "Manager dedicado",
               "Comissão mais baixa: 17%"
             ]
           }

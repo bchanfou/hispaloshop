@@ -161,6 +161,7 @@ export default function LoginPage() {
           else accounts.push(accObj);
           localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
           // Skip onboarding — this is an existing user adding their account
+          toast.success(t('login.cuentaAnadida', 'Cuenta añadida'));
           navigate('/', { replace: true });
           return;
         }

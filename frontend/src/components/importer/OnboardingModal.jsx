@@ -30,7 +30,7 @@ const PLAN_META = {
     name: 'ELITE',
     price: '249€ + IVA/mes',
     badge: 'Empresas',
-    commission: '15%',
+    commission: '17%',
     summary: "IA comercial avanzada y generación de contratos."
   }
 };
