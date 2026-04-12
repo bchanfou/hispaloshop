@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import InternalChat from '../InternalChat';
+const InternalChat = React.lazy(() => import('../InternalChat'));
 import MobileBottomNav from './MobileBottomNav';
 import BottomSheet from './BottomSheet';
 import { ProducerPlanProvider, useProducerPlan } from '../../context/ProducerPlanContext';
@@ -375,11 +375,13 @@ export default function ProducerLayout() {
             >
               <X className="h-5 w-5" />
             </button>
-            <InternalChat 
-              userType="producer" 
-              isEmbedded={true}
-              onClose={() => setChatOpen(false)}
-            />
+            <Suspense fallback={null}>
+              <InternalChat
+                userType="producer"
+                isEmbedded={true}
+                onClose={() => setChatOpen(false)}
+              />
+            </Suspense>
           </div>
         </div>
       )}

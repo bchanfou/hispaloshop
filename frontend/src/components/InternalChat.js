@@ -105,14 +105,17 @@ function MessageStatus({
     </div>;
 }
 const REACTIONS = [
-  { key: '❤️', icon: Heart, label: 'love' },
-  { key: '😂', icon: Smile, label: 'laugh' },
-  { key: '😮', icon: AlertCircle, label: 'wow' },
-  { key: '😢', icon: Frown, label: 'sad' },
-  { key: '😡', icon: Angry, label: 'angry' },
-  { key: '👍', icon: ThumbsUp, label: 'like' },
+  { key: 'love', icon: Heart, label: 'love' },
+  { key: 'laugh', icon: Smile, label: 'laugh' },
+  { key: 'wow', icon: AlertCircle, label: 'wow' },
+  { key: 'sad', icon: Frown, label: 'sad' },
+  { key: 'angry', icon: Angry, label: 'angry' },
+  { key: 'like', icon: ThumbsUp, label: 'like' },
 ];
 const REACTION_ICON_MAP = Object.fromEntries(REACTIONS.map(r => [r.key, r]));
+// Legacy emoji → string key mapping for reactions stored in DB before migration
+const LEGACY_EMOJI_MAP = { '\u2764\uFE0F': 'love', '\uD83D\uDE02': 'laugh', '\uD83D\uDE2E': 'wow', '\uD83D\uDE22': 'sad', '\uD83D\uDE21': 'angry', '\uD83D\uDC4D': 'like' };
+function resolveReactionKey(raw) { return LEGACY_EMOJI_MAP[raw] || raw; }
 function ReplyPreviewInline({
   preview
 }) {
@@ -139,7 +142,7 @@ const MessageBubble = React.memo(function MessageBubble({
   const existingReaction = useMemo(() => {
     if (!message?.reactions?.length || !currentUserId) return null;
     const mine = message.reactions.find(r => r.user_id === currentUserId);
-    return mine?.emoji || null;
+    return mine ? resolveReactionKey(mine.emoji) : null;
   }, [message?.reactions, currentUserId]);
   const allReactions = message?.reactions || [];
   const [showPicker, setShowPicker] = useState(false);
@@ -214,7 +217,7 @@ const MessageBubble = React.memo(function MessageBubble({
           </motion.button> : null}
       </AnimatePresence>
 
-      <div ref={elRef} className={`relative min-w-[80px] max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div ref={elRef} className={`relative w-fit min-w-[80px] max-w-[75%] ${isOwn ? 'ml-auto' : ''}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? <>
@@ -322,7 +325,7 @@ const MessageBubble = React.memo(function MessageBubble({
           stiffness: 400,
           damping: 20
         }} className={`mt-1 flex w-fit items-center gap-0.5 rounded-full border border-stone-100 bg-white px-1.5 py-0.5 shadow-sm ${isOwn ? 'ml-auto' : ''}`}>
-              {[...new Set(allReactions.map(r => r.emoji))].map(emoji => { const mapped = REACTION_ICON_MAP[emoji]; return mapped ? <mapped.icon key={emoji} size={14} className="text-stone-600" /> : <span key={emoji} className="text-[14px]">{emoji}</span>; })}
+              {[...new Set(allReactions.map(r => resolveReactionKey(r.emoji)))].map(key => { const mapped = REACTION_ICON_MAP[key]; return mapped ? <mapped.icon key={key} size={14} className="text-stone-600" /> : null; })}
               {allReactions.length > 1 && <span className="text-[11px] text-stone-400 ml-0.5">{allReactions.length}</span>}
             </motion.div> : null}
         </AnimatePresence>
@@ -1520,7 +1523,19 @@ export default function InternalChat({
             const isGroup = conversation.type === 'group';
             const displayName = isGroup ? conversation.group_name : conversation.other_user_name;
             const displayAvatar = isGroup ? conversation.group_avatar : conversation.other_user_avatar;
-            return <button key={conversation.conversation_id} type="button" onClick={() => loadConversation(conversation.conversation_id)} className={`flex w-full min-h-[72px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${isActive ? 'bg-stone-50' : 'hover:bg-stone-50'}`}>
+            return <SwipeableConversationRow key={conversation.conversation_id} onDelete={async () => {
+                try {
+                  await deleteConversation(conversation.conversation_id);
+                  messagesCacheRef.current.delete(conversation.conversation_id);
+                  if (selectedConversationId === conversation.conversation_id) {
+                    setSelectedConversationId(null);
+                    setMessages([]);
+                  }
+                  reloadConversations();
+                  toast.success(i18n.t('internal_chat.conversacionEliminada', 'Conversacion eliminada'));
+                } catch { toast.error(i18n.t('internal_chat.errorAlEliminarLaConversacion', 'Error al eliminar la conversacion')); }
+              }}>
+                  <button type="button" onClick={() => loadConversation(conversation.conversation_id)} className={`flex w-full min-h-[72px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${isActive ? 'bg-stone-50' : 'hover:bg-stone-50'}`}>
                     <div className="shrink-0">
                       <ChatAvatar src={displayAvatar} name={displayName} alt={`Avatar de ${displayName}`} />
                     </div>
@@ -1540,7 +1555,8 @@ export default function InternalChat({
                         {lastMessage}
                       </p>
                     </div>
-                  </button>;
+                  </button>
+                </SwipeableConversationRow>;
           })}
             </div> : <div className="space-y-4 px-4 py-8">
               <EmptyState title="No tienes conversaciones" description={i18n.t('internal_chat.empiezaUnChatNuevoDesdeElBotonSup', 'Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio.')} />

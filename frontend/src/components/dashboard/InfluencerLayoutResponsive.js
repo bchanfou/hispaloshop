@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../../context/AuthContext';
 import LanguageSwitcher from '../LanguageSwitcher';
-import InternalChat from '../InternalChat';
+const InternalChat = React.lazy(() => import('../InternalChat'));
 import BottomSheet from './BottomSheet';
 import TierBadge from '../influencer/TierBadge';
 import { useDashboardLogout } from '../../features/dashboard/queries';
@@ -566,11 +566,13 @@ export default function InfluencerLayoutResponsive() {
             >
               <X className="h-5 w-5" />
             </button>
-            <InternalChat
-              userType="influencer"
-              isEmbedded
-              onClose={() => setChatOpen(false)}
-            />
+            <React.Suspense fallback={null}>
+              <InternalChat
+                userType="influencer"
+                isEmbedded
+                onClose={() => setChatOpen(false)}
+              />
+            </React.Suspense>
           </div>
         </div>
       )}

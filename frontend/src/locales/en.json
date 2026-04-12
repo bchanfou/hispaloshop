@@ -4286,6 +4286,7 @@
     "explore": "Explore"
   },
   "aiAssistants": {
+    "asistenteIA": "AI Assistant",
     "title": "AI Assistants",
     "subtitle": "Configure your AI assistants",
     "floatingActive": "Floating active",

@@ -11,9 +11,9 @@ import { useNavigationDirection } from '../../hooks/useNavigationDirection';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
 import OfflineBanner from './OfflineBanner';
 import RestrictionBanner from '../moderation/RestrictionBanner';
-import ModerationBlockedModal from '../moderation/ModerationBlockedModal';
+const ModerationBlockedModal = React.lazy(() => import('../moderation/ModerationBlockedModal'));
 // Section 3.6.7 — Bloque 2: global registration prompt for non-logged users.
-import RegistrationPromptModal from '../auth/RegistrationPromptModal';
+const RegistrationPromptModal = React.lazy(() => import('../auth/RegistrationPromptModal'));
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -140,8 +140,8 @@ export default function AppLayout({ children }) {
     return (
       <>
         {children}
-        <ModerationBlockedModal />
-        <RegistrationPromptModal />
+        <React.Suspense fallback={null}><ModerationBlockedModal /></React.Suspense>
+        <React.Suspense fallback={null}><RegistrationPromptModal /></React.Suspense>
       </>
     );
   }
@@ -166,10 +166,10 @@ export default function AppLayout({ children }) {
       {restrictionBannerVisible && <RestrictionBanner />}
 
       {/* Section 3.5b — global moderation block modal (always mounted, listens via event) */}
-      <ModerationBlockedModal />
+      <React.Suspense fallback={null}><ModerationBlockedModal /></React.Suspense>
 
       {/* Section 3.6.7 — Bloque 2: registration prompt for non-logged users */}
-      <RegistrationPromptModal />
+      <React.Suspense fallback={null}><RegistrationPromptModal /></React.Suspense>
 
       {/* Desktop: SideNav (lg+) */}
       <SideNav />

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { authApi } from '../lib/authApi';
-import { getToken, setToken, removeToken, TOKEN_KEY } from '../lib/auth';
+import { getToken, setToken, removeToken, TOKEN_KEY, isTokenExpired } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -326,93 +326,48 @@ export function AuthProvider({ children }) {
     }
   }, [user, queryClient]);
 
-  const resolveUserFromActiveToken = useCallback(async () => {
-    const currentUser = await authApi.getCurrentUser();
-    const normalizedUser = normalizeUser(currentUser || null);
-    if (mountedRef.current) {
-      setUser(normalizedUser);
-      setInitialized(true);
-    }
-    return normalizedUser;
-  }, [setUser]);
-
   const switchAccount = useCallback(async (account) => {
-    const prevToken = getToken() || '';
-    const prevUser = user;
     authDebug('switch:start', {
       targetId: accountId(account),
       hasTargetToken: Boolean(account?.token),
       currentId: accountId(user),
-      hasPrevToken: Boolean(prevToken),
     });
-    try {
-      if (!account?.token) {
-        const error = new Error('missing account token');
-        error.code = 'missing_token';
-        throw error;
-      }
 
-      // Save current account to hsp_accounts before switching
-      if (prevToken && user) {
-        upsertStoredAccount(toAccountObject(user, prevToken));
-      }
-
-      // Set new account token
-      localStorage.setItem(TOKEN_KEY, account.token);
-
-      // Clear all cached data from previous account
-      queryClient.clear();
-      // Clear plan cache so the new account's plan gate doesn't inherit ELITE access
-      try { localStorage.removeItem('hsp_plan_cache'); } catch (e) { /* noop */ }
-
-      // Re-authenticate deterministically with the new token
-      const newUser = await resolveUserFromActiveToken();
-
-      // Update the switched account in localStorage with fresh data from server
-      if (newUser) {
-        upsertStoredAccount(toAccountObject(newUser, account.token));
-        setSentryUser({ id: newUser.user_id, username: newUser.username, email: newUser.email });
-        authDebug('switch:success', {
-          targetId: accountId(account),
-          resolvedId: accountId(newUser),
-          username: newUser.username,
-        });
-        return { ok: true, user: newUser };
-      } else {
-        const error = new Error('Unable to resolve user for switched account');
-        error.code = 'expired_or_invalid';
-        throw error;
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') console.error('Switch account failed', err);
-      authDebug('switch:failed', {
-        targetId: accountId(account),
-        code: err?.code || 'switch_failed',
-        message: err?.message || null,
-      });
-      const errorCode = err?.code || 'switch_failed';
-      if (errorCode === 'missing_token' || errorCode === 'expired_or_invalid') {
-        toast.error('La sesión guardada de esta cuenta ya no es válida. Se ha eliminado del dispositivo.');
-      } else {
-        toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
-      }
-      // Remove invalid account from localStorage
+    // ── Guard: missing token ──
+    if (!account?.token) {
+      toast.error('Token de cuenta no encontrado. Inicia sesión de nuevo.');
       removeStoredAccountById(account?.user_id || account?.id);
-
-      // Try to restore previous account token
-      if (prevToken) {
-        localStorage.setItem(TOKEN_KEY, prevToken);
-        if (prevUser) {
-          setUser(prevUser);
-          setSentryUser({ id: prevUser.user_id, username: prevUser.username, email: prevUser.email });
-        }
-      } else {
-        removeToken();
-        if (mountedRef.current) setUser(null);
-      }
-      return { ok: false, user: null, error: err, errorCode };
+      return { ok: false, errorCode: 'missing_token' };
     }
-  }, [user, resolveUserFromActiveToken, setUser, authDebug, queryClient]);
+
+    // ── Guard: expired JWT (local check, no API call) ──
+    if (isTokenExpired(account.token)) {
+      authDebug('switch:token_expired', { targetId: accountId(account) });
+      toast.error('La sesión de esta cuenta ha expirado. Inicia sesión de nuevo.');
+      removeStoredAccountById(account?.user_id || account?.id);
+      return { ok: false, errorCode: 'token_expired' };
+    }
+
+    // ── Save current account before overwriting ──
+    const prevToken = getToken() || '';
+    if (prevToken && user) {
+      upsertStoredAccount(toAccountObject(user, prevToken));
+    }
+
+    // ── Set target account token + clear caches ──
+    localStorage.setItem(TOKEN_KEY, account.token);
+    try { localStorage.removeItem('hsp_plan_cache'); } catch { /* noop */ }
+
+    // ── Full page reload ──
+    // This destroys all stale React state, closures, and the httpOnly cookie
+    // mismatch (cookie belongs to user A but we want user B). On reload,
+    // checkAuth() sends Bearer B → backend authenticates B and sets fresh cookie.
+    // Instagram and Twitter also reload on account switch — it's the safe approach.
+    authDebug('switch:reload', { targetId: accountId(account) });
+    window.location.href = '/';
+    // Return ok:true so callers don't show error toasts before the reload fires
+    return { ok: true };
+  }, [user, authDebug]);
 
   const logoutAccount = useCallback(async (account) => {
     const targetId = accountId(account) || accountId(user);
@@ -438,39 +393,26 @@ export function AuthProvider({ children }) {
       removeStoredAccountById(currentId);
       const remaining = readStoredAccounts().filter((a) => a?.token);
 
-      for (const fallback of remaining) {
-        localStorage.setItem(TOKEN_KEY, fallback.token);
-        authDebug('logout-account:fallback-attempt', {
-          fallbackId: accountId(fallback),
-          fallbackUsername: fallback?.username || null,
+      // Find a valid fallback account (non-expired token)
+      const validFallback = remaining.find((a) => !isTokenExpired(a.token));
+
+      if (validFallback) {
+        // Set fallback token and reload — same pattern as switchAccount
+        // to avoid cookie mismatch between the just-logged-out session
+        // and the fallback account.
+        localStorage.setItem(TOKEN_KEY, validFallback.token);
+        authDebug('logout-account:fallback-reload', {
+          fallbackId: accountId(validFallback),
+          fallbackUsername: validFallback?.username || null,
         });
-
-        let nextUser = null;
-        try {
-          nextUser = await resolveUserFromActiveToken();
-        } catch (err) {
-          authDebug('logout-account:fallback-failed', {
-            fallbackId: accountId(fallback),
-            code: err?.code || null,
-            message: err?.message || null,
-          });
-          nextUser = null;
-        }
-
-        if (nextUser) {
-          upsertStoredAccount(toAccountObject(nextUser, fallback.token));
-          setSentryUser({ id: nextUser.user_id, username: nextUser.username, email: nextUser.email });
-          authDebug('logout-account:fallback-success', {
-            fallbackId: accountId(fallback),
-            resolvedId: accountId(nextUser),
-            username: nextUser.username,
-          });
-          return { switched: true, user: nextUser };
-        }
-
-        removeStoredAccountById(fallback.user_id || fallback.id);
+        window.location.href = '/';
+        return { switched: true, user: null };
       }
 
+      // No valid fallback — clean up all stale accounts and go to login
+      for (const stale of remaining) {
+        removeStoredAccountById(stale.user_id || stale.id);
+      }
       removeToken();
       if (mountedRef.current) {
         setUser(null);
@@ -485,7 +427,7 @@ export function AuthProvider({ children }) {
     removeStoredAccountById(targetId);
     authDebug('logout-account:removed-secondary', { targetId });
     return { switched: false, user };
-  }, [user, resolveUserFromActiveToken, setUser, authDebug]);
+  }, [user, setUser, authDebug]);
 
   const refreshUser = useCallback(async () => checkAuth(), [checkAuth]);
 

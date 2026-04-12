@@ -4580,6 +4580,7 @@
     "explore": "탐색"
   },
   "aiAssistants": {
+    "asistenteIA": "AI 어시스턴트",
     "title": "AI 어시스턴트",
     "subtitle": "AI 어시스턴트 설정",
     "floatingActive": "플로팅 활성",

@@ -5853,6 +5853,7 @@
     "explore": "Explorar"
   },
   "aiAssistants": {
+    "asistenteIA": "Asistente IA",
     "title": "Asistentes IA",
     "subtitle": "Configura tus asistentes de inteligencia artificial",
     "floatingActive": "Flotante activo",

@@ -6,7 +6,7 @@ import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditC
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
-import InternalChat from '../../components/InternalChat';
+const InternalChat = React.lazy(() => import('../../components/InternalChat'));
 import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
@@ -1161,6 +1161,8 @@ export default function InfluencerDashboard() {
 
 
       {/* Internal Chat */}
-      <InternalChat userType="influencer" />
+      <React.Suspense fallback={null}>
+        <InternalChat userType="influencer" />
+      </React.Suspense>
     </div>;
 }
