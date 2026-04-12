@@ -922,26 +922,16 @@ export default function InfluencerDashboard() {
                 <h3 className="text-sm font-bold text-stone-950">
                   Resumen fiscal {withholdingSummary?.year || new Date().getFullYear()}
                 </h3>
-                <button onClick={() => setShowIrpfModal(true)} className="flex items-center gap-1 text-xs font-medium text-stone-500 bg-transparent border-none cursor-pointer">
-                  <HelpCircle className="w-3.5 h-3.5" />
-                  ¿Qué es la retención?
-                </button>
               </div>
 
               {/* YTD Stats */}
-              <div className={`grid ${fiscalStatus?.tax_country === 'ES' ? 'grid-cols-3' : 'grid-cols-2'} gap-3 mb-4`}>
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="text-center p-3 bg-white rounded-xl">
                   <p className="text-lg font-bold text-stone-950">
                     {convertAndFormatPrice(Number(withholdingSummary?.gross_ytd || 0))}
                   </p>
-                  <p className="text-[9px] uppercase tracking-wider text-stone-500">Comisiones brutas</p>
+                  <p className="text-[9px] uppercase tracking-wider text-stone-500">Ingresos brutos</p>
                 </div>
-                {fiscalStatus?.tax_country === 'ES' && <div className="text-center p-3 bg-white rounded-xl">
-                    <p className="text-lg font-bold text-stone-500">
-                      {convertAndFormatPrice(Number(withholdingSummary?.withheld_ytd || 0))}
-                    </p>
-                    <p className="text-[9px] uppercase tracking-wider text-stone-500">IRPF retenido (15%)</p>
-                  </div>}
                 <div className="text-center p-3 bg-white rounded-xl">
                   <p className="text-lg font-bold text-stone-950">
                     {convertAndFormatPrice(Number(withholdingSummary?.net_ytd || 0))}
@@ -962,7 +952,6 @@ export default function InfluencerDashboard() {
                           <p className={`text-[10px] font-bold mb-1 ${isCurrent ? 'text-stone-950' : 'text-stone-500'}`}>{q}</p>
                           {qData ? <>
                               <p className="text-xs font-semibold text-stone-950">{convertAndFormatPrice(Number(qData.gross || 0))}</p>
-                              {fiscalStatus?.tax_country === 'ES' && <p className="text-[9px] text-stone-500">−{convertAndFormatPrice(Number(qData.withheld || 0))}</p>}
                             </> : <p className="text-xs text-stone-500">—</p>}
                         </div>;
               })}
@@ -999,7 +988,6 @@ export default function InfluencerDashboard() {
                         </p>
                         <p className="text-[10px] text-stone-500">
                           {p.commission_count > 0 && `${p.commission_count} ventas`}
-                          {(p.withholding_amount_eur || 0) > 0 && ` · Ret: ${convertAndFormatPrice(Number(p.withholding_amount_eur || 0))}`}
                         </p>
                       </div>
                       <div className="text-right">
@@ -1019,23 +1007,23 @@ export default function InfluencerDashboard() {
               </div>}
           </div>}
 
-        {/* IRPF Modal */}
+        {/* Fiscal Info Modal */}
         {showIrpfModal && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="mx-4 max-w-sm w-full p-6 bg-white rounded-2xl">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-stone-950">¿Qué es la retención IRPF?</h3>
+                <h3 className="text-sm font-bold text-stone-950">Informacion fiscal</h3>
                 <button onClick={() => setShowIrpfModal(false)} className="bg-transparent border-none cursor-pointer">
                   <X className="w-5 h-5 text-stone-500" />
                 </button>
               </div>
               <p className="text-sm leading-relaxed text-stone-500">
-                Hispaloshop SL retiene el 15% de tus comisiones y lo ingresa a Hacienda en tu nombre trimestralmente (Modelo 111).
+                HispaloShop LLC opera desde Estados Unidos. No retenemos impuestos locales de ningun pais.
               </p>
               <p className="text-sm leading-relaxed mt-3 text-stone-500">
-                Cuando hagas tu declaración de la renta (IRPF), esas retenciones ya estarán pagadas y podrás deducirlas.
+                Cobras el 100% de tu comision. Eres responsable de declarar tus ingresos segun la normativa fiscal de tu pais de residencia.
               </p>
               <p className="text-sm leading-relaxed mt-3 text-stone-500">
-                Recibirás el certificado de retenciones en enero de cada año.
+                Consulta nuestra guia fiscal en el Centro de Ayuda para mas informacion sobre como declarar tus ingresos.
               </p>
               <button onClick={() => setShowIrpfModal(false)} className="w-full mt-5 py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl border-none cursor-pointer">
                 Entendido

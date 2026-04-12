@@ -483,16 +483,16 @@ export default function ProducerPayments() {
       {/* Payout Method Selector */}
       <PayoutMethodSection stripeConnected={data.stripe_connected} onRefresh={fetchPayments} />
 
-      {/* Fiscal summary */}
-      {data.tax_withholding_pct != null && <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-white">
-            <Receipt className="w-4 h-4 text-stone-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-stone-950">{t('producer_payments.retencionFiscalAplicada', 'Retención fiscal aplicada')}</p>
-            <p className="text-xs text-stone-500">Se retiene el <strong className="text-stone-700">{data.tax_withholding_pct}%</strong> {t('producer_payments.sobreTusGananciasNetasSegunTuConfi', 'sobre tus ganancias netas según tu configuración fiscal.')}</p>
-          </div>
-        </div>}
+      {/* Fiscal disclaimer */}
+      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center gap-3">
+        <div className="p-2 rounded-xl bg-white">
+          <Receipt className="w-4 h-4 text-stone-600" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-stone-950">Informacion fiscal</p>
+          <p className="text-xs text-stone-500">HispaloShop LLC opera desde EE.UU. No retenemos impuestos locales. Cobras el 100% de tus ganancias netas (menos comision de plataforma).</p>
+        </div>
+      </div>
 
       {/* Balance Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">

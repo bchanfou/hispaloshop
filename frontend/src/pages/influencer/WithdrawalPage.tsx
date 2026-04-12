@@ -86,13 +86,10 @@ export default function WithdrawalPage() {
         </Link>
       </div>;
   }
-  const isSpain = fiscal?.tax_country === 'ES';
-  const withholdingPct = fiscal?.withholding_pct || 0;
   const gross = balance;
-  const withholding = isSpain ? Math.round(gross * (withholdingPct / 100) * 100) / 100 : 0;
   const isSEPA = ['sepa', 'bank_transfer'].includes(fiscal?.payout_method);
   const transferFee = isSEPA ? 0 : STRIPE_FEE;
-  const netRaw = gross - withholding - transferFee;
+  const netRaw = gross - transferFee;
   const net = Math.max(0, Math.round(netRaw * 100) / 100);
   const canWithdraw = net >= MIN_WITHDRAWAL;
   const methodLabel = isSEPA ? 'cuenta bancaria' : 'Stripe';
@@ -105,7 +102,6 @@ export default function WithdrawalPage() {
       setSuccess({
         net_amount: res.net_amount || net,
         gross_amount: res.gross_amount || gross,
-        withholding: res.withholding || withholding,
         method: fiscal?.payout_method || 'stripe',
         transfer_fee: res.transfer_fee || transferFee
       });
@@ -119,7 +115,7 @@ export default function WithdrawalPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [isSEPA, net, gross, withholding, fiscal?.payout_method, transferFee]);
+  }, [isSEPA, net, gross, fiscal?.payout_method, transferFee]);
 
   // Success screen
   if (success) {
@@ -140,10 +136,6 @@ export default function WithdrawalPage() {
             <span className="text-stone-500">Bruto</span>
             <span className="font-semibold text-stone-950">{convertAndFormatPrice(Number(success.gross_amount || 0))}</span>
           </div>
-          {success.withholding > 0 && <div className="flex justify-between text-sm">
-              <span className="text-stone-500">{i18n.t('withdrawal.retencionIrpf', 'Retención IRPF')}</span>
-              <span className="text-stone-500">−{convertAndFormatPrice(Number(success.withholding || 0))}</span>
-            </div>}
           {success.transfer_fee > 0 && <div className="flex justify-between text-sm">
               <span className="text-stone-500">Fee transferencia</span>
               <span className="text-stone-500">−{convertAndFormatPrice(Number(success.transfer_fee || 0))}</span>
@@ -187,13 +179,6 @@ export default function WithdrawalPage() {
               <span className="text-stone-500">{i18n.t('withdrawal.comisionBruta', 'Comisión bruta')}</span>
               <span className="font-semibold text-stone-950">{convertAndFormatPrice(Number(gross || 0))}</span>
             </div>
-
-            {isSpain && <div className="flex justify-between text-sm items-start">
-                <div className="flex items-center gap-1">
-                  <span className="text-stone-500">Retención IRPF ({withholdingPct}%)</span>
-                </div>
-                <span className="font-semibold text-stone-500">−{convertAndFormatPrice(Number(withholding || 0))}</span>
-              </div>}
 
             <div className="flex justify-between text-sm items-start">
               <div className="flex items-center gap-1">
@@ -240,14 +225,13 @@ export default function WithdrawalPage() {
           </Link>
         </div>
 
-        {/* Tax info (ES only) */}
-        {isSpain && <div className="p-4 mb-5 flex items-start gap-3 bg-stone-100 rounded-2xl">
-            <Info className="w-4 h-4 shrink-0 mt-0.5 text-stone-500" />
-            <p className="text-[10px] leading-relaxed text-stone-500">
-              Este cobro será declarado por Hispaloshop SL como rendimiento de actividad económica.
-              Recibirás un certificado de retenciones en enero para tu declaración de la renta.
-            </p>
-          </div>}
+        {/* Fiscal disclaimer */}
+        <div className="p-4 mb-5 flex items-start gap-3 bg-stone-100 rounded-2xl">
+          <Info className="w-4 h-4 shrink-0 mt-0.5 text-stone-500" />
+          <p className="text-[10px] leading-relaxed text-stone-500">
+            HispaloShop LLC opera desde Estados Unidos. Cobras el 100% de tu comision, sin retenciones. Eres responsable de declarar tus ingresos segun la normativa de tu pais de residencia.
+          </p>
+        </div>
 
         {/* Confirm button */}
         <button onClick={handleSubmit} disabled={!canWithdraw || submitting} className={`w-full h-12 text-sm font-semibold transition-colors mb-5 flex items-center justify-center gap-2 rounded-full border-none ${canWithdraw ? 'bg-stone-950 text-white cursor-pointer' : 'bg-stone-100 text-stone-500 cursor-not-allowed'}`}>

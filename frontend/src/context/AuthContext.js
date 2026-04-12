@@ -216,6 +216,14 @@ export function AuthProvider({ children }) {
         const token = data?.session_token || data?.access_token || getToken() || '';
         if (token) setToken(token, data?.refresh_token);
         upsertStoredAccount(toAccountObject(normalizedUser, token));
+
+        // GDPR 4.1: Link anonymous cookie consents to authenticated user
+        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch {}
+      }
+
+      // GDPR 4.1: Reactivated account toast
+      if (data?.reactivated) {
+        return { ...data, user: normalizedUser, reactivated: true };
       }
 
       return { ...data, user: normalizedUser };
@@ -251,6 +259,9 @@ export function AuthProvider({ children }) {
         const token = data?.session_token || data?.access_token || getToken() || '';
         if (token) setToken(token, data?.refresh_token);
         upsertStoredAccount(toAccountObject(normalizedUser, token));
+
+        // GDPR 4.1: Link anonymous cookie consents to authenticated user
+        try { const { linkConsentToUser } = await import('../components/ui/ConsentBanner'); linkConsentToUser(); } catch {}
       }
 
       return { ...data, user: normalizedUser };

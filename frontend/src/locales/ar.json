@@ -3156,7 +3156,7 @@
     "comisionTotal": "إجمالي العمولة",
     "tasaDeComision": "سعر العمولة",
     "aunNoHasRealizadoNingunCobro": "لم تستلم أي دفعة حتى الآن.",
-    "hispaloshopSlRetieneEl15DeTusCom": "تقوم شركة Hispaloshop SL بحجز 15٪ من عمولاتك ودفعها إلى مصلحة الضرائب نيابة عنك كل ثلاثة أشهر (النموذج 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "تقوم شركة HispaloShop LLC بحجز 15٪ من عمولاتك ودفعها إلى مصلحة الضرائب نيابة عنك كل ثلاثة أشهر (النموذج 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "عند تقديم إقرار ضريبة الدخل (IRPF)، ستكون تلك الاستقطاعات قد دُفعت بالفعل ويمكنك خصمها.",
     "recibirasElCertificadoDeRetenciones": "ستتلقى شهادة الاستقطاع الضريبي في شهر يناير من كل عام.",
     "evolucionDeTusComisiones": "تطور عمولاتك",
@@ -3192,7 +3192,7 @@
     "metodo": "طريقة",
     "comisionBruta": "إجمالي العمولة",
     "laComisionRealPuedeVariarSegunTuM": "قد تختلف العمولة الفعلية حسب طريقة الدفع الخاصة بك.",
-    "esteCobroSeraDeclaradoPorHispalosho": "ستعلن شركة Hispaloshop SL عن هذا المبلغ كدخل من النشاط الاقتصادي.",
+    "esteCobroSeraDeclaradoPorHispalosho": "ستعلن شركة HispaloShop LLC عن هذا المبلغ كدخل من النشاط الاقتصادي.",
     "recibirasUnCertificadoDeRetenciones": "ستتلقى شهادة حجز في شهر يناير لإقرارك الضريبي."
   },
   "importer_catalog": {

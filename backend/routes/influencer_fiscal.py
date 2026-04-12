@@ -5,7 +5,8 @@ import uuid
 import os
 import logging
 import stripe
-from datetime import datetime, timezone
+import hashlib
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form
 
 from core.database import db
@@ -305,3 +306,227 @@ async def get_withholding_summary(user: User = Depends(get_current_user)):
         "by_quarter": by_quarter,
         "withholding_pct": influencer.get("fiscal_status", {}).get("withholding_pct", 0.0),
     }
+
+
+# ============================================
+# SECTION 4.2 — TAX FORMS (W-8BEN / W-9)
+# ============================================
+
+@router.post("/fiscal/tax-form")
+async def submit_tax_form(request: Request, user: User = Depends(get_current_user)):
+    """
+    Submit W-8BEN (non-US) or W-9 (US) tax form.
+    Tax IDs are stored as SHA-256 hash + last 4 chars for display.
+    """
+    body = await request.json()
+    form_type = body.get("form_type")  # 'w8ben' or 'w9'
+    if form_type not in ("w8ben", "w9"):
+        raise HTTPException(status_code=400, detail="form_type must be 'w8ben' or 'w9'")
+
+    tax_residence_country = body.get("tax_residence_country", "").upper()
+    if not tax_residence_country or len(tax_residence_country) != 2:
+        raise HTTPException(status_code=400, detail="tax_residence_country is required (2-letter code)")
+
+    full_name = body.get("full_name", "").strip()
+    if not full_name:
+        raise HTTPException(status_code=400, detail="full_name is required")
+
+    tax_id = body.get("tax_id", "").strip()
+    if not tax_id or len(tax_id) < 4:
+        raise HTTPException(status_code=400, detail="tax_id is required (minimum 4 characters)")
+
+    signature_name = body.get("signature_name", "").strip()
+    if not signature_name:
+        raise HTTPException(status_code=400, detail="Electronic signature (signature_name) is required")
+
+    perjury_accepted = body.get("perjury_accepted", False)
+    if not perjury_accepted:
+        raise HTTPException(status_code=400, detail="Perjury declaration must be accepted")
+
+    now = datetime.now(timezone.utc)
+    expires_at = (now + timedelta(days=3*365)).isoformat() if form_type == "w8ben" else None
+
+    # Hash tax ID for storage (irreversible), keep last 4 for display
+    tax_id_hash = hashlib.sha256(tax_id.encode()).hexdigest()
+    tax_id_last4 = tax_id[-4:]
+
+    form_doc = {
+        "user_id": user.user_id,
+        "form_type": form_type,
+        "tax_residence_country": tax_residence_country,
+        "full_name": full_name,
+        "citizenship": body.get("citizenship", ""),
+        "address": {
+            "street": body.get("street", ""),
+            "city": body.get("city", ""),
+            "postal_code": body.get("postal_code", ""),
+            "country": body.get("address_country", tax_residence_country),
+        },
+        "tax_id_hash": tax_id_hash,
+        "tax_id_last4": tax_id_last4,
+        "treaty_claim": body.get("treaty_claim", False),
+        # W-9 specific
+        "business_name": body.get("business_name", ""),
+        "federal_classification": body.get("federal_classification", ""),
+        # Signature
+        "signature_name": signature_name,
+        "signed_at": now.isoformat(),
+        "perjury_accepted": True,
+        "expires_at": expires_at,
+        "status": "approved",  # Auto-approved for V1 (no manual review)
+        "created_at": now.isoformat(),
+        "updated_at": now.isoformat(),
+    }
+
+    # Upsert: one form per user
+    await db.tax_forms.update_one(
+        {"user_id": user.user_id},
+        {"$set": form_doc},
+        upsert=True,
+    )
+
+    # Update fiscal status on user
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "fiscal_status.tax_form_type": form_type,
+            "fiscal_status.tax_form_status": "approved",
+            "fiscal_status.tax_residence_country": tax_residence_country,
+            "fiscal_status.tax_form_expires_at": expires_at,
+            "fiscal_status.withholding_pct": 0.0,  # LLC US never withholds
+        }}
+    )
+
+    # Also update influencer doc if applicable
+    await db.influencers.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "fiscal_status.tax_form_type": form_type,
+            "fiscal_status.tax_form_status": "approved",
+            "fiscal_status.tax_country": tax_residence_country,
+            "fiscal_status.withholding_pct": 0.0,
+        }},
+    )
+
+    return {
+        "success": True,
+        "form_type": form_type,
+        "status": "approved",
+        "expires_at": expires_at,
+    }
+
+
+@router.get("/fiscal/tax-form")
+async def get_tax_form(user: User = Depends(get_current_user)):
+    """Get current tax form with sensitive fields masked."""
+    form = await db.tax_forms.find_one({"user_id": user.user_id}, {"_id": 0})
+    if not form:
+        return {"tax_form": None}
+
+    # Mask sensitive fields
+    masked = {
+        "form_type": form.get("form_type"),
+        "tax_residence_country": form.get("tax_residence_country"),
+        "full_name": form.get("full_name"),
+        "citizenship": form.get("citizenship"),
+        "address": form.get("address"),
+        "tax_id_last4": form.get("tax_id_last4"),
+        "treaty_claim": form.get("treaty_claim"),
+        "business_name": form.get("business_name"),
+        "federal_classification": form.get("federal_classification"),
+        "signed_at": form.get("signed_at"),
+        "expires_at": form.get("expires_at"),
+        "status": form.get("status"),
+    }
+    return {"tax_form": masked}
+
+
+@router.post("/fiscal/bank-details")
+async def update_bank_details(request: Request, user: User = Depends(get_current_user)):
+    """
+    Update bank details. Format varies by country:
+    - ES: IBAN + BIC + holder name
+    - KR: bank_name + account_number + holder_korean + holder_english
+    - US: routing_number + account_number + account_type + holder name
+    - Other: SWIFT + IBAN + holder + address
+    """
+    body = await request.json()
+    bank_format = body.get("format")  # 'iban', 'korean', 'us_ach', 'swift'
+    if bank_format not in ("iban", "korean", "us_ach", "swift"):
+        raise HTTPException(status_code=400, detail="format must be 'iban', 'korean', 'us_ach', or 'swift'")
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Build bank details based on format
+    bank_doc = {"format": bank_format, "updated_at": now}
+
+    if bank_format == "iban":
+        iban = body.get("iban", "").replace(" ", "").upper()
+        if not iban or len(iban) < 15:
+            raise HTTPException(status_code=400, detail="Valid IBAN required")
+        bank_doc["iban_hash"] = hashlib.sha256(iban.encode()).hexdigest()
+        bank_doc["iban_last4"] = iban[-4:]
+        bank_doc["iban_country"] = iban[:2]
+        bank_doc["bic"] = body.get("bic", "").upper()
+        bank_doc["holder_name"] = body.get("holder_name", "")
+
+    elif bank_format == "korean":
+        bank_doc["bank_name"] = body.get("bank_name", "")
+        acct = body.get("account_number", "").replace("-", "")
+        if not acct or len(acct) < 10:
+            raise HTTPException(status_code=400, detail="Account number required (10-14 digits)")
+        bank_doc["account_hash"] = hashlib.sha256(acct.encode()).hexdigest()
+        bank_doc["account_last4"] = acct[-4:]
+        bank_doc["holder_korean"] = body.get("holder_korean", "")
+        bank_doc["holder_english"] = body.get("holder_english", "")
+
+    elif bank_format == "us_ach":
+        routing = body.get("routing_number", "").strip()
+        if not routing or len(routing) != 9:
+            raise HTTPException(status_code=400, detail="Valid 9-digit routing number required")
+        acct = body.get("account_number", "").strip()
+        if not acct:
+            raise HTTPException(status_code=400, detail="Account number required")
+        bank_doc["routing_number_last4"] = routing[-4:]
+        bank_doc["account_hash"] = hashlib.sha256(acct.encode()).hexdigest()
+        bank_doc["account_last4"] = acct[-4:]
+        bank_doc["account_type"] = body.get("account_type", "checking")  # checking or savings
+        bank_doc["holder_name"] = body.get("holder_name", "")
+
+    elif bank_format == "swift":
+        swift = body.get("swift_code", "").upper()
+        if not swift or len(swift) < 8:
+            raise HTTPException(status_code=400, detail="Valid SWIFT/BIC code required")
+        bank_doc["swift_code"] = swift
+        iban = body.get("iban", "").replace(" ", "").upper()
+        if iban:
+            bank_doc["iban_hash"] = hashlib.sha256(iban.encode()).hexdigest()
+            bank_doc["iban_last4"] = iban[-4:]
+        bank_doc["holder_name"] = body.get("holder_name", "")
+        bank_doc["holder_address"] = body.get("holder_address", "")
+
+    # Store in tax_forms collection
+    await db.tax_forms.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"bank_details": bank_doc, "updated_at": now}},
+    )
+
+    # Also update influencer doc for payout routing
+    payout_updates = {"fiscal_status.bank_format": bank_format}
+    if bank_format == "iban":
+        payout_updates["fiscal_status.payout_method"] = "bank_transfer"
+        payout_updates["sepa_iban_last4"] = bank_doc.get("iban_last4", "")
+        payout_updates["sepa_account_name"] = bank_doc.get("holder_name", "")
+    elif bank_format == "us_ach":
+        payout_updates["fiscal_status.payout_method"] = "bank_transfer"
+    elif bank_format == "korean":
+        payout_updates["fiscal_status.payout_method"] = "bank_transfer"
+    else:
+        payout_updates["fiscal_status.payout_method"] = "bank_transfer"
+
+    await db.influencers.update_one(
+        {"user_id": user.user_id},
+        {"$set": payout_updates},
+    )
+
+    return {"success": True, "format": bank_format, "last4": bank_doc.get("iban_last4") or bank_doc.get("account_last4") or ""}

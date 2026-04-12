@@ -3292,7 +3292,7 @@
     "comisionTotal": "Total provision",
     "tasaDeComision": "Provisionssats",
     "aunNoHasRealizadoNingunCobro": "Du har inte fått någon betalning än.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL drar av 15 % av dina provisioner och betalar dem till Skatteverket för din räkning kvartalsvis (modell 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC drar av 15 % av dina provisioner och betalar dem till Skatteverket för din räkning kvartalsvis (modell 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "När du lämnar in din inkomstdeklaration (IRPF) kommer dessa källskatter redan att vara betalda och du kan dra av dem.",
     "recibirasElCertificadoDeRetenciones": "Du kommer att få källskatteintyget i januari varje år.",
     "evolucionDeTusComisiones": "Utvecklingen av dina provisioner",
@@ -3329,7 +3329,7 @@
     "metodo": "Metod",
     "comisionBruta": "Bruttoprovision",
     "laComisionRealPuedeVariarSegunTuM": "Den faktiska provisionen kan variera beroende på din betalningsmetod.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Denna betalning kommer att deklareras av Hispaloshop SL som inkomst från ekonomisk verksamhet.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Denna betalning kommer att deklareras av HispaloShop LLC som inkomst från ekonomisk verksamhet.",
     "recibirasUnCertificadoDeRetenciones": "Du kommer att få ett källskatteintyg i januari för din skattedeklaration."
   },
   "importer_catalog": {

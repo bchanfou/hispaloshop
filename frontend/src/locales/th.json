@@ -3292,7 +3292,7 @@
     "comisionTotal": "ค่าคอมมิชชั่นทั้งหมด",
     "tasaDeComision": "อัตราค่าคอมมิชชั่น",
     "aunNoHasRealizadoNingunCobro": "คุณยังไม่ได้รับเงินใดๆ เลย",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL จะหักค่าคอมมิชชั่นของคุณ 15% และชำระให้กับกรมสรรพากรในนามของคุณทุกไตรมาส (แบบฟอร์ม 111)",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC จะหักค่าคอมมิชชั่นของคุณ 15% และชำระให้กับกรมสรรพากรในนามของคุณทุกไตรมาส (แบบฟอร์ม 111)",
     "cuandoHagasTuDeclaracionDeLaRenta": "เมื่อคุณยื่นแบบแสดงรายการภาษีเงินได้ (IRPF) เงินหัก ณ ที่จ่ายเหล่านั้นจะถูกชำระไปแล้ว และคุณสามารถนำมาหักลดหย่อนได้",
     "recibirasElCertificadoDeRetenciones": "คุณจะได้รับใบรับรองการหักภาษี ณ ที่จ่ายในเดือนมกราคมของทุกปี",
     "evolucionDeTusComisiones": "การเปลี่ยนแปลงค่าคอมมิชชั่นของคุณ",
@@ -3329,7 +3329,7 @@
     "metodo": "วิธี",
     "comisionBruta": "ค่าคอมมิชชั่นขั้นต้น",
     "laComisionRealPuedeVariarSegunTuM": "ค่าคอมมิชชั่นจริงอาจแตกต่างกันไปขึ้นอยู่กับวิธีการชำระเงินของคุณ",
-    "esteCobroSeraDeclaradoPorHispalosho": "บริษัท Hispaloshop SL จะแจ้งการชำระเงินนี้เป็นรายได้จากกิจกรรมทางเศรษฐกิจ",
+    "esteCobroSeraDeclaradoPorHispalosho": "บริษัท HispaloShop LLC จะแจ้งการชำระเงินนี้เป็นรายได้จากกิจกรรมทางเศรษฐกิจ",
     "recibirasUnCertificadoDeRetenciones": "คุณจะได้รับใบรับรองการหักภาษี ณ ที่จ่ายในเดือนมกราคม เพื่อใช้ในการยื่นภาษี"
   },
   "importer_catalog": {

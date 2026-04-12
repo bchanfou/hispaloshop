@@ -130,6 +130,12 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
+        // GDPR 4.1: Show reactivation toast if account was pending deletion
+        if (data.reactivated) {
+          const { toast } = await import('sonner');
+          toast.success('Tu cuenta ha sido reactivada.');
+        }
+
         // setToken stores the token in localStorage (TOKEN_KEY) for API client Bearer headers.
         // AuthContext.login() only stores it in hsp_accounts — this call is NOT redundant.
         if (data.session_token || data.access_token) {

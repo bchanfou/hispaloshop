@@ -340,9 +340,8 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     if store and store.get("stripe_charges_enabled"):
         stripe_connected = True
     
-    # Tax withholding (fiscal status)
-    fiscal = (seller_doc or {}).get("fiscal_status", {})
-    tax_withholding_pct = fiscal.get("withholding_pct") if fiscal.get("certificate_verified") else None
+    # Tax withholding — always 0% (LLC US is not a withholding agent, section 4.2)
+    tax_withholding_pct = 0.0
 
     # Total withdrawn (completed payouts)
     total_withdrawn = 0.0

@@ -481,6 +481,39 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
     await db.ai_profiles.delete_one({"user_id": user_id})
     await db.user_inferred_insights.delete_one({"user_id": user_id})
 
+    # ── GDPR 4.1: Additional collections missed in 3.6.7 ──
+    await db.rebeca_profiles.delete_one({"user_id": user_id})
+    await db.pedro_profiles.delete_one({"user_id": user_id})
+    await db.search_history.delete_many({"user_id": user_id})
+    await db.support_tickets.update_many(
+        {"user_id": user_id},
+        {"$set": {"user_name": "Deleted User", "user_email": "deleted@account.com"}}
+    )
+    await db.feedback.update_many(
+        {"author_id": user_id},
+        {"$set": {"author_name": "Deleted User", "author_id": "deleted"}}
+    )
+    await db.feedback_votes.delete_many({"user_id": user_id})
+    await db.reel_comments.update_many(
+        {"user_id": user_id},
+        {"$set": {"user_name": "Deleted User", "user_id": "deleted"}}
+    )
+    await db.reel_likes.delete_many({"user_id": user_id})
+    await db.reel_saves.delete_many({"user_id": user_id})
+    await db.story_likes.delete_many({"user_id": user_id})
+    await db.story_replies.delete_many({"user_id": user_id})
+    await db.post_bookmarks.delete_many({"user_id": user_id})
+    await db.content_reports.update_many(
+        {"reporter_user_id": user_id},
+        {"$set": {"reporter_user_id": "deleted"}}
+    )
+    await db.page_visits.delete_many({"user_id": user_id})
+    await db.analytics_visits.delete_many({"user_id": user_id})
+    await db.user_consents.delete_many({"user_id": user_id})
+    await db.data_export_log.delete_many({"user_id": user_id})
+    await db.saved_products.delete_many({"user_id": user_id})
+    await db.email_verifications.delete_many({"user_id": user_id})
+
     if user.role == "customer":
         await db.cart.delete_many({"user_id": user_id})
         await db.chat_messages.delete_many({"user_id": user_id})
@@ -531,6 +564,139 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
 
     await db.users.delete_one({"user_id": user_id})
     return {"message": "Cuenta eliminada correctamente"}
+
+
+@router.post("/account/deactivate")
+async def deactivate_account(request: Request, user: User = Depends(get_current_user)):
+    """
+    GDPR Art. 17 — Soft delete with 30-day grace period.
+    Sets status to pending_deletion. User can re-login within 30 days to restore.
+    After 30 days, process_pending_deletions cron performs hard delete.
+    """
+    user_id = user.user_id
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "status": 1})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if user_doc.get("status") == "pending_deletion":
+        raise HTTPException(status_code=400, detail="Tu cuenta ya está pendiente de eliminación.")
+
+    now = datetime.now(timezone.utc)
+    reactivation_deadline = now + timedelta(days=30)
+
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "status": "pending_deletion",
+            "deleted_at": now.isoformat(),
+            "reactivation_deadline": reactivation_deadline.isoformat(),
+        }}
+    )
+    # Invalidate all sessions
+    await db.user_sessions.delete_many({"user_id": user_id})
+
+    return {
+        "message": "Tu cuenta se eliminará permanentemente en 30 días. Inicia sesión antes para recuperarla.",
+        "reactivation_deadline": reactivation_deadline.isoformat(),
+    }
+
+
+async def process_pending_deletions():
+    """
+    Cron handler: finds users with status=pending_deletion whose 30-day
+    grace period has expired, and executes hard delete for each.
+    Called from super_admin ALLOWED_CRONS.
+    """
+    import hashlib
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    pending = await db.users.find(
+        {"status": "pending_deletion", "deleted_at": {"$lt": cutoff}},
+        {"_id": 0, "user_id": 1, "email": 1, "role": 1, "deleted_at": 1}
+    ).to_list(100)
+
+    processed = 0
+    for u in pending:
+        uid = u["user_id"]
+        user_id_hash = hashlib.sha256(uid.encode()).hexdigest()[:16]
+        try:
+            # Re-use the hard delete logic inline (same as delete_account handler)
+            # Common cleanup
+            await db.user_sessions.delete_many({"user_id": uid})
+            await db.user_follows.delete_many({"$or": [{"follower_id": uid}, {"following_id": uid}]})
+            await db.post_likes.delete_many({"user_id": uid})
+            await db.post_reactions.delete_many({"user_id": uid})
+            await db.post_comments.update_many({"user_id": uid}, {"$set": {"user_name": "Deleted User", "user_id": "deleted"}})
+            await db.wishlists.delete_many({"user_id": uid})
+            await db.notifications.delete_many({"user_id": uid})
+            await db.user_notification_preferences.delete_many({"user_id": uid})
+            await db.user_preferences.delete_many({"user_id": uid})
+            await db.community_members.delete_many({"user_id": uid})
+            await db.follow_requests.delete_many({"$or": [{"from_user_id": uid}, {"to_user_id": uid}]})
+            await db.blocked_users.delete_many({"$or": [{"blocker_id": uid}, {"blocked_id": uid}]})
+            await db.push_subscriptions.delete_many({"user_id": uid})
+            await db.carts.delete_many({"user_id": uid})
+            await db.cart_discounts.delete_many({"user_id": uid})
+            await db.stock_holds.delete_many({"user_id": uid})
+            await db.customer_influencer_attribution.delete_many({"consumer_id": uid})
+            await db.saved_recipes.delete_many({"user_id": uid})
+            await db.ai_profiles.delete_one({"user_id": uid})
+            await db.user_inferred_insights.delete_one({"user_id": uid})
+            await db.rebeca_profiles.delete_one({"user_id": uid})
+            await db.pedro_profiles.delete_one({"user_id": uid})
+            await db.search_history.delete_many({"user_id": uid})
+            await db.support_tickets.update_many({"user_id": uid}, {"$set": {"user_name": "Deleted User", "user_email": "deleted@account.com"}})
+            await db.feedback.update_many({"author_id": uid}, {"$set": {"author_name": "Deleted User", "author_id": "deleted"}})
+            await db.feedback_votes.delete_many({"user_id": uid})
+            await db.reel_comments.update_many({"user_id": uid}, {"$set": {"user_name": "Deleted User", "user_id": "deleted"}})
+            await db.reel_likes.delete_many({"user_id": uid})
+            await db.reel_saves.delete_many({"user_id": uid})
+            await db.story_likes.delete_many({"user_id": uid})
+            await db.story_replies.delete_many({"user_id": uid})
+            await db.post_bookmarks.delete_many({"user_id": uid})
+            await db.content_reports.update_many({"reporter_user_id": uid}, {"$set": {"reporter_user_id": "deleted"}})
+            await db.page_visits.delete_many({"user_id": uid})
+            await db.analytics_visits.delete_many({"user_id": uid})
+            await db.user_consents.delete_many({"user_id": uid})
+            await db.data_export_log.delete_many({"user_id": uid})
+            await db.saved_products.delete_many({"user_id": uid})
+            await db.email_verifications.delete_many({"user_id": uid})
+
+            role = u.get("role", "customer")
+            if role == "customer":
+                await db.cart.delete_many({"user_id": uid})
+                await db.chat_messages.delete_many({"user_id": uid})
+                await db.orders.update_many({"user_id": uid}, {"$set": {"user_email": "deleted@account.com", "user_name": "Deleted User"}})
+                await db.reviews.update_many({"user_id": uid}, {"$set": {"user_name": "Deleted User"}})
+            elif role == "producer":
+                await db.products.update_many({"producer_id": uid}, {"$set": {"status": "deleted", "visible": False}})
+                await db.stores.update_many({"producer_id": uid}, {"$set": {"status": "deleted"}})
+            elif role == "influencer":
+                await db.discount_codes.update_many({"influencer_id": uid}, {"$set": {"active": False}})
+                await db.affiliate_links.update_many({"influencer_id": uid}, {"$set": {"status": "owner_deleted"}})
+                await db.scheduled_payouts.update_many({"influencer_id": uid, "status": "scheduled"}, {"$set": {"status": "cancelled", "cancel_reason": "account_deleted"}})
+                await db.influencers.delete_one({"user_id": uid})
+                await db.influencer_commissions.delete_many({"influencer_id": uid})
+
+            await db.users.delete_one({"user_id": uid})
+
+            await db.deletion_log.insert_one({
+                "user_id_hash": user_id_hash,
+                "deleted_at": u.get("deleted_at"),
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+                "status": "completed",
+            })
+            processed += 1
+        except Exception as e:
+            logger.error(f"Failed to hard-delete pending user {user_id_hash}: {e}")
+            await db.deletion_log.insert_one({
+                "user_id_hash": user_id_hash,
+                "deleted_at": u.get("deleted_at"),
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+                "status": "error",
+                "error": str(e),
+            })
+
+    return {"processed": processed, "total_pending": len(pending)}
 
 
 @router.put("/account/update-email")
@@ -587,45 +753,229 @@ async def reactivate_analytics_consent(user: User = Depends(get_current_user)):
 
 
 # ============================================
+# GDPR 4.1 — COOKIE CONSENT LOGGING
+# ============================================
+
+@router.post("/consent")
+async def save_consent(request: Request):
+    """
+    Public endpoint (no auth required). Logs granular cookie consent.
+    Body: {consents: [{type: 'essential', granted: true}, ...], cookie_id: str}
+    """
+    import hashlib
+    body = await request.json()
+    consents = body.get("consents", [])
+    cookie_id = body.get("cookie_id", "")
+
+    if not cookie_id or not consents:
+        raise HTTPException(status_code=400, detail="cookie_id and consents are required")
+
+    valid_types = {"essential", "analytics", "marketing", "ai_processing", "cross_border_transfer"}
+    now = datetime.now(timezone.utc).isoformat()
+    ip_raw = request.client.host if request.client else "unknown"
+    ip_hash = hashlib.sha256(ip_raw.encode()).hexdigest()[:32]
+    user_agent = request.headers.get("user-agent", "")[:200]
+
+    saved = []
+    for c in consents:
+        consent_type = c.get("type", "")
+        if consent_type not in valid_types:
+            continue
+        granted = bool(c.get("granted", False))
+
+        # Upsert: one record per cookie_id + consent_type
+        await db.user_consents.update_one(
+            {"cookie_id": cookie_id, "consent_type": consent_type},
+            {"$set": {
+                "granted": granted,
+                "granted_at": now if granted else None,
+                "revoked_at": now if not granted else None,
+                "ip_address_hash": ip_hash,
+                "user_agent": user_agent,
+                "updated_at": now,
+            }, "$setOnInsert": {
+                "consent_id": f"cns_{uuid.uuid4().hex[:12]}",
+                "cookie_id": cookie_id,
+                "consent_type": consent_type,
+                "user_id": None,
+            }},
+            upsert=True,
+        )
+        saved.append({"type": consent_type, "granted": granted})
+
+    return {"consents_saved": saved}
+
+
+@router.get("/consent")
+async def get_consent(cookie_id: str = Query(...)):
+    """Public endpoint: returns current consent state for a cookie_id."""
+    records = await db.user_consents.find(
+        {"cookie_id": cookie_id}, {"_id": 0, "consent_type": 1, "granted": 1}
+    ).to_list(10)
+    return {"consents": {r["consent_type"]: r.get("granted", False) for r in records}}
+
+
+@router.put("/consent/link-user")
+async def link_consent_to_user(request: Request, user: User = Depends(get_current_user)):
+    """Link anonymous cookie consents to authenticated user_id after login/register."""
+    body = await request.json()
+    cookie_id = body.get("cookie_id", "")
+    if not cookie_id:
+        return {"linked": 0}
+    result = await db.user_consents.update_many(
+        {"cookie_id": cookie_id, "user_id": None},
+        {"$set": {"user_id": user.user_id}}
+    )
+    return {"linked": result.modified_count}
+
+
+# ============================================
 # GDPR DATA EXPORT
 # ============================================
 
 @router.post("/users/me/data-export")
 async def request_data_export(user: User = Depends(get_current_user)):
     """
-    GDPR data export — collects user data from all collections into JSON.
-    Returns 200 with data for small exports. Structure ready for async (202 + email)
-    when data volume grows.
+    GDPR Art. 15 + 20 — Right to access + portability.
+    Collects ALL personal data from every collection into JSON.
+    Rate limited: 1 export per day per user.
     """
+    import hashlib
     user_id = user.user_id
 
-    # Collect data from all relevant collections
+    # ── Rate limit: 1 export per day ──
+    last_export = await db.data_export_log.find_one(
+        {"user_id": user_id}, sort=[("requested_at", -1)]
+    )
+    if last_export:
+        last_at = last_export.get("requested_at", "")
+        if last_at:
+            try:
+                last_dt = datetime.fromisoformat(last_at)
+                if datetime.now(timezone.utc) - last_dt < timedelta(hours=24):
+                    raise HTTPException(
+                        status_code=429,
+                        detail="Solo puedes solicitar una descarga de datos por día."
+                    )
+            except (ValueError, TypeError):
+                pass
+
+    # Helper to sanitize other-user IDs from documents
+    def _redact_other_users(doc, keep_fields=None):
+        """Replace other users' IDs with 'otro_usuario' for privacy."""
+        if not doc or not isinstance(doc, dict):
+            return doc
+        redacted = {}
+        for k, v in doc.items():
+            if k == "_id":
+                continue
+            if keep_fields and k in keep_fields:
+                redacted[k] = v
+            elif k.endswith("_id") and k != "user_id" and isinstance(v, str) and v != user_id:
+                redacted[k] = "otro_usuario"
+            else:
+                redacted[k] = v
+        return redacted
+
+    def _redact_list(docs, keep_fields=None):
+        return [_redact_other_users(d, keep_fields) for d in docs]
+
+    # ── Collect from ALL collections ──
     user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
-    orders = await db.orders.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(500)
-    reviews = await db.reviews.find({"user_id": user_id, "deleted": {"$ne": True}}, {"_id": 0}).to_list(200)
-    posts = await db.posts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(500)
-    addresses = await db.customer_addresses.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+
+    orders_buyer = await db.orders.find(
+        {"user_id": user_id}, {"_id": 0}
+    ).sort("created_at", -1).to_list(1000)
+    orders_seller = await db.orders.find(
+        {"line_items.producer_id": user_id}, {"_id": 0}
+    ).sort("created_at", -1).to_list(1000)
+
+    posts = await db.posts.find({"user_id": user_id}, {"_id": 0}).to_list(1000)
+    reels = await db.reels.find({"author_id": user_id}, {"_id": 0}).to_list(500)
+    stories = await db.hispalostories.find({"author_id": user_id}, {"_id": 0}).to_list(500)
+    comments = await db.post_comments.find({"user_id": user_id}, {"_id": 0}).to_list(1000)
+    reviews = await db.reviews.find({"user_id": user_id}, {"_id": 0}).to_list(500)
+    recipes = await db.recipes.find({"author_id": user_id}, {"_id": 0}).to_list(200)
+    products = await db.products.find({"producer_id": user_id}, {"_id": 0}).to_list(500)
+
+    support_tickets = await db.support_tickets.find({"user_id": user_id}, {"_id": 0}).to_list(200)
+    feedback = await db.feedback.find({"author_id": user_id}, {"_id": 0}).to_list(200)
+    feedback_votes = await db.feedback_votes.find({"user_id": user_id}, {"_id": 0}).to_list(500)
+
+    followers = await db.user_follows.find(
+        {"$or": [{"follower_id": user_id}, {"following_id": user_id}]}, {"_id": 0}
+    ).to_list(5000)
+
+    messages = await db.chat_messages.find(
+        {"$or": [{"sender_id": user_id}, {"receiver_id": user_id}]}, {"_id": 0}
+    ).to_list(2000)
+
+    notifications = await db.notifications.find({"user_id": user_id}, {"_id": 0}).to_list(500)
     preferences = await db.user_preferences.find_one({"user_id": user_id}, {"_id": 0})
     notification_prefs = await db.user_notification_preferences.find_one({"user_id": user_id}, {"_id": 0})
-    saved_items = await db.saved_products.find({"user_id": user_id}, {"_id": 0}).to_list(200)
+    addresses = await db.customer_addresses.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+    saved_items = await db.saved_products.find({"user_id": user_id}, {"_id": 0}).to_list(500)
+    wishlists = await db.wishlists.find({"user_id": user_id}, {"_id": 0}).to_list(200)
     ai_insights = await db.user_inferred_insights.find_one({"user_id": user_id}, {"_id": 0})
+    ai_profile = await db.ai_profiles.find_one({"user_id": user_id}, {"_id": 0})
+
+    content_reports = await db.content_reports.find(
+        {"reporter_user_id": user_id}, {"_id": 0}
+    ).to_list(200)
+    moderation_actions = await db.moderation_actions.find(
+        {"target_user_id": user_id}, {"_id": 0}
+    ).to_list(200)
+
+    influencer_commissions = await db.influencer_commissions.find(
+        {"influencer_id": user_id}, {"_id": 0}
+    ).to_list(500)
+    payouts = await db.scheduled_payouts.find({"influencer_id": user_id}, {"_id": 0}).to_list(200)
+
+    user_consents = await db.user_consents.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+
+    community_memberships = await db.community_members.find({"user_id": user_id}, {"_id": 0}).to_list(200)
 
     export_data = {
         "export_date": datetime.now(timezone.utc).isoformat(),
         "user_id": user_id,
         "profile": user_doc,
-        "orders": orders,
-        "reviews": reviews,
+        "orders_as_buyer": _redact_list(orders_buyer),
+        "orders_as_seller": _redact_list(orders_seller),
         "posts": posts,
-        "addresses": addresses,
+        "reels": reels,
+        "stories": stories,
+        "comments": _redact_list(comments),
+        "reviews": reviews,
+        "recipes": recipes,
+        "products": products,
+        "support_tickets": support_tickets,
+        "feedback": feedback,
+        "feedback_votes": feedback_votes,
+        "followers_following": _redact_list(followers),
+        "messages": _redact_list(messages),
+        "notifications": notifications,
         "preferences": preferences,
         "notification_preferences": notification_prefs,
+        "addresses": addresses,
         "saved_items": saved_items,
+        "wishlists": wishlists,
         "ai_insights": ai_insights,
+        "ai_profile": ai_profile,
+        "content_reports": content_reports,
+        "moderation_actions_affecting_me": _redact_list(moderation_actions),
+        "influencer_commissions": influencer_commissions,
+        "payouts": payouts,
+        "consents": user_consents,
+        "community_memberships": community_memberships,
     }
 
-    # For V1 with small datasets, return synchronously.
-    # When data grows: switch to 202 + background task + email with download link.
+    # Log the export request
+    await db.data_export_log.insert_one({
+        "user_id": user_id,
+        "requested_at": datetime.now(timezone.utc).isoformat(),
+        "collections_exported": len([k for k, v in export_data.items() if v]),
+    })
+
     return {
         "status": "ready",
         "message": "Tu descarga de datos está lista.",

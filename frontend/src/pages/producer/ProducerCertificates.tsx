@@ -487,6 +487,13 @@ export default function ProducerCertificates() {
 
   // List View
   return <div className="max-w-[975px] mx-auto">
+      {/* Certification disclaimer */}
+      <div className="mb-4 p-3 bg-stone-50 border border-stone-100 rounded-xl">
+        <p className="text-[11px] leading-relaxed text-stone-400">
+          Las certificaciones son presentadas por el productor. HispaloShop no emite ni verifica la autenticidad de los documentos oficiales.
+        </p>
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-stone-950 mb-2">

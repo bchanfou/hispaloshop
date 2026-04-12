@@ -136,7 +136,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <p className="mt-12 pt-6 border-t border-stone-800 text-center text-xs text-stone-500 mb-0">
-          &copy; 2026 Hispaloshop SL &middot; Todos los derechos reservados
+          &copy; 2026 HispaloShop LLC &middot; Todos los derechos reservados
         </p>
       </div>
     </footer>;

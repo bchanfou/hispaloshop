@@ -318,7 +318,7 @@ data['landing'] = {
             "error": "\uc804\uc1a1 \uc624\ub958. \ub2e4\uc2dc \uc2dc\ub3c4\ud574\uc8fc\uc138\uc694."
         },
         "empresa": {
-            "nombre": "Hispaloshop SL",
+            "nombre": "HispaloShop LLC",
             "ubicacion": "Reus, Tarragona, Espa\u00f1a",
             "email": "hola@hispaloshop.com",
             "instagram": "@hispaloshop",

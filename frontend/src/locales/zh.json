@@ -3156,7 +3156,7 @@
     "comisionTotal": "总佣金",
     "tasaDeComision": "佣金率",
     "aunNoHasRealizadoNingunCobro": "您尚未收到任何款项。",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL 会扣留您佣金的 15%，并按季度代表您将其支付给税务局（111 型）。",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC 会扣留您佣金的 15%，并按季度代表您将其支付给税务局（111 型）。",
     "cuandoHagasTuDeclaracionDeLaRenta": "当您提交所得税申报表（IRPF）时，这些预扣税款已经缴纳，您可以扣除这些税款。",
     "recibirasElCertificadoDeRetenciones": "您每年一月份都会收到预扣税证明。",
     "evolucionDeTusComisiones": "佣金的演变",
@@ -3192,7 +3192,7 @@
     "metodo": "方法",
     "comisionBruta": "总佣金",
     "laComisionRealPuedeVariarSegunTuM": "实际佣金可能因您的付款方式而异。",
-    "esteCobroSeraDeclaradoPorHispalosho": "Hispaloshop SL 将把这笔款项申报为经济活动收入。",
+    "esteCobroSeraDeclaradoPorHispalosho": "HispaloShop LLC 将把这笔款项申报为经济活动收入。",
     "recibirasUnCertificadoDeRetenciones": "您将于一月份收到预扣税证明，用于您的纳税申报。"
   },
   "importer_catalog": {

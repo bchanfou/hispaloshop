@@ -3292,7 +3292,7 @@
     "comisionTotal": "Całkowita prowizja",
     "tasaDeComision": "Stawka prowizji",
     "aunNoHasRealizadoNingunCobro": "Nie otrzymałeś jeszcze żadnej płatności.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL pobiera 15% prowizji od Twojej należności i odprowadza ją kwartalnie w Twoim imieniu do Urzędu Skarbowego (Model 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC pobiera 15% prowizji od Twojej należności i odprowadza ją kwartalnie w Twoim imieniu do Urzędu Skarbowego (Model 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "Kiedy składasz zeznanie podatkowe (IRPF), te potrącenia zostaną już pobrane i możesz je odliczyć.",
     "recibirasElCertificadoDeRetenciones": "Zaświadczenie o potrąceniu podatku otrzymasz w styczniu każdego roku.",
     "evolucionDeTusComisiones": "Ewolucja Twoich prowizji",
@@ -3329,7 +3329,7 @@
     "metodo": "Metoda",
     "comisionBruta": "Prowizja brutto",
     "laComisionRealPuedeVariarSegunTuM": "Rzeczywista prowizja może się różnić w zależności od wybranej metody płatności.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Płatność ta zostanie zadeklarowana przez Hispaloshop SL jako dochód z działalności gospodarczej.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Płatność ta zostanie zadeklarowana przez HispaloShop LLC jako dochód z działalności gospodarczej.",
     "recibirasUnCertificadoDeRetenciones": "W styczniu otrzymasz zaświadczenie o potrąceniu podatku na potrzeby zeznania podatkowego."
   },
   "importer_catalog": {

@@ -539,6 +539,17 @@ async def hispal_ai_chat(request_body: ChatRequest, request: Request,
     rate_key = user_id or request.client.host
     check_rate_limit(rate_key)
 
+    # GDPR 4.1: Check AI processing consent (degradation, not hard block)
+    if user_id:
+        _user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "consent": 1})
+        if _user_doc and not (_user_doc.get("consent") or {}).get("analytics_consent", False):
+            return {
+                "response": "Activa el procesamiento IA en tu configuración de privacidad (Ajustes > Privacidad y datos > Consentimiento IA) para recibir recomendaciones personalizadas.",
+                "tool_calls": [],
+                "session_id": request_body.session_id or f"chat_{uuid.uuid4().hex[:12]}",
+                "ai_consent_required": True,
+            }
+
     session_id = request_body.session_id or f"chat_{uuid.uuid4().hex[:12]}"
 
     # Load AI profile and user country

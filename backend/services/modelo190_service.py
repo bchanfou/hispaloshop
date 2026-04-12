@@ -134,7 +134,7 @@ async def generate_quarterly_report(year: int, quarter: int) -> dict:
     elements.append(Paragraph("HISPALOSHOP", style_title))
     elements.append(Paragraph("Informe de Retenciones — Modelo 190", style_subtitle))
     elements.append(Spacer(1, 8))
-    elements.append(Paragraph("Hispaloshop SL", ParagraphStyle(
+    elements.append(Paragraph("HispaloShop LLC", ParagraphStyle(
         "co", parent=styles["Normal"], fontName="Helvetica-Bold",
         fontSize=10, textColor=black,
     )))

@@ -3156,7 +3156,7 @@
     "comisionTotal": "Comissão total",
     "tasaDeComision": "Taxa de comissão",
     "aunNoHasRealizadoNingunCobro": "Você ainda não recebeu nenhum pagamento.",
-    "hispaloshopSlRetieneEl15DeTusCom": "A Hispaloshop SL retém 15% das suas comissões e paga esse valor à Autoridade Tributária em seu nome trimestralmente (Modelo 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "A HispaloShop LLC retém 15% das suas comissões e paga esse valor à Autoridade Tributária em seu nome trimestralmente (Modelo 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "Ao apresentar sua declaração de imposto de renda (IRPF), essas retenções já terão sido pagas e você poderá deduzi-las.",
     "recibirasElCertificadoDeRetenciones": "Você receberá o certificado de retenção na fonte em janeiro de cada ano.",
     "evolucionDeTusComisiones": "Evolução das suas comissões",
@@ -3192,7 +3192,7 @@
     "metodo": "Método",
     "comisionBruta": "Comissão bruta",
     "laComisionRealPuedeVariarSegunTuM": "O valor real da comissão pode variar dependendo da forma de pagamento escolhida.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Este pagamento será declarado pela Hispaloshop SL como rendimento de atividade econômica.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Este pagamento será declarado pela HispaloShop LLC como rendimento de atividade econômica.",
     "recibirasUnCertificadoDeRetenciones": "Você receberá um certificado de retenção na fonte em janeiro para sua declaração de imposto de renda."
   },
   "importer_catalog": {
@@ -4326,7 +4326,7 @@
         "error": "Erro ao enviar. Tente novamente."
       },
       "empresa": {
-        "nombre": "Hispaloshop SL",
+        "nombre": "HispaloShop LLC",
         "ubicacion": "Reus, Tarragona, Espanha",
         "email": "hola@hispaloshop.com",
         "instagram": "@hispaloshop",

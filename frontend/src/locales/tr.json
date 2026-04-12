@@ -3292,7 +3292,7 @@
     "comisionTotal": "Toplam komisyon",
     "tasaDeComision": "Komisyon oranı",
     "aunNoHasRealizadoNingunCobro": "Henüz herhangi bir ödeme almadınız.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL, komisyonlarınızın %15'ini keser ve sizin adınıza üç ayda bir Vergi Dairesine öder (Model 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC, komisyonlarınızın %15'ini keser ve sizin adınıza üç ayda bir Vergi Dairesine öder (Model 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "Gelir vergisi beyannamenizi (IRPF) verdiğinizde, bu kesintiler zaten ödenmiş olacak ve bunları vergiden düşebilirsiniz.",
     "recibirasElCertificadoDeRetenciones": "Vergi stopaj belgesini her yılın Ocak ayında alacaksınız.",
     "evolucionDeTusComisiones": "Komisyonlarınızın evrimi",
@@ -3329,7 +3329,7 @@
     "metodo": "Yöntem",
     "comisionBruta": "Brüt komisyon",
     "laComisionRealPuedeVariarSegunTuM": "Gerçek komisyon oranı, ödeme yönteminize bağlı olarak değişebilir.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Bu ödeme, Hispaloshop SL tarafından ekonomik faaliyetten elde edilen gelir olarak beyan edilecektir.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Bu ödeme, HispaloShop LLC tarafından ekonomik faaliyetten elde edilen gelir olarak beyan edilecektir.",
     "recibirasUnCertificadoDeRetenciones": "Vergi beyannameniz için Ocak ayında bir stopaj belgesi alacaksınız."
   },
   "importer_catalog": {

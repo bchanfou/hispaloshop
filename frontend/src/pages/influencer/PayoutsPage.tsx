@@ -223,13 +223,12 @@ export default function PayoutsPage() {
       <h2>Recibo de pago — ${dateStr}</h2>
       <table>
       <tr><td>Bruto</td><td>${(payout.gross_amount_eur || payout.net_amount_eur || 0).toFixed(2)} EUR</td></tr>
-      ${payout.withholding_amount_eur ? `<tr><td>Retencion IRPF (15%)</td><td>-${Number(payout.withholding_amount_eur).toFixed(2)} EUR</td></tr>` : ''}
       ${payout.fee_amount_eur ? `<tr><td>Comision transferencia</td><td>-${Number(payout.fee_amount_eur).toFixed(2)} EUR</td></tr>` : ''}
       <tr class="total"><td>Neto recibido</td><td>${Number(payout.net_amount_eur || 0).toFixed(2)} EUR</td></tr>
       </table>
       <p style="font-size:12px;color:#57534e">${payout.commission_count || 0} ventas atribuidas</p>
       ${payout.stripe_transfer_id ? `<p style="font-size:11px;color:#a8a29e">Ref: ${payout.stripe_transfer_id}</p>` : ''}
-      <div class="footer">Este documento es un recibo informativo. HispaloShop SL.</div>
+      <div class="footer">Este documento es un recibo informativo. HispaloShop LLC, Florida, USA.</div>
       </body></html>`);
     w.document.close();
     w.print();
@@ -305,14 +304,14 @@ export default function PayoutsPage() {
           de cada pago. Recibirás el importe neto en tu cuenta bancaria.
         </div>
 
-        {/* Fiscal summary */}
-        {withholdingSummary && ((withholdingSummary.withheld_ytd || 0) > 0 || (withholdingSummary.gross_ytd || 0) > 0) && <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
+        {/* Fiscal summary — gross earnings YTD */}
+        {withholdingSummary && (withholdingSummary.gross_ytd || 0) > 0 && <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FileText className="w-4 h-4 text-stone-500 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-stone-950">Resumen fiscal {new Date().getFullYear()}</p>
                 <p className="text-xs text-stone-500">
-                  Retenciones acumuladas: {convertAndFormatPrice(Number(withholdingSummary.withheld_ytd || 0))}
+                  Ingresos brutos: {convertAndFormatPrice(Number(withholdingSummary.gross_ytd || 0))}
                 </p>
               </div>
             </div>
@@ -359,13 +358,10 @@ export default function PayoutsPage() {
                     {payout.stripe_transfer_id && <> · Transferencia #{payout.stripe_transfer_id.slice(-8)}</>}
                   </p>
                   {/* Fees breakdown */}
-                  {(payout.fee_amount_eur != null || payout.withholding_amount_eur != null) && <div className="flex gap-3 mt-0.5">
-                      {payout.fee_amount_eur != null && <span className="text-[11px] text-stone-400">
-                          Comisión: {convertAndFormatPrice(Number(payout.fee_amount_eur))}
-                        </span>}
-                      {payout.withholding_amount_eur != null && <span className="text-[11px] text-stone-400">
-                          Retención: {convertAndFormatPrice(Number(payout.withholding_amount_eur))}
-                        </span>}
+                  {payout.fee_amount_eur != null && <div className="flex gap-3 mt-0.5">
+                      <span className="text-[11px] text-stone-400">
+                        Fee: {convertAndFormatPrice(Number(payout.fee_amount_eur))}
+                      </span>
                     </div>}
                 </div>
                 <div className="flex items-center gap-3">

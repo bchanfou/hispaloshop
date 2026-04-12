@@ -3156,7 +3156,7 @@
     "comisionTotal": "総手数料",
     "tasaDeComision": "手数料率",
     "aunNoHasRealizadoNingunCobro": "まだお支払いを受け取っていません。",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SLは、お客様の手数料の15%を源泉徴収し、四半期ごとに税務署にお客様に代わって納付します（モデル111）。",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLCは、お客様の手数料の15%を源泉徴収し、四半期ごとに税務署にお客様に代わって納付します（モデル111）。",
     "cuandoHagasTuDeclaracionDeLaRenta": "所得税申告書（IRPF）を提出する際には、源泉徴収された税金はすでに支払われているため、控除することができます。",
     "recibirasElCertificadoDeRetenciones": "源泉徴収証明書は毎年1月に送付されます。",
     "evolucionDeTusComisiones": "手数料の推移",
@@ -3192,7 +3192,7 @@
     "metodo": "方法",
     "comisionBruta": "総手数料",
     "laComisionRealPuedeVariarSegunTuM": "実際の手数料は、お支払い方法によって異なる場合があります。",
-    "esteCobroSeraDeclaradoPorHispalosho": "この支払いは、Hispaloshop SLによって経済活動からの収入として申告されます。",
+    "esteCobroSeraDeclaradoPorHispalosho": "この支払いは、HispaloShop LLCによって経済活動からの収入として申告されます。",
     "recibirasUnCertificadoDeRetenciones": "1月に確定申告に必要な源泉徴収証明書が送付されます。"
   },
   "importer_catalog": {
@@ -4326,7 +4326,7 @@
         "error": "送信エラー。もう一度お試しください。"
       },
       "empresa": {
-        "nombre": "Hispaloshop SL",
+        "nombre": "HispaloShop LLC",
         "ubicacion": "レウス、タラゴナ、スペイン",
         "email": "hola@hispaloshop.com",
         "instagram": "@hispaloshop",

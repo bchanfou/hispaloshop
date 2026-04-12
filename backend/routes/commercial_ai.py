@@ -532,6 +532,14 @@ async def commercial_ai_chat(request_body: CommercialChatRequest, request: Reque
     current_user = await get_current_user(request)
     user_id = getattr(current_user, "user_id", None)
 
+    # GDPR 4.1: Check AI processing consent (degradation, not hard block)
+    _consent_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "consent": 1})
+    if _consent_doc and not (_consent_doc.get("consent") or {}).get("analytics_consent", False):
+        return {
+            "response": "Activa el procesamiento IA en tu configuración de privacidad (Ajustes > Privacidad y datos > Consentimiento IA) para recibir recomendaciones personalizadas.",
+            "ai_consent_required": True,
+        }
+
     country, store = await _verify_elite_producer(current_user)
     _check_commercial_rate_limit(user_id)
 

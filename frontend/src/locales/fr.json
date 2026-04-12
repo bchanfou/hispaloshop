@@ -3168,7 +3168,7 @@
     "comisionTotal": "Commission totale",
     "tasaDeComision": "taux de commission",
     "aunNoHasRealizadoNingunCobro": "Vous n'avez encore reçu aucun paiement.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL retient 15% de vos commissions et les verse au Bureau des impôts en votre nom chaque trimestre (Modèle 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "HispaloShop LLC retient 15% de vos commissions et les verse au Bureau des impôts en votre nom chaque trimestre (Modèle 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "Lorsque vous remplirez votre déclaration de revenus (IRPF), ces retenues auront déjà été payées et vous pourrez les déduire.",
     "recibirasElCertificadoDeRetenciones": "Vous recevrez l'attestation de retenue à la source en janvier de chaque année.",
     "evolucionDeTusComisiones": "Évolution de vos commissions",
@@ -3204,7 +3204,7 @@
     "metodo": "Méthode",
     "comisionBruta": "Commission brute",
     "laComisionRealPuedeVariarSegunTuM": "La commission réelle peut varier en fonction de votre mode de paiement.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Ce paiement sera déclaré par Hispaloshop SL comme revenu d'activité économique.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Ce paiement sera déclaré par HispaloShop LLC comme revenu d'activité économique.",
     "recibirasUnCertificadoDeRetenciones": "Vous recevrez un certificat de retenue à la source en janvier pour votre déclaration de revenus."
   },
   "importer_catalog": {
@@ -4338,7 +4338,7 @@
         "error": "Erreur lors de l'envoi. Veuillez réessayer."
       },
       "empresa": {
-        "nombre": "Hispaloshop SL",
+        "nombre": "HispaloShop LLC",
         "ubicacion": "Reus, Tarragone, Espagne",
         "email": "hola@hispaloshop.com",
         "instagram": "@hispaloshop",

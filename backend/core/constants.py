@@ -324,6 +324,8 @@ SUPPORTED_CURRENCIES = {
     "RUB": {"symbol": "\u20bd", "name": "Russian Ruble"},
 }
 
+EMAIL_FOOTER_HTML = '<p style="font-size:11px;color:#a8a29e;margin-top:24px;border-top:1px solid #e7e5e4;padding-top:12px;">HispaloShop LLC \u00b7 Florida, USA \u00b7 support@hispaloshop.com</p>'
+
 EMAIL_TEMPLATES = {
     "verification": {
         "es": {
@@ -331,21 +333,24 @@ EMAIL_TEMPLATES = {
             "title": "Verifica tu cuenta",
             "body": "Introduce este c\u00f3digo en tu panel para activar tu cuenta:",
             "expires": "Este c\u00f3digo expira en 24 horas.",
-            "ignore": "Si no has solicitado esta verificaci\u00f3n, ignora este email."
+            "ignore": "Si no has solicitado esta verificaci\u00f3n, ignora este email.",
+            "footer": EMAIL_FOOTER_HTML
         },
         "en": {
             "subject": "Verify your account - Hispaloshop",
             "title": "Verify your account",
             "body": "Enter this code in your dashboard to activate your account:",
             "expires": "This code expires in 24 hours.",
-            "ignore": "If you didn't request this verification, please ignore this email."
+            "ignore": "If you didn't request this verification, please ignore this email.",
+            "footer": EMAIL_FOOTER_HTML
         },
         "ko": {
             "subject": "\uacc4\uc815 \uc778\uc99d - Hispaloshop",
             "title": "\uacc4\uc815 \uc778\uc99d",
             "body": "\uc544\ub798 \ucf54\ub4dc\ub97c \ub300\uc2dc\ubcf4\ub4dc\uc5d0 \uc785\ub825\ud558\uc5ec \uacc4\uc815\uc744 \ud65c\uc131\ud654\ud558\uc138\uc694:",
             "expires": "\uc774 \ucf54\ub4dc\ub294 24\uc2dc\uac04 \ud6c4\uc5d0 \ub9cc\ub8cc\ub429\ub2c8\ub2e4.",
-            "ignore": "\uc774 \uc778\uc99d\uc744 \uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694."
+            "ignore": "\uc774 \uc778\uc99d\uc744 \uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694.",
+            "footer": EMAIL_FOOTER_HTML
         }
     },
     "password_reset": {
@@ -355,7 +360,8 @@ EMAIL_TEMPLATES = {
             "body": "Haz clic en el bot\u00f3n de abajo para restablecer tu contrase\u00f1a:",
             "button": "Restablecer Contrase\u00f1a",
             "expires": "Este enlace expira en 24 horas.",
-            "ignore": "Si no solicitaste esto, ignora este email."
+            "ignore": "Si no solicitaste esto, ignora este email.",
+            "footer": EMAIL_FOOTER_HTML
         },
         "en": {
             "subject": "Reset your password - Hispaloshop",
@@ -363,7 +369,8 @@ EMAIL_TEMPLATES = {
             "body": "Click the button below to reset your password:",
             "button": "Reset Password",
             "expires": "This link expires in 24 hours.",
-            "ignore": "If you didn't request this, please ignore this email."
+            "ignore": "If you didn't request this, please ignore this email.",
+            "footer": EMAIL_FOOTER_HTML
         },
         "ko": {
             "subject": "\ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815 - Hispaloshop",
@@ -371,7 +378,8 @@ EMAIL_TEMPLATES = {
             "body": "\uc544\ub798 \ubc84\ud2bc\uc744 \ud074\ub9ad\ud558\uc5ec \ube44\ubc00\ubc88\ud638\ub97c \uc7ac\uc124\uc815\ud558\uc138\uc694:",
             "button": "\ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815",
             "expires": "\uc774 \ub9c1\ud06c\ub294 24\uc2dc\uac04 \ud6c4\uc5d0 \ub9cc\ub8cc\ub429\ub2c8\ub2e4.",
-            "ignore": "\uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694."
+            "ignore": "\uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694.",
+            "footer": EMAIL_FOOTER_HTML
         }
     }
 }

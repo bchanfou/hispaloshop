@@ -275,26 +275,24 @@ async def register(input: RegisterInput, request: Request):
             status_code=429, 
             detail="Demasiados intentos de registro con este email. Por favor, espera 1 hora."
         )
-    # Age verification — must be 16+ (required for customers)
-    if input.role == "customer" and not input.birth_date:
+    # Age verification — must be 18+ for ALL roles (section 4.2, Q6=c)
+    if not input.birth_date:
         raise HTTPException(status_code=400, detail="La fecha de nacimiento es obligatoria")
-    if input.birth_date:
-        try:
-            from datetime import date
-            birth = date.fromisoformat(input.birth_date)
-            today = date.today()
-            age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
-            if age < 16:
-                # Do NOT store data of rejected minors
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "age_requirement",
-                        "message": "Debes tener al menos 16 años para registrarte en Hispaloshop.",
-                    },
-                )
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Formato de fecha de nacimiento no válido (YYYY-MM-DD)")
+    try:
+        from datetime import date
+        birth = date.fromisoformat(input.birth_date)
+        today = date.today()
+        age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
+        if age < 18:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "age_requirement",
+                    "message": "Debes tener al menos 18 anos para registrarte en HispaloShop.",
+                },
+            )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de fecha de nacimiento no valido (YYYY-MM-DD)")
 
     # GDPR Compliance: Consent is MANDATORY for all roles
     if not input.analytics_consent:
@@ -731,17 +729,29 @@ async def login(input: LoginInput, request: Request):
     if not verify_password(input.password, user_doc["password_hash"]):
         raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
 
+    # GDPR 4.1: Re-login restore for soft-deleted accounts (30-day grace period)
+    if user_doc.get("status") == "pending_deletion":
+        await db.users.update_one(
+            {"user_id": user_doc["user_id"]},
+            {"$set": {"status": "active"}, "$unset": {"deleted_at": "", "reactivation_deadline": ""}}
+        )
+        user_doc["status"] = "active"
+        user_doc["_reactivated"] = True
+
     # Note: approved status is included in the response for the frontend to handle via ProtectedRoute.
     # We no longer block login for non-approved users.
-    
+
     # Progressive rehash: SHA256 → bcrypt
     if needs_rehash(user_doc["password_hash"]):
         new_hash = hash_password(input.password)
         await db.users.update_one({"user_id": user_doc["user_id"]}, {"$set": {"password_hash": new_hash}})
         logger.info(f"[AUTH] Migrated password hash to bcrypt for {user_doc.get('email')}")
-    
+
     session_token = await _create_user_session(user_doc["user_id"])
-    return _build_auth_response(request, user_doc, session_token)
+    response = _build_auth_response(request, user_doc, session_token)
+    if user_doc.get("_reactivated"):
+        response["reactivated"] = True
+    return response
 
 # Password Recovery Endpoints
 

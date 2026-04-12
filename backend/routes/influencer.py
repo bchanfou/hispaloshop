@@ -948,38 +948,8 @@ async def _execute_withdrawal(db, influencer, user, request, now):
             }}
         )
 
-        # Record withholding for Modelo 190
-        if withholding > 0:
-            current_quarter = (now.month - 1) // 3 + 1
-            current_year = now.year
-            existing_records = influencer.get("withholding_records", [])
-            quarter_idx = next(
-                (i for i, r in enumerate(existing_records)
-                 if r.get("year") == current_year and r.get("quarter") == current_quarter),
-                None,
-            )
-            if quarter_idx is not None:
-                await db.influencers.update_one(
-                    {"influencer_id": influencer["influencer_id"]},
-                    {"$inc": {
-                        f"withholding_records.{quarter_idx}.amount_gross": gross_amount,
-                        f"withholding_records.{quarter_idx}.amount_withheld": withholding,
-                        f"withholding_records.{quarter_idx}.amount_paid": net_amount,
-                    }},
-                )
-            else:
-                await db.influencers.update_one(
-                    {"influencer_id": influencer["influencer_id"]},
-                    {"$push": {"withholding_records": {
-                        "year": current_year,
-                        "quarter": current_quarter,
-                        "amount_gross": gross_amount,
-                        "amount_withheld": withholding,
-                        "amount_paid": net_amount,
-                        "model_190_filed": False,
-                        "filed_at": None,
-                    }}},
-                )
+        # Modelo 190 recording removed in 4.2 — LLC US is not a withholding agent.
+        # withholding is always 0 (calculate_withholding returns 0 for all countries).
 
         return {
             "message": f"Cobro de {net_amount:.2f}€ neto registrado correctamente.",

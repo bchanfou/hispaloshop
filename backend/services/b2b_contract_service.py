@@ -129,7 +129,7 @@ async def generate_contract(operation: dict, db) -> dict:
                     "4. Incoterm y condiciones de entrega\n"
                     "5. Certificaciones y calidad\n"
                     "6. Cláusula de comisión de plataforma (3% a cargo del vendedor, "
-                    "gestionada por Hispaloshop SL)\n"
+                    "gestionada por HispaloShop LLC)\n"
                     "7. Ley aplicable: Derecho español y CISG\n"
                     "8. Resolución de disputas: mediación por Hispaloshop, arbitraje "
                     "si no se resuelve\n"
@@ -375,7 +375,7 @@ async def notify_contract_ready(operation: dict, db):
      style="display:inline-block; background:#0A0A0A; color:#fff; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:500;">
     Ver contrato →
   </a>
-  <p style="font-size:12px; color:#8A8881; margin-top:24px;">Hispaloshop SL</p>
+  <p style="font-size:12px; color:#8A8881; margin-top:24px;">HispaloShop LLC</p>
 </div>
 """
 
@@ -441,7 +441,7 @@ async def notify_contract_signed(operation: dict, db):
      style="display:inline-block; background:#0A0A0A; color:#fff; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:500;">
     Ver contrato firmado →
   </a>
-  <p style="font-size:12px; color:#8A8881; margin-top:24px;">Hispaloshop SL</p>
+  <p style="font-size:12px; color:#8A8881; margin-top:24px;">HispaloShop LLC</p>
 </div>
 """
 
@@ -734,7 +734,7 @@ def _build_contract_pdf(
         canvas_obj.setFont("Helvetica", 8)
         canvas_obj.setFillColor(STONE_500)
         page_text = (
-            f"Hispaloshop SL · Contrato #{operation_id_str} · "
+            f"HispaloShop LLC · Contrato #{operation_id_str} · "
             f"Página {doc_obj.page} de {{total}}"
         )
         canvas_obj.drawCentredString(A4[0] / 2, 1.2 * cm, page_text)
@@ -846,7 +846,7 @@ def _build_contract_pdf(
         canvas_obj.setFont("Helvetica", 8)
         canvas_obj.setFillColor(STONE_500)
         page_text = (
-            f"Hispaloshop SL · Contrato #{operation_id_str} · "
+            f"HispaloShop LLC · Contrato #{operation_id_str} · "
             f"Página {doc_obj.page} de {final_total}"
         )
         canvas_obj.drawCentredString(A4[0] / 2, 1.2 * cm, page_text)

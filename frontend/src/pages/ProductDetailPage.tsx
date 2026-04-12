@@ -921,6 +921,13 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      {/* Food safety disclaimer */}
+      <div className="mt-4 p-3 bg-stone-50 border border-stone-100 rounded-xl">
+        <p className="text-[11px] leading-relaxed text-stone-400">
+          {i18n.t('product.food_safety_disclaimer', 'Los productos son elaborados y enviados directamente por el productor. HispaloShop verifica las certificaciones presentadas pero no es responsable de la seguridad alimentaria de los productos.')}
+        </p>
+      </div>
+
       {/* ── Collapsible Sections ── */}
       <div className="border-t border-stone-200 bg-white">
         {/* Description */}

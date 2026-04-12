@@ -609,6 +609,45 @@ async def _create_indexes():
     await db.feedback_comments.create_index("author_id")
     logger.info("  OK: feedback_comments indexes")
 
+    # ═══════════════════════════════════════���════════════════════════════��══════
+    # GDPR 4.1 — Consent logging + data retention TTLs
+    # ════════════════��══════════════════════════════════════════════════════════
+    await db.user_consents.create_index([("cookie_id", 1), ("consent_type", 1)], unique=True)
+    await db.user_consents.create_index("user_id", sparse=True)
+    logger.info("  OK: user_consents indexes")
+
+    await db.data_export_log.create_index([("user_id", 1), ("requested_at", -1)])
+    logger.info("  OK: data_export_log indexes")
+
+    await db.deletion_log.create_index("processed_at")
+    logger.info("  OK: deletion_log indexes")
+
+    # TTL: notifications auto-expire after 90 days
+    try:
+        await _safe_create_index(db.notifications, "created_at", expireAfterSeconds=90 * 24 * 3600)
+    except Exception:
+        pass
+    logger.info("  OK: notifications TTL (90 days)")
+
+    # TTL: page_visits / analytics_visits auto-expire after 365 days
+    try:
+        await db.page_visits.create_index("visited_at", expireAfterSeconds=365 * 24 * 3600)
+    except Exception:
+        pass
+    try:
+        await db.analytics_visits.create_index("visited_at", expireAfterSeconds=365 * 24 * 3600)
+    except Exception:
+        pass
+    logger.info("  OK: analytics TTL (365 days)")
+
+    # Pending deletion status index for cron efficiency
+    await db.users.create_index([("status", 1), ("deleted_at", 1)], sparse=True)
+    logger.info("  OK: users pending_deletion index")
+
+    # Tax forms (section 4.2)
+    await db.tax_forms.create_index("user_id", unique=True)
+    logger.info("  OK: tax_forms indexes")
+
     logger.info("All indexes created successfully")
 
 

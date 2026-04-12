@@ -561,6 +561,8 @@ ALLOWED_CRONS = {
     "story-cleanup": ("services.post_service", "cleanup_expired_stories"),
     # M-5 (section 3.6.4): moderation auto-action sweep. YAML wiring deferred to 5.4.
     "moderation-auto-actions": ("routes.moderation_v2", "run_moderation_auto_actions_sweep"),
+    # GDPR 4.1: hard-delete users whose 30-day soft-delete grace period expired.
+    "pending-deletions": ("routes.customer", "process_pending_deletions"),
 }
 
 

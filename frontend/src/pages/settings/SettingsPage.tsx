@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye, HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2, Link2, Receipt, CreditCard, Store, Globe, Check, MapPin, Trophy, Download, Moon, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye, HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2, Link2, Receipt, CreditCard, Store, Globe, Check, MapPin, Trophy, Download, Moon, UserPlus, Users, Cookie, Pause } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { removeToken } from '../../lib/auth';
@@ -110,6 +110,9 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteEmail, setDeleteEmail] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [deactivating, setDeactivating] = useState(false);
+  const [showCookieConfig, setShowCookieConfig] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
   useEffect(() => {
     setIsPrivate(user?.is_private || false);
   }, [user?.is_private]);
@@ -165,6 +168,48 @@ export default function SettingsPage() {
     } catch (e) {
       toast.error(e?.response?.data?.detail || i18n.t('settings.errorAlEliminarLaCuenta', 'Error al eliminar la cuenta'));
       setDeleting(false);
+    }
+  };
+  const handleDeactivateAccount = async () => {
+    setDeactivating(true);
+    try {
+      const res = await apiClient.post('/account/deactivate');
+      toast.success(res?.data?.message || 'Cuenta desactivada. Tienes 30 dias para recuperarla.');
+      removeToken();
+      localStorage.removeItem('hsp_accounts');
+      logout();
+      navigate('/login', { replace: true });
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Error al desactivar la cuenta');
+      setDeactivating(false);
+    }
+  };
+  const handleExportData = async () => {
+    setExportingData(true);
+    try {
+      trackEvent('data_export_requested');
+      const result = await apiClient.post('/users/me/data-export', {});
+      if (result?.data) {
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hispaloshop_data_export_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(i18n.t('settings_page.data_downloaded', 'Datos descargados'));
+      }
+    } catch (e) {
+      const detail = e?.response?.data?.detail;
+      if (e?.response?.status === 429) {
+        toast.error(detail || 'Solo puedes solicitar una descarga por dia.');
+      } else {
+        toast.error(i18n.t('settings_page.data_error', 'Error al descargar los datos'));
+      }
+    } finally {
+      setExportingData(false);
     }
   };
   return <div className="min-h-screen bg-stone-50">
@@ -238,26 +283,12 @@ export default function SettingsPage() {
         <SectionLabel>{i18n.t('settings_page.privacy_data', 'Privacidad y datos')}</SectionLabel>
         <SettingsGroup>
           <SettingsItem icon={<Shield size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.ai_consent', 'Consentimiento IA')} to="/settings/profile" />
-          <SettingsItem icon={<Download size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.download_data', 'Descargar mis datos')} onClick={async () => {
-            try {
-              trackEvent('data_export_requested');
-              const result = await apiClient.post('/users/me/data-export', {});
-              if (result?.data) {
-                const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `hispaloshop_data_export_${new Date().toISOString().slice(0, 10)}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                toast.success(i18n.t('settings_page.data_downloaded', 'Datos descargados'));
-              }
-            } catch {
-              toast.error(i18n.t('settings_page.data_error', 'Error al descargar los datos'));
-            }
+          <SettingsItem icon={<Cookie size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.manage_cookies', 'Gestionar cookies')} sublabel={i18n.t('settings_page.manage_cookies_desc', 'Esenciales, analitica, marketing, IA')} onClick={() => {
+            localStorage.removeItem('hispaloshop_consent_v2');
+            window.location.reload();
           }} />
+          <SettingsItem icon={<Download size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.download_data', 'Descargar mis datos')} sublabel={i18n.t('settings_page.download_data_desc', '1 descarga por dia (RGPD Art. 15+20)')} onClick={handleExportData} rightContent={exportingData ? <span className="text-[12px] text-stone-400">Descargando...</span> : <ChevronRight size={16} className="text-stone-300 flex-shrink-0" />} />
+          <SettingsItem icon={<Pause size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.deactivate_account', 'Desactivar cuenta')} sublabel={i18n.t('settings_page.deactivate_desc', '30 dias para recuperar')} onClick={() => setShowDeleteConfirm(true)} />
           <SettingsItem icon={<Trash2 size={16} />} iconClass="bg-stone-100 text-stone-600" label={i18n.t('settings_page.delete_account', 'Eliminar mi cuenta')} onClick={() => setShowDeleteConfirm(true)} />
         </SettingsGroup>
 
@@ -322,26 +353,50 @@ export default function SettingsPage() {
           </div>
         </div>}
 
-      {/* ── Delete Confirm ── */}
+      {/* ── Delete / Deactivate Confirm ── */}
       {showDeleteConfirm && <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={i18n.t('settings.confirmarEliminacionDeCuenta', 'Confirmar eliminación de cuenta')} onClick={() => setShowDeleteConfirm(false)}>
-          <div className="bg-white rounded-2xl shadow-modal p-6 max-w-[380px] w-full" onClick={e => e.stopPropagation()}>
-            <h3 className="text-[18px] font-semibold text-stone-950 mb-2">Eliminar cuenta</h3>
-            <p className="text-[14px] text-stone-500 mb-4 leading-relaxed">
-              Esta acción es irreversible. Se eliminarán todos tus datos, pedidos y contenido.
-              Escribe tu email para confirmar.
+          <div className="bg-white rounded-2xl shadow-modal p-6 max-w-[400px] w-full" onClick={e => e.stopPropagation()}>
+            <h3 className="text-[18px] font-semibold text-stone-950 mb-2">Gestionar cuenta</h3>
+            <p className="text-[14px] text-stone-500 mb-5 leading-relaxed">
+              Elige como quieres proceder con tu cuenta.
             </p>
-            <input type="email" value={deleteEmail} onChange={e => setDeleteEmail(e.target.value)} placeholder={user?.email || 'tu@email.com'} aria-label={i18n.t('settings.confirmaTuEmailParaEliminarLaCuent', 'Confirma tu email para eliminar la cuenta')} className="w-full h-11 px-3.5 border border-stone-200 rounded-2xl text-[14px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-4" />
-            <div className="flex gap-2.5">
-              <button onClick={() => {
-            setShowDeleteConfirm(false);
-            setDeleteEmail('');
-          }} className="flex-1 py-3 rounded-full border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors active:scale-95">
-                Cancelar
-              </button>
-              <button onClick={handleDeleteAccount} disabled={deleteEmail !== user?.email || deleting} className="flex-1 py-3 rounded-full bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-95">
-                {deleting ? 'Eliminando...' : 'Eliminar'}
+
+            {/* Option 1: Deactivate (30d grace) */}
+            <div className="p-4 border border-stone-200 rounded-2xl mb-3">
+              <div className="flex items-start gap-3 mb-3">
+                <Pause size={18} className="text-stone-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[14px] font-semibold text-stone-950">Desactivar (30 dias para recuperar)</p>
+                  <p className="text-[12px] text-stone-500 leading-relaxed mt-1">
+                    Tu cuenta se ocultara. Si inicias sesion dentro de 30 dias, se reactivara automaticamente.
+                  </p>
+                </div>
+              </div>
+              <button onClick={handleDeactivateAccount} disabled={deactivating} className="w-full py-2.5 rounded-full border border-stone-200 text-[13px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-40 active:scale-95">
+                {deactivating ? 'Desactivando...' : 'Desactivar cuenta'}
               </button>
             </div>
+
+            {/* Option 2: Permanent delete */}
+            <div className="p-4 border border-stone-200 rounded-2xl mb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <Trash2 size={18} className="text-stone-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[14px] font-semibold text-stone-950">Eliminar permanentemente</p>
+                  <p className="text-[12px] text-stone-500 leading-relaxed mt-1">
+                    Esta accion es irreversible. Se eliminaran todos tus datos, pedidos y contenido. Escribe tu email para confirmar.
+                  </p>
+                </div>
+              </div>
+              <input type="email" value={deleteEmail} onChange={e => setDeleteEmail(e.target.value)} placeholder={user?.email || 'tu@email.com'} aria-label={i18n.t('settings.confirmaTuEmailParaEliminarLaCuent', 'Confirma tu email para eliminar la cuenta')} className="w-full h-10 px-3.5 border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-2.5" />
+              <button onClick={handleDeleteAccount} disabled={deleteEmail !== user?.email || deleting} className="w-full py-2.5 rounded-full bg-stone-950 text-[13px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-95">
+                {deleting ? 'Eliminando...' : 'Eliminar permanentemente'}
+              </button>
+            </div>
+
+            <button onClick={() => { setShowDeleteConfirm(false); setDeleteEmail(''); }} className="w-full py-3 rounded-full border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors active:scale-95">
+              Cancelar
+            </button>
           </div>
         </div>}
     </div>;

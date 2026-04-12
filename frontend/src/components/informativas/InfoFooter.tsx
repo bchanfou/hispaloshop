@@ -213,7 +213,7 @@ export default function InfoFooter() {
                 </a>
               </div>
               <span className="text-[11px] text-stone-600">
-                © {new Date().getFullYear()} Hispaloshop SL
+                © {new Date().getFullYear()} HispaloShop LLC
               </span>
             </div>
           </div>

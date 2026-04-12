@@ -23,12 +23,12 @@ from services.fiscal_verification import (
 )
 
 
-# ── Test 1: Spain withholding is 15% ────────────────────────────────────────
+# ── Test 1: All countries withholding is 0% (LLC US does not withhold) ───────
 
 def test_spain_withholding_is_15_percent():
-    """Spanish tax residents must have 15% IRPF withholding."""
-    assert calculate_withholding("ES") == 15.0
-    assert calculate_withholding("es") == 15.0  # case-insensitive
+    """Section 4.2: LLC US is not a withholding agent. All countries = 0%."""
+    assert calculate_withholding("ES") == 0.0
+    assert calculate_withholding("es") == 0.0
 
 
 # ── Test 2: EU (non-Spain) withholding is 0% ────────────────────────────────
@@ -94,15 +94,15 @@ def test_eu_countries_set_is_complete():
 # ── Test 7: Withholding math applied to payout ──────────────────────────────
 
 def test_withholding_applied_to_payout():
-    """Withholding percentage must correctly reduce gross payout."""
+    """Section 4.2: All payouts are gross — 0% withholding for all countries."""
     gross = 1000.0
 
-    # Spain: 15% withheld
+    # Spain: 0% withheld (LLC US does not withhold)
     es_pct = calculate_withholding("ES")
     es_withheld = round(gross * es_pct / 100, 2)
     es_net = gross - es_withheld
-    assert es_withheld == 150.0
-    assert es_net == 850.0
+    assert es_withheld == 0.0
+    assert es_net == 1000.0
 
     # France: 0% withheld
     fr_pct = calculate_withholding("FR")

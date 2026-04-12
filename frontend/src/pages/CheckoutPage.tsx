@@ -541,6 +541,11 @@ export default function CheckoutPage() {
               <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
             </div>
 
+            {/* Food safety disclaimer */}
+            <p className="text-[11px] text-stone-400 text-center mt-3 mb-2">
+              {i18n.t('checkout.food_disclaimer', 'Al comprar, aceptas que el productor es el responsable directo del producto adquirido.')}
+            </p>
+
             {/* Pay button — sticky on mobile */}
             <div className="sticky bottom-0 z-30 mt-4 bg-white/80 backdrop-blur-xl pt-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:static lg:bg-transparent lg:backdrop-blur-none lg:pb-0">
               <button onClick={handlePay} disabled={checkoutLoading || paying || user && emailVerified === false} className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" aria-live="polite">

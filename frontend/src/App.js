@@ -45,7 +45,7 @@ import { QueryProvider } from './providers/QueryProvider';
 // Cart components
 // MiniCart removed — permanently hidden (isCartOpen never set true), /cart page is the active flow
 // import MiniCart from './components/cart/MiniCart';
-import ConsentBanner from './components/ui/ConsentBanner';
+import ConsentBanner, { CrossBorderNotice } from './components/ui/ConsentBanner';
 import { initAnalyticsOnConsent } from './utils/analytics';
 
 // Old landing pages removed — replaced by Aesop-style pages in Fase 2-4
@@ -391,6 +391,12 @@ function AuthRedirect({ children }) {
   if (loading) return <RouteLoader />;
   if (user) return <Navigate to="/" replace />;
   return children;
+}
+
+function CrossBorderNoticeWrapper() {
+  const { user } = useAuth();
+  if (!user?.country) return null;
+  return <CrossBorderNotice userCountry={user.country} />;
 }
 
 function HomeRoute() {
@@ -1001,6 +1007,7 @@ function App() {
                       <Suspense fallback={null}><ChatToastContainer /></Suspense>
                       <AIAssistantManager />
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
+                      <CrossBorderNoticeWrapper />
                       <Toaster position="top-center" toastOptions={{ duration: 3000, className: 'font-sans' }} />
                     </UploadQueueProvider>
                     </FeedTabProvider>

@@ -184,7 +184,7 @@ export default function ContactoPage() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-[15px] font-semibold text-stone-950 m-0 mb-3 tracking-tight">
-                    {t('landing.contacto.empresa.nombre', 'Hispaloshop SL')}
+                    {t('landing.contacto.empresa.nombre', 'HispaloShop LLC')}
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2.5 text-[13px] text-stone-500">

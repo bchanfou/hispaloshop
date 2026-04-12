@@ -3163,7 +3163,7 @@
     "comisionTotal": "Общая комиссия",
     "tasaDeComision": "Комиссионная ставка",
     "aunNoHasRealizadoNingunCobro": "Вы еще не получили никакой оплаты.",
-    "hispaloshopSlRetieneEl15DeTusCom": "Компания Hispaloshop SL удерживает 15% ваших комиссионных и ежеквартально перечисляет их в налоговую инспекцию от вашего имени (Модель 111).",
+    "hispaloshopSlRetieneEl15DeTusCom": "Компания HispaloShop LLC удерживает 15% ваших комиссионных и ежеквартально перечисляет их в налоговую инспекцию от вашего имени (Модель 111).",
     "cuandoHagasTuDeclaracionDeLaRenta": "При подаче налоговой декларации эти удержания уже будут уплачены, и вы сможете их вычесть.",
     "recibirasElCertificadoDeRetenciones": "Свидетельство об удержании налога вы будете получать в январе каждого года.",
     "evolucionDeTusComisiones": "Эволюция ваших комиссионных",
@@ -3200,7 +3200,7 @@
     "metodo": "Метод",
     "comisionBruta": "Валовая комиссия",
     "laComisionRealPuedeVariarSegunTuM": "Фактический размер комиссии может варьироваться в зависимости от способа оплаты.",
-    "esteCobroSeraDeclaradoPorHispalosho": "Данная выплата будет задекларирована компанией Hispaloshop SL как доход от хозяйственной деятельности.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Данная выплата будет задекларирована компанией HispaloShop LLC как доход от хозяйственной деятельности.",
     "recibirasUnCertificadoDeRetenciones": "В январе вы получите справку об удержании налога для подачи налоговой декларации."
   },
   "importer_catalog": {

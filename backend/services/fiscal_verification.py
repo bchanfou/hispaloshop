@@ -30,13 +30,11 @@ def get_tax_region(country_code: str) -> str:
 
 
 def calculate_withholding(country_code: str) -> float:
-    """Calculate withholding percentage based on tax country.
-    Spain: 15% IRPF. EU (non-Spain): 0%. Non-EU: 0%.
+    """Withholding percentage — always 0%.
+    HispaloShop LLC (Florida, USA) is NOT a withholding agent in any jurisdiction.
+    All payouts are gross. Sellers/influencers are responsible for their own tax filings.
+    Legacy 15% IRPF for Spain removed in section 4.2.
     """
-    if not country_code:
-        return 0.0
-    if country_code.upper() == "ES":
-        return 15.0
     return 0.0
 
 

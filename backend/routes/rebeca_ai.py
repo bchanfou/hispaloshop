@@ -488,6 +488,14 @@ async def rebeca_ai_chat(request_body: ChatRequest, request: Request):
     user = await get_current_user(request)
     check_rate_limit(user.user_id)
 
+    # GDPR 4.1: Check AI processing consent (degradation, not hard block)
+    _consent_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "consent": 1})
+    if _consent_doc and not (_consent_doc.get("consent") or {}).get("analytics_consent", False):
+        return {
+            "response": "Activa el procesamiento IA en tu configuración de privacidad (Ajustes > Privacidad y datos > Consentimiento IA) para recibir recomendaciones personalizadas.",
+            "ai_consent_required": True,
+        }
+
     # Plan gate
     user_doc = await db.users.find_one(
         {"user_id": user.user_id},
