@@ -259,7 +259,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }: StoriesBarPr
       return Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="h-[100px] w-[80px] shrink-0 snap-center animate-pulse rounded-xl bg-stone-100"
+          className="h-[100px] w-[80px] shrink-0 snap-center animate-pulse rounded-2xl bg-stone-100"
           aria-hidden="true"
         />
       ));

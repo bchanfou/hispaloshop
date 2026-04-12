@@ -10,6 +10,10 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import BottomSheet from '../motion/BottomSheet';
+// Section 3.6.6 — F-01: shared comment edit/delete primitives.
+import CommentActionsMenu from '../comments/CommentActionsMenu';
+import EditableCommentText from '../comments/EditableCommentText';
+import ConfirmDeleteDialog from '../comments/ConfirmDeleteDialog';
 import { useDwellTime } from '../../hooks/useDwellTime';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useAutocomplete } from '../../hooks/useAutocomplete';
@@ -390,16 +394,78 @@ function ReelCardInner({
     }
     likingCommentRef.current = false;
   }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
-  const handleDeleteComment = useCallback(async commentId => {
+  // Section 3.6.6 — F-01: confirm-before-delete + 5s undo + soft-delete placeholder.
+  const [deleteCommentTarget, setDeleteCommentTarget] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [savingCommentId, setSavingCommentId] = useState(null);
+  const deleteCommentTimerRef = useRef(null);
+  useEffect(() => () => { if (deleteCommentTimerRef.current) clearTimeout(deleteCommentTimerRef.current); }, []);
+
+  const handleDeleteComment = useCallback((commentId) => {
+    setDeleteCommentTarget(commentId);
+  }, []);
+
+  const handleConfirmDeleteComment = useCallback(() => {
+    const commentId = deleteCommentTarget;
+    if (!commentId) return;
+    setDeleteCommentTarget(null);
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.comment_id || c.id || c._id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, deleted: true, deleted_at: new Date().toISOString() };
+    }));
+    setLocalCommentsCount((n) => Math.max(0, n - 1));
+    let undone = false;
+    toast(i18n.t('comments.deletedToast', 'Comentario eliminado'), {
+      action: { label: i18n.t('common.undo', 'Deshacer'), onClick: () => {
+        undone = true;
+        clearTimeout(deleteCommentTimerRef.current);
+        if (original) {
+          setComments((prev) => prev.map((c) => (c.comment_id || c.id || c._id) === commentId ? original : c));
+          setLocalCommentsCount((n) => n + 1);
+        }
+      }},
+      duration: 5000,
+    });
+    deleteCommentTimerRef.current = setTimeout(async () => {
+      if (undone) return;
+      try {
+        const reelId = reel.id || reel.reel_id || reel.post_id;
+        await apiClient.delete(`/reels/${reelId}/comments/${commentId}`);
+      } catch {
+        if (original) {
+          setComments((prev) => prev.map((c) => (c.comment_id || c.id || c._id) === commentId ? original : c));
+          setLocalCommentsCount((n) => n + 1);
+        }
+        toast.error(i18n.t('comments.deleteError', 'Error al eliminar'));
+      }
+    }, 5500);
+  }, [deleteCommentTarget, reel.id, reel.reel_id, reel.post_id]);
+
+  const handleStartEditComment = useCallback((commentId) => setEditingCommentId(commentId), []);
+  const handleCancelEditComment = useCallback(() => setEditingCommentId(null), []);
+  const handleSaveEditComment = useCallback(async (commentId, newText) => {
+    if (!commentId || !newText) return;
+    setSavingCommentId(commentId);
+    let original = null;
+    setComments((prev) => prev.map((c) => {
+      const cId = c.comment_id || c.id || c._id;
+      if (cId !== commentId) return c;
+      original = c;
+      return { ...c, text: newText, edited: true, edited_at: new Date().toISOString() };
+    }));
     try {
-      const reelId = reel.id || reel.reel_id || reel.post_id;
-      await apiClient.delete(`/reels/${reelId}/comments/${commentId}`);
-      setComments(prev => prev.filter(c => (c.comment_id || c.id || c._id) !== commentId));
-      setLocalCommentsCount(c => Math.max(0, c - 1));
-    } catch (err) {
-      toast.error('Error al eliminar');
+      await apiClient.patch(`/comments/${commentId}`, { text: newText });
+      setEditingCommentId(null);
+    } catch {
+      if (original) setComments((prev) => prev.map((c) => (c.comment_id || c.id || c._id) === commentId ? original : c));
+      toast.error(i18n.t('comments.editError', 'No se pudo guardar el cambio'));
+    } finally {
+      setSavingCommentId(null);
     }
-  }, [reel.id, reel.reel_id, reel.post_id]);
+  }, []);
   const handleReplyComment = useCallback((commentId, username) => {
     setReplyTo({
       commentId,
@@ -1030,35 +1096,35 @@ function ReelCardInner({
               const cId = c.comment_id || c.id || c._id;
               const cName = c.user?.name || c.user_name || c.username || 'Usuario';
               const isOwn = currentUser?.user_id === c.user_id;
+              const isDeleted = c.deleted === true;
+              const isEditingThis = editingCommentId === cId;
+              const isSavingThis = savingCommentId === cId;
               return <div key={cId || i} className="flex gap-2.5 py-2.5 group">
                       <div className="w-8 h-8 rounded-full bg-stone-100 shrink-0 flex items-center justify-center text-stone-500 text-[10px] font-semibold overflow-hidden">
-                        {c.user?.avatar_url || c.user_profile_image || c.avatar_url ? <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" /> : cName.charAt(0).toUpperCase()}
+                        {c.user?.avatar_url || c.user_profile_image || c.avatar_url ? <img loading="lazy" src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" /> : cName.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-stone-950 leading-[1.4]">
+                        {isEditingThis ? <>
+                          <span className="font-semibold text-[13px] text-stone-950">{cName}</span>
+                          <EditableCommentText text={c.text || c.content || ''} editing saving={isSavingThis} onSave={(t) => handleSaveEditComment(cId, t)} onCancel={handleCancelEditComment} />
+                        </> : <p className="text-[13px] text-stone-950 leading-[1.4]">
                           <span className="font-semibold mr-1.5">{cName}</span>
-                          {c.text || c.content}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] text-stone-400">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'short'
-                      }) : ''}</span>
+                          <EditableCommentText text={c.text || c.content || ''} edited={c.edited === true} deleted={isDeleted} textClassName="text-[13px] text-stone-950" />
+                        </p>}
+                        {!isEditingThis && !isDeleted && <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-stone-400">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
                           <button onClick={() => handleReplyComment(cId, cName)} className="bg-transparent border-none cursor-pointer px-2 py-1 text-[10px] text-stone-400 font-semibold hover:text-stone-600 min-h-[44px] flex items-center">Responder</button>
-                          {!isOwn && cId && (
-                            <ReportButton contentType="comment" contentId={cId} contentOwnerId={c.user_id} />
-                          )}
-                          {isOwn && <button onClick={() => handleDeleteComment(cId)} className="bg-transparent border-none cursor-pointer p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
-                              <Trash2 size={12} className="text-stone-300 hover:text-stone-500" />
-                            </button>}
-                        </div>
+                          {!isOwn && cId && <ReportButton contentType="comment" contentId={cId} contentOwnerId={c.user_id} />}
+                          {isOwn && <CommentActionsMenu onEdit={() => handleStartEditComment(cId)} onDelete={() => handleDeleteComment(cId)} iconColor="text-stone-300" hoverColor="hover:text-stone-500" />}
+                        </div>}
+                        {isDeleted && <span className="text-[10px] text-stone-400 mt-1 block">{timeAgo(c.deleted_at || c.updated_at || c.created_at)}</span>}
                       </div>
-                      <div className="flex flex-col items-center justify-start pt-1 shrink-0">
+                      {!isDeleted && !isEditingThis && <div className="flex flex-col items-center justify-start pt-1 shrink-0">
                         <button onClick={() => handleLikeComment(cId)} className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5" aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}>
                           <Heart size={14} fill={likedComments.has(cId) ? 'currentColor' : 'none'} className={likedComments.has(cId) ? 'text-stone-950' : 'text-stone-300'} strokeWidth={1.8} />
                           {(c.likes_count || 0) > 0 && <span className="text-[10px] text-stone-400 leading-none">{c.likes_count}</span>}
                         </button>
-                      </div>
+                      </div>}
                     </div>;
             })}
               {!commentsLoading && comments.length > commentsPage * COMMENTS_PER_PAGE && <button onClick={() => setCommentsPage(p => p + 1)} className="w-full py-2.5 text-center text-xs font-semibold text-stone-400 hover:text-stone-600 bg-transparent border-none cursor-pointer">
@@ -1484,35 +1550,36 @@ function ReelCardInner({
             const cId = c.comment_id || c.id || c._id;
             const cName = c.user?.name || c.user_name || c.username || 'Usuario';
             const isOwn = currentUser?.user_id === c.user_id;
+            const isDeleted = c.deleted === true;
+            const isEditingThis = editingCommentId === cId;
+            const isSavingThis = savingCommentId === cId;
             return <div key={cId || i} className="flex gap-2.5 py-2.5 group">
                     <div className="w-8 h-8 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
-                      {c.user?.avatar_url || c.user_profile_image || c.avatar_url ? <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" /> : cName.charAt(0).toUpperCase()}
+                      {c.user?.avatar_url || c.user_profile_image || c.avatar_url ? <img loading="lazy" src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" /> : cName.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] text-white/90 leading-[1.4]">
+                      {isEditingThis ? <>
+                        <span className="font-semibold text-[13px] text-white">{cName}</span>
+                        <EditableCommentText text={c.text || c.content || ''} editing saving={isSavingThis} onSave={(t) => handleSaveEditComment(cId, t)} onCancel={handleCancelEditComment} />
+                      </> : <p className="text-[13px] text-white/90 leading-[1.4]">
                         <span className="font-semibold text-white mr-1.5">{cName}</span>
-                        {c.text || c.content}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'short'
-                    }) : ''}</span>
+                        <EditableCommentText text={c.text || c.content || ''} edited={c.edited === true} deleted={isDeleted} textClassName="text-[13px] text-white/90" deletedClassName="text-[13px] italic text-white/30" editedBadgeClassName="text-[11px] text-white/30 ml-1.5" />
+                      </p>}
+                      {!isEditingThis && !isDeleted && <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
                         <button onClick={() => handleReplyComment(cId, cName)} className="bg-transparent border-none cursor-pointer px-2 py-1 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[44px] flex items-center" aria-label="Responder comentario">
                           Responder
                         </button>
-                        {isOwn && <button onClick={() => handleDeleteComment(cId)} className="bg-transparent border-none cursor-pointer p-1 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Eliminar comentario">
-                            <Trash2 size={12} className="text-white/30 hover:text-white/60" />
-                          </button>}
-                      </div>
+                        {isOwn && <CommentActionsMenu onEdit={() => handleStartEditComment(cId)} onDelete={() => handleDeleteComment(cId)} iconColor="text-white/30" hoverColor="hover:text-white/60" />}
+                      </div>}
+                      {isDeleted && <span className="text-[10px] text-white/30 mt-1 block">{timeAgo(c.deleted_at || c.updated_at || c.created_at)}</span>}
                     </div>
-                    {/* Comment like — right side */}
-                    <div className="flex flex-col items-center justify-start pt-1 shrink-0">
+                    {!isDeleted && !isEditingThis && <div className="flex flex-col items-center justify-start pt-1 shrink-0">
                       <button onClick={() => handleLikeComment(cId)} className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5" aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}>
                         <Heart size={14} fill={likedComments.has(cId) ? 'white' : 'none'} className={likedComments.has(cId) ? 'text-white' : 'text-white/40'} strokeWidth={1.8} />
                         {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40 leading-none">{c.likes_count}</span>}
                       </button>
-                    </div>
+                    </div>}
                   </div>;
           })}
             {!commentsLoading && comments.length > commentsPage * COMMENTS_PER_PAGE && <button onClick={() => setCommentsPage(p => p + 1)} className="w-full py-2.5 text-center text-xs font-semibold text-white/50 hover:text-white/80 bg-transparent border-none cursor-pointer transition-colors">
@@ -1645,6 +1712,14 @@ function ReelCardInner({
         left: `${progress * 100}%`
       }} />
       </div>
+      {/* Section 3.6.6 — F-01: confirm-before-delete dialog */}
+      <ConfirmDeleteDialog
+        open={Boolean(deleteCommentTarget)}
+        onCancel={() => setDeleteCommentTarget(null)}
+        onConfirm={handleConfirmDeleteComment}
+        title={i18n.t('comments.confirmDelete.title', '¿Eliminar comentario?')}
+        message={i18n.t('comments.confirmDelete.message', 'Se ocultará del hilo. Tendrás 5s para deshacer.')}
+      />
     </div>;
 }
 const areReelPropsEqual = (prev, next) => {

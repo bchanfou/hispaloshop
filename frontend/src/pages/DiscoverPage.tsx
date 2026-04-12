@@ -239,10 +239,12 @@ export default function DiscoverPage() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Section 3.6.6 — F-13: skeleton cards instead of spinner for list loading */}
       {loading && !bundle && (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 size={28} className="animate-spin text-stone-950 mb-4" />
-          <p className="text-sm text-stone-500">{t('discover.loading', 'Cargando descubrimientos...')}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 px-4 py-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="animate-pulse rounded-2xl bg-stone-100 aspect-square" />
+          ))}
         </div>
       )}
     </div>

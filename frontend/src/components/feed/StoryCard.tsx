@@ -88,7 +88,7 @@ function StoryCard({
             : 'Crear tu historia'
           : `Ver historia de ${label}`
       }
-      className={`relative w-[80px] h-[100px] shrink-0 snap-center cursor-pointer overflow-hidden rounded-xl ${borderClass} transition-all duration-300 ${
+      className={`relative w-[80px] h-[100px] shrink-0 snap-center cursor-pointer overflow-hidden rounded-2xl ${borderClass} transition-all duration-300 ${
         isLoading ? 'animate-pulse opacity-60 pointer-events-none' : ''
       }`}
       whileTap={{ scale: 0.95 }}
