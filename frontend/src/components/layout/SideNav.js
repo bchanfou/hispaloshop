@@ -364,7 +364,7 @@ export default function SideNav() {
         </Link>
 
         {/* Main nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-0.5" aria-label="Navegación principal">
           {NAV_ITEMS.map(item => {
           const isSearch = item.key === 'search';
           const active = isSearch ? searchOpen : isActive(item.to);

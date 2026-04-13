@@ -391,15 +391,18 @@ export default function LoginPage() {
       >
         {/* Email */}
         <div>
-          <label className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
+          <label htmlFor="login-email" className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
             Email o usuario
           </label>
           <input
+            id="login-email"
             type="text"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="hola@ejemplo.com"
             autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'login-email-error' : undefined}
             className={`w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
               errors.email
                 ? 'border-stone-500'
@@ -407,22 +410,25 @@ export default function LoginPage() {
             }`}
           />
           {errors.email && (
-            <p className="text-xs text-stone-600 mt-1.5">{errors.email}</p>
+            <p id="login-email-error" className="text-xs text-stone-600 mt-1.5">{errors.email}</p>
           )}
         </div>
 
         {/* Password */}
         <div>
-          <label className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
+          <label htmlFor="login-password" className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
             Contraseña
           </label>
           <div className="relative">
             <input
+              id="login-password"
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
               placeholder={t('login.tuContrasena', 'Tu contraseña')}
               autoComplete="current-password"
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'login-password-error' : undefined}
               className={`w-full h-12 px-4 pr-11 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
                 errors.password
                   ? 'border-stone-500'
@@ -440,7 +446,7 @@ export default function LoginPage() {
             </button>
           </div>
           {errors.password && (
-            <p className="text-xs text-stone-600 mt-1.5">{errors.password}</p>
+            <p id="login-password-error" className="text-xs text-stone-600 mt-1.5">{errors.password}</p>
           )}
           <div className="text-right mt-2">
             <Link

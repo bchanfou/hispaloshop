@@ -624,7 +624,8 @@ export default function SearchPage() {
 
           <div className="flex h-12 flex-1 items-center gap-2 rounded-full bg-stone-100 px-5 focus-within:ring-2 focus-within:ring-stone-950">
             <Search size={16} className="shrink-0 text-stone-400" />
-            <input ref={inputRef} type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar" autoComplete="off" data-search-input className="flex-1 bg-transparent border-none text-sm text-stone-950 outline-none placeholder:text-stone-400" />
+            <label htmlFor="global-search-input" className="sr-only">Buscar</label>
+            <input id="global-search-input" ref={inputRef} type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar" autoComplete="off" aria-label="Buscar en Hispaloshop" data-search-input className="flex-1 bg-transparent border-none text-sm text-stone-950 outline-none placeholder:text-stone-400" />
             <AnimatePresence>
               {query && <motion.button key="clear" initial={{
               scale: 0

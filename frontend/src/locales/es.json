@@ -2441,7 +2441,7 @@
     "customerChat": "Chat con clientes",
     "month": "mes",
     "commissionLabel": "Comisión",
-    "netGMVDisclaimer": "Comisión calculada sobre el GMV neto (excl. envío e impuestos). Plan PRO 79€ + IVA/mes, ELITE 149€ + IVA/mes."
+    "netGMVDisclaimer": "Comisión calculada sobre el GMV neto (excl. envío e impuestos). Plan PRO 79€ + IVA/mes, ELITE 249€ + IVA/mes."
   },
   "influencerLanding": {
     "tagline": "Programa de Influencers",
@@ -4462,6 +4462,15 @@
       "plans": {
         "eyebrow": "Planes",
         "title": "Elige el plan que encaja contigo",
+        "monthly": "Mensual",
+        "annual": "Anual",
+        "save15": "-15%",
+        "perMonth": "/mes",
+        "perYear": "/año",
+        "freeLabel": "Gratis",
+        "popular": "Popular",
+        "monthlyNote": "7 días de prueba gratis en planes de pago.",
+        "annualNote": "Facturación anual. Sin prueba gratis.",
         "items": [
           {
             "name": "FREE",

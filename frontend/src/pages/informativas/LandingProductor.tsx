@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { trackEvent } from '../../utils/analytics';
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
 import {
   Store,
   Coins,
@@ -34,6 +35,8 @@ interface PlanData {
   description: string;
   features: string[];
 }
+
+const PLAN_KEYS = ['FREE', 'PRO', 'ELITE'] as const;
 
 function PlanCard({ plan, index, featured }: { plan: PlanData; index: number; featured: boolean; key?: React.Key }) {
   const { t } = useTranslation();
@@ -91,10 +94,35 @@ function PlansSection() {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const [isAnnual, setIsAnnual] = useState(false);
+  const { data: planConfig } = usePlanConfig();
 
   const eyebrow = t('landing.productor.plans.eyebrow', 'Planes');
   const title = t('landing.productor.plans.title', 'Elige el plan que encaja contigo');
-  const items = t('landing.productor.plans.items', { returnObjects: true, defaultValue: [] }) as PlanData[];
+  const rawItems = t('landing.productor.plans.items', { returnObjects: true, defaultValue: [] }) as PlanData[];
+
+  const items: PlanData[] = (Array.isArray(rawItems) ? rawItems : []).map((plan, idx) => {
+    const key = PLAN_KEYS[idx];
+    const api = planConfig?.seller_plans?.[key];
+    if (!api) return plan;
+    const monthly = api.price_monthly_eur ?? 0;
+    const annual = api.price_annual_eur ?? Math.round(monthly * 12 * 0.85);
+    if (monthly === 0) {
+      return { ...plan, price: t('landing.productor.plans.freeLabel', 'Gratis'), period: '' };
+    }
+    if (isAnnual) {
+      return {
+        ...plan,
+        price: `${annual}\u20ac`,
+        period: t('landing.productor.plans.perYear', '/año'),
+      };
+    }
+    return {
+      ...plan,
+      price: `${monthly}\u20ac`,
+      period: t('landing.productor.plans.perMonth', '/mes'),
+    };
+  });
 
   return (
     <section ref={ref} id="planes" className="bg-stone-50 py-24 lg:py-32">
@@ -118,11 +146,36 @@ function PlansSection() {
           </motion.h2>
         </div>
 
+        <div className="mb-10 flex items-center justify-center gap-3">
+          <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-stone-950' : 'text-stone-400'}`}>
+            {t('landing.productor.plans.monthly', 'Mensual')}
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsAnnual(v => !v)}
+            className={`relative w-14 h-7 rounded-full transition-colors ${isAnnual ? 'bg-stone-950' : 'bg-stone-200'}`}
+            aria-label="Toggle annual billing"
+          >
+            <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-0'}`} />
+          </button>
+          <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-stone-950' : 'text-stone-400'}`}>
+            {t('landing.productor.plans.annual', 'Anual')}
+            <span className="ml-1.5 text-xs bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full font-semibold">
+              {t('landing.productor.plans.save15', '-15%')}
+            </span>
+          </span>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Array.isArray(items) && items.map((plan, i) => (
+          {items.map((plan, i) => (
             <PlanCard key={i} plan={plan} index={i} featured={i === 1} />
           ))}
         </div>
+        <p className="mt-6 text-center text-xs text-stone-400">
+          {isAnnual
+            ? t('landing.productor.plans.annualNote', 'Facturación anual. Sin prueba gratis.')
+            : t('landing.productor.plans.monthlyNote', '7 días de prueba gratis en planes de pago.')}
+        </p>
       </div>
     </section>
   );

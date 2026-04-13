@@ -9,6 +9,7 @@ import { redirectAfterAuth } from '../../lib/navigation';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
 const STORAGE_KEY = 'hispalo_producer_signup';
 export const PRODUCER_PLANS = {
   free: {
@@ -288,8 +289,25 @@ export default function SignupModal({
   const cardMountRef = useRef(null);
   const stripeRef = useRef(null);
   const cardRef = useRef(null);
+  const { data: planConfig } = usePlanConfig();
+  const dynamicPlans = useMemo(() => {
+    const base = JSON.parse(JSON.stringify(PRODUCER_PLANS));
+    const api = planConfig?.seller_plans || {};
+    const fmt = (eur, isAnnual) => {
+      if (!eur) return base;
+      const withVat = Math.round(eur * 1.21 * 100) / 100;
+      return isAnnual
+        ? { price: `${eur}€ + IVA / año`, chargeLabel: `${eur}€ + IVA (${withVat.toFixed(2)}€) anuales` }
+        : { price: `${eur}€ + IVA / mes`, chargeLabel: `${eur}€ + IVA (${withVat.toFixed(2)}€) mensuales` };
+    };
+    const proEur = api.PRO?.price_monthly_eur;
+    const eliteEur = api.ELITE?.price_monthly_eur;
+    if (proEur) Object.assign(base.pro, fmt(proEur, false));
+    if (eliteEur) Object.assign(base.elite, fmt(eliteEur, false));
+    return base;
+  }, [planConfig]);
   const selectedPlan = normalizeProducerPlan(formData.plan);
-  const activePlan = PRODUCER_PLANS[selectedPlan];
+  const activePlan = dynamicPlans[selectedPlan];
   const passwordStrength = getPasswordStrength(formData.password);
   const combinedPhone = `${formData.phonePrefix}${sanitizePhone(formData.phoneNumber)}`;
   const validity = {
@@ -762,7 +780,7 @@ export default function SignupModal({
   const renderStepThree = () => <div className="space-y-7">
       <div>
         <div className="grid h-auto w-full grid-cols-3 rounded-[18px] bg-stone-100 p-1">
-          {Object.values(PRODUCER_PLANS).map(plan => <button key={plan.key} type="button" ref={plan.key === 'free' ? thirdRef : undefined} onClick={() => updateField('plan', plan.key)} className={`rounded-[14px] px-3 py-3 text-left transition ${selectedPlan === plan.key ? 'bg-white shadow-[0_12px_24px_-22px_rgba(0,0,0,0.25)]' : ''}`}>
+          {Object.values(dynamicPlans).map(plan => <button key={plan.key} type="button" ref={plan.key === 'free' ? thirdRef : undefined} onClick={() => updateField('plan', plan.key)} className={`rounded-[14px] px-3 py-3 text-left transition ${selectedPlan === plan.key ? 'bg-white shadow-[0_12px_24px_-22px_rgba(0,0,0,0.25)]' : ''}`}>
               <div className="flex w-full flex-col items-start gap-2">
                 <PlanPill label={plan.badge} selected={selectedPlan === plan.key} accent={plan.key === 'pro' ? 'bg-stone-200 text-stone-700' : plan.key === 'elite' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-800'} />
                 <div>
@@ -773,7 +791,7 @@ export default function SignupModal({
             </button>)}
         </div>
 
-        {Object.values(PRODUCER_PLANS).map(plan => selectedPlan === plan.key ? <div key={plan.key} className="mt-6">
+        {Object.values(dynamicPlans).map(plan => selectedPlan === plan.key ? <div key={plan.key} className="mt-6">
               <div className={`rounded-[26px] border p-6 transition ${plan.accentClass}`}>
                 <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
                   <div>

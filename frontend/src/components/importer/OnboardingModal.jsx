@@ -10,6 +10,7 @@ import { redirectAfterAuth } from '../../lib/navigation';
 import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../locales/i18n";
+import { usePlanConfig } from '../../hooks/api/usePlanConfig';
 const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
   free: {
@@ -190,8 +191,16 @@ export default function OnboardingModal({
   const cardMountRef = useRef(null);
   const stripeRef = useRef(null);
   const cardRef = useRef(null);
+  const { data: planConfig } = usePlanConfig();
+  const dynamicPlanMeta = useMemo(() => {
+    const base = JSON.parse(JSON.stringify(PLAN_META));
+    const api = planConfig?.seller_plans || {};
+    if (api.PRO?.price_monthly_eur) base.pro.price = `${api.PRO.price_monthly_eur}€ + IVA/mes`;
+    if (api.ELITE?.price_monthly_eur) base.elite.price = `${api.ELITE.price_monthly_eur}€ + IVA/mes`;
+    return base;
+  }, [planConfig]);
   const selectedPlan = normalizePlan(formData.plan);
-  const activePlan = PLAN_META[selectedPlan];
+  const activePlan = dynamicPlanMeta[selectedPlan];
   const progress = successState ? 100 : step === 1 ? 25 : step === 2 ? 50 : 75;
   const combinedPhone = `${formData.phonePrefix}${sanitizePhone(formData.phoneNumber)}`;
   const countryOptions = useMemo(() => Object.entries(countries || {}).map(([code, data]) => ({
@@ -637,7 +646,7 @@ export default function OnboardingModal({
       <div>
         <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Elige tu plan</p>
         <div className="mt-3 grid gap-3 xl:grid-cols-3">
-          {Object.entries(PLAN_META).map(([key, plan]) => <button key={key} ref={key === 'free' ? thirdRef : undefined} type="button" onClick={() => updateField('plan', key)} className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'elite' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}>
+          {Object.entries(dynamicPlanMeta).map(([key, plan]) => <button key={key} ref={key === 'free' ? thirdRef : undefined} type="button" onClick={() => updateField('plan', key)} className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'elite' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}>
               <div className="flex items-center justify-between gap-3">
                 <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'elite' ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   {plan.badge}

@@ -115,6 +115,9 @@ function ConsentConfigModal({ consents, onSave, onClose }) {
   return (
     <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="consent-config-title"
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 40, opacity: 0 }}
@@ -126,14 +129,14 @@ function ConsentConfigModal({ consents, onSave, onClose }) {
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center">
-              <Shield size={16} className="text-stone-700" />
+              <Shield size={16} className="text-stone-700" aria-hidden="true" />
             </div>
-            <h3 className="text-[16px] font-semibold text-stone-950">
+            <h3 id="consent-config-title" className="text-[16px] font-semibold text-stone-950">
               {i18n.t('consent_banner.config_title', 'Configurar cookies')}
             </h3>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors">
-            <X size={16} className="text-stone-500" />
+          <button onClick={onClose} aria-label={i18n.t('common.close', 'Cerrar')} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors">
+            <X size={16} className="text-stone-500" aria-hidden="true" />
           </button>
         </div>
 
@@ -290,7 +293,7 @@ export function CrossBorderNotice({ userCountry }) {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[998] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[998] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="cross-border-title">
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -298,9 +301,9 @@ export function CrossBorderNotice({ userCountry }) {
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center">
-            <Globe size={20} className="text-stone-700" />
+            <Globe size={20} className="text-stone-700" aria-hidden="true" />
           </div>
-          <h3 className="text-[16px] font-semibold text-stone-950">Transferencia internacional de datos</h3>
+          <h3 id="cross-border-title" className="text-[16px] font-semibold text-stone-950">Transferencia internacional de datos</h3>
         </div>
         <p className="text-[13px] leading-relaxed text-stone-600 mb-4">
           {i18n.t('cross_border.message', 'Tus datos personales se almacenan y procesan en servidores ubicados en Estados Unidos. HispaloShop LLC esta registrada en Florida, USA. Tus datos estan protegidos conforme al RGPD (UE) 2016/679.')}

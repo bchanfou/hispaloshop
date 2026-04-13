@@ -61,6 +61,7 @@ function isAuthInvalidError(error) {
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  timeout: 30000,
   headers: {
     Accept: 'application/json',
     'X-Client-Version': '1.0.0',

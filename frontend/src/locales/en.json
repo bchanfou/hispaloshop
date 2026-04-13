@@ -2555,7 +2555,7 @@
     "customerChat": "Customer chat",
     "month": "mo",
     "commissionLabel": "Commission",
-    "netGMVDisclaimer": "Commission calculated on NET GMV (excl. shipping and taxes). PRO plan €79 + VAT/mo, ELITE plan €149 + VAT/mo."
+    "netGMVDisclaimer": "Commission calculated on NET GMV (excl. shipping and taxes). PRO plan €79 + VAT/mo, ELITE plan €249 + VAT/mo."
   },
   "influencerLanding": {
     "tagline": "Influencer Program",
@@ -3277,6 +3277,15 @@
       "plans": {
         "eyebrow": "Plans",
         "title": "Choose the plan that fits you",
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "save15": "-15%",
+        "perMonth": "/mo",
+        "perYear": "/yr",
+        "freeLabel": "Free",
+        "popular": "Popular",
+        "monthlyNote": "7-day free trial on paid plans.",
+        "annualNote": "Annual billing. No free trial.",
         "items": [
           {
             "name": "FREE",

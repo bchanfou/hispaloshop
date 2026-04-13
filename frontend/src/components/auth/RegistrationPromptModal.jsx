@@ -71,6 +71,14 @@ export default function RegistrationPromptModal() {
     setBusy(false);
   }, []);
 
+  // ESC closes modal (WCAG 2.1.2 — no keyboard trap)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') handleClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, handleClose]);
+
   // Don't render until auth state is resolved (all hooks must be above this)
   if (!initialized) return null;
 
@@ -119,6 +127,9 @@ export default function RegistrationPromptModal() {
           />
           <motion.div
             key="reg-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reg-modal-title"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
@@ -129,7 +140,7 @@ export default function RegistrationPromptModal() {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-stone-100">
-              <h2 className="text-lg font-bold text-stone-950">
+              <h2 id="reg-modal-title" className="text-lg font-bold text-stone-950">
                 {headline}
               </h2>
               <button

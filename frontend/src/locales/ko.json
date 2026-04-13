@@ -2713,7 +2713,7 @@
     "customerChat": "Chat con clientes",
     "month": "mes",
     "commissionLabel": "Comisión",
-    "netGMVDisclaimer": "수수료는 순 GMV(배송 및 세금 제외) 기준으로 계산됩니다. PRO 플랜 €79 + VAT/월, ELITE 플랜 €149 + VAT/월."
+    "netGMVDisclaimer": "수수료는 순 GMV(배송 및 세금 제외) 기준으로 계산됩니다. PRO 플랜 €79 + VAT/월, ELITE 플랜 €249 + VAT/월."
   },
   "influencerLanding": {
     "tagline": "Programa de Influencers",
@@ -3454,6 +3454,15 @@
       "plans": {
         "eyebrow": "요금제",
         "title": "맞는 요금제 선택",
+        "monthly": "월간",
+        "annual": "연간",
+        "save15": "-15%",
+        "perMonth": "/월",
+        "perYear": "/년",
+        "freeLabel": "무료",
+        "popular": "인기",
+        "monthlyNote": "유료 플랜 7일 무료 체험.",
+        "annualNote": "연간 결제. 무료 체험 없음.",
         "items": [
           {
             "name": "FREE",

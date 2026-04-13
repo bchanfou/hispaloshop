@@ -232,7 +232,7 @@ async def ensure_stripe_products(db):
     try:
         product = stripe.Product.create(
             name="Hispaloshop Seller Plan",
-            description="Seller subscription for Hispaloshop marketplace",
+            description="Subscription plan for Hispaloshop sellers (billed monthly or annually, 15% off annual)",
         )
         logger.info(f"[SUBSCRIPTIONS] Created Stripe product: {product.id}")
 

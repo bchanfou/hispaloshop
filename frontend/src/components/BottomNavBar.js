@@ -156,6 +156,7 @@ export default function BottomNavBar() {
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl lg:hidden"
         data-testid="bottom-nav-bar"
+        aria-label="Navegación principal"
       >
         <LayoutGroup>
         <div className="grid h-[64px] grid-cols-5 items-stretch px-1">
