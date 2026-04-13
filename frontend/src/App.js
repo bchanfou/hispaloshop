@@ -228,8 +228,11 @@ const AdminFiscalPage = lazy(() => import('./pages/admin/AdminFiscalPage'));
 const AdminVerificationPage = lazy(() => import('./pages/admin/AdminVerificationPage'));
 const AdminModerationPage = lazy(() => import('./pages/admin/AdminModerationPage'));
 // ChatContainer removed — HI Multi-role AI consolidated into David/Rebeca/Pedro
-const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
-const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
+// Section 4.7c follow-up: /messages now renders <InternalChat /> via MessagesPage.
+// ChatsPage / ChatPage (legacy ChatProvider + /chat/* API) remain in the codebase
+// but are no longer routed to. Kept as dead code for rollback safety; do not
+// delete in this cycle.
+const MessagesPage = lazy(() => import('./pages/chat/MessagesPage'));
 const ChatRequestsPage = lazy(() => import('./pages/chat/ChatRequestsPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
@@ -948,10 +951,10 @@ function AppRouter() {
               <Route path="/chat" element={<Navigate to="/messages" replace />} />
               <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
               {/* /ai/chat removed — HI Multi-role consolidated into David/Rebeca/Pedro */}
-              <Route path="/messages" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
               <Route path="/messages/new" element={<ProtectedRoute><NewConversationPage /></ProtectedRoute>} />
               <Route path="/messages/requests" element={<ProtectedRoute><ChatRequestsPage /></ProtectedRoute>} />
-              <Route path="/messages/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+              <Route path="/messages/:conversationId" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
               <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
               <Route path="/documents" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><SignedDocumentsPage /></ProtectedRoute>} />
               {/* Section 3.6.2b — moved into the /b2b nested DualRoleLayout
