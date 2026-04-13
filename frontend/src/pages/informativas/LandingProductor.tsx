@@ -95,7 +95,7 @@ function PlansSection() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const [isAnnual, setIsAnnual] = useState(false);
-  const { data: planConfig } = usePlanConfig();
+  const { data: planConfig } = usePlanConfig() as { data: any };
 
   const eyebrow = t('landing.productor.plans.eyebrow', 'Planes');
   const title = t('landing.productor.plans.title', 'Elige el plan que encaja contigo');

@@ -12,9 +12,12 @@ export const b2bKeys = {
 };
 
 export function useB2BConversations(enabled = true) {
+  // 4.7c — Unified chat: prefer /internal-chat with the b2b filter. Backend
+  // returns the same conversation_type/b2b_context fields the legacy shape
+  // expects after normalization.
   return useQuery({
     queryKey: b2bKeys.conversations,
-    queryFn: () => apiClient.get('/b2b/chat/conversations'),
+    queryFn: () => apiClient.get('/internal-chat/conversations?type=b2b'),
     enabled,
     staleTime: 30 * 1000,
     refetchInterval: 30 * 1000,

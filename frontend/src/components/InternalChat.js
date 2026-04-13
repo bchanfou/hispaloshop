@@ -766,6 +766,17 @@ export default function InternalChat({
   const [isComposerActionsOpen, setIsComposerActionsOpen] = useState(false);
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [inboxTab, setInboxTab] = useState('messages'); // 'messages' | 'requests'
+  // 4.7c — audience filter: 'all' | 'personal' | 'b2b'
+  const [audienceTab, setAudienceTab] = useState(() => {
+    if (typeof window === 'undefined') return 'all';
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = (params.get('type') || '').toLowerCase();
+      if (t === 'b2b') return 'b2b';
+      if (t === 'personal' || t === 'internal') return 'personal';
+    } catch { /* noop */ }
+    return 'all';
+  });
   const [showGroupPanel, setShowGroupPanel] = useState(false);
   const [isSharedListOpen, setIsSharedListOpen] = useState(false);
   const [showMessageSearch, setShowMessageSearch] = useState(false);
@@ -846,7 +857,14 @@ export default function InternalChat({
   }, [deferredDirectorySearchValue, directoryRoleFilter, directoryUsers]);
   const requestConversations = useMemo(() => sortedConversations.filter(c => c.is_request && c.request_status === 'pending'), [sortedConversations]);
   const mainConversations = useMemo(() => sortedConversations.filter(c => !c.is_request || c.request_status === 'accepted'), [sortedConversations]);
-  const activeInboxList = inboxTab === 'requests' ? requestConversations : mainConversations;
+  // 4.7c — split by audience (b2b vs internal/personal)
+  const audienceFilteredMain = useMemo(() => {
+    if (audienceTab === 'all') return mainConversations;
+    if (audienceTab === 'b2b') return mainConversations.filter(c => (c.conversation_type || '').toLowerCase() === 'b2b');
+    return mainConversations.filter(c => (c.conversation_type || 'internal').toLowerCase() !== 'b2b');
+  }, [mainConversations, audienceTab]);
+  const b2bCount = useMemo(() => mainConversations.filter(c => (c.conversation_type || '').toLowerCase() === 'b2b').length, [mainConversations]);
+  const activeInboxList = inboxTab === 'requests' ? requestConversations : audienceFilteredMain;
   const filteredConversations = useMemo(() => {
     const query = deferredSearchValue.trim().toLowerCase();
     if (!query) return activeInboxList;
@@ -988,6 +1006,14 @@ export default function InternalChat({
   }, [initialChatUserId, selectedConversationId, sortedConversations]);
   const loadConversation = useCallback(async conversationId => {
     if (!conversationId) return;
+    // 4.7c — analytics on conversation open (mirror entry-point parity)
+    try {
+      const conv = sortedConversations.find(c => c.conversation_id === conversationId);
+      const isB2B = (conv?.conversation_type || '').toLowerCase() === 'b2b';
+      trackEvent(isB2B ? 'b2b_chat_conversation_opened' : 'chat_conversation_opened', {
+        conversation_id: conversationId,
+      });
+    } catch { /* noop */ }
     const cachedMessages = messagesCacheRef.current.get(conversationId);
     startConversationTransition(() => {
       setSelectedConversationId(conversationId);
@@ -1392,6 +1418,15 @@ export default function InternalChat({
           reply_to_id: currentReply.id
         } : {})
       });
+      // 4.7c — analytics parity for B2B vs personal sends
+      try {
+        const isB2B = (activeConversation?.conversation_type || '').toLowerCase() === 'b2b';
+        trackEvent(isB2B ? 'b2b_chat_message_sent' : 'chat_message_sent', {
+          conversation_id: selectedConversationId,
+          has_image: Boolean(imageUrl),
+          has_shared_item: Boolean(sharedItemToSend),
+        });
+      } catch { /* noop */ }
       setMessages(current => {
         const nextMessages = current.map(message => message.message_id === optimisticId ? {
           ...saved,
@@ -1569,6 +1604,19 @@ export default function InternalChat({
             </label>
           </div>
 
+          {/* ── 4.7c — Audience filter tabs: All | Personal | B2B ── */}
+          {b2bCount > 0 ? <div className="flex border-b border-stone-100 px-4 gap-2 py-2">
+              <button type="button" onClick={() => setAudienceTab('all')} className={`flex-1 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${audienceTab === 'all' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                {i18n.t('chat.tab_all', 'Todas')}
+              </button>
+              <button type="button" onClick={() => setAudienceTab('personal')} className={`flex-1 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${audienceTab === 'personal' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                {i18n.t('chat.tab_personal', 'Personales')}
+              </button>
+              <button type="button" onClick={() => setAudienceTab('b2b')} className={`flex-1 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${audienceTab === 'b2b' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                {i18n.t('chat.tab_b2b', 'B2B')} ({b2bCount})
+              </button>
+            </div> : null}
+
           {/* ── Inbox tabs: Messages | Requests ── */}
           {requestConversations.length > 0 ? <div className="flex border-b border-stone-100 px-4">
               <button type="button" onClick={() => setInboxTab('messages')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'messages' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
@@ -1607,9 +1655,12 @@ export default function InternalChat({
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className={`truncate text-[14px] text-stone-950 ${unreadCount > 0 ? 'font-semibold' : 'font-normal'}`}>
-                          {displayName}
-                        </p>
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          <p className={`truncate text-[14px] text-stone-950 ${unreadCount > 0 ? 'font-semibold' : 'font-normal'}`}>
+                            {displayName}
+                          </p>
+                          {(conversation.conversation_type || '').toLowerCase() === 'b2b' ? <span className="shrink-0 rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700">{i18n.t('chat.b2b_badge', 'B2B')}</span> : null}
+                        </div>
                         <div className="flex shrink-0 items-center gap-1.5">
                           <span className={`text-[12px] ${unreadCount > 0 ? 'font-medium text-stone-950' : 'text-stone-400'}`}>
                             {formatConversationTime(conversation.last_message?.created_at || conversation.updated_at)}
@@ -1617,6 +1668,9 @@ export default function InternalChat({
                           {unreadCount > 0 ? <span className="h-2 w-2 rounded-full bg-stone-950 shrink-0" /> : null}
                         </div>
                       </div>
+                      {conversation.b2b_context?.operation_id ? <p className="mt-0.5 truncate text-[11px] text-stone-500">
+                        {i18n.t('chat.b2b_operation', 'Operación')} #{String(conversation.b2b_context.operation_id).slice(-6)}
+                      </p> : null}
                       <p className={`mt-0.5 truncate text-[13px] ${unreadCount > 0 ? 'font-medium text-stone-800' : 'text-stone-400'}`}>
                         {lastMessage}
                       </p>
@@ -1662,14 +1716,8 @@ export default function InternalChat({
                 </div>
               </div>
 
-              {/* Action icons */}
+              {/* Action icons — 4.7c removed mock phone/video buttons (no real call backend) */}
               <div className="flex shrink-0 items-center gap-0.5">
-                <button type="button" onClick={() => toast('Llamadas de voz proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.llamadaDeVozProximamente', 'Llamada de voz (próximamente)')}>
-                  <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
-                </button>
-                <button type="button" onClick={() => toast('Videollamadas proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}>
-                  <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
-                </button>
                 {/* Message search */}
                 <button type="button" onClick={() => { setShowMessageSearch(s => !s); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.searchMessages', 'Buscar mensajes')}>
                   <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />
@@ -1687,6 +1735,19 @@ export default function InternalChat({
                   </button> : null}
               </div>
             </div>
+
+            {/* 4.7c — B2B operation context banner */}
+            {(activeConversation?.conversation_type || '').toLowerCase() === 'b2b' && activeConversation?.b2b_context?.operation_id ? (
+              <div className="flex items-center gap-2 border-b border-stone-100 bg-stone-50 px-4 py-2">
+                <Package className="h-4 w-4 text-stone-500" strokeWidth={1.8} />
+                <span className="text-[12px] text-stone-700">
+                  {i18n.t('chat.b2b_about_operation', 'Conversación sobre Operación')} #{String(activeConversation.b2b_context.operation_id).slice(-6)}
+                </span>
+                <a href={`/b2b/operations/${activeConversation.b2b_context.operation_id}`} className="ml-auto text-[12px] font-semibold text-stone-950 underline-offset-2 hover:underline">
+                  {i18n.t('chat.b2b_view_operation', 'Ver operación')}
+                </a>
+              </div>
+            ) : null}
 
             {/* Message search overlay */}
             {showMessageSearch && <div className="border-b border-stone-100 bg-white px-3 py-2 shrink-0">

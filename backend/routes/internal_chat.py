@@ -20,10 +20,30 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/internal-chat/conversations")
-async def get_user_conversations(user: User = Depends(get_current_user)):
-    """Get all conversations for the current user"""
+async def get_user_conversations(
+    type: Optional[str] = None,
+    user: User = Depends(get_current_user),
+):
+    """Get all conversations for the current user.
+
+    Optional ``type`` query param filters by ``conversation_type``:
+    - ``b2b`` → only B2B conversations
+    - ``internal`` / ``personal`` → only personal/internal conversations
+    - ``all`` or omitted → no filter
+    """
+    query = {"participants.user_id": user.user_id}
+    type_norm = (type or "").strip().lower()
+    if type_norm == "b2b":
+        query["conversation_type"] = "b2b"
+    elif type_norm in ("internal", "personal"):
+        query["$or"] = [
+            {"conversation_type": {"$exists": False}},
+            {"conversation_type": "internal"},
+        ]
+    # "all" or empty → no filter
+
     conversations = await db.internal_conversations.find(
-        {"participants.user_id": user.user_id},
+        query,
         {"_id": 0}
     ).sort("updated_at", -1).to_list(100)
     
@@ -62,8 +82,11 @@ async def get_user_conversations(user: User = Depends(get_current_user)):
             "created_at": conv.get("created_at"),
             "updated_at": conv.get("updated_at"),
             "conv_type": conv.get("conv_type"),
+            "conversation_type": conv.get("conversation_type", "internal"),
+            "b2b_context": conv.get("b2b_context"),
+            "legacy_b2b_conversation_id": conv.get("legacy_b2b_conversation_id"),
         })
-    
+
     return result
 
 @router.get("/internal-chat/conversations/{conversation_id}/messages")
@@ -498,6 +521,13 @@ async def start_conversation(
     body = await request.json()
     recipient_id = body.get("other_user_id") or body.get("recipient_id")
     conv_type = body.get("conv_type") or body.get("type")
+    # Unified-chat fields
+    conversation_type = (body.get("conversation_type") or "").strip().lower() or None
+    b2b_context = body.get("b2b_context") or None
+    # Convenience: if type is "b2b" treat as conversation_type=b2b for unified schema
+    if conversation_type is None and conv_type == "b2b":
+        conversation_type = "b2b"
+
     if not recipient_id:
         raise HTTPException(status_code=400, detail="recipient_id or other_user_id required")
     # Check if conversation already exists
@@ -507,8 +537,19 @@ async def start_conversation(
             {"participants.user_id": recipient_id}
         ]
     })
-    
+
     if existing:
+        # If caller now provides B2B context, attach it on the fly
+        update_fields = {}
+        if conversation_type and not existing.get("conversation_type"):
+            update_fields["conversation_type"] = conversation_type
+        if b2b_context and not existing.get("b2b_context"):
+            update_fields["b2b_context"] = b2b_context
+        if update_fields:
+            await db.internal_conversations.update_one(
+                {"conversation_id": existing["conversation_id"]},
+                {"$set": update_fields}
+            )
         return {"conversation_id": existing["conversation_id"], "is_new": False}
     
     # Get recipient info
@@ -553,6 +594,9 @@ async def start_conversation(
     }
     if conv_type:
         new_conv["conv_type"] = conv_type
+    new_conv["conversation_type"] = conversation_type or "internal"
+    if b2b_context:
+        new_conv["b2b_context"] = b2b_context
 
     await db.internal_conversations.insert_one(new_conv)
 

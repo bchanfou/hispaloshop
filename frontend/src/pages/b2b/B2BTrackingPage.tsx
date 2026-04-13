@@ -248,7 +248,7 @@ export default function B2BTrackingPage() {
         <div className="text-sm font-semibold text-stone-950 tracking-tight">
           Operación #HSP-B2B-{last8}
         </div>
-        <button onClick={() => navigate(`/b2b/chat/${operationId}`)} aria-label={i18n.t('b2_b_tracking.abrirChatDeLaOperacion', 'Abrir chat de la operación')} className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer">
+        <button onClick={() => navigate(`/messages/${operationId}?type=b2b`)} aria-label={i18n.t('b2_b_tracking.abrirChatDeLaOperacion', 'Abrir chat de la operación')} className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer">
           <MessageCircle size={20} className="text-stone-950" />
         </button>
       </div>

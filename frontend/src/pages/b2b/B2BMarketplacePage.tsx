@@ -178,7 +178,8 @@ export default function B2BMarketplacePage() {
   };
   const handleChat = producerId => {
     if (!producerId) return;
-    navigate(`/b2b/chat?producer=${producerId}`);
+    // 4.7c — unified chat: open inbox filtered to B2B with this producer pre-selected.
+    navigate(`/messages?new=true&type=b2b&producer_id=${encodeURIComponent(producerId)}`);
   };
   const handleTabChange = tabId => {
     setActiveTab(tabId);

@@ -80,7 +80,8 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
   const getAction = () => {
     const s = operation.status;
     if (s === 'offer_sent')
-      return { label: 'Ver oferta', path: `/b2b/chat/${operation.chat_id || operation._id || operation.id}` };
+      // 4.7c — unified chat: route into /messages preserving the conversation context.
+      return { label: 'Ver oferta', path: `/messages/${operation.chat_id || operation._id || operation.id}?type=b2b` };
     if (s === 'offer_accepted' || s === 'contract_generated')
       return { label: 'Ver contrato', path: `/b2b/contract/${operation._id || operation.id}` };
     if (s === 'contract_signed' || s === 'payment_pending')
