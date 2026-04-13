@@ -38,6 +38,8 @@ export default function FeedbackIdeaDetailPage() {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [savingComment, setSavingComment] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [replyingToCommentId, setReplyingToCommentId] = useState(null);
+  const [replyText, setReplyText] = useState('');
 
   const fetchIdea = useCallback(async () => {
     try {
@@ -131,13 +133,13 @@ export default function FeedbackIdeaDetailPage() {
 
   // B3 (4.5d): harden comment submit — guard against missing idea_id, unwrap
   // { success, data: comment } envelope defensively, surface error detail.
-  const handleSubmitComment = async (e) => {
-    e.preventDefault();
+  const handleSubmitComment = async (e, isReply = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!user) {
       window.dispatchEvent(new CustomEvent('auth:prompt_registration', { detail: { action: 'comment' } }));
       return;
     }
-    const body = newComment.trim();
+    const body = (isReply ? replyText : newComment).trim();
     if (!body) return;
     if (!idea?.idea_id) {
       toast.error(t('feedback.detail.errorComment', 'Error al comentar'));
@@ -145,9 +147,13 @@ export default function FeedbackIdeaDetailPage() {
     }
     setSubmittingComment(true);
     try {
+      const payload: any = { body };
+      if (isReply && replyingToCommentId) {
+        payload.parent_comment_id = replyingToCommentId;
+      }
       const res: any = await apiClient.post(
         `/feedback/ideas/${idea.idea_id}/comments`,
-        { body },
+        payload,
       );
       // Response shape is { success: true, data: commentObj }. Unwrap robustly.
       const comment = res?.data?.comment_id ? res.data : (res?.comment_id ? res : (res?.data || res));
@@ -158,7 +164,12 @@ export default function FeedbackIdeaDetailPage() {
       } else {
         setComments(prev => [...prev, comment]);
       }
-      setNewComment('');
+      if (isReply) {
+        setReplyText('');
+        setReplyingToCommentId(null);
+      } else {
+        setNewComment('');
+      }
       setIdea(prev => ({ ...prev, comment_count: (prev?.comment_count || 0) + 1 }));
     } catch (err: any) {
       const detail = err?.response?.data?.detail || err?.data?.detail || err?.message;
@@ -386,74 +397,181 @@ export default function FeedbackIdeaDetailPage() {
             </p>
           ) : (
             <div className="space-y-2">
-              {comments.map(comment => {
-                const isCommentAuthor = user && user.user_id === comment.author_id;
-                return (
-                  <div key={comment.comment_id} className="bg-white rounded-xl p-4">
-                    <div className="flex items-start gap-2.5">
-                      {comment.author_avatar ? (
-                        <img src={comment.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover mt-0.5" />
-                      ) : (
-                        <div className="w-7 h-7 rounded-full bg-stone-200 flex items-center justify-center mt-0.5">
-                          <UserIcon size={14} className="text-stone-500" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-xs font-medium text-stone-950">{comment.author_name}</span>
-                          <span className="text-[10px] text-stone-400">
-                            {new Date(comment.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <EditableCommentText
-                          text={comment.body}
-                          edited={comment.edited}
-                          deleted={comment.deleted}
-                          editing={editingCommentId === comment.comment_id}
-                          saving={savingComment}
-                          maxLength={500}
-                          onSave={(newBody) => handleEditComment(comment.comment_id, newBody)}
-                          onCancel={() => setEditingCommentId(null)}
-                        />
-
-                        {/* Actions for own comments */}
-                        {isCommentAuthor && !comment.deleted && editingCommentId !== comment.comment_id && (
-                          <div className="flex items-center gap-3 mt-1">
-                            <button
-                              onClick={() => setEditingCommentId(comment.comment_id)}
-                              className="text-[11px] text-stone-400 hover:text-stone-600"
-                            >
-                              {t('feedback.detail.editComment', 'Editar')}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteComment(comment.comment_id)}
-                              className="text-[11px] text-stone-400 hover:text-stone-600"
-                            >
-                              {t('feedback.detail.deleteComment', 'Eliminar')}
-                            </button>
+              {(() => {
+                const topLevel = comments.filter(c => !c.parent_comment_id);
+                const repliesMap = comments.filter(c => c.parent_comment_id).reduce((acc, c) => {
+                  acc[c.parent_comment_id] = acc[c.parent_comment_id] || [];
+                  acc[c.parent_comment_id].push(c);
+                  return acc;
+                }, {});
+                return topLevel.map(comment => {
+                  const isCommentAuthor = user && user.user_id === comment.author_id;
+                  const replies = repliesMap[comment.comment_id] || [];
+                  return (
+                    <div key={comment.comment_id} className="bg-white rounded-xl p-4">
+                      <div className="flex items-start gap-2.5">
+                        {comment.author_avatar ? (
+                          <img src={comment.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover mt-0.5" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-stone-200 flex items-center justify-center mt-0.5">
+                            <UserIcon size={14} className="text-stone-500" />
                           </div>
                         )}
-
-                        {/* Report for others' comments */}
-                        {!isCommentAuthor && !comment.deleted && (
-                          <div className="mt-1">
-                            <ReportButton contentType="feedback_comment" contentId={comment.comment_id} contentOwnerId={comment.author_id} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-xs font-medium text-stone-950">{comment.author_name}</span>
+                            <span className="text-[10px] text-stone-400">
+                              {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
                           </div>
-                        )}
+
+                          <EditableCommentText
+                            text={comment.body}
+                            edited={comment.edited}
+                            deleted={comment.deleted}
+                            editing={editingCommentId === comment.comment_id}
+                            saving={savingComment}
+                            maxLength={500}
+                            onSave={(newBody) => handleEditComment(comment.comment_id, newBody)}
+                            onCancel={() => setEditingCommentId(null)}
+                          />
+
+                          {/* Actions for own comments */}
+                          {isCommentAuthor && !comment.deleted && editingCommentId !== comment.comment_id && (
+                            <div className="flex items-center gap-3 mt-1">
+                              <button
+                                onClick={() => setEditingCommentId(comment.comment_id)}
+                                className="text-[11px] text-stone-400 hover:text-stone-600"
+                              >
+                                {t('feedback.detail.editComment', 'Editar')}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteComment(comment.comment_id)}
+                                className="text-[11px] text-stone-400 hover:text-stone-600"
+                              >
+                                {t('feedback.detail.deleteComment', 'Eliminar')}
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Reply button for others' top-level comments */}
+                          {!isCommentAuthor && !comment.deleted && editingCommentId !== comment.comment_id && (
+                            <div className="flex items-center gap-3 mt-1">
+                              <button
+                                onClick={() => { setReplyingToCommentId(comment.comment_id); setReplyText(''); }}
+                                className="text-[11px] text-stone-400 hover:text-stone-600"
+                              >
+                                {t('feedback.detail.reply', 'Responder')}
+                              </button>
+                              <div className="mt-0">
+                                <ReportButton contentType="feedback_comment" contentId={comment.comment_id} contentOwnerId={comment.author_id} />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Inline reply input */}
+                          {replyingToCommentId === comment.comment_id && (
+                            <form onSubmit={(e) => handleSubmitComment(e, true)} className="flex items-center gap-2 mt-2">
+                              <input
+                                type="text"
+                                autoFocus
+                                value={replyText}
+                                onChange={e => setReplyText(e.target.value)}
+                                placeholder={t('feedback.detail.commentPlaceholder', 'Escribe un comentario...')}
+                                maxLength={500}
+                                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-full text-sm outline-none focus:border-stone-400"
+                              />
+                              <button
+                                type="submit"
+                                disabled={!replyText.trim() || submittingComment}
+                                className="px-3 py-1.5 bg-stone-950 text-white rounded-full text-xs font-medium disabled:opacity-50 transition-colors hover:bg-stone-800"
+                              >
+                                {t('feedback.detail.send', 'Enviar')}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setReplyingToCommentId(null); setReplyText(''); }}
+                                className="px-3 py-1.5 text-stone-500 text-xs"
+                              >
+                                {t('feedback.detail.cancel', 'Cancelar')}
+                              </button>
+                            </form>
+                          )}
+
+                          {/* Replies */}
+                          {replies.length > 0 && (
+                            <div className="mt-3 space-y-2 pl-3 border-l-2 border-stone-100">
+                              {replies.map(reply => {
+                                const isReplyAuthor = user && user.user_id === reply.author_id;
+                                return (
+                                  <div key={reply.comment_id} className="bg-stone-50 rounded-lg p-3">
+                                    <div className="flex items-start gap-2">
+                                      {reply.author_avatar ? (
+                                        <img src={reply.author_avatar} alt="" className="w-6 h-6 rounded-full object-cover mt-0.5" />
+                                      ) : (
+                                        <div className="w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center mt-0.5">
+                                          <UserIcon size={12} className="text-stone-500" />
+                                        </div>
+                                      )}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                          <span className="text-xs font-medium text-stone-950">{reply.author_name}</span>
+                                          <span className="text-[10px] text-stone-400">
+                                            {new Date(reply.created_at).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                        <EditableCommentText
+                                          text={reply.body}
+                                          edited={reply.edited}
+                                          deleted={reply.deleted}
+                                          editing={editingCommentId === reply.comment_id}
+                                          saving={savingComment}
+                                          maxLength={500}
+                                          onSave={(newBody) => handleEditComment(reply.comment_id, newBody)}
+                                          onCancel={() => setEditingCommentId(null)}
+                                        />
+                                        {isReplyAuthor && !reply.deleted && editingCommentId !== reply.comment_id && (
+                                          <div className="flex items-center gap-3 mt-1">
+                                            <button
+                                              onClick={() => setEditingCommentId(reply.comment_id)}
+                                              className="text-[11px] text-stone-400 hover:text-stone-600"
+                                            >
+                                              {t('feedback.detail.editComment', 'Editar')}
+                                            </button>
+                                            <button
+                                              onClick={() => handleDeleteComment(reply.comment_id)}
+                                              className="text-[11px] text-stone-400 hover:text-stone-600"
+                                            >
+                                              {t('feedback.detail.deleteComment', 'Eliminar')}
+                                            </button>
+                                          </div>
+                                        )}
+                                        {!isReplyAuthor && !reply.deleted && (
+                                          <div className="mt-1">
+                                            <ReportButton contentType="feedback_comment" contentId={reply.comment_id} contentOwnerId={reply.author_id} />
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           )}
         </div>
       </div>
 
       {/* New comment input - fixed bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 px-4 py-3 z-10">
-        <form onSubmit={handleSubmitComment} className="flex items-center gap-2 max-w-2xl mx-auto">
+      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 bg-white border-t border-stone-200 px-4 py-3 z-50">
+        <form onSubmit={(e) => handleSubmitComment(e, false)} className="flex items-center gap-2 max-w-2xl mx-auto">
           <input
             type="text"
             value={newComment}

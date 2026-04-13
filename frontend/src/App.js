@@ -82,7 +82,7 @@ const B2BTrackingPage = lazy(() => import('./pages/b2b/B2BTrackingPage'));
 const B2BOperationsDashboard = lazy(() => import('./pages/b2b/B2BOperationsDashboard'));
 const B2BDisputePage = lazy(() => import('./pages/b2b/B2BDisputePage'));
 const B2BCatalogPage = lazy(() => import('./pages/b2b/B2BCatalogPage'));
-const CertificationsPage = lazy(() => import('./pages/CertificationsPage'));
+
 const ExploreCategoryPage = lazy(() => import('./pages/ExploreCategoryPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrdersPage = lazy(() => import('./pages/OrdersPage'));
@@ -560,7 +560,6 @@ function AppRouter() {
               <Route path="/collections" element={<FeedLayout><EditorialCollectionsPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />
               <Route path="/hashtag/:tag" element={<HashtagPage />} />
-              <Route path="/certifications" element={<CertificationsPage />} />
               <Route path="/communities" element={<FeedLayout><CommunitiesExplorePage /></FeedLayout>} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug/settings" element={<CommunitySettingsPage />} />

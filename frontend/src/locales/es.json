@@ -6114,7 +6114,12 @@
       "confirmDeleteTitle": "Eliminar idea",
       "confirmDeleteBody": "Esta accion no se puede deshacer.",
       "cancel": "Cancelar",
-      "confirmDelete": "Eliminar"
+      "confirmDelete": "Eliminar",
+      "reply": "Responder",
+      "send": "Enviar",
+      "addComment": "Añadir comentario",
+      "replying": "Respondiendo a {name}",
+      "replies": "Respuestas"
     },
     "editor": {
       "newTitle": "Proponer idea",
@@ -6162,7 +6167,8 @@
       "update": "Actualizar",
       "prev": "Anterior",
       "next": "Siguiente"
-    }
+    },
+    "viewAndComment": "Ver y comentar"
   },
   "cards": {
     "followers": "seguidores",

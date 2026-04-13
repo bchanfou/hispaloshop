@@ -212,7 +212,7 @@
     "login": "로그인",
     "register": "회원가입",
     "email": "이메일",
-    "emailOrUsername": "이”일 ˜Š” @‚šž…",
+    "emailOrUsername": "Email o @usuario",
     "password": "비밀번호",
     "confirmPassword": "비밀번호 확인",
     "name": "이름",
@@ -237,7 +237,6 @@
     "welcomeBack": "다시 오신 것을 환영합니다",
     "signInToAccount": "Inicia sesión para acceder a tu cuenta",
     "areYouProducer": "Eres productor Regístrate aquí",
-    "emailOrUsername": "Email o @usuario",
     "emailOrUseráname": "Email o @usuario",
     "createAccount": "계정 만들기",
     "alreadyHaveAccount": "이미 계정이 있으신가요?",
@@ -1389,14 +1388,12 @@
       },
       "trends": {
         "title": "ŠŒ“œ „„",
-        "emergingInterests": "–˜르Š” €‹‚",
-        "decliningInterests": "감†Œ•˜Š” €‹‚",
+        "emergingInterests": "Intereses Emergentes",
+        "decliningInterests": "Intereses en Declive",
         "seasonalPatterns": "„ˆ Œ„",
         "recommendations": "„ž적 Œž ‚•",
         "growth": "„ž",
-        "decline": "감†Œ",
-        "emergingInterests": "Intereses Emergentes",
-        "decliningInterests": "Intereses en Declive"
+        "decline": "감†Œ"
       },
       "compliance": {
         "title": "GDPR œ• €ˆ˜ Œ€‹œ보“œ",
@@ -1743,7 +1740,6 @@
     "productNotAvailable": "Este producto no está disponible en tu región",
     "incorrectPassword": "Contraseña incorrecta",
     "emailExists": "Email ya registrado",
-    "usernameTaken": "이미 ‚š ‘인 ‚šž 이„",
     "usernameTaken": "Nombre de usuario ya existe",
     "useránameTaken": "Nombre de usuario ya existe"
   },
@@ -4926,7 +4922,12 @@
       "confirmDeleteTitle": "아이디어 삭제",
       "confirmDeleteBody": "이 작업은 되돌릴 수 없습니다.",
       "cancel": "취소",
-      "confirmDelete": "삭제"
+      "confirmDelete": "삭제",
+      "reply": "답글",
+      "send": "볂이",
+      "addComment": "댓글 추가",
+      "replying": "{name}에게 답글",
+      "replies": "답글"
     },
     "editor": {
       "newTitle": "아이디어 제안",
@@ -4974,7 +4975,8 @@
       "update": "업데이트",
       "prev": "이전",
       "next": "다음"
-    }
+    },
+    "viewAndComment": "보기 및 댓글"
   },
   "cards": {
     "followers": "팔로워",

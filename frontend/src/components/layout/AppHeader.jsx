@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, ShoppingCart, Menu, Search, MessageCircle } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
@@ -18,8 +18,10 @@ export default function AppHeader() {
   const { unreadTotal: chatUnreadTotal } = useChatContext();
 
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartBounce, setCartBounce] = useState(false);
+  const lastScrollY = useRef(0);
 
   const isAuthenticated = !!user;
 
@@ -32,9 +34,18 @@ export default function AppHeader() {
     return cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
   }, [cartItems, isAuthenticated]);
 
-  // Scroll-aware border + shadow
+  // Scroll-aware border + shadow + hide-on-scroll-down
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      setScrolled(currentY > 20);
+      if (currentY > lastScrollY.current && currentY > 80) {
+        setHidden(true);
+      } else if (currentY < lastScrollY.current) {
+        setHidden(false);
+      }
+      lastScrollY.current = currentY;
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -52,9 +63,9 @@ export default function AppHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 pt-[env(safe-area-inset-top)] ${
+      className={`sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b transition-all duration-300 pt-[env(safe-area-inset-top)] ${
         scrolled ? 'border-stone-200 shadow-nav' : 'border-stone-100'
-      }`}
+      } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
     >
       {/* Hamburger Menu drawer */}
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />

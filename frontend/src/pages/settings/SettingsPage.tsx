@@ -205,7 +205,7 @@ export default function SettingsPage() {
   };
   return <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div className="sticky top-[52px] lg:top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-stone-100 flex items-center gap-3 px-4 py-3">
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-stone-100 flex items-center gap-3 px-4 py-3">
         <button onClick={() => navigate(-1)} className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full hover:bg-stone-100 transition-colors lg:hidden" aria-label="Volver">
           <ArrowLeft size={20} className="text-stone-950" />
         </button>

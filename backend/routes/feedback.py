@@ -39,6 +39,7 @@ class VoteBody(BaseModel):
 
 class AddCommentBody(BaseModel):
     body: str = Field(..., min_length=1, max_length=500)
+    parent_comment_id: Optional[str] = None
 
 class EditCommentBody(BaseModel):
     body: str = Field(..., min_length=1, max_length=500)
@@ -138,7 +139,7 @@ async def toggle_vote(idea_id: str, payload: VoteBody = VoteBody(), user: User =
 async def add_comment(idea_id: str, payload: AddCommentBody, user: User = Depends(get_current_user)):
     """Add comment to idea (auth required)."""
     try:
-        result = await feedback_service.add_comment(idea_id, user.user_id, payload.body)
+        result = await feedback_service.add_comment(idea_id, user.user_id, payload.body, payload.parent_comment_id)
         return {"success": True, "data": result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -306,6 +307,7 @@ async def legacy_list(
         item["type"] = item.get("category", "other")
         item["votes"] = item.get("vote_count", 0)
         item["voter_count"] = item.get("vote_count", 0)
+        item["comment_count"] = item.get("comment_count", 0)
     return {"success": True, "data": result}
 
 

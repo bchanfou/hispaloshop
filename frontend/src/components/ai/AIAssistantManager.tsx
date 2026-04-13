@@ -2,13 +2,8 @@
 /**
  * AIAssistantManager — Unified floating system for David + Rebeca + Pedro.
  *
- * Draggable button that snaps to the nearest screen edge.
- * Three visual states:
- *   1. Full button (56px circle) — first visit / expanded
- *   2. Minimized strip (20×80px edge tab) — after first panel close
- *   3. Panel open — button hidden, AI drawer rendered
- *
- * Persistence: localStorage stores Y position, side, and visual state.
+ * Circular 56px buttons, draggable, snap-to-edge, auto-minimize to strip after 10s.
+ * Persist position in localStorage (hsp_ai_button_pos).
  */
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -25,22 +20,22 @@ const RebecaAI = React.lazy(() => import('./RebecaAI'));
 /* ── Constants ── */
 const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup', '/country-admin', '/importer', '/influencer'];
 const BUTTON_SIZE = 56;
-const STRIP_W = 20;
-const STRIP_H = 80;
+const STRIP_W = 8;
+const STRIP_H_SINGLE = 40;
+const STRIP_H_MULTI = 64;
 const EDGE_MARGIN = 8;
 const SAFE_TOP = 60;
 const SAFE_BOTTOM_MOBILE = 80;
 const SAFE_BOTTOM_DESKTOP = 20;
 const STACK_GAP = 12;
+const INACTIVITY_MS = 10000;
 
-const LS_Y = 'hsp_ai_button_y';
-const LS_SIDE = 'hsp_ai_button_side';
-const LS_STATE = 'hsp_ai_button_state';
+const LS_POS = 'hsp_ai_button_pos';
 
 const AI_DEFS = [
   { id: 'david', color: '#0c0a09', icon: Sparkles, type: 'drawer', label: 'David AI' },
-  { id: 'rebeca', color: '#57534e', icon: TrendingUp, type: 'drawer', label: 'Rebeca AI', minPlan: 'PRO', roles: ['producer', 'importer'] },
-  { id: 'pedro', color: '#a8a29e', icon: Crown, type: 'navigate', href: '/producer/commercial-ai', label: 'Pedro AI', minPlan: 'ELITE', roles: ['producer', 'importer'] },
+  { id: 'rebeca', color: '#0a3d2e', icon: TrendingUp, type: 'drawer', label: 'Rebeca AI', minPlan: 'PRO', roles: ['producer', 'importer'] },
+  { id: 'pedro', color: 'transparent', gradient: 'linear-gradient(135deg, #b45309, #78350f)', icon: Crown, type: 'navigate', href: '/producer/commercial-ai', label: 'Pedro AI', minPlan: 'ELITE', roles: ['producer', 'importer'] },
 ];
 
 const PLAN_ORDER = { FREE: 0, PRO: 1, ELITE: 2 };
@@ -73,22 +68,49 @@ function clampY(y) {
 }
 
 function readPersistedPosition() {
-  const side = localStorage.getItem(LS_SIDE) || 'right';
-  const yRatio = parseFloat(localStorage.getItem(LS_Y) || '');
-  const state = localStorage.getItem(LS_STATE) || 'full';
+  try {
+    const raw = localStorage.getItem(LS_POS);
+    if (raw) {
+      const pos = JSON.parse(raw);
+      const side = pos.side === 'left' ? 'left' : 'right';
+      const yRatio = typeof pos.yRatio === 'number' ? pos.yRatio : NaN;
+      const state = pos.state === 'strip' ? 'strip' : 'full';
+      const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
+      const y = !isNaN(yRatio) ? clampY(yRatio * window.innerHeight) : defaultY;
+      return { side, y, state };
+    }
+  } catch {}
+  // Legacy fallback
+  try {
+    const side = localStorage.getItem('hsp_ai_button_side') || 'right';
+    const yRaw = parseFloat(localStorage.getItem('hsp_ai_button_y') || '');
+    const state = localStorage.getItem('hsp_ai_button_state') || 'full';
+    const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
+    const y = !isNaN(yRaw) ? clampY(yRaw * window.innerHeight) : defaultY;
+    return { side, y, state: state === 'strip' ? 'strip' : 'full' };
+  } catch {}
   const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
-  const y = !isNaN(yRatio) ? clampY(yRatio * window.innerHeight) : defaultY;
-  return { side, y, state };
+  return { side: 'right', y: defaultY, state: 'full' };
 }
 
 function persistPosition(side, y, state) {
-  localStorage.setItem(LS_SIDE, side);
-  localStorage.setItem(LS_Y, String(y / window.innerHeight));
-  if (state) localStorage.setItem(LS_STATE, state);
+  try {
+    localStorage.setItem(LS_POS, JSON.stringify({
+      side,
+      yRatio: y / window.innerHeight,
+      state,
+      ts: Date.now(),
+    }));
+  } catch {}
 }
 
 function getXForSide(side, width) {
   return side === 'right' ? window.innerWidth - width - EDGE_MARGIN : EDGE_MARGIN;
+}
+
+function getAIBgStyle(ai) {
+  if (ai?.gradient) return { background: ai.gradient };
+  return { backgroundColor: ai?.color };
 }
 
 /* ── Main Manager ── */
@@ -109,6 +131,7 @@ export default function AIAssistantManager() {
   const controls = useAnimation();
   const isDragging = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
+  const inactivityTimerRef = useRef(null);
 
   // Hide on auth/onboarding paths
   const shouldHide = !user || HIDDEN_PATHS.some((p) => location.pathname.startsWith(p));
@@ -131,6 +154,8 @@ export default function AIAssistantManager() {
   }, [user, userPlan]);
 
   const hasMultipleAIs = availableAIs.length > 1;
+  const primaryAI = availableAIs[0];
+  const PrimaryIcon = primaryAI?.icon || Sparkles;
 
   // Initialize position from localStorage
   useEffect(() => {
@@ -169,11 +194,34 @@ export default function AIAssistantManager() {
     };
   }, [showStack]);
 
+  /* ── Inactivity timer ── */
+  const clearInactivityTimer = useCallback(() => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = null;
+    }
+  }, []);
+
+  const startInactivityTimer = useCallback(() => {
+    clearInactivityTimer();
+    if (buttonState !== 'full' || activeAI || showStack || isDragging.current) return;
+    inactivityTimerRef.current = setTimeout(() => {
+      setButtonState('strip');
+      persistPosition(side, posY, 'strip');
+    }, INACTIVITY_MS);
+  }, [buttonState, activeAI, showStack, side, posY, clearInactivityTimer]);
+
+  useEffect(() => {
+    startInactivityTimer();
+    return () => clearInactivityTimer();
+  }, [startInactivityTimer, clearInactivityTimer]);
+
   /* ── Handlers ── */
   const handleDragStart = useCallback(() => {
     isDragging.current = false;
     dragStartPos.current = { x: 0, y: 0 };
-  }, []);
+    clearInactivityTimer();
+  }, [clearInactivityTimer]);
 
   const handleDrag = useCallback((_, info) => {
     const dx = Math.abs(info.offset.x);
@@ -199,7 +247,8 @@ export default function AIAssistantManager() {
       y: newY,
       transition: { type: 'spring', stiffness: 300, damping: 28 },
     });
-  }, [buttonState, controls]);
+    startInactivityTimer();
+  }, [buttonState, controls, startInactivityTimer]);
 
   const openAI = useCallback((ai) => {
     if (ai.type === 'navigate') {
@@ -214,6 +263,7 @@ export default function AIAssistantManager() {
 
   const handleButtonClick = useCallback(() => {
     if (isDragging.current) return;
+    clearInactivityTimer();
     if (buttonState === 'strip') {
       // Single AI: go straight to panel (skip full button state)
       if (!hasMultipleAIs && availableAIs.length === 1) {
@@ -241,14 +291,14 @@ export default function AIAssistantManager() {
     } else if (availableAIs.length === 1) {
       openAI(availableAIs[0]);
     }
-  }, [buttonState, side, posY, controls, hasMultipleAIs, showStack, availableAIs, openAI]);
+  }, [buttonState, side, posY, controls, hasMultipleAIs, showStack, availableAIs, openAI, clearInactivityTimer]);
 
   const handleCloseDrawer = useCallback(() => {
     setActiveAI(null);
     // After first interaction, always go to strip
     setButtonState('strip');
-    localStorage.setItem(LS_STATE, 'strip');
-  }, []);
+    persistPosition(side, posY, 'strip');
+  }, [side, posY]);
 
   if (shouldHide || availableAIs.length === 0) return null;
 
@@ -271,6 +321,7 @@ export default function AIAssistantManager() {
   if (!initialized) return null;
 
   const totalBadge = Object.values(counts).reduce((s, c) => s + c, 0);
+  const stripHeight = hasMultipleAIs ? STRIP_H_MULTI : STRIP_H_SINGLE;
 
   // ── Draggable button / strip ──
   return (
@@ -282,6 +333,9 @@ export default function AIAssistantManager() {
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
+        onPointerEnter={clearInactivityTimer}
+        onPointerLeave={startInactivityTimer}
+        onTouchStart={clearInactivityTimer}
         animate={controls}
         initial={{
           x: getXForSide(side, buttonState === 'strip' ? STRIP_W : BUTTON_SIZE),
@@ -300,14 +354,34 @@ export default function AIAssistantManager() {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               onClick={handleButtonClick}
-              className={`flex items-center justify-center bg-stone-950/80 backdrop-blur-sm text-white/70 shadow-md ring-1 ring-white/20 cursor-pointer hover:opacity-100 transition-opacity ${
+              className={`flex flex-col items-center justify-center text-white/90 shadow-md ring-1 ring-white/20 cursor-pointer hover:opacity-100 transition-opacity ${
                 side === 'right' ? 'rounded-l-xl' : 'rounded-r-xl'
               }`}
-              style={{ width: STRIP_W, height: STRIP_H }}
+              style={{ width: STRIP_W, height: stripHeight, ...getAIBgStyle(primaryAI) }}
               aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
               role="button"
             >
-              <Sparkles size={14} />
+              {hasMultipleAIs ? (
+                <div className="flex flex-col items-center justify-center gap-1 py-2">
+                  {availableAIs.map((ai) => (
+                    <div
+                      key={ai.id}
+                      className="rounded-full"
+                      style={{ width: 4, height: 4, ...getAIBgStyle(ai) }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <PrimaryIcon size={14} />
+              )}
+              {totalBadge > 0 && (
+                <motion.span
+                  className="absolute top-1.5 bg-red-500 rounded-full"
+                  style={{ [side === 'right' ? 'left' : 'right']: 1.5, width: 5, height: 5 }}
+                  animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              )}
             </motion.button>
           ) : (
             <motion.button
@@ -318,13 +392,20 @@ export default function AIAssistantManager() {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               onClick={handleButtonClick}
-              className="relative flex items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95 transition-transform"
-              style={{ width: BUTTON_SIZE, height: BUTTON_SIZE }}
+              className="relative flex items-center justify-center rounded-full text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95 transition-transform"
+              style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, ...getAIBgStyle(primaryAI) }}
               aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
             >
-              <Sparkles size={24} />
               {totalBadge > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-stone-600 px-1 text-[10px] font-bold text-white shadow">
+                <motion.span
+                  className="absolute inset-0 rounded-full border-2 border-red-500"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              )}
+              <PrimaryIcon size={24} />
+              {totalBadge > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
                   {totalBadge > 9 ? '9+' : totalBadge}
                 </span>
               )}
@@ -364,12 +445,12 @@ export default function AIAssistantManager() {
                     transition={{ type: 'spring', stiffness: 260, damping: 20, delay: i * 0.05 }}
                     onClick={() => openAI(ai)}
                     className="relative flex items-center justify-center rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform"
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, backgroundColor: ai.color }}
+                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, ...getAIBgStyle(ai) }}
                     aria-label={ai.label}
                   >
                     <Icon className="w-6 h-6 text-white" />
                     {(counts[ai.id] || 0) > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-stone-600 px-1 text-[10px] font-bold text-white shadow">
+                      <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
                         {counts[ai.id] > 9 ? '9+' : counts[ai.id]}
                       </span>
                     )}

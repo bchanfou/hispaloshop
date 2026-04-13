@@ -54,9 +54,13 @@ export function useProductPurchaseOptions(productId) {
   const maxQuantity = trackStock ? stock : 99;
   const hasVariants = Boolean(product?.variants?.length);
   const currentPrice = selectedPack?.price || selectedVariant?.price || product?.price;
-  const currentIngredients = selectedVariant?.ingredients || product?.ingredients || [];
+  const currentIngredients = Array.isArray(selectedVariant?.ingredients)
+    ? selectedVariant.ingredients
+    : (Array.isArray(product?.ingredients) ? product.ingredients : []);
   const currentNutritionalInfo = selectedVariant?.nutritional_info || product?.nutritional_info || null;
-  const currentAllergens = selectedVariant?.allergens || product?.allergens || [];
+  const currentAllergens = Array.isArray(selectedVariant?.allergens)
+    ? selectedVariant.allergens
+    : (Array.isArray(product?.allergens) ? product.allergens : []);
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);

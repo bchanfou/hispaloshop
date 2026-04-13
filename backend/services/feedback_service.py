@@ -338,7 +338,7 @@ class FeedbackService:
 
     # ─── Comments ─────────────────────────────────────────────────────────
 
-    async def add_comment(self, idea_id: str, user_id: str, body: str) -> Dict:
+    async def add_comment(self, idea_id: str, user_id: str, body: str, parent_comment_id: Optional[str] = None) -> Dict:
         """Add comment to idea."""
         body = body.strip()[:500]
         if not body:
@@ -352,6 +352,15 @@ class FeedbackService:
         if not user_doc:
             raise ValueError("Usuario no encontrado")
 
+        # Validate parent comment exists and belongs to the same idea
+        if parent_comment_id:
+            parent = await db.feedback_comments.find_one({"comment_id": parent_comment_id, "idea_id": idea_id}, {"_id": 0, "parent_comment_id": 1})
+            if not parent:
+                raise ValueError("Comentario padre no encontrado")
+            # Only allow 1 level of nesting
+            if parent.get("parent_comment_id"):
+                raise ValueError("No se permiten respuestas anidadas de más de 1 nivel")
+
         comment_id = str(uuid4())
         now = datetime.now(timezone.utc)
         comment = {
@@ -361,6 +370,7 @@ class FeedbackService:
             "author_name": user_doc.get("name", "Usuario"),
             "author_avatar": user_doc.get("picture"),
             "body": body,
+            "parent_comment_id": parent_comment_id,
             "created_at": now,
             "edited": False,
             "edited_at": None,

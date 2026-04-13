@@ -597,7 +597,7 @@ export default function ProductDetailPage() {
             )}
             {product.certifications?.map((cert, i) => (
               <span key={i} className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
-                <FileCheck size={12} /> {cert.name || cert}
+                <FileCheck size={12} /> {cert?.name || cert || ''}
               </span>
             ))}
           </div>
@@ -958,7 +958,7 @@ export default function ProductDetailPage() {
               <div>
                 <span className="text-[11px] text-stone-500">{t('productDetail.category', 'Categoría')}</span>
                 <p className="mt-0.5 text-[13px] font-medium capitalize text-stone-950">
-                  {product.category_id.replace('cat_', '').replace(/-/g, ' ')}
+                  {String(product.category_id || '').replace('cat_', '').replace(/-/g, ' ')}
                 </p>
               </div>
             )}
@@ -1404,11 +1404,11 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ── Recipes with this product ── */}
-      {productRecipes.length > 0 && (
+      {productRecipes.filter(Boolean).length > 0 && (
         <div className="mx-auto max-w-[1200px] py-5">
           <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">Recetas con este producto</h2>
           <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
-            {productRecipes.map((r) => {
+            {productRecipes.filter(Boolean).map((r) => {
               const rid = r.recipe_id || r.id;
               return (
                 <Link
@@ -1499,13 +1499,13 @@ export default function ProductDetailPage() {
       />
 
       {/* ── Related Products ── */}
-      {relatedProducts.length > 0 && (
+      {relatedProducts.filter(Boolean).length > 0 && (
         <div className="mx-auto max-w-[1200px] py-5">
           <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">
             {t('productDetail.relatedProducts', 'Productos relacionados')}
           </h2>
           <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
-            {relatedProducts.map((rp) => {
+            {relatedProducts.filter(Boolean).map((rp) => {
               const rpId = rp.product_id || rp.id;
               const rpImage = rp.images?.[0] || rp.image_url || null;
               return (

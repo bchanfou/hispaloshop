@@ -203,6 +203,8 @@ const B2BOperationsDashboard = () => {
   const [operations, setOperations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [errorType, setErrorType] = useState(null); // 'network' | 'server'
+  const [retryCount, setRetryCount] = useState(0);
   const [tab, setTab] = useState('active');
   const [lastUpdated, setLastUpdated] = useState(null);
   const [changedIds, setChangedIds] = useState(new Set());
@@ -210,12 +212,16 @@ const B2BOperationsDashboard = () => {
   const prevOpsRef = useRef(null);
   const highlightTimerRef = useRef(null);
 
-  const loadOperations = useCallback(async (silent = false) => {
+  const retryTimerRef = useRef(null);
+
+  const loadOperations = useCallback(async (silent = false, currentRetry = 0) => {
     let cancelled = false;
     if (!silent) {
       setError(false);
+      setErrorType(null);
       setLoading(true);
     }
+    let willRetry = false;
     try {
       const res = await apiClient.get('/b2b/operations');
       const raw = res?.data?.operations || res?.data || res || [];
@@ -241,13 +247,47 @@ const B2BOperationsDashboard = () => {
         prevOpsRef.current = incoming;
         setOperations(incoming);
         setLastUpdated(Date.now());
+        if (!silent) setRetryCount(0);
       }
     } catch (err) {
-      if (!cancelled && !silent) setError(true);
+      const status = err?.status || err?.response?.status;
+      const isNetwork = !navigator.onLine || !status || err.name === 'TypeError';
+      const is5xx = status >= 500;
+      const is404 = status === 404;
+      willRetry = is5xx && currentRetry < 3;
+
+      if (!cancelled && !silent) {
+        if (isNetwork) {
+          setError(true);
+          setErrorType('network');
+        } else if (willRetry) {
+          setError(true);
+          setErrorType('server');
+          setRetryCount(currentRetry + 1);
+          const delay = Math.min(2000 * (currentRetry + 1), 8000);
+          retryTimerRef.current = setTimeout(() => {
+            if (!cancelled) loadOperations(silent, currentRetry + 1);
+          }, delay);
+        } else if (is404) {
+          // Empty state — no operations yet
+          setOperations([]);
+          setRetryCount(0);
+        } else {
+          setError(true);
+          setErrorType(is5xx ? 'server' : 'network');
+        }
+      } else if (silent && willRetry) {
+        const delay = Math.min(2000 * (currentRetry + 1), 8000);
+        retryTimerRef.current = setTimeout(() => {
+          if (!cancelled) loadOperations(silent, currentRetry + 1);
+        }, delay);
+      }
     } finally {
-      if (!cancelled && !silent) setLoading(false);
+      if (!cancelled && !silent && !willRetry) {
+        setLoading(false);
+      }
     }
-    return () => { cancelled = true; clearTimeout(highlightTimerRef.current); };
+    return () => { cancelled = true; clearTimeout(highlightTimerRef.current); clearTimeout(retryTimerRef.current); };
   }, []);
 
   useEffect(() => {
@@ -374,15 +414,33 @@ const B2BOperationsDashboard = () => {
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 gap-3">
-            <span className="text-sm text-stone-500">
-              Error al cargar las operaciones
-            </span>
-            <button
-              onClick={() => loadOperations()}
-              className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
-            >
-              Reintentar
-            </button>
+            {errorType === 'network' ? (
+              <>
+                <span className="text-sm text-stone-500">Sin conexión. Comprueba tu red</span>
+                <button
+                  onClick={() => loadOperations()}
+                  className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
+                >
+                  Reintentar
+                </button>
+              </>
+            ) : errorType === 'server' ? (
+              <>
+                <span className="text-sm text-stone-500">Error temporal, reintentando...</span>
+                <Loader2 size={20} className="animate-spin text-stone-500" />
+                <span className="text-xs text-stone-400">Intento {retryCount}/3</span>
+              </>
+            ) : (
+              <>
+                <span className="text-sm text-stone-500">Error al cargar las operaciones</span>
+                <button
+                  onClick={() => loadOperations()}
+                  className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
+                >
+                  Reintentar
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <>

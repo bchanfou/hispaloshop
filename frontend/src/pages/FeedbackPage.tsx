@@ -241,13 +241,25 @@ export default function FeedbackPage() {
                         </span>
                       </div>
                       
-                      <h3 className="font-semibold text-stone-950 text-[15px] leading-snug">{item.title}</h3>
-                      <p className="text-sm text-stone-600 mt-1 line-clamp-2">{item.description}</p>
+                      <button
+                        onClick={() => navigate(`/feedback/${item.slug || item.feedback_id}`)}
+                        className="text-left bg-transparent border-none p-0 m-0 w-full"
+                      >
+                        <h3 className="font-semibold text-stone-950 text-[15px] leading-snug">{item.title}</h3>
+                        <p className="text-sm text-stone-600 mt-1 line-clamp-2">{item.description}</p>
+                      </button>
                       
                       <div className="flex items-center gap-3 mt-2 text-xs text-stone-400">
                         <span>{item.voter_count} votos</span>
                         <span>·</span>
                         <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                        <span>·</span>
+                        <button
+                          onClick={() => navigate(`/feedback/${item.slug || item.feedback_id}`)}
+                          className="text-stone-400 hover:text-stone-600 bg-transparent border-none p-0"
+                        >
+                          {item.comment_count || 0} {t('feedback.detail.comments', 'Comentarios')}
+                        </button>
                       </div>
                     </div>
                   </div>

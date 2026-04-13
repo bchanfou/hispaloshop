@@ -38,11 +38,11 @@ export default function HeroSection({
 
   return (
     <section
-      className={`relative min-h-[85vh] flex items-center justify-center overflow-hidden ${
+      className={`relative min-h-[70vh] flex items-center justify-center overflow-hidden ${
         isInverted ? 'bg-stone-950' : 'bg-stone-50'
       }`}
     >
-      <div className="max-w-[1100px] mx-auto px-6 py-32 lg:py-40 w-full">
+      <div className="max-w-[1100px] mx-auto px-6 py-20 lg:py-28 w-full">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-16">
           {/* Text column */}
           <div className="flex-1 max-w-[560px]">

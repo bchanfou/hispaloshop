@@ -4632,7 +4632,12 @@
       "confirmDeleteTitle": "Delete idea",
       "confirmDeleteBody": "This action cannot be undone.",
       "cancel": "Cancel",
-      "confirmDelete": "Delete"
+      "confirmDelete": "Delete",
+      "reply": "Reply",
+      "send": "Send",
+      "addComment": "Add comment",
+      "replying": "Replying to {name}",
+      "replies": "Replies"
     },
     "editor": {
       "newTitle": "Propose idea",
@@ -4680,7 +4685,8 @@
       "update": "Update",
       "prev": "Previous",
       "next": "Next"
-    }
+    },
+    "viewAndComment": "View and comment"
   },
   "cards": {
     "followers": "followers",
