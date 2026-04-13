@@ -489,6 +489,51 @@ async def get_unread_count(user: User = Depends(get_current_user)):
     
     return {"unread_count": count}
 
+def infer_conversation_type(creator_role: Optional[str], other_role: Optional[str], b2b_context: bool = False, collab_context: bool = False) -> str:
+    """Infer the conv_type for a 1:1 conversation based on roles + context flags.
+
+    Returns one of: 'b2b' | 'collab' | 'store' | 'personal'
+    """
+    a = (creator_role or "").lower()
+    b = (other_role or "").lower()
+    if b2b_context:
+        return "b2b"
+    if collab_context:
+        return "collab"
+    role_pair = {a, b}
+    if role_pair == {"producer", "influencer"}:
+        return "collab"
+    store_roles = {"producer", "importer"}
+    if (a in store_roles) or (b in store_roles):
+        return "store"
+    return "personal"
+
+
+@router.get("/internal-chat/conversations/with/{other_user_id}")
+async def find_conversation_with(
+    other_user_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Find an existing 1:1 conversation between current user and other_user_id.
+
+    Returns {exists: True, conversation_id} or {exists: False}.
+    Used by DirectorySheet click handler to open existing conversations
+    instead of always creating new ones (Q7 bug fix).
+    """
+    if not other_user_id:
+        raise HTTPException(status_code=400, detail="other_user_id required")
+    conv = await db.internal_conversations.find_one({
+        "$and": [
+            {"participants.user_id": user.user_id},
+            {"participants.user_id": other_user_id},
+        ],
+        "type": {"$ne": "group"},
+    })
+    if conv:
+        return {"exists": True, "conversation_id": conv.get("conversation_id")}
+    return {"exists": False}
+
+
 @router.post("/internal-chat/start-conversation")
 async def start_conversation(
     request: Request,
@@ -497,7 +542,14 @@ async def start_conversation(
     """Start a new conversation with a user (or return existing one)"""
     body = await request.json()
     recipient_id = body.get("other_user_id") or body.get("recipient_id")
+    # Accept participant_ids[] as alias for new client code
+    if not recipient_id:
+        pids = body.get("participant_ids") or []
+        if isinstance(pids, list) and pids:
+            recipient_id = pids[0]
     conv_type = body.get("conv_type") or body.get("type")
+    b2b_context = bool(body.get("b2b_context"))
+    collab_context = bool(body.get("collab_context"))
     if not recipient_id:
         raise HTTPException(status_code=400, detail="recipient_id or other_user_id required")
     # Check if conversation already exists
@@ -507,7 +559,7 @@ async def start_conversation(
             {"participants.user_id": recipient_id}
         ]
     })
-    
+
     if existing:
         return {"conversation_id": existing["conversation_id"], "is_new": False}
     
@@ -553,10 +605,30 @@ async def start_conversation(
     }
     if conv_type:
         new_conv["conv_type"] = conv_type
+    else:
+        # Auto-populate conv_type from roles + context (Section 4.7c-exec-v2 task C)
+        try:
+            new_conv["conv_type"] = infer_conversation_type(
+                creator_role=user.role,
+                other_role=recipient.get("role"),
+                b2b_context=b2b_context,
+                collab_context=collab_context,
+            )
+        except Exception:
+            new_conv["conv_type"] = "personal"
 
     await db.internal_conversations.insert_one(new_conv)
 
-    return {"conversation_id": conversation_id, "is_new": True}
+    return {"conversation_id": conversation_id, "is_new": True, "conv_type": new_conv.get("conv_type")}
+
+
+@router.post("/internal-chat/conversations")
+async def create_conversation_alias(
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """Alias for /start-conversation supporting {participant_ids} payload (Q7 frontend pattern)."""
+    return await start_conversation(request, user)
 
 
 @router.delete("/internal-chat/conversations/{conversation_id}")

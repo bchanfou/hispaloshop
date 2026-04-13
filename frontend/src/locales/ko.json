@@ -2806,6 +2806,14 @@
     "wishlist_coming_soon": "위시리스트 기능 준비 중",
     "tab_messages": "메시지",
     "tab_requests": "요청",
+    "couldNotOpenConversation": "대화를 열 수 없습니다",
+    "tabs": {
+      "todos": "전체",
+      "personas": "사람",
+      "tiendas": "상점",
+      "b2b": "B2B",
+      "colaboraciones": "협업"
+    },
     "request_banner": "이 사용자가 메시지를 보내려 합니다",
     "request_accepted": "메시지 수락됨",
     "suggest_block": "이 사용자가 여러 번 거절되었습니다. 차단을 고려하세요.",

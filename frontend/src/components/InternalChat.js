@@ -734,7 +734,9 @@ function SwipeableConversationRow({ children, onDelete }) {
 export default function InternalChat({
   isEmbedded = false,
   onClose = null,
-  initialChatUserId = null
+  initialChatUserId = null,
+  initialConversationId = null,
+  openDirectoryOnMount = false
 }) {
   const {
     user
@@ -766,6 +768,7 @@ export default function InternalChat({
   const [isComposerActionsOpen, setIsComposerActionsOpen] = useState(false);
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [inboxTab, setInboxTab] = useState('messages'); // 'messages' | 'requests'
+  const [audienceTab, setAudienceTab] = useState('todos'); // role-aware: todos|personas|tiendas|b2b|colaboraciones
   const [showGroupPanel, setShowGroupPanel] = useState(false);
   const [isSharedListOpen, setIsSharedListOpen] = useState(false);
   const [showMessageSearch, setShowMessageSearch] = useState(false);
@@ -846,7 +849,65 @@ export default function InternalChat({
   }, [deferredDirectorySearchValue, directoryRoleFilter, directoryUsers]);
   const requestConversations = useMemo(() => sortedConversations.filter(c => c.is_request && c.request_status === 'pending'), [sortedConversations]);
   const mainConversations = useMemo(() => sortedConversations.filter(c => !c.is_request || c.request_status === 'accepted'), [sortedConversations]);
-  const activeInboxList = inboxTab === 'requests' ? requestConversations : mainConversations;
+  // ── Role-aware audience tabs (Section 4.7c-exec-v2 task A) ──
+  const audienceTabsForRole = useMemo(() => {
+    const role = (user?.role || '').toLowerCase();
+    switch (role) {
+      case 'producer':
+        return ['todos', 'personas', 'b2b', 'colaboraciones'];
+      case 'influencer':
+        return ['todos', 'personas', 'tiendas', 'colaboraciones'];
+      case 'importer':
+        return ['todos', 'personas', 'tiendas', 'b2b'];
+      case 'admin':
+      case 'country_admin':
+      case 'super_admin':
+        return ['todos'];
+      case 'customer':
+      case 'consumer':
+      default:
+        return ['todos', 'personas', 'tiendas'];
+    }
+  }, [user?.role]);
+  // Reset tab if the active one isn't in this role's allowed set
+  useEffect(() => {
+    if (!audienceTabsForRole.includes(audienceTab)) {
+      setAudienceTab('todos');
+    }
+  }, [audienceTabsForRole, audienceTab]);
+  const audienceFilteredConversations = useMemo(() => {
+    if (audienceTab === 'todos') return mainConversations;
+    return mainConversations.filter(conv => {
+      // Derive other participant — fallback to flat fields if participants[] absent
+      let other = null;
+      if (Array.isArray(conv?.participants) && user?.user_id) {
+        other = conv.participants.find(p => p?.user_id !== user.user_id) || null;
+      }
+      const otherRole = (other?.role || conv?.other_user_role || '').toLowerCase();
+      const convType = (conv?.conv_type || conv?.conversation_type || '').toLowerCase();
+      const isGroup = conv?.type === 'group';
+      if (audienceTab === 'personas') {
+        if (isGroup) return false;
+        return ['customer', 'consumer', 'influencer'].includes(otherRole);
+      }
+      if (audienceTab === 'tiendas') {
+        if (isGroup) return false;
+        return ['producer', 'importer'].includes(otherRole);
+      }
+      if (audienceTab === 'b2b') {
+        return convType === 'b2b';
+      }
+      if (audienceTab === 'colaboraciones') {
+        if (convType === 'collab') return true;
+        // role-pair fallback: producer ↔ influencer
+        const myRole = (user?.role || '').toLowerCase();
+        const pair = new Set([myRole, otherRole]);
+        return pair.has('producer') && pair.has('influencer');
+      }
+      return true;
+    });
+  }, [audienceTab, mainConversations, user?.user_id, user?.role]);
+  const activeInboxList = inboxTab === 'requests' ? requestConversations : audienceFilteredConversations;
   const filteredConversations = useMemo(() => {
     const query = deferredSearchValue.trim().toLowerCase();
     if (!query) return activeInboxList;
@@ -982,10 +1043,10 @@ export default function InternalChat({
     scheduleReloadRef.current = scheduleReloadConversations;
   }, [scheduleReloadConversations]);
   useEffect(() => {
-    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId) {
+    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId && !initialConversationId) {
       setSelectedConversationId(sortedConversations[0].conversation_id);
     }
-  }, [initialChatUserId, selectedConversationId, sortedConversations]);
+  }, [initialChatUserId, initialConversationId, selectedConversationId, sortedConversations]);
   const loadConversation = useCallback(async conversationId => {
     if (!conversationId) return;
     const cachedMessages = messagesCacheRef.current.get(conversationId);
@@ -1020,15 +1081,33 @@ export default function InternalChat({
     if (!targetUserId) return;
     setStartingConversation(true);
     try {
-      const result = await startConversation(targetUserId);
-      const conversationId = result?.conversation_id || result?.data?.conversation_id;
+      // Q7 BUG FIX: try find-or-create — first attempt to locate an existing
+      // 1:1 conversation so DirectorySheet click opens it instead of duplicating.
+      let conversationId = null;
+      try {
+        const existing = await apiClient.get(`/internal-chat/conversations/with/${targetUserId}`);
+        const payload = existing?.data || existing;
+        if (payload?.exists && payload?.conversation_id) {
+          conversationId = payload.conversation_id;
+        }
+      } catch {
+        // ignore — falls through to create
+      }
+      if (!conversationId) {
+        const result = await startConversation(targetUserId);
+        conversationId = result?.conversation_id || result?.data?.conversation_id;
+      }
       await reloadConversations();
       if (conversationId) {
         await loadConversation(conversationId);
         setIsDirectoryOpen(false);
         setDirectorySearchValue('');
         setDirectoryRoleFilter('all');
+      } else {
+        toast.error(i18n.t('chat.couldNotOpenConversation', 'No se pudo abrir la conversación'));
       }
+    } catch {
+      toast.error(i18n.t('chat.couldNotOpenConversation', 'No se pudo abrir la conversación'));
     } finally {
       setStartingConversation(false);
     }
@@ -1043,6 +1122,26 @@ export default function InternalChat({
       }
     }
   }, [initialChatUserId, loadConversation, sortedConversations, startConversationWithUser]);
+  // Section 4.7c follow-up: load conversation passed via URL/path param when present
+  const initialConversationLoadedRef = useRef(false);
+  useEffect(() => {
+    if (!initialConversationId) return;
+    if (initialConversationLoadedRef.current) return;
+    if (selectedConversationId === initialConversationId) {
+      initialConversationLoadedRef.current = true;
+      return;
+    }
+    initialConversationLoadedRef.current = true;
+    loadConversation(initialConversationId);
+  }, [initialConversationId, loadConversation, selectedConversationId]);
+  // Open directory sheet on mount when requested (for /messages/new entry point)
+  const directoryOpenedOnMountRef = useRef(false);
+  useEffect(() => {
+    if (openDirectoryOnMount && !directoryOpenedOnMountRef.current) {
+      directoryOpenedOnMountRef.current = true;
+      setIsDirectoryOpen(true);
+    }
+  }, [openDirectoryOnMount]);
   useEffect(() => {
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
@@ -1577,6 +1676,16 @@ export default function InternalChat({
               <button type="button" onClick={() => setInboxTab('requests')} className={`flex-1 py-2.5 text-[13px] font-semibold text-center border-b-2 transition-colors ${inboxTab === 'requests' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-400'}`}>
                 {i18n.t('chat.tab_requests', 'Solicitudes')} ({requestConversations.length})
               </button>
+            </div> : null}
+
+          {/* ── Role-aware audience tabs (Section 4.7c-exec-v2) ── */}
+          {inboxTab === 'messages' && audienceTabsForRole.length > 1 ? <div className="flex gap-1 overflow-x-auto border-b border-stone-100 px-3 py-2 no-scrollbar">
+              {audienceTabsForRole.map(tabKey => {
+                const isActive = audienceTab === tabKey;
+                return <button key={tabKey} type="button" onClick={() => setAudienceTab(tabKey)} className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}>
+                    {i18n.t(`chat.tabs.${tabKey}`, tabKey.charAt(0).toUpperCase() + tabKey.slice(1))}
+                  </button>;
+              })}
             </div> : null}
 
           {/* ── Conversation list flat rows ── */}

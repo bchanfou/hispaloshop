@@ -2523,6 +2523,14 @@
     "wishlist_coming_soon": "Wishlist disponible próximamente",
     "tab_messages": "Mensajes",
     "tab_requests": "Solicitudes",
+    "couldNotOpenConversation": "No se pudo abrir la conversación",
+    "tabs": {
+      "todos": "Todos",
+      "personas": "Personas",
+      "tiendas": "Tiendas",
+      "b2b": "B2B",
+      "colaboraciones": "Colaboraciones"
+    },
     "request_banner": "Este usuario quiere enviarte un mensaje",
     "request_accepted": "Mensaje aceptado",
     "suggest_block": "Este usuario ha sido rechazado varias veces. Considerar bloquear.",

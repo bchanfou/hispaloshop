@@ -2637,6 +2637,14 @@
     "wishlist_coming_soon": "Wishlist coming soon",
     "tab_messages": "Messages",
     "tab_requests": "Requests",
+    "couldNotOpenConversation": "Could not open conversation",
+    "tabs": {
+      "todos": "All",
+      "personas": "People",
+      "tiendas": "Stores",
+      "b2b": "B2B",
+      "colaboraciones": "Collabs"
+    },
     "request_banner": "This user wants to send you a message",
     "request_accepted": "Message accepted",
     "suggest_block": "This user has been rejected multiple times. Consider blocking.",
