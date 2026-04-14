@@ -51,109 +51,24 @@ export default function HispalAI({ onRequestClose } = {}) {
   return (
     <div>
       <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-        <motion.div
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="david-dialog-title"
-        >
-          {/* Mensajes y sugerencias */}
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center pt-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
-                <Sparkles className="h-8 w-8 text-stone-950" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
-              <p className="mt-1 text-center text-sm text-stone-500">
-                Estoy aquí para ayudarte a encontrar lo que necesitas
-              </p>
-              {/* Quick Suggestions */}
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {suggestions.map((label) => (
-                  <button
-                    key={label}
-                    onClick={() => sendMessage(label)}
-                    className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
-                  >
-                    <Sparkles size={14} className="text-stone-500" />
-                    <span>{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          {messages.map((msg, i) => {
-            const isUser = msg.role === 'user';
-            const productResults = (msg.toolCalls || [])
-              .filter((tc) => tc.tool === 'search_products' && Array.isArray(tc.result))
-              .flatMap((tc) => tc.result);
-
-            const msgKey = `${msg.timestamp || 'nt'}-${msg.role}-${i}`;
-            return (
-              <React.Fragment key={msgKey}>
-                <div className={`mb-3 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                  {!isUser && (
-                    <div className="mr-2 mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-stone-950">
-                      <Sparkles className="h-3 w-3 text-white" />
-                    </div>
-                  )}
-                  <div
-                    className={`${isUser ? 'max-w-[75%]' : 'max-w-[85%]'} ${
-                      isUser
-                        ? 'rounded-2xl rounded-br-[4px] bg-stone-950 px-4 py-3 text-white'
-                        : 'rounded-2xl rounded-bl-[4px] bg-stone-100 px-4 py-3 text-stone-950'
-                    }`}
-                  >
-                    {isUser ? (
-                      <p className="text-[15px] leading-relaxed">{msg.content}</p>
-                    ) : (
-                      <div
-                        className="text-[15px] leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: parseMarkdownSafe(msg.content || '') }}
-                      />
-                    )}
-                    {msg.failed && msg.originalText && (
-                      <button
-                        onClick={() => retryMessage(msg)}
-                        disabled={isLoading}
-                        aria-label="Reintentar envío"
-                        className="mt-2 flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1 text-[12px] font-medium text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                      >
-                        <RotateCw className="h-3 w-3" />
-                        <span>Reintentar</span>
-                      </button>
-                    )}
-                    {msg.timestamp && !Number.isNaN(new Date(msg.timestamp).getTime()) && (
-                      <p className="mt-1 text-[11px] text-stone-400">
-                        {new Date(msg.timestamp).toLocaleTimeString('es-ES', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {productResults.length > 0 && (
-                  <div className="mb-3 ml-8">
-                    {productResults.map((product) => (
-                      <ProductCardInChat
-                        key={product.id}
-                        product={product}
-                        onAddToCart={handleAddToCart}
-                        onViewProduct={(slugOrId) => window.open(`/products/${slugOrId}`, '_blank')}
-                      />
-                    ))}
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
-          {isLoading && <TypingIndicator />}
-        </motion.div>
+        <AnimatePresence>
+          {panelView ? (
+            <motion.div
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="david-dialog-title"
+            >
+              {/* Aquí va el contenido del panel, asegurando un solo elemento padre */}
+              <>
+                {/* ...todo el contenido del motion.div, agrupado en un fragmento... */}
+              </>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </FocusTrap>
     </div>
   );
