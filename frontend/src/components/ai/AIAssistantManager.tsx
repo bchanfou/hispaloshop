@@ -75,8 +75,11 @@ function readPersistedPosition() {
       const side = pos.side === 'left' ? 'left' : 'right';
       const yRatio = typeof pos.yRatio === 'number' ? pos.yRatio : NaN;
       const state = pos.state === 'strip' ? 'strip' : 'full';
-      const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
-      const y = !isNaN(yRatio) ? clampY(yRatio * window.innerHeight) : defaultY;
+      // Fallback robusto: si la posición es inválida, usar margen seguro
+      const minY = SAFE_TOP;
+      const maxY = window.innerHeight - getSafeBottom() - BUTTON_SIZE;
+      let y = !isNaN(yRatio) ? yRatio * window.innerHeight : maxY;
+      if (isNaN(y) || y < minY || y > maxY) y = maxY;
       return { side, y, state };
     }
   } catch {}
@@ -85,12 +88,15 @@ function readPersistedPosition() {
     const side = localStorage.getItem('hsp_ai_button_side') || 'right';
     const yRaw = parseFloat(localStorage.getItem('hsp_ai_button_y') || '');
     const state = localStorage.getItem('hsp_ai_button_state') || 'full';
-    const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
-    const y = !isNaN(yRaw) ? clampY(yRaw * window.innerHeight) : defaultY;
+    const minY = SAFE_TOP;
+    const maxY = window.innerHeight - getSafeBottom() - BUTTON_SIZE;
+    let y = !isNaN(yRaw) ? yRaw * window.innerHeight : maxY;
+    if (isNaN(y) || y < minY || y > maxY) y = maxY;
     return { side, y, state: state === 'strip' ? 'strip' : 'full' };
   } catch {}
-  const defaultY = window.innerHeight - getSafeBottom() - BUTTON_SIZE - 8;
-  return { side: 'right', y: defaultY, state: 'full' };
+  // Fallback absoluto: parte inferior derecha, margen seguro
+  const maxY = window.innerHeight - getSafeBottom() - BUTTON_SIZE;
+  return { side: 'right', y: maxY, state: 'full' };
 }
 
 function persistPosition(side, y, state) {

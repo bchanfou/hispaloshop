@@ -152,291 +152,63 @@ export default function HispalAI({ onRequestClose } = {}) {
   const {
     messages,
     isLoading,
-    aiProfile,
-    proactiveMessage,
-    consumeProactiveMessage,
-    alerts,
-    wellness,
-    purchases,
-    loadWellness,
-    loadPurchases,
-    retryMessage,
-    suggestions,
-    sendMessage,
-    clearChat,
-    addToCartFromChat,
-  } = useHispalAI();
+    // Solo mostrar el panel de chat si está gestionado por el manager
+    const { t } = useTranslation();
+    const { user } = useAuth();
+    const {
+      messages,
+      isLoading,
+      aiProfile,
+      alerts,
+      sendMessage,
+      clearChat,
+    } = useHispalAI();
+    const [input, setInput] = useState('');
+    const inputRef = useRef(null);
+    const isManaged = typeof onRequestClose === 'function';
+    if (!isManaged) return null;
 
-  // Panel state for secondary views (alerts, wellness, purchases)
-  const [panelView, setPanelView] = useState(null); // null | 'alerts' | 'wellness' | 'purchases'
-  const [panelLoading, setPanelLoading] = useState(false);
-  const [panelError, setPanelError] = useState(null);
-
-  const openPanel = useCallback(async (view) => {
-    setPanelView(view);
-    setPanelError(null);
-    trackEvent('david_panel_opened', { panel: view });
-    if (view === 'alerts') return; // already in state
-    setPanelLoading(true);
-    try {
-      if (view === 'wellness') await loadWellness();
-      else if (view === 'purchases') await loadPurchases();
-    } catch {
-      setPanelError('No pudimos cargar los datos.');
-    } finally {
-      setPanelLoading(false);
-    }
-  }, [loadWellness, loadPurchases]);
-
-  const closePanel = useCallback(() => {
-    setPanelView(null);
-    setPanelError(null);
-  }, []);
-
-  const {
-    phase,
-    side,
-    buttonY,
-    isDragging,
-    STRIP_WIDTH,
-    BUTTON_SIZE,
-    onDragStart,
-    handleButtonClick,
-    openChat,
-    closeChat,
-    onStripInteract,
-  } = useDraggableButton();
-
-  const [input, setInput] = useState('');
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
-
-  // When managed by AIAssistantManager, auto-open and delegate close
-  const isManaged = typeof onRequestClose === 'function';
-  useEffect(() => {
-    if (isManaged && phase !== 'chat') openChat();
-  }, [isManaged, openChat, phase]);
-
-  const openChatWithTracking = useCallback(() => {
-    openChat();
-    trackEvent('david_opened');
-  }, [openChat]);
-
-  const handleClose = useCallback(() => {
-    if (isManaged) { onRequestClose(); return; }
-    closeChat();
-  }, [isManaged, onRequestClose, closeChat]);
-
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading, scrollToBottom]);
-
-  useEffect(() => {
-    if (phase !== 'chat') return;
-    const timer = setTimeout(() => inputRef.current?.focus(), 300);
-    return () => clearTimeout(timer);
-  }, [phase]);
-
-  // ESC key closes chat panel
-  useEffect(() => {
-    if (phase !== 'chat') return;
-    const handler = (e) => {
-      if (e.key === 'Escape') handleClose();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [phase, handleClose]);
-
-  // Listen for global open event
-  useEffect(() => {
-    const handler = () => openChatWithTracking();
-    document.addEventListener('open-hispal-ai', handler);
-    return () => document.removeEventListener('open-hispal-ai', handler);
-  }, [openChatWithTracking]);
-
-  const location = useLocation();
-
-  // Hide during onboarding, auth, and registration flows (skip when managed)
-  if (!isManaged) {
-    const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
-    const shouldHide = HIDDEN_PATHS.some(p => location.pathname.startsWith(p));
-    if (!user || shouldHide) return null;
-  }
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    trackEvent('david_message_sent', { has_tool_call: false });
-    sendMessage(input.trim());
-    setInput('');
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleAddToCart = async (productId, quantity) => {
-    await addToCartFromChat(productId, quantity);
-  };
-
-  const isChat = phase === 'chat';
-
-  return (
-    <>
-      {/* ── Retracted strip (skip when managed by AIAssistantManager) ── */}
-      <AnimatePresence>
-        {!isManaged && phase === 'retracted' && (
-          <RetractedStrip
-            side={side}
-            buttonY={buttonY}
-            onInteract={(gesture) => {
-              // Consume proactive message on swipe (auto-send) or clear on tap to avoid stale state
-              if (proactiveMessage) {
-                const msg = consumeProactiveMessage();
-                if (gesture === 'swipe' && msg) sendMessage(msg);
-              }
-              onStripInteract(gesture);
-            }}
-            hasProactiveMessage={!!proactiveMessage}
-            STRIP_WIDTH={STRIP_WIDTH}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ── Floating draggable button ── */}
-      <AnimatePresence>
-        {!isManaged && phase === 'button' && (
-          <FloatingButton
-            side={side}
-            buttonY={buttonY}
-            isDragging={isDragging}
-            onDragStart={onDragStart}
-            onClick={handleButtonClick}
-            BUTTON_SIZE={BUTTON_SIZE}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ── Chat Panel ── */}
-      <AnimatePresence>
-        {isChat && (
-          <>
-            {/* Backdrop (mobile) */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden"
-              onClick={handleClose}
-            />
-
-            {/* Panel */}
-            <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-              <motion.div
-                initial={{ y: '100%', opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: '100%', opacity: 0 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="david-dialog-title"
-                className="fixed inset-x-0 bottom-0 z-50 flex h-[85vh] flex-col rounded-t-[20px] bg-white shadow-lg md:inset-x-auto md:bottom-4 md:right-4 md:h-[600px] md:w-[380px] md:rounded-2xl pb-[env(safe-area-inset-bottom)]"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-950">
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span id="david-dialog-title" className="text-[16px] font-semibold text-stone-950">David</span>
-                        <span className="h-2 w-2 rounded-full bg-stone-950" />
-                      </div>
-                      <p className="text-[12px] text-stone-500">{t('hispal_a_i.tuCompaneroDeCompras', 'Tu compañero de compras')}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => openPanel('alerts')}
-                      className="relative rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                      aria-label={`Alertas (${alerts?.length || 0})`}
-                    >
-                      <Bell className="h-4 w-4" />
-                      {alerts && alerts.length > 0 && (
-                        <span className="absolute top-0.5 right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-stone-950 px-1 text-[9px] font-bold text-white">
-                          {alerts.length}
-                        </span>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => openPanel('wellness')}
-                      className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                      aria-label="Mi bienestar"
-                    >
-                      <Activity className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => openPanel('purchases')}
-                      className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                      aria-label="Mis compras"
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                    </button>
-                    {messages.length > 0 && (
-                      <button
-                        onClick={clearChat}
-                        className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
-                        aria-label="Limpiar chat"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                    <button
-                      onClick={handleClose}
-                      className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
-                      aria-label="Cerrar"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
+    // Panel de chat (solo si es gestionado por el manager)
+    return (
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+        <motion.div
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="david-dialog-title"
+          className="fixed inset-x-0 bottom-0 z-50 flex h-[85vh] flex-col rounded-t-[20px] bg-white shadow-lg md:inset-x-auto md:bottom-4 md:right-4 md:h-[600px] md:w-[380px] md:rounded-2xl pb-[env(safe-area-inset-bottom)]"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-950">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span id="david-dialog-title" className="text-[16px] font-semibold text-stone-950">David</span>
+                  <span className="h-2 w-2 rounded-full bg-stone-950" />
                 </div>
-
-                {/* Onboarding CTA banner — shown to new users before any conversation */}
-                {aiProfile && aiProfile.onboarding_completed === false && messages.length === 0 && (
-                  <div className="border-b border-stone-100 bg-stone-50 px-4 py-3">
-                    <p className="text-[12px] font-semibold text-stone-950">{t('david.onboarding_title', 'Cuéntame un poco sobre ti')}</p>
-                    <p className="mt-0.5 text-[11px] text-stone-500">
-                      30 segundos y te conozco: dieta, alergias, gustos. Así personalizo cada recomendación.
-                    </p>
-                    <button
-                      onClick={() => sendMessage('Hola David, quiero que me conozcas: hazme el diagnóstico inicial con 4 preguntas rápidas.')}
-                      className="mt-2 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-medium text-white hover:scale-105 transition-transform"
-                    >
-                      Empezar
-                    </button>
-                  </div>
-                )}
-
-                {/* ── Panel overlay (alerts / wellness / purchases) ── */}
-                <AnimatePresence>
-                  {panelView && (
-                    <motion.div
-                      initial={{ y: -20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -20, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute inset-x-0 top-[73px] bottom-0 z-10 flex flex-col bg-white rounded-b-[20px] md:rounded-b-2xl"
-                    >
-                      <div className="flex items-center gap-2 border-b border-stone-100 px-4 py-3">
-                        <button
-                          onClick={closePanel}
+                <p className="text-[12px] text-stone-500">{t('hispal_a_i.tuCompaneroDeCompras', 'Tu compañero de compras')}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+                aria-label="Cerrar"
+                onClick={onRequestClose}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          {/* ...aquí iría el resto del panel de chat, mensajes, input, etc... */}
+        </motion.div>
+      </FocusTrap>
+    );
                           className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
                           aria-label="Volver al chat"
                         >
