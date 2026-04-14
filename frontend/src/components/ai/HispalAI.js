@@ -247,8 +247,7 @@ export default function HispalAI({ onRequestClose } = {}) {
                       </div>
                     </motion.div>
                   )}
-                <>
-                  </AnimatePresence>
+                  {/* Todo lo que sigue debe estar en un solo fragmento */}
                   <>
                     {messages.length === 0 && (
                       <div className="flex flex-col items-center pt-8">
@@ -277,7 +276,6 @@ export default function HispalAI({ onRequestClose } = {}) {
                       ))}
                     </div>
                   </>
-                </>
                         <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
                         <p className="mt-1 text-center text-sm text-stone-500">
                           Estoy aquí para ayudarte a encontrar lo que necesitas
