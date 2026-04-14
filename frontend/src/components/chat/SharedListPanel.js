@@ -152,7 +152,7 @@ export default function SharedListPanel({ isOpen, onClose, conversationId }) {
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.15}
         onDragEnd={(_, info) => { if (info.offset.x > 100) onClose(); }}
-        className="fixed right-0 top-0 bottom-0 z-[61] flex w-full max-w-[360px] flex-col bg-white shadow-xl lg:absolute"
+        className="fixed right-0 top-0 bottom-0 z-[61] flex w-full max-w-[100vw] sm:max-w-[360px] flex-col bg-white shadow-xl lg:absolute"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

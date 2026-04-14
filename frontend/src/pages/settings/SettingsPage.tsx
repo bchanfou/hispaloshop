@@ -212,7 +212,7 @@ export default function SettingsPage() {
         <h1 className="text-[17px] font-semibold text-stone-950">{i18n.t('community.configuracion', 'Configuración')}</h1>
       </div>
 
-      <div className="mx-auto max-w-[960px] lg:flex lg:gap-8 lg:px-4">
+      <div className="mx-auto max-w-6xl lg:flex lg:gap-8 lg:px-8">
 
       {/* ── Desktop sidebar navigation ── */}
       <aside className="hidden lg:block lg:w-[240px] lg:shrink-0 lg:pt-6 lg:pb-8 lg:sticky lg:top-[60px] lg:self-start lg:max-h-[calc(100vh-60px)] lg:overflow-y-auto">
@@ -237,7 +237,7 @@ export default function SettingsPage() {
         </nav>
       </aside>
 
-      <div className="max-w-[600px] mx-auto px-4 pb-28 lg:flex-1 lg:max-w-none lg:pt-6">
+      <div className="max-w-[600px] mx-auto px-4 sm:px-6 lg:px-8 pb-28 lg:flex-1 lg:max-w-none lg:pt-6">
 
         {/* ── CUENTA ── */}
         <SectionLabel>{i18n.t('settings_page.account', 'Cuenta')}</SectionLabel>

@@ -217,7 +217,7 @@ const MessageBubble = React.memo(function MessageBubble({
           </motion.button> : null}
       </AnimatePresence>
 
-      <div ref={elRef} className={`relative w-fit min-w-[80px] max-w-[75%] ${isOwn ? 'ml-auto' : ''}`}>
+      <div ref={elRef} className={`relative w-fit min-w-[80px] max-w-[75%] sm:max-w-[90vw] ${isOwn ? 'ml-auto' : ''}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? <>
@@ -1042,11 +1042,7 @@ export default function InternalChat({
   useEffect(() => {
     scheduleReloadRef.current = scheduleReloadConversations;
   }, [scheduleReloadConversations]);
-  useEffect(() => {
-    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId && !initialConversationId) {
-      setSelectedConversationId(sortedConversations[0].conversation_id);
-    }
-  }, [initialChatUserId, initialConversationId, selectedConversationId, sortedConversations]);
+  // Eliminado: No seleccionar automáticamente la primera conversación para mostrar siempre la lista de chats
   const loadConversation = useCallback(async conversationId => {
     if (!conversationId) return;
     const cachedMessages = messagesCacheRef.current.get(conversationId);
@@ -1643,7 +1639,7 @@ export default function InternalChat({
     return items;
   }, [visibleMessages]);
   const showBackButton = isEmbedded || Boolean(onClose);
-  return <div className="relative flex h-full min-h-0 overflow-hidden rounded-[32px] bg-white text-stone-950">
+  return <div className="relative flex h-full min-h-0 overflow-hidden rounded-none bg-white text-stone-950">
 
       {/* ── Inbox sidebar ── */}
       <div className={`flex h-full min-h-0 flex-col border-r border-stone-100 bg-white ${activeConversation ? 'hidden lg:flex lg:w-[340px]' : 'w-full'}`}>
@@ -1773,12 +1769,7 @@ export default function InternalChat({
 
               {/* Action icons */}
               <div className="flex shrink-0 items-center gap-0.5">
-                <button type="button" onClick={() => toast('Llamadas de voz proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.llamadaDeVozProximamente', 'Llamada de voz (próximamente)')}>
-                  <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
-                </button>
-                <button type="button" onClick={() => toast('Videollamadas proximamente')} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}>
-                  <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
-                </button>
+                // ...existing code...
                 {/* Message search */}
                 <button type="button" onClick={() => { setShowMessageSearch(s => !s); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.searchMessages', 'Buscar mensajes')}>
                   <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />

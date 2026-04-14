@@ -258,7 +258,7 @@ export default function StorePage() {
         </button>
       </div>;
   }
-  return <div className="min-h-screen bg-stone-50 pb-20 max-w-[935px] mx-auto">
+  return <div className="min-h-screen bg-stone-50 pb-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <SEO title={`${store?.name || 'Tienda'} — Hispaloshop`} description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`} image={store?.hero_image || store?.logo} structuredData={[{
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
@@ -283,7 +283,7 @@ export default function StorePage() {
       {/* ── Hero Banner 3:1 with overlaid TopBar ── */}
       <div className="relative w-full aspect-[3/1] bg-gradient-to-br from-stone-900 to-stone-950">
         {/* TopBar (absolute over hero — scrolls away with it) */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 h-[52px] pt-[env(safe-area-inset-top,0px)]">
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[52px] pt-[env(safe-area-inset-top,0px)]">
           <button type="button" onClick={() => navigate(-1)} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Volver">
             <ChevronLeft size={20} strokeWidth={2} className="text-white" />
           </button>
@@ -298,93 +298,99 @@ export default function StorePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
       </div>
 
-      {/* ── Store Info ── */}
-      <div className="relative px-4 -mt-10">
-        <div className="flex items-end gap-3.5">
-          {/* Avatar — square rounded */}
-          <div className="w-20 h-20 rounded-[14px] overflow-hidden border-[3px] border-white bg-stone-100 flex items-center justify-center shrink-0 shadow-md">
-            {store.logo ? <img src={store.logo} alt={store.name} className="w-full h-full object-cover" /> : <Store size={28} className="text-stone-500" />}
-          </div>
+      {/* ── Desktop 2-col layout ── */}
+      <div className="lg:flex lg:gap-10 lg:items-start">
+        {/* ── Store Info (left sidebar on desktop) ── */}
+        <aside className="lg:w-[320px] xl:w-[360px] lg:shrink-0 lg:sticky lg:top-[60px] lg:self-start">
+          <div className="relative px-0 -mt-10 lg:mt-4 lg:pt-2">
+            <div className="flex items-end gap-3.5">
+              {/* Avatar — square rounded */}
+              <div className="w-20 h-20 rounded-[14px] overflow-hidden border-[3px] border-white bg-stone-100 flex items-center justify-center shrink-0 shadow-md">
+                {store.logo ? <img src={store.logo} alt={store.name} className="w-full h-full object-cover" /> : <Store size={28} className="text-stone-500" />}
+              </div>
 
-          {/* Name + username */}
-          <div className="flex-1 min-w-0 pb-1">
-            <h1 className="text-xl font-bold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">
-              {store.name}
-            </h1>
-            {store.username && <p className="text-[13px] text-stone-500 mt-0.5 m-0">@{store.username}</p>}
-          </div>
-          {/* Section 3.5b — Report this store */}
-          {(store.store_id || store.slug) && (
-            <div className="flex items-center text-stone-500">
-              <ReportButton contentType="store" contentId={store.store_id || store.slug} contentOwnerId={store.user_id} />
+              {/* Name + username */}
+              <div className="flex-1 min-w-0 pb-1">
+                <h1 className="text-xl font-bold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {store.name}
+                </h1>
+                {store.username && <p className="text-[13px] text-stone-500 mt-0.5 m-0">@{store.username}</p>}
+              </div>
+              {/* Section 3.5b — Report this store */}
+              {(store.store_id || store.slug) && (
+                <div className="flex items-center text-stone-500">
+                  <ReportButton contentType="store" contentId={store.store_id || store.slug} contentOwnerId={store.user_id} />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Badges row */}
-        <div className="flex flex-wrap gap-1.5 mt-2.5">
-          {isVerified && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-950 text-white"><CheckCircle size={11} /> Verificado</span>}
-          {storePlan && storePlan !== 'free' && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">{storePlan.toUpperCase()}</span>}
-          {store.country && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">
-              {store.country === 'ES' ? '🇪🇸' : store.country === 'FR' ? '🇫🇷' : '🌍'} {store.location || store.country}
-            </span>}
-        </div>
+            {/* Badges row */}
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {isVerified && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-950 text-white"><CheckCircle size={11} /> Verificado</span>}
+              {storePlan && storePlan !== 'free' && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">{storePlan.toUpperCase()}</span>}
+              {store.country && <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">
+                  {store.country === 'ES' ? '🇪🇸' : store.country === 'FR' ? '🇫🇷' : '🌍'} {store.location || store.country}
+                </span>}
+            </div>
 
-        {/* Description with Ver más */}
-        {tagline && <p className={`text-sm text-stone-500 leading-relaxed mt-2.5 ${!descExpanded && showVerMas ? 'line-clamp-2' : ''}`}>
-            {tagline}
-          </p>}
-        {showVerMas && <button onClick={() => setDescExpanded(!descExpanded)} className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-stone-950 py-1 px-0 min-h-[44px] mt-0.5">
-            {descExpanded ? 'Ver menos' : i18n.t('common.seeMore', 'Ver más')}
-          </button>}
+            {/* Description with Ver más */}
+            {tagline && <p className={`text-sm text-stone-500 leading-relaxed mt-2.5 ${!descExpanded && showVerMas ? 'line-clamp-2' : ''}`}>
+                {tagline}
+              </p>}
+            {showVerMas && <button onClick={() => setDescExpanded(!descExpanded)} className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-stone-950 py-1 px-0 min-h-[44px] mt-0.5">
+                {descExpanded ? 'Ver menos' : i18n.t('common.seeMore', 'Ver más')}
+              </button>}
 
-        {/* Stats inline */}
-        <div className="flex items-center gap-1 mt-3 text-sm font-medium text-stone-950">
-          <span>{productTotal} productos</span>
-          <span className="text-stone-500">·</span>
-          <span>{store.follower_count || 0} seguidores</span>
-          <span className="text-stone-500">·</span>
-          {avgRating > 0 ? <>
-              <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
-              <span>{Number(avgRating).toFixed(1)}</span>
-            </> : <span className="text-stone-400">{i18n.t('store.sinResenas', 'Sin reseñas')}</span>}
-        </div>
+            {/* Stats inline */}
+            <div className="flex items-center gap-1 mt-3 text-sm font-medium text-stone-950">
+              <span>{productTotal} productos</span>
+              <span className="text-stone-500">·</span>
+              <span>{store.follower_count || 0} seguidores</span>
+              <span className="text-stone-500">·</span>
+              {avgRating > 0 ? <>
+                  <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
+                  <span>{Number(avgRating).toFixed(1)}</span>
+                </> : <span className="text-stone-400">{i18n.t('store.sinResenas', 'Sin reseñas')}</span>}
+            </div>
 
-        {/* 3 Action buttons */}
-        <div className="flex gap-2 mt-3.5">
-          <button type="button" onClick={handleToggleFollow} disabled={followLoading} className={`flex-1 h-11 rounded-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFollowing ? 'border border-stone-200 bg-white text-stone-950' : 'border-none bg-stone-950 text-white'}`}>
-            <Heart size={15} fill={isFollowing ? '#0c0a09' : 'none'} />
-            {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
-          </button>
-          <button type="button" onClick={handleChat} className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-            <MessageCircle size={15} /> Mensaje
-          </button>
-          <button type="button" onClick={handleShare} className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-            <Send size={15} /> Compartir
-          </button>
-        </div>
+            {/* 3 Action buttons */}
+            <div className="flex gap-2 mt-3.5">
+              <button type="button" onClick={handleToggleFollow} disabled={followLoading} className={`flex-1 h-11 rounded-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFollowing ? 'border border-stone-200 bg-white text-stone-950' : 'border-none bg-stone-950 text-white'}`}>
+                <Heart size={15} fill={isFollowing ? '#0c0a09' : 'none'} />
+                {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
+              </button>
+              <button type="button" onClick={handleChat} className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+                <MessageCircle size={15} /> Mensaje
+              </button>
+              <button type="button" onClick={handleShare} className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+                <Send size={15} /> Compartir
+              </button>
+            </div>
 
-        {/* Free shipping bar */}
-        {(storePlan === 'pro' || storePlan === 'elite') && store.free_shipping_min && <div className="mt-3 px-3.5 py-2.5 rounded-xl bg-stone-100 flex items-center gap-2">
-            <Truck size={16} className="text-stone-950" />
-            <span className="text-[13px] font-medium text-stone-950">
-              Envío gratis desde {convertAndFormatPrice(store.free_shipping_min, 'EUR')} en esta tienda
-            </span>
-          </div>}
-      </div>
+            {/* Free shipping bar */}
+            {(storePlan === 'pro' || storePlan === 'elite') && store.free_shipping_min && <div className="mt-3 px-3.5 py-2.5 rounded-xl bg-stone-100 flex items-center gap-2">
+                <Truck size={16} className="text-stone-950" />
+                <span className="text-[13px] font-medium text-stone-950">
+                  Envío gratis desde {convertAndFormatPrice(store.free_shipping_min, 'EUR')} en esta tienda
+                </span>
+              </div>}
+          </div>
+        </aside>
 
-      {/* ── Sticky Tab Bar ── */}
-      <div className="sticky top-0 z-40 bg-stone-50 border-b border-stone-200 mt-4">
-        <div role="tablist" aria-label={i18n.t('store.seccionesDeLaTienda', 'Secciones de la tienda')} className="flex overflow-x-auto px-4 scrollbar-hide">
-          {tabs.map(tab => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 whitespace-nowrap min-h-[44px] text-[13px] bg-transparent border-none cursor-pointer border-b-2 transition-colors ${activeTab === tab.id ? 'font-semibold text-stone-950 border-b-stone-950' : 'font-normal text-stone-500 border-b-transparent'}`}>
-              {tab.icon} {tab.label}
-              {tab.count !== null && <span className="ml-1 text-[11px]">{tab.count}</span>}
-            </button>)}
-        </div>
-      </div>
+        {/* ── Tabs + Content (right column on desktop) ── */}
+        <div className="lg:flex-1 lg:min-w-0">
+          {/* ── Sticky Tab Bar ── */}
+          <div className="sticky top-0 z-40 bg-stone-50 border-b border-stone-200 mt-4 lg:mt-6">
+            <div role="tablist" aria-label={i18n.t('store.seccionesDeLaTienda', 'Secciones de la tienda')} className="flex overflow-x-auto px-4 lg:px-0 scrollbar-hide">
+              {tabs.map(tab => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 whitespace-nowrap min-h-[44px] text-[13px] bg-transparent border-none cursor-pointer border-b-2 transition-colors ${activeTab === tab.id ? 'font-semibold text-stone-950 border-b-stone-950' : 'font-normal text-stone-500 border-b-transparent'}`}>
+                  {tab.icon} {tab.label}
+                  {tab.count !== null && <span className="ml-1 text-[11px]">{tab.count}</span>}
+                </button>)}
+            </div>
+          </div>
 
-      {/* ── Tab Content ── */}
-      <div className="px-4 pt-3 pb-8">
+          {/* ── Tab Content ── */}
+          <div className="px-4 lg:px-0 pt-3 pb-8">
 
         {/* ════ TAB: PRODUCTOS ════ */}
         {activeTab === 'products' && <>
@@ -620,6 +626,8 @@ export default function StorePage() {
                 <p className="text-xs text-stone-500 mt-1">Escanea el QR de nuestros productos para ver toda la info en tu idioma.</p>
               </div>}
           </div>}
+          </div>
+        </div>
       </div>
 
       {/* ── Modals ── */}

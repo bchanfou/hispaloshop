@@ -156,7 +156,7 @@ export default function AudioPlayerBubble({
       className={`flex flex-col gap-1 rounded-[20px] px-4 py-3 ${
         isOwn ? 'bg-stone-950' : 'bg-stone-100'
       }`}
-      style={{ minWidth: 200 }}
+      style={{ minWidth: 120, maxWidth: '90vw' }}
     >
       {/* Player row */}
       <div className="flex items-center gap-3">

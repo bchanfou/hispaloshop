@@ -10,7 +10,9 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
-import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package, Calendar } from 'lucide-react';
+import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package, Calendar, Loader2 } from 'lucide-react';
+  // Estado de loading por ítem
+  const [itemLoading, setItemLoading] = useState({}); // { [itemKey]: boolean }
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
@@ -366,18 +368,23 @@ export default function CartPage() {
   useEffect(() => () => {
     Object.values(qtyDebounceRef.current).forEach(clearTimeout);
   }, []);
-  const handleUpdateQuantity = useCallback((item, newQuantity) => {
+  const handleUpdateQuantity = useCallback(async (item, newQuantity) => {
     const key = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
-    // Optimistic UI update is instant (CartContext handles it)
-    updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null).catch(error => toast.error(error?.message || t('cart.noSePudoActualizarLaCantidad', 'No se pudo actualizar la cantidad')));
-    // Debounce the server-side refetch to avoid rapid-fire API calls
-    clearTimeout(qtyDebounceRef.current[key]);
-    qtyDebounceRef.current[key] = setTimeout(() => {
-      queryClient.invalidateQueries({
-        queryKey: ['cart']
-      });
-      refetchPricing();
-    }, 500);
+    setItemLoading(prev => ({ ...prev, [key]: true }));
+    try {
+      await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
+      // Feedback visual de éxito opcional
+    } catch (error) {
+      toast.error(error?.message || t('cart.noSePudoActualizarLaCantidad', 'No se pudo actualizar la cantidad'));
+    } finally {
+      setItemLoading(prev => ({ ...prev, [key]: false }));
+      // Debounce el refetch
+      clearTimeout(qtyDebounceRef.current[key]);
+      qtyDebounceRef.current[key] = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        refetchPricing();
+      }, 500);
+    }
   }, [updateQuantity, queryClient, refetchPricing]);
   const handleRemoveItem = async item => {
     try {
@@ -612,16 +619,33 @@ export default function CartPage() {
                             <div className="flex items-center justify-between mt-1 md:mt-2">
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
-                                  <motion.button whileTap={item.quantity > 1 ? {
-                              scale: 0.88
-                            } : undefined} type="button" onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : handleRemoveItem(item)} className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`} aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name}` : `Disminuir cantidad de ${item.product_name}`}>
-                                    {item.quantity <= 1 ? <Trash2 className="w-3.5 h-3.5 text-stone-400" /> : <Minus className="w-4 h-4 text-stone-950" />}
+                                  <motion.button
+                                    whileTap={item.quantity > 1 ? { scale: 0.88 } : undefined}
+                                    type="button"
+                                    onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : handleRemoveItem(item)}
+                                    className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors relative ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'} ${itemLoading[itemKey] ? 'opacity-60 pointer-events-none' : ''}`}
+                                    aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name}` : `Disminuir cantidad de ${item.product_name}`}
+                                    disabled={itemLoading[itemKey]}
+                                  >
+                                    {itemLoading[itemKey] ? <Loader2 className="w-4 h-4 animate-spin text-stone-400 absolute" /> : (
+                                      item.quantity <= 1 ? <Trash2 className="w-3.5 h-3.5 text-stone-400" /> : <Minus className="w-4 h-4 text-stone-950" />
+                                    )}
                                   </motion.button>
-                                  <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
-                                  <motion.button whileTap={!(item.stock != null && item.quantity >= item.stock) ? {
-                              scale: 0.88
-                            } : undefined} type="button" onClick={() => handleUpdateQuantity(item, item.quantity + 1)} disabled={item.stock != null && item.quantity >= item.stock} className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`} aria-label={item.stock != null && item.quantity >= item.stock ? t('cart.maximoAlcanzado', 'Máximo alcanzado') : t('cart.increaseQuantity', 'Aumentar cantidad de {{product}}').replace('{{product}}', item.product_name)}>
-                                    <Plus className="w-4 h-4 text-stone-950" />
+                                  <span className={`w-6 text-center text-sm font-semibold text-stone-950 transition-opacity duration-200 ${itemLoading[itemKey] ? 'opacity-50' : ''}`}
+                                    aria-live="polite"
+                                    aria-label={`Cantidad: ${item.quantity}`}
+                                  >
+                                    {item.quantity}
+                                  </span>
+                                  <motion.button
+                                    whileTap={!(item.stock != null && item.quantity >= item.stock) ? { scale: 0.88 } : undefined}
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                                    disabled={item.stock != null && item.quantity >= item.stock || itemLoading[itemKey]}
+                                    className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors relative ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'} ${itemLoading[itemKey] ? 'opacity-60 pointer-events-none' : ''}`}
+                                    aria-label={item.stock != null && item.quantity >= item.stock ? t('cart.maximoAlcanzado', 'Máximo alcanzado') : t('cart.increaseQuantity', 'Aumentar cantidad de {{product}}').replace('{{product}}', item.product_name)}
+                                  >
+                                    {itemLoading[itemKey] ? <Loader2 className="w-4 h-4 animate-spin text-stone-400 absolute" /> : <Plus className="w-4 h-4 text-stone-950" />}
                                   </motion.button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">

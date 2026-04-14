@@ -212,7 +212,7 @@ export default function AudioRecorder({ onSend, onClose }: AudioRecorderProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.2 }}
-        className="rounded-2xl bg-stone-50 border border-stone-200 p-4"
+        className="rounded-2xl bg-stone-50 border border-stone-200 p-4 w-full max-w-[100vw] sm:max-w-[400px]"
       >
         {/* Requesting permission */}
         {phase === 'requesting' && (

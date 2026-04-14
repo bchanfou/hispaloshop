@@ -25,7 +25,7 @@ export default function InfoLandingLayout({ children }: { children: React.ReactN
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="flex-1"
+        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full"
       >
         {children}
       </motion.main>

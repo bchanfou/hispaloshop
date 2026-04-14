@@ -83,7 +83,8 @@ export default function RecipeDetailPage() {
     try {
       setLoading(true);
       const response = await apiClient.get(`/recipes/${recipeId}`);
-      setRecipe(response);
+      const payload = response?.recipe || response?.data || response;
+      setRecipe(payload);
     } catch (err) {
       setError(t('recipe.notFound', 'Receta no encontrada'));
     } finally {
@@ -139,14 +140,15 @@ export default function RecipeDetailPage() {
   const totalTime = (recipe?.prep_time_minutes || 0) + (recipe?.cook_time_minutes || 0);
   
   // Calcular precio total estimado
-  const estimatedTotal = recipe?.ingredients.reduce((sum, ing) => {
+  const ingredients = recipe?.ingredients || [];
+  const estimatedTotal = ingredients.reduce((sum, ing) => {
     if (ing.product && !ing.is_generic) {
       return sum + (ing.product.price || 0);
     }
     return sum;
   }, 0) || 0;
 
-  const buyableCount = recipe?.ingredients.filter(ing => ing.product_id && !ing.is_generic).length || 0;
+  const buyableCount = ingredients.filter(ing => ing.product_id && !ing.is_generic).length || 0;
 
   if (loading) {
     return (

@@ -39,8 +39,15 @@ export default function FeedLayout({ children }) {
         }
         @media (min-width: 1440px) {
           .feed-layout {
-            gap: 40px;
-            max-width: calc(470px + 320px + 40px);
+            gap: 48px;
+            max-width: calc(470px + 320px + 48px);
+            padding: 0;
+          }
+        }
+        @media (min-width: 1536px) {
+          .feed-layout {
+            gap: 56px;
+            max-width: calc(470px + 320px + 56px);
             padding: 0;
           }
         }

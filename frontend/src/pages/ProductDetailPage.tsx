@@ -29,7 +29,6 @@ import {
   useEditProductReview,
   useDeleteProductReview,
 } from '../features/products/queries/useProductQueries';
-import { useChatContext } from '../context/chat/ChatProvider';
 import apiClient from '../services/api/client';
 import B2BProductModal from '../components/b2b/B2BProductModal';
 import { trackEvent } from '../utils/analytics';
@@ -89,7 +88,6 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const { convertAndFormatPrice, country: localeCountry } = useLocale();
   const { t } = useTranslation();
-  const { openConversation } = useChatContext();
 
   const {
     product, certificate, storeInfo, inWishlist,
@@ -344,11 +342,7 @@ export default function ProductDetailPage() {
     if (askingProducer) return;
     setAskingProducer(true);
     try {
-      const conv = await openConversation(producerId, 'b2c');
-      const conversationId = conv?.id || conv?.conversation_id;
-      if (conversationId) {
-        navigate(`/messages/${conversationId}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
-      }
+      navigate(`/messages?to=${encodeURIComponent(producerId)}&prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
     } catch {
       toast.error(t('product_detail.noSePudoAbrirElChat', 'No se pudo abrir el chat'));
     } finally {
@@ -440,7 +434,7 @@ export default function ProductDetailPage() {
 
       {/* ── TopBar ── */}
       <header className="sticky top-0 z-50 bg-stone-50">
-        <div className="mx-auto flex h-[52px] max-w-[1200px] items-center justify-between px-4">
+        <div className="mx-auto flex h-[52px] max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -561,7 +555,7 @@ export default function ProductDetailPage() {
       <div className="lg:w-[45%] lg:min-h-0 lg:overflow-y-auto">
 
       {/* ── Product Header ── */}
-      <div className="px-4 pt-4">
+      <div className="px-4 sm:px-6 lg:px-8 pt-4">
         {/* Name */}
         <h1 className="text-xl font-semibold leading-tight text-stone-950">
           {product.name}
@@ -757,7 +751,7 @@ export default function ProductDetailPage() {
 
       {/* ── Variant Selector ── */}
       {hasVariants && product.variants?.length > 1 && (
-        <div className="border-t border-stone-200 px-4 py-3">
+        <div className="border-t border-stone-200 px-4 sm:px-6 lg:px-8 py-3">
           <p className="mb-2.5 text-[13px] font-semibold text-stone-950">
             {t('productDetail.selectVariant', 'Variante')}
           </p>
@@ -786,7 +780,7 @@ export default function ProductDetailPage() {
 
       {/* ── Packs Selector ── */}
       {((selectedVariant?.packs?.length > 0) || (product.packs?.length > 0)) && (
-        <div className="border-t border-stone-200 px-4 py-3">
+        <div className="border-t border-stone-200 px-4 sm:px-6 lg:px-8 py-3">
           <p className="mb-2.5 text-[13px] font-semibold text-stone-950">
             {t('productDetail.selectPack', 'Pack')}
           </p>
@@ -834,7 +828,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Quantity Selector ── */}
-      <div className="flex items-center justify-between border-t border-stone-200 px-4 py-3.5">
+      <div className="flex items-center justify-between border-t border-stone-200 px-4 sm:px-6 lg:px-8 py-3.5">
         <span className="text-sm font-semibold text-stone-950">
           {t('productDetail.quantity', 'Cantidad')}
         </span>
@@ -873,7 +867,7 @@ export default function ProductDetailPage() {
       {storeInfo && (
         <Link
           to={storeSlug ? `/store/${storeSlug}` : '/stores'}
-          className="flex items-center gap-3 border-t border-stone-200 px-4 py-3.5 no-underline"
+          className="flex items-center gap-3 border-t border-stone-200 px-4 sm:px-6 lg:px-8 py-3.5 no-underline"
           onClick={() => trackEvent('producer_profile_clicked', { producer_id: product?.producer_id, from: 'product_detail' })}
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-100">
@@ -908,7 +902,7 @@ export default function ProductDetailPage() {
 
       {/* Ask producer */}
       {product.producer_id && (
-        <div className="px-4 pb-3">
+        <div className="px-4 sm:px-6 lg:px-8 pb-3">
           <button
             type="button"
             onClick={handleAskProducer}
@@ -1085,7 +1079,7 @@ export default function ProductDetailPage() {
       </div>{/* close 2-col wrapper */}
 
       {/* ── Reviews Preview (full width below both columns) ── */}
-      <div className="mx-auto max-w-[1200px] px-4 py-5">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-5">
         {/* Review summary line */}
         <div className="mb-3 flex items-center gap-2">
           <Star size={18} className="fill-stone-950 text-stone-950" />
@@ -1406,8 +1400,8 @@ export default function ProductDetailPage() {
       {/* ── Recipes with this product ── */}
       {productRecipes.filter(Boolean).length > 0 && (
         <div className="mx-auto max-w-[1200px] py-5">
-          <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">Recetas con este producto</h2>
-          <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
+          <h2 className="mb-3.5 ml-4 sm:ml-6 lg:ml-8 text-base font-semibold text-stone-950">Recetas con este producto</h2>
+          <div className="flex gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 scrollbar-hide [scroll-snap-type:x_mandatory]">
             {productRecipes.filter(Boolean).map((r) => {
               const rid = r.recipe_id || r.id;
               return (
@@ -1501,10 +1495,10 @@ export default function ProductDetailPage() {
       {/* ── Related Products ── */}
       {relatedProducts.filter(Boolean).length > 0 && (
         <div className="mx-auto max-w-[1200px] py-5">
-          <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">
+          <h2 className="mb-3.5 ml-4 sm:ml-6 lg:ml-8 text-base font-semibold text-stone-950">
             {t('productDetail.relatedProducts', 'Productos relacionados')}
           </h2>
-          <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
+          <div className="flex gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 scrollbar-hide [scroll-snap-type:x_mandatory]">
             {relatedProducts.filter(Boolean).map((rp) => {
               const rpId = rp.product_id || rp.id;
               const rpImage = rp.images?.[0] || rp.image_url || null;
@@ -1538,7 +1532,7 @@ export default function ProductDetailPage() {
 
       {/* ── Market Request "Traelo a mi pais" ── */}
       {isUnavailableInCountry && (
-        <div className="mx-auto max-w-[1200px] px-4 py-4 mb-2">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-4 mb-2">
           <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-center">
             <p className="text-sm font-semibold text-stone-950 mb-1">
               {t('marketRequest.unavailable', 'Este producto aun no esta disponible en tu pais.')}
@@ -1613,7 +1607,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Sticky Bottom Bar ── */}
-      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
+      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 sm:px-6 lg:px-8 py-3">
         <div className="mx-auto flex max-w-[1200px] items-center gap-3">
           {/* Price */}
           <div className="min-w-0 flex-1">

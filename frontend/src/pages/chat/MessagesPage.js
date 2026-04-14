@@ -30,7 +30,7 @@ export default function MessagesPage() {
   const openDirectory = searchParams.get('new') === '1' || searchParams.get('new') === 'true';
 
   return (
-    <div className="flex h-[calc(100vh-56px)] min-h-[480px] w-full bg-white md:h-[calc(100vh-88px)]">
+    <div className="flex h-[calc(100vh-56px)] min-h-[480px] w-full bg-white md:h-[calc(100vh-88px)] lg:h-[calc(100vh-32px)] lg:max-w-5xl lg:mx-auto lg:rounded-2xl lg:shadow-sm lg:border lg:border-stone-100 lg:my-4 overflow-hidden">
       <InternalChat
         isEmbedded
         initialConversationId={conversationId || null}

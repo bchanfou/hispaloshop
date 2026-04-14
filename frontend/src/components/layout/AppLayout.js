@@ -196,7 +196,7 @@ export default function AppLayout({ children }) {
             }}
           />
         )}
-        <div className="mx-auto max-w-[935px]">
+        <div className="mx-auto max-w-7xl">
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} direction={direction}>
               {children}

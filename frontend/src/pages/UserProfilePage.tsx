@@ -269,15 +269,7 @@ export default function UserProfilePage() {
   }, [refetch]);
   const handleMessage = useCallback(async () => {
     if (!user) return;
-    try {
-      const data = await apiClient.post('/chat/conversations', {
-        other_user_id: user.user_id
-      });
-      const convId = data?.conversation_id || data?.id;
-      if (convId) navigate(`/messages/${convId}`);else toast.error(i18n.t('user_profile.noSePudoAbrirLaConversacion', 'No se pudo abrir la conversación'));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || i18n.t('user_profile.errorAlCrearConversacion', 'Error al crear conversación'));
-    }
+    navigate(`/messages?to=${encodeURIComponent(user.user_id)}`);
   }, [user, navigate]);
   const handleShare = useCallback(async () => {
     const url = window.location.href;
