@@ -643,11 +643,16 @@ export default function HispalAI({ onRequestClose } = {}) {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                  <>
                     {messages.length === 0 && (
                       <div className="flex flex-col items-center pt-8">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
                           <Sparkles className="h-8 w-8 text-stone-950" />
                         </div>
+                        {/* ...existing code... */}
+                      </div>
+                    )}
+                  </>
                         <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
                         <p className="mt-1 text-center text-sm text-stone-500">
                           Estoy aquí para ayudarte a encontrar lo que necesitas
