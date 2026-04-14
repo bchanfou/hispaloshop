@@ -643,11 +643,6 @@ export default function HispalAI({ onRequestClose } = {}) {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* Wrap motion.div and messages area in a fragment */}
-                <>
-                  {/* Messages Area */}
-                  <div className="flex-1 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-label="Mensajes de David AI">
                     {messages.length === 0 && (
                       <div className="flex flex-col items-center pt-8">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
