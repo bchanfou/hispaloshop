@@ -49,17 +49,18 @@ export default function HispalAI({ onRequestClose } = {}) {
 
   // Panel de chat (solo si es gestionado por el manager)
   return (
-    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-      <motion.div
-        initial={{ y: '100%', opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: '100%', opacity: 0 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="david-dialog-title"
-      >
-        <>
+    <div>
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+        <motion.div
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="david-dialog-title"
+        >
+          {/* Mensajes y sugerencias */}
           {messages.length === 0 && (
             <div className="flex flex-col items-center pt-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
@@ -152,162 +153,9 @@ export default function HispalAI({ onRequestClose } = {}) {
             );
           })}
           {isLoading && <TypingIndicator />}
-        </>
-      </motion.div>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <Activity className="h-8 w-8 text-stone-300" />
-                <p className="mt-3 text-[13px] text-stone-500">{t('david.no_data', 'Sin datos suficientes aún.')}</p>
-              </div>
-            )
-          )}
-
-          {/* Purchases panel */}
-          {!panelLoading && !panelError && panelView === 'purchases' && (
-            purchases && purchases.total_orders > 0 ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-stone-200 bg-white p-3">
-                    <p className="text-[10px] uppercase tracking-wide text-stone-500">Gasto total</p>
-                    <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_spend?.toFixed(0)}€</p>
-                    <p className="mt-0.5 text-[11px] text-stone-500">{purchases.period_days}d</p>
-                  </div>
-                  <div className="rounded-xl border border-stone-200 bg-white p-3">
-                    <p className="text-[10px] uppercase tracking-wide text-stone-500">Pedidos</p>
-                    <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_orders}</p>
-                    <p className="mt-0.5 text-[11px] text-stone-500">{purchases.avg_order?.toFixed(0)}€ medio</p>
-                  </div>
-                </div>
-                {purchases.categories?.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                      Por categoría
-                    </p>
-                    <div className="space-y-1.5">
-                      {purchases.categories.slice(0, 6).map((cat, i) => (
-                        <div key={`${cat.name}-${i}`} className="rounded-xl border border-stone-200 bg-white p-2.5">
-                          <div className="flex items-center justify-between">
-                            <p className="text-[12px] font-medium text-stone-950 capitalize">{cat.name}</p>
-                            <p className="text-[12px] font-bold text-stone-950">{cat.spend?.toFixed(0)}€</p>
-                          </div>
-                          <div className="mt-1 h-1 overflow-hidden rounded-full bg-stone-100">
-                            <div className="h-full rounded-full bg-stone-950" style={{ width: `${cat.pct}%` }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <BarChart3 className="h-8 w-8 text-stone-300" />
-                <p className="mt-3 text-[13px] text-stone-500">
-                  {purchases?.message || 'No tienes compras registradas.'}
-                </p>
-              </div>
-            )
-          )}
-
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-label="Mensajes de David AI">
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center pt-8">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
-                  <Sparkles className="h-8 w-8 text-stone-950" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
-                <p className="mt-1 text-center text-sm text-stone-500">
-                  Estoy aquí para ayudarte a encontrar lo que necesitas
-                </p>
-
-                {/* Quick Suggestions */}
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  {suggestions.map((label) => (
-                    <button
-                      key={label}
-                      onClick={() => sendMessage(label)}
-                      className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
-                    >
-                      <Sparkles size={14} className="text-stone-500" />
-                      <span>{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {messages.map((msg, i) => {
-              const isUser = msg.role === 'user';
-              const productResults = (msg.toolCalls || [])
-                .filter((tc) => tc.tool === 'search_products' && Array.isArray(tc.result))
-                .flatMap((tc) => tc.result);
-
-              const msgKey = `${msg.timestamp || 'nt'}-${msg.role}-${i}`;
-              return (
-                <React.Fragment key={msgKey}>
-                  <div className={`mb-3 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                    {!isUser && (
-                      <div className="mr-2 mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-stone-950">
-                        <Sparkles className="h-3 w-3 text-white" />
-                      </div>
-                    )}
-                    <div
-                      className={`${isUser ? 'max-w-[75%]' : 'max-w-[85%]'} ${
-                        isUser
-                          ? 'rounded-2xl rounded-br-[4px] bg-stone-950 px-4 py-3 text-white'
-                          : 'rounded-2xl rounded-bl-[4px] bg-stone-100 px-4 py-3 text-stone-950'
-                      }`}
-                    >
-                      {isUser ? (
-                        <p className="text-[15px] leading-relaxed">{msg.content}</p>
-                      ) : (
-                        <div
-                          className="text-[15px] leading-relaxed"
-                          dangerouslySetInnerHTML={{ __html: parseMarkdownSafe(msg.content || '') }}
-                        />
-                      )}
-                      {msg.failed && msg.originalText && (
-                        <button
-                          onClick={() => retryMessage(msg)}
-                          disabled={isLoading}
-                          aria-label="Reintentar envío"
-                          className="mt-2 flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1 text-[12px] font-medium text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                        >
-                          <RotateCw className="h-3 w-3" />
-                          <span>Reintentar</span>
-                        </button>
-                      )}
-                      {msg.timestamp && !Number.isNaN(new Date(msg.timestamp).getTime()) && (
-                        <p className="mt-1 text-[11px] text-stone-400">
-                          {new Date(msg.timestamp).toLocaleTimeString('es-ES', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {productResults.length > 0 && (
-                    <div className="mb-3 ml-8">
-                      {productResults.map((product) => (
-                        <ProductCardInChat
-                          key={product.id}
-                          product={product}
-                          onAddToCart={handleAddToCart}
-                          onViewProduct={(slugOrId) => window.open(`/products/${slugOrId}`, '_blank')}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-
-            {isLoading && <TypingIndicator />}
-          </motion.div>
-    </FocusTrap>
+        </motion.div>
+      </FocusTrap>
+    </div>
   );
 // ...existing code...
                       <div className="flex-1 overflow-y-auto px-4 py-3">
