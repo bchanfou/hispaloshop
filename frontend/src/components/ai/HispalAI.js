@@ -154,47 +154,6 @@ export default function HispalAI({ onRequestClose } = {}) {
           {isLoading && <TypingIndicator />}
         </>
       </motion.div>
-                  </div>
-                  <p className="mt-2 text-[11px] uppercase tracking-wide text-stone-500">Bienestar</p>
-                </div>
-                <div className="space-y-2">
-                  {Object.entries(wellness.dimensions || {}).map(([key, dim]) => (
-                    <div key={key} className="rounded-xl border border-stone-200 bg-white p-3">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[13px] font-medium text-stone-950">{dim.label}</p>
-                        <span className={`text-[12px] font-bold ${dim.score >= 70 ? 'text-stone-950' : 'text-stone-500'}`}>
-                          {dim.score}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 text-[11px] text-stone-500">{dim.detail}</p>
-                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-100">
-                        <div className="h-full rounded-full bg-stone-950" style={{ width: `${dim.score}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {wellness.insights && wellness.insights.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                      Insights
-                    </p>
-                    <div className="space-y-2">
-                      {wellness.insights.map((insight, i) => (
-                        <button
-                          key={`${insight.dimension}-${i}`}
-                          onClick={() => { closePanel(); sendMessage(insight.message); }}
-                          className="flex w-full items-start gap-2 rounded-xl border border-stone-200 bg-white p-3 text-left hover:border-stone-300 transition-all"
-                        >
-                          <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
-                            insight.severity === 'high' ? 'bg-stone-950' :
-                            insight.severity === 'medium' ? 'bg-stone-600' : 'bg-stone-400'
-                          }`} />
-                          <p className="text-[12px] text-stone-700 flex-1">{insight.message}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="flex h-full flex-col items-center justify-center text-center">
