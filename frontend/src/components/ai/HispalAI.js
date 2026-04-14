@@ -1,25 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import FocusTrap from 'focus-trap-react';
-import { X, Send, Sparkles, Mic, Trash2, RotateCw, Bell, Activity, BarChart3, ChevronLeft } from 'lucide-react';
-import DOMPurify from 'dompurify';
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-6 w-[3px] rounded-full bg-stone-400" />
-        </div>
 
-        {/* Pulse dot when proactive message */}
-        {hasProactiveMessage && (
-          <motion.div
-            className="absolute top-1 bg-white rounded-full"
-            style={{ [isRight ? 'left' : 'right']: 3, width: 8, height: 8 }}
-            animate={{ scale: [1, 1.4, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        )}
-      </div>
-    </motion.div>
-  );
-}
 
 /* ── Draggable floating button ── */
 
