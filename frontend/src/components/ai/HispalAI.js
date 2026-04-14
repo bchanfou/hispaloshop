@@ -206,9 +206,13 @@ export default function HispalAI({ onRequestClose } = {}) {
                           className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
                           aria-label="Volver al chat"
                         >
-                          <ChevronLeft className="h-4 w-4" />
-                        </button>
                         <>
+                          <button
+                            className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
+                            aria-label="Volver al chat"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
                           <h3 className="text-[14px] font-semibold text-stone-950">
                             {panelView === 'alerts' && t('david.panel_alerts', 'Alertas')}
                             {panelView === 'wellness' && t('david.panel_wellness', 'Mi bienestar')}
