@@ -203,10 +203,7 @@ export default function HispalAI({ onRequestClose } = {}) {
       </motion.div>
     </FocusTrap>
   );
-                          className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
-                          aria-label="Volver al chat"
-                        >
-                        <>
+                        <div className="flex items-center gap-1">
                           <button
                             className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
                             aria-label="Volver al chat"
@@ -218,7 +215,7 @@ export default function HispalAI({ onRequestClose } = {}) {
                             {panelView === 'wellness' && t('david.panel_wellness', 'Mi bienestar')}
                             {panelView === 'purchases' && t('david.panel_purchases', 'Mis compras')}
                           </h3>
-                        </>
+                        </div>
                       </div>
                       <div className="flex-1 overflow-y-auto px-4 py-3">
                         {panelLoading && (
