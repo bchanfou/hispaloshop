@@ -203,7 +203,7 @@ export default function HispalAI({ onRequestClose } = {}) {
       </motion.div>
     </FocusTrap>
   );
-                      </div>
+// ...existing code...
                       <div className="flex-1 overflow-y-auto px-4 py-3">
                         {panelLoading && (
                           <div className="flex h-full items-center justify-center">
