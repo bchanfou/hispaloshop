@@ -49,28 +49,55 @@ export default function HispalAI({ onRequestClose } = {}) {
 
   // Panel de chat (solo si es gestionado por el manager)
   return (
-    <div>
-      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-        <AnimatePresence>
-          {panelView ? (
-            <motion.div
-              initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="david-dialog-title"
-            >
-              {/* Aquí va el contenido del panel, asegurando un solo elemento padre */}
-              <>
+    <>
+      <div>
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+          <AnimatePresence>
+            {panelView ? (
+              <motion.div
+                initial={{ y: '100%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: '100%', opacity: 0 }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="david-dialog-title"
+              >
+                {/* Aquí va el contenido del panel, asegurando un solo elemento padre */}
                 {/* ...todo el contenido del motion.div, agrupado en un fragmento... */}
-              </>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </FocusTrap>
-    </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </FocusTrap>
+      </div>
+      {/* El resto del contenido, que antes estaba en un fragmento aparte, ahora está aquí */}
+      {messages.length === 0 && (
+        <div className="flex flex-col items-center pt-8">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+            <Sparkles className="h-8 w-8 text-stone-950" />
+          </div>
+          {/* ...existing code... */}
+        </div>
+      )}
+      <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
+      <p className="mt-1 text-center text-sm text-stone-500">
+        Estoy aquí para ayudarte a encontrar lo que necesitas
+      </p>
+
+      {/* Quick Suggestions */}
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        {suggestions.map((label) => (
+          <button
+            key={label}
+            onClick={() => sendMessage(label)}
+            className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
+          >
+            <Sparkles size={14} className="text-stone-500" />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    </>
   );
 // ...existing code...
                       <div className="flex-1 overflow-y-auto px-4 py-3">
