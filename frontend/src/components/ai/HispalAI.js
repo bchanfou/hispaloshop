@@ -50,27 +50,31 @@ export default function HispalAI({ onRequestClose } = {}) {
   // Panel de chat (solo si es gestionado por el manager)
   return (
     <>
-      <div>
-        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-          <AnimatePresence>
-            {panelView ? (
-              <motion.div
-                initial={{ y: '100%', opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: '100%', opacity: 0 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="david-dialog-title"
-              >
-                {/* Aquí va el contenido del panel, asegurando un solo elemento padre */}
-                {/* ...todo el contenido del motion.div, agrupado en un fragmento... */}
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-        </FocusTrap>
-      </div>
-      {/* El resto del contenido, que antes estaba en un fragmento aparte, ahora está aquí */}
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+        <AnimatePresence>
+          {panelView ? (
+            <motion.div
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="david-dialog-title"
+            >
+              <div className="flex-1 overflow-y-auto px-4 py-3">
+                {panelLoading && (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
+                  </div>
+                )}
+                {/* ...resto del contenido del panel, como antes... */}
+                {/* Alerts, Wellness, Purchases, mensajes, input, etc. */}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </FocusTrap>
       {messages.length === 0 && (
         <div className="flex flex-col items-center pt-8">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
