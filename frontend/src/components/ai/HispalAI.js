@@ -306,8 +306,6 @@ export default function HispalAI({ onRequestClose } = {}) {
             })}
 
             {isLoading && <TypingIndicator />}
-          </div>
-        </div>
       </motion.div>
     </FocusTrap>
   );
