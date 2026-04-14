@@ -154,7 +154,6 @@ export default function HispalAI({ onRequestClose } = {}) {
           {isLoading && <TypingIndicator />}
         </>
       </motion.div>
-              </div>
             ) : (
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <Activity className="h-8 w-8 text-stone-300" />
