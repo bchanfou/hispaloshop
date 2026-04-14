@@ -224,52 +224,49 @@ export default function HispalAI({ onRequestClose } = {}) {
 
                         {/* Purchases panel */}
                         {!panelLoading && !panelError && panelView === 'purchases' && (
-                          <>
-                            {!purchases || purchases.total_orders === 0 ? (
-                              <div className="flex h-full flex-col items-center justify-center text-center">
-                                <BarChart3 className="h-8 w-8 text-stone-300" />
-                                <p className="mt-3 text-[13px] text-stone-500">
-                                  {purchases?.message || 'No tienes compras registradas.'}
-                                </p>
+                          !purchases || purchases.total_orders === 0 ? (
+                            <div className="flex h-full flex-col items-center justify-center text-center">
+                              <BarChart3 className="h-8 w-8 text-stone-300" />
+                              <p className="mt-3 text-[13px] text-stone-500">
+                                {purchases?.message || 'No tienes compras registradas.'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="rounded-xl border border-stone-200 bg-white p-3">
+                                  <p className="text-[10px] uppercase tracking-wide text-stone-500">Gasto total</p>
+                                  <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_spend?.toFixed(0)}€</p>
+                                  <p className="mt-0.5 text-[11px] text-stone-500">{purchases.period_days}d</p>
+                                </div>
+                                <div className="rounded-xl border border-stone-200 bg-white p-3">
+                                  <p className="text-[10px] uppercase tracking-wide text-stone-500">Pedidos</p>
+                                  <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_orders}</p>
+                                  <p className="mt-0.5 text-[11px] text-stone-500">{purchases.avg_order?.toFixed(0)}€ medio</p>
+                                </div>
                               </div>
-                            ) : (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="rounded-xl border border-stone-200 bg-white p-3">
-                                    <p className="text-[10px] uppercase tracking-wide text-stone-500">Gasto total</p>
-                                    <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_spend?.toFixed(0)}€</p>
-                                    <p className="mt-0.5 text-[11px] text-stone-500">{purchases.period_days}d</p>
-                                  </div>
-                                  <div className="rounded-xl border border-stone-200 bg-white p-3">
-                                    <p className="text-[10px] uppercase tracking-wide text-stone-500">Pedidos</p>
-                                    <p className="mt-1 text-[18px] font-bold text-stone-950">{purchases.total_orders}</p>
-                                    <p className="mt-0.5 text-[11px] text-stone-500">{purchases.avg_order?.toFixed(0)}€ medio</p>
+                              {purchases.categories?.length > 0 && (
+                                <div>
+                                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+                                    Por categoría
+                                  </p>
+                                  <div className="space-y-1.5">
+                                    {purchases.categories.slice(0, 6).map((cat, i) => (
+                                      <div key={`${cat.name}-${i}`} className="rounded-xl border border-stone-200 bg-white p-2.5">
+                                        <div className="flex items-center justify-between">
+                                          <p className="text-[12px] font-medium text-stone-950 capitalize">{cat.name}</p>
+                                          <p className="text-[12px] font-bold text-stone-950">{cat.spend?.toFixed(0)}€</p>
+                                        </div>
+                                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-stone-100">
+                                          <div className="h-full rounded-full bg-stone-950" style={{ width: `${cat.pct}%` }} />
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
-                                {purchases.categories?.length > 0 && (
-                                  <div>
-                                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                                      Por categoría
-                                    </p>
-                                    <div className="space-y-1.5">
-                                      {purchases.categories.slice(0, 6).map((cat, i) => (
-                                        <div key={`${cat.name}-${i}`} className="rounded-xl border border-stone-200 bg-white p-2.5">
-                                          <div className="flex items-center justify-between">
-                                            <p className="text-[12px] font-medium text-stone-950 capitalize">{cat.name}</p>
-                                            <p className="text-[12px] font-bold text-stone-950">{cat.spend?.toFixed(0)}€</p>
-                                          </div>
-                                          <div className="mt-1 h-1 overflow-hidden rounded-full bg-stone-100">
-                                            <div className="h-full rounded-full bg-stone-950" style={{ width: `${cat.pct}%` }} />
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-
-                              </div>
-                            )}
-                          </>
+                              )}
+                            </div>
+                          )
                         )}
                       </div>
                     </motion.div>
