@@ -278,39 +278,35 @@ export default function HispalAI({ onRequestClose } = {}) {
                           )
                         )}
                       </div>
-
+                      {messages.length === 0 && (
+                        <>
+                          <div className="flex flex-col items-center pt-8">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+                              <Sparkles className="h-8 w-8 text-stone-950" />
+                            </div>
+                            {/* ...existing code... */}
+                          </div>
+                          <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
+                          <p className="mt-1 text-center text-sm text-stone-500">
+                            Estoy aquí para ayudarte a encontrar lo que necesitas
+                          </p>
+                          {/* Quick Suggestions */}
+                          <div className="mt-6 flex flex-wrap justify-center gap-2">
+                            {suggestions.map((label) => (
+                              <button
+                                key={label}
+                                onClick={() => sendMessage(label)}
+                                className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
+                              >
+                                <Sparkles size={14} className="text-stone-500" />
+                                <span>{label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </motion.div>
                   )}
-                  {/* Wrap the following in a fragment to avoid adjacent JSX error */}
-                  <>
-                    {messages.length === 0 && (
-                      <>
-                        <div className="flex flex-col items-center pt-8">
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
-                            <Sparkles className="h-8 w-8 text-stone-950" />
-                          </div>
-                          {/* ...existing code... */}
-                        </div>
-                        <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('david.greeting', 'Hola, soy David')}</h3>
-                        <p className="mt-1 text-center text-sm text-stone-500">
-                          Estoy aquí para ayudarte a encontrar lo que necesitas
-                        </p>
-                        {/* Quick Suggestions */}
-                        <div className="mt-6 flex flex-wrap justify-center gap-2">
-                          {suggestions.map((label) => (
-                            <button
-                              key={label}
-                              onClick={() => sendMessage(label)}
-                              className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
-                            >
-                              <Sparkles size={14} className="text-stone-500" />
-                              <span>{label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </>
 
                   {messages.map((msg, i) => {
                     const isUser = msg.role === 'user';
