@@ -208,11 +208,13 @@ export default function HispalAI({ onRequestClose } = {}) {
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </button>
-                        <h3 className="text-[14px] font-semibold text-stone-950">
-                          {panelView === 'alerts' && t('david.panel_alerts', 'Alertas')}
-                          {panelView === 'wellness' && t('david.panel_wellness', 'Mi bienestar')}
-                          {panelView === 'purchases' && t('david.panel_purchases', 'Mis compras')}
-                        </h3>
+                        <>
+                          <h3 className="text-[14px] font-semibold text-stone-950">
+                            {panelView === 'alerts' && t('david.panel_alerts', 'Alertas')}
+                            {panelView === 'wellness' && t('david.panel_wellness', 'Mi bienestar')}
+                            {panelView === 'purchases' && t('david.panel_purchases', 'Mis compras')}
+                          </h3>
+                        </>
                       </div>
                       <div className="flex-1 overflow-y-auto px-4 py-3">
                         {panelLoading && (
