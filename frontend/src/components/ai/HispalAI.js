@@ -152,63 +152,57 @@ export default function HispalAI({ onRequestClose } = {}) {
   const {
     messages,
     isLoading,
-    // Solo mostrar el panel de chat si está gestionado por el manager
-    const { t } = useTranslation();
-    const { user } = useAuth();
-    const {
-      messages,
-      isLoading,
-      aiProfile,
-      alerts,
-      sendMessage,
-      clearChat,
-    } = useHispalAI();
-    const [input, setInput] = useState('');
-    const inputRef = useRef(null);
-    const isManaged = typeof onRequestClose === 'function';
-    if (!isManaged) return null;
+    aiProfile,
+    alerts,
+    sendMessage,
+    clearChat,
+  } = useHispalAI();
+  const [input, setInput] = useState('');
+  const inputRef = useRef(null);
+  const isManaged = typeof onRequestClose === 'function';
+  if (!isManaged) return null;
 
-    // Panel de chat (solo si es gestionado por el manager)
-    return (
-      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-        <motion.div
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="david-dialog-title"
-          className="fixed inset-x-0 bottom-0 z-50 flex h-[85vh] flex-col rounded-t-[20px] bg-white shadow-lg md:inset-x-auto md:bottom-4 md:right-4 md:h-[600px] md:w-[380px] md:rounded-2xl pb-[env(safe-area-inset-bottom)]"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-950">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span id="david-dialog-title" className="text-[16px] font-semibold text-stone-950">David</span>
-                  <span className="h-2 w-2 rounded-full bg-stone-950" />
-                </div>
-                <p className="text-[12px] text-stone-500">{t('hispal_a_i.tuCompaneroDeCompras', 'Tu compañero de compras')}</p>
-              </div>
+  // Panel de chat (solo si es gestionado por el manager)
+  return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+      <motion.div
+        initial={{ y: '100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '100%', opacity: 0 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="david-dialog-title"
+        className="fixed inset-x-0 bottom-0 z-50 flex h-[85vh] flex-col rounded-t-[20px] bg-white shadow-lg md:inset-x-auto md:bottom-4 md:right-4 md:h-[600px] md:w-[380px] md:rounded-2xl pb-[env(safe-area-inset-bottom)]"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-950">
+              <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
-                aria-label="Cerrar"
-                onClick={onRequestClose}
-              >
-                <X className="h-5 w-5" />
-              </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span id="david-dialog-title" className="text-[16px] font-semibold text-stone-950">David</span>
+                <span className="h-2 w-2 rounded-full bg-stone-950" />
+              </div>
+              <p className="text-[12px] text-stone-500">{t('hispal_a_i.tuCompaneroDeCompras', 'Tu compañero de compras')}</p>
             </div>
           </div>
-          {/* ...aquí iría el resto del panel de chat, mensajes, input, etc... */}
-        </motion.div>
-      </FocusTrap>
-    );
+          <div className="flex items-center gap-1">
+            <button
+              className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+              aria-label="Cerrar"
+              onClick={onRequestClose}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        {/* ...aquí iría el resto del panel de chat, mensajes, input, etc... */}
+      </motion.div>
+    </FocusTrap>
+  );
                           className="rounded-full p-1.5 text-stone-500 transition-colors hover:bg-stone-100"
                           aria-label="Volver al chat"
                         >
