@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     STRIPE_CONNECT_WEBHOOK_SECRET: str = ""
     STRIPE_PRICE_PRO: str = ""
     STRIPE_PRICE_ELITE: str = ""
+    STRIPE_PRICE_PRO_ANNUAL: str = ""
+    STRIPE_PRICE_ELITE_ANNUAL: str = ""
     STRIPE_PUBLISHABLE_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
     # Used for generating affiliate redirect links (/r/{code})
