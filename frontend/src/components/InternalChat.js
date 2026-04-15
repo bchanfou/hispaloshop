@@ -1638,7 +1638,7 @@ export default function InternalChat({
     });
     return items;
   }, [visibleMessages]);
-    const showBackButton = true;
+  const showBackButton = true;
   return <div className="relative flex h-full min-h-0 overflow-hidden rounded-none bg-white text-stone-950">
 
       {/* ── Inbox sidebar ── */}
@@ -1851,8 +1851,8 @@ export default function InternalChat({
                 </div>
               </div> : null}
 
-            <div className="relative flex-1 bg-white" role="log" aria-live="polite" aria-label={i18n.t('internal_chat.mensajesDeLaConversacion', 'Mensajes de la conversación')}>
-              {loadingMessages ? <LoadingConversationSkeleton /> : visibleMessages.length > 0 ? <Virtuoso ref={virtuosoRef} data={visibleTimeline} defaultItemHeight={60} itemContent={(index, item) => <div style={{
+            <div className="relative flex flex-col flex-1 min-h-0 bg-white" role="log" aria-live="polite" aria-label={i18n.t('internal_chat.mensajesDeLaConversacion', 'Mensajes de la conversación')}>
+              {loadingMessages ? <div className="flex flex-1 flex-col"><LoadingConversationSkeleton /></div> : visibleMessages.length > 0 ? <Virtuoso ref={virtuosoRef} data={visibleTimeline} defaultItemHeight={60} itemContent={(index, item) => <div style={{
             padding: '2px 16px'
           }}>
                       {item.type === 'separator' ? <div className="flex justify-center py-1">
@@ -1861,8 +1861,7 @@ export default function InternalChat({
                           </span>
                         </div> : <MessageBubble message={item.message} isOwn={item.message.sender_id === user?.user_id} currentUserId={user?.user_id} onReply={handleReply} onReact={handleReactToMessage} onDelete={handleDeleteMessage} />}
                     </div>} followOutput="smooth" initialTopMostItemIndex={visibleTimeline.length - 1} overscan={500} style={{
-            flex: 1,
-            height: '100%'
+            flex: 1
           }} components={{
             Footer: () => typingUserId ? <div style={{
               padding: '2px 16px'
