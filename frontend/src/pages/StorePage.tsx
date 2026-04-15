@@ -614,7 +614,7 @@ export default function StorePage() {
                 <div className="bg-stone-100 rounded-xl p-4">
                   <p className="text-sm font-medium text-stone-950">{store.community_name || `Comunidad de ${store.name}`}</p>
                   {store.community_member_count > 0 && <p className="text-xs text-stone-500 mt-1">{store.community_member_count} miembros</p>}
-                  <button type="button" onClick={() => navigate(`/community/${store.community_slug}`)} className="mt-2 text-sm font-semibold text-stone-950 hover:underline bg-transparent border-none cursor-pointer p-0">
+                  <button type="button" onClick={() => navigate(`/communities/${store.community_slug}`)} className="mt-2 text-sm font-semibold text-stone-950 hover:underline bg-transparent border-none cursor-pointer p-0">
                     Unirme a la comunidad →
                   </button>
                 </div>

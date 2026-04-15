@@ -338,7 +338,7 @@ export default function HashtagPage() {
             <h3 className="text-sm font-semibold text-stone-950 mb-2">{i18n.t('hashtag.products_with_tag', 'Productos con')} #{decodedTag}</h3>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {tagProducts.map(p => (
-                <button key={p.product_id} onClick={() => navigate(`/product/${p.slug || p.product_id}`)} className="shrink-0 w-[140px] text-left bg-white rounded-2xl overflow-hidden border border-stone-100 p-0 cursor-pointer hover:shadow-sm transition-shadow">
+                <button key={p.product_id} onClick={() => navigate(`/products/${p.slug || p.product_id}`)} className="shrink-0 w-[140px] text-left bg-white rounded-2xl overflow-hidden border border-stone-100 p-0 cursor-pointer hover:shadow-sm transition-shadow">
                   {p.images?.[0] && <img src={resolveUserImage(p.images[0])} alt={p.name} className="w-full aspect-square object-cover" loading="lazy" />}
                   <div className="px-2 py-1.5">
                     <p className="text-[12px] font-medium text-stone-950 line-clamp-2">{p.name}</p>

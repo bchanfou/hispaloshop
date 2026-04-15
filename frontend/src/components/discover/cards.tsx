@@ -14,7 +14,7 @@ const resolveImage = (item) =>
 // ── Product card (compact, for seasonal + for-you) ──
 export function ProductCard({ product }) {
   const img = resolveImage(product);
-  const href = `/product/${product.product_id || product.id}`;
+  const href = `/products/${product.product_id || product.id}`;
   return (
     <Link to={href} className="block w-[140px] lg:w-[160px] no-underline group">
       <div className="aspect-square rounded-2xl overflow-hidden bg-stone-100 mb-2">
@@ -69,7 +69,7 @@ export function ProducerCard({ producer }) {
 // ── Community card ──
 export function CommunityCard({ community }) {
   const { t } = useTranslation();
-  const href = `/community/${community.slug}`;
+  const href = `/communities/${community.slug}`;
   return (
     <Link to={href} className="block w-[180px] lg:w-[200px] rounded-2xl border border-stone-200 bg-white overflow-hidden no-underline group hover:border-stone-300 transition-colors">
       <div className="h-20 bg-stone-100 flex items-center justify-center">
@@ -95,7 +95,7 @@ export function CommunityCard({ community }) {
 export function RecipeCard({ recipe }) {
   const { t } = useTranslation();
   const img = recipe.image_url || resolveImage(recipe);
-  const href = `/recipe/${recipe.recipe_id || recipe.id}`;
+  const href = `/recipes/${recipe.recipe_id || recipe.id}`;
   return (
     <Link to={href} className="block w-[180px] lg:w-[200px] rounded-2xl overflow-hidden bg-white border border-stone-200 no-underline group hover:border-stone-300 transition-colors">
       <div className="aspect-[4/3] bg-stone-100 overflow-hidden">
@@ -125,7 +125,7 @@ export function AvatarCard({ user, onFollow }) {
   const { t } = useTranslation();
   const img = user.profile_image || user.picture;
   const name = user.name || user.username;
-  const href = `/profile/${user.username || user.user_id}`;
+  const href = `/${user.username || user.user_id}`;
   return (
     <div className="flex flex-col items-center w-[90px] lg:w-[100px]">
       <Link to={href} className="no-underline">

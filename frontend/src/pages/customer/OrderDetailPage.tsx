@@ -590,7 +590,7 @@ export default function OrderDetailPage() {
                       {items.map((item: any, i: number) => (
                         <Link
                           key={`review-${item.product_id || i}`}
-                          to={`/product/${item.product_id}#reviews`}
+                          to={`/products/${item.product_id}#reviews`}
                           className="flex items-center gap-2 px-3 py-2 mb-1 last:mb-0 bg-stone-50 rounded-xl text-sm text-stone-950 no-underline"
                         >
                           <Star size={14} />

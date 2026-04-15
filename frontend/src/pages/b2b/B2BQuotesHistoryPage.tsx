@@ -188,7 +188,7 @@ function RFQCard({
               {/* Producer: Respond button */}
               {isProducer && rfq.status === 'pending' && <button onClick={e => {
             e.stopPropagation();
-            navigate(`/b2b/offer?quote_id=${rfq.rfq_id}`);
+            navigate(`/b2b/offer/new?quote_id=${rfq.rfq_id}`);
           }} className="w-full py-2.5 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors flex items-center justify-center gap-2 mt-1">
                   <MessageSquare className="w-4 h-4" />
                   Responder

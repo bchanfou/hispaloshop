@@ -505,7 +505,7 @@ export default function ImporterCatalogPage() {
   const handleRequestOffer = product => {
     setDetailProduct(null);
     const productId = product.product_id || product.id;
-    navigate(`/b2b/offer?product_id=${productId}`);
+    navigate(`/b2b/offer/new?product_id=${productId}`);
   };
   return <div>
       {/* Header */}

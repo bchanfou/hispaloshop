@@ -243,7 +243,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             {isInfluencer && <>
               <SectionLabel>{t('hamburger.paraInfluencers', 'PARA INFLUENCERS')}</SectionLabel>
               <MenuItem to="/influencer/dashboard" icon={<LayoutDashboard size={20} />} label={t('hamburger.dashboard', 'Dashboard')} onClose={onClose} />
-              <MenuItem to="/influencer/codes" icon={<Tag size={20} />} label={t('hamburger.codigos', 'Códigos')} onClose={onClose} />
+              <MenuItem to="/influencer/links" icon={<Tag size={20} />} label={t('hamburger.enlaces', 'Enlaces de afiliado')} onClose={onClose} />
               <MenuItem to="/influencer/payouts" icon={<DollarSign size={20} />} label={t('hamburger.comisiones', 'Comisiones')} onClose={onClose} />
               <Divider />
             </>}

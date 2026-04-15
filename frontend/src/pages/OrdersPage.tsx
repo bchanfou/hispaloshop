@@ -361,7 +361,7 @@ export default function OrdersPage() {
                         {isDelivered && (
                           <>
                             <Link
-                              to={items[0]?.product_id ? `/product/${items[0].product_id}#reviews` : '#'}
+                              to={items[0]?.product_id ? `/products/${items[0].product_id}#reviews` : '#'}
                               onClick={e => e.stopPropagation()}
                               className="flex items-center gap-1 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-semibold text-stone-950 no-underline"
                             >

@@ -168,7 +168,7 @@ export default function WishlistSharedPage() {
                     animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04 }}
                     className="bg-white rounded-2xl border border-stone-100 overflow-hidden flex flex-col"
                   >
-                    <Link to={`/product/${pid}`} className="block aspect-square bg-stone-100 relative">
+                    <Link to={`/products/${pid}`} className="block aspect-square bg-stone-100 relative">
                       {item.image ? (
                         <ProductImage src={item.image} alt={item.name ?? ''} className="w-full h-full object-cover" />
                       ) : (

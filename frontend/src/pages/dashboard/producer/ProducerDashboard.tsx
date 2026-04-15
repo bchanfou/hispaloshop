@@ -81,7 +81,7 @@ function ProducerDashboard() {
           title: 'Conecta con influencers',
           description: i18n.t('producer_dashboard.colaboraConInfluencersParaPromociona', 'Colabora con influencers para promocionar tus productos'),
           actionLabel: 'Ver influencers',
-          onAction: () => navigate('/producer/influencers')
+          onAction: () => navigate('/discover/people')
         }]
       }
     };
