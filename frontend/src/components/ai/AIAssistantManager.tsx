@@ -18,7 +18,7 @@ const HispalAI = React.lazy(() => import('./HispalAI'));
 const RebecaAI = React.lazy(() => import('./RebecaAI'));
 
 /* ── Constants ── */
-const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup', '/country-admin', '/importer', '/influencer'];
+const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
 const BUTTON_SIZE = 56;
 const STRIP_W = 8;
 const STRIP_H_SINGLE = 40;
@@ -172,6 +172,26 @@ export default function AIAssistantManager() {
     setButtonState(state === 'strip' ? 'strip' : 'full');
     setInitialized(true);
   }, [shouldHide]);
+
+  // Listen for external 'open-hispal-ai' events (from CustomerOverview, DesktopSidebar, etc.)
+  useEffect(() => {
+    const handler = (e) => {
+      const targetId = e?.detail?.id || 'david';
+      const ai = AI_DEFS.find((a) => a.id === targetId);
+      if (ai) {
+        if (ai.type === 'navigate') {
+          navigate(ai.href);
+        } else {
+          reset(ai.id);
+          setActiveAI(ai.id);
+          setShowStack(false);
+          trackEvent('ai_assistant_opened', { assistant: ai.id, source: 'event' });
+        }
+      }
+    };
+    window.addEventListener('open-hispal-ai', handler);
+    return () => window.removeEventListener('open-hispal-ai', handler);
+  }, [navigate, reset]);
 
   // Animate to position when initialized or state changes
   useEffect(() => {
