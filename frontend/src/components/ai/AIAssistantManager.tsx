@@ -7,7 +7,7 @@
  */
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, TrendingUp, Crown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { trackEvent } from '../../utils/analytics';
@@ -132,25 +132,20 @@ export default function AIAssistantManager() {
   const [buttonState, setButtonState] = useState('full'); // 'full' | 'strip'
   const [side, setSide] = useState('right');
   const [posY, setPosY] = useState(0);
-  const [showStack, setShowStack] = useState(false); // multi-AI expanded stack
+  const [showStack, setShowStack] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  const controls = useAnimation();
-  const isDragging = useRef(false);
-  const dragStartPos = useRef({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const dragRef = useRef({ active: false, startX: 0, startY: 0, moved: false, pointerId: null });
   const inactivityTimerRef = useRef(null);
 
-  // Hide on auth/onboarding paths
   const shouldHide = !user || HIDDEN_PATHS.some((p) => location.pathname.startsWith(p));
 
-  // User plan
   const userPlan = useMemo(() => {
     if (!user) return 'FREE';
-    const sub = user.subscription || {};
-    return (sub.plan || 'FREE').toUpperCase();
+    return ((user.subscription || {}).plan || 'FREE').toUpperCase();
   }, [user]);
 
-  // Available AIs
   const availableAIs = useMemo(() => {
     if (!user) return [];
     return AI_DEFS.filter((ai) => {
@@ -164,7 +159,7 @@ export default function AIAssistantManager() {
   const primaryAI = availableAIs[0];
   const PrimaryIcon = primaryAI?.icon || Sparkles;
 
-  // Initialize position from localStorage — ALWAYS start as full circle
+  // Initialize position
   useEffect(() => {
     if (shouldHide) return;
     const { side: s, y } = readPersistedPosition();
@@ -174,7 +169,7 @@ export default function AIAssistantManager() {
     setInitialized(true);
   }, [shouldHide]);
 
-  // Listen for external 'open-hispal-ai' events (from CustomerOverview, DesktopSidebar, etc.)
+  // Listen for external 'open-hispal-ai' events
   useEffect(() => {
     const handler = (e) => {
       const targetId = e?.detail?.id || 'david';
@@ -193,20 +188,6 @@ export default function AIAssistantManager() {
     window.addEventListener('open-hispal-ai', handler);
     return () => window.removeEventListener('open-hispal-ai', handler);
   }, [navigate, reset]);
-
-  // Animate to position when initialized or state changes
-  useEffect(() => {
-    if (!initialized || shouldHide || activeAI) return;
-    const w = buttonState === 'strip' ? STRIP_TOUCH_W : BUTTON_SIZE;
-    const x = buttonState === 'strip'
-      ? (side === 'right' ? window.innerWidth - STRIP_TOUCH_W : 0)
-      : getXForSide(side, w);
-    controls.start({
-      x,
-      y: posY,
-      transition: { type: 'spring', stiffness: 300, damping: 28 },
-    });
-  }, [initialized, side, posY, buttonState, shouldHide, activeAI, controls]);
 
   // Close stack on outside tap / scroll
   useEffect(() => {
@@ -233,7 +214,7 @@ export default function AIAssistantManager() {
 
   const startInactivityTimer = useCallback(() => {
     clearInactivityTimer();
-    if (buttonState !== 'full' || activeAI || showStack || isDragging.current) return;
+    if (buttonState !== 'full' || activeAI || showStack) return;
     inactivityTimerRef.current = setTimeout(() => {
       setButtonState('strip');
       persistPosition(side, posY, 'strip');
@@ -245,42 +226,68 @@ export default function AIAssistantManager() {
     return () => clearInactivityTimer();
   }, [startInactivityTimer, clearInactivityTimer]);
 
-  /* ── Handlers ── */
-  const handleDragStart = useCallback(() => {
-    isDragging.current = false;
-    dragStartPos.current = { x: 0, y: 0 };
+  /* ── Computed position for current state ── */
+  const computedX = useMemo(() => {
+    if (buttonState === 'strip') {
+      return side === 'right' ? window.innerWidth - STRIP_TOUCH_W : 0;
+    }
+    return getXForSide(side, BUTTON_SIZE);
+  }, [side, buttonState]);
+
+  /* ── Pointer-based drag ── */
+  const handlePointerDown = useCallback((e) => {
+    if (activeAI) return;
+    dragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+      pointerId: e.pointerId,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
     clearInactivityTimer();
-  }, [clearInactivityTimer]);
+  }, [activeAI, clearInactivityTimer]);
 
-  const handleDrag = useCallback((_, info) => {
-    const dx = Math.abs(info.offset.x);
-    const dy = Math.abs(info.offset.y);
-    if (dx > 10 || dy > 10) isDragging.current = true;
-  }, []);
+  const handlePointerMove = useCallback((e) => {
+    const d = dragRef.current;
+    if (!d.active) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (!d.moved && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      d.moved = true;
+    }
+    if (d.moved && containerRef.current) {
+      containerRef.current.style.transition = 'none';
+      containerRef.current.style.left = `${computedX + dx}px`;
+      containerRef.current.style.top = `${posY + dy}px`;
+    }
+  }, [computedX, posY]);
 
-  const handleDragEnd = useCallback((_, info) => {
-    if (!isDragging.current) return;
-    const vw = window.innerWidth;
-    const w = buttonState === 'strip' ? STRIP_TOUCH_W : BUTTON_SIZE;
-    const centerX = info.point.x;
-    const newSide = centerX > vw / 2 ? 'right' : 'left';
-    const newX = buttonState === 'strip'
-      ? (newSide === 'right' ? vw - STRIP_TOUCH_W : 0)
-      : getXForSide(newSide, w);
-    const newY = clampY(info.point.y - w / 2);
+  const handlePointerUp = useCallback((e) => {
+    const d = dragRef.current;
+    d.active = false;
 
-    setSide(newSide);
-    setPosY(newY);
-    persistPosition(newSide, newY, buttonState);
-
-    controls.start({
-      x: newX,
-      y: newY,
-      transition: { type: 'spring', stiffness: 300, damping: 28 },
-    });
+    if (d.moved) {
+      // Snap to nearest edge
+      const el = containerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const centerX = rect.left + rect.width / 2;
+      const newSide = centerX > vw / 2 ? 'right' : 'left';
+      const newY = clampY(rect.top);
+      // Clear direct DOM styles so React's managed style takes over with transition
+      el.style.transition = '';
+      el.style.left = '';
+      el.style.top = '';
+      setSide(newSide);
+      setPosY(newY);
+      persistPosition(newSide, newY, buttonState);
+    }
     startInactivityTimer();
-  }, [buttonState, controls, startInactivityTimer]);
+  }, [buttonState, startInactivityTimer]);
 
+  /* ── AI actions ── */
   const openAI = useCallback((ai) => {
     if (ai.type === 'navigate') {
       navigate(ai.href);
@@ -292,29 +299,20 @@ export default function AIAssistantManager() {
     trackEvent('ai_assistant_opened', { assistant: ai.id });
   }, [navigate, reset]);
 
-  const handleButtonClick = useCallback(() => {
-    if (isDragging.current) return;
+  const handleTap = useCallback(() => {
     clearInactivityTimer();
     if (buttonState === 'strip') {
-      // Single AI: go straight to panel (skip full button state)
       if (!hasMultipleAIs && availableAIs.length === 1) {
         openAI(availableAIs[0]);
         return;
       }
-      // Multiple AIs: expand to full button first (need to show stack)
       setButtonState('full');
-      const newX = getXForSide(side, BUTTON_SIZE);
-      controls.start({
-        x: newX,
-        y: posY,
-        transition: { type: 'spring', stiffness: 300, damping: 28 },
-      });
+      persistPosition(side, posY, 'full');
+      startInactivityTimer();
       return;
     }
-    // Full button tap
     if (hasMultipleAIs) {
       if (showStack) {
-        // Second tap on main button → open primary AI (David)
         openAI(availableAIs[0]);
       } else {
         setShowStack(true);
@@ -322,18 +320,25 @@ export default function AIAssistantManager() {
     } else if (availableAIs.length === 1) {
       openAI(availableAIs[0]);
     }
-  }, [buttonState, side, posY, controls, hasMultipleAIs, showStack, availableAIs, openAI, clearInactivityTimer]);
+  }, [buttonState, side, posY, hasMultipleAIs, showStack, availableAIs, openAI, clearInactivityTimer, startInactivityTimer]);
+
+  // Handle tap vs drag: trigger tap only if pointer didn't move
+  const handleClick = useCallback((e) => {
+    e.stopPropagation();
+    if (dragRef.current.moved) return;
+    handleTap();
+  }, [handleTap]);
 
   const handleCloseDrawer = useCallback(() => {
     setActiveAI(null);
-    // After first interaction, always go to strip
-    setButtonState('strip');
-    persistPosition(side, posY, 'strip');
-  }, [side, posY]);
+    setButtonState('full');
+    persistPosition(side, posY, 'full');
+    startInactivityTimer();
+  }, [side, posY, startInactivityTimer]);
 
   if (shouldHide || availableAIs.length === 0) return null;
 
-  // ── Panel open: render AI drawer, hide button ──
+  // ── AI drawer panels ──
   if (activeAI === 'david') {
     return (
       <React.Suspense fallback={null}>
@@ -354,50 +359,39 @@ export default function AIAssistantManager() {
   const totalBadge = Object.values(counts).reduce((s, c) => s + c, 0);
   const stripHeight = hasMultipleAIs ? STRIP_H_MULTI : STRIP_H_SINGLE;
 
-  // ── Draggable button / strip ──
   return (
     <>
-      <motion.div
-        drag
-        dragMomentum={false}
-        dragElastic={0.1}
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        onPointerEnter={clearInactivityTimer}
-        onPointerLeave={startInactivityTimer}
-        onTouchStart={clearInactivityTimer}
-        animate={controls}
-        initial={{
-          x: getXForSide(side, BUTTON_SIZE),
-          y: posY,
+      <div
+        ref={containerRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onClick={handleClick}
+        className="fixed z-40 touch-none select-none"
+        style={{
+          left: computedX,
+          top: posY,
+          transition: 'left 0.3s cubic-bezier(.4,0,.2,1), top 0.3s cubic-bezier(.4,0,.2,1)',
         }}
-        className="fixed top-0 left-0 z-40 touch-none"
-        style={{ willChange: 'transform' }}
       >
         <AnimatePresence mode="wait">
           {buttonState === 'strip' ? (
-            <motion.button
+            <motion.div
               key="strip"
-              layoutId="ai-fab"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              onClick={(e) => { e.stopPropagation(); handleButtonClick(); }}
-              onPointerDown={(e) => e.stopPropagation()}
-              className={`flex flex-col items-center justify-center text-white/90 shadow-md cursor-pointer hover:opacity-100 transition-opacity ${
+              className={`flex flex-col items-center justify-center cursor-pointer ${
                 side === 'right' ? 'rounded-l-2xl' : 'rounded-r-2xl'
               }`}
               style={{
                 width: STRIP_TOUCH_W,
                 height: stripHeight,
-                ...(side === 'right'
-                  ? { paddingLeft: STRIP_TOUCH_W - STRIP_W, background: 'transparent' }
-                  : { paddingRight: STRIP_TOUCH_W - STRIP_W, background: 'transparent' }),
+                background: 'transparent',
               }}
-              aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
               role="button"
+              aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
             >
               <div
                 className={`flex flex-col items-center justify-center shadow-md ring-1 ring-white/20 h-full ${
@@ -408,53 +402,40 @@ export default function AIAssistantManager() {
                 {hasMultipleAIs ? (
                   <div className="flex flex-col items-center justify-center gap-1 py-2">
                     {availableAIs.map((ai) => (
-                      <div
-                        key={ai.id}
-                        className="rounded-full"
-                        style={{ width: 4, height: 4, ...getAIBgStyle(ai) }}
-                      />
+                      <div key={ai.id} className="rounded-full" style={{ width: 4, height: 4, ...getAIBgStyle(ai) }} />
                     ))}
                   </div>
                 ) : (
-                  <PrimaryIcon size={12} />
+                  <PrimaryIcon size={12} className="text-white" />
                 )}
               </div>
               {totalBadge > 0 && (
-                <motion.span
-                  className="absolute top-1.5 bg-red-500 rounded-full"
-                  style={{ [side === 'right' ? 'left' : 'right']: 1.5, width: 5, height: 5 }}
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
+                <span className="absolute top-1 bg-red-500 rounded-full animate-pulse"
+                  style={{ [side === 'right' ? 'left' : 'right']: 2, width: 6, height: 6 }} />
               )}
-            </motion.button>
+            </motion.div>
           ) : (
-            <motion.button
+            <motion.div
               key="full"
-              layoutId="ai-fab"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              onClick={handleButtonClick}
-              className="relative flex items-center justify-center rounded-full text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95 transition-transform"
+              className="relative flex items-center justify-center rounded-full text-white shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95 transition-transform cursor-pointer"
               style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, ...getAIBgStyle(primaryAI) }}
+              role="button"
               aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
             >
-              {totalBadge > 0 && (
-                <motion.span
-                  className="absolute inset-0 rounded-full border-2 border-red-500"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              )}
               <PrimaryIcon size={24} />
               {totalBadge > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
-                  {totalBadge > 9 ? '9+' : totalBadge}
-                </span>
+                <>
+                  <span className="absolute inset-0 rounded-full border-2 border-red-500 animate-ping opacity-30" />
+                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
+                    {totalBadge > 9 ? '9+' : totalBadge}
+                  </span>
+                </>
               )}
-            </motion.button>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -463,49 +444,48 @@ export default function AIAssistantManager() {
           {showStack && buttonState === 'full' && (() => {
             const stackDown = posY < window.innerHeight / 2;
             return (
-            <motion.div
-              initial={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className={`absolute flex flex-col items-center ${stackDown ? 'flex-col' : 'flex-col-reverse'}`}
-              style={{
-                ...(stackDown
-                  ? { top: BUTTON_SIZE + STACK_GAP }
-                  : { bottom: BUTTON_SIZE + STACK_GAP }),
-                left: '50%',
-                transform: 'translateX(-50%)',
-                gap: STACK_GAP,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {availableAIs.slice(1).map((ai, i) => {
-                const Icon = ai.icon;
-                return (
-                  <motion.button
-                    key={ai.id}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 260, damping: 20, delay: i * 0.05 }}
-                    onClick={() => openAI(ai)}
-                    className="relative flex items-center justify-center rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform"
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, ...getAIBgStyle(ai) }}
-                    aria-label={ai.label}
-                  >
-                    <Icon className="w-6 h-6 text-white" />
-                    {(counts[ai.id] || 0) > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
-                        {counts[ai.id] > 9 ? '9+' : counts[ai.id]}
-                      </span>
-                    )}
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-          );})()}
+              <motion.div
+                initial={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: stackDown ? -10 : 10, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className={`absolute flex flex-col items-center ${stackDown ? 'flex-col' : 'flex-col-reverse'}`}
+                style={{
+                  ...(stackDown ? { top: BUTTON_SIZE + STACK_GAP } : { bottom: BUTTON_SIZE + STACK_GAP }),
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  gap: STACK_GAP,
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {availableAIs.slice(1).map((ai, i) => {
+                  const Icon = ai.icon;
+                  return (
+                    <motion.button
+                      key={ai.id}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 20, delay: i * 0.05 }}
+                      onClick={(e) => { e.stopPropagation(); openAI(ai); }}
+                      className="relative flex items-center justify-center rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.15)] hover:scale-105 active:scale-95 transition-transform"
+                      style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, ...getAIBgStyle(ai) }}
+                      aria-label={ai.label}
+                    >
+                      <Icon className="w-6 h-6 text-white" />
+                      {(counts[ai.id] || 0) > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow">
+                          {counts[ai.id] > 9 ? '9+' : counts[ai.id]}
+                        </span>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </>
   );
 }
