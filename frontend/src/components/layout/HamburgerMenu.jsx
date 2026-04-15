@@ -168,7 +168,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               {/* User info row */}
               <Link
                 to={profileUsername ? `/${profileUsername}` : profileUserId ? `/profile/${profileUserId}` : '/profile'}
-                onClick={onClose}
+                onClick={() => setTimeout(onClose, 0)}
                 className="flex items-center gap-3 px-5 py-3 no-underline transition-colors hover:bg-stone-50 active:scale-[0.98]"
               >
                 {profileImage ? (
@@ -205,10 +205,10 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <MenuItem to="/notifications" icon={<Bell size={20} />} label={t('hamburger.notificaciones', 'Notificaciones')} onClose={onClose} />
             </> : (
               <div className="px-5 py-2 flex flex-col gap-2">
-                <Link to="/login" onClick={onClose} className="block text-center py-3 rounded-full border border-stone-200 text-sm font-semibold text-stone-950 no-underline">
+                <Link to="/login" onClick={() => setTimeout(onClose, 0)} className="block text-center py-3 rounded-full border border-stone-200 text-sm font-semibold text-stone-950 no-underline">
                   {t('auth.entrar', 'Entrar')}
                 </Link>
-                <Link to="/register" onClick={onClose} className="block text-center py-3 rounded-full bg-stone-950 text-white text-sm font-semibold no-underline">
+                <Link to="/register" onClick={() => setTimeout(onClose, 0)} className="block text-center py-3 rounded-full bg-stone-950 text-white text-sm font-semibold no-underline">
                   {t('auth.crearCuenta', 'Crear cuenta')}
                 </Link>
               </div>
@@ -378,7 +378,7 @@ function SectionLabel({ children }) {
 
 function MenuItem({ to, icon, label, onClose, children }) {
   return (
-    <Link to={to} onClick={onClose} className="flex items-center gap-3 px-5 py-3.5 no-underline text-[15px] font-medium text-stone-950 transition-colors hover:bg-stone-100 active:bg-stone-200">
+    <Link to={to} onClick={() => setTimeout(onClose, 0)} className="flex items-center gap-3 px-5 py-3.5 no-underline text-[15px] font-medium text-stone-950 transition-colors hover:bg-stone-100 active:bg-stone-200">
       {icon && <span className="text-stone-500">{icon}</span>}
       {label}
       {children}
