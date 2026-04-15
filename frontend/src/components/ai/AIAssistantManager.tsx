@@ -21,7 +21,8 @@ const RebecaAI = React.lazy(() => import('./RebecaAI'));
 const HIDDEN_PATHS = ['/onboarding', '/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/signup'];
 const BUTTON_SIZE = 56;
 const STRIP_W = 8;
-const STRIP_H_SINGLE = 40;
+const STRIP_TOUCH_W = 44;
+const STRIP_H_SINGLE = 48;
 const STRIP_H_MULTI = 64;
 const EDGE_MARGIN = 8;
 const SAFE_TOP = 60;
@@ -163,13 +164,13 @@ export default function AIAssistantManager() {
   const primaryAI = availableAIs[0];
   const PrimaryIcon = primaryAI?.icon || Sparkles;
 
-  // Initialize position from localStorage
+  // Initialize position from localStorage — ALWAYS start as full circle
   useEffect(() => {
     if (shouldHide) return;
-    const { side: s, y, state } = readPersistedPosition();
+    const { side: s, y } = readPersistedPosition();
     setSide(s);
     setPosY(y);
-    setButtonState(state === 'strip' ? 'strip' : 'full');
+    setButtonState('full');
     setInitialized(true);
   }, [shouldHide]);
 
@@ -196,8 +197,10 @@ export default function AIAssistantManager() {
   // Animate to position when initialized or state changes
   useEffect(() => {
     if (!initialized || shouldHide || activeAI) return;
-    const w = buttonState === 'strip' ? STRIP_W : BUTTON_SIZE;
-    const x = getXForSide(side, w);
+    const w = buttonState === 'strip' ? STRIP_TOUCH_W : BUTTON_SIZE;
+    const x = buttonState === 'strip'
+      ? (side === 'right' ? window.innerWidth - STRIP_TOUCH_W : 0)
+      : getXForSide(side, w);
     controls.start({
       x,
       y: posY,
@@ -258,10 +261,12 @@ export default function AIAssistantManager() {
   const handleDragEnd = useCallback((_, info) => {
     if (!isDragging.current) return;
     const vw = window.innerWidth;
-    const w = buttonState === 'strip' ? STRIP_W : BUTTON_SIZE;
+    const w = buttonState === 'strip' ? STRIP_TOUCH_W : BUTTON_SIZE;
     const centerX = info.point.x;
     const newSide = centerX > vw / 2 ? 'right' : 'left';
-    const newX = getXForSide(newSide, w);
+    const newX = buttonState === 'strip'
+      ? (newSide === 'right' ? vw - STRIP_TOUCH_W : 0)
+      : getXForSide(newSide, w);
     const newY = clampY(info.point.y - w / 2);
 
     setSide(newSide);
@@ -364,7 +369,7 @@ export default function AIAssistantManager() {
         onTouchStart={clearInactivityTimer}
         animate={controls}
         initial={{
-          x: getXForSide(side, buttonState === 'strip' ? STRIP_W : BUTTON_SIZE),
+          x: getXForSide(side, BUTTON_SIZE),
           y: posY,
         }}
         className="fixed top-0 left-0 z-40 touch-none"
@@ -379,27 +384,41 @@ export default function AIAssistantManager() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              onClick={handleButtonClick}
-              className={`flex flex-col items-center justify-center text-white/90 shadow-md ring-1 ring-white/20 cursor-pointer hover:opacity-100 transition-opacity ${
-                side === 'right' ? 'rounded-l-xl' : 'rounded-r-xl'
+              onClick={(e) => { e.stopPropagation(); handleButtonClick(); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className={`flex flex-col items-center justify-center text-white/90 shadow-md cursor-pointer hover:opacity-100 transition-opacity ${
+                side === 'right' ? 'rounded-l-2xl' : 'rounded-r-2xl'
               }`}
-              style={{ width: STRIP_W, height: stripHeight, ...getAIBgStyle(primaryAI) }}
+              style={{
+                width: STRIP_TOUCH_W,
+                height: stripHeight,
+                ...(side === 'right'
+                  ? { paddingLeft: STRIP_TOUCH_W - STRIP_W, background: 'transparent' }
+                  : { paddingRight: STRIP_TOUCH_W - STRIP_W, background: 'transparent' }),
+              }}
               aria-label={t('aiAssistants.asistenteIA', 'Asistente IA')}
               role="button"
             >
-              {hasMultipleAIs ? (
-                <div className="flex flex-col items-center justify-center gap-1 py-2">
-                  {availableAIs.map((ai) => (
-                    <div
-                      key={ai.id}
-                      className="rounded-full"
-                      style={{ width: 4, height: 4, ...getAIBgStyle(ai) }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <PrimaryIcon size={14} />
-              )}
+              <div
+                className={`flex flex-col items-center justify-center shadow-md ring-1 ring-white/20 h-full ${
+                  side === 'right' ? 'rounded-l-xl ml-auto' : 'rounded-r-xl mr-auto'
+                }`}
+                style={{ width: STRIP_W, ...getAIBgStyle(primaryAI) }}
+              >
+                {hasMultipleAIs ? (
+                  <div className="flex flex-col items-center justify-center gap-1 py-2">
+                    {availableAIs.map((ai) => (
+                      <div
+                        key={ai.id}
+                        className="rounded-full"
+                        style={{ width: 4, height: 4, ...getAIBgStyle(ai) }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <PrimaryIcon size={12} />
+                )}
+              </div>
               {totalBadge > 0 && (
                 <motion.span
                   className="absolute top-1.5 bg-red-500 rounded-full"
