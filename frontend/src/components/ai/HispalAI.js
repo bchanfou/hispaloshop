@@ -277,7 +277,7 @@ export default function HispalAI({ onRequestClose } = {}) {
                             </div>
                           )
                         )}
-                      </div>
+
                       {messages.length === 0 && (
                         <>
                           <div className="flex flex-col items-center pt-8">
@@ -305,7 +305,7 @@ export default function HispalAI({ onRequestClose } = {}) {
                           </div>
                         </>
                       )}
-                    </motion.div>
+                    {/* ...existing code... */}
                   )}
 
                   {messages.map((msg, i) => {
