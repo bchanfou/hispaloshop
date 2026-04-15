@@ -30,9 +30,8 @@ export default function MessagesPage() {
   const openDirectory = searchParams.get('new') === '1' || searchParams.get('new') === 'true';
 
   return (
-    <div className="flex h-[calc(100dvh-52px)] min-h-[480px] w-full bg-white md:h-[calc(100dvh-52px)] lg:h-[calc(100vh-32px)] lg:max-w-5xl lg:mx-auto lg:rounded-2xl lg:shadow-sm lg:border lg:border-stone-100 lg:my-4 overflow-hidden">
+    <div className="flex h-[calc(100svh-52px)] min-h-0 w-full bg-white md:h-[calc(100svh-52px)] xl:h-[calc(100vh-32px)] xl:max-w-5xl xl:mx-auto xl:rounded-2xl xl:shadow-sm xl:border xl:border-stone-100 xl:my-4 overflow-hidden">
       <InternalChat
-        isEmbedded
         initialConversationId={conversationId || null}
         initialChatUserId={toUserId}
         openDirectoryOnMount={openDirectory}

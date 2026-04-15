@@ -1638,11 +1638,11 @@ export default function InternalChat({
     });
     return items;
   }, [visibleMessages]);
-  const showBackButton = isEmbedded || Boolean(onClose);
+    const showBackButton = true;
   return <div className="relative flex h-full min-h-0 overflow-hidden rounded-none bg-white text-stone-950">
 
       {/* ── Inbox sidebar ── */}
-      <div className={`flex h-full min-h-0 flex-col border-r border-stone-100 bg-white ${activeConversation ? 'hidden lg:flex lg:w-[340px]' : 'w-full'}`}>
+      <div className={`flex h-full min-h-0 flex-col border-r border-stone-100 bg-white ${activeConversation ? 'hidden xl:flex xl:w-[340px]' : 'w-full'}`}>
         {/* ── Scrollable inbox: header + search + tabs + conversations ── */}
         <div className="flex-1 overflow-y-auto">
           {/* ── Header IG-style 48px (scrolls away) ── */}
@@ -1740,12 +1740,12 @@ export default function InternalChat({
         </div>
       </div>
 
-      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'hidden lg:flex'}`}>
+      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'hidden xl:flex'}`}>
         {!activeConversation ? <EmptyState title="Tus mensajes" description={i18n.t('internal_chat.seleccionaUnaConversacionDelPanelIz', 'Selecciona una conversación del panel izquierdo o inicia una nueva.')} /> : <>
             {/* ── Conversation header IG-style 48px ── */}
             <div className="flex h-14 shrink-0 items-center gap-2 border-b border-stone-100 bg-white px-3">
               {/* Back / close */}
-              {showBackButton ? <button type="button" onClick={() => setSelectedConversationId(null)} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 lg:hidden" aria-label="Volver a conversaciones">
+              {showBackButton ? <button type="button" onClick={() => setSelectedConversationId(null)} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 xl:hidden" aria-label="Volver a conversaciones">
                   <ArrowLeft className="h-5 w-5" strokeWidth={2} />
                 </button> : null}
 

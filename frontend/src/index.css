@@ -87,7 +87,10 @@
 }
 
 /* ── Focus Visible — keyboard navigation indicator ── */
-*:focus-visible {
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--color-stone-950);
   outline-offset: 2px;
 }
