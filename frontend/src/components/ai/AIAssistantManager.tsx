@@ -276,10 +276,18 @@ export default function AIAssistantManager() {
       const centerX = rect.left + rect.width / 2;
       const newSide = centerX > vw / 2 ? 'right' : 'left';
       const newY = clampY(rect.top);
-      // Clear direct DOM styles so React's managed style takes over with transition
-      el.style.transition = '';
-      el.style.left = '';
-      el.style.top = '';
+
+      // Calculate target snap position
+      const newX = buttonState === 'strip'
+        ? (newSide === 'right' ? vw - STRIP_TOUCH_W : 0)
+        : getXForSide(newSide, BUTTON_SIZE);
+
+      // Animate snap via DOM styles (prevents flash before React re-renders)
+      el.style.transition = 'left 0.3s cubic-bezier(.4,0,.2,1), top 0.3s cubic-bezier(.4,0,.2,1)';
+      el.style.left = `${newX}px`;
+      el.style.top = `${newY}px`;
+
+      // Update React state to match
       setSide(newSide);
       setPosY(newY);
       persistPosition(newSide, newY, buttonState);
