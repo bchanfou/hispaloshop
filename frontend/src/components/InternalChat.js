@@ -1769,14 +1769,9 @@ export default function InternalChat({
 
               {/* Action icons */}
               <div className="flex shrink-0 items-center gap-0.5">
-                // ...existing code...
                 {/* Message search */}
                 <button type="button" onClick={() => { setShowMessageSearch(s => !s); setMessageSearchQuery(''); setMessageSearchResults([]); }} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.searchMessages', 'Buscar mensajes')}>
                   <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />
-                </button>
-                {/* Shopping list */}
-                <button type="button" onClick={() => setIsSharedListOpen(true)} disabled={!selectedConversationId} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100 disabled:opacity-30" aria-label={i18n.t('chat.shoppingList', 'Lista de compras')}>
-                  <ShoppingCart className="h-[17px] w-[17px]" strokeWidth={1.8} />
                 </button>
                 {/* CH-03: Delete conversation */}
                 <button type="button" onClick={handleDeleteConversation} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.eliminarConversacion', 'Eliminar conversación')}>
@@ -2056,20 +2051,7 @@ export default function InternalChat({
                 duration: 0.14
               }} onClick={handleSendMessage} disabled={sendingMessage || uploadingImage} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-opacity active:opacity-75 disabled:opacity-50" aria-label="Enviar">
                       {sendingMessage || uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" strokeWidth={2} />}
-                    </motion.button> : <motion.button key="camera" type="button" initial={{
-                scale: 0.5,
-                opacity: 0
-              }} animate={{
-                scale: 1,
-                opacity: 1
-              }} exit={{
-                scale: 0.5,
-                opacity: 0
-              }} transition={{
-                duration: 0.14
-              }} onClick={() => fileInputRef.current?.click()} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100" aria-label="Adjuntar imagen">
-                      <Images className="h-[22px] w-[22px]" strokeWidth={1.8} />
-                    </motion.button>}
+                    </motion.button> : null}
                 </AnimatePresence>
               </div> : null}
 
