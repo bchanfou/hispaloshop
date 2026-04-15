@@ -1775,7 +1775,7 @@ export default function InternalChat({
                   <Search className="h-[17px] w-[17px]" strokeWidth={1.8} />
                 </button>
                 {/* Shopping list */}
-                <button type="button" onClick={() => setIsSharedListOpen(true)} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100" aria-label={i18n.t('chat.shoppingList', 'Lista de compras')}>
+                <button type="button" onClick={() => setIsSharedListOpen(true)} disabled={!selectedConversationId} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100 disabled:opacity-30" aria-label={i18n.t('chat.shoppingList', 'Lista de compras')}>
                   <ShoppingCart className="h-[17px] w-[17px]" strokeWidth={1.8} />
                 </button>
                 {/* CH-03: Delete conversation */}
@@ -1948,7 +1948,7 @@ export default function InternalChat({
               }} />
                     <ComposerActionButton icon={ShoppingCart} label={i18n.t('chat.shoppingList', 'Lista de compras')} onClick={() => {
                 setIsComposerActionsOpen(false);
-                setIsSharedListOpen(true);
+                if (selectedConversationId) setIsSharedListOpen(true);
               }} />
                     <ComposerActionButton icon={FileText} label={i18n.t('chat.attach_document', 'Documento')} onClick={() => {
                 docInputRef.current?.click();
