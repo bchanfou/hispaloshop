@@ -10,7 +10,7 @@ export default function HeroBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem('banner_dismissed') === 'true') {
+    if (localStorage.getItem('banner_dismissed') === 'true') {
       setDismissed(true);
     }
   }, []);
@@ -18,7 +18,7 @@ export default function HeroBanner() {
   if (user || dismissed) return null;
 
   const handleDismiss = () => {
-    sessionStorage.setItem('banner_dismissed', 'true');
+    localStorage.setItem('banner_dismissed', 'true');
     setDismissed(true);
   };
 

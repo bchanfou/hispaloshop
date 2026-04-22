@@ -271,7 +271,17 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <Divider />
             </>}
 
-            {/* ── ¿ERES VENDEDOR? (contextual si no lo es) ── */}
+            {/* ── PLATAFORMA (siempre visible) ── */}
+            {!user && <>
+              <SectionLabel>{t('hamburger.plataforma', 'PLATAFORMA')}</SectionLabel>
+              <MenuItem to={getLandingPath('/consumidor')} icon={<User size={20} />} label={t('hamburger.soyConsumidor', 'Soy consumidor')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/productor')} icon={<Truck size={20} />} label={t('hamburger.soyProductor', 'Soy productor')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/distribuidor')} icon={<Globe2 size={20} />} label={t('hamburger.soyImportador', 'Soy importador')} onClose={onClose} />
+              <MenuItem to={getLandingPath('/influencer')} icon={<Megaphone size={20} />} label={t('hamburger.soyInfluencer', 'Soy influencer')} onClose={onClose} />
+              <Divider />
+            </>}
+
+            {/* ── ¿ERES VENDEDOR? (contextual si logueado y no vendedor) ── */}
             {user && !isSeller && <>
               <SectionLabel>{t('hamburger.eresVendedor', '¿ERES VENDEDOR?')}</SectionLabel>
               <MenuItem to={getLandingPath('/productor')} icon={<Truck size={20} />} label={t('hamburger.soyProductor', 'Soy productor')} onClose={onClose} />
