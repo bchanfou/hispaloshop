@@ -666,8 +666,8 @@ async def _create_indexes():
         await db.exchange_rates.create_index("date", unique=True)
         await db.exchange_rates.create_index([("base", 1), ("date", -1)])
         logger.info("  OK: exchange_rates indexes")
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("  SKIP: exchange_rates indexes (%s)", exc)
 
     logger.info("All indexes created successfully")
 
