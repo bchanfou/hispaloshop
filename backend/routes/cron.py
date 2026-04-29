@@ -749,3 +749,129 @@ async def cron_cleanup_expired_stories(user: User = Depends(get_current_user)):
         "likes_deleted": likes_result.deleted_count,
         "replies_deleted": replies_result.deleted_count,
     }
+
+
+# ── Retry failed push notifications ─────────────────────────────────────────
+
+@router.post("/admin/cron/retry-failed-push-notifications")
+async def cron_retry_failed_push_notifications(user: User = Depends(get_current_user)):
+    """
+    Retry push notifications that previously failed via FCM.
+    Attempts FCM HTTP v1 first; falls back to legacy if v1 fails.
+    Logs which API version was used for each retry.
+    """
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.fcm_service import FCMServiceV1
+    from services.fcm_legacy import FCMLegacyService
+
+    fcm_v1 = FCMServiceV1()
+    fcm_legacy = FCMLegacyService()
+
+    # Find notifications where the push channel failed, created in the last 7 days
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+    failed_cursor = db.notifications.find(
+        {
+            "status_by_channel.push": "failed",
+            "created_at": {"$gte": cutoff},
+        },
+        {
+            "_id": 1,
+            "user_id": 1,
+            "title": 1,
+            "body": 1,
+            "data": 1,
+            "image_url": 1,
+        },
+    ).limit(200)
+
+    failed_notifications = await failed_cursor.to_list(length=200)
+
+    retried = 0
+    succeeded_v1 = 0
+    succeeded_legacy = 0
+    still_failed = 0
+
+    for notif in failed_notifications:
+        notif_id = notif["_id"]
+        user_id = notif.get("user_id")
+        title = notif.get("title", "")
+        body = notif.get("body", "")
+        data = notif.get("data") or {}
+        icon_url = data.get("image_url") or notif.get("image_url")
+
+        # Fetch the user's registered push tokens
+        prefs = await db.user_notification_preferences.find_one(
+            {"user_id": user_id}, {"_id": 0, "push_tokens": 1}
+        )
+        tokens = (prefs or {}).get("push_tokens", [])
+        if not tokens:
+            continue
+
+        retried += 1
+        token_str = tokens[0].get("token") if isinstance(tokens[0], dict) else tokens[0]
+        if not token_str:
+            continue
+
+        version_used: str = ""
+        try:
+            await fcm_v1.send_notification(
+                token=token_str,
+                title=title,
+                body=body,
+                data=data,
+                icon_url=icon_url,
+            )
+            version_used = "v1"
+            succeeded_v1 += 1
+        except ValueError:
+            # Invalid token — do not retry with legacy either
+            logger.warning(
+                "[CRON-FCM-RETRY] Invalid token for notification %s, skipping", notif_id
+            )
+            continue
+        except Exception as exc_v1:
+            logger.warning(
+                "[CRON-FCM-RETRY] v1 failed for notification %s, falling back to legacy: %s",
+                notif_id,
+                exc_v1,
+            )
+            try:
+                await fcm_legacy.send_notification(
+                    token=token_str,
+                    title=title,
+                    body=body,
+                    data=data,
+                    icon_url=icon_url,
+                )
+                version_used = "legacy"
+                succeeded_legacy += 1
+            except Exception as exc_legacy:
+                logger.error(
+                    "[CRON-FCM-RETRY] Both v1 and legacy failed for notification %s: %s",
+                    notif_id,
+                    exc_legacy,
+                )
+                still_failed += 1
+                await db.notifications.update_one(
+                    {"_id": notif_id},
+                    {"$set": {"status_by_channel.push": "failed", "error_push": str(exc_legacy)[:500]}},
+                )
+                continue
+
+        logger.info(
+            "[CRON-FCM-RETRY] notification %s retried successfully via %s",
+            notif_id,
+            version_used,
+        )
+        await db.notifications.update_one(
+            {"_id": notif_id},
+            {"$set": {"status_by_channel.push": "sent", "fcm_retry_version": version_used}},
+        )
+
+    return {
+        "retried": retried,
+        "succeeded_v1": succeeded_v1,
+        "succeeded_legacy": succeeded_legacy,
+        "still_failed": still_failed,
+    }

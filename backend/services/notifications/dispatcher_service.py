@@ -2,7 +2,7 @@
 Servicio de Notificaciones Omnicanal
 Fase 5: Email, Push, In-App, SMS con routing inteligente
 """
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
@@ -175,66 +175,22 @@ class NotificationDispatcher:
                 })
         # Si offline, queda en DB para fetch posterior
     
-    # ── FCM HTTP v1 auth ──
-    _fcm_access_token: Optional[str] = None
-    _fcm_token_expires_at: Optional[datetime] = None
+    # ── FCM push helpers ──
+    # Lazy singletons — created once per dispatcher instance
+    _fcm_v1: Optional[Any] = None
+    _fcm_legacy: Optional[Any] = None
 
-    async def _get_fcm_access_token(self) -> str:
-        """Get OAuth2 access token for FCM HTTP v1 API using service account."""
-        now = datetime.now(timezone.utc)
-        if self._fcm_access_token and self._fcm_token_expires_at and now < self._fcm_token_expires_at:
-            return self._fcm_access_token
+    def _get_fcm_v1(self):
+        if self._fcm_v1 is None:
+            from services.fcm_service import FCMServiceV1
+            self._fcm_v1 = FCMServiceV1()
+        return self._fcm_v1
 
-        import json
-        from core.config import settings
-
-        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
-        if not sa_json:
-            raise Exception("FCM_SERVICE_ACCOUNT_JSON not configured")
-
-        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
-
-        try:
-            from google.oauth2 import service_account
-            from google.auth.transport.requests import Request
-
-            credentials = service_account.Credentials.from_service_account_info(
-                sa_info,
-                scopes=["https://www.googleapis.com/auth/firebase.messaging"],
-            )
-            credentials.refresh(Request())
-            self._fcm_access_token = credentials.token
-            self._fcm_token_expires_at = credentials.expiry.replace(tzinfo=timezone.utc) if credentials.expiry else now + timedelta(minutes=55)
-        except ImportError:
-            # Fallback: manual JWT generation if google-auth not installed
-            import jwt as pyjwt
-            import time
-
-            iat = int(time.time())
-            exp = iat + 3600
-            payload = {
-                "iss": sa_info["client_email"],
-                "sub": sa_info["client_email"],
-                "aud": "https://oauth2.googleapis.com/token",
-                "iat": iat,
-                "exp": exp,
-                "scope": "https://www.googleapis.com/auth/firebase.messaging",
-            }
-            signed_jwt = pyjwt.encode(payload, sa_info["private_key"], algorithm="RS256")
-
-            import httpx
-            async with httpx.AsyncClient() as client:
-                resp = await client.post(
-                    "https://oauth2.googleapis.com/token",
-                    data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": signed_jwt},
-                )
-                resp.raise_for_status()
-                token_data = resp.json()
-
-            self._fcm_access_token = token_data["access_token"]
-            self._fcm_token_expires_at = now + timedelta(seconds=token_data.get("expires_in", 3500))
-
-        return self._fcm_access_token
+    def _get_fcm_legacy(self):
+        if self._fcm_legacy is None:
+            from services.fcm_legacy import FCMLegacyService
+            self._fcm_legacy = FCMLegacyService()
+        return self._fcm_legacy
 
     async def _send_push(
         self,
@@ -245,8 +201,11 @@ class NotificationDispatcher:
         prefs: Dict
     ):
         """
-        Enviar notificación push via FCM HTTP v1 API
+        Enviar notificación push via FCM HTTP v1 API con fallback a legacy.
         """
+        import logging as _logging
+        _logger = _logging.getLogger(__name__)
+
         if self._is_quiet_hours(prefs):
             raise Exception("Quiet hours active — push notification deferred")
 
@@ -254,72 +213,69 @@ class NotificationDispatcher:
         if not tokens:
             raise Exception("No push tokens registered")
 
-        from core.config import settings
-        import json
-        import httpx
+        image_url = (data or {}).get("image_url")
+        last_exc: Optional[Exception] = None
 
-        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
-        if not sa_json:
-            raise Exception("FCM not configured — FCM_SERVICE_ACCOUNT_JSON required")
+        for token_entry in tokens:
+            token = token_entry.get("token") if isinstance(token_entry, dict) else token_entry
+            if not token:
+                continue
 
-        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
-        project_id = sa_info.get("project_id")
-        if not project_id:
-            raise Exception("FCM service account missing project_id")
+            # Try FCM HTTP v1 first
+            try:
+                await self._get_fcm_v1().send_notification(
+                    token=token,
+                    title=title,
+                    body=body,
+                    data=data,
+                    icon_url=image_url,
+                )
+                _logger.info(
+                    "[FCM] Sent via v1 API for user_id=%s token_prefix=%s",
+                    user_id,
+                    token[:8],
+                )
+                continue
+            except ValueError:
+                # Invalid token format — skip without fallback, no point trying legacy
+                _logger.warning(
+                    "[FCM] Skipping invalid token for user_id=%s token_prefix=%s",
+                    user_id,
+                    token[:8],
+                )
+                continue
+            except Exception as exc_v1:
+                _logger.warning(
+                    "[FCM] v1 failed for user_id=%s, falling back to legacy: %s",
+                    user_id,
+                    exc_v1,
+                )
 
-        access_token = await self._get_fcm_access_token()
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        }
+            # Fallback to legacy API
+            try:
+                await self._get_fcm_legacy().send_notification(
+                    token=token,
+                    title=title,
+                    body=body,
+                    data=data,
+                    icon_url=image_url,
+                )
+                _logger.info(
+                    "[FCM] Sent via legacy API (fallback) for user_id=%s token_prefix=%s",
+                    user_id,
+                    token[:8],
+                )
+            except Exception as exc_legacy:
+                _logger.error(
+                    "[FCM] Both v1 and legacy failed for user_id=%s token_prefix=%s: %s",
+                    user_id,
+                    token[:8],
+                    exc_legacy,
+                )
+                last_exc = exc_legacy
 
-        fcm_url = f"https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
-        is_high_priority = data and data.get("priority") in ["urgent", "critical"]
-
-        # Stringify data values (FCM v1 requires all data values to be strings)
-        str_data = {k: str(v) for k, v in (data or {}).items()} if data else {}
-
-        async with httpx.AsyncClient() as client:
-            for token_data in tokens:
-                token = token_data.get("token")
-                if not token:
-                    continue
-
-                message = {
-                    "message": {
-                        "token": token,
-                        "notification": {
-                            "title": title,
-                            "body": body,
-                        },
-                        "data": str_data,
-                        "android": {
-                            "priority": "HIGH" if is_high_priority else "NORMAL",
-                        },
-                        "webpush": {
-                            "headers": {
-                                "Urgency": "high" if is_high_priority else "normal",
-                            },
-                        },
-                    }
-                }
-
-                # Add image if available
-                image_url = (data or {}).get("image_url")
-                if image_url:
-                    message["message"]["notification"]["image"] = image_url
-
-                response = await client.post(fcm_url, headers=headers, json=message)
-
-                if response.status_code == 401:
-                    # Token expired, refresh and retry once
-                    self._fcm_access_token = None
-                    access_token = await self._get_fcm_access_token()
-                    headers["Authorization"] = f"Bearer {access_token}"
-                    response = await client.post(fcm_url, headers=headers, json=message)
-
-                if response.status_code not in [200, 201]:
-                    raise Exception(f"FCM v1 error ({response.status_code}): {response.text}")
+        if last_exc:
+            raise last_exc
     
     async def _send_email(
         self,
