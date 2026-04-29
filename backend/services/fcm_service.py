@@ -12,8 +12,9 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-# FCM device tokens: alphanumeric, underscore, hyphen (base64url alphabet)
-_TOKEN_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+# FCM device tokens: alphanumeric, underscore, hyphen, colon
+# Real FCM registration tokens often contain colons (e.g. "APA91bHPR...:APA91bH...")
+_TOKEN_RE = re.compile(r"^[a-zA-Z0-9_:-]+$")
 
 FCM_V1_BASE_URL = "https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
 
