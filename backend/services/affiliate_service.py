@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 import logging
 from typing import Optional
@@ -182,7 +183,30 @@ async def recalculate_influencer_tier(db: AsyncSession, influencer_id: UUID) -> 
 
 
 PAYOUT_MAX_RETRIES = 3
-PAYOUT_BACKOFF_BASE = 4  # seconds: 4, 16, 64
+PAYOUT_BACKOFF_SECONDS = [1, 4, 16]  # seconds between attempts: 1s, 4s, 16s
+
+
+async def _notify_admin_transfer_failed(payout_id: UUID, error: Exception) -> None:
+    """Send email notification to super_admin when a payout transfer fails all retries."""
+    try:
+        from core.database import db as _db
+        from services.auth_helpers import send_email
+        superadmin = await _db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1, "name": 1})
+        sa_email = (superadmin or {}).get("email")
+        if sa_email:
+            send_email(
+                to=sa_email,
+                subject=f"[ALERTA] Transferencia Stripe fallida — payout {payout_id}",
+                html=f"""
+                <h2>Transferencia Stripe fallida tras {PAYOUT_MAX_RETRIES} intentos</h2>
+                <p><strong>Payout ID:</strong> {payout_id}</p>
+                <p><strong>Error:</strong> {error}</p>
+                <p>El pago ha quedado en estado <code>transfer_failed</code>.</p>
+                <p>Accede al panel de administración para gestionarlo manualmente.</p>
+                """,
+            )
+    except Exception as notify_err:
+        logger.error("Failed to send admin notification for payout %s: %s", payout_id, notify_err)
 
 
 async def _attempt_stripe_transfer(payout) -> str:
@@ -203,13 +227,17 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
     if not payout:
         return False
 
-    # If already has a real Stripe transfer, mark paid directly
-    if payout.stripe_transfer_id and not payout.stripe_transfer_id.startswith("mock_"):
+    # If already transferred, just mark paid (idempotent re-processing)
+    if payout.stripe_transfer_id:
         payout.status = "paid"
         payout.processed_at = datetime.now(timezone.utc)
         payout.paid_at = datetime.now(timezone.utc)
     else:
-        # Attempt real Stripe transfer with retries
+        # Mark as in-progress before attempting — avoids silent data gaps on interruption
+        payout.status = "pending_transfer"
+        await db.flush()
+
+        # Attempt real Stripe transfer with exponential backoff
         last_error = None
         for attempt in range(PAYOUT_MAX_RETRIES):
             try:
@@ -227,17 +255,18 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
                     attempt + 1, PAYOUT_MAX_RETRIES, payout_id, e,
                 )
                 if attempt < PAYOUT_MAX_RETRIES - 1:
-                    import asyncio
-                    await asyncio.sleep(PAYOUT_BACKOFF_BASE ** (attempt + 1))
+                    await asyncio.sleep(PAYOUT_BACKOFF_SECONDS[attempt])
 
         if last_error:
             payout.status = "transfer_failed"
             payout.processed_at = datetime.now(timezone.utc)
+            payout.failed_at = datetime.now(timezone.utc)
             payout.failure_reason = str(last_error)[:500]
             logger.error(
                 "Payout %s FAILED after %d retries: %s", payout_id, PAYOUT_MAX_RETRIES, last_error,
             )
             await db.flush()
+            await _notify_admin_transfer_failed(payout_id, last_error)
             return False
 
     # Mark commissions as paid

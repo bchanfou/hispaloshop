@@ -169,6 +169,78 @@ async def cron_influencer_auto_payouts(user: User = Depends(get_current_user)):
     return {"status": "completed"}
 
 
+@router.post("/admin/cron/retry-failed-transfers")
+async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
+    """Daily: retry payouts stuck in transfer_failed status (one extra attempt each)."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from database import AsyncSessionLocal
+    from sqlalchemy import select as sa_select
+    from models import Payout
+    from services.affiliate_service import _attempt_stripe_transfer
+
+    retried = 0
+    still_failed: list[dict] = []
+
+    async with AsyncSessionLocal() as db_session:
+        result = await db_session.execute(
+            sa_select(Payout).where(Payout.status == "transfer_failed")
+        )
+        failed_payouts = result.scalars().all()
+
+        for payout in failed_payouts:
+            payout.status = "pending_transfer"
+            payout.failure_reason = None
+            payout.failed_at = None
+            await db_session.flush()
+
+            try:
+                transfer_id = await _attempt_stripe_transfer(payout)
+                now = datetime.now(timezone.utc)
+                payout.stripe_transfer_id = transfer_id
+                payout.status = "paid"
+                payout.processed_at = now
+                payout.paid_at = now
+                retried += 1
+                logger.info("Cron retry succeeded for payout %s", payout.id)
+            except Exception as e:
+                now = datetime.now(timezone.utc)
+                payout.status = "transfer_failed"
+                payout.failed_at = now
+                payout.failure_reason = str(e)[:500]
+                still_failed.append({"payout_id": str(payout.id)})
+                logger.error("Cron retry failed for payout %s: %s", payout.id, e)
+
+        await db_session.commit()
+
+    if still_failed:
+        try:
+            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
+            sa_email = (superadmin or {}).get("email")
+            if sa_email:
+                rows = "".join(
+                    f"<li>Payout {p['payout_id']}</li>" for p in still_failed
+                )
+                send_email(
+                    to=sa_email,
+                    subject="[ALERTA] Transferencias Stripe siguen fallando tras reintento diario",
+                    html=f"""
+                    <h2>Transferencias pendientes tras reintento diario</h2>
+                    <p>Los siguientes pagos siguen en estado <code>transfer_failed</code>
+                    después del reintento automático. Requieren revisión manual.</p>
+                    <ul>{rows}</ul>
+                    """,
+                )
+        except Exception as notify_err:
+            logger.error("Failed to send cron retry admin alert: %s", notify_err)
+
+    return {
+        "retried_successfully": retried,
+        "still_failed": len(still_failed),
+        "failures": still_failed,
+    }
+
+
 # ── Hispalo Predict Notifications ──
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
