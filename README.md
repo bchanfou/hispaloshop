@@ -159,4 +159,4 @@ Private - Todos los derechos reservados.
 
 ---
 
-**Built with ❤️ for local commerce.**
+**Built with care for local commerce.**
