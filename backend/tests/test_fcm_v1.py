@@ -35,6 +35,7 @@ from services.fcm_legacy import FCMLegacyService
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 VALID_TOKEN = "ABCDEFGHabcdefgh12345678_-valid-token"
+VALID_TOKEN_WITH_COLON = "APA91bHPRgkFLJu2PhHETU4zc_ioTXp:APJoHg8m-valid-fcm-token"
 INVALID_TOKEN = "invalid token with spaces!"
 
 
@@ -66,6 +67,11 @@ class TestFCMServiceV1TokenValidation:
     def test_token_with_special_chars_fails(self):
         svc = FCMServiceV1()
         assert svc._is_valid_token("token!@#$") is False
+
+    def test_token_with_colon_passes(self):
+        """Real FCM tokens contain colons — must be accepted."""
+        svc = FCMServiceV1()
+        assert svc._is_valid_token(VALID_TOKEN_WITH_COLON) is True
 
     @pytest.mark.asyncio
     async def test_invalid_token_raises_value_error_without_http_call(self):
@@ -223,7 +229,103 @@ class TestFCMServiceV1Retry:
                 )
 
 
-# ── FCMLegacyService tests ────────────────────────────────────────────────────
+# ── OAuth2 token generation tests ─────────────────────────────────────────────
+
+
+class TestFCMServiceV1OAuth2:
+    @pytest.mark.asyncio
+    async def test_get_access_token_uses_google_auth(self):
+        """_get_access_token uses google.oauth2.service_account when available."""
+        import sys
+        import types
+        from datetime import datetime, timezone, timedelta
+
+        svc = FCMServiceV1()
+
+        mock_creds = MagicMock()
+        mock_creds.token = "fake-oauth2-token"
+        mock_creds.expiry = datetime.now(timezone.utc) + timedelta(minutes=55)
+
+        mock_sa_module = MagicMock()
+        mock_sa_module.Credentials.from_service_account_info.return_value = mock_creds
+
+        mock_transport_module = MagicMock()
+        mock_transport_module.Request = MagicMock(return_value=MagicMock())
+
+        # Patch the lazy imports inside _get_access_token
+        fake_google = types.ModuleType("google")
+        fake_google_auth = types.ModuleType("google.auth")
+        fake_google_oauth2 = types.ModuleType("google.oauth2")
+        fake_transport = types.ModuleType("google.auth.transport")
+        fake_transport_requests = mock_transport_module
+        fake_oauth2_sa = mock_sa_module
+
+        with patch.dict(sys.modules, {
+            "google": fake_google,
+            "google.auth": fake_google_auth,
+            "google.oauth2": fake_google_oauth2,
+            "google.auth.transport": fake_transport,
+            "google.auth.transport.requests": fake_transport_requests,
+            "google.oauth2.service_account": fake_oauth2_sa,
+        }):
+            token = await svc._get_access_token()
+
+        assert token == "fake-oauth2-token"
+        assert svc._access_token == "fake-oauth2-token"
+
+    @pytest.mark.asyncio
+    async def test_get_access_token_caches_token(self):
+        """_get_access_token returns cached token without calling the auth library."""
+        from datetime import datetime, timezone, timedelta
+
+        svc = FCMServiceV1()
+        svc._access_token = "cached-token"
+        svc._token_expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
+
+        import sys
+        with patch.dict(sys.modules, {}):
+            token = await svc._get_access_token()
+
+        assert token == "cached-token"
+
+    @pytest.mark.asyncio
+    async def test_get_access_token_refreshes_expired_token(self):
+        """_get_access_token refreshes when the cached token has expired."""
+        import sys
+        import types
+        from datetime import datetime, timezone, timedelta
+
+        svc = FCMServiceV1()
+        svc._access_token = "old-token"
+        svc._token_expires_at = datetime.now(timezone.utc) - timedelta(minutes=5)
+
+        mock_creds = MagicMock()
+        mock_creds.token = "new-token"
+        mock_creds.expiry = datetime.now(timezone.utc) + timedelta(minutes=55)
+
+        mock_sa_module = MagicMock()
+        mock_sa_module.Credentials.from_service_account_info.return_value = mock_creds
+
+        mock_transport_module = MagicMock()
+        mock_transport_module.Request = MagicMock(return_value=MagicMock())
+
+        fake_google = types.ModuleType("google")
+        fake_google_auth = types.ModuleType("google.auth")
+        fake_google_oauth2 = types.ModuleType("google.oauth2")
+        fake_transport = types.ModuleType("google.auth.transport")
+
+        with patch.dict(sys.modules, {
+            "google": fake_google,
+            "google.auth": fake_google_auth,
+            "google.oauth2": fake_google_oauth2,
+            "google.auth.transport": fake_transport,
+            "google.auth.transport.requests": mock_transport_module,
+            "google.oauth2.service_account": mock_sa_module,
+        }):
+            token = await svc._get_access_token()
+
+        assert token == "new-token"
+        assert svc._access_token == "new-token"
 
 
 class TestFCMLegacyService:
