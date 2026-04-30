@@ -640,6 +640,8 @@ class Payout(Base):
     requested_at: Mapped[datetime] = mapped_column(default=func.now())
     processed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    failed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    failure_reason: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     commissions: Mapped[List["Commission"]] = relationship(back_populates="payout")
