@@ -749,3 +749,69 @@ async def cron_cleanup_expired_stories(user: User = Depends(get_current_user)):
         "likes_deleted": likes_result.deleted_count,
         "replies_deleted": replies_result.deleted_count,
     }
+
+
+@router.post("/admin/cron/retry-failed-transfers")
+async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
+    """Daily: retry affiliate payout transfers that failed 3x, log results."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.affiliate_service import process_affiliate_payout
+    from database import AsyncSessionLocal
+    from models import Payout
+    from sqlalchemy import select as sa_select
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
+    retried = 0
+    success = 0
+    still_failed = 0
+
+    # Collect failed payout IDs in a read session
+    async with AsyncSessionLocal() as read_session:
+        result = await read_session.execute(
+            sa_select(Payout.id).where(
+                Payout.status == "transfer_failed",
+                Payout.failed_at >= cutoff,
+            )
+        )
+        failed_ids = [row[0] for row in result.fetchall()]
+
+    # Process each payout in its own session to isolate transactions
+    for payout_id in failed_ids:
+        async with AsyncSessionLocal() as session:
+            try:
+                ok = await process_affiliate_payout(session, payout_id)
+                await session.commit()
+                retried += 1
+                if ok:
+                    success += 1
+                else:
+                    still_failed += 1
+            except Exception as e:
+                await session.rollback()
+                logger.error("[CRON] Retry failed for payout %s: %s", payout_id, e)
+                still_failed += 1
+
+    if still_failed > 0:
+        try:
+            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
+            sa_email = (superadmin or {}).get("email")
+            if sa_email:
+                send_email(
+                    to=sa_email,
+                    subject=f"Retry transfers: {success}/{retried} exitosas, {still_failed} aun fallidas",
+                    html=f"""
+                    <p>Reintento automatico de transferencias fallidas completado:</p>
+                    <ul>
+                        <li>Reintentadas: {retried}</li>
+                        <li>Exitosas: {success}</li>
+                        <li>Aun fallidas: {still_failed}</li>
+                    </ul>
+                    <p><a href="/admin/payouts?status=transfer_failed">Ver pendientes</a></p>
+                    """,
+                )
+        except Exception as e:
+            logger.error("Failed to send retry summary email: %s", e)
+
+    return {"retried": retried, "success": success, "still_failed": still_failed}
