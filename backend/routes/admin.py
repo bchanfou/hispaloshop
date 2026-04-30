@@ -1761,6 +1761,41 @@ async def get_pending_payouts(user: User = Depends(get_current_user)):
     return {"payouts": payouts, "total": len(payouts)}
 
 
+@router.get("/admin/payouts/failed")
+async def get_failed_payouts(
+    user: User = Depends(get_current_user),
+    limit: int = 50,
+):
+    """Get all transfer_failed affiliate payouts with error details for manual triage."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from database import AsyncSessionLocal
+    from models import Payout, User as PGUser
+    from sqlalchemy import select as sa_select
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            sa_select(Payout).where(Payout.status == "transfer_failed").order_by(Payout.failed_at.desc()).limit(limit)
+        )
+        failed = result.scalars().all()
+
+        output = []
+        for payout in failed:
+            influencer = await session.get(PGUser, payout.influencer_id)
+            inf_name = "Unknown"
+            if influencer:
+                inf_name = influencer.full_name or influencer.email or "Unknown"
+            output.append({
+                "payout_id": str(payout.id),
+                "influencer_name": inf_name,
+                "amount": f"{payout.amount_cents / 100:.2f} {payout.currency or 'EUR'}",
+                "failed_at": payout.failed_at.isoformat() if payout.failed_at else None,
+                "failure_reason": payout.failure_reason,
+            })
+
+    return output
+
+
 @router.get("/admin/payouts")
 async def get_all_payouts(
     user: User = Depends(get_current_user),
