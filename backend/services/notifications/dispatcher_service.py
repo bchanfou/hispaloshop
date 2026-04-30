@@ -2,6 +2,7 @@
 Servicio de Notificaciones Omnicanal
 Fase 5: Email, Push, In-App, SMS con routing inteligente
 """
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
@@ -9,6 +10,10 @@ import asyncio
 
 from core.database import db
 from core.cache import redis_client
+from services.fcm_service import fcm_service_v1
+from services.fcm_legacy import fcm_legacy_service
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationChannel:
@@ -245,7 +250,7 @@ class NotificationDispatcher:
         prefs: Dict
     ):
         """
-        Enviar notificación push via FCM HTTP v1 API
+        Send push notification via FCM HTTP v1, with automatic fallback to legacy API.
         """
         if self._is_quiet_hours(prefs):
             raise Exception("Quiet hours active — push notification deferred")
@@ -254,72 +259,56 @@ class NotificationDispatcher:
         if not tokens:
             raise Exception("No push tokens registered")
 
-        from core.config import settings
-        import json
-        import httpx
-
-        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
-        if not sa_json:
-            raise Exception("FCM not configured — FCM_SERVICE_ACCOUNT_JSON required")
-
-        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
-        project_id = sa_info.get("project_id")
-        if not project_id:
-            raise Exception("FCM service account missing project_id")
-
-        access_token = await self._get_fcm_access_token()
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        }
-
-        fcm_url = f"https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
         is_high_priority = data and data.get("priority") in ["urgent", "critical"]
+        priority = "HIGH" if is_high_priority else "NORMAL"
+        icon_url = (data or {}).get("image_url")
 
-        # Stringify data values (FCM v1 requires all data values to be strings)
-        str_data = {k: str(v) for k, v in (data or {}).items()} if data else {}
+        last_error: Optional[str] = None
 
-        async with httpx.AsyncClient() as client:
-            for token_data in tokens:
-                token = token_data.get("token")
-                if not token:
-                    continue
+        for token_data in tokens:
+            token = token_data.get("token")
+            if not token:
+                continue
 
-                message = {
-                    "message": {
-                        "token": token,
-                        "notification": {
-                            "title": title,
-                            "body": body,
-                        },
-                        "data": str_data,
-                        "android": {
-                            "priority": "HIGH" if is_high_priority else "NORMAL",
-                        },
-                        "webpush": {
-                            "headers": {
-                                "Urgency": "high" if is_high_priority else "normal",
-                            },
-                        },
-                    }
-                }
+            # Attempt FCM HTTP v1 first
+            result_v1 = await fcm_service_v1.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+                icon_url=icon_url,
+                priority=priority,
+            )
 
-                # Add image if available
-                image_url = (data or {}).get("image_url")
-                if image_url:
-                    message["message"]["notification"]["image"] = image_url
+            if result_v1["success"]:
+                continue
 
-                response = await client.post(fcm_url, headers=headers, json=message)
+            # v1 failed — attempt legacy fallback
+            logger.warning(
+                "[FCM] v1 failed (%s), attempting legacy for %s...",
+                result_v1.get("error"),
+                token[:20],
+            )
+            result_legacy = await fcm_legacy_service.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+                icon_url=icon_url,
+            )
 
-                if response.status_code == 401:
-                    # Token expired, refresh and retry once
-                    self._fcm_access_token = None
-                    access_token = await self._get_fcm_access_token()
-                    headers["Authorization"] = f"Bearer {access_token}"
-                    response = await client.post(fcm_url, headers=headers, json=message)
+            if result_legacy["success"]:
+                logger.info("[FCM] Fallback to legacy succeeded for %s...", token[:20])
+                continue
 
-                if response.status_code not in [200, 201]:
-                    raise Exception(f"FCM v1 error ({response.status_code}): {response.text}")
+            # Both v1 and legacy failed
+            last_error = result_legacy.get("error")
+            logger.error(
+                "[FCM] Both v1 and legacy failed for %s...: %s",
+                token[:20],
+                last_error,
+            )
+            raise Exception(f"FCM push failed (v1+legacy): {last_error}")
     
     async def _send_email(
         self,

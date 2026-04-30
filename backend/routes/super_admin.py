@@ -563,6 +563,8 @@ ALLOWED_CRONS = {
     "moderation-auto-actions": ("routes.moderation_v2", "run_moderation_auto_actions_sweep"),
     # GDPR 4.1: hard-delete users whose 30-day soft-delete grace period expired.
     "pending-deletions": ("routes.customer", "process_pending_deletions"),
+    # FCM 1.3: retry failed push notifications (v1 + legacy fallback).
+    "retry-failed-push-notifications": ("routes.cron", "cron_retry_failed_push_notifications"),
 }
 
 

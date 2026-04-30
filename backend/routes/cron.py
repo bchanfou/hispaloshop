@@ -815,3 +815,94 @@ async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
             logger.error("Failed to send retry summary email: %s", e)
 
     return {"retried": retried, "success": success, "still_failed": still_failed}
+
+
+@router.post("/admin/cron/retry-failed-push-notifications")
+async def cron_retry_failed_push_notifications(user: User = Depends(get_current_user)):
+    """Daily: retry push notifications that failed in the last 7 days.
+    Attempts FCM HTTP v1 first, then legacy fallback. Logs which version succeeded."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.fcm_service import fcm_service_v1
+    from services.fcm_legacy import fcm_legacy_service
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+
+    failed = await db.notifications.find({
+        "status_by_channel.push": "failed",
+        "created_at": {"$gte": cutoff},
+    }).to_list(500)
+
+    retried = 0
+    success_v1 = 0
+    success_legacy = 0
+    still_failed = 0
+
+    for notif in failed:
+        user_id = notif.get("user_id")
+        title = notif.get("title", "")
+        body = notif.get("body", "")
+        data = notif.get("data", {})
+
+        prefs = await db.user_notification_preferences.find_one({"user_id": user_id})
+        tokens = (prefs or {}).get("push_tokens", [])
+
+        for token_data in tokens:
+            token = token_data.get("token")
+            if not token:
+                continue
+
+            retried += 1
+
+            # Try FCM HTTP v1
+            result_v1 = await fcm_service_v1.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+            )
+
+            if result_v1["success"]:
+                success_v1 += 1
+                await db.notifications.update_one(
+                    {"_id": notif["_id"]},
+                    {"$set": {
+                        "status_by_channel.push": "sent",
+                        "fcm_retry_version": "v1",
+                        "fcm_retry_at": datetime.now(timezone.utc),
+                    }},
+                )
+                continue
+
+            # v1 failed — try legacy
+            result_legacy = await fcm_legacy_service.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+            )
+
+            if result_legacy["success"]:
+                success_legacy += 1
+                await db.notifications.update_one(
+                    {"_id": notif["_id"]},
+                    {"$set": {
+                        "status_by_channel.push": "sent",
+                        "fcm_retry_version": "legacy",
+                        "fcm_retry_at": datetime.now(timezone.utc),
+                    }},
+                )
+            else:
+                still_failed += 1
+                logger.error(
+                    "[CRON] Push retry failed for notification %s: %s",
+                    notif["_id"],
+                    result_legacy.get("error"),
+                )
+
+    return {
+        "retried": retried,
+        "success_v1": success_v1,
+        "success_legacy": success_legacy,
+        "still_failed": still_failed,
+    }
