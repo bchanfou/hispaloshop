@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HispaloShop — Mapa del Repositorio</title>
+<meta name="description" content="Mapa interactivo premium del repositorio HispaloShop. Navega el codigo, la documentacion y los roles como en un mapa.">
+<style>
+/* ===================================================
+   RESET & VARIABLES
+   =================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'SF Mono',Menlo,Monaco,Consolas,monospace;
+  --black:#0D0D0D;
+  --gray-900:#1C1C1E;
+  --gray-700:#3A3A3C;
+  --gray-500:#636366;
+  --gray-400:#8E8E93;
+  --gray-300:#C7C7CC;
+  --gray-200:#E5E5EA;
+  --gray-100:#F2F2F7;
+  --white:#FFFFFF;
+  --header-h:60px;
+  --toolbar-h:50px;
+  --shadow:0 2px 8px rgba(0,0,0,0.10);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.16);
+  --radius:12px;
+}
+html{font-family:var(--font);background:var(--gray-100);color:var(--black);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--font);cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
+
+/* ===================================================
+   HEADER
+   =================================================== */
+#appHeader{
+  position:fixed;top:0;left:0;right:0;
+  height:var(--header-h);
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-200);
+  z-index:1000;
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+}
+.header-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo{
+  width:34px;height:34px;background:var(--black);color:var(--white);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;letter-spacing:0.5px;flex-shrink:0
+}
+.header-title h1{font-size:15px;font-weight:700;letter-spacing:-0.3px;line-height:1.1}
+.header-title span{font-size:10px;color:var(--gray-400);letter-spacing:0.1px}
+.search-wrap{flex:1;max-width:400px;position:relative}
+#searchInput{
+  width:100%;height:34px;background:var(--gray-100);
+  border:1px solid var(--gray-200);border-radius:18px;
+  padding:0 34px 0 14px;font-size:13px;font-family:var(--font);
+  outline:none;transition:border-color .2s,background .2s;
+}
+#searchInput:focus{background:var(--white);border-color:var(--gray-400)}
+.search-icon{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:13px;pointer-events:none}
+#searchResults{
+  position:absolute;top:calc(100% + 5px);left:0;right:0;
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);box-shadow:var(--shadow-lg);
+  max-height:300px;overflow-y:auto;display:none;z-index:1100
+}
+#searchResults.open{display:block}
+.sri{padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background .12s}
+.sri:last-child{border-bottom:none}
+.sri:hover{background:var(--gray-100)}
+.sri-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sri-name{font-size:12px;font-weight:600;color:var(--black)}
+.sri-tag{font-size:9px;font-weight:700;letter-spacing:.8px;padding:2px 6px;border-radius:4px;background:var(--gray-900);color:var(--white);text-transform:uppercase;flex-shrink:0}
+.sri-desc{font-size:11px;color:var(--gray-500);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-right{flex-shrink:0;margin-left:auto}
+.gh-btn{
+  display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 12px;
+  background:var(--black);color:var(--white);border-radius:8px;
+  font-size:12px;font-weight:500;letter-spacing:-0.1px;transition:opacity .2s
+}
+.gh-btn:hover{opacity:.8}
+.gh-icon{font-style:normal;font-size:13px}
+
+/* ===================================================
+   TOOLBAR
+   =================================================== */
+#toolbar{
+  position:fixed;top:var(--header-h);left:0;right:0;
+  height:var(--toolbar-h);
+  background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--gray-200);z-index:900;
+  display:flex;align-items:center;padding:0 20px;gap:12px;overflow-x:auto;
+}
+.tb-label{font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;flex-shrink:0}
+.tb-group{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.tb-divider{width:1px;height:22px;background:var(--gray-200);flex-shrink:0}
+.filter-btn{
+  height:28px;padding:0 11px;border-radius:7px;
+  font-size:11px;font-weight:500;white-space:nowrap;
+  background:var(--gray-100);color:var(--gray-700);
+  transition:background .12s,color .12s
+}
+.filter-btn.active,.filter-btn:hover{background:var(--black);color:var(--white)}
+.route-btn{
+  height:28px;padding:0 11px;border-radius:7px;
+  font-size:11px;font-weight:500;white-space:nowrap;
+  border:1px solid var(--gray-300);color:var(--gray-700);
+  transition:background .12s,border-color .12s
+}
+.route-btn:hover{background:var(--gray-100);border-color:var(--gray-500)}
+
+/* ===================================================
+   MAP SECTION
+   =================================================== */
+.map-section{
+  margin-top:calc(var(--header-h) + var(--toolbar-h));
+  height:calc(100vh - var(--header-h) - var(--toolbar-h));
+  overflow:hidden;position:relative;background:var(--gray-100)
+}
+#mapContainer{width:100%;height:100%;overflow:hidden;position:relative;cursor:grab;user-select:none}
+#mapContainer.grabbing{cursor:grabbing}
+#mapCanvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+#mainMap{display:block}
+
+/* Zoom controls */
+.zoom-ctrls{
+  position:absolute;bottom:20px;right:20px;
+  display:flex;flex-direction:column;gap:4px;z-index:100
+}
+.zoom-ctrls button{
+  width:34px;height:34px;background:var(--white);border:1px solid var(--gray-200);
+  border-radius:8px;font-size:15px;font-weight:400;color:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);transition:background .12s
+}
+.zoom-ctrls button:hover{background:var(--gray-100)}
+
+/* Mini legend */
+.map-legend{
+  position:absolute;bottom:20px;left:20px;
+  background:rgba(255,255,255,.95);border:1px solid var(--gray-200);
+  border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);z-index:100
+}
+.legend-title{font-size:9px;font-weight:700;color:var(--gray-400);letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px}
+.legend-item{display:flex;align-items:center;gap:7px;margin-bottom:4px;cursor:pointer}
+.legend-item:last-child{margin-bottom:0}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
+.legend-item span{font-size:10px;color:var(--gray-700);font-weight:500}
+
+/* Tooltip */
+#mapTooltip{
+  position:absolute;background:var(--white);border:1px solid var(--gray-200);
+  border-radius:10px;padding:9px 13px;max-width:210px;
+  box-shadow:var(--shadow-lg);pointer-events:none;opacity:0;
+  transition:opacity .15s;z-index:200
+}
+#mapTooltip.show{opacity:1}
+.tt-name{font-size:12px;font-weight:700;color:var(--black);margin-bottom:2px}
+.tt-desc{font-size:10px;color:var(--gray-500);line-height:1.45}
+.tt-hint{font-size:9px;color:var(--gray-300);margin-top:5px;font-style:italic}
+
+/* ===================================================
+   INFO PANEL
+   =================================================== */
+#overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:1200;
+  opacity:0;pointer-events:none;transition:opacity .3s
+}
+#overlay.show{opacity:1;pointer-events:all}
+#infoPanel{
+  position:fixed;top:0;right:0;bottom:0;width:360px;max-width:100vw;
+  background:var(--white);border-left:1px solid var(--gray-200);
+  z-index:1300;transform:translateX(100%);
+  transition:transform .34s cubic-bezier(.4,0,.2,1);overflow-y:auto
+}
+#infoPanel.open{transform:translateX(0)}
+.ip-inner{padding:22px 22px 32px}
+.ip-close{
+  width:30px;height:30px;border-radius:50%;background:var(--gray-100);
+  color:var(--gray-700);font-size:16px;display:flex;align-items:center;
+  justify-content:center;margin-bottom:14px;flex-shrink:0
+}
+.ip-close:hover{background:var(--gray-200)}
+.ip-badge{
+  display:inline-block;padding:2px 7px;background:var(--black);
+  color:var(--white);font-size:9px;font-weight:800;letter-spacing:1.2px;
+  border-radius:4px;text-transform:uppercase;margin-bottom:7px
+}
+#ipTitle{font-size:19px;font-weight:700;letter-spacing:-.4px;margin-bottom:3px}
+#ipPath{
+  font-size:11px;color:var(--gray-500);font-family:var(--mono);
+  background:var(--gray-100);padding:2px 6px;border-radius:4px;
+  display:inline-block;margin-bottom:18px
+}
+.ip-section{margin-bottom:18px}
+.ip-section h4{
+  font-size:10px;font-weight:700;color:var(--gray-400);
+  text-transform:uppercase;letter-spacing:.9px;margin-bottom:7px
+}
+.ip-section p{font-size:13px;color:var(--gray-700);line-height:1.6}
+.children-box{
+  background:var(--gray-100);padding:12px;border-radius:8px;
+  font-size:13px;line-height:1.6;color:var(--black);
+  border-left:3px solid var(--black)
+}
+.ip-roles{display:flex;flex-wrap:wrap;gap:5px}
+.role-chip{
+  padding:3px 9px;background:var(--gray-100);border-radius:6px;
+  font-size:11px;color:var(--gray-700)
+}
+.ip-link{
+  display:flex;align-items:center;justify-content:center;height:42px;
+  background:var(--black);color:var(--white);border-radius:10px;
+  font-size:13px;font-weight:600;margin-top:6px;transition:opacity .2s
+}
+.ip-link:hover{opacity:.82}
+
+/* ===================================================
+   ROLES SECTION
+   =================================================== */
+.page-section{padding:72px 20px;border-top:1px solid var(--gray-200)}
+.page-section.alt{background:var(--white)}
+.sec-inner{max-width:1060px;margin:0 auto}
+.sec-hd{text-align:center;margin-bottom:44px}
+.sec-hd h2{font-size:34px;font-weight:700;letter-spacing:-.8px;margin-bottom:10px}
+.sec-hd p{font-size:15px;color:var(--gray-500);max-width:480px;margin:0 auto;line-height:1.65}
+.roles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+.role-card{
+  background:var(--gray-100);border:1px solid var(--gray-200);border-radius:16px;
+  padding:22px;transition:transform .2s,box-shadow .2s
+}
+.role-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.rc-icon{font-size:28px;margin-bottom:10px;display:block}
+.rc-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.rc-sub{font-size:11px;color:var(--gray-400);margin-bottom:13px}
+.rc-story{
+  font-size:13px;color:var(--gray-700);line-height:1.6;margin-bottom:14px;
+  background:var(--white);padding:10px 12px;border-radius:8px;
+  border-left:3px solid var(--black)
+}
+.rc-files-label{font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.rc-files{list-style:none;display:flex;flex-direction:column;gap:3px}
+.rc-files li{
+  font-size:11px;color:var(--gray-700);padding:4px 8px;background:var(--white);
+  border-radius:6px;font-family:var(--mono);cursor:pointer;transition:background .12s,color .12s
+}
+.rc-files li:hover{background:var(--black);color:var(--white)}
+
+/* ===================================================
+   FUNCTIONS SECTION
+   =================================================== */
+.funcs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:15px}
+.func-card{
+  background:var(--white);border:1px solid var(--gray-200);border-radius:12px;
+  padding:18px;transition:transform .2s
+}
+.func-card:hover{transform:translateY(-1px)}
+.fc-cat{font-size:9px;font-weight:700;color:var(--gray-400);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.fc-path{font-size:12px;font-weight:700;font-family:var(--mono);color:var(--black);margin-bottom:9px}
+.fc-story{
+  font-size:12px;color:var(--gray-700);line-height:1.6;
+  background:var(--gray-100);padding:9px 11px;border-radius:8px;font-style:italic
+}
+
+/* ===================================================
+   FOOTER
+   =================================================== */
+footer{background:var(--black);color:var(--gray-300);padding:24px 20px;text-align:center}
+.ft-inner{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+footer span,footer a{font-size:12px;color:var(--gray-400)}
+footer a:hover{color:var(--white)}
+footer a{text-decoration:underline;text-underline-offset:2px}
+
+/* ===================================================
+   RESPONSIVE
+   =================================================== */
+@media(max-width:768px){
+  :root{--header-h:54px;--toolbar-h:44px}
+  .header-title span{display:none}
+  .map-section{height:58vh}
+  #infoPanel{width:100vw}
+  .sec-hd h2{font-size:26px}
+  .map-legend{display:none}
+}
+@media(max-width:480px){
+  #appHeader{padding:0 12px}
+  #toolbar{padding:0 10px}
+  .gh-btn span{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="appHeader">
+  <div class="header-left">
+    <div class="logo">HS</div>
+    <div class="header-title">
+      <h1>HispaloShop</h1>
+      <span>Mapa del Repositorio</span>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Buscar archivos, carpetas, funciones..." autocomplete="off" aria-label="Buscar en el mapa">
+    <span class="search-icon" aria-hidden="true">&#9906;</span>
+    <div id="searchResults" role="listbox" aria-label="Resultados de busqueda"></div>
+  </div>
+  <div class="header-right">
+    <a href="https://github.com/bchanfou/hispaloshop" target="_blank" rel="noopener noreferrer" class="gh-btn" aria-label="Ver repositorio en GitHub">
+      <i class="gh-icon" aria-hidden="true">&#9670;</i>
+      <span>Ver en GitHub</span>
+    </a>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div id="toolbar" role="toolbar" aria-label="Controles del mapa">
+  <div class="tb-group">
+    <span class="tb-label">Filtrar</span>
+    <button class="filter-btn active" data-filter="all">Todo</button>
+    <button class="filter-btn" data-filter="docs">Docs</button>
+    <button class="filter-btn" data-filter="code">Codigo</button>
+    <button class="filter-btn" data-filter="config">Config</button>
+    <button class="filter-btn" data-filter="tests">Tests</button>
+    <button class="filter-btn" data-filter="deps">Dependencias</button>
+    <button class="filter-btn" data-filter="special">Especial</button>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-group">
+    <span class="tb-label">Ir a</span>
+    <button class="route-btn" data-route="docs">Leer documentacion</button>
+    <button class="route-btn" data-route="code">Ver el codigo</button>
+    <button class="route-btn" data-route="config">Configuracion</button>
+    <button class="route-btn" data-route="start">Empezar aqui</button>
+    <button class="route-btn" data-route="contribute">Quiero contribuir</button>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="map-section">
+  <div id="mapContainer" role="application" aria-label="Mapa interactivo del repositorio">
+    <div id="mapCanvas">
+      <svg id="mainMap" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <!-- Zoom controls -->
+    <div class="zoom-ctrls" role="group" aria-label="Controles de zoom">
+      <button id="zoomIn" title="Acercar" aria-label="Acercar">+</button>
+      <button id="zoomOut" title="Alejar" aria-label="Alejar">&#8722;</button>
+      <button id="zoomReset" title="Ver todo" aria-label="Restablecer vista">&#8635;</button>
+    </div>
+
+    <!-- Mini legend -->
+    <nav class="map-legend" aria-label="Leyenda del mapa">
+      <div class="legend-title">Leyenda</div>
+    </nav>
+
+    <!-- Tooltip -->
+    <div id="mapTooltip" role="tooltip" aria-live="polite">
+      <div class="tt-name" id="ttName"></div>
+      <div class="tt-desc" id="ttDesc"></div>
+      <div class="tt-hint">Haz clic para mas informacion</div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO PANEL -->
+<div id="overlay" aria-hidden="true"></div>
+<aside id="infoPanel" aria-label="Informacion del elemento" aria-hidden="true">
+  <div class="ip-inner">
+    <button class="ip-close" id="closePanel" aria-label="Cerrar panel">&#215;</button>
+    <span class="ip-badge" id="ipBadge">Archivo</span>
+    <h3 id="ipTitle"></h3>
+    <code id="ipPath"></code>
+    <div class="ip-section">
+      <h4>Descripcion</h4>
+      <p id="ipDesc"></p>
+    </div>
+    <div class="ip-section">
+      <h4>Explicado para todos</h4>
+      <p class="children-box" id="ipChildren"></p>
+    </div>
+    <div class="ip-section">
+      <h4>Util para</h4>
+      <div class="ip-roles" id="ipRoles"></div>
+    </div>
+    <a id="ipLink" href="#" target="_blank" rel="noopener noreferrer" class="ip-link">
+      Ver en GitHub &#8599;
+    </a>
+  </div>
+</aside>
+
+<!-- ROLES SECTION -->
+<section class="page-section alt" id="rolesSection" aria-labelledby="roles-heading">
+  <div class="sec-inner">
+    <div class="sec-hd">
+      <h2 id="roles-heading">Quien eres? Encuentra tu camino</h2>
+      <p>Cada persona tiene un rol diferente. Aqui explicamos que hace cada uno, como si fuera un cuento.</p>
+    </div>
+    <div class="roles-grid" id="rolesGrid"></div>
+  </div>
+</section>
+
+<!-- FUNCTIONS SECTION -->
+<section class="page-section" id="functionsSection" aria-labelledby="funcs-heading">
+  <div class="sec-inner">
+    <div class="sec-hd">
+      <h2 id="funcs-heading">Que hace cada parte del proyecto</h2>
+      <p>Explicado de forma simple, como para una persona que nunca ha visto el proyecto antes.</p>
+    </div>
+    <div class="funcs-grid" id="funcsGrid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <span>HispaloShop &mdash; Mapa del Repositorio</span>
+    <a href="https://github.com/bchanfou/hispaloshop" target="_blank" rel="noopener noreferrer">github.com/bchanfou/hispaloshop</a>
+    <span>Blanco y Negro &mdash; Premium &mdash; Funcional</span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+/* =====================================================
+   CONSTANTS
+   ===================================================== */
+const REPO  = 'https://github.com/bchanfou/hispaloshop';
+const BLOB  = REPO + '/blob/main';
+const TREE  = REPO + '/tree/main';
+const W = 1100, H = 680;
+
+/* =====================================================
+   REGION DATA
+   ===================================================== */
+const REGIONS = [
+  {
+    id:'docs', label:'DOCUMENTACION',
+    x:20, y:20, w:430, h:285,
+    fill:'#FFFFFF', stroke:'#DDDDDD', textColor:'#0D0D0D',
+    filter:'docs',
+    description:'Toda la documentacion del proyecto: el mapa de reglas, los planes, el modelo de negocio y el ADN de la marca.'
+  },
+  {
+    id:'special', label:'ESPECIAL',
+    x:468, y:20, w:192, h:285,
+    fill:'#F5F5F5', stroke:'#DDDDDD', textColor:'#555555',
+    filter:'special',
+    description:'Guias tecnicas, reportes de auditoria, instrucciones de despliegue y documentacion de referencia.'
+  },
+  {
+    id:'config', label:'CONFIGURACION',
+    x:678, y:20, w:402, h:150,
+    fill:'#0D0D0D', stroke:'none', textColor:'#FFFFFF',
+    filter:'config',
+    description:'Automatizacion CI/CD, instrucciones para asistentes de IA y configuracion del repositorio.'
+  },
+  {
+    id:'frontend', label:'FRONTEND',
+    x:20, y:323, w:358, h:317,
+    fill:'#FFFFFF', stroke:'#DDDDDD', textColor:'#0D0D0D',
+    filter:'code',
+    description:'El codigo que ve el usuario: pantallas React, componentes de UI, servicios, hooks y estilos.'
+  },
+  {
+    id:'backend', label:'BACKEND',
+    x:396, y:323, w:264, h:317,
+    fill:'#FAFAFA', stroke:'#DDDDDD', textColor:'#0D0D0D',
+    filter:'code',
+    description:'El servidor FastAPI: rutas de la API, modelos de datos, servicios de negocio y configuracion del servidor.'
+  },
+  {
+    id:'tests', label:'TESTS',
+    x:678, y:188, w:402, h:197,
+    fill:'#F2F2F7', stroke:'#DDDDDD', textColor:'#555555',
+    filter:'tests',
+    description:'Pruebas automaticas: tests unitarios, de integracion y end-to-end para verificar que todo funcione.'
+  },
+  {
+    id:'deps', label:'DEPENDENCIAS',
+    x:678, y:403, w:402, h:237,
+    fill:'#FAFAFA', stroke:'#DDDDDD', textColor:'#636366',
+    filter:'deps',
+    description:'Listas de herramientas y librerias externas (npm, Python pip) que el proyecto necesita para funcionar.'
+  }
+];
+
+/* =====================================================
+   NODE DATA
+   ===================================================== */
+const NODES = [
+  /* --- DOCS --- */
+  {
+    id:'ai-read-first', label:'AI_READ_FIRST.md',
+    x:100, y:90, region:'docs', filter:'docs', importance:'critical', badge:'START HERE',
+    url: BLOB+'/AI_READ_FIRST.md',
+    title:'Puerta de Entrada',
+    description:'El primer archivo que DEBE leer cualquier persona o asistente de IA antes de tocar el proyecto. Contiene las reglas clave y donde encontrar todo.',
+    forChildren:'Como el letrero de "LEE ESTO ANTES DE ABRIR" en una caja de juguetes nueva. Si no lo lees primero, puedes romper algo sin querer.',
+    roles:['Manager','Developer','Designer','QA','IA','Principiante']
+  },
+  {
+    id:'ai-map', label:'docs/ai/00_AI_MAP.md',
+    x:265, y:90, region:'docs', filter:'docs', importance:'critical', badge:'READ ME',
+    url: BLOB+'/docs/ai/00_AI_MAP.md',
+    title:'Mapa Maestro de IA',
+    description:'El documento mas importante del proyecto. Define las reglas duras que nadie puede cambiar, los roles oficiales, las decisiones cerradas y la fuente de verdad.',
+    forChildren:'Como el reglamento oficial de un juego de mesa. Si tienes una duda o un conflicto, aqui estan TODAS las respuestas. Nadie puede cambiar estas reglas sin permiso del dueno del juego.',
+    roles:['Manager','Developer','IA','Principiante']
+  },
+  {
+    id:'readme', label:'README.md',
+    x:100, y:180, region:'docs', filter:'docs', importance:'high',
+    url: BLOB+'/README.md',
+    title:'Portada del Proyecto',
+    description:'La presentacion principal. Explica que es HispaloShop, como instalarlo y donde encontrar mas informacion.',
+    forChildren:'Como la portada de un libro. Te dice el titulo, de que trata, y como abrir el libro sin romperse.',
+    roles:['Manager','Developer','Principiante']
+  },
+  {
+    id:'mega-plan', label:'MEGA_PLAN.md',
+    x:265, y:180, region:'docs', filter:'docs', importance:'high',
+    url: BLOB+'/MEGA_PLAN.md',
+    title:'Plan Completo del Negocio',
+    description:'El plan de negocio completo: quien es el cliente, que se vende, cuanto cuesta y como se gana dinero.',
+    forChildren:'Como el plan de construccion de un gran castillo de LEGO. Dice exactamente que piezas se van a poner, en que orden, y como va a quedar al final.',
+    roles:['Manager','Developer']
+  },
+  {
+    id:'roadmap', label:'ROADMAP_LAUNCH.md',
+    x:380, y:95, region:'docs', filter:'docs', importance:'high',
+    url: BLOB+'/ROADMAP_LAUNCH.md',
+    title:'Hoja de Ruta del Lanzamiento',
+    description:'El orden en que se construyen las cosas: que esta terminado, que falta y en que orden se debe hacer.',
+    forChildren:'Como el calendario escolar. Dice que materia tienes cada dia, en que orden, y cuando son los examenes importantes.',
+    roles:['Manager','Developer']
+  },
+  {
+    id:'design-system', label:'DESIGN_SYSTEM.md',
+    x:380, y:180, region:'docs', filter:'docs', importance:'high',
+    url: BLOB+'/DESIGN_SYSTEM.md',
+    title:'Sistema de Diseno',
+    description:'Las reglas de diseno: colores permitidos (blanco/negro/stone), estilos, componentes y como debe verse la app.',
+    forChildren:'Como el uniforme del colegio. Todos usan los mismos colores y el mismo estilo. Si llevas ropa que no es el uniforme, te lo quitaran.',
+    roles:['Designer','Developer','IA']
+  },
+  {
+    id:'ai-dna', label:'docs/ai/01_DNA.md',
+    x:100, y:260, region:'docs', filter:'docs', importance:'normal',
+    url: BLOB+'/docs/ai/01_DNA.md',
+    title:'ADN del Proyecto',
+    description:'El caracter de la marca: tono de voz, valores, estilo y como se comunica HispaloShop con el mundo.',
+    forChildren:'Como la personalidad de una persona. Define si el proyecto es serio o cercano, si habla de "tu" o de "usted", y como se presenta.',
+    roles:['Designer','Developer','IA']
+  },
+  {
+    id:'business-model', label:'docs/ai/03_BUSINESS_MODEL.md',
+    x:265, y:260, region:'docs', filter:'docs', importance:'normal',
+    url: BLOB+'/docs/ai/03_BUSINESS_MODEL.md',
+    title:'Modelo de Negocio',
+    description:'Resumen operativo: planes, comisiones por tier de influencer, paises y decisiones monetarias.',
+    forChildren:'Como el menu de un restaurante. Dice que productos se venden, cuanto cuestan y cuanto le toca a cada persona cuando se hace una venta.',
+    roles:['Manager']
+  },
+  /* --- SPECIAL --- */
+  {
+    id:'prd', label:'memory/PRD.md',
+    x:525, y:90, region:'special', filter:'special', importance:'normal',
+    url: TREE+'/memory',
+    title:'Resumen Ejecutivo',
+    description:'El documento de requerimientos del producto. Resume que se construye, por que, para quien y en que plazo.',
+    forChildren:'Como el informe de notas que le das a tus padres. Resume todo lo importante en pocas palabras para que entiendan rapidamente.',
+    roles:['Manager']
+  },
+  {
+    id:'deployment', label:'DEPLOYMENT.md',
+    x:620, y:90, region:'special', filter:'special', importance:'normal',
+    url: BLOB+'/DEPLOYMENT.md',
+    title:'Guia de Despliegue',
+    description:'Instrucciones paso a paso para publicar la aplicacion en produccion (Railway, Vercel).',
+    forChildren:'Como el manual para lanzar un cohete. Dice exactamente que boton apretar, en que orden, para que la app llegue a internet.',
+    roles:['Developer']
+  },
+  {
+    id:'quickstart', label:'QUICKSTART.md',
+    x:525, y:185, region:'special', filter:'special', importance:'normal',
+    url: BLOB+'/QUICKSTART.md',
+    title:'Inicio Rapido',
+    description:'Como arrancar el proyecto en tu ordenador por primera vez en el menor tiempo posible.',
+    forChildren:'Como las instrucciones de una consola nueva. Dice que cables conectar y que botones presionar para que funcione en 5 minutos.',
+    roles:['Developer','Principiante']
+  },
+  {
+    id:'audit-report', label:'AUDIT_REPORT.md',
+    x:620, y:185, region:'special', filter:'special', importance:'low',
+    url: BLOB+'/AUDIT_REPORT.md',
+    title:'Reporte de Auditoria',
+    description:'Evaluacion de calidad del codigo y del proyecto: que esta bien, que esta mal y que hay que mejorar.',
+    forChildren:'Como la nota del inspector en un restaurante. Dice que partes pasaron la inspeccion y cuales necesitan mejorar urgente.',
+    roles:['Manager','QA']
+  },
+  /* --- CONFIG --- */
+  {
+    id:'workflows', label:'.github/workflows/',
+    x:740, y:80, region:'config', filter:'config', importance:'critical', badge:'AUTOMATION',
+    url: TREE+'/.github/workflows',
+    title:'Automatizacion CI/CD',
+    description:'Robots automaticos que verifican el codigo, corren tests y validan la documentacion en cada cambio.',
+    forChildren:'Como un robot guardia que vive en GitHub. Cada vez que alguien cambia algo, el robot lo revisa automaticamente y avisa si algo esta roto.',
+    roles:['Developer','QA','IA']
+  },
+  {
+    id:'claude-readme', label:'.claude/README.md',
+    x:880, y:80, region:'config', filter:'config', importance:'critical', badge:'IMPORTANTE',
+    url: TREE+'/.claude',
+    title:'Checklist del Asistente IA',
+    description:'Las instrucciones y checklist obligatorio para el asistente IA Claude antes de hacer cualquier cambio en el proyecto.',
+    forChildren:'Como la lista de verificacion que usa un piloto de avion antes de despegar. Sin revisar esta lista, el asistente IA no puede hacer ningun cambio.',
+    roles:['IA','Developer']
+  },
+  {
+    id:'copilot-prompt', label:'.github/copilot-instructions.md',
+    x:1020, y:80, region:'config', filter:'config', importance:'normal',
+    url: TREE+'/.github',
+    title:'Instrucciones de Copilot',
+    description:'Las instrucciones especificas para GitHub Copilot sobre como ayudar, que esta prohibido y las reglas del proyecto.',
+    forChildren:'Como el manual de instrucciones del asistente. Le dice exactamente como tiene que hablar, que puede hacer y que esta completamente prohibido.',
+    roles:['IA','Developer']
+  },
+  {
+    id:'gitignore', label:'.gitignore',
+    x:740, y:140, region:'config', filter:'config', importance:'low',
+    url: BLOB+'/.gitignore',
+    title:'Archivos Ignorados por Git',
+    description:'Lista de archivos y carpetas que Git no debe guardar: secretos, archivos temporales, dependencias instaladas.',
+    forChildren:'Como la lista de cosas que NO se llevan en la mochila escolar. Los secretos y las cosas personales se quedan en casa, no se suben al cole.',
+    roles:['Developer']
+  },
+  /* --- FRONTEND --- */
+  {
+    id:'frontend-src', label:'frontend/src/',
+    x:80, y:395, region:'frontend', filter:'code', importance:'high',
+    url: TREE+'/frontend/src',
+    title:'Codigo del Frontend',
+    description:'Todo el codigo React: paginas, componentes, hooks, servicios y estilos que forman la interfaz de usuario.',
+    forChildren:'Como el interior de una tienda bonita. Aqui esta todo lo que los clientes ven cuando entran: los estantes, los colores, la decoracion y como esta organizado todo.',
+    roles:['Developer','Designer']
+  },
+  {
+    id:'frontend-pages', label:'frontend/src/pages/',
+    x:205, y:395, region:'frontend', filter:'code', importance:'normal',
+    url: TREE+'/frontend/src/pages',
+    title:'Paginas de la App',
+    description:'Cada archivo es una pantalla diferente de la app: login, marketplace, perfil de usuario, feed, checkout.',
+    forChildren:'Como los cuartos de una casa. Cada cuarto tiene su propia funcion: la cocina es el feed, el salon es el marketplace, el dormitorio es tu perfil personal.',
+    roles:['Developer','Designer']
+  },
+  {
+    id:'frontend-components', label:'frontend/src/components/',
+    x:80, y:475, region:'frontend', filter:'code', importance:'normal',
+    url: TREE+'/frontend/src/components',
+    title:'Componentes Reutilizables',
+    description:'Piezas de interfaz que se usan en multiples pantallas: botones, tarjetas de producto, modales, formularios.',
+    forChildren:'Como las piezas de LEGO. Son piezas pequenas que se pueden combinar de mil formas para construir pantallas grandes.',
+    roles:['Developer','Designer']
+  },
+  {
+    id:'frontend-services', label:'frontend/src/services/',
+    x:230, y:480, region:'frontend', filter:'code', importance:'normal',
+    url: TREE+'/frontend/src/services',
+    title:'Servicios de API',
+    description:'Las funciones que conectan la app con el servidor: llamadas HTTP, gestion de tokens de autenticacion, cache.',
+    forChildren:'Como los mensajeros de una tienda. Van y vienen entre la tienda (lo que ves) y el almacen (el servidor) llevando pedidos e informacion.',
+    roles:['Developer']
+  },
+  {
+    id:'frontend-hooks', label:'frontend/src/hooks/',
+    x:330, y:395, region:'frontend', filter:'code', importance:'normal',
+    url: TREE+'/frontend/src/hooks',
+    title:'Hooks de React',
+    description:'Logica reutilizable de React: manejo de estado, efectos secundarios y abstracciones para los componentes.',
+    forChildren:'Como los trucos de magia que se pueden usar en cualquier cuarto de la casa. Una vez que sabes el truco, lo puedes usar en todos los cuartos.',
+    roles:['Developer']
+  },
+  {
+    id:'tailwind', label:'tailwind.config.js',
+    x:330, y:560, region:'frontend', filter:'code', importance:'low',
+    url: BLOB+'/frontend/tailwind.config.js',
+    title:'Configuracion de Estilos',
+    description:'Define los colores, fuentes, espaciados y variantes personalizadas disponibles en los estilos de la app.',
+    forChildren:'Como la paleta de colores del artista. Aqui se definen cuales colores existen y cuales no. Si el color no esta aqui, no se puede usar.',
+    roles:['Designer','Developer']
+  },
+  /* --- BACKEND --- */
+  {
+    id:'backend-main', label:'backend/main.py',
+    x:462, y:395, region:'backend', filter:'code', importance:'high',
+    url: BLOB+'/backend/main.py',
+    title:'Servidor Principal',
+    description:'El punto de entrada del servidor FastAPI. Registra todas las rutas, aplica middleware y configura la app.',
+    forChildren:'Como el director de una orquesta. No toca ningun instrumento el solo, pero organiza a todos los musicos para que suenen bien juntos.',
+    roles:['Developer']
+  },
+  {
+    id:'backend-routes', label:'backend/routes/',
+    x:575, y:395, region:'backend', filter:'code', importance:'normal',
+    url: TREE+'/backend/routes',
+    title:'Rutas de la API',
+    description:'Los endpoints HTTP del servidor: /login, /products, /cart, /orders, /influencers. Cada archivo define un grupo.',
+    forChildren:'Como las ventanillas de un banco. Cada ventanilla atiende un tipo de tramite diferente: una para cuentas, otra para creditos, otra para cambio de moneda.',
+    roles:['Developer']
+  },
+  {
+    id:'backend-models', label:'backend/models/',
+    x:462, y:470, region:'backend', filter:'code', importance:'normal',
+    url: TREE+'/backend/models',
+    title:'Modelos de Datos',
+    description:'La estructura de los datos: como se define un Usuario, un Producto, un Pedido o un Influencer en la base de datos.',
+    forChildren:'Como los moldes de una pasteleria. El molde de estrella hace galletas de estrella, el molde redondo hace galletas redondas. Aqui se define exactamente la forma de cada dato.',
+    roles:['Developer']
+  },
+  {
+    id:'backend-services', label:'backend/services/',
+    x:575, y:470, region:'backend', filter:'code', importance:'normal',
+    url: TREE+'/backend/services',
+    title:'Servicios de Negocio',
+    description:'La logica de negocio real: calcular comisiones, procesar pagos, recomendar productos, gestionar inventario.',
+    forChildren:'Como los trabajadores especializados de una fabrica. Uno sabe hacer galletas, otro las decora, otro las empaqueta. Cada servicio tiene su especialidad.',
+    roles:['Developer']
+  },
+  {
+    id:'backend-core', label:'backend/core/',
+    x:462, y:555, region:'backend', filter:'code', importance:'normal',
+    url: TREE+'/backend/core',
+    title:'Nucleo del Backend',
+    description:'Configuracion, seguridad, autenticacion JWT y utilidades compartidas por todo el servidor.',
+    forChildren:'Como los cimientos de una casa. No los ves cuando entras, pero sin ellos la casa se derrumba. Aqui esta la seguridad, las llaves y la configuracion.',
+    roles:['Developer']
+  },
+  /* --- TESTS --- */
+  {
+    id:'tests-root', label:'tests/',
+    x:752, y:290, region:'tests', filter:'tests', importance:'normal',
+    url: TREE+'/tests',
+    title:'Pruebas de Integracion',
+    description:'Tests de integracion y end-to-end que verifican que el sistema completo funciona correctamente.',
+    forChildren:'Como los inspectores de calidad de una fabrica de juguetes. Prueban cada juguete para asegurarse de que esta perfecto antes de enviarlo a la tienda.',
+    roles:['QA','Developer']
+  },
+  {
+    id:'frontend-e2e', label:'frontend/e2e/',
+    x:880, y:280, region:'tests', filter:'tests', importance:'normal',
+    url: TREE+'/frontend/e2e',
+    title:'Tests End-to-End',
+    description:'Pruebas E2E con Playwright que simulan a un usuario real navegando por toda la aplicacion.',
+    forChildren:'Como un robot que juega con la app como si fuera un nino. Hace clic en todos los botones, rellena formularios y verifica que todo funcione como debe.',
+    roles:['QA','Developer']
+  },
+  {
+    id:'backend-tests', label:'backend/tests/',
+    x:1010, y:290, region:'tests', filter:'tests', importance:'normal',
+    url: TREE+'/backend/tests',
+    title:'Tests del Servidor',
+    description:'Tests unitarios y de integracion para las rutas, servicios y modelos del servidor Python.',
+    forChildren:'Como las pruebas de calidad de los ingredientes de una receta. Verifican que cada ingrediente es el correcto antes de mezclarlos todos.',
+    roles:['QA','Developer']
+  },
+  /* --- DEPS --- */
+  {
+    id:'package-json', label:'package.json',
+    x:762, y:495, region:'deps', filter:'deps', importance:'normal',
+    url: BLOB+'/package.json',
+    title:'Dependencias JavaScript',
+    description:'Lista de herramientas y librerias JavaScript que usa el proyecto: React, Vite, Tailwind y mas.',
+    forChildren:'Como la lista de la compra para hacer una receta. Dice exactamente que cosas necesitas comprar para que el proyecto funcione.',
+    roles:['Developer','Principiante']
+  },
+  {
+    id:'requirements', label:'backend/requirements.txt',
+    x:880, y:495, region:'deps', filter:'deps', importance:'normal',
+    url: BLOB+'/backend/requirements.txt',
+    title:'Dependencias Python',
+    description:'Lista de librerias Python del servidor: FastAPI, SQLAlchemy, Pydantic, Uvicorn y sus versiones exactas.',
+    forChildren:'Como la lista de herramientas que necesita un fontanero. Sin estas herramientas, el servidor no puede hacer ningun trabajo.',
+    roles:['Developer']
+  },
+  {
+    id:'yarn-lock', label:'yarn.lock',
+    x:1010, y:495, region:'deps', filter:'deps', importance:'low',
+    url: BLOB+'/yarn.lock',
+    title:'Versiones Exactas de JS',
+    description:'Registro exacto de las versiones de cada libreria JavaScript para garantizar que todos usan exactamente lo mismo.',
+    forChildren:'Como el recibo de compra del supermercado. Guarda exactamente que version de cada cosa se compro, para que todos tengan exactamente lo mismo y no haya sorpresas.',
+    roles:['Developer']
+  }
+];
+
+/* =====================================================
+   ROLES DATA
+   ===================================================== */
+const ROLES = [
+  {
+    icon:'👔',
+    title:'Manager / Product Owner',
+    subtitle:'El capitan del barco',
+    story:'Eres el capitan. Tu decides a donde va el barco y a que velocidad, pero no tocas los remos. Ves el proyecto desde arriba como un mapa.',
+    desc:'Decides que se construye, en que orden y para quien. Miras el proyecto a nivel alto y te aseguras de que el negocio funcione.',
+    startWith:['AI_READ_FIRST.md','MEGA_PLAN.md','ROADMAP_LAUNCH.md'],
+    files:['AI_READ_FIRST.md','MEGA_PLAN.md','ROADMAP_LAUNCH.md','docs/ai/03_BUSINESS_MODEL.md'],
+    route:'docs'
+  },
+  {
+    icon:'💻',
+    title:'Desarrollador',
+    subtitle:'El constructor de codigo',
+    story:'Eres el constructor de LEGO. Tu pones las piezas juntas para que todo funcione. Sin ti no hay producto.',
+    desc:'Escribes el codigo que hace que la app funcione. Trabajas en el frontend (lo que se ve), el backend (el servidor) y la configuracion.',
+    startWith:['AI_READ_FIRST.md','docs/ai/00_AI_MAP.md','frontend/src/','backend/main.py'],
+    files:['frontend/src/','backend/','DESIGN_SYSTEM.md','.github/workflows/'],
+    route:'code'
+  },
+  {
+    icon:'🎨',
+    title:'Designer / UI',
+    subtitle:'El artista del proyecto',
+    story:'Eres el artista. Tu decides si todo se ve bonito, facil de usar y agradable para los ojos. Sin ti todo seria feo.',
+    desc:'Disenas como se ve la app: colores, formas, espacios, animaciones y como se siente al usarla.',
+    startWith:['DESIGN_SYSTEM.md','docs/ai/01_DNA.md','frontend/src/components/'],
+    files:['DESIGN_SYSTEM.md','docs/ai/01_DNA.md','frontend/src/components/','frontend/tailwind.config.js'],
+    route:'code'
+  },
+  {
+    icon:'🧪',
+    title:'QA / Tester',
+    subtitle:'El inspector de calidad',
+    story:'Eres el inspector. Tu pruebas cada cosa para ver si funciona bien antes de que llegue a los usuarios. Eres el ultimo filtro de calidad.',
+    desc:'Te aseguras de que todo funciona como debe. Buscas errores, corres pruebas y reportas lo que esta roto.',
+    startWith:['tests/','frontend/e2e/','backend/tests/'],
+    files:['tests/','frontend/e2e/','backend/tests/','.github/workflows/'],
+    route:'tests'
+  },
+  {
+    icon:'🤖',
+    title:'IA / Copilot',
+    subtitle:'El asistente inteligente',
+    story:'Eres el asistente magico. Puedes hacer muchas cosas, pero primero DEBES leer todas las reglas del juego. Sin leerlas, puedes romper cosas.',
+    desc:'Ayudas al equipo con codigo, ideas y tareas automatizadas. Debes leer la documentacion primero para no violar las reglas.',
+    startWith:['AI_READ_FIRST.md','docs/ai/00_AI_MAP.md','.claude/README.md'],
+    files:['AI_READ_FIRST.md','docs/ai/00_AI_MAP.md','.claude/README.md','DESIGN_SYSTEM.md'],
+    route:'start'
+  },
+  {
+    icon:'🌱',
+    title:'Principiante / Nuevo',
+    subtitle:'Bienvenido al proyecto',
+    story:'Eres nuevo en el juego. Hay un camino especial para ti que te ensenara todo desde el principio, paso a paso, sin prisa.',
+    desc:'Acabas de llegar y quieres entender como funciona todo. Sigue el camino marcado y en poco tiempo estara todo claro.',
+    startWith:['README.md','AI_READ_FIRST.md','QUICKSTART.md'],
+    files:['README.md','AI_READ_FIRST.md','QUICKSTART.md','docs/ai/READING_ORDER.md'],
+    route:'start'
+  }
+];
+
+/* =====================================================
+   FUNCTIONS DATA
+   ===================================================== */
+const FUNCTIONS = [
+  { cat:'Documentacion', path:'AI_READ_FIRST.md',
+    story:'Como el letrero de "LEE ESTO ANTES DE ABRIR" en una caja de juguetes nueva. Te dice las reglas antes de empezar a jugar.' },
+  { cat:'Mapa IA', path:'docs/ai/00_AI_MAP.md',
+    story:'Como el mapa de un parque de atracciones. Te muestra donde esta cada atraccion, cuales son las reglas y que esta prohibido.' },
+  { cat:'Plan de Negocio', path:'MEGA_PLAN.md',
+    story:'Como el plano de construccion de una ciudad. Dice que edificios van, donde, cuanto cuestan y quien los va a usar.' },
+  { cat:'Hoja de Ruta', path:'ROADMAP_LAUNCH.md',
+    story:'Como el GPS de un viaje largo. Dice las paradas en orden: primero la gasolinera, luego el pueblo, luego la playa.' },
+  { cat:'Diseno', path:'DESIGN_SYSTEM.md',
+    story:'Como el uniforme del colegio. Todos deben llevar los mismos colores. Si llevas otro color, te lo hacen cambiar.' },
+  { cat:'ADN de Marca', path:'docs/ai/01_DNA.md',
+    story:'Como la personalidad de una persona. Define si es serio o divertido, como habla y como se comporta con los demas.' },
+  { cat:'Frontend', path:'frontend/src/',
+    story:'Como la vitrina de una tienda. Es lo que la gente ve cuando pasa por la calle: bonito, ordenado y atractivo.' },
+  { cat:'Paginas React', path:'frontend/src/pages/',
+    story:'Como las habitaciones de un hotel. Cada habitacion tiene su propia decoracion y funcion.' },
+  { cat:'Componentes', path:'frontend/src/components/',
+    story:'Como las piezas del Monopoly. Hay hoteles, casas, fichas... Se pueden combinar de mil formas distintas.' },
+  { cat:'Servidor', path:'backend/main.py',
+    story:'Como la cocina de un restaurante. Los clientes no la ven, pero sin ella no hay comida. Aqui se hace todo el trabajo real.' },
+  { cat:'API Routes', path:'backend/routes/',
+    story:'Como las ventanillas de un banco. Cada ventanilla atiende un tipo de tramite diferente sin mezclarse.' },
+  { cat:'Base de Datos', path:'backend/models/',
+    story:'Como los moldes de una pasteleria. El molde redondo hace galletas redondas, el de estrella hace estrellas. La forma no cambia.' },
+  { cat:'Automatizacion', path:'.github/workflows/',
+    story:'Como un robot guardia de seguridad. Cada vez que alguien entra al edificio (hace un cambio), el robot lo revisa automaticamente.' },
+  { cat:'Tests', path:'tests/',
+    story:'Como las pruebas de conducir. Demuestra que sabes manejar bien antes de salir solo a la carretera.' },
+  { cat:'Dependencias', path:'package.json',
+    story:'Como la lista de ingredientes de una pizza. Sin todos los ingredientes correctos, no puedes hacer la pizza.' },
+  { cat:'Config IA', path:'.claude/README.md',
+    story:'Como el manual de instrucciones del robot ayudante. Le dice como comportarse y que nunca jamas debe hacer.' }
+];
+
+/* =====================================================
+   STATE
+   ===================================================== */
+let transform = { x: 0, y: 0, scale: 1 };
+let activeFilter = 'all';
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let dragOrigin = { x: 0, y: 0 };
+let activeNode = null;
+
+/* =====================================================
+   SVG HELPERS
+   ===================================================== */
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+/* =====================================================
+   RENDER MAP
+   ===================================================== */
+function renderMap() {
+  const svg = document.getElementById('mainMap');
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  /* defs: grid pattern */
+  const defs = svgEl('defs');
+  const pat  = svgEl('pattern', { id:'mapGrid', width:'24', height:'24', patternUnits:'userSpaceOnUse' });
+  pat.appendChild(svgEl('path', { d:'M 24 0 L 0 0 0 24', fill:'none', stroke:'#E5E5EA', 'stroke-width':'0.5' }));
+  defs.appendChild(pat);
+  svg.appendChild(defs);
+
+  /* background */
+  svg.appendChild(svgEl('rect', { x:0, y:0, width:W, height:H, fill:'#F2F2F7' }));
+  svg.appendChild(svgEl('rect', { x:0, y:0, width:W, height:H, fill:'url(#mapGrid)' }));
+
+  /* regions */
+  REGIONS.forEach(r => {
+    const isVisible = activeFilter === 'all' || r.filter === activeFilter;
+    const grp = svgEl('g', { 'data-region': r.id, opacity: isVisible ? 1 : 0.15, style:'transition:opacity .3s' });
+
+    /* shadow */
+    grp.appendChild(svgEl('rect', {
+      x: r.x+3, y: r.y+3, width: r.w, height: r.h,
+      rx:12, ry:12, fill:'rgba(0,0,0,0.05)'
+    }));
+    /* body */
+    const rect = svgEl('rect', {
+      x:r.x, y:r.y, width:r.w, height:r.h,
+      rx:12, ry:12,
+      fill: r.fill,
+      stroke: r.stroke === 'none' ? 'none' : r.stroke,
+      'stroke-width': r.stroke === 'none' ? 0 : 1
+    });
+    grp.appendChild(rect);
+    /* label */
+    const lbl = svgEl('text', {
+      x: r.x + 14, y: r.y + 22,
+      fill: r.textColor,
+      'font-size':'10',
+      'font-family':'-apple-system,BlinkMacSystemFont,sans-serif',
+      'font-weight':'700',
+      'letter-spacing':'1.5',
+      'text-transform':'uppercase'
+    });
+    lbl.textContent = r.label;
+    grp.appendChild(lbl);
+    svg.appendChild(grp);
+  });
+
+  /* nodes */
+  NODES.forEach(n => {
+    const isVisible = activeFilter === 'all' || n.filter === activeFilter;
+    const grp = svgEl('g', {
+      'data-node': n.id,
+      opacity: isVisible ? 1 : 0.1,
+      style: 'cursor:pointer;transition:opacity .3s'
+    });
+
+    const isCrit = n.importance === 'critical';
+    const isHigh = n.importance === 'high';
+    const r = isCrit ? 9 : isHigh ? 7 : 5;
+    const fill = isCrit ? '#0D0D0D' : isHigh ? '#3A3A3C' : '#FFFFFF';
+    const stroke = isCrit ? '#0D0D0D' : isHigh ? '#3A3A3C' : '#8E8E93';
+
+    /* halo for critical */
+    if (isCrit) {
+      grp.appendChild(svgEl('circle', {
+        cx: n.x, cy: n.y, r: r + 5,
+        fill:'rgba(0,0,0,0.07)', stroke:'none'
+      }));
+    }
+    grp.appendChild(svgEl('circle', {
+      cx: n.x, cy: n.y, r,
+      fill, stroke, 'stroke-width':'1.5'
+    }));
+
+    /* badge */
+    if (n.badge) {
+      const badgeX = n.x + r + 3;
+      const badgeY = n.y - 7;
+      const bg = svgEl('rect', {
+        x:badgeX, y:badgeY-8, width: n.badge.length * 5.5 + 8, height:11,
+        rx:3, ry:3, fill:'#0D0D0D'
+      });
+      const bt = svgEl('text', {
+        x: badgeX + 4, y: badgeY,
+        fill:'#FFFFFF',
+        'font-size':'6.5',
+        'font-family':'-apple-system,sans-serif',
+        'font-weight':'800',
+        'letter-spacing':'0.6'
+      });
+      bt.textContent = n.badge;
+      grp.appendChild(bg);
+      grp.appendChild(bt);
+    }
+
+    /* label */
+    const shortLabel = n.label.length > 22 ? n.label.slice(0, 21) + '…' : n.label;
+    const lbl = svgEl('text', {
+      x: n.x, y: n.y + r + 11,
+      fill:'#3A3A3C',
+      'font-size':'8',
+      'font-family':'-apple-system,sans-serif',
+      'font-weight': isCrit ? '700' : '500',
+      'text-anchor':'middle'
+    });
+    lbl.textContent = shortLabel;
+    grp.appendChild(lbl);
+
+    /* events */
+    grp.addEventListener('mouseenter', e => showTooltip(n, e));
+    grp.addEventListener('mouseleave', hideTooltip);
+    grp.addEventListener('click', e => { e.stopPropagation(); openPanel(n); });
+
+    svg.appendChild(grp);
+  });
+}
+
+/* =====================================================
+   LEGEND
+   ===================================================== */
+function renderLegend() {
+  const legend = document.querySelector('.map-legend');
+  const items = [
+    { label:'Documentacion', color:'#FFFFFF', border:'#DDDDDD' },
+    { label:'Codigo',         color:'#FAFAFA', border:'#CCCCCC' },
+    { label:'Configuracion',  color:'#0D0D0D', border:'none'    },
+    { label:'Tests',          color:'#F2F2F7', border:'#DDDDDD' },
+    { label:'Dependencias',   color:'#F5F5F5', border:'#DDDDDD' },
+    { label:'Especial',       color:'#F5F5F5', border:'#DDDDDD' }
+  ];
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    const dot = document.createElement('div');
+    dot.className = 'legend-dot';
+    dot.style.background = it.color;
+    dot.style.borderColor  = it.border === 'none' ? 'transparent' : it.border;
+    const span = document.createElement('span');
+    span.textContent = it.label;
+    div.appendChild(dot);
+    div.appendChild(span);
+    legend.appendChild(div);
+  });
+}
+
+/* =====================================================
+   ZOOM / PAN
+   ===================================================== */
+function applyTransform() {
+  document.getElementById('mapCanvas').style.transform =
+    `translate(${transform.x}px,${transform.y}px) scale(${transform.scale})`;
+}
+
+function clampTransform() {
+  const minScale = 0.35, maxScale = 3.5;
+  transform.scale = Math.max(minScale, Math.min(maxScale, transform.scale));
+}
+
+function initZoomPan() {
+  const container = document.getElementById('mapContainer');
+
+  /* initial centering */
+  const cw = container.clientWidth;
+  const ch = container.clientHeight;
+  const initScale = Math.min(cw / W, ch / H) * 0.9;
+  transform.scale = initScale;
+  transform.x = (cw - W * initScale) / 2;
+  transform.y = (ch - H * initScale) / 2;
+  applyTransform();
+
+  /* wheel zoom */
+  container.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const rect = container.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    transform.x = mx - delta * (mx - transform.x);
+    transform.y = my - delta * (my - transform.y);
+    transform.scale *= delta;
+    clampTransform();
+    applyTransform();
+  }, { passive: false });
+
+  /* drag pan */
+  container.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    isDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    dragOrigin = { x: transform.x, y: transform.y };
+    container.classList.add('grabbing');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    transform.x = dragOrigin.x + (e.clientX - dragStart.x);
+    transform.y = dragOrigin.y + (e.clientY - dragStart.y);
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    document.getElementById('mapContainer').classList.remove('grabbing');
+  });
+
+  /* touch pan + pinch zoom */
+  let lastTouches = null;
+  container.addEventListener('touchstart', e => {
+    lastTouches = Array.from(e.touches);
+  }, { passive: true });
+  container.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const touches = Array.from(e.touches);
+    if (touches.length === 1 && lastTouches && lastTouches.length === 1) {
+      const dx = touches[0].clientX - lastTouches[0].clientX;
+      const dy = touches[0].clientY - lastTouches[0].clientY;
+      transform.x += dx;
+      transform.y += dy;
+      applyTransform();
+    } else if (touches.length === 2 && lastTouches && lastTouches.length === 2) {
+      const prevDist = Math.hypot(lastTouches[1].clientX - lastTouches[0].clientX, lastTouches[1].clientY - lastTouches[0].clientY);
+      const currDist = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+      const delta = currDist / prevDist;
+      const mx = (touches[0].clientX + touches[1].clientX) / 2 - document.getElementById('mapContainer').getBoundingClientRect().left;
+      const my = (touches[0].clientY + touches[1].clientY) / 2 - document.getElementById('mapContainer').getBoundingClientRect().top;
+      transform.x = mx - delta * (mx - transform.x);
+      transform.y = my - delta * (my - transform.y);
+      transform.scale *= delta;
+      clampTransform();
+      applyTransform();
+    }
+    lastTouches = touches;
+  }, { passive: false });
+
+  /* buttons */
+  document.getElementById('zoomIn').addEventListener('click', () => {
+    const container = document.getElementById('mapContainer');
+    const cx = container.clientWidth / 2, cy = container.clientHeight / 2;
+    const delta = 1.25;
+    transform.x = cx - delta * (cx - transform.x);
+    transform.y = cy - delta * (cy - transform.y);
+    transform.scale *= delta;
+    clampTransform();
+    applyTransform();
+  });
+  document.getElementById('zoomOut').addEventListener('click', () => {
+    const container = document.getElementById('mapContainer');
+    const cx = container.clientWidth / 2, cy = container.clientHeight / 2;
+    const delta = 0.8;
+    transform.x = cx - delta * (cx - transform.x);
+    transform.y = cy - delta * (cy - transform.y);
+    transform.scale *= delta;
+    clampTransform();
+    applyTransform();
+  });
+  document.getElementById('zoomReset').addEventListener('click', resetView);
+}
+
+function resetView() {
+  const container = document.getElementById('mapContainer');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const s = Math.min(cw / W, ch / H) * 0.9;
+  transform = { x: (cw - W*s)/2, y: (ch - H*s)/2, scale: s };
+  applyTransform();
+}
+
+function navigateTo(regionId) {
+  const r = REGIONS.find(x => x.id === regionId || x.filter === regionId);
+  if (!r) return;
+  const container = document.getElementById('mapContainer');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const pad = 60;
+  const sx = (cw - pad*2) / r.w;
+  const sy = (ch - pad*2) / r.h;
+  const s  = Math.min(sx, sy, 2);
+  transform.scale = s;
+  transform.x = pad - r.x * s;
+  transform.y = pad - r.y * s;
+  clampTransform();
+  applyTransform();
+}
+
+function focusNode(nodeId) {
+  const n = NODES.find(x => x.id === nodeId);
+  if (!n) return;
+  const container = document.getElementById('mapContainer');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const s = 1.8;
+  transform.scale = s;
+  transform.x = cw/2 - n.x * s;
+  transform.y = ch/2 - n.y * s;
+  applyTransform();
+}
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
+function initSearch() {
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    results.innerHTML = '';
+    if (!q) { results.classList.remove('open'); return; }
+    const matches = NODES.filter(n =>
+      n.label.toLowerCase().includes(q) ||
+      n.title.toLowerCase().includes(q) ||
+      n.description.toLowerCase().includes(q) ||
+      (n.forChildren && n.forChildren.toLowerCase().includes(q))
+    ).slice(0, 8);
+    if (!matches.length) { results.classList.remove('open'); return; }
+    matches.forEach(n => {
+      const item = document.createElement('div');
+      item.className = 'sri';
+      item.setAttribute('role', 'option');
+      item.innerHTML = `<div class="sri-top">
+        <span class="sri-name">${escHtml(n.label)}</span>
+        <span class="sri-tag">${escHtml(n.filter)}</span>
+      </div>
+      <div class="sri-desc">${escHtml(n.title)}</div>`;
+      item.addEventListener('click', () => {
+        results.classList.remove('open');
+        input.value = '';
+        focusNode(n.id);
+        setTimeout(() => openPanel(n), 400);
+      });
+      results.appendChild(item);
+    });
+    results.classList.add('open');
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) results.classList.remove('open');
+  });
+}
+
+/* =====================================================
+   FILTERS
+   ===================================================== */
+function initFilters() {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderMap();
+    });
+  });
+}
+
+/* =====================================================
+   ROUTES
+   ===================================================== */
+const ROUTES = {
+  docs:       () => navigateTo('docs'),
+  code:       () => navigateTo('frontend'),
+  config:     () => navigateTo('config'),
+  start:      () => { focusNode('ai-read-first'); setTimeout(() => openPanel(NODES[0]), 500); },
+  contribute: () => { focusNode('workflows'); setTimeout(() => openPanel(NODES.find(n=>n.id==='workflows')), 500); }
+};
+
+function initRoutes() {
+  document.querySelectorAll('.route-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fn = ROUTES[btn.dataset.route];
+      if (fn) fn();
+    });
+  });
+}
+
+/* =====================================================
+   TOOLTIP
+   ===================================================== */
+function showTooltip(node, e) {
+  const tt = document.getElementById('mapTooltip');
+  document.getElementById('ttName').textContent = node.label;
+  document.getElementById('ttDesc').textContent = node.title;
+  tt.classList.add('show');
+  positionTooltip(e);
+}
+
+function hideTooltip() {
+  document.getElementById('mapTooltip').classList.remove('show');
+}
+
+function positionTooltip(e) {
+  const tt  = document.getElementById('mapTooltip');
+  const cnt = document.getElementById('mapContainer').getBoundingClientRect();
+  let x = e.clientX - cnt.left + 14;
+  let y = e.clientY - cnt.top  - 20;
+  const tw = tt.offsetWidth || 200;
+  const th = tt.offsetHeight || 80;
+  if (x + tw > cnt.width  - 10) x = e.clientX - cnt.left - tw - 14;
+  if (y + th > cnt.height - 10) y = e.clientY - cnt.top  - th - 10;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
+}
+
+/* =====================================================
+   INFO PANEL
+   ===================================================== */
+function openPanel(node) {
+  activeNode = node;
+  document.getElementById('ipBadge').textContent    = node.badge || node.filter.toUpperCase();
+  document.getElementById('ipTitle').textContent    = node.title;
+  document.getElementById('ipPath').textContent     = node.label;
+  document.getElementById('ipDesc').textContent     = node.description;
+  document.getElementById('ipChildren').textContent = node.forChildren;
+  document.getElementById('ipLink').href            = node.url;
+
+  const rolesDiv = document.getElementById('ipRoles');
+  rolesDiv.innerHTML = '';
+  (node.roles || []).forEach(r => {
+    const chip = document.createElement('span');
+    chip.className = 'role-chip';
+    chip.textContent = r;
+    rolesDiv.appendChild(chip);
+  });
+
+  document.getElementById('infoPanel').classList.add('open');
+  document.getElementById('infoPanel').setAttribute('aria-hidden','false');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closePanel() {
+  document.getElementById('infoPanel').classList.remove('open');
+  document.getElementById('infoPanel').setAttribute('aria-hidden','true');
+  document.getElementById('overlay').classList.remove('show');
+  activeNode = null;
+}
+
+/* =====================================================
+   ROLES SECTION
+   ===================================================== */
+function renderRoles() {
+  const grid = document.getElementById('rolesGrid');
+  ROLES.forEach(role => {
+    const card = document.createElement('div');
+    card.className = 'role-card';
+    const fileItems = role.files.map(f =>
+      `<li onclick="navigateToFile('${escAttr(f)}')">${escHtml(f)}</li>`
+    ).join('');
+    card.innerHTML = `
+      <span class="rc-icon" aria-hidden="true">${role.icon}</span>
+      <div class="rc-title">${escHtml(role.title)}</div>
+      <div class="rc-sub">${escHtml(role.subtitle)}</div>
+      <div class="rc-story">"${escHtml(role.story)}"</div>
+      <div>${escHtml(role.desc)}</div>
+      <div style="margin-top:14px">
+        <div class="rc-files-label">Archivos clave</div>
+        <ul class="rc-files">${fileItems}</ul>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function navigateToFile(path) {
+  const node = NODES.find(n => n.label === path || n.label.includes(path.split('/')[0]));
+  if (node) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => { focusNode(node.id); openPanel(node); }, 500);
+  }
+}
+
+/* =====================================================
+   FUNCTIONS SECTION
+   ===================================================== */
+function renderFunctions() {
+  const grid = document.getElementById('funcsGrid');
+  FUNCTIONS.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'func-card';
+    card.innerHTML = `
+      <div class="fc-cat">${escHtml(f.cat)}</div>
+      <div class="fc-path">${escHtml(f.path)}</div>
+      <div class="fc-story">"${escHtml(f.story)}"</div>`;
+    const node = NODES.find(n => n.label === f.path || n.label.startsWith(f.path));
+    if (node) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { focusNode(node.id); openPanel(node); }, 600);
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+/* =====================================================
+   UTILS
+   ===================================================== */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/'/g,"\\'");
+}
+
+/* =====================================================
+   INIT
+   ===================================================== */
+(function init() {
+  renderMap();
+  renderLegend();
+  renderRoles();
+  renderFunctions();
+  initZoomPan();
+  initSearch();
+  initFilters();
+  initRoutes();
+
+  /* close panel */
+  document.getElementById('closePanel').addEventListener('click', closePanel);
+  document.getElementById('overlay').addEventListener('click', closePanel);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+  /* keyboard zoom */
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === '=' || e.key === '+') document.getElementById('zoomIn').click();
+    if (e.key === '-' || e.key === '_') document.getElementById('zoomOut').click();
+    if (e.key === '0') resetView();
+  });
+
+  /* re-center on resize */
+  window.addEventListener('resize', resetView);
+})();
+</script>
+</body>
+</html>
