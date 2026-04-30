@@ -795,18 +795,22 @@ async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
 
     if still_failed > 0:
         try:
-            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
-            sa_email = (superadmin or {}).get("email")
+            from models import User as PGUser
+            async with AsyncSessionLocal() as notify_session:
+                superadmin = await notify_session.scalar(
+                    sa_select(PGUser).where(PGUser.role == "super_admin")
+                )
+            sa_email = superadmin.email if superadmin else None
             if sa_email:
                 send_email(
                     to=sa_email,
-                    subject=f"Retry transfers: {success}/{retried} exitosas, {still_failed} aun fallidas",
+                    subject=f"Retry transfers: {success}/{retried} exitosas, {still_failed} aún fallidas",
                     html=f"""
-                    <p>Reintento automatico de transferencias fallidas completado:</p>
+                    <p>Reintento automático de transferencias fallidas completado:</p>
                     <ul>
                         <li>Reintentadas: {retried}</li>
                         <li>Exitosas: {success}</li>
-                        <li>Aun fallidas: {still_failed}</li>
+                        <li>Aún fallidas: {still_failed}</li>
                     </ul>
                     <p><a href="/admin/payouts?status=transfer_failed">Ver pendientes</a></p>
                     """,

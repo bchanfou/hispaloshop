@@ -218,7 +218,7 @@ async def _notify_admin_transfer_failed(db: AsyncSession, payout: Payout, error:
         <p><strong>Influencer:</strong> {inf_name}</p>
         <p><strong>Monto:</strong> {payout.amount_cents / 100:.2f} {payout.currency or 'EUR'}</p>
         <p><strong>Error:</strong> {str(error)[:200]}</p>
-        <p><strong>Accion requerida:</strong> Revisar en dashboard admin y reintentar manualmente o contactar a Stripe support.</p>
+        <p><strong>Acción requerida:</strong> Revisar en dashboard admin y reintentar manualmente o contactar a Stripe support.</p>
         <p><a href="/admin/payouts?status=transfer_failed">Ver payouts fallidos</a></p>
         """
 
