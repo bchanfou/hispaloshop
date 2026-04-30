@@ -12,4 +12,7 @@
 - Business: no pricing/commission changes without updating business docs.
 
 ## Output expectation
+- [ ] Leer `docs/ai/00_AI_MAP.md` antes de cualquier cambio.
+- [ ] Verificar que no se introducen dependencias de OpenAI.
+- [ ] Confirmar que la UI sigue las reglas de diseño (`DESIGN_SYSTEM.md`).
 - When in doubt, ask the owner for confirmation before implementing.

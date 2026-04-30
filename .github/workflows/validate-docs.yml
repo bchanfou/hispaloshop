@@ -1,0 +1,120 @@
+name: Validate Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-docs:
+    name: Docs · validate structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 1. Validate mandatory documentation files exist
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Check mandatory documentation files
+        run: |
+          MISSING=0
+          REQUIRED_FILES=(
+            "docs/ai/00_AI_MAP.md"
+            "docs/ai/01_DNA.md"
+            "docs/ai/03_BUSINESS_MODEL.md"
+            "docs/ai/READING_ORDER.md"
+            "AI_READ_FIRST.md"
+            ".claude/README.md"
+          )
+
+          for FILE in "${REQUIRED_FILES[@]}"; do
+            if [ -f "$FILE" ]; then
+              echo "  [OK] $FILE"
+            else
+              echo "  [MISSING] $FILE"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          if [ "$MISSING" -gt 0 ]; then
+            echo ""
+            echo "ERROR: $MISSING required documentation file(s) are missing."
+            exit 1
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 2. Check README.md links to AI_READ_FIRST.md
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Check README.md links to AI_READ_FIRST.md
+        run: |
+          if grep -q "AI_READ_FIRST" README.md; then
+            echo "  [OK] README.md references AI_READ_FIRST.md"
+          else
+            echo "  [WARN] README.md does not link to AI_READ_FIRST.md"
+            echo "         Consider adding a reference so contributors see it first."
+            exit 1
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 3. Validate .claude/README.md contains checklist items
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Check .claude/README.md contains checklist items
+        run: |
+          if grep -qE "^\s*-\s+\[.?\]" .claude/README.md; then
+            COUNT=$(grep -cE "^\s*-\s+\[.?\]" .claude/README.md)
+            echo "  [OK] .claude/README.md contains $COUNT checklist item(s)"
+          else
+            echo "  [FAIL] .claude/README.md has no checklist items (- [ ] or - [x])"
+            exit 1
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 4. Scan critical docs for TODO and WIP markers
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Scan critical docs for TODO / WIP markers
+        run: |
+          CRITICAL_DOCS=(
+            "docs/ai/00_AI_MAP.md"
+            "docs/ai/01_DNA.md"
+            "docs/ai/03_BUSINESS_MODEL.md"
+            "docs/ai/READING_ORDER.md"
+            "AI_READ_FIRST.md"
+          )
+
+          FOUND=0
+          for FILE in "${CRITICAL_DOCS[@]}"; do
+            HITS=$(grep -nE "\b(TODO|WIP)\b" "$FILE" 2>/dev/null || true)
+            if [ -n "$HITS" ]; then
+              echo "  [WARN] $FILE contains TODO/WIP markers:"
+              echo "$HITS" | sed 's/^/         /'
+              FOUND=$((FOUND + 1))
+            fi
+          done
+
+          if [ "$FOUND" -gt 0 ]; then
+            echo ""
+            echo "WARNING: $FOUND critical doc file(s) contain TODO/WIP markers."
+            echo "         Please resolve them before merging."
+            exit 1
+          else
+            echo "  [OK] No TODO/WIP markers found in critical docs"
+          fi
+
+      # ─────────────────────────────────────────────────────────────────────
+      # 5. Validation summary
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Validation summary
+        if: always()
+        run: |
+          echo "## Documentation Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Files |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Mandatory files | docs/ai/00_AI_MAP.md, docs/ai/01_DNA.md, docs/ai/03_BUSINESS_MODEL.md, docs/ai/READING_ORDER.md, AI_READ_FIRST.md, .claude/README.md |" >> $GITHUB_STEP_SUMMARY
+          echo "| README link check | README.md → AI_READ_FIRST.md |" >> $GITHUB_STEP_SUMMARY
+          echo "| Checklist check | .claude/README.md |" >> $GITHUB_STEP_SUMMARY
+          echo "| TODO/WIP scan | All critical docs |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

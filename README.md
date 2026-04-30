@@ -28,6 +28,8 @@ Instrucciones sobre pruebas.
 
 Detalles sobre la documentación.
 
+> **Agentes e IA:** lee [`AI_READ_FIRST.md`](./AI_READ_FIRST.md) antes de realizar cualquier cambio.
+
 ## Variables de Entorno Críticas
 
 Variables necesarias para la configuración.
