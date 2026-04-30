@@ -11,13 +11,13 @@ Tests cover:
 import copy
 import pytest
 
-import config as cfg
 from config import (
     COMMISSION_RATES_DEFAULTS,
     INFLUENCER_TIER_RATES_DEFAULTS,
     INFLUENCER_TIER_CONFIG_DEFAULTS,
     INFLUENCER_TIER_CONFIG,  # backward-compat alias
     PLANS_CONFIG_DEFAULTS,
+    _plans_cache,
     get_plans_config,
     invalidate_plans_cache,
     normalize_influencer_tier,
@@ -131,11 +131,11 @@ async def test_get_plans_config_caches_result():
 # ── invalidate_plans_cache ────────────────────────────────────
 
 def test_invalidate_plans_cache_clears_data():
-    cfg._plans_cache["data"] = {"some": "data"}
-    cfg._plans_cache["fetched_at"] = "something"
+    _plans_cache["data"] = {"some": "data"}
+    _plans_cache["fetched_at"] = "something"
     invalidate_plans_cache()
-    assert cfg._plans_cache["data"] is None
-    assert cfg._plans_cache["fetched_at"] is None
+    assert _plans_cache["data"] is None
+    assert _plans_cache["fetched_at"] is None
 
 
 # ── get_plans_config with DB override ────────────────────────
@@ -240,3 +240,8 @@ def test_normalize_influencer_tier_by_commission_rate():
     assert normalize_influencer_tier(None, commission_rate=0.07) == "zeus"
     assert normalize_influencer_tier(None, commission_rate=0.08) == "zeus"
     assert normalize_influencer_tier(None, commission_rate=0.04) == "hercules"
+    # Exact boundary: 0.05 → atenea, 0.06 → atenea, just below 0.07 → atenea
+    assert normalize_influencer_tier(None, commission_rate=0.06) == "atenea"
+    assert normalize_influencer_tier(None, commission_rate=0.0699) == "atenea"
+    # Just below 0.05 → hercules
+    assert normalize_influencer_tier(None, commission_rate=0.0499) == "hercules"
