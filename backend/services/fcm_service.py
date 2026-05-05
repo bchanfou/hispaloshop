@@ -12,7 +12,7 @@ from core.config import settings
 logger = logging.getLogger(__name__)
 
 # Valid FCM token format: alphanumeric plus underscore, hyphen, colon
-_TOKEN_REGEX = re.compile(r"^[a-zA-Z0-9_:%-]+$")
+_TOKEN_REGEX = re.compile(r"^[a-zA-Z0-9_:-]+$")
 
 
 class FCMServiceV1:
