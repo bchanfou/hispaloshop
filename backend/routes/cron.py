@@ -85,9 +85,22 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
 async def cron_update_exchange_rates(user: User = Depends(get_current_user)):
     """Daily: fetch latest exchange rates from ECB and store in DB."""
     await require_role(user, ["admin", "super_admin"])
-    from services.exchange_rates import update_exchange_rates
-    doc = await update_exchange_rates()
-    return {"status": "updated", "date": doc["date"], "currencies": len(doc["rates"])}
+    from services.exchange_rates import update_exchange_rates, get_all_rates_to_usd
+    try:
+        doc = await update_exchange_rates()
+        return {
+            "updated": True,
+            "message": f"Updated {len(doc['rates'])} rates from ECB for {doc['date']}",
+            "rates": doc["rates"],
+        }
+    except Exception as exc:
+        logger.warning("[CRON] ECB fetch failed — keeping existing rates in DB: %s", exc)
+        fallback_rates = await get_all_rates_to_usd()
+        return {
+            "updated": False,
+            "message": "ECB fetch failed; serving last known rates",
+            "rates": fallback_rates,
+        }
 
 
 @router.post("/admin/cron/tier-recalculation")
