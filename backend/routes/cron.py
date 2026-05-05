@@ -182,6 +182,58 @@ async def cron_influencer_auto_payouts(user: User = Depends(get_current_user)):
     return {"status": "completed"}
 
 
+@router.post("/admin/cron/retry-failed-transfers")
+async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
+    """Daily: retry payouts stuck in transfer_failed status (one extra attempt each)."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from database import AsyncSessionLocal
+    from sqlalchemy import select as sa_select
+    from models import Payout
+    from services.affiliate_service import _attempt_stripe_transfer, _notify_admin_transfer_failed
+
+    retried = 0
+    still_failed: list[dict] = []
+
+    async with AsyncSessionLocal() as db_session:
+        result = await db_session.execute(
+            sa_select(Payout).where(Payout.status == "transfer_failed")
+        )
+        failed_payouts = result.scalars().all()
+
+        for payout in failed_payouts:
+            payout.status = "pending_transfer"
+            payout.failure_reason = None
+            payout.failed_at = None
+            await db_session.flush()
+
+            try:
+                transfer_id = await _attempt_stripe_transfer(payout)
+                now = datetime.now(timezone.utc)
+                payout.stripe_transfer_id = transfer_id
+                payout.status = "paid"
+                payout.processed_at = now
+                payout.paid_at = now
+                retried += 1
+                logger.info("Cron retry succeeded for payout %s", payout.id)
+            except Exception as e:
+                now = datetime.now(timezone.utc)
+                payout.status = "transfer_failed"
+                payout.failed_at = now
+                payout.failure_reason = str(e)[:500]
+                still_failed.append({"payout_id": str(payout.id)})
+                logger.error("Cron retry failed for payout %s: %s", payout.id, e)
+                await _notify_admin_transfer_failed(db_session, payout, e)
+
+        await db_session.commit()
+
+    return {
+        "retried_successfully": retried,
+        "still_failed": len(still_failed),
+        "failures": still_failed,
+    }
+
+
 # ── Hispalo Predict Notifications ──
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')

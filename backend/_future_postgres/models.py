@@ -634,6 +634,7 @@ class Payout(Base):
     influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
     amount_cents: Mapped[int] = mapped_column()
     currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    # Valid statuses: requested, pending_transfer, paid, transfer_failed, cancelled
     status: Mapped[str] = mapped_column(String(20), default="requested")
     method: Mapped[str] = mapped_column(String(20), default="stripe_transfer")
     stripe_transfer_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)

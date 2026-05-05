@@ -64,6 +64,48 @@ async def _get_scoped_seller_ids(user: User) -> List[str]:
 # ADMIN DASHBOARD ENDPOINTS
 # ============================================
 
+# Admin - Payout Transfer Audit
+
+@router.get("/admin/payouts/failed")
+async def get_failed_payouts(user: User = Depends(get_current_user)):
+    """List payouts in transfer_failed or pending_transfer states for manual review."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from database import AsyncSessionLocal
+    from sqlalchemy import select as sa_select
+    from models import Payout
+
+    async with AsyncSessionLocal() as db_session:
+        result = await db_session.execute(
+            sa_select(Payout).where(
+                Payout.status.in_(["transfer_failed", "pending_transfer"])
+            ).order_by(Payout.requested_at.desc())
+        )
+        payouts = result.scalars().all()
+
+    return {
+        "payouts": [
+            {
+                "id": str(p.id),
+                "influencer_id": str(p.influencer_id),
+                "amount_cents": p.amount_cents,
+                "currency": p.currency,
+                "status": p.status,
+                "method": p.method,
+                "stripe_transfer_id": p.stripe_transfer_id,
+                "requested_at": p.requested_at.isoformat() if p.requested_at else None,
+                "processed_at": p.processed_at.isoformat() if p.processed_at else None,
+                "failed_at": p.failed_at.isoformat() if p.failed_at else None,
+                "failure_reason": p.failure_reason,
+            }
+            for p in payouts
+        ],
+        "total": len(payouts),
+        "transfer_failed": sum(1 for p in payouts if p.status == "transfer_failed"),
+        "pending_transfer": sum(1 for p in payouts if p.status == "pending_transfer"),
+    }
+
+
 # Admin - Producer Management
 @router.get("/admin/producers")
 async def get_all_producers(user: User = Depends(get_current_user)):

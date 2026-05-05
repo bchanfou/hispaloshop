@@ -1,6 +1,7 @@
 """
 Influencer routes: Apply, dashboard, codes, commissions, analytics, Stripe, withdrawals.
 """
+import asyncio
 import uuid
 from decimal import Decimal
 import os
@@ -693,49 +694,79 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
     if available_balance < 1:  # Minimum €1 payout
         raise HTTPException(status_code=400, detail="Minimum payout amount is €1")
     
-    try:
-        # Create transfer to influencer's Stripe account
-        transfer = stripe.Transfer.create(
-            amount=int(round(available_balance * 100)),  # Convert to cents
-            currency=PAYOUT_CURRENCY,
-            destination=influencer["stripe_account_id"],
-            metadata={
-                "influencer_id": influencer_id,
-                "type": "influencer_commission_payout"
-            }
-        )
-        
-        # Update influencer balance
-        await db.influencers.update_one(
-            {"influencer_id": influencer_id},
-            {"$set": {
-                "available_balance": 0,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }}
-        )
-        
-        # Update all pending commissions to paid
-        await db.influencer_commissions.update_many(
-            {"influencer_id": influencer_id, "commission_status": "pending"},
-            {"$set": {
-                "commission_status": "paid",
-                "paid_at": datetime.now(timezone.utc).isoformat(),
-                "stripe_transfer_id": transfer.id
-            }}
-        )
-        
-        return {
-            "message": f"Payout of €{available_balance:.2f} processed successfully",
-            "transfer_id": transfer.id,
-            "amount": available_balance
-        }
-        
-    except stripe.error.StripeError as e:
-        logger.error(f"Stripe error processing payout: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to process payout: {str(e)}")
-    except Exception as e:
-        logger.error(f"Error processing payout: {e}")
-        raise HTTPException(status_code=500, detail="Failed to process payout")
+    amount_cents = int(round(available_balance * 100))
+    destination = influencer["stripe_account_id"]
+    backoff_seconds = [1, 4, 16]
+    max_retries = 3
+    last_error = None
+
+    for attempt in range(max_retries):
+        try:
+            transfer = stripe.Transfer.create(
+                amount=amount_cents,
+                currency=PAYOUT_CURRENCY,
+                destination=destination,
+                metadata={
+                    "influencer_id": influencer_id,
+                    "type": "influencer_commission_payout",
+                },
+            )
+            last_error = None
+            break
+        except stripe.error.StripeError as e:
+            last_error = e
+            logger.warning(
+                "Stripe transfer attempt %d/%d failed for influencer %s: %s",
+                attempt + 1, max_retries, influencer_id, e,
+            )
+            if attempt < max_retries - 1:
+                await asyncio.sleep(backoff_seconds[attempt])
+
+    if last_error:
+        logger.error("Stripe payout failed for influencer %s after %d retries: %s", influencer_id, max_retries, last_error)
+        # Notify super_admin via email
+        try:
+            from services.auth_helpers import send_email as _send_email
+            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
+            sa_email = (superadmin or {}).get("email")
+            if sa_email:
+                _send_email(
+                    to=sa_email,
+                    subject=f"[ALERTA] Pago Stripe fallido — influencer {influencer_id}",
+                    html=f"""
+                    <h2>Transferencia Stripe fallida tras {max_retries} intentos</h2>
+                    <p><strong>Influencer ID:</strong> {influencer_id}</p>
+                    <p><strong>Importe:</strong> {available_balance:.2f} {PAYOUT_CURRENCY.upper()}</p>
+                    <p>La transferencia no se ha realizado. Revisa el panel de administración.</p>
+                    """,
+                )
+        except Exception as notify_err:
+            logger.error("Failed to send admin notification for influencer payout %s: %s", influencer_id, notify_err)
+        raise HTTPException(status_code=500, detail=f"Failed to process payout after {max_retries} attempts")
+
+    # Transfer succeeded — update balance and commissions
+    await db.influencers.update_one(
+        {"influencer_id": influencer_id},
+        {"$set": {
+            "available_balance": 0,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    await db.influencer_commissions.update_many(
+        {"influencer_id": influencer_id, "commission_status": "pending"},
+        {"$set": {
+            "commission_status": "paid",
+            "paid_at": datetime.now(timezone.utc).isoformat(),
+            "stripe_transfer_id": transfer.id
+        }}
+    )
+    
+    return {
+        "message": f"Payout of €{available_balance:.2f} processed successfully",
+        "transfer_id": transfer.id,
+        "amount": available_balance
+    }
 
 # Influencer payout constants (centralized)
 MINIMUM_WITHDRAWAL_AMOUNT = 20  # minimum net amount for withdrawal

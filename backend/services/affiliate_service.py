@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 import logging
 from typing import Optional
@@ -237,18 +238,18 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
     if not payout:
         return False
 
-    # If already has a real Stripe transfer, mark paid directly
-    if payout.stripe_transfer_id and not payout.stripe_transfer_id.startswith("mock_"):
+    # If already transferred, just mark paid (idempotent re-processing)
+    if payout.stripe_transfer_id:
         payout.status = "paid"
         payout.processed_at = datetime.now(timezone.utc)
         payout.paid_at = datetime.now(timezone.utc)
     else:
-        # MARK AS pending_transfer AND FLUSH BEFORE RETRIES
+        # Mark as pending_transfer and flush before retries — no silent data gaps on interruption
         payout.status = "pending_transfer"
         payout.processed_at = datetime.now(timezone.utc)
         await db.flush()  # Persist state before Stripe attempts
 
-        # Attempt real Stripe transfer with retries
+        # Attempt real Stripe transfer with exponential backoff
         last_error = None
         for attempt in range(PAYOUT_MAX_RETRIES):
             try:
@@ -265,7 +266,6 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
                     attempt + 1, PAYOUT_MAX_RETRIES, payout_id, e,
                 )
                 if attempt < PAYOUT_MAX_RETRIES - 1:
-                    import asyncio
                     await asyncio.sleep(PAYOUT_BACKOFF_SECONDS[attempt])
 
         if last_error:
