@@ -183,30 +183,7 @@ async def recalculate_influencer_tier(db: AsyncSession, influencer_id: UUID) -> 
 
 
 PAYOUT_MAX_RETRIES = 3
-PAYOUT_BACKOFF_SECONDS = [1, 4, 16]  # seconds between attempts: 1s, 4s, 16s
-
-
-async def _notify_admin_transfer_failed(payout_id: UUID, error: Exception) -> None:
-    """Send email notification to super_admin when a payout transfer fails all retries."""
-    try:
-        from core.database import db as _db
-        from services.auth_helpers import send_email
-        superadmin = await _db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1, "name": 1})
-        sa_email = (superadmin or {}).get("email")
-        if sa_email:
-            send_email(
-                to=sa_email,
-                subject=f"[ALERTA] Transferencia Stripe fallida — payout {payout_id}",
-                html=f"""
-                <h2>Transferencia Stripe fallida tras {PAYOUT_MAX_RETRIES} intentos</h2>
-                <p><strong>Payout ID:</strong> {payout_id}</p>
-                <p><strong>Error:</strong> {error}</p>
-                <p>El pago ha quedado en estado <code>transfer_failed</code>.</p>
-                <p>Accede al panel de administración para gestionarlo manualmente.</p>
-                """,
-            )
-    except Exception as notify_err:
-        logger.error("Failed to send admin notification for payout %s: %s", payout_id, notify_err)
+PAYOUT_BACKOFF_SECONDS = [1, 4, 16]  # attempt 0→sleep 1s, 1→sleep 4s, 2→no sleep
 
 
 async def _attempt_stripe_transfer(payout) -> str:
@@ -222,6 +199,40 @@ async def _attempt_stripe_transfer(payout) -> str:
     return transfer.id
 
 
+async def _notify_admin_transfer_failed(db: AsyncSession, payout: Payout, error: Exception) -> None:
+    """Send email to super_admin when a payout transfer fails after all retries."""
+    try:
+        from services.auth_helpers import send_email
+
+        superadmin = await db.scalar(select(User).where(User.role == "super_admin"))
+        if not superadmin or not superadmin.email:
+            logger.warning("No super_admin email found for payout failure notification")
+            return
+
+        influencer = await db.get(User, payout.influencer_id)
+        inf_name = (influencer.full_name or influencer.email) if influencer else "Unknown"
+
+        email_subject = f"Transferencia Stripe fallida — {payout.id}"
+        email_body = f"""
+        <h2>Transferencia fallida despues de {PAYOUT_MAX_RETRIES} reintentos</h2>
+        <p><strong>Payout ID:</strong> {payout.id}</p>
+        <p><strong>Influencer:</strong> {inf_name}</p>
+        <p><strong>Monto:</strong> {payout.amount_cents / 100:.2f} {payout.currency or 'EUR'}</p>
+        <p><strong>Error:</strong> {str(error)[:200]}</p>
+        <p><strong>Accion requerida:</strong> Revisar en dashboard admin y reintentar manualmente o contactar a Stripe support.</p>
+        <p><a href="/admin/payouts?status=transfer_failed">Ver payouts fallidos</a></p>
+        """
+
+        send_email(
+            to=superadmin.email,
+            subject=email_subject,
+            html=email_body,
+        )
+        logger.info("Admin notification sent for failed payout %s", payout.id)
+    except Exception as notify_err:
+        logger.error("Failed to send admin notification for payout %s: %s", payout.id, notify_err)
+
+
 async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
     payout = await db.get(Payout, payout_id)
     if not payout:
@@ -233,9 +244,10 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
         payout.processed_at = datetime.now(timezone.utc)
         payout.paid_at = datetime.now(timezone.utc)
     else:
-        # Mark as in-progress before attempting — avoids silent data gaps on interruption
+        # Mark as pending_transfer and flush before retries — no silent data gaps on interruption
         payout.status = "pending_transfer"
-        await db.flush()
+        payout.processed_at = datetime.now(timezone.utc)
+        await db.flush()  # Persist state before Stripe attempts
 
         # Attempt real Stripe transfer with exponential backoff
         last_error = None
@@ -244,7 +256,6 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
                 transfer_id = await _attempt_stripe_transfer(payout)
                 payout.stripe_transfer_id = transfer_id
                 payout.status = "paid"
-                payout.processed_at = datetime.now(timezone.utc)
                 payout.paid_at = datetime.now(timezone.utc)
                 last_error = None
                 break
@@ -259,14 +270,13 @@ async def process_affiliate_payout(db: AsyncSession, payout_id: UUID) -> bool:
 
         if last_error:
             payout.status = "transfer_failed"
-            payout.processed_at = datetime.now(timezone.utc)
-            payout.failed_at = datetime.now(timezone.utc)
             payout.failure_reason = str(last_error)[:500]
+            payout.failed_at = datetime.now(timezone.utc)
             logger.error(
                 "Payout %s FAILED after %d retries: %s", payout_id, PAYOUT_MAX_RETRIES, last_error,
             )
+            await _notify_admin_transfer_failed(db, payout, last_error)
             await db.flush()
-            await _notify_admin_transfer_failed(payout_id, last_error)
             return False
 
     # Mark commissions as paid

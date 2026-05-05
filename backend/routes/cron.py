@@ -177,7 +177,7 @@ async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
     from database import AsyncSessionLocal
     from sqlalchemy import select as sa_select
     from models import Payout
-    from services.affiliate_service import _attempt_stripe_transfer
+    from services.affiliate_service import _attempt_stripe_transfer, _notify_admin_transfer_failed
 
     retried = 0
     still_failed: list[dict] = []
@@ -210,29 +210,9 @@ async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
                 payout.failure_reason = str(e)[:500]
                 still_failed.append({"payout_id": str(payout.id)})
                 logger.error("Cron retry failed for payout %s: %s", payout.id, e)
+                await _notify_admin_transfer_failed(db_session, payout, e)
 
         await db_session.commit()
-
-    if still_failed:
-        try:
-            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
-            sa_email = (superadmin or {}).get("email")
-            if sa_email:
-                rows = "".join(
-                    f"<li>Payout {p['payout_id']}</li>" for p in still_failed
-                )
-                send_email(
-                    to=sa_email,
-                    subject="[ALERTA] Transferencias Stripe siguen fallando tras reintento diario",
-                    html=f"""
-                    <h2>Transferencias pendientes tras reintento diario</h2>
-                    <p>Los siguientes pagos siguen en estado <code>transfer_failed</code>
-                    después del reintento automático. Requieren revisión manual.</p>
-                    <ul>{rows}</ul>
-                    """,
-                )
-        except Exception as notify_err:
-            logger.error("Failed to send cron retry admin alert: %s", notify_err)
 
     return {
         "retried_successfully": retried,
@@ -820,4 +800,163 @@ async def cron_cleanup_expired_stories(user: User = Depends(get_current_user)):
         "stories_deleted": stories_result.deleted_count,
         "likes_deleted": likes_result.deleted_count,
         "replies_deleted": replies_result.deleted_count,
+    }
+
+
+
+
+@router.post("/admin/cron/retry-failed-transfers")
+async def cron_retry_failed_transfers(user: User = Depends(get_current_user)):
+    """Daily: retry affiliate payout transfers that failed 3x, log results."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.affiliate_service import process_affiliate_payout
+    from database import AsyncSessionLocal
+    from models import Payout
+    from sqlalchemy import select as sa_select
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
+    retried = 0
+    success = 0
+    still_failed = 0
+
+    # Collect failed payout IDs in a read session
+    async with AsyncSessionLocal() as read_session:
+        result = await read_session.execute(
+            sa_select(Payout.id).where(
+                Payout.status == "transfer_failed",
+                Payout.failed_at >= cutoff,
+            )
+        )
+        failed_ids = [row[0] for row in result.fetchall()]
+
+    # Process each payout in its own session to isolate transactions
+    for payout_id in failed_ids:
+        async with AsyncSessionLocal() as session:
+            try:
+                ok = await process_affiliate_payout(session, payout_id)
+                await session.commit()
+                retried += 1
+                if ok:
+                    success += 1
+                else:
+                    still_failed += 1
+            except Exception as e:
+                await session.rollback()
+                logger.error("[CRON] Retry failed for payout %s: %s", payout_id, e)
+                still_failed += 1
+
+    if still_failed > 0:
+        try:
+            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
+            sa_email = (superadmin or {}).get("email")
+            if sa_email:
+                send_email(
+                    to=sa_email,
+                    subject=f"Retry transfers: {success}/{retried} exitosas, {still_failed} aun fallidas",
+                    html=f"""
+                    <p>Reintento automatico de transferencias fallidas completado:</p>
+                    <ul>
+                        <li>Reintentadas: {retried}</li>
+                        <li>Exitosas: {success}</li>
+                        <li>Aun fallidas: {still_failed}</li>
+                    </ul>
+                    <p><a href="/admin/payouts?status=transfer_failed">Ver pendientes</a></p>
+                    """,
+                )
+        except Exception as e:
+            logger.error("Failed to send retry summary email: %s", e)
+
+    return {"retried": retried, "success": success, "still_failed": still_failed}
+
+
+@router.post("/admin/cron/retry-failed-push-notifications")
+async def cron_retry_failed_push_notifications(user: User = Depends(get_current_user)):
+    """Daily: retry push notifications that failed in the last 7 days.
+    Attempts FCM HTTP v1 first, then legacy fallback. Logs which version succeeded."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.fcm_service import fcm_service_v1
+    from services.fcm_legacy import fcm_legacy_service
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+
+    failed = await db.notifications.find({
+        "status_by_channel.push": "failed",
+        "created_at": {"$gte": cutoff},
+    }).to_list(500)
+
+    retried = 0
+    success_v1 = 0
+    success_legacy = 0
+    still_failed = 0
+
+    for notif in failed:
+        user_id = notif.get("user_id")
+        title = notif.get("title", "")
+        body = notif.get("body", "")
+        data = notif.get("data", {})
+
+        prefs = await db.user_notification_preferences.find_one({"user_id": user_id})
+        tokens = (prefs or {}).get("push_tokens", [])
+
+        for token_data in tokens:
+            token = token_data.get("token")
+            if not token:
+                continue
+
+            retried += 1
+
+            # Try FCM HTTP v1
+            result_v1 = await fcm_service_v1.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+            )
+
+            if result_v1["success"]:
+                success_v1 += 1
+                await db.notifications.update_one(
+                    {"_id": notif["_id"]},
+                    {"$set": {
+                        "status_by_channel.push": "sent",
+                        "fcm_retry_version": "v1",
+                        "fcm_retry_at": datetime.now(timezone.utc),
+                    }},
+                )
+                continue
+
+            # v1 failed — try legacy
+            result_legacy = await fcm_legacy_service.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+            )
+
+            if result_legacy["success"]:
+                success_legacy += 1
+                await db.notifications.update_one(
+                    {"_id": notif["_id"]},
+                    {"$set": {
+                        "status_by_channel.push": "sent",
+                        "fcm_retry_version": "legacy",
+                        "fcm_retry_at": datetime.now(timezone.utc),
+                    }},
+                )
+            else:
+                still_failed += 1
+                logger.error(
+                    "[CRON] Push retry failed for notification %s: %s",
+                    notif["_id"],
+                    result_legacy.get("error"),
+                )
+
+    return {
+        "retried": retried,
+        "success_v1": success_v1,
+        "success_legacy": success_legacy,
+        "still_failed": still_failed,
     }

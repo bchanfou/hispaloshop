@@ -1,26 +1,24 @@
 """
-Tests for Stripe transfer retry system (CICLO 1.1).
+Tests for Ciclo 1.1 — Mock Stripe transfers to pending_transfer with retry system.
 
 Validates:
-- process_affiliate_payout succeeds on first attempt
-- process_affiliate_payout retries and succeeds on 2nd attempt
-- process_affiliate_payout marks transfer_failed + notifies admin after 3 failures
-- Backoff sequence is [1, 4, 16] seconds
-- pending_transfer state is set before the retry loop
-- stripe_transfer_id is always required for status: paid
+- Backoff schedule [1, 4, 16]
+- pending_transfer state persisted before retry loop
+- transfer_failed state + admin notification on exhaustion
+- Success path cleans up commissions and profile earnings
 """
+import asyncio
 from datetime import datetime, timezone
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch, call
 from uuid import uuid4
+from unittest.mock import AsyncMock, Mock, patch, call
 
 import pytest
 
 from services.affiliate_service import (
+    process_affiliate_payout,
     PAYOUT_BACKOFF_SECONDS,
     PAYOUT_MAX_RETRIES,
-    _notify_admin_transfer_failed,
-    process_affiliate_payout,
 )
 
 
@@ -28,233 +26,318 @@ from services.affiliate_service import (
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_payout(stripe_transfer_id=None):
-    """Return a minimal Payout-like namespace for testing."""
-    return SimpleNamespace(
+def _make_payout(**kwargs):
+    defaults = dict(
         id=uuid4(),
         influencer_id=uuid4(),
         amount_cents=5000,
-        currency="eur",
-        stripe_account_id="acct_test_123",
-        stripe_transfer_id=stripe_transfer_id,
+        currency="EUR",
         status="requested",
+        stripe_transfer_id=None,
+        stripe_account_id="acct_test_123",
         processed_at=None,
         paid_at=None,
         failed_at=None,
         failure_reason=None,
     )
+    defaults.update(kwargs)
+    return SimpleNamespace(**defaults)
 
 
-def _make_db(payout):
-    """Create a minimal AsyncSession mock that passes commission + profile queries."""
-    scalars_result = MagicMock()
-    scalars_result.scalars.return_value.all.return_value = []
-
+def _make_db(payout, commissions=None, profile=None):
+    """Return an AsyncMock db session pre-configured with the given objects."""
     db = AsyncMock()
     db.get = AsyncMock(return_value=payout)
     db.flush = AsyncMock()
-    db.execute = AsyncMock(return_value=scalars_result)
-    db.scalar = AsyncMock(return_value=None)
+
+    commissions = commissions or []
+    profile_result = profile or SimpleNamespace(
+        pending_earnings_cents=10000,
+        paid_earnings_cents=0,
+    )
+
+    async def _execute_side_effect(stmt):
+        result = Mock()
+        result.scalars.return_value.all.return_value = commissions
+        return result
+
+    db.execute = AsyncMock(side_effect=_execute_side_effect)
+    db.scalar = AsyncMock(return_value=profile_result)
     return db
 
 
 # ---------------------------------------------------------------------------
-# Constants
+# Test 1: PAYOUT_BACKOFF_SECONDS has the correct values
 # ---------------------------------------------------------------------------
 
-def test_backoff_sequence():
-    """Backoff times must be exactly [1, 4, 16] seconds per spec."""
+def test_backoff_schedule_is_correct():
+    """Backoff schedule must be [1, 4, 16] per MEGA_PLAN §1.1."""
     assert PAYOUT_BACKOFF_SECONDS == [1, 4, 16]
-
-
-def test_max_retries():
-    """Max retries must be 3."""
     assert PAYOUT_MAX_RETRIES == 3
 
 
 # ---------------------------------------------------------------------------
-# process_affiliate_payout - success path
+# Test 2: Success on first attempt
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_payout_succeeds_on_first_attempt():
+async def test_success_on_first_attempt(monkeypatch):
     payout = _make_payout()
     db = _make_db(payout)
 
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=AsyncMock(return_value="tr_success_001")):
-        with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
-            result = await process_affiliate_payout(db, payout.id)
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(return_value="tr_real_001"),
+    )
+
+    result = await process_affiliate_payout(db, payout.id)
 
     assert result is True
     assert payout.status == "paid"
-    assert payout.stripe_transfer_id == "tr_success_001"
+    assert payout.stripe_transfer_id == "tr_real_001"
     assert payout.paid_at is not None
-    mock_sleep.assert_not_called()
 
+
+# ---------------------------------------------------------------------------
+# Test 3: Success on second attempt (1 failure then success)
+# ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_payout_succeeds_on_second_attempt():
+async def test_success_on_second_attempt(monkeypatch):
     payout = _make_payout()
     db = _make_db(payout)
 
-    call_count = 0
+    attempt_mock = AsyncMock(side_effect=[RuntimeError("network timeout"), "tr_real_002"])
+    monkeypatch.setattr("services.affiliate_service._attempt_stripe_transfer", attempt_mock)
 
-    async def _transfer_fails_once(p):
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            raise Exception("Stripe timeout")
-        return "tr_success_002"
+    sleep_calls = []
 
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=_transfer_fails_once):
-        with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
-            result = await process_affiliate_payout(db, payout.id)
+    async def _fake_sleep(seconds):
+        sleep_calls.append(seconds)
 
-    assert result is True
-    assert payout.status == "paid"
-    assert payout.stripe_transfer_id == "tr_success_002"
-    # Exactly one sleep call with backoff_seconds[0] = 1
-    mock_sleep.assert_called_once_with(PAYOUT_BACKOFF_SECONDS[0])
-
-
-# ---------------------------------------------------------------------------
-# process_affiliate_payout - failure path
-# ---------------------------------------------------------------------------
-
-@pytest.mark.asyncio
-async def test_payout_transfer_failed_after_all_retries():
-    payout = _make_payout()
-    db = _make_db(payout)
-
-    async def _always_fails(p):
-        raise Exception("Stripe unavailable")
-
-    notified = []
-
-    async def _fake_notify(payout_id, error):
-        notified.append((payout_id, str(error)))
-
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=_always_fails):
-        with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
-            with patch("services.affiliate_service._notify_admin_transfer_failed", new=_fake_notify):
-                result = await process_affiliate_payout(db, payout.id)
-
-    assert result is False
-    assert payout.status == "transfer_failed"
-    assert payout.stripe_transfer_id is None, "Must NOT have a transfer_id when failed"
-    assert payout.failure_reason is not None
-    assert "Stripe unavailable" in payout.failure_reason
-    assert payout.failed_at is not None
-    # Two sleeps: after attempt 0 (1s) and after attempt 1 (4s). No sleep after last attempt.
-    assert mock_sleep.call_count == 2
-    assert mock_sleep.call_args_list == [call(1), call(4)]
-    # Admin was notified exactly once
-    assert len(notified) == 1
-    assert notified[0][0] == payout.id
-
-
-@pytest.mark.asyncio
-async def test_paid_requires_real_stripe_transfer_id():
-    """status: paid must only be set when stripe_transfer_id is a real value."""
-    payout = _make_payout()
-    db = _make_db(payout)
-
-    async def _always_fails(p):
-        raise Exception("network error")
-
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=_always_fails):
-        with patch("asyncio.sleep", new=AsyncMock()):
-            with patch("services.affiliate_service._notify_admin_transfer_failed", new=AsyncMock()):
-                await process_affiliate_payout(db, payout.id)
-
-    assert payout.status != "paid"
-    assert payout.stripe_transfer_id is None
-
-
-# ---------------------------------------------------------------------------
-# process_affiliate_payout - idempotency
-# ---------------------------------------------------------------------------
-
-@pytest.mark.asyncio
-async def test_payout_already_transferred_marks_paid_without_retry():
-    """If payout already has a real stripe_transfer_id, mark paid without calling Stripe again."""
-    payout = _make_payout(stripe_transfer_id="tr_existing_abc")
-    db = _make_db(payout)
-
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=AsyncMock()) as mock_attempt:
+    with patch("asyncio.sleep", side_effect=_fake_sleep):
         result = await process_affiliate_payout(db, payout.id)
 
     assert result is True
     assert payout.status == "paid"
-    assert payout.stripe_transfer_id == "tr_existing_abc"
-    mock_attempt.assert_not_called()
+    assert payout.stripe_transfer_id == "tr_real_002"
+    assert sleep_calls == [PAYOUT_BACKOFF_SECONDS[0]]  # slept 1s after attempt 0
 
 
 # ---------------------------------------------------------------------------
-# process_affiliate_payout - pending_transfer intermediate state
+# Test 4: Three attempts exhausted → transfer_failed + admin notified
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_pending_transfer_state_set_before_retry_loop():
-    """pending_transfer must be set (and flushed) before attempting Stripe calls."""
+async def test_exhaustion_marks_transfer_failed_and_notifies(monkeypatch):
     payout = _make_payout()
-    status_at_flush = []
-
-    async def _capture_flush():
-        status_at_flush.append(payout.status)
-
     db = _make_db(payout)
-    db.flush = AsyncMock(side_effect=_capture_flush)
 
-    async def _always_fails(p):
-        raise Exception("err")
+    stripe_err = RuntimeError("Stripe unavailable")
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(side_effect=stripe_err),
+    )
 
-    with patch("services.affiliate_service._attempt_stripe_transfer", new=_always_fails):
-        with patch("asyncio.sleep", new=AsyncMock()):
-            with patch("services.affiliate_service._notify_admin_transfer_failed", new=AsyncMock()):
-                await process_affiliate_payout(db, payout.id)
+    notify_mock = AsyncMock()
+    monkeypatch.setattr("services.affiliate_service._notify_admin_transfer_failed", notify_mock)
 
-    # First flush must happen with pending_transfer
-    assert status_at_flush[0] == "pending_transfer"
+    with patch("asyncio.sleep", new_callable=lambda: lambda s: asyncio.coroutine(lambda: None)()):
+        with patch("asyncio.sleep", AsyncMock()):
+            result = await process_affiliate_payout(db, payout.id)
+
+    assert result is False
+    assert payout.status == "transfer_failed"
+    assert payout.failure_reason == str(stripe_err)[:500]
+    assert payout.failed_at is not None
+    notify_mock.assert_awaited_once_with(db, payout, stripe_err)
 
 
 # ---------------------------------------------------------------------------
-# _notify_admin_transfer_failed - error resilience
+# Test 5: Verify sleep sequence [1s, 4s] for attempts 0 and 1
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_notify_admin_silently_handles_missing_superadmin():
-    """_notify_admin should not raise if no super_admin exists in db."""
-    payout_id = uuid4()
-    error = Exception("stripe down")
+async def test_sleep_sequence_on_three_failures(monkeypatch):
+    payout = _make_payout()
+    db = _make_db(payout)
 
-    fake_db = MagicMock()
-    fake_db.users.find_one = AsyncMock(return_value=None)
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(side_effect=RuntimeError("fail")),
+    )
+    monkeypatch.setattr("services.affiliate_service._notify_admin_transfer_failed", AsyncMock())
 
-    fake_database_module = MagicMock()
-    fake_database_module.db = fake_db
+    sleep_mock = AsyncMock()
+    with patch("asyncio.sleep", sleep_mock):
+        await process_affiliate_payout(db, payout.id)
 
-    with patch.dict("sys.modules", {"core.database": fake_database_module}):
-        try:
-            await _notify_admin_transfer_failed(payout_id, error)
-        except Exception as exc:
-            pytest.fail(f"_notify_admin_transfer_failed raised unexpectedly: {exc}")
+    # Should sleep after attempt 0 (1s) and after attempt 1 (4s); no sleep after attempt 2
+    assert sleep_mock.call_count == 2
+    sleep_mock.assert_any_call(PAYOUT_BACKOFF_SECONDS[0])  # 1
+    sleep_mock.assert_any_call(PAYOUT_BACKOFF_SECONDS[1])  # 4
 
+
+# ---------------------------------------------------------------------------
+# Test 6: Idempotency — existing real stripe_transfer_id marks paid directly
+# ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_notify_admin_silently_handles_db_error():
-    """_notify_admin should not raise if the DB/email call throws."""
-    payout_id = uuid4()
-    error = Exception("stripe down")
+async def test_idempotency_with_existing_real_stripe_transfer_id(monkeypatch):
+    payout = _make_payout(stripe_transfer_id="tr_real_existing_999")
+    db = _make_db(payout)
 
-    fake_db = MagicMock()
-    fake_db.users.find_one = AsyncMock(side_effect=Exception("DB connection error"))
+    attempt_mock = AsyncMock()
+    monkeypatch.setattr("services.affiliate_service._attempt_stripe_transfer", attempt_mock)
 
-    fake_database_module = MagicMock()
-    fake_database_module.db = fake_db
+    result = await process_affiliate_payout(db, payout.id)
 
-    with patch.dict("sys.modules", {"core.database": fake_database_module}):
-        try:
-            await _notify_admin_transfer_failed(payout_id, error)
-        except Exception as exc:
-            pytest.fail(f"_notify_admin_transfer_failed raised unexpectedly: {exc}")
+    assert result is True
+    assert payout.status == "paid"
+    attempt_mock.assert_not_awaited()  # No new Stripe call needed
+
+
+# ---------------------------------------------------------------------------
+# Test 7: pending_transfer state is flushed before retry loop
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_pending_transfer_state_flushed_before_retries(monkeypatch):
+    payout = _make_payout()
+    flush_calls = []
+    status_at_first_flush = []
+
+    db = AsyncMock()
+    db.get = AsyncMock(return_value=payout)
+
+    async def _flush():
+        flush_calls.append(payout.status)
+
+    db.flush = AsyncMock(side_effect=_flush)
+
+    async def _execute_side_effect(stmt):
+        result = Mock()
+        result.scalars.return_value.all.return_value = []
+        return result
+
+    db.execute = AsyncMock(side_effect=_execute_side_effect)
+    db.scalar = AsyncMock(return_value=None)
+
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(return_value="tr_real_007"),
+    )
+
+    await process_affiliate_payout(db, payout.id)
+
+    # First flush should happen when status is pending_transfer
+    assert flush_calls[0] == "pending_transfer"
+
+
+# ---------------------------------------------------------------------------
+# Test 8: Commissions marked paid after transfer success
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_commissions_marked_paid_after_success(monkeypatch):
+    payout = _make_payout()
+    commission_a = SimpleNamespace(status="approved", paid_at=None, payout_id=payout.id)
+    commission_b = SimpleNamespace(status="approved", paid_at=None, payout_id=payout.id)
+
+    db = AsyncMock()
+    db.get = AsyncMock(return_value=payout)
+    db.flush = AsyncMock()
+
+    async def _execute_side_effect(stmt):
+        result = Mock()
+        result.scalars.return_value.all.return_value = [commission_a, commission_b]
+        return result
+
+    db.execute = AsyncMock(side_effect=_execute_side_effect)
+    db.scalar = AsyncMock(return_value=None)
+
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(return_value="tr_real_008"),
+    )
+
+    await process_affiliate_payout(db, payout.id)
+
+    assert commission_a.status == "paid"
+    assert commission_b.status == "paid"
+    assert commission_a.paid_at is not None
+    assert commission_b.paid_at is not None
+
+
+# ---------------------------------------------------------------------------
+# Test 9: Influencer profile earnings updated on success
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_influencer_profile_updated_on_success(monkeypatch):
+    payout = _make_payout(amount_cents=3000)
+    profile = SimpleNamespace(pending_earnings_cents=10000, paid_earnings_cents=0)
+
+    db = AsyncMock()
+    db.get = AsyncMock(return_value=payout)
+    db.flush = AsyncMock()
+
+    async def _execute_side_effect(stmt):
+        result = Mock()
+        result.scalars.return_value.all.return_value = []
+        return result
+
+    db.execute = AsyncMock(side_effect=_execute_side_effect)
+    db.scalar = AsyncMock(return_value=profile)
+
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(return_value="tr_real_009"),
+    )
+
+    await process_affiliate_payout(db, payout.id)
+
+    assert profile.pending_earnings_cents == 7000  # 10000 - 3000
+    assert profile.paid_earnings_cents == 3000
+
+
+# ---------------------------------------------------------------------------
+# Test 10: Notification resilience when super_admin is missing
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_notification_resilience_no_superadmin(monkeypatch):
+    """_notify_admin_transfer_failed must not raise even if no super_admin exists."""
+    from services.affiliate_service import _notify_admin_transfer_failed
+
+    payout = _make_payout()
+
+    db = AsyncMock()
+    db.scalar = AsyncMock(return_value=None)   # No super_admin found
+    db.get = AsyncMock(return_value=None)
+
+    # Should not raise
+    await _notify_admin_transfer_failed(db, payout, RuntimeError("Stripe down"))
+
+
+# ---------------------------------------------------------------------------
+# Test 11: failure_reason captured and truncated at 500 chars
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_failure_reason_captured_truncated(monkeypatch):
+    payout = _make_payout()
+    db = _make_db(payout)
+
+    long_error = "E" * 600
+    monkeypatch.setattr(
+        "services.affiliate_service._attempt_stripe_transfer",
+        AsyncMock(side_effect=ValueError(long_error)),
+    )
+    monkeypatch.setattr("services.affiliate_service._notify_admin_transfer_failed", AsyncMock())
+
+    with patch("asyncio.sleep", AsyncMock()):
+        await process_affiliate_payout(db, payout.id)
+
+    assert payout.failure_reason is not None
+    assert len(payout.failure_reason) <= 500

@@ -724,10 +724,22 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
 
     if last_error:
         logger.error("Stripe payout failed for influencer %s after %d retries: %s", influencer_id, max_retries, last_error)
-        # Notify super_admin — reuse the shared helper from affiliate_service
+        # Notify super_admin via email
         try:
-            from services.affiliate_service import _notify_admin_transfer_failed
-            await _notify_admin_transfer_failed(influencer_id, last_error)
+            from services.auth_helpers import send_email as _send_email
+            superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1})
+            sa_email = (superadmin or {}).get("email")
+            if sa_email:
+                _send_email(
+                    to=sa_email,
+                    subject=f"[ALERTA] Pago Stripe fallido — influencer {influencer_id}",
+                    html=f"""
+                    <h2>Transferencia Stripe fallida tras {max_retries} intentos</h2>
+                    <p><strong>Influencer ID:</strong> {influencer_id}</p>
+                    <p><strong>Importe:</strong> {available_balance:.2f} {PAYOUT_CURRENCY.upper()}</p>
+                    <p>La transferencia no se ha realizado. Revisa el panel de administración.</p>
+                    """,
+                )
         except Exception as notify_err:
             logger.error("Failed to send admin notification for influencer payout %s: %s", influencer_id, notify_err)
         raise HTTPException(status_code=500, detail=f"Failed to process payout after {max_retries} attempts")
