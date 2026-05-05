@@ -2,31 +2,20 @@ from datetime import datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional
 
+from config import (
+    COMMISSION_RATES_DEFAULTS,
+    INFLUENCER_TIER_RATES_DEFAULTS,
+    INFLUENCER_TIER_ALIASES as _TIER_ALIASES,
+    _plans_cache as _config_plans_cache,
+)
 
 _CENTS_PRECISION = Decimal("0.01")
 
-COMMISSION_RATES = {
-    "FREE": Decimal("0.20"),
-    "PRO": Decimal("0.18"),
-    "ELITE": Decimal("0.17"),
-}
-
-INFLUENCER_TIER_RATES = {
-    "hercules": Decimal("0.03"),
-    "atenea": Decimal("0.05"),
-    "zeus": Decimal("0.07"),
-}
-
-INFLUENCER_TIER_ALIASES = {
-    "perseo": "hercules",
-    "aquiles": "hercules",
-    "artemisa": "atenea",
-    "apolo": "zeus",
-    "titan": "zeus",
-    "atenea": "atenea",
-    "hercules": "hercules",
-    "zeus": "zeus",
-}
+# Backward-compatibility aliases used within this module and by callers that
+# import these names directly from core.monetization.
+COMMISSION_RATES = COMMISSION_RATES_DEFAULTS
+INFLUENCER_TIER_RATES = INFLUENCER_TIER_RATES_DEFAULTS
+INFLUENCER_TIER_ALIASES = _TIER_ALIASES
 
 
 def _quantize(amount: Decimal) -> Decimal:
@@ -60,15 +49,15 @@ def cents_to_float(total_cents: int) -> float:
 
 
 def _get_commission_rate(plan: str) -> Decimal:
-    """Read commission rate from subscriptions cache, fall back to hardcoded."""
+    """Read commission rate from unified plans cache, fall back to hardcoded defaults."""
     try:
-        from services.subscriptions import _plans_cache
-        db_plans = _plans_cache.get("data") or {}
-        if plan in db_plans:
-            return Decimal(str(db_plans[plan].get("commission_rate", 0.20)))
+        data = _config_plans_cache.get("data") or {}
+        seller_plans = data.get("seller_plans", {})
+        if plan in seller_plans:
+            return Decimal(str(seller_plans[plan].get("commission_rate", 0.20)))
     except Exception:
         pass
-    return COMMISSION_RATES.get(plan, COMMISSION_RATES["FREE"])
+    return COMMISSION_RATES_DEFAULTS.get(plan, COMMISSION_RATES_DEFAULTS["FREE"])
 
 
 FIRST_PURCHASE_DISCOUNT_PCT = Decimal("0.10")  # 10% discount for first purchase via influencer

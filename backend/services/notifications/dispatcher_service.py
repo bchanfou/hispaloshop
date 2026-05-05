@@ -2,13 +2,18 @@
 Servicio de Notificaciones Omnicanal
 Fase 5: Email, Push, In-App, SMS con routing inteligente
 """
-from datetime import datetime, timezone
+import logging
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
 
 from core.database import db
 from core.cache import redis_client
+from services.fcm_service import fcm_service_v1
+from services.fcm_legacy import fcm_legacy_service
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationChannel:
@@ -175,22 +180,66 @@ class NotificationDispatcher:
                 })
         # Si offline, queda en DB para fetch posterior
     
-    # ── FCM push helpers ──
-    # Lazy singletons — created once per dispatcher instance
-    _fcm_v1: Optional[Any] = None
-    _fcm_legacy: Optional[Any] = None
+    # ── FCM HTTP v1 auth ──
+    _fcm_access_token: Optional[str] = None
+    _fcm_token_expires_at: Optional[datetime] = None
 
-    def _get_fcm_v1(self):
-        if self._fcm_v1 is None:
-            from services.fcm_service import FCMServiceV1
-            self._fcm_v1 = FCMServiceV1()
-        return self._fcm_v1
+    async def _get_fcm_access_token(self) -> str:
+        """Get OAuth2 access token for FCM HTTP v1 API using service account."""
+        now = datetime.now(timezone.utc)
+        if self._fcm_access_token and self._fcm_token_expires_at and now < self._fcm_token_expires_at:
+            return self._fcm_access_token
 
-    def _get_fcm_legacy(self):
-        if self._fcm_legacy is None:
-            from services.fcm_legacy import FCMLegacyService
-            self._fcm_legacy = FCMLegacyService()
-        return self._fcm_legacy
+        import json
+        from core.config import settings
+
+        sa_json = getattr(settings, "FCM_SERVICE_ACCOUNT_JSON", None)
+        if not sa_json:
+            raise Exception("FCM_SERVICE_ACCOUNT_JSON not configured")
+
+        sa_info = json.loads(sa_json) if isinstance(sa_json, str) else sa_json
+
+        try:
+            from google.oauth2 import service_account
+            from google.auth.transport.requests import Request
+
+            credentials = service_account.Credentials.from_service_account_info(
+                sa_info,
+                scopes=["https://www.googleapis.com/auth/firebase.messaging"],
+            )
+            credentials.refresh(Request())
+            self._fcm_access_token = credentials.token
+            self._fcm_token_expires_at = credentials.expiry.replace(tzinfo=timezone.utc) if credentials.expiry else now + timedelta(minutes=55)
+        except ImportError:
+            # Fallback: manual JWT generation if google-auth not installed
+            import jwt as pyjwt
+            import time
+
+            iat = int(time.time())
+            exp = iat + 3600
+            payload = {
+                "iss": sa_info["client_email"],
+                "sub": sa_info["client_email"],
+                "aud": "https://oauth2.googleapis.com/token",
+                "iat": iat,
+                "exp": exp,
+                "scope": "https://www.googleapis.com/auth/firebase.messaging",
+            }
+            signed_jwt = pyjwt.encode(payload, sa_info["private_key"], algorithm="RS256")
+
+            import httpx
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    "https://oauth2.googleapis.com/token",
+                    data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": signed_jwt},
+                )
+                resp.raise_for_status()
+                token_data = resp.json()
+
+            self._fcm_access_token = token_data["access_token"]
+            self._fcm_token_expires_at = now + timedelta(seconds=token_data.get("expires_in", 3500))
+
+        return self._fcm_access_token
 
     async def _send_push(
         self,
@@ -201,11 +250,8 @@ class NotificationDispatcher:
         prefs: Dict
     ):
         """
-        Enviar notificación push via FCM HTTP v1 API con fallback a legacy.
+        Send push notification via FCM HTTP v1, with automatic fallback to legacy API.
         """
-        import logging as _logging
-        _logger = _logging.getLogger(__name__)
-
         if self._is_quiet_hours(prefs):
             raise Exception("Quiet hours active — push notification deferred")
 
@@ -213,69 +259,56 @@ class NotificationDispatcher:
         if not tokens:
             raise Exception("No push tokens registered")
 
-        image_url = (data or {}).get("image_url")
-        last_exc: Optional[Exception] = None
+        is_high_priority = data and data.get("priority") in ["urgent", "critical"]
+        priority = "HIGH" if is_high_priority else "NORMAL"
+        icon_url = (data or {}).get("image_url")
 
-        for token_entry in tokens:
-            token = token_entry.get("token") if isinstance(token_entry, dict) else token_entry
+        last_error: Optional[str] = None
+
+        for token_data in tokens:
+            token = token_data.get("token")
             if not token:
                 continue
 
-            # Try FCM HTTP v1 first
-            try:
-                await self._get_fcm_v1().send_notification(
-                    token=token,
-                    title=title,
-                    body=body,
-                    data=data,
-                    icon_url=image_url,
-                )
-                _logger.info(
-                    "[FCM] Sent via v1 API for user_id=%s token_prefix=%s",
-                    user_id,
-                    token[:8],
-                )
-                continue
-            except ValueError:
-                # Invalid token format — skip without fallback, no point trying legacy
-                _logger.warning(
-                    "[FCM] Skipping invalid token for user_id=%s token_prefix=%s",
-                    user_id,
-                    token[:8],
-                )
-                continue
-            except Exception as exc_v1:
-                _logger.warning(
-                    "[FCM] v1 failed for user_id=%s, falling back to legacy: %s",
-                    user_id,
-                    exc_v1,
-                )
+            # Attempt FCM HTTP v1 first
+            result_v1 = await fcm_service_v1.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+                icon_url=icon_url,
+                priority=priority,
+            )
 
-            # Fallback to legacy API
-            try:
-                await self._get_fcm_legacy().send_notification(
-                    token=token,
-                    title=title,
-                    body=body,
-                    data=data,
-                    icon_url=image_url,
-                )
-                _logger.info(
-                    "[FCM] Sent via legacy API (fallback) for user_id=%s token_prefix=%s",
-                    user_id,
-                    token[:8],
-                )
-            except Exception as exc_legacy:
-                _logger.error(
-                    "[FCM] Both v1 and legacy failed for user_id=%s token_prefix=%s: %s",
-                    user_id,
-                    token[:8],
-                    exc_legacy,
-                )
-                last_exc = exc_legacy
+            if result_v1["success"]:
+                continue
 
-        if last_exc:
-            raise last_exc
+            # v1 failed — attempt legacy fallback
+            logger.warning(
+                "[FCM] v1 failed (%s), attempting legacy for %s...",
+                result_v1.get("error"),
+                token[:20],
+            )
+            result_legacy = await fcm_legacy_service.send_notification(
+                token=token,
+                title=title,
+                body=body,
+                data=data,
+                icon_url=icon_url,
+            )
+
+            if result_legacy["success"]:
+                logger.info("[FCM] Fallback to legacy succeeded for %s...", token[:20])
+                continue
+
+            # Both v1 and legacy failed
+            last_error = result_legacy.get("error")
+            logger.error(
+                "[FCM] Both v1 and legacy failed for %s...: %s",
+                token[:20],
+                last_error,
+            )
+            raise Exception(f"FCM push failed (v1+legacy): {last_error}")
     
     async def _send_email(
         self,

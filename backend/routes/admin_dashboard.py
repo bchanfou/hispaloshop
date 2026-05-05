@@ -4,6 +4,7 @@ order management, payments, analytics, super admin stats, geo, market coverage.
 Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request
+from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -18,6 +19,7 @@ from core.auth import get_current_user, require_role, require_super_admin
 from services.auth_helpers import send_email
 from services.audit_logger import log_admin_action
 from routes.notifications import create_notification
+from config import get_plans_config as _get_plans_config, invalidate_plans_cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -924,7 +926,8 @@ async def update_plans_config(request: Request, user: User = Depends(get_current
 
     await db.plans_config.update_one({"_id": "current"}, {"$set": update}, upsert=True)
 
-    # Invalidate subscriptions cache so changes take effect immediately
+    # Invalidate both caches so changes take effect immediately
+    invalidate_plans_cache()
     try:
         from services.subscriptions import _plans_cache
         _plans_cache["data"] = seller_plans
@@ -943,7 +946,98 @@ async def update_plans_config(request: Request, user: User = Depends(get_current
     return {"success": True, "updated_at": now_iso}
 
 
-@router.get("/superadmin/search")
+# ── Admin Config Plans (new canonical endpoints) ──────────────
+
+class PlansConfigUpdate(BaseModel):
+    seller_plans: Optional[Dict[str, Dict]] = None
+    influencer_tiers: Optional[Dict[str, Dict]] = None
+    first_purchase_discount_pct: Optional[int] = None
+    attribution_months: Optional[int] = None
+
+
+@router.get("/admin/config/plans")
+async def get_admin_plans_config(user: User = Depends(get_current_user)):
+    """Get current plans configuration (admin view, always fresh). AUTH: admin+"""
+    await require_role(user, ["admin", "super_admin"])
+    return await _get_plans_config(db=db, fresh=True)
+
+
+@router.post("/admin/config/plans")
+async def update_admin_plans_config(
+    update: PlansConfigUpdate,
+    user: User = Depends(get_current_user),
+):
+    """
+    Update commission plans, influencer tiers, and platform config.
+    Changes take effect immediately (cache invalidated).
+    AUTH: super_admin only.
+    """
+    await require_role(user, ["super_admin"])
+
+    current = await _get_plans_config(db=db, fresh=True)
+
+    if update.seller_plans is not None:
+        for plan_name, plan_data in update.seller_plans.items():
+            if plan_name not in ("FREE", "PRO", "ELITE"):
+                raise HTTPException(status_code=400, detail=f"Invalid plan: {plan_name}")
+            if plan_name in current["seller_plans"]:
+                current["seller_plans"][plan_name].update(plan_data)
+
+    if update.influencer_tiers is not None:
+        for tier_name, tier_data in update.influencer_tiers.items():
+            if tier_name not in ("hercules", "atenea", "zeus"):
+                raise HTTPException(status_code=400, detail=f"Invalid tier: {tier_name}")
+            if tier_name in current["influencer_tiers"]:
+                current["influencer_tiers"][tier_name].update(tier_data)
+
+    if update.first_purchase_discount_pct is not None:
+        current["first_purchase_discount_pct"] = update.first_purchase_discount_pct
+
+    if update.attribution_months is not None:
+        current["attribution_months"] = update.attribution_months
+
+    # Validate commission rates
+    for plan_name, plan_data in current["seller_plans"].items():
+        rate = plan_data.get("commission_rate")
+        if not isinstance(rate, (int, float)) or not (0 < rate <= 1):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid commission_rate for {plan_name}: {rate}",
+            )
+
+    for tier_name, tier_data in current["influencer_tiers"].items():
+        rate = tier_data.get("commission_rate")
+        if not isinstance(rate, (int, float)) or not (0 < rate <= 1):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid commission_rate for tier {tier_name}: {rate}",
+            )
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {**current, "updated_at": now_iso, "updated_by": user.user_id}
+
+    await db.plans_config.update_one(
+        {"_id": "current"},
+        {"$set": doc},
+        upsert=True,
+    )
+
+    # Invalidate unified cache so changes take effect immediately
+    invalidate_plans_cache()
+
+    await db.audit_log.insert_one({
+        "action": "admin_plans_config_updated",
+        "user_id": user.user_id,
+        "changes": doc,
+        "created_at": now_iso,
+    })
+
+    logger.info("[ADMIN] Plans config updated by %s", user.user_id)
+
+    return {"message": "Plans configuration updated", "config": current}
+
+
+
 async def global_search(q: str, user: User = Depends(get_current_user)):
     """SuperAdmin: global search across users, products, orders, posts."""
     await require_role(user, ["admin", "super_admin"])

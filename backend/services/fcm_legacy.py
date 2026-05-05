@@ -1,87 +1,84 @@
-"""
-FCM Legacy Service — fallback while migrating to HTTP v1.
-
-This module provides a thin wrapper around the old FCM Legacy API
-(https://fcm.googleapis.com/fcm/send) using FCM_SERVER_KEY.
-
-TEMPORAL: This fallback will be removed once the v1 migration stabilises
-(target: 1–2 months after FCM_SERVICE_ACCOUNT_JSON is confirmed working
-in production).
-"""
+"""FCM Legacy API Service — Temporary fallback during HTTP v1 migration"""
 import logging
-import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import httpx
 
-logger = logging.getLogger(__name__)
+from core.config import settings
 
-FCM_LEGACY_URL = "https://fcm.googleapis.com/fcm/send"
+logger = logging.getLogger(__name__)
 
 
 class FCMLegacyService:
-    """
-    Firebase Cloud Messaging Legacy API (deprecated by Google).
-    Used ONLY as a fallback when FCMServiceV1 fails.
-    Auth: FCM_SERVER_KEY env var.
-    """
-
-    def _get_server_key(self) -> str:
-        key = os.environ.get("FCM_SERVER_KEY")
-        if not key:
-            try:
-                from core.config import settings
-
-                key = getattr(settings, "FCM_SERVER_KEY", None)
-            except Exception:
-                pass
-        if not key:
-            raise RuntimeError(
-                "FCM_SERVER_KEY not configured. "
-                "Provide the legacy server key to enable the legacy FCM fallback."
-            )
-        return key
+    """Firebase Cloud Messaging Legacy API client (deprecated, fallback only)."""
 
     async def send_notification(
         self,
         token: str,
         title: str,
         body: str,
-        data: Optional[Dict] = None,
+        data: Optional[Dict[str, str]] = None,
         icon_url: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """
-        Send a push notification via the legacy FCM API endpoint.
-        Raises RuntimeError on HTTP errors.
+        Send notification via FCM Legacy API.
+        Returns: {"success": bool, "message_id": str} or {"success": False, "error": str}
         """
-        server_key = self._get_server_key()
-
-        notification: Dict = {"title": title, "body": body}
-        if icon_url:
-            notification["icon"] = icon_url
-
-        payload: dict = {"to": token, "notification": notification}
-        if data:
-            payload["data"] = data
+        server_key = getattr(settings, "FCM_SERVER_KEY", None)
+        if not server_key:
+            return {"success": False, "error": "FCM_SERVER_KEY not configured"}
 
         headers = {
             "Authorization": f"key={server_key}",
             "Content-Type": "application/json",
         }
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(
-                FCM_LEGACY_URL, headers=headers, json=payload
-            )
+        payload: Dict[str, Any] = {
+            "to": token,
+            "notification": {
+                "title": title,
+                "body": body,
+            },
+            "data": data or {},
+        }
 
-        if response.status_code not in (200, 201):
-            raise RuntimeError(
-                f"FCM legacy error {response.status_code}: {response.text}"
-            )
+        if icon_url:
+            payload["notification"]["image"] = icon_url
 
-        result = response.json()
-        logger.info(
-            "[FCM-legacy] Notification sent via legacy API",
-            extra={"token_prefix": token[:8] if token else "", "title": title},
-        )
-        return result
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                response = await client.post(
+                    "https://fcm.googleapis.com/fcm/send",
+                    headers=headers,
+                    json=payload,
+                )
+
+            if response.status_code == 200:
+                result = response.json()
+                success_count = result.get("success", 0)
+                results_list = result.get("results", [{}])
+                first_result = results_list[0] if results_list else {}
+
+                if success_count > 0:
+                    message_id = first_result.get("message_id", "unknown")
+                    logger.info("[FCM Legacy] Sent to %s... -> %s", token[:20], message_id)
+                    return {"success": True, "message_id": message_id}
+
+                error = first_result.get("error", "Unknown error")
+                logger.warning("[FCM Legacy] Failed: %s", error)
+                return {"success": False, "error": error}
+
+            error_text = response.text[:200]
+            logger.warning("[FCM Legacy] HTTP %s: %s", response.status_code, error_text)
+            return {"success": False, "error": f"HTTP {response.status_code}"}
+
+        except httpx.TimeoutException:
+            logger.warning("[FCM Legacy] Timeout for token %s...", token[:20])
+            return {"success": False, "error": "Legacy FCM timeout", "is_timeout": True}
+        except Exception as exc:
+            logger.error("[FCM Legacy] Unexpected error: %s", exc)
+            return {"success": False, "error": f"Unexpected error: {exc}"}
+
+
+# Singleton instance
+fcm_legacy_service = FCMLegacyService()
