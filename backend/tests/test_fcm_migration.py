@@ -486,3 +486,40 @@ async def test_dispatcher_send_push_multiple_tokens():
 
     assert mock_v1.await_count == 3
     mock_legacy_svc.send_notification.assert_not_awaited()
+
+
+# ---------------------------------------------------------------------------
+# Test 18: FCMServiceV1 — token with colon accepted (real FCM token format)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_fcm_v1_token_with_colon_accepted():
+    """Real Firebase tokens contain colons (e.g. dxyz:APA91bH...). Verify they
+    are NOT rejected by the token format validation."""
+    from services.fcm_service import FCMServiceV1
+
+    svc = FCMServiceV1()
+
+    fake_response = MagicMock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {"name": "projects/test/messages/msg_colon"}
+
+    with patch.object(svc, "_get_access_token", AsyncMock(return_value="tok_test")):
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client.__aexit__ = AsyncMock(return_value=False)
+            mock_client.post = AsyncMock(return_value=fake_response)
+            mock_client_cls.return_value = mock_client
+
+            with patch("services.fcm_service.settings") as mock_settings:
+                mock_settings.FCM_SERVICE_ACCOUNT_JSON = '{"project_id": "proj-test", "type": "service_account"}'
+
+                result = await svc.send_notification(
+                    token="dxyz:APA91bH-valid_token-0123456789",
+                    title="Test colon token",
+                    body="Body",
+                )
+
+    assert result["success"] is True, f"Token with colon should be accepted, got: {result}"
+    assert result["message_id"] == "projects/test/messages/msg_colon"

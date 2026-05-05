@@ -847,9 +847,10 @@ async def cron_retry_failed_push_notifications(user: User = Depends(get_current_
         prefs = await db.user_notification_preferences.find_one({"user_id": user_id})
         tokens = (prefs or {}).get("push_tokens", [])
 
+        notif_id = notif["_id"]
         for token_data in tokens:
-            token = token_data.get("token")
-            if not token:
+            token = token_data.get("token") if isinstance(token_data, dict) else token_data
+            if not token or not isinstance(token, str):
                 continue
 
             retried += 1
@@ -864,15 +865,16 @@ async def cron_retry_failed_push_notifications(user: User = Depends(get_current_
 
             if result_v1["success"]:
                 success_v1 += 1
+                logger.info("[CRON] Notification %s — FCM v1 SUCCESS", notif_id)
                 await db.notifications.update_one(
-                    {"_id": notif["_id"]},
+                    {"_id": notif_id},
                     {"$set": {
                         "status_by_channel.push": "sent",
                         "fcm_retry_version": "v1",
                         "fcm_retry_at": datetime.now(timezone.utc),
                     }},
                 )
-                continue
+                break  # ✅ Stop trying other tokens once one succeeds
 
             # v1 failed — try legacy
             result_legacy = await fcm_legacy_service.send_notification(
@@ -884,19 +886,22 @@ async def cron_retry_failed_push_notifications(user: User = Depends(get_current_
 
             if result_legacy["success"]:
                 success_legacy += 1
+                logger.info("[CRON] Notification %s — FCM LEGACY SUCCESS (fallback)", notif_id)
                 await db.notifications.update_one(
-                    {"_id": notif["_id"]},
+                    {"_id": notif_id},
                     {"$set": {
                         "status_by_channel.push": "sent",
                         "fcm_retry_version": "legacy",
                         "fcm_retry_at": datetime.now(timezone.utc),
                     }},
                 )
+                break  # ✅ Stop trying other tokens once one succeeds
             else:
                 still_failed += 1
-                logger.error(
-                    "[CRON] Push retry failed for notification %s: %s",
-                    notif["_id"],
+                logger.warning(
+                    "[CRON] Notification %s — BOTH v1 AND LEGACY FAILED (v1: %s, legacy: %s)",
+                    notif_id,
+                    result_v1.get("error"),
                     result_legacy.get("error"),
                 )
 
